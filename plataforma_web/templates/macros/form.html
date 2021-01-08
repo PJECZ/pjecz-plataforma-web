@@ -1,0 +1,94 @@
+{%- macro page_breadcrumb(titulo) -%}
+    <div class="page-breadcrumb">
+        <div class="row">
+            <div class="col-12 d-flex no-block align-items-center">
+                <h4 class="page-title">{{ titulo }}</h4>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro card() -%}
+    <div class="card">
+        <div class="card-body">
+            {{ caller () }}
+        </div>
+    </div>
+{%- endmacro -%}
+
+{# botón submit #}
+{%- macro submit_button(f, etiqueta) -%}
+    <button type="submit" class="btn btn-primary">{{ etiqueta }}</button>
+{%- endmacro -%}
+
+{# etiqueta con texto de ayuda #}
+{%- macro field_label(f) -%}
+    <label for="{{ f.id }}">
+    {%- if f.flags.required -%}
+        <strong>{{ f.label.text }}</strong>
+    {%- else %}
+        {{ f.label.text }}
+    {%- endif %}
+    </label>
+{%- endmacro -%}
+
+{# errores de validación si los hay #}
+{%- macro field_errors(f) -%}
+    {% if f.errors %}
+        <ul class="list-unstyled text-danger field-error">
+            {% for error in f.errors %}
+                <li>{{ error | e }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{%- endmacro -%}
+
+{# un campo del formulario #}
+{%- macro field(f, css_class='form-control') -%}
+    {% if f.type == 'HiddenField' %}
+        {{ f.description }}
+        {{ f(class=css_class, **kwargs) }}
+    {% else %}
+        {{ f(class=css_class, **kwargs) }}
+    {% endif %}
+{%- endmacro -%}
+
+{# un campo de opción múltiple #}
+{%- macro checkbox_field(f) -%}
+    {{ f(type='checkbox', **kwargs) }} {{ f.label }}
+{%- endmacro -%}
+
+{# un grupo de un formulario, con errores si los hay #}
+{%- macro form_group(f, css_class='') -%}
+    {% if f.errors %}
+        {% set css_class = css_class + ' has-error ' + kwargs.pop('class', '') %}
+    {% endif %}
+    {% if f.type == 'BooleanField' %}
+        <div class="checkbox {{ css_class }}">
+        {{ checkbox_field(f, **kwargs) }}
+    {% else %}
+        <div class="form-group {{ css_class }}">
+        {{ field_label(f) }}
+        {{ field(f, **kwargs) }}
+    {% endif %}
+    {{ field_errors(f) }}
+    {{ caller () }}
+    </div>
+{%- endmacro %}
+
+{# un formulario, que contiene un token CSRF y campos ocultos #}
+{%- macro form_tag(endpoint, fid='', css_class='', method='post') -%}
+    <form action="{{ url_for(endpoint, **kwargs) }}" method="{{ method }}" id="{{ fid }}" class="{{ css_class }}" role="form">
+        {{ form.hidden_tag() }}
+        {{ caller () }}
+    </form>
+{%- endmacro -%}
+
+{# un formulario, que contiene un token CSRF y campos ocultos #}
+{%- macro form_tag_multipart(endpoint, fid='', css_class='', method='post') -%}
+    <form action="{{ url_for(endpoint, **kwargs) }}" method="{{ method }}" id="{{ fid }}" class="{{ css_class }}" role="form" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ caller () }}
+    </form>
+{%- endmacro -%}
+

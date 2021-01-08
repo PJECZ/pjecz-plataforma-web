@@ -1,0 +1,44 @@
+{% extends 'layouts/app.html' %}
+{% import 'macros/list.html' as list with context %}
+
+{% block title %}Usuarios{% endblock %}
+
+{% block topbar_actions %}
+    {% if current_user.can_insert('usuarios') %}
+        {% call list.topbar_actions() %}
+            {{ list.topbar_actions_option('Nuevo Usuario', url_for('usuarios.new')) }}
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {{ list.page_breadcrumb('Usuarios') }}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="usuarios_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>e-mail</th>
+                        <th>Rol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.rol.nombre }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#usuarios_datatable').DataTable();
+    </script>
+{% endblock %}

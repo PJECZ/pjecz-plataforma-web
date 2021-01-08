@@ -1,0 +1,183 @@
+{
+	"Flask views blueprint":{
+		"scope": "python",
+		"prefix": "fviewsblueprint",
+		"body": "${1:blueprint} = Blueprint('${1:blueprint}', __name__, template_folder='templates')",
+		"description": "Blueprint"
+	},
+	"Flask views list_active":{
+		"scope": "python",
+		"prefix": "fviewslistactive",
+		"body": [
+			"@${1:blueprint}.route('/${2:route}')",
+			"def list_active():",
+			"\t\"\"\" Listado de ${3:description} \"\"\"",
+			"\t${4:query} = ${5:Class}.query.filter(${5:Class}.estatus == 'A').all()",
+			"\treturn render_template('${1:blueprint}/list.html', ${4:query}=${4:query})",
+			"",
+			""
+		],
+		"description": "Listado de registros activos"
+	},
+	"Flask views detail":{
+		"scope": "python",
+		"prefix": "fviewsdetail",
+		"body": [
+			"@${1:blueprint}.route('/${2:route}/<int:${3:column_id}>')",
+			"def detail(${3:column_id}):",
+			"\t\"\"\" Detalle de un ${4:description} \"\"\"",
+			"\t${5:query} = ${6:Class}.query.get_or_404(${3:column_id})",
+			"\treturn render_template('${1:blueprint}/detail.html', ${5:query}=${5:query})",
+			"",
+			""
+		],
+		"description": "Detalle de un registro"
+	},
+	"Flask views new":{
+		"scope": "python",
+		"prefix": "fviewsnew",
+		"body": [
+			"@${1:blueprint}.route('/${2:route}/nuevo', methods=['GET', 'POST'])",
+			"@permission_required(Permiso.CREAR_XXXXXXXX)",
+			"def new():",
+    		"\t\"\"\" Nuevo ${3:description} \"\"\"",
+    		"\tform = ${4:ClassForm}()",
+    		"\tif form.validate_on_submit():",
+        	"\t\t${5:instance} = ${6:Class}(nombre=form.nombre.data)",
+        	"\t\t${5:instance}.save()",
+        	"\t\tflash(f'${3:description} {${5:instance}.nombre} guardado.', 'success')",
+        	"\t\treturn redirect(url_for('${1:blueprint}.list_active'))",
+    		"\treturn render_template('${1:blueprint}/new.html', form=form)",
+			"",
+			""
+		],
+		"description": "Nuevo registro"
+	},
+	"Flask views edit":{
+		"scope": "python",
+		"prefix": "fviewsedit",
+		"body": [
+			"@${1:blueprint}.route('/${2:route}/edicion/<int:${3:column_id}>', methods=['GET', 'POST'])",
+			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
+			"def edit(${3:column_id}):",
+		    "\t\"\"\" Editar ${4:description} \"\"\"",
+			"\t${5:instance} = ${6:Class}.query.get_or_404(${3:column_id})",
+    		"\tform = ${7:ClassForm}()",
+    		"\tif form.validate_on_submit():",
+        	"\t\t${5:instance}.nombre = form.nombre.data",
+        	"\t\t${5:instance}.save()",
+        	"\t\tflash(f'${4:description} {${5:instance}.nombre} guardado.', 'success')",
+        	"\t\treturn redirect(url_for('${1:blueprint}.detail', ${3:column_id}=${5:instance}.id))",
+    		"\tform.nombre.data = ${5:instance}.nombre",
+    		"\treturn render_template('${1:blueprint}/edit.html', form=form, ${5:instance}=${5:instance})",
+			"",
+			""
+		],
+		"description": "Editar registro"
+	},
+	"Flask views delete":{
+		"scope": "python",
+		"prefix": "fviewsdelete",
+		"body": [
+			"@${1:blueprint}.route('/${2:route}/eliminar/<int:${3:column_id}>')",
+			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
+			"def delete(${3:column_id}):",
+			"\t\"\"\" Eliminar ${4:description} \"\"\"",
+			"\t${5:instance} = ${6:Class}.query.get_or_404(${3:column_id})",
+			"\tif ${5:instance}.estatus == 'A':",
+			"\t\t${5:instance}.delete()",
+			"\t\tflash(f'${4:description} {${5:instance}.nombre} eliminado.', 'success')",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${3:column_id}=${3:column_id}))",
+			"",
+			""
+		],
+		"description": "Borrar registro"
+	},
+	"Flask views recover":{
+		"scope": "python",
+		"prefix": "fviewsrecover",
+		"body": [
+			"@${1:blueprint}.route('/${2:route}/recuperar/<int:${3:column_id}>')",
+			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
+			"def recover(${3:column_id}):",
+			"\t\"\"\" Recuperar ${4:description} \"\"\"",
+			"\t${5:instance} = ${6:Class}.query.get_or_404(${3:column_id})",
+			"\tif ${5:instance}.estatus == 'B':",
+			"\t\t${5:instance}.recover()",
+			"\t\tflash(f'${4:description} {${5:instance}.nombre} recuperado.', 'success')",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${3:column_id}=${3:column_id}))",
+			"",
+			""
+		],
+		"description": "Recuperar registro"
+	},
+	"Flask models top":{
+		"scope": "python",
+		"prefix": "fmodelstop",
+		"body": [
+			"from ${1:flask}.extensions import db",
+			"from lib.universal_mixin import UniversalMixin"
+		],
+		"description": "Cargar paquetes"
+	},
+	"Flask models model":{
+		"scope": "python",
+		"prefix": "fmodelsmodel",
+		"body": [
+			"class ${1:Class}(db.Model, UniversalMixin):",
+			"\t\"\"\" ${1:Class} \"\"\"",
+			"",
+			"\t# Nombre de la tabla",
+			"\t__tablename__ = '${2:table}'",
+			"",
+			"\t# Clave primaria",
+			"\tid = db.Column(db.Integer, primary_key=True)",
+			"",
+			"\t# Columnas",
+			"\tnombre = db.Column(db.String(256), unique=True, nullable=False)",
+			"\tdescripcion = db.Column(db.String(256), nullable=False)",
+			"",
+			"\t# Hijos",
+			"\t# hijo = db.relationship('Hijo', backref='${3:column_foreing_key}')",
+			"",
+			"\tdef __repr__(self):",
+			"\t\t\"\"\" Representación \"\"\"",
+			"\t\treturn f'<${1:Class} {self.nombre}>'",
+			""
+		],
+		"description": "Modelo"
+	},
+	"Flask models foreign key": {
+		"scope": "python",
+		"prefix": "fmodelsforeignkey",
+		"body": [
+			"# Clave foránea",
+			"${1:column}_id = db.Column(",
+			"\t'${1:column}',",
+			"\tdb.Integer,",
+			"\tdb.ForeignKey('${2:table}.id'),",
+			"\tindex=True,",
+			"\tnullable=False",
+			")"
+		],
+		"description": "Clave foránea"
+	},
+	"Flask models child": {
+		"scope": "python",
+		"prefix": "fmodelschild",
+		"body": "${1:plural} = db.relationship('${2:Name}', backref='${3:column}')",
+		"description": "Hijo"
+	},
+	"Flask forms form":{
+		"scope": "python",
+		"prefix": "fformsform",
+		"body": [
+			"class ${1:ClassForm}(FlaskForm):",
+			"\t\"\"\" Formulario ${2:description} \"\"\"",
+			"\tnombre = StringField('Nombre', validators=[DataRequired(), Length(max=256)])",
+			"\tguardar = SubmitField('Guardar')",
+			""
+		],
+		"description": "Formulario"
+	}
+}

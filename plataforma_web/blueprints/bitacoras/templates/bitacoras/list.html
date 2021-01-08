@@ -1,0 +1,36 @@
+{% extends 'layouts/app.html' %}
+{% import 'macros/list.html' as list with context %}
+
+{% block title %}Bitácoras{% endblock %}
+
+{% block content %}
+    {{ list.page_breadcrumb('Bitácoras') }}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="bitacoras_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Tiempo</th>
+                        <th>Usuario</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bitacora in bitacoras %}
+                    <tr>
+                        <td>{{ bitacora.creado }}</td>
+                        <td>{{ bitacora.usuario.nombre }}</td>
+                        <td>{{ bitacora.descripcion }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#bitacoras_datatable').DataTable();
+    </script>
+{% endblock %}

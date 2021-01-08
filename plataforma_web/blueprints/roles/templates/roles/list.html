@@ -1,0 +1,32 @@
+{% extends 'layouts/app.html' %}
+{% import 'macros/list.html' as list with context %}
+
+{% block title %}Roles{% endblock %}
+
+{% block content %}
+    {{ list.page_breadcrumb('Roles') }}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="roles_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Rol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rol in roles %}
+                    <tr>
+                        <td><a href="{{ url_for('roles.detail', rol_id=rol.id) }}">{{ rol.nombre }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#roles_datatable').DataTable();
+    </script>
+{% endblock %}

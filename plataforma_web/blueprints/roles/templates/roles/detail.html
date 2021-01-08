@@ -1,0 +1,39 @@
+{% extends 'layouts/app.html' %}
+{% import 'macros/detail.html' as detail with context %}
+
+{% block title %}Rol{% endblock %}
+
+{% block content %}
+    {{ detail.page_breadcrumb('Rol') }}
+    <div class="container-fluid">
+        {% call detail.card() %}
+            {{ detail.label_value_big('Rol', rol.nombre) }}
+        {% endcall %}
+        {% if usuarios %}
+            {% call detail.card('Usuarios') %}
+            <table id="usuarios_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>e-mail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios: %}
+                    <tr>
+                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
+                        <td>{{ usuario.email }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endcall %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#usuarios_datatable').DataTable({ "searching": false, "info":false, "paging": false });
+    </script>
+{% endblock %}

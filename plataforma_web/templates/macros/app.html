@@ -1,0 +1,18 @@
+{%- macro sidebar_nav_option(label, url, icon='mdi mdi-label-outline') -%}
+    <li class="sidebar-item">
+        <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{ url }}" aria-expanded="false">
+            <i class="{{ icon }}"></i><span class="hide-menu"> {{ label }}</span>
+        </a>
+    </li>
+{%- endmacro -%}
+
+{%- macro sidebar_nav_submenu(label, icon='mdi mdi-label-outline') -%}
+    <li class="sidebar-item">
+        <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
+            <i class="{{ icon }}"></i><span class="hide-menu"> {{ label }}</span>
+        </a>
+        <ul aria-expanded="false" class="collapse  first-level">
+            {{ caller () }}
+        </ul>
+    </li>
+{%- endmacro -%}

@@ -1,0 +1,103 @@
+{%- macro page_breadcrumb(titulo) -%}
+    <div class="page-breadcrumb">
+        <div class="row">
+            <div class="col-12 d-flex no-block align-items-center">
+                <h4 class="page-title">{{ titulo }}</h4>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro topbar_actions() -%}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="d-none d-md-block">Acciones <i class="fa fa-angle-down"></i></span>
+            <span class="d-block d-md-none"><i class="fa fa-plus"></i></span>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {{ caller () }}
+        </div>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_actions_option(label, url) -%}
+    <a class="dropdown-item" href="{{ url }}">{{ label }}</a>
+{%- endmacro -%}
+
+{%- macro card(title='', estatus='') -%}
+    {% if estatus == 'B' %}
+    <div class="card text-white bg-dark">
+    {% else %}
+    <div class="card">
+    {% endif %}
+        <div class="card-body">
+            {% if title %}<h5 class="card-title">{{ title }}</h5>{% endif %}
+            {{ caller () }}
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro label_value(label, value, link='') -%}
+    <div class="row">
+        <div class="col-md-3 text-right">
+            {{ label }}
+        </div>
+        <div class="col-md-9">
+            {% if link %}
+            <strong><a href="{{ link }}">{{ value }}</a></strong>
+            {% else %}
+            <strong>{{ value }}</strong>
+            {% endif %}
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro label_value_big(label, value, link='') -%}
+    <div class="row">
+        <div class="col-md-3 text-right">
+            <!-- No se muestra el label -->
+        </div>
+        <div class="col-md-9">
+            {% if link %}
+            <h3><a href="{{ link }}">{{ value }}</a></h3>
+            {% else %}
+            <h3>{{ value }}</h3>
+            {% endif %}
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro button_for_modal(label, id) -%}
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{ id }}">
+        {{ label }}
+    </button>
+{%- endmacro -%}
+
+{%- macro modal(title, message, id, url) -%}
+    <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ id }}Label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="{{ id }}Label">{{ title }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{ message }}
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-secondary" href="#" data-dismiss="modal">Cancelar</a>
+                    <a class="btn btn-primary" href="{{ url }}">{{ title }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro custom_javascript_delete_recover() -%}
+    <script>
+        function showModalDelete() { $('#modalDelete').modal() }
+        function showModalRecover() { $('#modalRecover').modal() }
+    </script>
+{%- endmacro -%}

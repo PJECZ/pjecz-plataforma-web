@@ -1,0 +1,16 @@
+.directory
+.bashrc
+.env
+.DS_Store
+.~lock.*
+*.pyc
+*.egg-info/
+*.sqlite3
+__pycache__/
+/.vscode/settings.json
+/venv/
+/config/settings.py
+/instance/settings.py
+/seed/
+/setup.cfg
+/*.yaml

@@ -1,0 +1,33 @@
+{%- macro page_breadcrumb(titulo) -%}
+    <div class="page-breadcrumb">
+        <div class="row">
+            <div class="col-12 d-flex no-block align-items-center">
+                <h4 class="page-title">{{ titulo }}</h4>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro topbar_actions() -%}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="d-none d-md-block">Acciones <i class="fa fa-angle-down"></i></span>
+            <span class="d-block d-md-none"><i class="fa fa-plus"></i></span>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {{ caller () }}
+        </div>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_actions_option(label, url) -%}
+    <a class="dropdown-item" href="{{ url }}">{{ label }}</a>
+{%- endmacro -%}
+
+{%- macro card() -%}
+    <div class="card">
+        <div class="card-body">
+            {{ caller () }}
+        </div>
+    </div>
+{%- endmacro -%}

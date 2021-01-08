@@ -1,0 +1,20 @@
+{% extends 'layouts/app.html' %}
+{% import 'macros/form.html' as f with context %}
+
+{% block title %}Nuevo Usuario{% endblock %}
+
+{% block content %}
+    {{ f.page_breadcrumb('Nuevo Usuario') }}
+    <div class="container-fluid">
+        {% call f.form_tag('usuarios.new', fid='usuario_form') %}
+            {% call f.form_group(form.nombres) %}{% endcall %}
+            {% call f.form_group(form.apellido_paterno) %}{% endcall %}
+            {% call f.form_group(form.apellido_materno) %}{% endcall %}
+            {% call f.form_group(form.email) %}{% endcall %}
+            {% call f.form_group(form.rol) %}{% endcall %}
+            {% call f.form_group(form.contrasena) %}{% endcall %}
+            {% call f.form_group(form.contrasena_repetir) %}{% endcall %}
+            {{ form.guardar() }}
+        {% endcall %}
+    </div>
+{% endblock %}

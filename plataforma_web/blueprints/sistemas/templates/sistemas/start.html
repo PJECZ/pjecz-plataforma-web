@@ -1,0 +1,16 @@
+{% extends 'layouts/app.html' %}
+{% import 'macros/start.html' as start with context %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+    {{ start.page_breadcrumb('Inicio') }}
+    <div class="container-fluid">
+        <div class="jumbotron bg-white">
+            <h1>Plataforma Web</h1>
+            <p class="lead">Interfaz para administrar la plataforma web.</p>
+            <hr class="my-4">
+            <p><strong>Poder Judicial del Estado de Coahuila de Zaragoza</strong></p>
+        </div>
+    </div>
+{% endblock %}

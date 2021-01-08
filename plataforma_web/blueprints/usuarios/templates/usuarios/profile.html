@@ -1,0 +1,15 @@
+{% extends 'layouts/app.html' %}
+{% import 'macros/detail.html' as detail with context %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+    {{ detail.page_breadcrumb('Mi Perfil') }}
+    <div class="container-fluid">
+        {% call detail.card() %}
+            {{ detail.label_value_big('Nombre', current_user.nombre) }}
+            {{ detail.label_value('e-mail', current_user.email) }}
+            {{ detail.label_value('Rol', current_user.rol.nombre) }}
+        {% endcall %}
+    </div>
+{% endblock %}

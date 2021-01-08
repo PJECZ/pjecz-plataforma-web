@@ -1,0 +1,43 @@
+{% import 'macros/flash.html' as flash with context %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" sizes="64x64" href="{{ url_for('static', filename='images/favicon.png') }}">
+        <title>{% block title %}{% endblock %}</title>
+        <!-- Matrix Admin BT4 CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.css') }}" type="text/css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/css/style.min.css') }}" type="text/css">
+    </head>
+    <body>
+        <!-- Preloader animation -->
+        <div class="preloader">
+            <div class="lds-ripple">
+                <div class="lds-pos"></div>
+                <div class="lds-pos"></div>
+            </div>
+        </div>
+        <!-- Login wrapper -->
+        <div class="auth-wrapper d-flex no-block justify-content-center align-items-center bg-dark">
+            <div class="auth-box bg-dark">
+                <div id="loginform">
+                    {% block welcome %}{% endblock %}
+                    {{ flash.render() }}
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        <!-- JQuery -->
+        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/jquery/dist/jquery.min.js') }}"></script>
+        <!-- Bootstrap -->
+        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+        <!-- Custom Login JS -->
+        <script>
+            $('[data-toggle="tooltip"]').tooltip();
+            $(".preloader").fadeOut();
+        </script>
+    </body>
+</html>

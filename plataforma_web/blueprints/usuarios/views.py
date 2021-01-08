@@ -1,0 +1,172 @@
+"""
+Usuarios, vistas
+"""
+from flask import Blueprint, flash, redirect, request, render_template, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+from lib.safe_next_url import safe_next_url
+from plataforma_web.blueprints.roles.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
+from plataforma_web.extensions import pwd_context
+
+from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew, UsuarioFormEdit, CambiarContrasenaForm
+from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
+
+usuarios = Blueprint('usuarios', __name__, template_folder='templates')
+
+
+@usuarios.route('/login', methods=['GET', 'POST'])
+@anonymous_required()
+def login():
+    """ Acceso al Sistema """
+    form = AccesoForm(siguiente=request.args.get('siguiente'))
+    if form.validate_on_submit():
+        u = Usuario.find_by_identity(request.form.get('identidad'))
+        if u and u.authenticated(password=request.form.get('contrasena')):
+            if login_user(u, remember=True) and u.is_active:
+                EntradaSalida(
+                    usuario_id=u.id,
+                    tipo='INGRESO',
+                    direccion_ip=request.remote_addr,
+                ).save()
+                siguiente_url = request.form.get('siguiente')
+                if siguiente_url:
+                    return redirect(safe_next_url(siguiente_url))
+                return redirect(url_for('sistemas.start'))
+            else:
+                flash('Esta cuenta está inactiva', 'warning')
+        else:
+            flash('Usuario o contraseña incorrectos.', 'warning')
+    return render_template('usuarios/login.html', form=form)
+
+
+@usuarios.route('/logout')
+@login_required
+def logout():
+    """ Salir del Sistema """
+    EntradaSalida(
+        usuario_id=current_user.id,
+        tipo='SALIO',
+        direccion_ip=request.remote_addr,
+    ).save()
+    logout_user()
+    flash('Ha salido de este sistema.', 'success')
+    return redirect(url_for('usuarios.login'))
+
+
+@usuarios.route('/perfil')
+@login_required
+def profile():
+    """ Mostrar el Perfil """
+    return render_template('usuarios/profile.html')
+
+
+@usuarios.route('/cambiar_contrasena', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    """ Cambiar Contraseña """
+    form = CambiarContrasenaForm()
+    usuario = Usuario.query.get_or_404(current_user.id)
+    if form.validate_on_submit():
+        if not pwd_context.verify(form.contrasena_actual.data, current_user.contrasena):
+            flash('Contraseña actual incorrecta.', 'warning')
+        else:
+            usuario.contrasena = pwd_context.hash(form.contrasena.data)
+            usuario.save()
+            flash('Contraseña cambiada.', 'success')
+            return redirect(url_for('usuarios.profile'))
+    return render_template('usuarios/change_password.html', form=form)
+
+
+@usuarios.route('/usuarios')
+@login_required
+@permission_required(Permiso.VER_CUENTAS)
+def list_active():
+    """ Listado de Usuarios """
+    usuarios_activos = Usuario.query\
+        .filter(Usuario.estatus == 'A')\
+        .order_by(Usuario.nombres)\
+        .order_by(Usuario.apellido_paterno)\
+        .all()
+    return render_template('usuarios/list.html', usuarios=usuarios_activos)
+
+
+@usuarios.route('/usuarios/<int:usuario_id>')
+@login_required
+@permission_required(Permiso.VER_CUENTAS)
+def detail(usuario_id):
+    """ Detalle de un Usuario """
+    usuario = Usuario.query.get_or_404(usuario_id)
+    entradas_salidas = EntradaSalida.query.\
+        filter(EntradaSalida.usuario == usuario).\
+        order_by(EntradaSalida.creado).limit(100).all()
+    return render_template('usuarios/detail.html', usuario=usuario, entradas_salidas=entradas_salidas)
+
+
+@usuarios.route('/usuarios/nuevo', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permiso.CREAR_CUENTAS)
+def new():
+    """ Nuevo usuario """
+    form = UsuarioFormNew()
+    if form.validate_on_submit():
+        usuario = Usuario(
+            nombres=form.nombres.data,
+            apellido_paterno=form.apellido_paterno.data,
+            apellido_materno=form.apellido_materno.data,
+            email=form.email.data,
+            contrasena=pwd_context.hash(form.contrasena.data),
+            rol=form.rol.data,
+        )
+        usuario.save()
+        flash(f'Usuario {usuario.nombre} guardado.', 'success')
+        return redirect(url_for('usuarios.list_active'))
+    return render_template('usuarios/new.html', form=form)
+
+
+@usuarios.route('/usuarios/edicion/<int:usuario_id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permiso.MODIFICAR_CUENTAS)
+def edit(usuario_id):
+    """ Editar Usuario, solo al escribir la contraseña se cambia """
+    usuario = Usuario.query.get_or_404(usuario_id)
+    form = UsuarioFormEdit()
+    if form.validate_on_submit():
+        usuario.nombres = form.nombres.data
+        usuario.apellido_paterno = form.apellido_paterno.data
+        usuario.apellido_materno = form.apellido_materno.data
+        usuario.email = form.email.data
+        if form.email.data != '':
+            usuario.contrasena = pwd_context.hash(form.contrasena.data)
+        usuario.rol = form.rol.data
+        usuario.save()
+        flash(f'Usuario {usuario.nombre} guardado.', 'success')
+        return redirect(url_for('usuarios.list_active'))
+    form.nombres.data = usuario.nombres
+    form.apellido_paterno.data = usuario.apellido_paterno
+    form.apellido_materno.data = usuario.apellido_materno
+    form.email.data = usuario.email
+    form.rol.data = usuario.rol
+    return render_template('usuarios/edit.html', form=form, usuario=usuario)
+
+
+@usuarios.route('/usuarios/eliminar/<int:usuario_id>')
+@permission_required(Permiso.MODIFICAR_CUENTAS)
+def delete(usuario_id):
+    """ Eliminar Usuario """
+    usuario = Usuario.query.get_or_404(usuario_id)
+    if usuario.estatus == 'A':
+        usuario.delete()
+        flash(f'Usuario {usuario.nombre} eliminado.', 'success')
+    return redirect(url_for('usuarios.detail', usuario_id=usuario_id))
+
+
+@usuarios.route('/usuarios/recuperar/<int:usuario_id>')
+@permission_required(Permiso.MODIFICAR_CUENTAS)
+def recover(usuario_id):
+    """ Recuperar Usuario """
+    usuario = Usuario.query.get_or_404(usuario_id)
+    if usuario.estatus == 'B':
+        usuario.recover()
+        flash(f'Usuario {usuario.nombre} recuperado.', 'success')
+    return redirect(url_for('usuarios.detail', usuario_id=usuario_id))
