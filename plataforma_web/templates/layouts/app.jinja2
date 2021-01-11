@@ -1,28 +1,28 @@
-{% extends 'layouts/base.html' %}
-{% import 'macros/flash.html' as flash with context %}
-{% import 'macros/app.html' as app %}
+{% extends 'layouts/base.jinja2' %}
+{% import 'macros/flash.jinja2' as flash with context %}
+{% import 'macros/app.jinja2' as app %}
 
 {% block main %}
 <div id="main-wrapper">
     <!-- Topbar -->
     <header class="topbar" data-navbarbg="skin5">
         <nav class="navbar top-navbar navbar-expand-md navbar-dark">
-            {% include 'layouts/topbar_logo.html' %}
+            {% include 'layouts/topbar_logo.jinja2' %}
             <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin5">
                 <ul class="navbar-nav float-left mr-auto">
                     <li class="nav-item d-none d-md-block"><a class="nav-link sidebartoggler waves-effect waves-light" href="javascript:void(0)" data-sidebartype="mini-sidebar"><i class="mdi mdi-menu font-24"></i></a></li>
                     {% block topbar_actions %}{% endblock %}
                 </ul>
-                {% include 'layouts/topbar_right_side.html' %}
+                {% include 'layouts/topbar_right_side.jinja2' %}
             </div>
         </nav>
     </header>
-    {% include 'layouts/sidebar_navigation.html' %}
+    {% include 'layouts/sidebar_navigation.jinja2' %}
     <!-- Page wrapper -->
     <div class="page-wrapper">
         {{ flash.render() }}
         {% block content %}{% endblock %}
-        {% include 'layouts/footer.html' %}
+        {% include 'layouts/footer.jinja2' %}
     </div>
 </div>
 {% endblock %}

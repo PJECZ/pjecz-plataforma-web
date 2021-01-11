@@ -18,7 +18,7 @@ roles = Blueprint('roles', __name__, template_folder='templates')
 def list_active():
     """ Listado de roles """
     roles_activos = Rol.query.all()
-    return render_template('roles/list.html', roles=roles_activos)
+    return render_template('roles/list.jinja2', roles=roles_activos)
 
 
 @roles.route('/roles/<int:rol_id>')
@@ -28,4 +28,4 @@ def detail(rol_id):
     """ Detalle de un rol """
     rol = Rol.query.get_or_404(rol_id)
     usuarios = Usuario.query.filter(Usuario.rol == rol).all()
-    return render_template('roles/detail.html', rol=rol, usuarios=usuarios)
+    return render_template('roles/detail.jinja2', rol=rol, usuarios=usuarios)

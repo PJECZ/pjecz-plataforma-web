@@ -17,4 +17,4 @@ bitacoras = Blueprint('bitacoras', __name__, template_folder='templates')
 def list_active():
     """ Listado de bitácoras """
     bitacoras_activas = Bitacora.query.all()
-    return render_template('bitacoras/list.html', bitacoras=bitacoras_activas)
+    return render_template('bitacoras/list.jinja2', bitacoras=bitacoras_activas)

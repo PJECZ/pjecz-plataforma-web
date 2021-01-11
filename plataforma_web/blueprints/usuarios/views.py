@@ -37,7 +37,7 @@ def login():
                 flash('Esta cuenta está inactiva', 'warning')
         else:
             flash('Usuario o contraseña incorrectos.', 'warning')
-    return render_template('usuarios/login.html', form=form)
+    return render_template('usuarios/login.jinja2', form=form)
 
 
 @usuarios.route('/logout')
@@ -58,7 +58,7 @@ def logout():
 @login_required
 def profile():
     """ Mostrar el Perfil """
-    return render_template('usuarios/profile.html')
+    return render_template('usuarios/profile.jinja2')
 
 
 @usuarios.route('/cambiar_contrasena', methods=['GET', 'POST'])
@@ -75,7 +75,7 @@ def change_password():
             usuario.save()
             flash('Contraseña cambiada.', 'success')
             return redirect(url_for('usuarios.profile'))
-    return render_template('usuarios/change_password.html', form=form)
+    return render_template('usuarios/change_password.jinja2', form=form)
 
 
 @usuarios.route('/usuarios')
@@ -88,7 +88,7 @@ def list_active():
         .order_by(Usuario.nombres)\
         .order_by(Usuario.apellido_paterno)\
         .all()
-    return render_template('usuarios/list.html', usuarios=usuarios_activos)
+    return render_template('usuarios/list.jinja2', usuarios=usuarios_activos)
 
 
 @usuarios.route('/usuarios/<int:usuario_id>')
@@ -100,7 +100,7 @@ def detail(usuario_id):
     entradas_salidas = EntradaSalida.query.\
         filter(EntradaSalida.usuario == usuario).\
         order_by(EntradaSalida.creado).limit(100).all()
-    return render_template('usuarios/detail.html', usuario=usuario, entradas_salidas=entradas_salidas)
+    return render_template('usuarios/detail.jinja2', usuario=usuario, entradas_salidas=entradas_salidas)
 
 
 @usuarios.route('/usuarios/nuevo', methods=['GET', 'POST'])
@@ -121,7 +121,7 @@ def new():
         usuario.save()
         flash(f'Usuario {usuario.nombre} guardado.', 'success')
         return redirect(url_for('usuarios.list_active'))
-    return render_template('usuarios/new.html', form=form)
+    return render_template('usuarios/new.jinja2', form=form)
 
 
 @usuarios.route('/usuarios/edicion/<int:usuario_id>', methods=['GET', 'POST'])
@@ -147,7 +147,7 @@ def edit(usuario_id):
     form.apellido_materno.data = usuario.apellido_materno
     form.email.data = usuario.email
     form.rol.data = usuario.rol
-    return render_template('usuarios/edit.html', form=form, usuario=usuario)
+    return render_template('usuarios/edit.jinja2', form=form, usuario=usuario)
 
 
 @usuarios.route('/usuarios/eliminar/<int:usuario_id>')
