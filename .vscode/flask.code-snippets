@@ -1,126 +1,155 @@
 {
-	"Flask views blueprint":{
+	"Flask views top": {
+		"scope": "python",
+		"prefix": "fviewstop",
+		"body": [
+			"from flask import Blueprint, flash, redirect, render_template, url_for",
+			"from flask_login import login_required",
+			"from ${1:web_system}.blueprints.roles.models import Permiso",
+			"from ${1:web_system}.blueprints.usuarios.decorators import permission_required",
+			"",
+			""
+		],
+		"description": "Cargar paquetes"
+	},
+	"Flask views blueprint": {
 		"scope": "python",
 		"prefix": "fviewsblueprint",
 		"body": "${1:blueprint} = Blueprint('${1:blueprint}', __name__, template_folder='templates')",
 		"description": "Blueprint"
 	},
-	"Flask views list_active":{
+	"Flask views permission": {
+		"scope": "python",
+		"prefix": "fviewspermission",
+		"body": [
+			"@${1:blueprint}.before_request",
+			"@login_required",
+			"@permission_required(Permiso.OBSERVADOR)",
+			"def before_request():",
+			"\tpass",
+			"",
+			""
+		],
+		"description": "Permiso por defecto para las vistas que siguen"
+	},
+	"Flask views list_active": {
 		"scope": "python",
 		"prefix": "fviewslistactive",
 		"body": [
-			"@${1:blueprint}.route('/${2:route}')",
+			"@${1:blueprint}.route('/${1:blueprint}')",
 			"def list_active():",
-			"\t\"\"\" Listado de ${3:description} \"\"\"",
-			"\t${4:query} = ${5:Class}.query.filter(${5:Class}.estatus == 'A').all()",
-			"\treturn render_template('${1:blueprint}/list.html', ${4:query}=${4:query})",
+			"\t\"\"\" Listado de ${2:descripcion} \"\"\"",
+			"\t${3:registros}_activos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'A').all()",
+			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_activos)",
 			"",
 			""
 		],
 		"description": "Listado de registros activos"
 	},
-	"Flask views detail":{
+	"Flask views detail": {
 		"scope": "python",
 		"prefix": "fviewsdetail",
 		"body": [
-			"@${1:blueprint}.route('/${2:route}/<int:${3:column_id}>')",
-			"def detail(${3:column_id}):",
-			"\t\"\"\" Detalle de un ${4:description} \"\"\"",
-			"\t${5:query} = ${6:Class}.query.get_or_404(${3:column_id})",
-			"\treturn render_template('${1:blueprint}/detail.html', ${5:query}=${5:query})",
+			"@${1:blueprint}.route('/${1:blueprint}/<int:${2:columna_id}>')",
+			"def detail(${2:columna_id}):",
+			"\t\"\"\" Detalle de un ${3:descripcion} \"\"\"",
+			"\t${4:registro} = ${5:Class}.query.get_or_404(${2:columna_id})",
+			"\treturn render_template('${1:blueprint}/detail.jinja2', ${4:registro}=${4:registro})",
 			"",
 			""
 		],
 		"description": "Detalle de un registro"
 	},
-	"Flask views new":{
+	"Flask views new": {
 		"scope": "python",
 		"prefix": "fviewsnew",
 		"body": [
-			"@${1:blueprint}.route('/${2:route}/nuevo', methods=['GET', 'POST'])",
+			"@${1:blueprint}.route('/${1:blueprint}/nuevo', methods=['GET', 'POST'])",
 			"@permission_required(Permiso.CREAR_XXXXXXXX)",
 			"def new():",
-    		"\t\"\"\" Nuevo ${3:description} \"\"\"",
-    		"\tform = ${4:ClassForm}()",
+    		"\t\"\"\" Nuevo ${2:description} \"\"\"",
+    		"\tform = ${3:ClassForm}()",
     		"\tif form.validate_on_submit():",
-        	"\t\t${5:instance} = ${6:Class}(nombre=form.nombre.data)",
-        	"\t\t${5:instance}.save()",
-        	"\t\tflash(f'${3:description} {${5:instance}.nombre} guardado.', 'success')",
+        	"\t\t${4:instance} = ${5:Class}(nombre=form.nombre.data)",
+        	"\t\t${4:instance}.save()",
+        	"\t\tflash(f'${2:description} {${4:instance}.nombre} guardado.', 'success')",
         	"\t\treturn redirect(url_for('${1:blueprint}.list_active'))",
-    		"\treturn render_template('${1:blueprint}/new.html', form=form)",
+    		"\treturn render_template('${1:blueprint}/new.jinja2', form=form)",
 			"",
 			""
 		],
 		"description": "Nuevo registro"
 	},
-	"Flask views edit":{
+	"Flask views edit": {
 		"scope": "python",
 		"prefix": "fviewsedit",
 		"body": [
-			"@${1:blueprint}.route('/${2:route}/edicion/<int:${3:column_id}>', methods=['GET', 'POST'])",
+			"@${1:blueprint}.route('/${1:blueprint}/edicion/<int:${2:column_id}>', methods=['GET', 'POST'])",
 			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
-			"def edit(${3:column_id}):",
-		    "\t\"\"\" Editar ${4:description} \"\"\"",
-			"\t${5:instance} = ${6:Class}.query.get_or_404(${3:column_id})",
-    		"\tform = ${7:ClassForm}()",
+			"def edit(${2:column_id}):",
+		    "\t\"\"\" Editar ${3:description} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+    		"\tform = ${6:ClassForm}()",
     		"\tif form.validate_on_submit():",
-        	"\t\t${5:instance}.nombre = form.nombre.data",
-        	"\t\t${5:instance}.save()",
-        	"\t\tflash(f'${4:description} {${5:instance}.nombre} guardado.', 'success')",
-        	"\t\treturn redirect(url_for('${1:blueprint}.detail', ${3:column_id}=${5:instance}.id))",
-    		"\tform.nombre.data = ${5:instance}.nombre",
-    		"\treturn render_template('${1:blueprint}/edit.html', form=form, ${5:instance}=${5:instance})",
+        	"\t\t${4:instance}.nombre = form.nombre.data",
+        	"\t\t${4:instance}.save()",
+        	"\t\tflash(f'${3:description} {${4:instance}.nombre} guardado.', 'success')",
+        	"\t\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${4:instance}.id))",
+    		"\tform.nombre.data = ${4:instance}.nombre",
+    		"\treturn render_template('${1:blueprint}/edit.jinja2', form=form, ${4:instance}=${4:instance})",
 			"",
 			""
 		],
 		"description": "Editar registro"
 	},
-	"Flask views delete":{
+	"Flask views delete": {
 		"scope": "python",
 		"prefix": "fviewsdelete",
 		"body": [
-			"@${1:blueprint}.route('/${2:route}/eliminar/<int:${3:column_id}>')",
+			"@${1:blueprint}.route('/${1:blueprint}/eliminar/<int:${2:column_id}>')",
 			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
-			"def delete(${3:column_id}):",
-			"\t\"\"\" Eliminar ${4:description} \"\"\"",
-			"\t${5:instance} = ${6:Class}.query.get_or_404(${3:column_id})",
-			"\tif ${5:instance}.estatus == 'A':",
-			"\t\t${5:instance}.delete()",
-			"\t\tflash(f'${4:description} {${5:instance}.nombre} eliminado.', 'success')",
-			"\treturn redirect(url_for('${1:blueprint}.detail', ${3:column_id}=${3:column_id}))",
+			"def delete(${2:column_id}):",
+			"\t\"\"\" Eliminar ${3:description} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+			"\tif ${4:instance}.estatus == 'A':",
+			"\t\t${4:instance}.delete()",
+			"\t\tflash(f'${3:description} {${4:instance}.nombre} eliminado.', 'success')",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${2:column_id}))",
 			"",
 			""
 		],
 		"description": "Borrar registro"
 	},
-	"Flask views recover":{
+	"Flask views recover": {
 		"scope": "python",
 		"prefix": "fviewsrecover",
 		"body": [
-			"@${1:blueprint}.route('/${2:route}/recuperar/<int:${3:column_id}>')",
+			"@${1:blueprint}.route('/${1:blueprint}/recuperar/<int:${2:column_id}>')",
 			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
-			"def recover(${3:column_id}):",
-			"\t\"\"\" Recuperar ${4:description} \"\"\"",
-			"\t${5:instance} = ${6:Class}.query.get_or_404(${3:column_id})",
-			"\tif ${5:instance}.estatus == 'B':",
-			"\t\t${5:instance}.recover()",
-			"\t\tflash(f'${4:description} {${5:instance}.nombre} recuperado.', 'success')",
-			"\treturn redirect(url_for('${1:blueprint}.detail', ${3:column_id}=${3:column_id}))",
+			"def recover(${2:column_id}):",
+			"\t\"\"\" Recuperar ${3:description} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+			"\tif ${4:instance}.estatus == 'B':",
+			"\t\t${4:instance}.recover()",
+			"\t\tflash(f'${3:description} {${4:instance}.nombre} recuperado.', 'success')",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${2:column_id}))",
 			"",
 			""
 		],
 		"description": "Recuperar registro"
 	},
-	"Flask models top":{
+	"Flask models top": {
 		"scope": "python",
 		"prefix": "fmodelstop",
 		"body": [
-			"from ${1:flask}.extensions import db",
-			"from lib.universal_mixin import UniversalMixin"
+			"from ${1:web_system}.extensions import db",
+			"from lib.universal_mixin import UniversalMixin",
+			"",
+			""
 		],
 		"description": "Cargar paquetes"
 	},
-	"Flask models model":{
+	"Flask models model": {
 		"scope": "python",
 		"prefix": "fmodelsmodel",
 		"body": [
@@ -137,12 +166,10 @@
 			"\tnombre = db.Column(db.String(256), unique=True, nullable=False)",
 			"\tdescripcion = db.Column(db.String(256), nullable=False)",
 			"",
-			"\t# Hijos",
-			"\t# hijo = db.relationship('Hijo', backref='${3:column_foreing_key}')",
-			"",
 			"\tdef __repr__(self):",
 			"\t\t\"\"\" Representación \"\"\"",
 			"\t\treturn f'<${1:Class} {self.nombre}>'",
+			"",
 			""
 		],
 		"description": "Modelo"
@@ -158,7 +185,8 @@
 			"\tdb.ForeignKey('${2:table}.id'),",
 			"\tindex=True,",
 			"\tnullable=False",
-			")"
+			")",
+			""
 		],
 		"description": "Clave foránea"
 	},
@@ -168,7 +196,20 @@
 		"body": "${1:plural} = db.relationship('${2:Name}', backref='${3:column}')",
 		"description": "Hijo"
 	},
-	"Flask forms form":{
+	"Flask forms top": {
+		"scope": "python",
+		"prefix": "fformstop",
+		"body": [
+			"from flask_wtf import FlaskForm",
+			"from wtforms import HiddenField, PasswordField, StringField, SubmitField",
+			"from wtforms.ext.sqlalchemy.fields import QuerySelectField",
+			"from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional",
+			"",
+			""
+		],
+		"description": "Cargar paquetes"
+	},
+	"Flask forms form": {
 		"scope": "python",
 		"prefix": "fformsform",
 		"body": [
@@ -176,8 +217,54 @@
 			"\t\"\"\" Formulario ${2:description} \"\"\"",
 			"\tnombre = StringField('Nombre', validators=[DataRequired(), Length(max=256)])",
 			"\tguardar = SubmitField('Guardar')",
+			"",
 			""
 		],
 		"description": "Formulario"
+	},
+	"Templete new": {
+		"scope": "jinja-html",
+		"prefix": "templatenew",
+		"body": [
+			"{% extends 'layouts/app.jinja2' %}",
+			"{% import 'macros/form.jinja2' as f with context %}",
+			"",
+			"{% block title %}Nuevo ${1:Descripción}{% endblock %}",
+			"",
+			"{% block content %}",
+			"\t{{ f.page_breadcrumb('Nuevo ${1:Descripción}') }}",
+			"\t<div class=\"container-fluid\">",
+			"\t\t{% call f.form_tag('${2:views}.new', fid='${3:instance}_form') %}",
+			"\t\t\t{% call f.form_group(form.nombre) %}{% endcall %}",
+			"\t\t\t{{ form.guardar() }}",
+			"\t\t{% endcall %}",
+			"\t</div>",
+			"{% endblock %}",
+			""
+		],
+		"description": "Plantilla new.jinja2"
+	},
+	"Template edit": {
+		"scope": "jinja-html",
+		"prefix": "templateedit",
+		"body": [
+			"{% extends 'layouts/app.jinja2' %}",
+			"{% import 'macros/form.jinja2' as f with context %}",
+			"",
+			"{% block title %}Editar ${1:Descripción}{% endblock %}",
+			"",
+			"{% block content %}",
+			"\t{{ f.page_breadcrumb('Editar ' + ${2:instance}.nombre) }}",
+			"\t<div class=\"container-fluid\">",
+			"\t\t{% set form_kwargs = {'${2:instance}_id': ${2:instance}.id} %}",
+			"\t\t{% call f.form_tag('${3:views}.edit', fid='${2:instance}_form', **form_kwargs) %}",
+			"\t\t\t{% call f.form_group(form.nombre) %}{% endcall %}",
+			"\t\t\t{{ form.guardar() }}",
+			"\t\t{% endcall %}",
+			"\t</div>",
+			"{% endblock %}",
+			""
+		],
+		"description": "Plantilla edit.jinja2"
 	}
 }

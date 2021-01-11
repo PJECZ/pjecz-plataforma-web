@@ -2,7 +2,7 @@
 UniversalMixin define las columnas y métodos comunes de todos los modelos
 """
 from sqlalchemy.sql import func
-from estadisticas.extensions import db
+from plataforma_web.extensions import db
 
 
 class UniversalMixin(object):

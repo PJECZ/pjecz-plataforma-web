@@ -5,7 +5,7 @@ Setup sirve para installar los comandos click
 import setuptools
 
 setuptools.setup(
-    name='PJECZ Plataforma Web',
+    name='plataforma_web',
     version='0.1',
     install_requires=[
         'click',
