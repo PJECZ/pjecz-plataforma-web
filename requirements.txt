@@ -15,4 +15,5 @@ PyMySQL
 SQLAlchemy
 SQLAlchemy-Utils
 tabulate
+unidecode
 WTForms
