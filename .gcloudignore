@@ -1,0 +1,17 @@
+.bashrc
+.env
+.gcloudignore
+.git
+.gitignore
+.vscode
+.DS_Store
+.~lock.*
+*.pyc
+*.egg-info/
+*.sqlite3
+__pycache__/
+/cli
+/instance
+/seed
+/setup.cfg
+/venv
