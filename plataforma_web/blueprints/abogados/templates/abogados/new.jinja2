@@ -1,0 +1,17 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Nuevo Abogado registrado{% endblock %}
+
+{% block content %}
+    {{ f.page_breadcrumb('Nuevo Abogado registrado') }}
+    <div class="container-fluid">
+        {% call f.form_tag('abogados.new', fid='abogados_form') %}
+            {% call f.form_group(form.numero) %}{% endcall %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.libro) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {{ form.guardar() }}
+        {% endcall %}
+    </div>
+{% endblock %}

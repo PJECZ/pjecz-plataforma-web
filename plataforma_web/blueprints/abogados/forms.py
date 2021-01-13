@@ -2,12 +2,14 @@
 Abogados, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, PasswordField, StringField, SubmitField
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
+from wtforms import DateField, IntegerField, StringField, SubmitField
+from wtforms.validators import DataRequired, Length
 
 
 class AbogadoForm(FlaskForm):
     """ Formulario abogado """
+    numero = IntegerField('Número', validators=[DataRequired()])
     nombre = StringField('Nombre', validators=[DataRequired(), Length(max=256)])
+    libro = StringField('Libro', validators=[DataRequired(), Length(max=256)])
+    fecha = DateField('Fecha', validators=[DataRequired()])
     guardar = SubmitField('Guardar')
