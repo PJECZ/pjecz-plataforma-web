@@ -9,6 +9,7 @@ from plataforma_web.blueprints.usuarios.views import usuarios
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.bitacoras.views import bitacoras
 from plataforma_web.blueprints.sistemas.views import sistemas
+from plataforma_web.blueprints.abogados.views import abogados
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -27,6 +28,7 @@ def create_app():
     app.register_blueprint(entradas_salidas)
     app.register_blueprint(bitacoras)
     app.register_blueprint(sistemas)
+    app.register_blueprint(abogados)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)
