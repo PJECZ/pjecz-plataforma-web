@@ -15,7 +15,7 @@ def alimentar_abogados():
     """ Alimentar abogados """
     abogados_csv = Path(ABOGADOS_CSV)
     if abogados_csv.exists():
-        with open(abogados_csv) as puntero:
+        with open(abogados_csv, encoding="utf8") as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
                 try:
