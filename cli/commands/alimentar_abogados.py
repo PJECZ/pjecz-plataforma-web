@@ -1,6 +1,7 @@
 """
 Alimentar abogados
 """
+from datetime import datetime
 from pathlib import Path
 import csv
 import click
@@ -17,11 +18,16 @@ def alimentar_abogados():
         with open(abogados_csv) as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
+                try:
+                    numero = int(row['numero'].strip())
+                    fecha = datetime.strptime(row['fecha'].strip(), '%Y-%m-%d')
+                except ValueError as mensaje:
+                    click.echo(f'Dato con error: {mensaje}')
                 datos = {
-                    'numero': int(row['nuemro'].strip()),
-                    'nombre': row['nombres'].strip(),
+                    'numero': numero,
+                    'nombre': row['nombre'].strip(),
                     'libro': row['libro'].strip(),
-                    'fecha': row['fecha'].strip(),
+                    'fecha': fecha,
                 }
                 Abogado(**datos).save()
         click.echo('Abogados alimentados.')

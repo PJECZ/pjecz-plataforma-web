@@ -15,11 +15,10 @@ class Abogado(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Columnas
-    numero = db.Column(db.Integer(), unique=True,  nullable=False)
+    numero = db.Column(db.Integer(), nullable=False) # unique=True
     nombre = db.Column(db.String(256), nullable=False)
     libro = db.Column(db.String(256), nullable=False)
     fecha = db.Column(db.DateTime, nullable=False)
-
 
     def __repr__(self):
         """ Representación """
