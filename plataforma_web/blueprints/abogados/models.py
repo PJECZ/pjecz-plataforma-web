@@ -21,4 +21,3 @@ class Abogado(db.Model, UniversalMixin):
     def __repr__(self):
         """ Representación """
         return f'<Abogado {self.nombre}>'
-
