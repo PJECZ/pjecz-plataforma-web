@@ -4,6 +4,7 @@ Alimentar abogados
 from datetime import datetime
 from pathlib import Path
 import csv
+from unidecode import unidecode
 import click
 
 from plataforma_web.blueprints.abogados.models import Abogado
@@ -15,7 +16,7 @@ def alimentar_abogados():
     """ Alimentar abogados """
     abogados_csv = Path(ABOGADOS_CSV)
     if abogados_csv.exists():
-        with open(abogados_csv) as puntero:
+        with open(abogados_csv, encoding="utf8") as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
                 try:
@@ -25,7 +26,7 @@ def alimentar_abogados():
                     click.echo(f'Dato con error: {mensaje}')
                 datos = {
                     'numero': numero,
-                    'nombre': row['nombre'].strip(),
+                    'nombre': unidecode(row['nombre'].strip()).upper(),
                     'libro': row['libro'].strip(),
                     'fecha': fecha,
                 }
