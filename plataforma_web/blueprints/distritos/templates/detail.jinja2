@@ -1,0 +1,13 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Distrito{% endblock %}
+
+{% block content %}
+    {{ detail.page_breadcrumb('Distrito') }}
+    <div class="container-fluid">
+        {% call detail.card() %}
+            {{ detail.label_value_big('Distrito', distrito.nombre) }}
+        {% endcall %}
+    </div>
+{% endblock %}

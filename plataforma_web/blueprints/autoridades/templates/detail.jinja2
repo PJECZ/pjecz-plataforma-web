@@ -1,0 +1,35 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Autoridad{% endblock %}
+
+{% block topbar_actions %}
+    {% call detail.topbar_actions() %}
+        {% if current_user.can_edit('autoridades') %}
+            {{ detail.topbar_actions_option('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
+            {% if autoridad.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if autoridad.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {{ detail.page_breadcrumb('Autoridad') }}
+    <div class="container-fluid">
+        {% call detail.card(estatus=autoridad.estatus) %}
+            {{ detail.label_value_big('Autoridad', autoridad.descripcion) }}
+            {{ detail.label_value('Distrito', autoridad.distrito.nombre) }}
+            {{ detail.label_value('e-mail', autoridad.email) }}
+        {% endcall %}
+    </div>
+    {% if current_user.can_edit('autoridades') %}
+        {{ detail.modal('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?', 'modalDelete', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}
+        {{ detail.modal('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?', 'modalRecover', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('autoridades') %}
+        {{ detail.custom_javascript_delete_recover() }}
+    {% endif %}
+{% endblock %}

@@ -4,7 +4,9 @@
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="p-t-30">
                 {{ app.sidebar_nav_option('Inicio', '/', 'mdi mdi-view-dashboard') }}
-                {{ app.sidebar_nav_option('Abogados', '/abogados', 'mdi mdi-calendar-clock') }}
+                {{ app.sidebar_nav_option('Abogados', '/abogados', 'mdi mdi-tie') }}
+                {{ app.sidebar_nav_option('Distritos', '/distritos', 'mdi mdi-apps') }}
+                {{ app.sidebar_nav_option('Autoridades', '/autoridades', 'mdi mdi-scale-balance') }}
                 {% call app.sidebar_nav_submenu('Autentificaciones', 'mdi mdi-account-settings') %}
                     {% if current_user.can_view('bitacoras') %} {{ app.sidebar_nav_option('Bitácoras', '/bitacoras', 'mdi mdi-calendar-clock') }} {% endif %}
                     {% if current_user.can_view('entradas_salidas') %} {{ app.sidebar_nav_option('Entradas/Salidas', '/entradas_salidas', 'mdi mdi-calendar-clock') }} {% endif %}
