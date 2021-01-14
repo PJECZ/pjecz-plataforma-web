@@ -6,7 +6,7 @@ from wtforms import StringField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Email, Length, Optional
 
-from estadisticas.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.distritos.models import Distrito
 
 
 def distritos_opciones():

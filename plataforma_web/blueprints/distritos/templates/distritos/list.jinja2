@@ -3,6 +3,14 @@
 
 {% block title %}Distritos{% endblock %}
 
+{% block topbar_actions %}
+    {% if current_user.can_insert('distritos') %}
+        {% call list.topbar_actions() %}
+            {{ list.topbar_actions_option('Nuevo Distrito', url_for('distritos.new')) }}
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     {{ list.page_breadcrumb('Distritos') }}
     <div class="container-fluid">
@@ -10,7 +18,7 @@
             <table id="distritos_datatable" class="table">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
+                        <th>Distrito</th>
                     </tr>
                 </thead>
                 <tbody>

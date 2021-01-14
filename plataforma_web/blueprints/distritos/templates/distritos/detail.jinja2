@@ -1,0 +1,33 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Distrito{% endblock %}
+
+{% block topbar_actions %}
+    {% call detail.topbar_actions() %}
+        {% if current_user.can_edit('distritos') %}
+            {{ detail.topbar_actions_option('Editar', url_for('distritos.edit', distrito_id=distrito.id)) }}
+            {% if distrito.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if distrito.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {{ detail.page_breadcrumb('Distrito') }}
+    <div class="container-fluid">
+        {% call detail.card(estatus=distrito.estatus) %}
+            {{ detail.label_value_big('Distrito', distrito.nombre) }}
+        {% endcall %}
+    </div>
+    {% if current_user.can_edit('distritos') %}
+        {{ detail.modal('Eliminar', '¿Eliminar a ' + distrito.nombre + '?', 'modalDelete', url_for('distritos.delete', distrito_id=distrito.id)) }}
+        {{ detail.modal('Recuperar', '¿Recuperar a ' + distrito.nombre + '?', 'modalRecover', url_for('distritos.recover', distrito_id=distrito.id)) }}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('distritos') %}
+        {{ detail.custom_javascript_delete_recover() }}
+    {% endif %}
+{% endblock %}

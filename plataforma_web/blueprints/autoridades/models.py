@@ -21,7 +21,7 @@ class Autoridad(db.Model, UniversalMixin):
     # Clave foránea
     distrito_id = db.Column(
         'distrito',
-        db.String(256),
+        db.Integer,
         db.ForeignKey('distritos.id'),
         index=True,
         nullable=False
