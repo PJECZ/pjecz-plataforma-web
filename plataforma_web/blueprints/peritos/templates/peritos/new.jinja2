@@ -1,0 +1,19 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Nuevo Perito{% endblock %}
+
+{% block content %}
+    {{ f.page_breadcrumb('Nuevo Perito') }}
+    <div class="container-fluid">
+        {% call f.form_tag('peritos.new', fid='perito_form') %}
+            {% call f.form_group(form.tipo) %}{% endcall %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.domicilio) %}{% endcall %}
+            {% call f.form_group(form.telefono_fijo) %}{% endcall %}
+            {% call f.form_group(form.telefono_celular) %}{% endcall %}
+            {% call f.form_group(form.email) %}{% endcall %}
+            {{ form.guardar() }}
+        {% endcall %}
+    </div>
+{% endblock %}

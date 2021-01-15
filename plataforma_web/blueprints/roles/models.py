@@ -101,7 +101,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.VER_CATALOGOS)
-        if module in ('abogados'):
+        if module in ('abogados', 'peritos'):
             return self.has_permission(Permiso.VER_CONTENIDOS)
         return False
 
@@ -111,7 +111,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
-        if module in ('abogados'):
+        if module in ('abogados', 'peritos'):
             return self.has_permission(Permiso.MODIFICAR_CONTENIDOS)
         return False
 
@@ -121,7 +121,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
-        if module in ('abogados'):
+        if module in ('abogados', 'peritos'):
             return self.has_permission(Permiso.CREAR_CONTENIDOS)
         return False
 
