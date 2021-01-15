@@ -7,7 +7,10 @@ from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_usuarios import alimentar_usuarios
+from cli.commands.alimentar_distritos import alimentar_distritos
+from cli.commands.alimentar_autoridades import alimentar_autoridades
 from cli.commands.alimentar_abogados import alimentar_abogados
+
 
 app = create_app()
 db.app = app
@@ -31,6 +34,8 @@ def alimentar():
     """ Alimentar """
     alimentar_roles()
     alimentar_usuarios()
+    alimentar_distritos()
+    alimentar_autoridades()
     alimentar_abogados()
     click.echo('Alimentado.')
 

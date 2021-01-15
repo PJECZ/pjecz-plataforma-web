@@ -1,0 +1,15 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Editar Distrito{% endblock %}
+
+{% block content %}
+    {{ f.page_breadcrumb('Editar ' + distrito.nombre) }}
+    <div class="container-fluid">
+        {% set form_kwargs = {'distrito_id': distrito.id} %}
+        {% call f.form_tag('distritos.edit', fid='distrito_form', **form_kwargs) %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {{ form.guardar() }}
+        {% endcall %}
+    </div>
+{% endblock %}

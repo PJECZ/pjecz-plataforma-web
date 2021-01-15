@@ -1,0 +1,44 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+
+{% block title %}Autoridades{% endblock %}
+
+{% block topbar_actions %}
+    {% if current_user.can_insert('autoridades') %}
+        {% call list.topbar_actions() %}
+            {{ list.topbar_actions_option('Nueva Autoridad', url_for('autoridades.new')) }}
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {{ list.page_breadcrumb('Autoridades') }}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="autoridades_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Distrito</th>
+                        <th>Autoridad</th>
+                        <th>e-mail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for autoridad in autoridades %}
+                    <tr>
+                        <td>{{ autoridad.distrito.nombre }}</td>
+                        <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
+                        <td>{{ autoridad.email }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#autoridades_datatable').DataTable();
+    </script>
+{% endblock %}
