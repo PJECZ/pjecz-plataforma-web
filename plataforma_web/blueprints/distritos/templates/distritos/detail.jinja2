@@ -19,6 +19,26 @@
         {% call detail.card(estatus=distrito.estatus) %}
             {{ detail.label_value_big('Distrito', distrito.nombre) }}
         {% endcall %}
+        {% if autoridades %}
+            {% call detail.card() %}
+                <table id="autoridades_datatable" class="table">
+                    <thead>
+                        <tr>
+                            <th>Autoridades</th>
+                            <th>e-mail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for autoridad in autoridades %}
+                        <tr>
+                            <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
+                            <td>{{ autoridad.email }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endcall %}
+        {% endif %}
     </div>
     {% if current_user.can_edit('distritos') %}
         {{ detail.modal('Eliminar', '¿Eliminar a ' + distrito.nombre + '?', 'modalDelete', url_for('distritos.delete', distrito_id=distrito.id)) }}
