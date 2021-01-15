@@ -7,6 +7,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.forms import DistritoForm
 
 distritos = Blueprint('distritos', __name__, template_folder='templates')
@@ -30,7 +31,8 @@ def list_active():
 def detail(distrito_id):
     """ Detalle de un Distrito """
     distrito = Distrito.query.get_or_404(distrito_id)
-    return render_template('distritos/detail.jinja2', distrito=distrito)
+    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.estatus == 'A').all()
+    return render_template('distritos/detail.jinja2', distrito=distrito, autoridades=autoridades)
 
 
 @distritos.route('/distritos/nuevo', methods=['GET', 'POST'])

@@ -14,10 +14,6 @@ class Autoridad(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Columnas
-    descripcion = db.Column(db.String(256), nullable=False)
-    email = db.Column(db.String(256))
-
     # Clave foránea
     distrito_id = db.Column(
         'distrito',
@@ -26,6 +22,10 @@ class Autoridad(db.Model, UniversalMixin):
         index=True,
         nullable=False
     )
+
+    # Columnas
+    descripcion = db.Column(db.String(256), nullable=False)
+    email = db.Column(db.String(256))
 
     def __repr__(self):
         """ Representación """
