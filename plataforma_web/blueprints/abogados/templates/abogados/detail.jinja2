@@ -3,6 +3,14 @@
 
 {% block title %}Abogado registrado{% endblock %}
 
+{% block topbar_actions %}
+    {% call detail.topbar_actions() %}
+        {% if current_user.can_edit('abogados') %}
+            {{ detail.topbar_actions_option('Editar', url_for('abogados.edit', abogado_id=abogado.id)) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
 {% block content %}
     {{ detail.page_breadcrumb('Abogado registrado') }}
     <div class="container-fluid">

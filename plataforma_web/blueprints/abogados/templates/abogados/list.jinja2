@@ -3,6 +3,14 @@
 
 {% block title %}Abogados registrados{% endblock %}
 
+{% block topbar_actions %}
+    {% if current_user.can_insert('abogados') %}
+        {% call list.topbar_actions() %}
+            {{ list.topbar_actions_option('Nuevo Abogado', url_for('abogados.new')) }}
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     {{ list.page_breadcrumb('Abogados registrados') }}
     <div class="container-fluid">

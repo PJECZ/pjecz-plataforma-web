@@ -11,9 +11,9 @@ class Permiso:
     VER_CATALOGOS = 1
     MODIFICAR_CATALOGOS = 2
     CREAR_CATALOGOS = 4
-    VER_ESTADISTICAS = 8
-    MODIFICAR_ESTADISTICAS = 16
-    CREAR_ESTADISTICAS = 32
+    VER_CONTENIDOS = 8
+    MODIFICAR_CONTENIDOS = 16
+    CREAR_CONTENIDOS = 32
     VER_CUENTAS = 64
     MODIFICAR_CUENTAS = 128
     CREAR_CUENTAS = 256
@@ -65,20 +65,20 @@ class Rol(db.Model, UniversalMixin):
             'ADMINISTRADOR': [
                 Permiso.VER_CUENTAS, Permiso.MODIFICAR_CUENTAS, Permiso.CREAR_CUENTAS,
                 Permiso.VER_CATALOGOS, Permiso.MODIFICAR_CATALOGOS, Permiso.CREAR_CATALOGOS,
-                Permiso.VER_ESTADISTICAS, Permiso.MODIFICAR_ESTADISTICAS, Permiso.CREAR_ESTADISTICAS,
+                Permiso.VER_CONTENIDOS, Permiso.MODIFICAR_CONTENIDOS, Permiso.CREAR_CONTENIDOS,
             ],
             'TECNICO': [
                 Permiso.VER_CUENTAS, Permiso.MODIFICAR_CUENTAS,
                 Permiso.VER_CATALOGOS,
-                Permiso.VER_ESTADISTICAS,
+                Permiso.VER_CONTENIDOS,
             ],
             'USUARIO': [
                 Permiso.VER_CATALOGOS,
-                Permiso.VER_ESTADISTICAS, Permiso.MODIFICAR_ESTADISTICAS, Permiso.CREAR_ESTADISTICAS,
+                Permiso.VER_CONTENIDOS, Permiso.MODIFICAR_CONTENIDOS, Permiso.CREAR_CONTENIDOS,
             ],
             'OBSERVADOR': [
                 Permiso.VER_CATALOGOS,
-                Permiso.VER_ESTADISTICAS,
+                Permiso.VER_CONTENIDOS,
             ],
         }
         rol_por_defecto = 'OBSERVADOR'
@@ -101,8 +101,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.VER_CATALOGOS)
-        # if module in ():
-        #     return self.has_permission(Permiso.VER_ESTADISTICAS)
+        if module in ('abogados'):
+            return self.has_permission(Permiso.VER_CONTENIDOS)
         return False
 
     def can_insert(self, module):
@@ -111,8 +111,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
-        # if module in ():
-        #     return self.has_permission(Permiso.MODIFICAR_ESTADISTICAS)
+        if module in ('abogados'):
+            return self.has_permission(Permiso.MODIFICAR_CONTENIDOS)
         return False
 
     def can_edit(self, module):
@@ -121,8 +121,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
-        # if module in ():
-        #     return self.has_permission(Permiso.CREAR_ESTADISTICAS)
+        if module in ('abogados'):
+            return self.has_permission(Permiso.CREAR_CONTENIDOS)
         return False
 
     def __repr__(self):
