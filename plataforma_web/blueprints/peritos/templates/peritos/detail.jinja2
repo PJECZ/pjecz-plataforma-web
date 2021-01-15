@@ -1,0 +1,17 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Perito{% endblock %}
+
+{% block content %}
+    {{ detail.page_breadcrumb('Perito') }}
+    <div class="container-fluid">
+        {% call detail.card() %}
+            {{ detail.label_value_big('Perito', perito.nombre) }}
+            {{ detail.label_value('Domicilio', perito.domicilio) }}
+            {{ detail.label_value('Teléfono fijo', perito.telefono_fijo) }}
+            {{ detail.label_value('Teléfono celular', perito.telefono_celular) }}
+            {{ detail.label_value('e-mail', perito.email) }}
+        {% endcall %}
+    </div>
+{% endblock %}
