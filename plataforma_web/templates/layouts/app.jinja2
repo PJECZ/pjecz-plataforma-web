@@ -1,28 +1,55 @@
 {% extends 'layouts/base.jinja2' %}
-{% import 'macros/flash.jinja2' as flash with context %}
 {% import 'macros/app.jinja2' as app %}
+{% import 'macros/flash.jinja2' as flash with context %}
+
+{% block template_head %}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
 
 {% block main %}
-<div id="main-wrapper">
-    <!-- Topbar -->
-    <header class="topbar" data-navbarbg="skin5">
-        <nav class="navbar top-navbar navbar-expand-md navbar-dark">
-            {% include 'layouts/topbar_logo.jinja2' %}
-            <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin5">
-                <ul class="navbar-nav float-left mr-auto">
-                    <li class="nav-item d-none d-md-block"><a class="nav-link sidebartoggler waves-effect waves-light" href="javascript:void(0)" data-sidebartype="mini-sidebar"><i class="mdi mdi-menu font-24"></i></a></li>
-                    {% block topbar_actions %}{% endblock %}
-                </ul>
-                {% include 'layouts/topbar_right_side.jinja2' %}
-            </div>
-        </nav>
-    </header>
-    {% include 'layouts/sidebar_navigation.jinja2' %}
-    <!-- Page wrapper -->
-    <div class="page-wrapper">
-        {{ flash.render() }}
-        {% block content %}{% endblock %}
-        {% include 'layouts/footer.jinja2' %}
+    <div id="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar" data-navbarbg="skin5">
+            <nav class="navbar top-navbar navbar-expand-md navbar-dark">
+                {% include 'layouts/topbar_logo.jinja2' %}
+                <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin5">
+                    <ul class="navbar-nav float-left mr-auto">
+                        <li class="nav-item d-none d-md-block"><a class="nav-link sidebartoggler waves-effect waves-light" href="javascript:void(0)" data-sidebartype="mini-sidebar"><i class="mdi mdi-menu font-24"></i></a></li>
+                        {% block topbar_actions %}{% endblock %}
+                    </ul>
+                    {% include 'layouts/topbar_right_side.jinja2' %}
+                </div>
+            </nav>
+        </header>
+        {% include 'layouts/sidebar_navigation.jinja2' %}
+        <!-- Page wrapper -->
+        <div class="page-wrapper">
+            {{ flash.render() }}
+            {% block content %}{% endblock %}
+            <!-- Footer -->
+            <footer class="footer text-center">
+                <a href="https://www.pjecz.gob.mx/">Poder Judicial del Estado de Coahuila de Zaragoza</a>.
+            </footer>
+        </div>
     </div>
-</div>
+{% endblock %}
+
+{% block template_javascript %}
+    <!-- Slimscrollbar scrollbar JavaScript -->
+    <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/extra-libs/sparkline/sparkline.js') }}"></script>
+    <!-- Wave Effects -->
+    <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/js/waves.js') }}"></script>
+    <!-- Menu sidebar -->
+    <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/js/sidebarmenu.js') }}"></script>
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/js/custom.js') }}"></script>
+    <!-- Datatables -->
+    <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/extra-libs/DataTables/datatables.min.js') }}"></script>
+    <!-- Sidebar navigation collapse -->
+    <script>
+        $(document).ready(function () {
+            $("#main-wrapper").toggleClass("mini-sidebar");
+        });
+    </script>
 {% endblock %}
