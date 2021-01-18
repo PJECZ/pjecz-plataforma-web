@@ -1,17 +1,16 @@
+{% extends 'layouts/base.jinja2' %}
 {% import 'macros/flash.jinja2' as flash with context %}
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" type="image/png" sizes="64x64" href="{{ url_for('static', filename='images/favicon.png') }}">
-        <title>{% block title %}{% endblock %}</title>
-        <!-- Matrix Admin BT4 CSS -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.css') }}" type="text/css">
-        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/css/style.min.css') }}" type="text/css">
-    </head>
-    <body>
+
+{% block template_head %}
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
+{% block main %}
+        <!-- The core Firebase JS SDK -->
+        <script defer src="https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js"></script>
+        <script defer src="https://www.gstatic.com/firebasejs/7.23.0/firebase-auth.js"></script>
+        <script defer src="{{ url_for('static', filename='js/init-firebase.js') }}"></script>
+        <script defer src="{{ url_for('static', filename='js/login-google-popup.js') }}"></script>
         <!-- Preloader animation -->
         <div class="preloader">
             <div class="lds-ripple">
@@ -21,23 +20,39 @@
         </div>
         <!-- Login wrapper -->
         <div class="auth-wrapper d-flex no-block justify-content-center align-items-center bg-dark">
-            <div class="auth-box bg-dark">
-                <div id="loginform">
-                    {% block welcome %}{% endblock %}
-                    {{ flash.render() }}
-                    {% block content %}{% endblock %}
+            <div class="auth-box bg-dark p-b-20">
+                {% block welcome %}{% endblock %}
+                <div class="py-3">
+                    <p class="text-center text-white mb-1">Sign in with your account:</p>
+                    <div class="text-center py-2">
+                        <button disabled class="btn btn-primary" id="quickstart-sign-in">Sign in with Google</button>
+                    </div>
+                    <div class="bg-white py-1">
+                        Firebase sign-in status: <span class="text-muted" id="quickstart-sign-in-status">Unknown</span>
+                        <div>Firebase auth <code>currentUser</code> object value:</div>
+                        <pre class="text-muted"><code id="quickstart-account-details">null</code></pre>
+                        <div>Google OAuth Access Token:</div>
+                        <pre class="text-muted"><code id="quickstart-oauthtoken">null</code></pre>
+                    </div>
+                </div>
+                <div class="py-3">
+                    <p class="text-center text-white mb-1">Sign in with user/password:</p>
+                    <div id="loginform">
+                        {{ flash.render() }}
+                        {% block content %}{% endblock %}
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- JQuery -->
-        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/jquery/dist/jquery.min.js') }}"></script>
-        <!-- Bootstrap -->
-        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script>
-        <!-- Custom Login JS -->
+{% endblock %}
+
+{% block template_javascript %}
         <script>
             $('[data-toggle="tooltip"]').tooltip();
             $(".preloader").fadeOut();
+            // login-google-popup.js
+            window.onload = function() {
+                initApp();
+            };
         </script>
-    </body>
-</html>
+{% endblock %}
