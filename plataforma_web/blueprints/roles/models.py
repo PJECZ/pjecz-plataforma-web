@@ -101,27 +101,27 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.VER_CATALOGOS)
-        if module in ('abogados', 'peritos'):
+        if module in ('abogados', 'glosas', 'peritos'):
             return self.has_permission(Permiso.VER_CONTENIDOS)
         return False
 
     def can_insert(self, module):
         """ ¿Tiene permiso para agregar? """
-        if module in ('usuarios'):
+        if module == 'usuarios':
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
-        if module in ('abogados', 'peritos'):
+        if module in ('abogados', 'glosas', 'peritos'):
             return self.has_permission(Permiso.MODIFICAR_CONTENIDOS)
         return False
 
     def can_edit(self, module):
         """ ¿Tiene permiso para editar? """
-        if module in ('usuarios'):
+        if module == 'usuarios':
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ('distritos', 'autoridades'):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
-        if module in ('abogados', 'peritos'):
+        if module in ('abogados', 'glosas', 'peritos'):
             return self.has_permission(Permiso.CREAR_CONTENIDOS)
         return False
 

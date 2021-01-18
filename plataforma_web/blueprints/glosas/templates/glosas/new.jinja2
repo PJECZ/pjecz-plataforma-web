@@ -1,0 +1,18 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Nuevo Glosa{% endblock %}
+
+{% block content %}
+    {{ f.page_breadcrumb('Nuevo Glosa') }}
+    <div class="container-fluid">
+        {% call f.form_tag('glosas.new', fid='glosa_form') %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.juicio_tipo) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.url) %}{% endcall %}
+            {{ form.guardar() }}
+        {% endcall %}
+    </div>
+{% endblock %}

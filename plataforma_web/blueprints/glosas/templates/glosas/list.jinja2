@@ -1,0 +1,44 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+
+{% block title %}Glosas{% endblock %}
+
+{% block topbar_actions %}
+    {% if current_user.can_insert('glosas') %}
+        {% call list.topbar_actions() %}
+            {{ list.topbar_actions_option('Nuevo Glosas', url_for('glosas.new')) }}
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {{ list.page_breadcrumb('Glosas') }}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="glosas_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Fechas</th>
+                        <th>Expedientes</th>
+                        <th>Tipos de juicio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for glosa in glosas %}
+                    <tr>
+                        <td>{{ glosa.fecha }}</td>
+                        <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.expediente }}</a></td>
+                        <td>{{ glosa.juicio_tipo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#glosas_datatable').DataTable();
+    </script>
+{% endblock %}
