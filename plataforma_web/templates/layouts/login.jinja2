@@ -10,8 +10,7 @@
         <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-analytics.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-auth.js"></script>
-        <script defer src="{{ url_for('static', filename='js/init-firebase.js') }}"></script>
-        <script defer src="{{ url_for('static', filename='js/login-google-popup.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/login-google-popup.js') }}"></script>
         <!-- Preloader animation -->
         <div class="preloader">
             <div class="lds-ripple">
@@ -51,11 +50,6 @@
         <script>
             $('[data-toggle="tooltip"]').tooltip();
             $(".preloader").fadeOut();
-            // Initialize Firebase
-            window.onload = function() {
-                firebase.initializeApp(firebaseConfig);
-                firebase.analytics();
-                initApp();
-            };
         </script>
+        <script src="{{ url_for('static', filename='js/init-firebase.js') }}"></script>
 {% endblock %}
