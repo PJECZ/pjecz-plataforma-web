@@ -1,15 +1,15 @@
 """
-Listas de Acuerdos, modelos
+Glosas, modelos
 """
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class ListaDeAcuerdo(db.Model, UniversalMixin):
-    """ ListaDeAcuerdo """
+class Glosa(db.Model, UniversalMixin):
+    """ Glosa """
 
     # Nombre de la tabla
-    __tablename__ = 'listas_de_acuerdos'
+    __tablename__ = 'glosas'
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -24,16 +24,12 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     )
 
     # Columnas
-    archivo = db.Column(db.String(256), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
-    descripcion = db.Column(db.String(256))
+    juicio_tipo = db.Column(db.String(256), nullable=False)
+    expediente = db.Column(db.String(256), nullable=False)
+    archivo_nombre = db.Column(db.String(256))
     url = db.Column(db.String(256))
-
-    @property
-    def descargable_url(self):
-        """ URL descargable """
-        return 'https://storage.com/' + self.archivo_nombre
 
     def __repr__(self):
         """ Representación """
-        return f'<ListaDeAcuerdo {self.nombre}>'
+        return f'<Glosa {self.nombre}>'

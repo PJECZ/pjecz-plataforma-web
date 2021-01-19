@@ -1,0 +1,46 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+
+{% block title %}Listas de Acuerdos{% endblock %}
+
+{% block topbar_actions %}
+    {% if current_user.can_insert('listas_de_acuerdos') %}
+        {% call list.topbar_actions() %}
+            {{ list.topbar_actions_option('Nueva Lista de Acuerdos', url_for('listas_de_acuerdos.new')) }}
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {{ list.page_breadcrumb('Listas de Acuerdos') }}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="listas_de_acuerdos_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Autoridades</th>
+                        <th>Fechas</th>
+                        <th>Descripciones</th>
+                        <th>Archivos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lista_de_acuerdo in listas_de_acuerdos %}
+                    <tr>
+                        <td>{{ lista_de_acuerdo.autoridad.descripcion }}</td>
+                        <td>{{ lista_de_acuerdo.fecha }}</td>
+                        <td>{{ lista_de_acuerdo.descripcion }}</td>
+                        <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.archivo }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#listas_de_acuerdos_datatable').DataTable();
+    </script>
+{% endblock %}

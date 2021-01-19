@@ -1,5 +1,5 @@
 """
-Listas de Acuerdos, formularios
+Glosas, formularios
 """
 from flask_wtf import FlaskForm
 from wtforms import DateField, StringField, SubmitField
@@ -14,11 +14,11 @@ def autoridades_opciones():
     return Autoridad.query.filter(Autoridad.estatus == 'A').order_by(Autoridad.descripcion).all()
 
 
-class ListaDeAcuerdoForm(FlaskForm):
-    """ Formulario Lista de Acuerdo """
+class GlosaForm(FlaskForm):
+    """ Formulario Glosa """
     autoridad = QuerySelectField(query_factory=autoridades_opciones, get_label='descripcion')
     fecha = DateField('Fecha', validators=[DataRequired()])
-    descripcion = StringField('Descripción', validators=[DataRequired(), Length(max=256)])
-    archivo = StringField('Archivo', validators=[DataRequired()])
-    url = StringField('URL', validators=[DataRequired()])
+    juicio_tipo = StringField('Tipo de juicio', validators=[DataRequired(), Length(max=256)])
+    expediente = StringField('Expediente', validators=[DataRequired(), Length(max=256)])
+    url = StringField('URL', validators=[DataRequired(), Length(max=256)])
     guardar = SubmitField('Guardar')

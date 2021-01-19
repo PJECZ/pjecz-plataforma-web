@@ -27,6 +27,10 @@ class Autoridad(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
     email = db.Column(db.String(256))
 
+    # Hijos
+    glosas = db.relationship('Glosa', backref='autoridad')
+    listas_de_acuerdos = db.relationship('ListaDeAcuerdo', backref='autoridad')
+
     def __repr__(self):
         """ Representación """
         return f'<Autoridad {self.descripcion}>'
