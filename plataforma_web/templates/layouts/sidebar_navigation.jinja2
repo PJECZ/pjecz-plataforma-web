@@ -4,9 +4,10 @@
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="p-t-30">
                 {{ app.sidebar_nav_option('Inicio', '/', 'mdi mdi-view-dashboard') }}
-                {% if current_user.can_view('abogados') %}{{ app.sidebar_nav_option('Abogados', '/abogados', 'mdi mdi-tie') }}{% endif %}
-                {% if current_user.can_view('peritos') %}{{ app.sidebar_nav_option('Peritos', '/peritos', 'mdi mdi-file') }}{% endif %}
+                {% if current_user.can_view('abogados') %}{{ app.sidebar_nav_option('Abogados registrados', '/abogados', 'mdi mdi-tie') }}{% endif %}
                 {% if current_user.can_view('glosas') %}{{ app.sidebar_nav_option('Glosas', '/glosas', 'mdi mdi-file') }}{% endif %}
+                {% if current_user.can_view('listas_de_acuerdos') %}{{ app.sidebar_nav_option('Listas de acuerdos', '/listas_de_acuerdos', 'mdi mdi-file') }}{% endif %}
+                {% if current_user.can_view('peritos') %}{{ app.sidebar_nav_option('Peritos', '/peritos', 'mdi mdi-file') }}{% endif %}
                 {% call app.sidebar_nav_submenu('Catálogos', 'mdi mdi-account-settings') %}
                     {% if current_user.can_view('distritos') %}{{ app.sidebar_nav_option('Distritos', '/distritos', 'mdi mdi-apps') }}{% endif %}
                     {% if current_user.can_view('autoridades') %}{{ app.sidebar_nav_option('Autoridades', '/autoridades', 'mdi mdi-scale-balance') }}{% endif %}

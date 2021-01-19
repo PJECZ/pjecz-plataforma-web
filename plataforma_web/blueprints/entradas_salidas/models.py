@@ -31,7 +31,7 @@ class EntradaSalida(db.Model, UniversalMixin):
 
     # Columnas
     tipo = db.Column(
-        db.Enum(*TIPOS, name='tipos_diccionario', native_enum=False),
+        db.Enum(*TIPOS, name='tipos_entradas_salidas', native_enum=False),
         index=True,
         nullable=False,
     )

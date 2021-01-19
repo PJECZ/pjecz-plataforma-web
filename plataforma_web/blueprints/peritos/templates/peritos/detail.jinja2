@@ -3,15 +3,38 @@
 
 {% block title %}Perito{% endblock %}
 
+{% block topbar_actions %}
+    {% call detail.topbar_actions() %}
+        {% if current_user.can_edit('peritos') %}
+            {{ detail.topbar_actions_option('Editar', url_for('peritos.edit', perito_id=perito.id)) }}
+            {% if perito.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if perito.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
 {% block content %}
     {{ detail.page_breadcrumb('Perito') }}
     <div class="container-fluid">
-        {% call detail.card() %}
-            {{ detail.label_value_big('Perito', perito.nombre) }}
+        {% call detail.card(estatus=perito.estatus) %}
+            {{ detail.label_value_big('Nombre', perito.nombre) }}
+            {{ detail.label_value('Distrito', perito.distrito.nombre) }}
+            {{ detail.label_value('Tipo', perito.tipo) }}
             {{ detail.label_value('Domicilio', perito.domicilio) }}
             {{ detail.label_value('Teléfono fijo', perito.telefono_fijo) }}
             {{ detail.label_value('Teléfono celular', perito.telefono_celular) }}
             {{ detail.label_value('e-mail', perito.email) }}
+            {{ detail.label_value('Notas', perito.notas) }}
         {% endcall %}
     </div>
+    {% if current_user.can_edit('peritos') %}
+        {{ detail.modal('Eliminar', '¿Eliminar a ' + perito.nombre + '?', 'modalDelete', url_for('peritos.delete', perito_id=perito.id)) }}
+        {{ detail.modal('Recuperar', '¿Recuperar a ' + perito.nombre + '?', 'modalRecover', url_for('peritos.recover', perito_id=perito.id)) }}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('peritos') %}
+        {{ detail.custom_javascript_delete_recover() }}
+    {% endif %}
 {% endblock %}

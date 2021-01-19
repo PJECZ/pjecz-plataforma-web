@@ -24,9 +24,10 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     )
 
     # Columnas
+    archivo = db.Column(db.String(256), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
-    descripcion = db.Column(db.String(256), nullable=False)
-    archivo_nombre = db.Column(db.String(256))
+    descripcion = db.Column(db.String(256))
+    url = db.Column(db.String(256))
 
     @property
     def descargable_url(self):

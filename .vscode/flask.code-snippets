@@ -1,7 +1,7 @@
 {
 	"Flask views top": {
 		"scope": "python",
-		"prefix": "fviewstop",
+		"prefix": "fviews_top",
 		"body": [
 			"from flask import Blueprint, flash, redirect, render_template, url_for",
 			"from flask_login import login_required",
@@ -14,13 +14,13 @@
 	},
 	"Flask views blueprint": {
 		"scope": "python",
-		"prefix": "fviewsblueprint",
+		"prefix": "fviews_blueprint",
 		"body": "${1:blueprint} = Blueprint('${1:blueprint}', __name__, template_folder='templates')",
 		"description": "Blueprint"
 	},
 	"Flask views permission": {
 		"scope": "python",
-		"prefix": "fviewspermission",
+		"prefix": "fviews_permission",
 		"body": [
 			"@${1:blueprint}.before_request",
 			"@login_required",
@@ -34,7 +34,7 @@
 	},
 	"Flask views list_active": {
 		"scope": "python",
-		"prefix": "fviewslistactive",
+		"prefix": "fviews_list_active",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}')",
 			"def list_active():",
@@ -48,7 +48,7 @@
 	},
 	"Flask views detail": {
 		"scope": "python",
-		"prefix": "fviewsdetail",
+		"prefix": "fviews_detail",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/<int:${2:columna_id}>')",
 			"def detail(${2:columna_id}):",
@@ -62,7 +62,7 @@
 	},
 	"Flask views new": {
 		"scope": "python",
-		"prefix": "fviewsnew",
+		"prefix": "fviews_new",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/nuevo', methods=['GET', 'POST'])",
 			"@permission_required(Permiso.CREAR_XXXXXXXX)",
@@ -82,7 +82,7 @@
 	},
 	"Flask views edit": {
 		"scope": "python",
-		"prefix": "fviewsedit",
+		"prefix": "fviews_edit",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/edicion/<int:${2:column_id}>', methods=['GET', 'POST'])",
 			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
@@ -104,7 +104,7 @@
 	},
 	"Flask views delete": {
 		"scope": "python",
-		"prefix": "fviewsdelete",
+		"prefix": "fviews_delete",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/eliminar/<int:${2:column_id}>')",
 			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
@@ -122,7 +122,7 @@
 	},
 	"Flask views recover": {
 		"scope": "python",
-		"prefix": "fviewsrecover",
+		"prefix": "fviews_recover",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/recuperar/<int:${2:column_id}>')",
 			"@permission_required(Permiso.MODIFICAR_XXXXXXXX)",
@@ -140,7 +140,7 @@
 	},
 	"Flask models top": {
 		"scope": "python",
-		"prefix": "fmodelstop",
+		"prefix": "fmodels_top",
 		"body": [
 			"from ${1:web_system}.extensions import db",
 			"from lib.universal_mixin import UniversalMixin",
@@ -151,7 +151,7 @@
 	},
 	"Flask models model": {
 		"scope": "python",
-		"prefix": "fmodelsmodel",
+		"prefix": "fmodels_class",
 		"body": [
 			"class ${1:Class}(db.Model, UniversalMixin):",
 			"\t\"\"\" ${1:Class} \"\"\"",
@@ -176,7 +176,7 @@
 	},
 	"Flask models foreign key": {
 		"scope": "python",
-		"prefix": "fmodelsforeignkey",
+		"prefix": "fmodels_class_foreign_key",
 		"body": [
 			"# Clave foránea",
 			"${1:column}_id = db.Column(",
@@ -192,13 +192,13 @@
 	},
 	"Flask models child": {
 		"scope": "python",
-		"prefix": "fmodelschild",
+		"prefix": "fmodels_class_child",
 		"body": "${1:plural} = db.relationship('${2:Name}', backref='${3:column}')",
 		"description": "Hijo"
 	},
 	"Flask forms top": {
 		"scope": "python",
-		"prefix": "fformstop",
+		"prefix": "fforms_top",
 		"body": [
 			"from flask_wtf import FlaskForm",
 			"from wtforms import HiddenField, PasswordField, StringField, SubmitField",
@@ -209,9 +209,20 @@
 		],
 		"description": "Cargar paquetes"
 	},
+	"Flask forms query select function": {
+		"scope": "python",
+		"prefix": "fforms_function_query_for_select",
+		"body": [
+			"def ${1:plural}_opciones():",
+			"\t\"\"\" ${2:Description}: opciones para select \"\"\"",
+			"\treturn ${3:Class}.query.filter(${3:Class}.estatus == 'A').order_by(${3:Class}.${4:nombre_o_descripcion}).all()",
+			""
+		],
+		"description": "Función que consulta para las opciones de un select"
+	},
 	"Flask forms form": {
 		"scope": "python",
-		"prefix": "fformsform",
+		"prefix": "fforms_class",
 		"body": [
 			"class ${1:ClassForm}(FlaskForm):",
 			"\t\"\"\" Formulario ${2:description} \"\"\"",
@@ -222,9 +233,15 @@
 		],
 		"description": "Formulario"
 	},
+	"Flask forms query select field": {
+		"scope": "python",
+		"prefix": "fforms_field_query_select",
+		"body": "${1:column} = QuerySelectField(query_factory=${2:plural}_opciones, get_label='${3:nombre_o_descripcion}')",
+		"description": "Campo select con opciones de una función que consulta"
+	},
 	"Jinja2 detail": {
 		"scope": "jinja-html",
-		"prefix": "j2detail",
+		"prefix": "j2_detail",
 		"body": [
 			"{% extends 'layouts/app.jinja2' %}",
 			"{% import 'macros/detail.jinja2' as detail with context %}",
@@ -245,7 +262,7 @@
 	},
 	"Jinja2 detail delete recover": {
 		"scope": "jinja-html",
-		"prefix": "j2detaildeleterecover",
+		"prefix": "j2_detail_edit_delete_recover",
 		"body": [
 			"{% extends 'layouts/app.jinja2' %}",
 			"{% import 'macros/detail.jinja2' as detail with context %}",
@@ -286,7 +303,7 @@
 	},
 	"Jinja2 edit": {
 		"scope": "jinja-html",
-		"prefix": "j2edit",
+		"prefix": "j2_edit",
 		"body": [
 			"{% extends 'layouts/app.jinja2' %}",
 			"{% import 'macros/form.jinja2' as f with context %}",
@@ -309,7 +326,7 @@
 	},
 	"Jinja2 list":{
 		"scope": "jinja-html",
-		"prefix": "j2list",
+		"prefix": "j2_list",
 		"body": [
 			"{% extends 'layouts/app.jinja2' %}",
 			"{% import 'macros/list.jinja2' as list with context %}",
@@ -349,7 +366,7 @@
 	},
 	"Jinja2 list new":{
 		"scope": "jinja-html",
-		"prefix": "j2listnew",
+		"prefix": "j2_list_new",
 		"body": [
 			"{% extends 'layouts/app.jinja2' %}",
 			"{% import 'macros/list.jinja2' as list with context %}",
@@ -397,7 +414,7 @@
 	},
 	"Jinja2 new": {
 		"scope": "jinja-html",
-		"prefix": "j2new",
+		"prefix": "j2_new",
 		"body": [
 			"{% extends 'layouts/app.jinja2' %}",
 			"{% import 'macros/form.jinja2' as f with context %}",

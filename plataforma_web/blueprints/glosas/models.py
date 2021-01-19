@@ -27,6 +27,7 @@ class Glosa(db.Model, UniversalMixin):
     fecha = db.Column(db.Date, nullable=False)
     juicio_tipo = db.Column(db.String(256), nullable=False)
     expediente = db.Column(db.String(256), nullable=False)
+    archivo_nombre = db.Column(db.String(256))
     url = db.Column(db.String(256))
 
     def __repr__(self):
