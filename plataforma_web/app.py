@@ -12,6 +12,7 @@ from plataforma_web.blueprints.sistemas.views import sistemas
 
 from plataforma_web.blueprints.abogados.views import abogados
 from plataforma_web.blueprints.autoridades.views import autoridades
+from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
@@ -37,6 +38,7 @@ def create_app():
     app.register_blueprint(abogados)
     app.register_blueprint(autoridades)
     app.register_blueprint(distritos)
+    app.register_blueprint(edictos)
     app.register_blueprint(glosas)
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(peritos)

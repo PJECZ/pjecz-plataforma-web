@@ -412,6 +412,21 @@
 		],
 		"description": "Plantilla list.jinja2 acción nuevo"
 	},
+	"Jinja2 list new topbar":{
+		"scope": "jinja-html",
+		"prefix": "j2_list_new_topbar",
+		"body": [
+			"{% block topbar_actions %}",
+			"\t{% if current_user.can_insert('${2:blueprint}') %}",
+			"\t\t{% call list.topbar_actions() %}",
+			"\t\t\t{{ list.topbar_actions_option('Nuevo ${1:Titulo}', url_for('${2:blueprint}.new')) }}",
+			"\t\t{% endcall %}",
+			"\t{% endif %}",
+			"{% endblock %}",
+			""
+		],
+		"description": "Plantilla list.jinja2 acción nuevo topbar actions"
+	},
 	"Jinja2 new": {
 		"scope": "jinja-html",
 		"prefix": "j2_new",

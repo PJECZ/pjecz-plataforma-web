@@ -73,12 +73,17 @@ Para su conocimiento, reiniciar es inicializar y alimentar
 
 En el entorno virtual cargue las variables de entorno
 
-En windows...
+Para la línea de comandos de windows...
 
     set FLASK_APP=plataforma_web/app.py
     set FLASK_DEBUG=1
 
-En GNU/Linux...
+Para la power shell de windows...
+
+    $env:FLASK_APP = "plataforma_web/app.py"
+    $env:FLASK_DEBUG = 1
+
+Para la terminal GNU/Linux...
 
     FLASK_APP=plataforma_web.app
     FLASK_DEBUG=1
