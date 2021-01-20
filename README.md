@@ -47,10 +47,42 @@ Crear su archivo de configuración config/settings.py
 
 ## Pasos para inicializar la base de datos
 
-Instale el script click
+Dentro del entorno virtual, instale el script con...
 
-Copie los archivos CSV que alimentan la base de datos
+    pip install --editable .
 
-Inicializar la base de datos
+Pruebe que funcione
 
-Alimentar la base de datos
+    plataforma_web --help
+
+Para inicializar la base de datos
+
+    plataforma_web db inicializar
+
+Copie los archivos CSV desde archivista a seed
+
+Alimentar la base de datos con
+
+    plataforma_web db alimentar
+
+Para su conocimiento, reiniciar es inicializar y alimentar
+
+    plataforma_web db reiniciar
+
+## Pasos para arrancar el sistema web
+
+En el entorno virtual cargue las variables de entorno
+
+En windows...
+
+    set FLASK_APP=plataforma_web/app.py
+    set FLASK_DEBUG=1
+
+En GNU/Linux...
+
+    FLASK_APP=plataforma_web.app
+    FLASK_DEBUG=1
+
+Y ejecute Flask
+
+    flask run
