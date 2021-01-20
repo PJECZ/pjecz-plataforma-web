@@ -1,0 +1,39 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Edicto{% endblock %}
+
+{% block topbar_actions %}
+    {% call detail.topbar_actions() %}
+        {% if current_user.can_edit('edictos') %}
+            {{ detail.topbar_actions_option('Editar', url_for('edictos.edit', edicto_id=edicto.id)) }}
+            {% if edicto.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if edicto.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {{ detail.page_breadcrumb('Edicto') }}
+    <div class="container-fluid">
+        {% call detail.card(estatus=edicto.estatus) %}
+            {{ detail.label_value_big('Edicto', edicto.descripcion) }}
+            {{ detail.label_value('Fecha', edicto.fecha) }}
+            {{ detail.label_value('Descripción', edicto.descripcion) }}
+            {{ detail.label_value('Expediente', edicto.expediente) }}
+            {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
+            {{ detail.label_value('Archivo', edicto.archivo) }}
+            {{ detail.label_value('URL', edicto.url) }}
+        {% endcall %}
+    </div>
+    {% if current_user.can_edit('edictos') %}
+        {{ detail.modal('Eliminar', '¿Eliminar a ' + edicto.descripcion + '?', 'modalDelete', url_for('edictos.delete', edicto_id=edicto.id)) }}
+        {{ detail.modal('Recuperar', '¿Recuperar a ' + edicto.descripcion + '?', 'modalRecover', url_for('edictos.recover', edicto_id=edicto.id)) }}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('edictos') %}
+        {{ detail.custom_javascript_delete_recover() }}
+    {% endif %}
+{% endblock %}
