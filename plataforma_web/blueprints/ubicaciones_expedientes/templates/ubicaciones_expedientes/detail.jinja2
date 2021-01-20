@@ -1,0 +1,14 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Ubicación de Expedientes{% endblock %}
+
+{% block content %}
+    {{ detail.page_breadcrumb('Ubicación de Expedientes') }}
+    <div class="container-fluid">
+        {% call detail.card() %}
+            {{ detail.label_value_big('Expediente', ubicacion_expediente.expediente) }}
+            {{ detail.label_value_big('Ubicación', ubicacion_expediente.ubicacion) }}
+        {% endcall %}
+    </div>
+{% endblock %}

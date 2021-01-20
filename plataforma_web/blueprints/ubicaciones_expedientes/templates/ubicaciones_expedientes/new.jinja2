@@ -1,0 +1,15 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Nuevo Ubicacion de Expediente{% endblock %}
+
+{% block content %}
+    {{ f.page_breadcrumb('Nuevo Ubicacion de Expediente') }}
+    <div class="container-fluid">
+        {% call f.form_tag('ubicaciones_expedientes.new', fid='ubicacion_expediente_form') %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.ubicacion) %}{% endcall %}
+            {{ form.guardar() }}
+        {% endcall %}
+    </div>
+{% endblock %}
