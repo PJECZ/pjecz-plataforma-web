@@ -8,7 +8,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.ubicaciones_expedientes.models import Ubicacion_Expediente
-from plataforma_web.blueprints.ubicaciones_expedientes.forms import Ubicacion_ExpedienteForm
+from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionDeExpedienteForm
 
 ubicaciones_expedientes = Blueprint('ubicaciones_expedientes', __name__, template_folder='templates')
 
@@ -37,7 +37,7 @@ def detail(ubicacion_expediente_id):
 @permission_required(Permiso.CREAR_CONTENIDOS)
 def new():
     """ Nuevo Ubicación de Expedientes """
-    form = Ubicacion_ExpedienteForm()
+    form = UbicacionDeExpedienteForm()
     if form.validate_on_submit():
         ubicacion_expediente = Ubicacion_Expediente(
             expediente=form.expediente.data,
@@ -62,6 +62,7 @@ def edit(ubicacion_expediente_id):
         flash(f'Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.', 'success')
         return redirect(url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id))
     form.expediente.data = ubicacion_expediente.expediente
+    form.expediente.data = ubicacion_expediente.ubicacion
     return render_template('ubicaciones_expedientes/edit.jinja2', form=form, ubicacion_expediente=ubicacion_expediente)
 
 

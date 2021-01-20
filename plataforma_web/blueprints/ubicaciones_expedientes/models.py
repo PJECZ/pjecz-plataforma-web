@@ -5,7 +5,7 @@ Ubicaciones de Expedientes, modelos
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
-class Ubicacion_Expediente(db.Model, UniversalMixin):
+class UbicacionDeExpediente(db.Model, UniversalMixin):
     """ Ubicacion_Expediente """
 
     # Nombre de la tabla
