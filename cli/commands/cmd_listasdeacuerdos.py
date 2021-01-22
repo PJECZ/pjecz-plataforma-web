@@ -29,7 +29,7 @@ def cli():
 
 @click.command()
 def alimentar():
-    """ Alimentar """
+    """ Alimentar la tabla a partir de los archivos en Storage """
     # Google Cloud Storage
     client = storage.Client()
     bucket = client.get_bucket(DEPOSITO)
@@ -46,4 +46,18 @@ def alimentar():
         click.echo(f'  {blob.name}')
 
 
+@click.command()
+def respaldar():
+    """ Respaldar la tabla a su archivo seed/listas_de_acuerdos.csv """
+    click.echo('Pendiente programar.')
+
+
+@click.command()
+def actualizar():
+    """ Actualizar listado JSON y subirlo a Storage """
+    click.echo('Pendiente programar.')
+
+
 cli.add_command(alimentar)
+cli.add_command(respaldar)
+cli.add_command(actualizar)
