@@ -24,4 +24,4 @@ class Edicto(db.Model, UniversalMixin):
 
     def __repr__(self):
         """ Representación """
-        return f'<Edicto {self.nombre}>'
+        return f'<Edicto {self.archivo}>'

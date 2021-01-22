@@ -29,11 +29,6 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256))
     url = db.Column(db.String(256))
 
-    @property
-    def descargable_url(self):
-        """ URL descargable """
-        return 'https://storage.com/' + self.archivo_nombre
-
     def __repr__(self):
         """ Representación """
-        return f'<ListaDeAcuerdo {self.nombre}>'
+        return f'<ListaDeAcuerdo {self.archivo}>'
