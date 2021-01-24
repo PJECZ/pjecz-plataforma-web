@@ -19,9 +19,11 @@ def alimentar_autoridades():
             rows = csv.DictReader(puntero)
             for row in rows:
                 datos = {
-                    'descripcion': row['descripcion'].strip(),
                     'distrito': Distrito.query.filter_by(nombre=row['distrito'].strip()).first(),
+                    'descripcion': row['descripcion'].strip(),
                     'email': row['email'].strip(),
+                    'directorio_listas_de_acuerdos': row['directorio_listas_de_acuerdos'].strip(),
+                    'directorio_sentencias': row['directorio_sentencias'].strip(),
                 }
                 Autoridad(**datos).save()
         click.echo('Autoridades alimentadas.')

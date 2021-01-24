@@ -14,9 +14,19 @@ def distritos_opciones():
     return Distrito.query.filter(Distrito.estatus == 'A').order_by(Distrito.nombre).all()
 
 
-class AutoridadForm(FlaskForm):
-    """ Formulario Autoridad """
+class AutoridadNewForm(FlaskForm):
+    """ Formulario nueva Autoridad """
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label='nombre')
     descripcion = StringField('Autoridad', validators=[DataRequired(), Length(max=256)])
     email = StringField('e-mail', validators=[Optional(), Email()])
+    guardar = SubmitField('Guardar')
+
+
+class AutoridadEditForm(FlaskForm):
+    """ Formulario modificar Autoridad """
+    distrito = QuerySelectField(query_factory=distritos_opciones, get_label='nombre')
+    descripcion = StringField('Autoridad', validators=[DataRequired(), Length(max=256)])
+    email = StringField('e-mail', validators=[Optional(), Email()])
+    directorio_listas_de_acuerdos = StringField('Directorio listas de acuerdos', validators=[Optional(), Length(max=256)])
+    directorio_sentencias = StringField('Directorio listas de acuerdos', validators=[Optional(), Length(max=256)])
     guardar = SubmitField('Guardar')

@@ -36,14 +36,15 @@ def alimentar():
     # Bucle por las autoridades
     autoridades_activas = Autoridad.query.filter(Autoridad.estatus == 'A').all()
     for autoridad in autoridades_activas:
-        subdirectorio = f'{DIRECTORIO}/{autoridad.distrito.nombre}/{autoridad.descripcion}'
-        click.echo(subdirectorio)
-        #for blob in bucket.list_blobs(prefix=subdirectorio):
-        #    click.echo('  ' + blob.name)
-    # Real 'Distrito de Monclova', mal 'Distrito Judicial de Monclova'
-    subdirectorio = f'{DIRECTORIO}/Distrito de Monclova/Juzgado Primero de Primera Instancia en Materia Civil Monclova'
-    for blob in bucket.list_blobs(prefix=subdirectorio):
-        click.echo(f'  {blob.name}')
+        if autoridad.directorio_listas_de_acuerdos != '':
+            subdirectorio = f'{DIRECTORIO}/{autoridad.directorio_listas_de_acuerdos}'
+            click.echo(subdirectorio)
+            blobs = bucket.list_blobs(prefix=subdirectorio)
+            if len(blobs) == 0:
+                click.echo('! ' + blob.name)
+            for blob in blobs:
+                click.echo('  ' + blob.name)
+                break
 
 
 @click.command()
