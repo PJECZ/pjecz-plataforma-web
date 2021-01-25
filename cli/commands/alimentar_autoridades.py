@@ -15,7 +15,7 @@ def alimentar_autoridades():
     """ Alimentar autoridades """
     autoridades_csv = Path(AUTORIDADES_CSV)
     if autoridades_csv.exists():
-        with open(autoridades_csv, encoding="utf8") as puntero:
+        with open(autoridades_csv, encoding='utf8') as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
                 datos = {

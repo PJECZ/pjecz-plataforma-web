@@ -27,7 +27,7 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     archivo = db.Column(db.String(256), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
     descripcion = db.Column(db.String(256))
-    url = db.Column(db.String(256))
+    url = db.Column(db.String(512))
 
     def __repr__(self):
         """ Representación """

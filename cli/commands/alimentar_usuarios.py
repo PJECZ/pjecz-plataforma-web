@@ -16,7 +16,7 @@ def alimentar_usuarios():
     """ Alimentar usuarios """
     usuarios_csv = Path(USUARIOS_CSV)
     if usuarios_csv.exists():
-        with open(usuarios_csv) as puntero:
+        with open(usuarios_csv, encoding='utf8') as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
                 datos = {
