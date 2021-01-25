@@ -12,8 +12,8 @@ from plataforma_web.blueprints.sistemas.views import sistemas
 
 from plataforma_web.blueprints.abogados.views import abogados
 from plataforma_web.blueprints.autoridades.views import autoridades
-from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.distritos.views import distritos
+from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.peritos.views import peritos

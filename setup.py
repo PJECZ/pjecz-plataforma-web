@@ -15,12 +15,15 @@ setuptools.setup(
         'Flask-Login',
         'Flask-SQLAlchemy',
         'Flask-WTF',
+        'google-cloud-storage',
         'Jinja2',
         'passlib',
+        'psycopg2-binary',
         'PyMySQL',
         'SQLAlchemy',
         'SQLAlchemy-utils',
         'tabulate',
+        'unidecode',
     ],
     entry_points="""
         [console_scripts]

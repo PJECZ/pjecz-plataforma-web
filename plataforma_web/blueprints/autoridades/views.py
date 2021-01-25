@@ -7,7 +7,8 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.autoridades.forms import AutoridadForm
+from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm
+from plataforma_web.blueprints.distritos.models import Distrito
 
 autoridades = Blueprint('autoridades', __name__, template_folder='templates')
 
@@ -37,12 +38,16 @@ def detail(autoridad_id):
 @permission_required(Permiso.CREAR_CATALOGOS)
 def new():
     """ Nueva Autoridad """
-    form = AutoridadForm()
+    form = AutoridadNewForm()
     if form.validate_on_submit():
+        distrito = Distrito.query.get(form.distrito.data)
+        directorio = f'{distrito.nombre}/{form.descripcion.data}'
         autoridad = Autoridad(
             distrito=form.distrito.data,
             descripcion=form.descripcion.data,
             email=form.email.data,
+            directorio_listas_de_acuerdos=directorio,
+            directorio_sentencias=directorio,
         )
         autoridad.save()
         flash(f'Autoridad {autoridad.descripcion} guardado.', 'success')
@@ -55,17 +60,21 @@ def new():
 def edit(autoridad_id):
     """ Editar Autoridad """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    form = AutoridadForm()
+    form = AutoridadEditForm()
     if form.validate_on_submit():
         autoridad.distrito = form.distrito.data
         autoridad.descripcion = form.descripcion.data
         autoridad.email = form.email.data
+        autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data
+        autoridad.directorio_sentencias = form.directorio_sentencias.data
         autoridad.save()
         flash(f'Autoridad {autoridad.descripcion} guardado.', 'success')
         return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
     form.distrito.data = autoridad.distrito
     form.descripcion.data = autoridad.descripcion
     form.email.data = autoridad.email
+    form.directorio_listas_de_acuerdos.data = autoridad.directorio_listas_de_acuerdos
+    form.directorio_sentencias.data = autoridad.directorio_sentencias
     return render_template('autoridades/edit.jinja2', form=form, autoridad=autoridad)
 
 

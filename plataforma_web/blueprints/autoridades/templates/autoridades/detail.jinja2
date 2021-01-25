@@ -18,8 +18,10 @@
     <div class="container-fluid">
         {% call detail.card(estatus=autoridad.estatus) %}
             {{ detail.label_value_big('Autoridad', autoridad.descripcion) }}
-            {{ detail.label_value('Distrito', autoridad.distrito.nombre) }}
+            {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
             {{ detail.label_value('e-mail', autoridad.email) }}
+            {{ detail.label_value('Directorio listas de acuerdos', autoridad.directorio_listas_de_acuerdos) }}
+            {{ detail.label_value('Directorio sentencias', autoridad.directorio_sentencias) }}
         {% endcall %}
     </div>
     {% if current_user.can_edit('autoridades') %}

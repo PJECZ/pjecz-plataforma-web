@@ -14,7 +14,7 @@ def alimentar_distritos():
     """ Alimentar distritos """
     distritos_cvs = Path(DISTRITOS_CSV)
     if distritos_cvs.exists():
-        with open(distritos_cvs, encoding="utf8") as puntero:
+        with open(distritos_cvs, encoding='utf8') as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
                 datos = {

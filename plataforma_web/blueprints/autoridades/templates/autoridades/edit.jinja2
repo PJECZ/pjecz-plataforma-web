@@ -11,6 +11,8 @@
             {% call f.form_group(form.distrito) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.email) %}{% endcall %}
+            {% call f.form_group(form.directorio_listas_de_acuerdos) %}{% endcall %}
+            {% call f.form_group(form.directorio_sentencias) %}{% endcall %}
             {{ form.guardar() }}
         {% endcall %}
     </div>

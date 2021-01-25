@@ -32,4 +32,4 @@ class Glosa(db.Model, UniversalMixin):
 
     def __repr__(self):
         """ Representación """
-        return f'<Glosa {self.nombre}>'
+        return f'<Glosa {self.expediente}>'
