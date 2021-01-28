@@ -24,7 +24,7 @@ class Glosa(db.Model, UniversalMixin):
     )
 
     # Columnas
-    fecha = db.Column(db.Date, nullable=False)
+    fecha = db.Column(db.Date, index=True, nullable=False)
     juicio_tipo = db.Column(db.String(256), nullable=False)
     expediente = db.Column(db.String(256), nullable=False)
     archivo_nombre = db.Column(db.String(256))

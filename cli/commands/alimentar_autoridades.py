@@ -15,6 +15,7 @@ def alimentar_autoridades():
     """ Alimentar autoridades """
     autoridades_csv = Path(AUTORIDADES_CSV)
     if autoridades_csv.exists():
+        click.echo('Alimentando Autoridades...')
         with open(autoridades_csv, encoding='utf8') as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
@@ -26,6 +27,5 @@ def alimentar_autoridades():
                     'directorio_sentencias': row['directorio_sentencias'].strip(),
                 }
                 Autoridad(**datos).save()
-        click.echo('Autoridades alimentadas.')
     else:
         click.echo(f'ERROR: No se encontró {AUTORIDADES_CSV}')

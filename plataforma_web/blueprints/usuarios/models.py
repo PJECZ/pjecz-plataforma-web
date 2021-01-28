@@ -33,8 +33,8 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     email = db.Column(db.String(256))
 
     # Hijos
-    bitacoras = db.relationship('Bitacora', backref='usuario')
-    entradas_salidas = db.relationship('EntradaSalida', backref='usuario')
+    bitacoras = db.relationship('Bitacora', backref='usuario', lazy='noload')
+    entradas_salidas = db.relationship('EntradaSalida', backref='usuario', lazy='noload')
 
     @property
     def nombre(self):

@@ -30,8 +30,8 @@ class Autoridad(db.Model, UniversalMixin):
     directorio_sentencias = db.Column(db.String(256))
 
     # Hijos
-    glosas = db.relationship('Glosa', backref='autoridad')
-    listas_de_acuerdos = db.relationship('ListaDeAcuerdo', backref='autoridad')
+    glosas = db.relationship('Glosa', backref='autoridad', lazy='noload')
+    listas_de_acuerdos = db.relationship('ListaDeAcuerdo', backref='autoridad', lazy='noload')
 
     def __repr__(self):
         """ Representación """

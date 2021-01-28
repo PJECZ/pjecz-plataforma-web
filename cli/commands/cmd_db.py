@@ -1,5 +1,9 @@
 """
-Base de datos: inicializar, alimentar y reiniciar
+Base de datos
+
+- inicializar
+- alimentar
+- reiniciar
 """
 import click
 
@@ -10,6 +14,7 @@ from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_distritos import alimentar_distritos
 from cli.commands.alimentar_autoridades import alimentar_autoridades
 from cli.commands.alimentar_abogados import alimentar_abogados
+from cli.commands.alimentar_listas_de_acuerdos import alimentar_listas_de_acuerdos
 
 
 app = create_app()
@@ -37,6 +42,7 @@ def alimentar():
     alimentar_distritos()
     alimentar_autoridades()
     alimentar_abogados()
+    alimentar_listas_de_acuerdos()
     click.echo('Alimentado.')
 
 
