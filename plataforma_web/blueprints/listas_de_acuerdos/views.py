@@ -8,6 +8,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm
+from plataforma_web.blueprints.distritos.models import Distrito
 
 listas_de_acuerdos = Blueprint('listas_de_acuerdos', __name__, template_folder='templates')
 
@@ -49,7 +50,8 @@ def new():
         lista_de_acuerdo.save()
         flash(f'Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.', 'success')
         return redirect(url_for('listas_de_acuerdos.list_active'))
-    return render_template('listas_de_acuerdos/new.jinja2', form=form)
+    distritos = Distrito.query.filter(Distrito.estatus == 'A').order_by(Distrito.nombre).all()
+    return render_template('listas_de_acuerdos/new.jinja2', form=form, distritos=distritos)
 
 
 @listas_de_acuerdos.route('/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>', methods=['GET', 'POST'])
