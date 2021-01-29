@@ -8,11 +8,8 @@
         <div class="container-fluid">
         {% set form_kwargs = {'lista_de_acuerdo_id': lista_de_acuerdo.id} %}
         {% call f.form_tag('listas_de_acuerdos.edit', fid='lista_de_acuerdo_form', **form_kwargs) %}
-            {% call f.form_group(form.autoridad) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.archivo) %}{% endcall %}
-            {% call f.form_group(form.url) %}{% endcall %}
             {{ form.guardar() }}
         {% endcall %}
     </div>

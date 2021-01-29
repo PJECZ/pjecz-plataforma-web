@@ -14,9 +14,18 @@ def autoridades_opciones():
     return Autoridad.query.filter(Autoridad.estatus == 'A').order_by(Autoridad.descripcion).all()
 
 
-class ListaDeAcuerdoForm(FlaskForm):
+class ListaDeAcuerdoNewForm(FlaskForm):
     """ Formulario Lista de Acuerdo """
     autoridad = QuerySelectField(query_factory=autoridades_opciones, get_label='descripcion')
+    fecha = DateField('Fecha', validators=[DataRequired()])
+    descripcion = StringField('Descripción', validators=[DataRequired(), Length(max=256)])
+    archivo = StringField('Archivo', validators=[DataRequired()])
+    url = StringField('URL', validators=[DataRequired()])
+    guardar = SubmitField('Guardar')
+
+
+class ListaDeAcuerdoEditForm(FlaskForm):
+    """ Formulario Lista de Acuerdo """
     fecha = DateField('Fecha', validators=[DataRequired()])
     descripcion = StringField('Descripción', validators=[DataRequired(), Length(max=256)])
     archivo = StringField('Archivo', validators=[DataRequired()])
