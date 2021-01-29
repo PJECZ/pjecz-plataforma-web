@@ -7,6 +7,7 @@ Listas de Acuerdos
 """
 from datetime import datetime
 from pathlib import Path
+import json
 import csv
 import click
 from google.cloud import storage
@@ -26,6 +27,7 @@ db.app = app
 DEPOSITO = 'pjecz-consultas'
 DIRECTORIO = 'Listas de Acuerdos'
 LISTAS_DE_ACUERDOS_CSV = 'seed/listas_de_acuerdos.csv'
+LISTAS_DE_ACUERDOS_JSON = 'json/listas_de_acuerdos.json'
 
 
 @click.group()
@@ -123,8 +125,28 @@ def respaldar(desde):
 
 @click.command()
 def publicar():
-    """ Publicar el archivo JSON en Storage para que el sitio web lo use con DataTables """
-    click.echo('Pendiente programar.')
+    """ Publicar el archivo JSON en Storage para que el sitio web lo use con DataTables
+    TODO debe separar y guardar por distrito/autoridad/lista.json
+    """
+    ruta = Path(LISTAS_DE_ACUERDOS_JSON)
+    if not ruta.parent.exists():
+        ruta.parent.mkdir(parents=True)
+    listas_de_acuerdos = ListaDeAcuerdo.query.\
+        filter(ListaDeAcuerdo.estatus == 'A').\
+        order_by(ListaDeAcuerdo.fecha).\
+        all()
+    click.echo('Publicando...')
+    registros = []
+    for lista_de_acuerdo in listas_de_acuerdos:
+        registros.append({
+            'fecha': lista_de_acuerdo.fecha.strftime('%Y-%m-%d'),
+            'archivo': lista_de_acuerdo.archivo,
+            'descripcion': lista_de_acuerdo.descripcion,
+            'url': lista_de_acuerdo.url,
+        })
+    datos = {'data': registros}
+    with open(ruta, 'w') as puntero:
+        puntero.write(json.dumps(datos))
 
 
 cli.add_command(alimentar)
