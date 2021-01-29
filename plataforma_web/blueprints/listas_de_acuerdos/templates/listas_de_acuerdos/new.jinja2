@@ -1,12 +1,13 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Nuevo Lista de Acuerdos{% endblock %}
+{% block title %}Nueva Lista de Acuerdos{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Nuevo Lista de Acuerdos') }}
+    {{ f.page_breadcrumb('Nueva Lista de Acuerdos') }}
     <div class="container-fluid">
         {% call f.form_tag('listas_de_acuerdos.new', fid='lista_de_acuerdo_form') %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
             {% call f.form_group(form.autoridad) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
@@ -15,4 +16,32 @@
             {{ form.guardar() }}
         {% endcall %}
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $(document).ready(function() {
+            // Definir las opciones para select distrito y select autoridad
+            var distritos_opciones = [];
+            var autoridades_opciones = [];
+            {% for distrito in distritos %}
+            // {{ distrito.nombre }}
+            distritos_opciones.push('<option value="{{ loop.index - 1 }}">{{ distrito.nombre }}</option>');
+            var opciones = [];
+            {% for autoridad in distrito.autoridades -%}
+            opciones.push('<option value="{{ autoridad.id }}">{{ autoridad.descripcion }}</option>');
+            {% endfor -%}
+            autoridades_opciones.push(opciones)
+            {% endfor %}
+            // Reemplazar opciones del select distrito
+            $("#distrito").html(distritos_opciones.join());
+            // Al inicio el select autoridad muestra las opciones del primer distrito
+            $("#autoridad").html(autoridades_opciones[0].join());
+            // Al cambiar el select distrito, actualizar las opciones del select autoridad
+            $("#distrito").change(function() {
+                var valor = $(this).val();
+                $("#autoridad").html(autoridades_opciones[valor].join());
+            });
+        });
+    </script>
 {% endblock %}

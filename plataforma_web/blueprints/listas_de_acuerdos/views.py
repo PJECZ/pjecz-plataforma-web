@@ -7,7 +7,8 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
-from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoForm
+from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm
+from plataforma_web.blueprints.distritos.models import Distrito
 
 listas_de_acuerdos = Blueprint('listas_de_acuerdos', __name__, template_folder='templates')
 
@@ -37,7 +38,7 @@ def detail(lista_de_acuerdo_id):
 @permission_required(Permiso.CREAR_CONTENIDOS)
 def new():
     """ Nuevo Lista de Acuerdos """
-    form = ListaDeAcuerdoForm()
+    form = ListaDeAcuerdoNewForm()
     if form.validate_on_submit():
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=form.autoridad.data,
@@ -49,7 +50,8 @@ def new():
         lista_de_acuerdo.save()
         flash(f'Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.', 'success')
         return redirect(url_for('listas_de_acuerdos.list_active'))
-    return render_template('listas_de_acuerdos/new.jinja2', form=form)
+    distritos = Distrito.query.filter(Distrito.estatus == 'A').order_by(Distrito.nombre).all()
+    return render_template('listas_de_acuerdos/new.jinja2', form=form, distritos=distritos)
 
 
 @listas_de_acuerdos.route('/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>', methods=['GET', 'POST'])
@@ -57,21 +59,15 @@ def new():
 def edit(lista_de_acuerdo_id):
     """ Editar Lista de Acuerdos """
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
-    form = ListaDeAcuerdoForm()
+    form = ListaDeAcuerdoEditForm()
     if form.validate_on_submit():
-        lista_de_acuerdo.autoridad = form.autoridad.data
         lista_de_acuerdo.fecha = form.fecha.data
         lista_de_acuerdo.descripcion = form.descripcion.data
-        lista_de_acuerdo.archivo = form.archivo.data
-        lista_de_acuerdo.url = form.url.data
         lista_de_acuerdo.save()
         flash(f'Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.', 'success')
         return redirect(url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id))
-    form.autoridad.data = lista_de_acuerdo.autoridad
     form.fecha.data = lista_de_acuerdo.fecha
     form.descripcion.data = lista_de_acuerdo.descripcion
-    form.archivo.data = lista_de_acuerdo.archivo
-    form.url.data = lista_de_acuerdo.url
     return render_template('listas_de_acuerdos/edit.jinja2', form=form, lista_de_acuerdo=lista_de_acuerdo)
 
 

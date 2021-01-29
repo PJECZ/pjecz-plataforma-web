@@ -15,8 +15,8 @@ class Edicto(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Columnas
+    fecha = db.Column(db.Date, index=True, nullable=False)
     archivo = db.Column(db.String(256), nullable=False)
-    fecha = db.Column(db.Date, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
     expediente = db.Column(db.String(256))
     numero_publicacion = db.Column(db.Integer())

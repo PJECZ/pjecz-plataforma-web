@@ -2,11 +2,10 @@
 Listas de Acuerdos
 
 - alimentar: Alimentar la BD a partir de los archivos en Storage
-- respaldar: Respaldar la tabla listas_de_acuerdos a su archivo CSV
-- actualizar: Actualizar listado JSON y subirlo a Storage
+- respaldar: Respaldar la tabla 'listas_de_acuerdos' a su archivo CSV
+- publicar: Publicar el archivo JSON en Storage para que el sitio web lo use con DataTables
 """
-from datetime import date, datetime
-from operator import delitem
+from datetime import datetime
 from pathlib import Path
 import csv
 import click
@@ -76,38 +75,58 @@ def alimentar():
             lista_de_acuerdo.save()
             contador += 1
             if contador % 100 == 0:
-                click.echo(f'Van {contador} registros...')
+                click.echo(f'  Van {contador} registros...')
+    click.echo(f'Alimentados {contador} registros.')
 
 
 @click.command()
-def respaldar():
+@click.option('--desde', default='', type=str, help='Fecha de inicio, use AAAA-MM-DD')
+def respaldar(desde):
     """ Respaldar la tabla listas_de_acuerdos a su archivo CSV """
+    try:
+        if desde != '':
+            desde_fecha = datetime.strptime(desde, '%Y-%m-%d')
+        else:
+            desde_fecha = None
+    except ValueError:
+        click.echo('Fecha desde es incorrecta.')
+        return
     click.echo('Respaldando...')
-    listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == 'A').all()
+    contador = 0
+    if desde_fecha is None:
+        listas_de_acuerdos = ListaDeAcuerdo.query.\
+            filter(ListaDeAcuerdo.estatus == 'A').\
+            order_by(ListaDeAcuerdo.fecha).\
+            all()
+    else:
+        listas_de_acuerdos = ListaDeAcuerdo.query.\
+            filter(ListaDeAcuerdo.estatus == 'A').\
+            filter(ListaDeAcuerdo.fecha >= desde_fecha).\
+            order_by(ListaDeAcuerdo.fecha).\
+            all()
     with open(LISTAS_DE_ACUERDOS_CSV, 'w') as puntero:
         escritor = csv.writer(puntero)
         escritor.writerow(['autoridad_id', 'archivo', 'fecha', 'descripcion', 'url'])
-        contador = 0
         for lista_de_acuerdo in listas_de_acuerdos:
             escritor.writerow([
                 lista_de_acuerdo.autoridad_id,
                 lista_de_acuerdo.archivo,
-                lista_de_acuerdo.fecha,
+                lista_de_acuerdo.fecha.strftime('%Y-%m-%d'),
                 lista_de_acuerdo.descripcion,
                 lista_de_acuerdo.url,
             ])
             contador += 1
             if contador % 1000 == 0:
-                click.echo(f'Van {contador} registros...')
-    click.echo(f'Respaldo listo en {LISTAS_DE_ACUERDOS_CSV}')
+                click.echo(f'  Van {contador} registros...')
+    click.echo(f'Respaldados {contador} registros en {LISTAS_DE_ACUERDOS_CSV}')
 
 
 @click.command()
-def actualizar():
-    """ Actualizar listado JSON y subirlo a Storage """
+def publicar():
+    """ Publicar el archivo JSON en Storage para que el sitio web lo use con DataTables """
     click.echo('Pendiente programar.')
 
 
 cli.add_command(alimentar)
 cli.add_command(respaldar)
-cli.add_command(actualizar)
+cli.add_command(publicar)

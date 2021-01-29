@@ -16,5 +16,6 @@ entradas_salidas = Blueprint('entradas_salidas', __name__, template_folder='temp
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """ Listado de entradas y salidas """
-    entradas_salidas_activas = EntradaSalida.query.all()
+    entradas_salidas_activas = EntradaSalida.query.\
+        order_by().all()
     return render_template('entradas_salidas/list.jinja2', entradas_salidas=entradas_salidas_activas)

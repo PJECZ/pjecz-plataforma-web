@@ -16,6 +16,7 @@ def alimentar_usuarios():
     """ Alimentar usuarios """
     usuarios_csv = Path(USUARIOS_CSV)
     if usuarios_csv.exists():
+        click.echo('Alimentando Usuarios...')
         with open(usuarios_csv, encoding='utf8') as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
@@ -28,6 +29,5 @@ def alimentar_usuarios():
                     'rol': Rol.query.filter_by(nombre=row['rol'].strip()).first(),
                 }
                 Usuario(**datos).save()
-        click.echo('Usuarios alimentados.')
     else:
         click.echo(f'ERROR: No se encontró {USUARIOS_CSV}')

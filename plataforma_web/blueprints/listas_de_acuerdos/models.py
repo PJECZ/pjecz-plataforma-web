@@ -24,8 +24,8 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     )
 
     # Columnas
+    fecha = db.Column(db.Date, index=True, nullable=False)
     archivo = db.Column(db.String(256), nullable=False)
-    fecha = db.Column(db.Date, nullable=False)
     descripcion = db.Column(db.String(256))
     url = db.Column(db.String(512))
 

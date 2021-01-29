@@ -19,7 +19,7 @@ class Distrito(db.Model, UniversalMixin):
 
     # Hijos
     autoridades = db.relationship('Autoridad', backref='distrito')
-    peritos = db.relationship('Perito', backref='distrito')
+    peritos = db.relationship('Perito', backref='distrito', lazy='noload')
 
     def __repr__(self):
         """ Representación """
