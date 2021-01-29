@@ -48,6 +48,8 @@
     {% if f.type == 'HiddenField' %}
         {{ f.description }}
         {{ f(class=css_class, **kwargs) }}
+    {% elif f.type == 'DateField'  %}
+        {{ f(class=css_class, type='date', **kwargs) }}
     {% else %}
         {{ f(class=css_class, **kwargs) }}
     {% endif %}
