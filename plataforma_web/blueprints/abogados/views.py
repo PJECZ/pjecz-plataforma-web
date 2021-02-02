@@ -21,7 +21,7 @@ def before_request():
 @abogados.route('/abogados')
 def list_active():
     """ Listado de Abogados """
-    abogados_activos = Abogado.query.filter(Abogado.estatus == 'A').all()
+    abogados_activos = Abogado.query.filter(Abogado.estatus == 'A').limit(100).all()
     return render_template('abogados/list.jinja2', abogados=abogados_activos)
 
 

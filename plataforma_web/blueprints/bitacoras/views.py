@@ -16,5 +16,5 @@ bitacoras = Blueprint('bitacoras', __name__, template_folder='templates')
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """ Listado de bitácoras """
-    bitacoras_activas = Bitacora.query.all()
+    bitacoras_activas = Bitacora.query.limit(100).all()
     return render_template('bitacoras/list.jinja2', bitacoras=bitacoras_activas)

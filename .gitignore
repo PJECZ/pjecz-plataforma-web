@@ -8,11 +8,12 @@
 *.sqlite3
 *.sqlite3-journal
 *.session.sql
+*.yaml
 __pycache__/
 /.vscode/settings.json
-/venv/
 /config/settings.py
 /instance/settings.py
+/json/
 /seed/
 /setup.cfg
-/*.yaml
+/venv/

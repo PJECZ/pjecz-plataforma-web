@@ -5,6 +5,8 @@ Abogados
 - publicar: Publicar el archivo JSON en Storage para que el sitio web lo use con DataTables
 """
 from datetime import datetime
+from pathlib import Path
+import json
 import csv
 import click
 
@@ -15,6 +17,7 @@ from plataforma_web.blueprints.abogados.models import Abogado
 from plataforma_web.blueprints.distritos.models import Distrito
 
 ABOGADOS_CSV = 'seed/abogados.csv'
+ABOGADOS_JSON = 'json/abogados.json'
 
 app = create_app()
 db.app = app
@@ -69,7 +72,25 @@ def respaldar(desde):
 @click.command()
 def publicar():
     """ Publicar el archivo JSON en Storage para que el sitio web lo use con DataTables """
-    click.echo('Pendiente programar.')
+    ruta = Path(ABOGADOS_JSON)
+    if not ruta.parent.exists():
+        ruta.parent.mkdir(parents=True)
+    abogados = Abogado.query.\
+        filter(Abogado.estatus == 'A').\
+        order_by(Abogado.fecha).\
+        all()
+    click.echo('Publicando...')
+    registros = []
+    for abogado in abogados:
+        registros.append({
+            'fecha': abogado.fecha.strftime('%Y-%m-%d'),
+            'numero': abogado.numero,
+            'libro': abogado.libro,
+            'nombre': abogado.nombre,
+        })
+    datos = {'data': registros}
+    with open(ruta, 'w') as puntero:
+        puntero.write(json.dumps(datos))
 
 
 cli.add_command(respaldar)

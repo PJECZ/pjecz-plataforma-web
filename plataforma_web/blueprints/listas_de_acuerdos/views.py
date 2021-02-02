@@ -23,7 +23,7 @@ def before_request():
 @listas_de_acuerdos.route('/listas_de_acuerdos')
 def list_active():
     """ Listado de Listas de Acuerdos """
-    listas_de_acuerdos_activos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == 'A').all()
+    listas_de_acuerdos_activos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == 'A').limit(100).all()
     return render_template('listas_de_acuerdos/list.jinja2', listas_de_acuerdos=listas_de_acuerdos_activos)
 
 
