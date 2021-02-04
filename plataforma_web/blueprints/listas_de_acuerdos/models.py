@@ -9,19 +9,13 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     """ ListaDeAcuerdo """
 
     # Nombre de la tabla
-    __tablename__ = 'listas_de_acuerdos'
+    __tablename__ = "listas_de_acuerdos"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    autoridad_id = db.Column(
-        'autoridad',
-        db.Integer,
-        db.ForeignKey('autoridades.id'),
-        index=True,
-        nullable=False
-    )
+    autoridad_id = db.Column("autoridad", db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
 
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
@@ -31,4 +25,4 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
 
     def __repr__(self):
         """ Representación """
-        return f'<ListaDeAcuerdo {self.archivo}>'
+        return f"<ListaDeAcuerdo {self.archivo}>"
