@@ -6,11 +6,6 @@
 {% endblock %}
 
 {% block main %}
-        <!-- The core Firebase JS SDK -->
-        <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-analytics.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-auth.js"></script>
-        <script src="{{ url_for('static', filename='js/login-google-popup.js') }}"></script>
         <!-- Preloader animation -->
         <div class="preloader">
             <div class="lds-ripple">
@@ -20,27 +15,16 @@
         </div>
         <!-- Login wrapper -->
         <div class="auth-wrapper d-flex no-block justify-content-center align-items-center bg-dark">
-            <div class="auth-box bg-dark p-b-20">
-                {% block welcome %}{% endblock %}
-                <div class="py-3">
-                    <p class="text-center text-white mb-1">Sign in with your account:</p>
-                    <div class="text-center py-2">
-                        <button disabled class="btn btn-primary" id="quickstart-sign-in">Sign in with Google</button>
-                    </div>
-                    <div class="bg-white py-1">
-                        Firebase sign-in status: <span class="text-muted" id="quickstart-sign-in-status">Unknown</span>
-                        <div>Firebase auth <code>currentUser</code> object value:</div>
-                        <pre class="text-muted"><code id="quickstart-account-details">null</code></pre>
-                        <div>Google OAuth Access Token:</div>
-                        <pre class="text-muted"><code id="quickstart-oauthtoken">null</code></pre>
-                    </div>
+            <div class="auth-box bg-dark">
+                {{ flash.render() }}
+                <div class="py-3 text-center">
+                    {% block welcome %}{% endblock %}
                 </div>
                 <div class="py-3">
-                    <p class="text-center text-white mb-1">Sign in with user/password:</p>
-                    <div id="loginform">
-                        {{ flash.render() }}
-                        {% block content %}{% endblock %}
-                    </div>
+                    {% block firebase_content %}{% endblock %}
+                </div>
+                <div class="py-3">
+                    {% block acceso_form_content %}{% endblock %}
                 </div>
             </div>
         </div>
@@ -51,5 +35,10 @@
             $('[data-toggle="tooltip"]').tooltip();
             $(".preloader").fadeOut();
         </script>
+        <!-- The core Firebase JS SDK -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-analytics.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-auth.js"></script>
+        <script src="{{ url_for('static', filename='js/login-google-popup.js') }}"></script>
         <script src="{{ url_for('static', filename='js/init-firebase.js') }}"></script>
 {% endblock %}

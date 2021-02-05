@@ -1,6 +1,8 @@
 """
 Usuarios, vistas
 """
+import google.auth.transport.requests
+import google.oauth2.id_token
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from lib.safe_next_url import safe_next_url
@@ -12,56 +14,82 @@ from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew,
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 
-usuarios = Blueprint('usuarios', __name__, template_folder='templates')
+HTTP_REQUEST = google.auth.transport.requests.Request()
+
+usuarios = Blueprint("usuarios", __name__, template_folder="templates")
 
 
-@usuarios.route('/login', methods=['GET', 'POST'])
+@usuarios.route("/login", methods=["GET", "POST"])
 @anonymous_required()
 def login():
     """ Acceso al Sistema """
-    form = AccesoForm(siguiente=request.args.get('siguiente'))
+    form = AccesoForm(siguiente=request.args.get("siguiente"))
     if form.validate_on_submit():
-        u = Usuario.find_by_identity(request.form.get('identidad'))
-        if u and u.authenticated(password=request.form.get('contrasena')):
-            if login_user(u, remember=True) and u.is_active:
-                EntradaSalida(
-                    usuario_id=u.id,
-                    tipo='INGRESO',
-                    direccion_ip=request.remote_addr,
-                ).save()
-                siguiente_url = request.form.get('siguiente')
-                if siguiente_url:
-                    return redirect(safe_next_url(siguiente_url))
-                return redirect(url_for('sistemas.start'))
+        # Validar
+        identidad = request.form.get("identidad")
+        contrasena = request.form.get("contrasena")
+        id_token = request.form.get("token")
+        siguiente_url = request.form.get("siguiente")
+        # Elegir
+        if id_token != "" and (identidad == "" and contrasena == ""):
+            # Acceso por Firebase Auth
+            claims = google.oauth2.id_token.verify_firebase_token(id_token, HTTP_REQUEST)
+            if claims:
+                email = claims.get("email", "Unknown")
+                usuario = Usuario.find_by_identity(email)
+                if usuario and usuario.authenticated(with_password=False):
+                    if login_user(usuario, remember=True) and usuario.is_active:
+                        if siguiente_url:
+                            return redirect(safe_next_url(siguiente_url))
+                        return redirect(url_for("sistemas.start"))
+                    flash("No está activa esta cuenta", "warning")
+                else:
+                    flash("No existe esta cuenta", "warning")
             else:
-                flash('Esta cuenta está inactiva', 'warning')
+                flash("Falló la autentificación.", "warning")
+        elif identidad != "" and contrasena != "":
+            # Acceso por usuario y contraseña
+            usuario = Usuario.find_by_identity(identidad)
+            if usuario and usuario.authenticated(password=contrasena):
+                if login_user(usuario, remember=True) and usuario.is_active:
+                    EntradaSalida(
+                        usuario_id=usuario.id,
+                        tipo="INGRESO",
+                        direccion_ip=request.remote_addr,
+                    ).save()
+                    if siguiente_url:
+                        return redirect(safe_next_url(siguiente_url))
+                    return redirect(url_for("sistemas.start"))
+                flash("Esta cuenta está inactiva", "warning")
+            else:
+                flash("Usuario o contraseña incorrectos.", "warning")
         else:
-            flash('Usuario o contraseña incorrectos.', 'warning')
-    return render_template('usuarios/login.jinja2', form=form)
+            flash("Infomación incompleta.", "warning")
+    return render_template("usuarios/login.jinja2", form=form)
 
 
-@usuarios.route('/logout')
+@usuarios.route("/logout")
 @login_required
 def logout():
     """ Salir del Sistema """
     EntradaSalida(
         usuario_id=current_user.id,
-        tipo='SALIO',
+        tipo="SALIO",
         direccion_ip=request.remote_addr,
     ).save()
     logout_user()
-    flash('Ha salido de este sistema.', 'success')
-    return redirect(url_for('usuarios.login'))
+    flash("Ha salido de este sistema.", "success")
+    return redirect(url_for("usuarios.login"))
 
 
-@usuarios.route('/perfil')
+@usuarios.route("/perfil")
 @login_required
 def profile():
     """ Mostrar el Perfil """
-    return render_template('usuarios/profile.jinja2')
+    return render_template("usuarios/profile.jinja2")
 
 
-@usuarios.route('/cambiar_contrasena', methods=['GET', 'POST'])
+@usuarios.route("/cambiar_contrasena", methods=["GET", "POST"])
 @login_required
 def change_password():
     """ Cambiar Contraseña """
@@ -69,41 +97,35 @@ def change_password():
     usuario = Usuario.query.get_or_404(current_user.id)
     if form.validate_on_submit():
         if not pwd_context.verify(form.contrasena_actual.data, current_user.contrasena):
-            flash('Contraseña actual incorrecta.', 'warning')
+            flash("Contraseña actual incorrecta.", "warning")
         else:
             usuario.contrasena = pwd_context.hash(form.contrasena.data)
             usuario.save()
-            flash('Contraseña cambiada.', 'success')
-            return redirect(url_for('usuarios.profile'))
-    return render_template('usuarios/change_password.jinja2', form=form)
+            flash("Contraseña cambiada.", "success")
+            return redirect(url_for("usuarios.profile"))
+    return render_template("usuarios/change_password.jinja2", form=form)
 
 
-@usuarios.route('/usuarios')
+@usuarios.route("/usuarios")
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """ Listado de Usuarios """
-    usuarios_activos = Usuario.query\
-        .filter(Usuario.estatus == 'A')\
-        .order_by(Usuario.nombres)\
-        .order_by(Usuario.apellido_paterno)\
-        .all()
-    return render_template('usuarios/list.jinja2', usuarios=usuarios_activos)
+    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").order_by(Usuario.nombres).order_by(Usuario.apellido_paterno).all()
+    return render_template("usuarios/list.jinja2", usuarios=usuarios_activos)
 
 
-@usuarios.route('/usuarios/<int:usuario_id>')
+@usuarios.route("/usuarios/<int:usuario_id>")
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def detail(usuario_id):
     """ Detalle de un Usuario """
     usuario = Usuario.query.get_or_404(usuario_id)
-    entradas_salidas = EntradaSalida.query.\
-        filter(EntradaSalida.usuario == usuario).\
-        order_by(EntradaSalida.creado).limit(100).all()
-    return render_template('usuarios/detail.jinja2', usuario=usuario, entradas_salidas=entradas_salidas)
+    entradas_salidas = EntradaSalida.query.filter(EntradaSalida.usuario == usuario).order_by(EntradaSalida.creado).limit(100).all()
+    return render_template("usuarios/detail.jinja2", usuario=usuario, entradas_salidas=entradas_salidas)
 
 
-@usuarios.route('/usuarios/nuevo', methods=['GET', 'POST'])
+@usuarios.route("/usuarios/nuevo", methods=["GET", "POST"])
 @login_required
 @permission_required(Permiso.CREAR_CUENTAS)
 def new():
@@ -119,12 +141,12 @@ def new():
             rol=form.rol.data,
         )
         usuario.save()
-        flash(f'Usuario {usuario.nombre} guardado.', 'success')
-        return redirect(url_for('usuarios.list_active'))
-    return render_template('usuarios/new.jinja2', form=form)
+        flash(f"Usuario {usuario.nombre} guardado.", "success")
+        return redirect(url_for("usuarios.list_active"))
+    return render_template("usuarios/new.jinja2", form=form)
 
 
-@usuarios.route('/usuarios/edicion/<int:usuario_id>', methods=['GET', 'POST'])
+@usuarios.route("/usuarios/edicion/<int:usuario_id>", methods=["GET", "POST"])
 @login_required
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def edit(usuario_id):
@@ -136,37 +158,37 @@ def edit(usuario_id):
         usuario.apellido_paterno = form.apellido_paterno.data
         usuario.apellido_materno = form.apellido_materno.data
         usuario.email = form.email.data
-        if form.email.data != '':
+        if form.email.data != "":
             usuario.contrasena = pwd_context.hash(form.contrasena.data)
         usuario.rol = form.rol.data
         usuario.save()
-        flash(f'Usuario {usuario.nombre} guardado.', 'success')
-        return redirect(url_for('usuarios.list_active'))
+        flash(f"Usuario {usuario.nombre} guardado.", "success")
+        return redirect(url_for("usuarios.list_active"))
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno
     form.email.data = usuario.email
     form.rol.data = usuario.rol
-    return render_template('usuarios/edit.jinja2', form=form, usuario=usuario)
+    return render_template("usuarios/edit.jinja2", form=form, usuario=usuario)
 
 
-@usuarios.route('/usuarios/eliminar/<int:usuario_id>')
+@usuarios.route("/usuarios/eliminar/<int:usuario_id>")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def delete(usuario_id):
     """ Eliminar Usuario """
     usuario = Usuario.query.get_or_404(usuario_id)
-    if usuario.estatus == 'A':
+    if usuario.estatus == "A":
         usuario.delete()
-        flash(f'Usuario {usuario.nombre} eliminado.', 'success')
-    return redirect(url_for('usuarios.detail', usuario_id=usuario_id))
+        flash(f"Usuario {usuario.nombre} eliminado.", "success")
+    return redirect(url_for("usuarios.detail", usuario_id=usuario_id))
 
 
-@usuarios.route('/usuarios/recuperar/<int:usuario_id>')
+@usuarios.route("/usuarios/recuperar/<int:usuario_id>")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def recover(usuario_id):
     """ Recuperar Usuario """
     usuario = Usuario.query.get_or_404(usuario_id)
-    if usuario.estatus == 'B':
+    if usuario.estatus == "B":
         usuario.recover()
-        flash(f'Usuario {usuario.nombre} recuperado.', 'success')
-    return redirect(url_for('usuarios.detail', usuario_id=usuario_id))
+        flash(f"Usuario {usuario.nombre} recuperado.", "success")
+    return redirect(url_for("usuarios.detail", usuario_id=usuario_id))

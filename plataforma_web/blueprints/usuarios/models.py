@@ -10,16 +10,16 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     """ Usuario """
 
     # Nombre de la tabla
-    __tablename__ = 'usuarios'
+    __tablename__ = "usuarios"
 
     # Clave primaria
     id = db.Column(db.Integer(), primary_key=True)
 
     # Clave foránea
     rol_id = db.Column(
-        'rol',
+        "rol",
         db.Integer,
-        db.ForeignKey('roles.id'),
+        db.ForeignKey("roles.id"),
         index=True,
         nullable=False,
     )
@@ -33,13 +33,13 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     email = db.Column(db.String(256))
 
     # Hijos
-    bitacoras = db.relationship('Bitacora', backref='usuario', lazy='noload')
-    entradas_salidas = db.relationship('EntradaSalida', backref='usuario', lazy='noload')
+    bitacoras = db.relationship("Bitacora", backref="usuario", lazy="noload")
+    entradas_salidas = db.relationship("EntradaSalida", backref="usuario", lazy="noload")
 
     @property
     def nombre(self):
         """ Junta nombres, apellido_paterno y apellido materno """
-        return self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
+        return self.nombres + " " + self.apellido_paterno + " " + self.apellido_materno
 
     @classmethod
     def find_by_identity(cls, identity):
@@ -49,13 +49,13 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     @property
     def is_active(self):
         """ ¿Es activo? """
-        return self.estatus == 'A'
+        return self.estatus == "A"
 
-    def authenticated(self, with_password=True, password=''):
+    def authenticated(self, with_password=True, password=""):
         """ Ensure a user is authenticated, and optionally check their password. """
         if self.id and with_password:
             return pwd_context.verify(password, self.contrasena)
-        return False
+        return True
 
     def can(self, perm):
         """ ¿Tiene permiso? """
@@ -75,4 +75,4 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
 
     def __repr__(self):
         """ Representación """
-        return f'<Usuario {self.email}>'
+        return f"<Usuario {self.email}>"
