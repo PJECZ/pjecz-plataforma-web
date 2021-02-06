@@ -5,9 +5,7 @@
 
 {% block welcome %}
     <div id="welcome" class="text-center text-white">
-        <p>
-            <img class="img-fluid" src="{{ url_for('static', filename='images/poder-judicial.png') }}" alt="PJECZ">
-        </p>
+        <p><img class="img-fluid" src="{{ url_for('static', filename='images/poder-judicial.png') }}" alt="PJECZ"></p>
         <h3>Plataforma Web</h3>
     </div>
 {% endblock %}
@@ -15,7 +13,7 @@
 {% block firebase_content %}
     <div id="firebase_content" class="text-center">
         <p id="firebase_logged_out" class="text-white">Ingrese con su cuenta de...</p>
-        <p id="firebase_logged_in" class="text-white"><strong>¡Hola <span id="user">____</span>!</strong></p>
+        <p id="firebase_logged_in" class="text-white" style="display: none;"><strong>¡Hola <span id="user">____</span>!</strong></p>
         <button id="quickstart-sign-in" disabled class="btn btn-primary py-2">Cargando...</button>
         <p id="quickstart-sign-in-status" class="text-gray"></p>
     </div>
@@ -44,7 +42,7 @@
         </div>
         <div id="acceso_form_password_fields">
             <div class="py-2 text-center">
-                <p class="mb-0 text-white">O ingrese con correo electrónico y contraseña...</p>
+                <p class="mb-0 text-white">Ingrese con correo electrónico y contraseña...</p>
             </div>
             <div class="row">
                 <div class="col-12">
@@ -79,7 +77,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-auth.js"></script>
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
     <script>
-        /* Firebase configuration */
+        /* Firebase configuracion */
         var firebaseConfig = {
             apiKey: "{{ firebase_auth['apiKey'] }}",
             authDomain: "{{ firebase_auth['authDomain'] }}",
@@ -90,14 +88,14 @@
             appId: "{{ firebase_auth['appId'] }}",
             measurementId: "{{ firebase_auth['measurementId'] }}"
         };
-        /* Initialize Firebase */
-        firebase.initializeApp(firebaseConfig);
-        /* At start */
+        /* Al inicio */
         $(document).ready(function() {
-            $('#acceso_form_email_field').hide();
-            $('#acceso_form_token_field').hide();
-            $('#firebase_logged_in').hide();
-            initApp(); // Setting up UI event listeners
+            if (firebaseConfig['apiKey'] != "") {
+                firebase.initializeApp(firebaseConfig); // Inicializar Firebase
+                initApp(); // Cargar eventos de la interfaz
+            } else {
+                $('#firebase_content').hide(); // No hay configuracion, se oculta
+            }
         });
     </script>
 {% endblock %}
