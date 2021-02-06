@@ -4,55 +4,57 @@
 {% block title %}Plataforma Web{% endblock %}
 
 {% block welcome %}
-    <div id="welcome" class="py-3">
-        <div class="text-center text-white">
-            <p>
-                <img class="img-fluid" src="{{ url_for('static', filename='images/poder-judicial.png') }}" alt="PJECZ">
-            </p>
-            <h3>Plataforma Web</h3>
-        </div>
+    <div id="welcome" class="text-center text-white">
+        <p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/poder-judicial.png') }}" alt="PJECZ">
+        </p>
+        <h3>Plataforma Web</h3>
     </div>
 {% endblock %}
 
 {% block firebase_content %}
-    <div id="firebase_content" class="py-3">
-        <div class="text-center">
-            <p id="firebase_logged_out" class="text-white">Ingrese con su cuenta de Google...</p>
-            <p id="firebase_logged_in" class="text-white"><strong>¡Hola <span id="user">____</span>!</strong></p>
-            <button id="quickstart-sign-in" disabled class="btn btn-primary py-2">Sign in with Google</button>
-            <p id="quickstart-sign-in-status" class="text-gray"></p>
-        </div>
+    <div id="firebase_content" class="text-center">
+        <p id="firebase_logged_out" class="text-white">Ingrese con su cuenta de...</p>
+        <p id="firebase_logged_in" class="text-white"><strong>¡Hola <span id="user">____</span>!</strong></p>
+        <button id="quickstart-sign-in" disabled class="btn btn-primary py-2">Cargando...</button>
+        <p id="quickstart-sign-in-status" class="text-gray"></p>
     </div>
 {% endblock %}
 
 {% block acceso_form_content %}
-    <div id="acceso_form_content" class="py-3">
-        <div class="py-2 text-center">
-            <p class="mb-0 text-white">Ingrese con e-mail y contraseña...</p>
-        </div>
-        <div class="py-2">
-            {% call f.form_tag('usuarios.login', fid='acceso_form') %}
-            <div class="row p-b-30">
+    <div id="acceso_form_content">
+        {% call f.form_tag('usuarios.login', fid='acceso_form') %}
+        <div id="acceso_form_firebase_fields" style="display: none;">
+            <div class="row">
                 <div class="col-12">
-                    <div id="acceso_form_email_field" class="input-group mb-2">
+                    <div class="input-group mb-2">
                         <div class="input-group-prepend">
                             <span class="input-group-text bg-success text-white" id="basic-addon1"><i class="fas fa-envelope"></i></span>
                         </div>
                         {% call f.field(form.email, id='email', class='form-control form-control-lg', readonly='readonly') %}{% endcall %}
                     </div>
-                    <div id="acceso_form_token_field" class="input-group mb-2">
+                    <div class="input-group mb-2">
                         <div class="input-group-prepend">
                             <span class="input-group-text bg-warning text-white" id="basic-addon1"><i class="fas fa-key"></i></span>
                         </div>
                         {% call f.field(form.token, id='token', class='form-control form-control-lg', readonly='readonly') %}{% endcall %}
                     </div>
-                    <div id="acceso_form_identidad_field" class="input-group mb-2">
+                </div>
+            </div>
+        </div>
+        <div id="acceso_form_password_fields">
+            <div class="py-2 text-center">
+                <p class="mb-0 text-white">O ingrese con correo electrónico y contraseña...</p>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="input-group mb-2">
                         <div class="input-group-prepend">
                             <span class="input-group-text bg-success text-white" id="basic-addon1"><i class="ti-user"></i></span>
                         </div>
                         {% call f.field(form.identidad, id='identidad', class='form-control form-control-lg', placeholder='correo electrónico', autofocus='autofocus') %}{% endcall %}
                     </div>
-                    <div id="acceso_form_contrasena_field" class="input-group mb-2">
+                    <div class="input-group mb-2">
                         <div class="input-group-prepend">
                             <span class="input-group-text bg-warning text-white" id="basic-addon2"><i class="ti-pencil"></i></span>
                         </div>
@@ -60,55 +62,42 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="form-group">
-                        <div class="p-t-20">
-                            <button class="btn btn-success float-right" type="submit">Accesar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endcall %}
         </div>
+        <div class="row">
+            <div class="col-12">
+                <button class="btn btn-success float-right" type="submit">Accesar</button>
+            </div>
+        </div>
+        {% endcall %}
+    </div>
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- The core Firebase JS SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-auth.js"></script>
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
     <script>
-        /* Al principio ocultar */
+        /* Firebase configuration */
+        var firebaseConfig = {
+            apiKey: "{{ firebase_auth['apiKey'] }}",
+            authDomain: "{{ firebase_auth['authDomain'] }}",
+            databaseURL: "{{ firebase_auth['databaseURL'] }}",
+            projectId: "{{ firebase_auth['projectId'] }}",
+            storageBucket: "{{ firebase_auth['storageBucket'] }}",
+            messagingSenderId: "{{ firebase_auth['messagingSenderId'] }}",
+            appId: "{{ firebase_auth['appId'] }}",
+            measurementId: "{{ firebase_auth['measurementId'] }}"
+        };
+        /* Initialize Firebase */
+        firebase.initializeApp(firebaseConfig);
+        /* At start */
         $(document).ready(function() {
             $('#acceso_form_email_field').hide();
             $('#acceso_form_token_field').hide();
             $('#firebase_logged_in').hide();
-        });
-        /* Al cambiar la autentificacion por firebase */
-        firebase.auth().onAuthStateChanged(function (user) {
-            if (user) {
-                /* Mostrar y ocultar */
-                $('#firebase_logged_out').hide();
-                $('#firebase_logged_in').show();
-                /* If the provider gives a display name, use the name for the personal welcome message. Otherwise, use the user's email. */
-                var name = user.displayName;
-                var welcomeName = name ? name : user.email;
-                $('#user').text(welcomeName);
-                /* Fill the form */
-                user.getIdToken().then(function (idToken) {
-                    $('#acceso_form_email_field').show();
-                    $('#acceso_form_token_field').show();
-                    $('#acceso_form_identidad_field').hide();
-                    $('#acceso_form_contrasena_field').hide();
-                    $('#email').val(user.email);
-                    $('#token').val(idToken);
-                });
-            } else {
-                /* Mostrar y ocultar */
-                $('#firebase_logged_out').show();
-                $('#firebase_logged_in').hide();
-                $('#acceso_form_email_field').hide();
-                $('#acceso_form_token_field').hide();
-                $('#acceso_form_identidad_field').show();
-                $('#acceso_form_contrasena_field').show();
-            }
+            initApp(); // Setting up UI event listeners
         });
     </script>
 {% endblock %}

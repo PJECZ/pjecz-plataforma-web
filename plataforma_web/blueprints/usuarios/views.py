@@ -5,6 +5,7 @@ import google.auth.transport.requests
 import google.oauth2.id_token
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+from lib.firebase_auth import firebase_auth
 from lib.safe_next_url import safe_next_url
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
@@ -39,12 +40,17 @@ def login():
                 usuario = Usuario.find_by_identity(email)
                 if usuario and usuario.authenticated(with_password=False):
                     if login_user(usuario, remember=True) and usuario.is_active:
+                        EntradaSalida(
+                            usuario_id=usuario.id,
+                            tipo="INGRESO",
+                            direccion_ip=request.remote_addr,
+                        ).save()
                         if siguiente_url:
                             return redirect(safe_next_url(siguiente_url))
                         return redirect(url_for("sistemas.start"))
-                    flash("No está activa esta cuenta", "warning")
+                    flash("No está activa esa cuenta.", "warning")
                 else:
-                    flash("No existe esta cuenta", "warning")
+                    flash("No existe esa cuenta.", "warning")
             else:
                 flash("Falló la autentificación.", "warning")
         elif identidad != "" and contrasena != "":
@@ -60,12 +66,12 @@ def login():
                     if siguiente_url:
                         return redirect(safe_next_url(siguiente_url))
                     return redirect(url_for("sistemas.start"))
-                flash("Esta cuenta está inactiva", "warning")
+                flash("No está activa esa cuenta", "warning")
             else:
                 flash("Usuario o contraseña incorrectos.", "warning")
         else:
             flash("Infomación incompleta.", "warning")
-    return render_template("usuarios/login.jinja2", form=form)
+    return render_template("usuarios/login.jinja2", form=form, firebase_auth=firebase_auth)
 
 
 @usuarios.route("/logout")
