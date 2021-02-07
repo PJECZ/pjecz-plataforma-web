@@ -7,6 +7,8 @@
     {% call detail.topbar_actions() %}
         {% if current_user.can_edit('abogados') %}
             {{ detail.topbar_actions_option('Editar', url_for('abogados.edit', abogado_id=abogado.id)) }}
+            {% if abogado.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if abogado.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -21,4 +23,14 @@
             {{ detail.label_value('Fecha', abogado.fecha) }}
         {% endcall %}
     </div>
+    {% if current_user.can_edit('abogados') %}
+        {{ detail.modal('Eliminar', '¿Eliminar a ' + abogado.nombre + '?', 'modalDelete', url_for('abogados.delete', abogado_id=abogado.id)) }}
+        {{ detail.modal('Recuperar', '¿Recuperar a ' + abogado.nombre + '?', 'modalRecover', url_for('abogados.recover', abogado_id=abogado.id)) }}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('abogados') %}
+        {{ detail.custom_javascript_delete_recover() }}
+    {% endif %}
 {% endblock %}
