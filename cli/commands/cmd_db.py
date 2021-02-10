@@ -31,7 +31,7 @@ def inicializar():
     """ Inicializar """
     db.drop_all()
     db.create_all()
-    click.echo('Inicializado.')
+    click.echo("Inicializado.")
 
 
 @click.command()
@@ -43,7 +43,7 @@ def alimentar():
     alimentar_autoridades()
     alimentar_abogados()
     alimentar_listas_de_acuerdos()
-    click.echo('Alimentado.')
+    click.echo("Alimentado.")
 
 
 @click.command()

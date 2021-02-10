@@ -5,8 +5,8 @@ import os
 import click
 
 
-CMD_FOLDER = os.path.join(os.path.dirname(__file__), 'commands')
-CMD_PREFIX = 'cmd_'
+CMD_FOLDER = os.path.join(os.path.dirname(__file__), "commands")
+CMD_PREFIX = "cmd_"
 
 
 class CLI(click.MultiCommand):
@@ -16,7 +16,7 @@ class CLI(click.MultiCommand):
         """ Listado de comandos """
         commands = []
         for filename in os.listdir(CMD_FOLDER):
-            if filename.endswith('.py') and filename.startswith(CMD_PREFIX):
+            if filename.endswith(".py") and filename.startswith(CMD_PREFIX):
                 commands.append(filename[4:-3])
         commands.sort()
         return commands
@@ -24,14 +24,13 @@ class CLI(click.MultiCommand):
     def get_command(self, ctx, name):
         """ Obtener comando """
         ns = {}
-        filename = os.path.join(CMD_FOLDER, CMD_PREFIX + name + '.py')
+        filename = os.path.join(CMD_FOLDER, CMD_PREFIX + name + ".py")
         with open(filename) as f:
-            code = compile(f.read(), filename, 'exec')
+            code = compile(f.read(), filename, "exec")
             eval(code, ns, ns)
-        return ns['cli']
+        return ns["cli"]
 
 
 @click.command(cls=CLI)
 def cli():
     """ Click """
-    pass
