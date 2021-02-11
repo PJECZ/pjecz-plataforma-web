@@ -1,13 +1,14 @@
 """
 Abogados, vistas
 """
+from datetime import date, datetime
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.abogados.models import Abogado
-from plataforma_web.blueprints.abogados.forms import AbogadoForm
+from plataforma_web.blueprints.abogados.forms import AbogadoForm, AbogadoSearchForm
 
 abogados = Blueprint("abogados", __name__, template_folder="templates")
 
@@ -31,6 +32,24 @@ def detail(abogado_id):
     """ Detalle de un Abogado """
     abogado = Abogado.query.get_or_404(abogado_id)
     return render_template("abogados/detail.jinja2", abogado=abogado)
+
+
+@abogados.route("/abogados/buscar", methods=["GET", "POST"])
+def search():
+    """ Buscar Abogado """
+    form_search = AbogadoSearchForm()
+    if form_search.validate_on_submit():
+        consulta = Abogado.query
+        if form_search.nombre.data:
+            nombre = form_search.nombre.data.strip().upper()
+            consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
+        if form_search.fecha_desde.data:
+            consulta = consulta.filter(Abogado.fecha >= form_search.fecha_desde.data)
+        if form_search.fecha_hasta.data:
+            consulta = consulta.filter(Abogado.fecha <= form_search.fecha_hasta.data)
+        consulta = consulta.order_by(Abogado.fecha).limit(100).all()
+        return render_template("abogados/list.jinja2", abogados=consulta)
+    return render_template("abogados/search.jinja2", form=form_search)
 
 
 @abogados.route("/abogados/nuevo", methods=["GET", "POST"])
