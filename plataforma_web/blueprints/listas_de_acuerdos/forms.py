@@ -9,8 +9,8 @@ from wtforms.validators import DataRequired, Length
 class ListaDeAcuerdoNewForm(FlaskForm):
     """ Formulario Lista de Acuerdo """
 
-    distrito = SelectField("Distrito", choices=[])  # Las opciones se agregan con JS
-    autoridad = SelectField("Autoridad", choices=[], validators=[DataRequired()])  # Las opciones se agregan con JS
+    distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     archivo = StringField("Archivo", validators=[DataRequired()])

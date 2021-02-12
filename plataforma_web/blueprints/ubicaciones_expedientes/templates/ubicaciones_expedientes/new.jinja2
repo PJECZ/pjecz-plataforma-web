@@ -7,9 +7,15 @@
     {{ f.page_breadcrumb('Nuevo Ubicacion de Expediente') }}
     <div class="container-fluid">
         {% call f.form_tag('ubicaciones_expedientes.new', fid='ubicacion_expediente_form') %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.ubicacion) %}{% endcall %}
             {{ form.guardar() }}
         {% endcall %}
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_distrito_autoridad(distritos) }}
 {% endblock %}

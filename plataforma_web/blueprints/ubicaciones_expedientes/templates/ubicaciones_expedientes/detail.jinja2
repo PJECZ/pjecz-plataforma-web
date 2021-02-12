@@ -8,7 +8,9 @@
     <div class="container-fluid">
         {% call detail.card() %}
             {{ detail.label_value_big('Expediente', ubicacion_expediente.expediente) }}
-            {{ detail.label_value_big('Ubicación', ubicacion_expediente.ubicacion) }}
+            {{ detail.label_value('Ubicación', ubicacion_expediente.ubicacion) }}
+            {{ detail.label_value('Distrito', ubicacion_expediente.autoridad.distrito.nombre) }}
+            {{ detail.label_value('Autoridad', ubicacion_expediente.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=ubicacion_expediente.autoridad_id)) }}
         {% endcall %}
     </div>
 {% endblock %}

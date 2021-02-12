@@ -19,29 +19,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $(document).ready(function() {
-            // Definir las opciones para select distrito y select autoridad
-            var distritos_opciones = [];
-            var autoridades_opciones = [];
-            {% for distrito in distritos %}
-            // {{ distrito.nombre }}
-            distritos_opciones.push('<option value="{{ loop.index - 1 }}">{{ distrito.nombre }}</option>');
-            var opciones = [];
-            {% for autoridad in distrito.autoridades -%}
-            opciones.push('<option value="{{ autoridad.id }}">{{ autoridad.descripcion }}</option>');
-            {% endfor -%}
-            autoridades_opciones.push(opciones)
-            {% endfor %}
-            // Reemplazar opciones del select distrito
-            $("#distrito").html(distritos_opciones.join());
-            // Al inicio el select autoridad muestra las opciones del primer distrito
-            $("#autoridad").html(autoridades_opciones[0].join());
-            // Al cambiar el select distrito, actualizar las opciones del select autoridad
-            $("#distrito").change(function() {
-                var valor = $(this).val();
-                $("#autoridad").html(autoridades_opciones[valor].join());
-            });
-        });
-    </script>
+    {{ f.js_select_distrito_autoridad(distritos) }}
 {% endblock %}

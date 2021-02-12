@@ -8,6 +8,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
@@ -40,8 +41,9 @@ def new():
     """ Nuevo Lista de Acuerdos """
     form = ListaDeAcuerdoNewForm()
     if form.validate_on_submit():
+        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         lista_de_acuerdo = ListaDeAcuerdo(
-            autoridad=form.autoridad.data,
+            autoridad=autoridad,
             fecha=form.fecha.data,
             descripcion=form.descripcion.data,
             archivo=form.archivo.data,
