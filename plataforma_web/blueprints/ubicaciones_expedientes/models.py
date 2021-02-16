@@ -7,7 +7,7 @@ from lib.universal_mixin import UniversalMixin
 
 
 class UbicacionExpediente(db.Model, UniversalMixin):
-    """ Ubicacion_Expediente """
+    """ Ubicacion de Expediente """
 
     UBICACIONES = OrderedDict(
         [
