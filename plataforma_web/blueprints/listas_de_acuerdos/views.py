@@ -10,7 +10,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
-from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm
+from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
@@ -38,6 +38,14 @@ def detail(lista_de_acuerdo_id):
     """ Detalle de una Lista de Acuerdos """
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     return render_template("listas_de_acuerdos/detail.jinja2", lista_de_acuerdo=lista_de_acuerdo)
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/buscar", methods=["GET", "POST"])
+def search():
+    """ Buscar Lista de Acuerdos """
+    form_search = ListaDeAcuerdoSearchForm()  # TODO Programar búsqueda
+    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    return render_template("listas_de_acuerdos/search.jinja2", form=form_search, distritos=distritos)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])

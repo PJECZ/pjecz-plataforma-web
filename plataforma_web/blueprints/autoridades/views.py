@@ -40,16 +40,16 @@ def new():
     """ Nueva Autoridad """
     form = AutoridadNewForm()
     if form.validate_on_submit():
-        distrito = Distrito.query.get(form.distrito.data)
+        distrito = form.distrito.data
         directorio = f"{distrito.nombre}/{form.descripcion.data}"
         autoridad = Autoridad(
-            distrito=form.distrito.data,
+            distrito=distrito,
             descripcion=form.descripcion.data,
             email=form.email.data,
             directorio_listas_de_acuerdos=directorio,
             directorio_sentencias=directorio,
         )
-        autoridad.save()
+        autoridad.save()  # TODO Está fallando
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
         return redirect(url_for("autoridades.list_active"))
     return render_template("autoridades/new.jinja2", form=form)

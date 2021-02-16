@@ -125,8 +125,8 @@ def construir():
             continue
         # Directorio
         distrito_str = cambiar_a_caracteres_seguros(autoridad.distrito.nombre)
-        if distrito_str[:12] == "distrito-de-":
-            distrito_str = distrito_str[12:]
+        # if distrito_str[:12] == "distrito-de-":
+        #     distrito_str = distrito_str[12:]
         autoridad_str = cambiar_a_caracteres_seguros(autoridad.descripcion)
         ruta = Path(pelican_consultas_ruta, distrito_str, autoridad_str)
         ruta.mkdir(parents=True, exist_ok=True)

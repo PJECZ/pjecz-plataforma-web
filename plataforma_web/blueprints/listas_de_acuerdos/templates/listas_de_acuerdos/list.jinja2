@@ -4,11 +4,12 @@
 {% block title %}Listas de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_insert('listas_de_acuerdos') %}
-        {% call list.topbar_actions() %}
+    {% call list.topbar_actions() %}
+        {{ list.topbar_actions_option('Buscar Lista de Acuerdos', url_for('listas_de_acuerdos.search')) }}
+        {% if current_user.can_insert('listas_de_acuerdos') %}
             {{ list.topbar_actions_option('Nueva Lista de Acuerdos', url_for('listas_de_acuerdos.new')) }}
-        {% endcall %}
-    {% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
