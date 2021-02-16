@@ -2,6 +2,7 @@
 Listas de Acuerdos, formularios
 """
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired
 from wtforms import DateField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length
 
@@ -13,8 +14,7 @@ class ListaDeAcuerdoNewForm(FlaskForm):
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
-    archivo = StringField("Archivo", validators=[DataRequired()])
-    url = StringField("URL", validators=[DataRequired()])
+    archivo = FileField("Archivo", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
 
@@ -23,6 +23,4 @@ class ListaDeAcuerdoEditForm(FlaskForm):
 
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
-    archivo = StringField("Archivo", validators=[DataRequired()])
-    url = StringField("URL", validators=[DataRequired()])
     guardar = SubmitField("Guardar")

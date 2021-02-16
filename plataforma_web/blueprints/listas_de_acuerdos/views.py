@@ -1,8 +1,11 @@
 """
 Listas de Acuerdos, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
+from google.cloud import storage
+from werkzeug.datastructures import CombinedMultiDict
+from werkzeug.utils import secure_filename
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -10,6 +13,8 @@ from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
+
+DEPOSITO = "conatrib-pjecz-gob-mx"
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
@@ -39,15 +44,23 @@ def detail(lista_de_acuerdo_id):
 @permission_required(Permiso.CREAR_CONTENIDOS)
 def new():
     """ Nuevo Lista de Acuerdos """
-    form = ListaDeAcuerdoNewForm()
+    form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
+        # Tomar "archivo" en el formulario
+        archivo = request.files["archivo"]
+        archivo_nombre = secure_filename(archivo.filename)
+        # Subir a Google Storage
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(DEPOSITO)
+        blob = bucket.blob(archivo_nombre)  # TODO La ruta completa /listas de acuerdo/distrito/autoridad/año/mes/archivo.pdf
+        blob.upload_from_string(archivo.stream.read())
+        # Insertar en base de datos
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=form.fecha.data,
             descripcion=form.descripcion.data,
-            archivo=form.archivo.data,
-            url=form.url.data,
+            url=blob.path,
         )
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
