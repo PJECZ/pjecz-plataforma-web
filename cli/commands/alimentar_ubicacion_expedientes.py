@@ -33,9 +33,13 @@ def alimentar_ubicacion_expedientes():
             if not ubicacion in UbicacionExpediente.UBICACIONES.keys():
                 click.echo(f"  No es válida la ubicación {ubicacion}...")
                 continue
+            expediente = row["expediente"].strip()
+            if expediente == "":
+                click.echo("  Sin expediente...")
+                continue
             datos = {
                 "autoridad": autoridad,
-                "expediente": row["expediente"].strip(),
+                "expediente": expediente,
                 "ubicacion": ubicacion,
             }
             UbicacionExpediente(**datos).save()
