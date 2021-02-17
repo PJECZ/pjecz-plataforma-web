@@ -61,11 +61,30 @@ def edit(ubicacion_expediente_id):
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     form = UbicacionExpedienteEditForm()
     if form.validate_on_submit():
-        ubicacion_expediente.expediente = form.expediente.data
         ubicacion_expediente.ubicacion = form.ubicacion.data
         ubicacion_expediente.save()
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
-    form.expediente.data = ubicacion_expediente.expediente
     form.ubicacion.data = ubicacion_expediente.ubicacion
     return render_template("ubicaciones_expedientes/edit.jinja2", form=form, ubicacion_expediente=ubicacion_expediente)
+
+@ubicaciones_expedientes.route("/ubicaciones_expedientes/eliminar/<int:ubicacion_expediente_id>")
+@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+def delete(ubicacion_expediente_id):
+    """ Eliminar Ubicacion de Expedientes """
+    ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
+    if ubicacion_expediente.estatus == "A":
+        ubicacion_expediente.delete()
+        flash(f"Ubicacion de Expediente {ubicacion_expediente.expediente} eliminado.", "success")
+    return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente_id))
+
+
+@ubicaciones_expedientes.route("/ubicaciones_expedientes/recuperar/<int:ubicacion_expediente_id>")
+@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+def recover(ubicacion_expediente_id):
+    """ Recuperar Lista de Acuerdos """
+    ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
+    if ubicacion_expediente.estatus == "B":
+        ubicacion_expediente.recover()
+        flash(f"Ubicacion de Expediente {ubicacion_expediente.expediente} recuperado.", "success")
+    return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente_id))

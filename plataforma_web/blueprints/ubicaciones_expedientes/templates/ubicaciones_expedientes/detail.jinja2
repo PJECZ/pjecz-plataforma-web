@@ -3,14 +3,34 @@
 
 {% block title %}Ubicación de Expedientes{% endblock %}
 
+{% block topbar_actions %}
+    {% call detail.topbar_actions() %}
+        {% if current_user.can_edit('ubicaciones_expedientes') %}
+            {{ detail.topbar_actions_option('Editar', url_for('ubicaciones_expedientes.edit', ubicacion_expediente_id=ubicacion_expediente.id)) }}
+            {% if ubicacion_expediente.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if ubicacion_expediente.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
 {% block content %}
     {{ detail.page_breadcrumb('Ubicación de Expedientes') }}
     <div class="container-fluid">
-        {% call detail.card() %}
+        {% call detail.card(estatus=ubicacion_expediente.estatus) %}
             {{ detail.label_value_big('Expediente', ubicacion_expediente.expediente) }}
             {{ detail.label_value('Ubicación', ubicacion_expediente.ubicacion) }}
             {{ detail.label_value('Distrito', ubicacion_expediente.autoridad.distrito.nombre) }}
             {{ detail.label_value('Autoridad', ubicacion_expediente.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=ubicacion_expediente.autoridad_id)) }}
         {% endcall %}
     </div>
+    {% if current_user.can_edit('ubicaciones_expedientes') %}
+        {{ detail.modal('Eliminar', '¿Eliminar la ubicación del expediente ' + ubicacion_expediente.expediente + '?', 'modalDelete', url_for('ubicaciones_expedientes.delete', ubicacion_expediente_id=ubicacion_expediente.id)) }}
+        {{ detail.modal('Recuperar', '¿Recuperar la ubicación del expediente ' + ubicacion_expediente.expediente + '?', 'modalRecover', url_for('ubicaciones_expedientes.recover', ubicacion_expediente_id=ubicacion_expediente.id)) }}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('ubicaciones_expedientes') %}
+        {{ detail.custom_javascript_delete_recover() }}
+    {% endif %}
 {% endblock %}
