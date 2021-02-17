@@ -56,16 +56,18 @@ def new():
     """ Nuevo Lista de Acuerdos """
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
-        # Definir ruta /listas de acuerdo/distrito/autoridad/año/mes/YYYY-MM-DD-lista-de-acuerdos.pdf
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         fecha = form.fecha.data
-        fecha_str = fecha.strftime("%Y-%m-%d")
-        ruta = Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, fecha.year, fecha.month, f"{fecha_str}-lista-de-acuerdos.pdf")
+        # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
+        ano_str = fecha.strftime("%Y")
+        mes_str = fecha.strftime("%m")
+        archivo_str = fecha.strftime("%Y-%m-%d") + "-lista-de-acuerdos.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
         # Subir archivo a Google Storage
         archivo = request.files["archivo"]
         storage_client = storage.Client()
         bucket = storage_client.bucket(DEPOSITO)
-        blob = bucket.blob(str(ruta))
+        blob = bucket.blob(ruta_str)
         blob.upload_from_string(archivo.stream.read())
         # Insertar en la base de datos
         lista_de_acuerdo = ListaDeAcuerdo(
