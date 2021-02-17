@@ -3,7 +3,7 @@ Ubicacines de Expedientes, formularios
 """
 from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Optional
 
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 
@@ -21,5 +21,15 @@ class UbicacionExpedienteNewForm(FlaskForm):
 class UbicacionExpedienteEditForm(FlaskForm):
     """ Formulario para editar Ubicación de Expediente """
 
+    distrito = StringField("Distrito", validators=[Optional()])  # Solo mostrar, campo deshabilitado
+    autoridad = StringField("Autoridad", validators=[Optional()])  # Solo mostrar, campo deshabilitado
+    expediente = StringField("Expediente", validators=[Optional()])  # Solo mostrar, campo deshabilitado
     ubicacion = SelectField("Ubicación", validators=[DataRequired()], choices=UbicacionExpediente.UBICACIONES)
     guardar = SubmitField("Guardar")
+
+
+class UbicacionExpedienteSearchForm(FlaskForm):
+    """ Formulario para buscar Ubicación de Expediente """
+
+    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=256)])
+    guardar = SubmitField("Buscar")

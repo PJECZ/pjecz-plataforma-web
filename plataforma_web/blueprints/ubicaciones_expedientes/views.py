@@ -7,7 +7,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
-from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm
+from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
@@ -33,6 +33,20 @@ def detail(ubicacion_expediente_id):
     """ Detalle de una Ubicacion de Expediente """
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     return render_template("ubicaciones_expedientes/detail.jinja2", ubicacion_expediente=ubicacion_expediente)
+
+
+@ubicaciones_expedientes.route("/ubicaciones_expedientes/buscar", methods=["GET", "POST"])
+def search():
+    """ Buscar Ubicacion de Expediente """
+    form_search = UbicacionExpedienteSearchForm()
+    if form_search.validate_on_submit():
+        consulta = UbicacionExpediente.query
+        if form_search.expediente.data:
+            expediente = form_search.expediente.data.strip().upper()
+            consulta = consulta.filter(UbicacionExpediente.expediente.like(f"%{expediente}%"))
+        consulta = consulta.limit(100).all()
+        return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=consulta)
+    return render_template("ubicaciones_expedientes/search.jinja2", form=form_search)
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo", methods=["GET", "POST"])
@@ -65,8 +79,12 @@ def edit(ubicacion_expediente_id):
         ubicacion_expediente.save()
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
+    form.distrito.data = ubicacion_expediente.autoridad.distrito.nombre
+    form.autoridad.data = ubicacion_expediente.autoridad.descripcion
+    form.expediente.data = ubicacion_expediente.expediente
     form.ubicacion.data = ubicacion_expediente.ubicacion
     return render_template("ubicaciones_expedientes/edit.jinja2", form=form, ubicacion_expediente=ubicacion_expediente)
+
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/eliminar/<int:ubicacion_expediente_id>")
 @permission_required(Permiso.MODIFICAR_CONTENIDOS)

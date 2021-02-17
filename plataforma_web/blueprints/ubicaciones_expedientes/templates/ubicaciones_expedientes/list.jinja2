@@ -4,11 +4,12 @@
 {% block title %}Ubicacion de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_insert('ubicaciones_expedientes') %}
-        {% call list.topbar_actions() %}
+    {% call list.topbar_actions() %}
+        {{ list.topbar_actions_option('Buscar Ubicación de Expedientes', url_for('ubicaciones_expedientes.search')) }}
+        {% if current_user.can_insert('ubicaciones_expedientes') %}
             {{ list.topbar_actions_option('Nuevo Ubicación de Expedientes', url_for('ubicaciones_expedientes.new')) }}
-        {% endcall %}
-    {% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
