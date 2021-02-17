@@ -18,6 +18,8 @@
             <table id="ubicaciones_expedientes_datatable" class="table">
                 <thead>
                     <tr>
+                        <th>Distrito</th>
+                        <th>Autoridad</th>
                         <th>Expediente</th>
                         <th>Ubicación</th>
                     </tr>
@@ -25,6 +27,8 @@
                 <tbody>
                     {% for ubicacion_expediente in ubicaciones_expedientes %}
                     <tr>
+                        <td>{{ ubicacion_expediente.autoridad.distrito.nombre }}</td>
+                        <td>{{ ubicacion_expediente.autoridad.descripcion }}</td>
                         <td>{{ubicacion_expediente.expediente}}</td>
                         <td><a href="{{ url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id) }}">{{ ubicacion_expediente.ubicacion }}</a></td>
                     </tr>

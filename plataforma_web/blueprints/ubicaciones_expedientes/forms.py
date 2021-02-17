@@ -21,6 +21,5 @@ class UbicacionExpedienteNewForm(FlaskForm):
 class UbicacionExpedienteEditForm(FlaskForm):
     """ Formulario para editar Ubicación de Expediente """
 
-    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=256)])
     ubicacion = SelectField("Ubicación", validators=[DataRequired()], choices=UbicacionExpediente.UBICACIONES)
     guardar = SubmitField("Guardar")
