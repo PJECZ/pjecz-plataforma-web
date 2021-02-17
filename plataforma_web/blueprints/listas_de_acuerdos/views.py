@@ -1,11 +1,12 @@
 """
 Listas de Acuerdos, vistas
 """
+from pathlib import Path
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
-from werkzeug.utils import secure_filename
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -15,6 +16,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
 DEPOSITO = "conatrib-pjecz-gob-mx"
+SUBDIRECTORIO = "Listas de Acuerdos"
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
@@ -54,19 +56,21 @@ def new():
     """ Nuevo Lista de Acuerdos """
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
-        # Tomar "archivo" en el formulario
+        # Definir ruta /listas de acuerdo/distrito/autoridad/año/mes/YYYY-MM-DD-lista-de-acuerdos.pdf
+        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        fecha = form.fecha.data
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        ruta = Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, fecha.year, fecha.month, f"{fecha_str}-lista-de-acuerdos.pdf")
+        # Subir archivo a Google Storage
         archivo = request.files["archivo"]
-        archivo_nombre = secure_filename(archivo.filename)
-        # Subir a Google Storage
         storage_client = storage.Client()
         bucket = storage_client.bucket(DEPOSITO)
-        blob = bucket.blob(archivo_nombre)  # TODO La ruta completa /listas de acuerdo/distrito/autoridad/año/mes/archivo.pdf
+        blob = bucket.blob(str(ruta))
         blob.upload_from_string(archivo.stream.read())
-        # Insertar en base de datos
-        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        # Insertar en la base de datos
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
-            fecha=form.fecha.data,
+            fecha=fecha,
             descripcion=form.descripcion.data,
             url=blob.path,
         )
