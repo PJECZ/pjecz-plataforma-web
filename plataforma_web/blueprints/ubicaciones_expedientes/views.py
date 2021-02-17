@@ -24,7 +24,7 @@ def before_request():
 @ubicaciones_expedientes.route("/ubicaciones_expedientes")
 def list_active():
     """ Listado de Ubicaciones de Expedientes """
-    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").all()
+    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").limit(100).all()
     return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=ubicaciones_expedientes_activos)
 
 
