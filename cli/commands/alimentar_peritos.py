@@ -1,6 +1,7 @@
 """
 Alimentar Peritos
 """
+from datetime import datetime
 from pathlib import Path
 import csv
 import click
@@ -34,6 +35,17 @@ def alimentar_peritos():
             if not tipo in Perito.TIPOS.keys():
                 click.echo(f"  No es válida el tipo {tipo}...")
                 continue
+            renovacion_str = row["renovacion"].strip()
+            try:
+                renovacion = datetime.strptime(renovacion_str, "%Y-%m-%d")  # Probar que toda la fecha sea correcta
+            except ValueError as mensaje:
+                try:
+                    renovacion = datetime.strptime(renovacion_str[0:8] + "-01", "%Y-%m-%d")  # Probar año y mes correctos
+                except ValueError as mensaje:
+                    try:
+                        renovacion = datetime.strptime(renovacion_str[0:4] + "-01-01", "%Y-%m-%d")  # Probar año correcto
+                    except ValueError as mensaje:
+                        click.echo(f"  Dato con error: {mensaje}")
             datos = {
                 "distrito": distrito,
                 "tipo": tipo,
@@ -42,6 +54,7 @@ def alimentar_peritos():
                 "telefono_fijo": row["telefono_fijo"].strip(),
                 "telefono_celular": row["telefono_celular"].strip(),
                 "email": unidecode(row["email"].strip()).lower(),
+                "renovacion": renovacion,
                 "notas": unidecode(row["notas"].strip()).upper(),
             }
             Perito(**datos).save()

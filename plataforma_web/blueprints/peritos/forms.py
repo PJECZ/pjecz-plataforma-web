@@ -2,7 +2,7 @@
 Peritos, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField
+from wtforms import DateField,  SelectField, StringField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Email, Length, Optional
 
@@ -25,6 +25,7 @@ class PeritoForm(FlaskForm):
     telefono_fijo = StringField("Teléfono fijo", validators=[Optional(), Length(max=256)])
     telefono_celular = StringField("Teléfono celular", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[Optional(), Email()])
+    renovacion = DateField("Renovación", validators=[DataRequired()])
     notas = StringField("Notas", validators=[Optional()])
     guardar = SubmitField("Guardar")
 

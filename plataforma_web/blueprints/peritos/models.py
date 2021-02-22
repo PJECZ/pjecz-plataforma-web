@@ -78,6 +78,7 @@ class Perito(db.Model, UniversalMixin):
     telefono_fijo = db.Column(db.String(64))
     telefono_celular = db.Column(db.String(64))
     email = db.Column(db.String(256))
+    renovacion = db.Column(db.Date, nullable=False, index=True)
     notas = db.Column(db.String(256))
 
     def __repr__(self):
