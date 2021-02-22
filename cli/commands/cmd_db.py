@@ -16,6 +16,7 @@ from cli.commands.alimentar_autoridades import alimentar_autoridades
 from cli.commands.alimentar_abogados import alimentar_abogados
 from cli.commands.alimentar_listas_de_acuerdos import alimentar_listas_de_acuerdos
 from cli.commands.alimentar_ubicacion_expedientes import alimentar_ubicacion_expedientes
+from cli.commands.alimentar_peritos import alimentar_peritos
 
 
 app = create_app()
@@ -45,6 +46,7 @@ def alimentar():
     alimentar_abogados()
     alimentar_listas_de_acuerdos()
     alimentar_ubicacion_expedientes()
+    alimentar_peritos()
     click.echo("Alimentado.")
 
 
