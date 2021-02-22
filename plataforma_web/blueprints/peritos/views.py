@@ -3,11 +3,12 @@ Peritos, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
+from unidecode import unidecode
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.peritos.models import Perito
-from plataforma_web.blueprints.peritos.forms import PeritoForm
+from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
 
 peritos = Blueprint("peritos", __name__, template_folder="templates")
 
@@ -33,6 +34,20 @@ def detail(perito_id):
     return render_template("peritos/detail.jinja2", perito=perito)
 
 
+@peritos.route("/peritos/buscar", methods=["GET", "POST"])
+def search():
+    """ Buscar Peritos """
+    form_search = PeritoSearchForm()
+    if form_search.validate_on_submit():
+        consulta = Perito.query
+        if form_search.nombre.data:
+            nombre = unidecode(form_search.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
+            consulta = consulta.filter(Perito.nombre.like(f"%{nombre}%"))
+        consulta = consulta.order_by(Perito.nombre).limit(100).all()
+        return render_template("peritos/list.jinja2", peritos=consulta)
+    return render_template("peritos/search.jinja2", form=form_search)
+
+
 @peritos.route("/peritos/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_CONTENIDOS)
 def new():
@@ -51,7 +66,7 @@ def new():
         )
         perito.save()
         flash(f"Perito {perito.nombre} guardado.", "success")
-        return redirect(url_for("peritos.list_active"))
+        return redirect(url_for("peritos.detail", perito=perito))
     return render_template("peritos/new.jinja2", form=form)
 
 

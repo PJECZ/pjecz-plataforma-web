@@ -1,9 +1,9 @@
 """
 Abogados, vistas
 """
-from datetime import date, datetime
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
+from unidecode import unidecode
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -23,7 +23,7 @@ def before_request():
 @abogados.route("/abogados")
 def list_active():
     """ Listado de Abogados """
-    abogados_activos = Abogado.query.filter(Abogado.estatus == "A").order_by(Abogado.fecha).limit(100).all()
+    abogados_activos = Abogado.query.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(100).all()
     return render_template("abogados/list.jinja2", abogados=abogados_activos)
 
 
@@ -36,12 +36,12 @@ def detail(abogado_id):
 
 @abogados.route("/abogados/buscar", methods=["GET", "POST"])
 def search():
-    """ Buscar Abogado """
+    """ Buscar Abogados """
     form_search = AbogadoSearchForm()
     if form_search.validate_on_submit():
         consulta = Abogado.query
         if form_search.nombre.data:
-            nombre = form_search.nombre.data.strip().upper()
+            nombre = unidecode(form_search.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
             consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Abogado.fecha >= form_search.fecha_desde.data)
@@ -58,15 +58,16 @@ def new():
     """ Nuevo Abogado """
     form = AbogadoForm()
     if form.validate_on_submit():
+        nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
         abogado = Abogado(
             numero=form.numero.data,
-            nombre=form.nombre.data,
+            nombre=nombre,
             libro=form.libro.data,
             fecha=form.fecha.data,
         )
         abogado.save()
         flash(f"Abogado {abogado.nombre} guardado.", "success")
-        return redirect(url_for("abogados.list_active"))
+        return redirect(url_for("abogados.detail", abogado_id=abogado.id))
     return render_template("abogados/new.jinja2", form=form)
 
 
@@ -78,7 +79,7 @@ def edit(abogado_id):
     form = AbogadoForm()
     if form.validate_on_submit():
         abogado.numero = form.numero.data
-        abogado.nombre = form.nombre.data
+        abogado.nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
         abogado.libro = form.libro.data
         abogado.fecha = form.fecha.data
         abogado.save()

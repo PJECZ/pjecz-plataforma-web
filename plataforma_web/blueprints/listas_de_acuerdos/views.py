@@ -53,7 +53,7 @@ def search():
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_CONTENIDOS)
 def new():
-    """ Nuevo Lista de Acuerdos """
+    """ Nueva Lista de Acuerdos """
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
@@ -73,6 +73,7 @@ def new():
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=fecha,
+            archivo=archivo_str,
             descripcion=form.descripcion.data,
             url=blob.path,
         )

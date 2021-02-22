@@ -1,0 +1,15 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Buscar Peritos{% endblock %}
+
+{% block content %}
+    {{ f.page_breadcrumb('Buscar Peritos') }}
+    <div class="container-fluid">
+        {% call f.form_tag('peritos.search', fid='perito_search_form') %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.tipo) %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
+    </div>
+{% endblock %}

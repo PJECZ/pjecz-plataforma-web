@@ -17,7 +17,7 @@ class AbogadoForm(FlaskForm):
 
 
 class AbogadoSearchForm(FlaskForm):
-    """ Formulario para buscar Abogado """
+    """ Formulario para buscar Abogados """
 
     nombre = StringField("Nombre", validators=[Optional(), Length(max=64)])
     fecha_desde = DateField("Fecha desde", validators=[Optional()])

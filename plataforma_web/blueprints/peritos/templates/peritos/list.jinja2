@@ -4,11 +4,12 @@
 {% block title %}Peritos{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_insert('peritos') %}
-        {% call list.topbar_actions() %}
+    {% call list.topbar_actions() %}
+        {{ list.topbar_actions_option('Buscar Perito', url_for('peritos.search')) }}
+        {% if current_user.can_insert('peritos') %}
             {{ list.topbar_actions_option('Nuevo Perito', url_for('peritos.new')) }}
-        {% endcall %}
-    {% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}

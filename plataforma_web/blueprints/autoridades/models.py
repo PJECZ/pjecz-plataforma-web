@@ -26,7 +26,7 @@ class Autoridad(db.Model, UniversalMixin):
     # Hijos
     glosas = db.relationship("Glosa", backref="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", backref="autoridad", lazy="noload")
-    ubicaciones_expedintes = db.relationship("UbicacionExpediente", backref="autoridad", lazy="noload")
+    ubicaciones_expedientes = db.relationship("UbicacionExpediente", backref="autoridad", lazy="noload")
 
     def __repr__(self):
         """ Representación """
