@@ -54,10 +54,11 @@ def new():
     """ Nuevo Perito """
     form = PeritoForm()
     if form.validate_on_submit():
+        nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
         perito = Perito(
             distrito=form.distrito.data,
             tipo=form.tipo.data,
-            nombre=form.nombre.data,
+            nombre=nombre,
             domicilio=form.domicilio.data,
             telefono_fijo=form.telefono_fijo.data,
             telefono_celular=form.telefono_celular.data,
@@ -79,7 +80,7 @@ def edit(perito_id):
     if form.validate_on_submit():
         perito.distrito = form.distrito.data
         perito.tipo = form.tipo.data
-        perito.nombre = form.nombre.data
+        perito.nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
         perito.domicilio = form.domicilio.data
         perito.telefono_fijo = form.telefono_fijo.data
         perito.telefono_celular = form.telefono_celular.data

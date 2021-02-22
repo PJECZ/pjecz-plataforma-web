@@ -4,11 +4,13 @@ Alimentar Peritos
 from pathlib import Path
 import csv
 import click
+from unidecode import unidecode
 
 from plataforma_web.blueprints.peritos.models import Perito
 from plataforma_web.blueprints.distritos.models import Distrito
 
 PERITOS_CSV = "seed/peritos.csv"
+
 
 def alimentar_peritos():
     """ Alimentar Peritos """
@@ -35,12 +37,12 @@ def alimentar_peritos():
             datos = {
                 "distrito": distrito,
                 "tipo": tipo,
-                "nombre": row["nombre"].strip(),
-                "domicilio": row["domicilio"].strip(),
+                "nombre": unidecode(row["nombre"].strip()).upper(),  # Sin acentos y en mayúsculas
+                "domicilio": unidecode(row["domicilio"].strip()).upper(),  # Sin acentos y en mayúsculas
                 "telefono_fijo": row["telefono_fijo"].strip(),
                 "telefono_celular": row["telefono_celular"].strip(),
-                "email": row["email"].strip(),
-                "notas": row["notas"].strip(),
+                "email": unidecode(row["email"].strip()).lower(),
+                "notas": unidecode(row["notas"].strip()).upper(),
             }
             Perito(**datos).save()
             contador += 1
