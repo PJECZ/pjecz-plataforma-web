@@ -63,11 +63,12 @@ def new():
             telefono_fijo=form.telefono_fijo.data,
             telefono_celular=form.telefono_celular.data,
             email=form.email.data,
+            renovacion=form.renovacion.data,
             notas=form.notas.data,
         )
         perito.save()
         flash(f"Perito {perito.nombre} guardado.", "success")
-        return redirect(url_for("peritos.detail", perito=perito))
+        return redirect(url_for("peritos.detail", perito_id=perito.id))
     return render_template("peritos/new.jinja2", form=form)
 
 
@@ -85,6 +86,7 @@ def edit(perito_id):
         perito.telefono_fijo = form.telefono_fijo.data
         perito.telefono_celular = form.telefono_celular.data
         perito.email = form.email.data
+        perito.renovacion = form.renovacion.data
         perito.notas = form.notas.data
         perito.save()
         flash(f"Perito {perito.nombre} guardado.", "success")
@@ -96,6 +98,7 @@ def edit(perito_id):
     form.telefono_fijo.data = perito.telefono_fijo
     form.telefono_celular.data = perito.telefono_celular
     form.email.data = perito.email
+    form.renovacion.data = perito.renovacion
     form.notas.data = perito.notas
     return render_template("peritos/edit.jinja2", form=form, perito=perito)
 
