@@ -1,25 +1,42 @@
 """
-Alimentar Peritos
+Peritos
+
+- alimentar: Alimentar la tabla abogados insertando registros desde un archivo CSV
 """
 from pathlib import Path
 import csv
-import click
 from unidecode import unidecode
+import click
 
-from plataforma_web.blueprints.peritos.models import Perito
+from plataforma_web.app import create_app
+from plataforma_web.extensions import db
+
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.peritos.models import Perito
 
-PERITOS_CSV = "seed/peritos.csv"
+app = create_app()
+db.app = app
 
 
-def alimentar_peritos():
-    """ Alimentar Peritos """
-    peritos_csv = Path(PERITOS_CSV)
-    if not peritos_csv.exists():
-        click.echo(f"- NO se alimentaron los peritos porque no se encontró {PERITOS_CSV}")
+@click.group()
+def cli():
+    """ Grupo para una orden click """
+
+
+@click.command()
+@click.argument("entrada_csv")
+def alimentar(entrada_csv):
+    """ Alimentar la tabla peritos insertando registros desde un archivo CSV """
+    ruta = Path(entrada_csv)
+    if not ruta.exists():
+        click.echo(f"AVISO: {ruta.name} no se encontró.")
         return
+    if not ruta.is_file():
+        click.echo(f"AVISO: {ruta.name} no es un archivo.")
+        return
+    click.echo("Alimentando peritos...")
     contador = 0
-    with open(peritos_csv, encoding="utf8") as puntero:
+    with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
             distrito_str = row["distrito"].strip()
@@ -49,3 +66,6 @@ def alimentar_peritos():
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} peritos...")
     click.echo(f"- {contador} peritos alimentados.")
+
+
+cli.add_command(alimentar)

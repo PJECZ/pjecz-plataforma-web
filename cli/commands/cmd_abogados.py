@@ -55,7 +55,7 @@ def alimentar(entrada_csv):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
-    click.echo(f"Alimentados {contador} registros.")
+    click.echo(f"- {contador} abogados alimentados.")
 
 
 @click.command()
