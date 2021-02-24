@@ -4,11 +4,12 @@
 {% block title %}Autoridades{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_insert('autoridades') %}
-        {% call list.topbar_actions() %}
+    {% call list.topbar_actions() %}
+        {{ list.topbar_actions_option('Buscar Autoridad', url_for('autoridades.search')) }}
+        {% if current_user.can_insert('autoridades') %}
             {{ list.topbar_actions_option('Nueva Autoridad', url_for('autoridades.new')) }}
-        {% endcall %}
-    {% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}

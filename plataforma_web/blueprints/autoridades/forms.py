@@ -34,3 +34,10 @@ class AutoridadEditForm(FlaskForm):
     directorio_listas_de_acuerdos = StringField("Directorio listas de acuerdos", validators=[Optional(), Length(max=256)])
     directorio_sentencias = StringField("Directorio listas de acuerdos", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
+
+
+class AutoridadSearchForm(FlaskForm):
+    """ Formulario para buscar Autoridades """
+
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    buscar = SubmitField("Buscar")

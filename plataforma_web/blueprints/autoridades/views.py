@@ -7,7 +7,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm
+from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm, AutoridadSearchForm
 from plataforma_web.blueprints.distritos.models import Distrito
 
 autoridades = Blueprint("autoridades", __name__, template_folder="templates")
@@ -32,6 +32,18 @@ def detail(autoridad_id):
     """ Detalle de una Autoridad """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     return render_template("autoridades/detail.jinja2", autoridad=autoridad)
+
+
+@autoridades.route("/autoridades/buscar", methods=["GET", "POST"])
+def search():
+    """ Buscar Autoridades """
+    form_search = AutoridadSearchForm()
+    if form_search.validate_on_submit():
+        descripcion = form_search.descripcion.data
+        consulta = Autoridad.query.filter(Autoridad.descripcion.ilike(f"%{descripcion}%"))
+        consulta = consulta.order_by(Autoridad.descripcion).limit(100).all()
+        return render_template("autoridades/list.jinja2", autoridades=consulta)
+    return render_template("autoridades/search.jinja2", form=form_search)
 
 
 @autoridades.route("/autoridades/nuevo", methods=["GET", "POST"])
