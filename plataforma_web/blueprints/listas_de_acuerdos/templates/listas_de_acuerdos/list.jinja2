@@ -13,25 +13,26 @@
 {% endblock %}
 
 {% block content %}
-    {{ list.page_breadcrumb('Listas de Acuerdos') }}
+    {% call list.page_breadcrumb(autoridad.descripcion) %}
+        {{ list.page_breadcrumb_item('Listas de Acuerdos', link=url_for('listas_de_acuerdos.list_distritos')) }}
+        {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('listas_de_acuerdos.list_autoridades', distrito_id=autoridad.distrito_id)) }}
+    {% endcall %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="listas_de_acuerdos_datatable" class="table">
                 <thead>
                     <tr>
-                        <th>Distritos</th>
-                        <th>Autoridades</th>
                         <th>Fechas</th>
-                        <th>Abrir URL</th>
+                        <th>Descripciones</th>
+                        <th>URL</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for lista_de_acuerdo in listas_de_acuerdos %}
                     <tr>
-                        <td>{{ lista_de_acuerdo.autoridad.distrito.nombre }}</td>
-                        <td>{{ lista_de_acuerdo.autoridad.descripcion }}</td>
                         <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.fecha }}</a></td>
-                        <td><a href="{{ lista_de_acuerdo.url }}">{{ lista_de_acuerdo.archivo }}</a></td>
+                        <td>{{ lista_de_acuerdo.descripcion }}</td>
+                        <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">{{ lista_de_acuerdo.archivo }}</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -42,6 +43,8 @@
 
 {% block custom_javascript %}
     <script>
-        $('#listas_de_acuerdos_datatable').DataTable();
+        $('#listas_de_acuerdos_datatable').DataTable({
+            "order": [[0, "desc"]]
+        });
     </script>
 {% endblock %}

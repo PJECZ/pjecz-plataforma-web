@@ -1,0 +1,35 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+
+{% block title %}Listas de Acuerdos{% endblock %}
+
+{% block topbar_actions %}
+    {% call list.topbar_actions() %}
+        {{ list.topbar_actions_option('Buscar Lista de Acuerdos', url_for('listas_de_acuerdos.search')) }}
+        {% if current_user.can_insert('listas_de_acuerdos') %}
+            {{ list.topbar_actions_option('Nueva Lista de Acuerdos', url_for('listas_de_acuerdos.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {{ list.page('Listas de Acuerdos') }}
+    <div class="container-fluid">
+        {% call list.card() %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Distritos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for distrito in distritos %}
+                <tr>
+                    <td><a href="{{ url_for('listas_de_acuerdos.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endcall %}
+    </div>
+{% endblock %}

@@ -29,10 +29,26 @@ def before_request():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos")
-def list_active():
-    """ Listado de Listas de Acuerdos """
-    listas_de_acuerdos_activos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").limit(100).all()
-    return render_template("listas_de_acuerdos/list.jinja2", listas_de_acuerdos=listas_de_acuerdos_activos)
+def list_distritos():
+    """ Listado de Distritos """
+    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    return render_template("listas_de_acuerdos/list_distritos.jinja2", distritos=distritos)
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/distrito/<int:distrito_id>")
+def list_autoridades(distrito_id):
+    """ Listado de Autoridades de un Distrito """
+    distrito = Distrito.query.get_or_404(distrito_id)
+    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).order_by(Autoridad.descripcion).all()
+    return render_template("listas_de_acuerdos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/autoridad/<int:autoridad_id>")
+def list_active(autoridad_id):
+    """ Listado de Listas de Acuerdos activas de una Autoridad """
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").all()
+    return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_activas)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/<int:lista_de_acuerdo_id>")
