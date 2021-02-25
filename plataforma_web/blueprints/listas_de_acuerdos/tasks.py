@@ -1,12 +1,22 @@
 """
 Tasks, tareas para ejecutar en el fondo
 
+En un entorno virtual arranque
+
     rq worker plataforma-web-tasks
+
+En otro entorno virtual ejecute ipython y cargue
 
     from redis import Redis
     import rq
     queue = rq.Queue('plataforma-web-tasks', connection=Redis.from_url('redis://'))
-    job = queue.enqueue('plataforma_web.blueprints.listas_de_acuerdos.tasks.example', 25)
+
+Ejecute la tarea en el fondo, con la autoridad 17
+
+    job = queue.enqueue('plataforma_web.blueprints.listas_de_acuerdos.tasks.rastrear', 17)
+
+Refresque para ver el progreso
+
     job.refresh()
     job.meta
     Out[21]: {'progress': 16.0}
