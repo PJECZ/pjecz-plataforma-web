@@ -20,14 +20,14 @@ class Permiso:
 
     def __repr__(self):
         """ Representación """
-        return '<Permiso>'
+        return "<Permiso>"
 
 
 class Rol(db.Model, UniversalMixin):
     """ Rol """
 
     # Nombre de la tabla
-    __tablename__ = 'roles'
+    __tablename__ = "roles"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -38,7 +38,7 @@ class Rol(db.Model, UniversalMixin):
     por_defecto = db.Column(db.Boolean, default=False, index=True)
 
     # Hijos
-    usuarios = db.relationship('Usuario', backref='rol')
+    usuarios = db.relationship("Usuario", backref="rol")
 
     def add_permission(self, perm):
         """ Agregar permiso """
@@ -62,26 +62,35 @@ class Rol(db.Model, UniversalMixin):
     def insert_roles():
         """ Insertar roles iniciales """
         roles = {
-            'ADMINISTRADOR': [
-                Permiso.VER_CUENTAS, Permiso.MODIFICAR_CUENTAS, Permiso.CREAR_CUENTAS,
-                Permiso.VER_CATALOGOS, Permiso.MODIFICAR_CATALOGOS, Permiso.CREAR_CATALOGOS,
-                Permiso.VER_CONTENIDOS, Permiso.MODIFICAR_CONTENIDOS, Permiso.CREAR_CONTENIDOS,
+            "ADMINISTRADOR": [
+                Permiso.VER_CUENTAS,
+                Permiso.MODIFICAR_CUENTAS,
+                Permiso.CREAR_CUENTAS,
+                Permiso.VER_CATALOGOS,
+                Permiso.MODIFICAR_CATALOGOS,
+                Permiso.CREAR_CATALOGOS,
+                Permiso.VER_CONTENIDOS,
+                Permiso.MODIFICAR_CONTENIDOS,
+                Permiso.CREAR_CONTENIDOS,
             ],
-            'TECNICO': [
-                Permiso.VER_CUENTAS, Permiso.MODIFICAR_CUENTAS,
+            "TECNICO": [
+                Permiso.VER_CUENTAS,
+                Permiso.MODIFICAR_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONTENIDOS,
             ],
-            'USUARIO': [
+            "USUARIO": [
                 Permiso.VER_CATALOGOS,
-                Permiso.VER_CONTENIDOS, Permiso.MODIFICAR_CONTENIDOS, Permiso.CREAR_CONTENIDOS,
+                Permiso.VER_CONTENIDOS,
+                Permiso.MODIFICAR_CONTENIDOS,
+                Permiso.CREAR_CONTENIDOS,
             ],
-            'OBSERVADOR': [
+            "OBSERVADOR": [
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONTENIDOS,
             ],
         }
-        rol_por_defecto = 'OBSERVADOR'
+        rol_por_defecto = "OBSERVADOR"
         for item in roles:
             rol = Rol.query.filter_by(nombre=item).first()
             if rol is None:
@@ -89,42 +98,42 @@ class Rol(db.Model, UniversalMixin):
             rol.reset_permissions()
             for perm in roles[item]:
                 rol.add_permission(perm)
-            rol.por_defecto = (rol.nombre == rol_por_defecto)
+            rol.por_defecto = rol.nombre == rol_por_defecto
             db.session.add(rol)
         db.session.commit()
 
     def can_view(self, module):
         """ ¿Tiene permiso para ver? """
-        if module == 'usuarios':
+        if module == "usuarios":
             return True
-        if module in ('bitacoras', 'entradas_salidas', 'roles'):
+        if module in ("bitacoras", "entradas_salidas", "roles"):
             return self.has_permission(Permiso.VER_CUENTAS)
-        if module in ('distritos', 'autoridades'):
+        if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.VER_CATALOGOS)
-        if module in ('abogados', 'edictos', 'glosas', 'listas_de_acuerdos', 'peritos', 'sentencias', 'ubicaciones_expedientes'):
+        if module in ("abogados", "edictos", "glosas", "listas_de_acuerdos", "peritos", "sentencias", "tareas", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.VER_CONTENIDOS)
         return False
 
     def can_insert(self, module):
         """ ¿Tiene permiso para agregar? """
-        if module == 'usuarios':
+        if module == "usuarios":
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
-        if module in ('distritos', 'autoridades'):
+        if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
-        if module in ('abogados', 'edictos', 'glosas', 'listas_de_acuerdos', 'peritos', 'sentencias', 'ubicaciones_expedientes'):
+        if module in ("abogados", "edictos", "glosas", "listas_de_acuerdos", "peritos", "sentencias", "tareas", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.MODIFICAR_CONTENIDOS)
         return False
 
     def can_edit(self, module):
         """ ¿Tiene permiso para editar? """
-        if module == 'usuarios':
+        if module == "usuarios":
             return self.has_permission(Permiso.CREAR_CUENTAS)
-        if module in ('distritos', 'autoridades'):
+        if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
-        if module in ('abogados', 'edictos', 'glosas', 'listas_de_acuerdos', 'peritos', 'sentencias', 'ubicaciones_expedientes'):
+        if module in ("abogados", "edictos", "glosas", "listas_de_acuerdos", "peritos", "sentencias", "tareas", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.CREAR_CONTENIDOS)
         return False
 
     def __repr__(self):
         """ Representación """
-        return f'<Rol {self.nombre}>'
+        return f"<Rol {self.nombre}>"

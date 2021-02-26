@@ -1,0 +1,38 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+
+{% block title %}Tareas{% endblock %}
+
+{% block content %}
+    {{ list.page('Tareas') }}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="tareas_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>IDs</th>
+                        <th>Nombres</th>
+                        <th>Descripciones</th>
+                        <th>Ha terminado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tarea in tareas %}
+                    <tr>
+                        <td><a href="{{ url_for('tareas.detail', tarea_id=tarea.id) }}">{{ tarea.descripcion }}</a></td>
+                        <td>{{ tarea.nombre }}</td>
+                        <td>{{ tarea.descripcion }}</td>
+                        <td>{{ tarea.ha_terminado }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#tareas_datatable').DataTable();
+    </script>
+{% endblock %}
