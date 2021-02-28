@@ -9,6 +9,7 @@
         {% if current_user.can_insert('listas_de_acuerdos') %}
             {{ list.topbar_actions_option('Nueva Lista de Acuerdos', url_for('listas_de_acuerdos.new')) }}
         {% endif %}
+        {{ list.topbar_actions_option('Rastrear Lista de Acuerdos', url_for('listas_de_acuerdos.trace', autoridad_id=autoridad.id)) }}
     {% endcall %}
 {% endblock %}
 

@@ -1,9 +1,11 @@
 """
 Usuarios, modelos
 """
+from flask import current_app
 from flask_login import UserMixin
 from plataforma_web.extensions import db, pwd_context
 from lib.universal_mixin import UniversalMixin
+from plataforma_web.blueprints.tareas.models import Tarea
 
 
 class Usuario(db.Model, UserMixin, UniversalMixin):
@@ -73,6 +75,21 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     def can_edit(self, module):
         """ ¿Tiene permiso para editar? """
         return self.rol.can_edit(module)
+
+    def launch_task(self, nombre, descripcion, *args, **kwargs):
+        """ Arrancar tarea """
+        rq_job = current_app.task_queue.enqueue("plataforma_web.blueprints." + nombre, self.id, *args, **kwargs)
+        task = Tarea(id=rq_job.get_id(), nombre=nombre, descripcion=descripcion, usuario=self)
+        db.session.add(task)
+        return task
+
+    def get_tasks_in_progress(self):
+        """ Obtener tareas """
+        return Tarea.query.filter_by(usuario=self, ha_terminado=False).all()
+
+    def get_task_in_progress(self, nombre):
+        """ Obtener progreso de una tarea """
+        return Tarea.query.filter_by(nombre=nombre, usuario=self, ha_terminado=False).first()
 
     def __repr__(self):
         """ Representación """

@@ -30,12 +30,13 @@ from google.cloud import storage
 from rq import get_current_job
 
 from plataforma_web.app import create_app
-from plataforma_web.extensions import db
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 
 app = create_app()
-db.app = app
+app.app_context().push()
+# from plataforma_web.extensions import db
+# db.app = app
 
 DEPOSITO = "pjecz-consultas"
 SUBDIRECTORIO = "Listas de Acuerdos"
@@ -59,7 +60,7 @@ def construir():
     """ Construir la estructura de directorios y archivos para Pelican """
 
 
-def rastrear(autoridad_id):
+def rastrear(usuario_id, autoridad_id):
     """ Rastrear las listas de acuerdos en Storage para agregarlas o actualizarlas a la BD """
     print("Tarea Listas de Acuerdos/Rastrear comienza...")
     # Consultar autoridad

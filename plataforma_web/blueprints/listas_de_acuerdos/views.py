@@ -4,7 +4,7 @@ Listas de Acuerdos, vistas
 from pathlib import Path
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from plataforma_web.blueprints.roles.models import Permiso
@@ -49,6 +49,17 @@ def list_active(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").all()
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_activas)
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/rastrear/<int:autoridad_id>")
+def trace(autoridad_id):
+    """ Rastrear Listas de Acuerdos """
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    if current_user.get_task_in_progress("listas_de_acuerdos.tasks.rastrear"):
+        flash("Hay una tarea para rastrear sin terminar.")
+    else:
+        current_user.launch_task("listas_de_acuerdos.tasks.rastrear", f"Rastrear listas de acuerdos de {autoridad.descripcion}", autoridad_id=autoridad.id)
+    return redirect(url_for("tareas.list_active"))
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/<int:lista_de_acuerdo_id>")
