@@ -79,9 +79,9 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     def launch_task(self, nombre, descripcion, *args, **kwargs):
         """ Arrancar tarea """
         rq_job = current_app.task_queue.enqueue("plataforma_web.blueprints." + nombre, self.id, *args, **kwargs)
-        task = Tarea(id=rq_job.get_id(), nombre=nombre, descripcion=descripcion, usuario=self)
-        db.session.add(task)
-        return task
+        tarea = Tarea(id=rq_job.get_id(), nombre=nombre, descripcion=descripcion, usuario=self)
+        tarea.save()
+        return tarea
 
     def get_tasks_in_progress(self):
         """ Obtener tareas """

@@ -18,7 +18,7 @@
                 <tbody>
                     {% for bitacora in bitacoras %}
                     <tr>
-                        <td>{{ bitacora.creado }}</td>
+                        <td>{{ bitacora.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ bitacora.usuario.nombre }}</td>
                         <td>{{ bitacora.descripcion }}</td>
                     </tr>

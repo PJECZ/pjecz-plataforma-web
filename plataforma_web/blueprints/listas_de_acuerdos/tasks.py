@@ -1,30 +1,8 @@
 """
 Tasks, tareas para ejecutar en el fondo
-
-En un entorno virtual arranque
-
-    rq worker plataforma-web-tasks
-
-En otro entorno virtual ejecute ipython y cargue
-
-    from redis import Redis
-    import rq
-    queue = rq.Queue('plataforma-web-tasks', connection=Redis.from_url('redis://'))
-
-Ejecute la tarea en el fondo, con la autoridad 17
-
-    job = queue.enqueue('plataforma_web.blueprints.listas_de_acuerdos.tasks.rastrear', 17)
-
-Refresque para ver el progreso
-
-    job.refresh()
-    job.meta
-    Out[21]: {'progress': 16.0}
-
 """
 from datetime import datetime
 from pathlib import Path
-import time
 
 from google.cloud import storage
 from rq import get_current_job
@@ -32,28 +10,25 @@ from rq import get_current_job
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
+from plataforma_web.blueprints.tareas.models import Tarea
 
 app = create_app()
 app.app_context().push()
-# from plataforma_web.extensions import db
-# db.app = app
 
 DEPOSITO = "pjecz-consultas"
 SUBDIRECTORIO = "Listas de Acuerdos"
 
 
-def example(seconds):
-    """ Espera de n segundos """
+def set_task_progress(progress):
+    """ Cambiar el progreso de la tarea """
     job = get_current_job()
-    print("Iniciando tarea...")
-    for sec in range(seconds):
-        job.meta["progress"] = 100.0 * sec / seconds
+    if job:
+        job.meta["progress"] = progress
         job.save_meta()
-        print(sec)
-        time.sleep(1)
-    job.meta["progress"] = 100
-    job.save_meta()
-    print("Tarea completada.")
+        tarea = Tarea.query.get(job.get_id())
+        if tarea and progress >= 100:
+            tarea.ha_terminado = True
+            tarea.save()
 
 
 def construir():
@@ -84,12 +59,15 @@ def rastrear(usuario_id, autoridad_id):
     if total == 0:
         return  # No exite el subdirectorio o no tiene archivos
     print(f"- En Storage hay {total} listas de acuerdos")
-    # Arrancar trabajo
-    job = get_current_job()
+    # Arrancar tarea
+    set_task_progress(0)
     contador = 0
     contador_agregados = 0
     for blob in blobs:
+        # Cambiar el avance de la tarea
         contador += 1
+        if contador % len(blobs) == 0:
+            set_task_progress(100.0 * contador / len(blobs))
         # Validar
         ruta = Path(blob.name)
         archivo = ruta.name
@@ -117,12 +95,10 @@ def rastrear(usuario_id, autoridad_id):
         )
         lista_de_acuerdo.save()
         contador_agregados += 1
-        job.meta["progress"] = 100.0 * contador / len(blobs)
-        job.save_meta()
     print(f"- Se agregaron {contador_agregados}")
     print("Tarea Listas de Acuerdos/Rastrear terminada.")
-    job.meta["progress"] = 100.0
-    job.save_meta()
+    # Terminar tarea
+    set_task_progress(100)
 
 
 def respaldar():

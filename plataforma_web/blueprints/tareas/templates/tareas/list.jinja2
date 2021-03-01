@@ -10,7 +10,7 @@
             <table id="tareas_datatable" class="table">
                 <thead>
                     <tr>
-                        <th>IDs</th>
+                        <th>Inicios</th>
                         <th>Nombres</th>
                         <th>Descripciones</th>
                         <th>Ha terminado</th>
@@ -19,10 +19,10 @@
                 <tbody>
                     {% for tarea in tareas %}
                     <tr>
-                        <td><a href="{{ url_for('tareas.detail', tarea_id=tarea.id) }}">{{ tarea.descripcion }}</a></td>
+                        <td>{{ tarea.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ tarea.nombre }}</td>
                         <td>{{ tarea.descripcion }}</td>
-                        <td>{{ tarea.ha_terminado }}</td>
+                        <td>{% if tarea.ha_terminado %}Terminado{% else %}Continua{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

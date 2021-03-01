@@ -56,10 +56,13 @@ def trace(autoridad_id):
     """ Rastrear Listas de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if current_user.get_task_in_progress("listas_de_acuerdos.tasks.rastrear"):
-        flash("Hay una tarea para rastrear sin terminar.")
+        flash("Hay una tarea para rastrear sin terminar.", "warning")
     else:
-        current_user.launch_task("listas_de_acuerdos.tasks.rastrear", f"Rastrear listas de acuerdos de {autoridad.descripcion}", autoridad_id=autoridad.id)
-    return redirect(url_for("tareas.list_active"))
+        tarea = current_user.launch_task(
+            "listas_de_acuerdos.tasks.rastrear", f"Rastrear listas de acuerdos de {autoridad.descripcion} de {autoridad.distrito.nombre}", autoridad_id=autoridad.id
+        )
+        flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
+    return redirect(url_for("listas_de_acuerdos.list_active", autoridad_id=autoridad.id))
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/<int:lista_de_acuerdo_id>")
