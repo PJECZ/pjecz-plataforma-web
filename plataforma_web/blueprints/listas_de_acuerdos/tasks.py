@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from google.cloud import storage
+import google.cloud.storage
 from rq import get_current_job
 
 from plataforma_web.app import create_app
@@ -13,14 +13,13 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.tareas.models import Tarea
 
-import google.cloud.logging
 
-client = google.cloud.logging.Client()
-client.get_default_handler()
-client.setup_logging()
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+bitacora = logging.getLogger(__name__)
+bitacora.setLevel(logging.INFO)
+formato = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+empunadura = logging.FileHandler("listas_de_acuerdos.log")
+empunadura.setFormatter(formato)
+bitacora.addHandler(empunadura)
 
 app = create_app()
 app.app_context().push()
@@ -47,28 +46,27 @@ def construir():
 
 def rastrear(usuario_id, autoridad_id):
     """ Rastrear las listas de acuerdos en Storage para agregarlas o actualizarlas a la BD """
-    logger.info("Tarea Listas de Acuerdos/Rastrear comienza...")
+    bitacora.info("Tarea Listas de Acuerdos/Rastrear comienza...")
     # Consultar autoridad
     autoridad = Autoridad.query.get(autoridad_id)
     if autoridad is False:
         return  # No es válida la autoridad
     if autoridad.listas_de_acuerdos == "":
         return  # No tiene listas de acuerdos
-    logger.info("- Distrito %s", autoridad.distrito.nombre)
-    logger.info("- Autoridad %s", autoridad.descripcion)
+    bitacora.info("- Distrito %s", autoridad.distrito.nombre)
+    bitacora.info("- Autoridad %s", autoridad.descripcion)
     # Consultar listas de acuerdos
     listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad_id == autoridad_id).all()
     fechas = [lista_de_acuerdo.fecha for lista_de_acuerdo in listas_de_acuerdos]
-    logger.info("- En la base de datos hay %d listas de acuerdos", len(fechas))
+    bitacora.info("- En la base de datos hay %d listas de acuerdos", len(fechas))
     # Rastrear en Google Cloud Storage
-    client = storage.Client()
-    bucket = client.get_bucket(DEPOSITO)
+    bucket = google.cloud.storage.Client().get_bucket(DEPOSITO)
     subdirectorio = f"{SUBDIRECTORIO}/{autoridad.directorio_listas_de_acuerdos}"
     blobs = list(bucket.list_blobs(prefix=subdirectorio))
     total = len(blobs)
     if total == 0:
         return  # No exite el subdirectorio o no tiene archivos
-    logger.info("- En Storage hay %d listas de acuerdos", total)
+    bitacora.info("- En Storage hay %d listas de acuerdos", total)
     # Arrancar tarea
     set_task_progress(0)
     contador = 0
@@ -105,8 +103,8 @@ def rastrear(usuario_id, autoridad_id):
         )
         lista_de_acuerdo.save()
         contador_agregados += 1
-    logger.info("- Se agregaron %d listas de acuerdos", contador_agregados)
-    logger.info("Tarea Listas de Acuerdos/Rastrear terminada.")
+    bitacora.info("- Se agregaron %d listas de acuerdos", contador_agregados)
+    bitacora.info("Tarea Listas de Acuerdos/Rastrear terminada.")
     # Terminar tarea
     set_task_progress(100)
 

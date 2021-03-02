@@ -6,9 +6,12 @@
 .vscode
 .DS_Store
 .~lock.*
-*.pyc
 *.egg-info/
+*.log
+*.pyc
 *.sqlite3
+*.sqlite3-journal
+*.session.sql
 __pycache__/
 /cli
 /instance

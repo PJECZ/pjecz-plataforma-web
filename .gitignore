@@ -3,8 +3,9 @@
 .env
 .DS_Store
 .~lock.*
-*.pyc
 *.egg-info/
+*.log
+*.pyc
 *.sqlite3
 *.sqlite3-journal
 *.session.sql
@@ -13,7 +14,6 @@ __pycache__/
 /.vscode/settings.json
 /config/settings.py
 /instance/settings.py
-/json/
 /seed/
 /setup.cfg
 /venv/
