@@ -9,6 +9,7 @@ Flask-WTF
 google-api-python-client
 google-auth
 google-auth-httplib2
+google-cloud-logging
 google-cloud-storage
 Jinja2
 passlib
