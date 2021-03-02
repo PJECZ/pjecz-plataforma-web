@@ -15,7 +15,7 @@ def cli():
 @click.argument("autoridad_id", type=int)
 def rastrear(autoridad_id):
     """ Rastrear las listas de acuerdos en Storage para agregarlas o actualizarlas a la BD """
-    tasks.rastrear(autoridad_id)
+    tasks.rastrear(None, autoridad_id)
 
 
 cli.add_command(rastrear)

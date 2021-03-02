@@ -19,13 +19,13 @@ db.app = app
 
 @click.group()
 def cli():
-    """ Grupo para una orden click """
+    """ Roles """
 
 
 @click.command()
 def alimentar():
     """ Alimentar/Actualizar la BD a partir de lo programado en el modelo Rol """
-    click.echo('Alimentando Roles...')
+    click.echo("Alimentando Roles...")
     Rol.insert_roles()
 
 

@@ -1,6 +1,7 @@
 """
 Tasks, tareas para ejecutar en el fondo
 """
+import logging
 from datetime import datetime
 from pathlib import Path
 
@@ -11,6 +12,9 @@ from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.tareas.models import Tarea
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = create_app()
 app.app_context().push()
@@ -37,19 +41,19 @@ def construir():
 
 def rastrear(usuario_id, autoridad_id):
     """ Rastrear las listas de acuerdos en Storage para agregarlas o actualizarlas a la BD """
-    print("Tarea Listas de Acuerdos/Rastrear comienza...")
+    logger.info("Tarea Listas de Acuerdos/Rastrear comienza...")
     # Consultar autoridad
     autoridad = Autoridad.query.get(autoridad_id)
     if autoridad is False:
         return  # No es válida la autoridad
     if autoridad.listas_de_acuerdos == "":
         return  # No tiene listas de acuerdos
-    print(f"- Distrito {autoridad.distrito.nombre}")
-    print(f"- Autoridad {autoridad.descripcion}")
+    logger.info("- Distrito %s", autoridad.distrito.nombre)
+    logger.info("- Autoridad %s", autoridad.descripcion)
     # Consultar listas de acuerdos
     listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad_id == autoridad_id).all()
     fechas = [lista_de_acuerdo.fecha for lista_de_acuerdo in listas_de_acuerdos]
-    print(f"- En la base de datos hay {len(fechas)} listas de acuerdos")
+    logger.info("- En la base de datos hay %d listas de acuerdos", len(fechas))
     # Rastrear en Google Cloud Storage
     client = storage.Client()
     bucket = client.get_bucket(DEPOSITO)
@@ -58,7 +62,7 @@ def rastrear(usuario_id, autoridad_id):
     total = len(blobs)
     if total == 0:
         return  # No exite el subdirectorio o no tiene archivos
-    print(f"- En Storage hay {total} listas de acuerdos")
+    logger.info("- En Storage hay %d listas de acuerdos", total)
     # Arrancar tarea
     set_task_progress(0)
     contador = 0
@@ -95,8 +99,8 @@ def rastrear(usuario_id, autoridad_id):
         )
         lista_de_acuerdo.save()
         contador_agregados += 1
-    print(f"- Se agregaron {contador_agregados}")
-    print("Tarea Listas de Acuerdos/Rastrear terminada.")
+    logger.info("- Se agregaron %d listas de acuerdos", contador_agregados)
+    logger.info("Tarea Listas de Acuerdos/Rastrear terminada.")
     # Terminar tarea
     set_task_progress(100)
 

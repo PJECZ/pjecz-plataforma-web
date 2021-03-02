@@ -20,7 +20,7 @@ db.app = app
 
 @click.group()
 def cli():
-    """ Grupo para una orden click """
+    """ Peritos """
 
 
 @click.command()

@@ -39,7 +39,7 @@ def list_bucket(bucket):
 
 @click.group()
 def cli():
-    """ Grupo para una orden click """
+    """ CONATRIB """
 
 
 @click.command()
