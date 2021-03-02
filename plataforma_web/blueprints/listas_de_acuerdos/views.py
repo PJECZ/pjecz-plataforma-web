@@ -59,7 +59,9 @@ def trace(autoridad_id):
         flash("Hay una tarea para rastrear sin terminar.", "warning")
     else:
         tarea = current_user.launch_task(
-            "listas_de_acuerdos.tasks.rastrear", f"Rastrear listas de acuerdos de {autoridad.descripcion} de {autoridad.distrito.nombre}", autoridad_id=autoridad.id
+            nombre="listas_de_acuerdos.tasks.rastrear",
+            descripcion=f"Rastrear listas de acuerdos de {autoridad.descripcion} de {autoridad.distrito.nombre}",
+            autoridad_id=autoridad.id,
         )
         flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
     return redirect(url_for("listas_de_acuerdos.list_active", autoridad_id=autoridad.id))

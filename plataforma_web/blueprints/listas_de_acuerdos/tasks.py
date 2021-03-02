@@ -103,9 +103,9 @@ def rastrear(usuario_id, autoridad_id):
         )
         lista_de_acuerdo.save()
         contador_agregados += 1
+    # Terminar tarea
     bitacora.info("- Se agregaron %d listas de acuerdos", contador_agregados)
     bitacora.info("Tarea Listas de Acuerdos/Rastrear terminada.")
-    # Terminar tarea
     set_task_progress(100)
 
 
