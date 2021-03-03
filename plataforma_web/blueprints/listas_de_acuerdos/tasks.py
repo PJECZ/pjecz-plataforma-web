@@ -28,7 +28,7 @@ DEPOSITO = "pjecz-consultas"
 SUBDIRECTORIO = "Listas de Acuerdos"
 
 
-def set_task_progress(progress):
+def set_task_progress(progress: int):
     """ Cambiar el progreso de la tarea """
     job = get_current_job()
     if job:
@@ -71,11 +71,14 @@ def rastrear(usuario_id, autoridad_id):
     set_task_progress(0)
     contador = 0
     contador_agregados = 0
+    bloque = int(len(blobs) / 20)  # 20 veces se va a actualizar el avance
+    bloque_siguiente = bloque
     for blob in blobs:
         # Cambiar el avance de la tarea
         contador += 1
-        if contador % len(blobs) == 0:
-            set_task_progress(100.0 * contador / len(blobs))
+        if contador >= bloque_siguiente:
+            set_task_progress(round(100 * contador / len(blobs)))
+            bloque_siguiente += bloque
         # Validar
         ruta = Path(blob.name)
         archivo = ruta.name

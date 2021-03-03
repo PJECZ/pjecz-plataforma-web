@@ -25,6 +25,7 @@
         <!-- Page wrapper -->
         <div class="page-wrapper">
             {{ flash.render() }}
+            {% include 'layouts/tasks_progress.jinja2' %}
             {% block content %}{% endblock %}
             <!-- Footer -->
             <footer class="footer text-center">

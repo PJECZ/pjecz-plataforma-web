@@ -56,11 +56,12 @@ def trace(autoridad_id):
     """ Rastrear Listas de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if current_user.get_task_in_progress("listas_de_acuerdos.tasks.rastrear"):
-        flash("Hay una tarea para rastrear sin terminar.", "warning")
+        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
     else:
         tarea = current_user.launch_task(
             nombre="listas_de_acuerdos.tasks.rastrear",
             descripcion=f"Rastrear listas de acuerdos de {autoridad.descripcion} de {autoridad.distrito.nombre}",
+            usuario_id=current_user.id,
             autoridad_id=autoridad.id,
         )
         flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
