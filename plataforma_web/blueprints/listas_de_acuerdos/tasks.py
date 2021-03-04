@@ -30,6 +30,7 @@ SUBDIRECTORIO = "Listas de Acuerdos"
 
 def set_task_progress(progress: int):
     """ Cambiar el progreso de la tarea """
+    bitacora.info("- Progreso %d %%", progress)
     job = get_current_job()
     if job:
         job.meta["progress"] = progress
@@ -46,7 +47,7 @@ def construir():
 
 def rastrear(usuario_id, autoridad_id):
     """ Rastrear las listas de acuerdos en Storage para agregarlas o actualizarlas a la BD """
-    bitacora.info("Tarea Listas de Acuerdos/Rastrear comienza...")
+    bitacora.info("Inicia listas_de_acuerdos.tasks.rastrear")
     # Consultar autoridad
     autoridad = Autoridad.query.get(autoridad_id)
     if autoridad is False:
@@ -107,9 +108,10 @@ def rastrear(usuario_id, autoridad_id):
         lista_de_acuerdo.save()
         contador_agregados += 1
     # Terminar tarea
-    bitacora.info("- Se agregaron %d listas de acuerdos", contador_agregados)
-    bitacora.info("Tarea Listas de Acuerdos/Rastrear terminada.")
     set_task_progress(100)
+    bitacora.info("- Se agregaron %d listas de acuerdos", contador_agregados)
+    bitacora.info("Termina listas_de_acuerdos.tasks.rastrear")
+    return f"Se agregaron {contador_agregados} listas de acuerdos"
 
 
 def respaldar():
