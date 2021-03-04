@@ -3,8 +3,8 @@ Usuarios, modelos
 """
 from flask import current_app
 from flask_login import UserMixin
-from plataforma_web.extensions import db, pwd_context
 from lib.universal_mixin import UniversalMixin
+from plataforma_web.extensions import db, pwd_context
 from plataforma_web.blueprints.tareas.models import Tarea
 
 
