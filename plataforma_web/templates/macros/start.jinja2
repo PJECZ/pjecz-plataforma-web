@@ -1,11 +1,25 @@
-{%- macro page_breadcrumb(titulo) -%}
+{%- macro page(label) -%}
     <div class="page-breadcrumb">
         <div class="row">
             <div class="col-12 d-flex no-block align-items-center">
-                <h4 class="page-title">{{ titulo }}</h4>
+                <h4 class="page-title">{{ label }}</h4>
             </div>
         </div>
     </div>
+{%- endmacro -%}
+
+{%- macro page_breadcrumb(label) -%}
+    <div class="page-breadcrumb">
+        <div class="row">
+            <div class="col-12 d-flex no-block align-items-center">
+                <h4 class="page-title">{{ caller () }}{{ label }}</h4>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro page_breadcrumb_item(label, link='') -%}
+    <a href="{{ link }}">{{ label }}</a> /
 {%- endmacro -%}
 
 {%- macro card(title='') -%}

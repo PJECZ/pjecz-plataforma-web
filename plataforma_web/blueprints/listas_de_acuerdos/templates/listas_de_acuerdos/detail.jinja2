@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page_breadcrumb('Lista de Acuerdos') }}
+    {{ detail.page('Lista de Acuerdos') }}
     <div class="container-fluid">
         {% call detail.card(estatus=lista_de_acuerdo.estatus) %}
             {{ detail.label_value_big('Archivo', lista_de_acuerdo.archivo) }}

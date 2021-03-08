@@ -4,7 +4,7 @@
 {% block title %}Editar Usuario{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Editar ' + usuario.nombre) }}
+    {{ f.page('Editar ' + usuario.nombre) }}
     <div class="container-fluid">
         {% set form_kwargs = {'usuario_id': usuario.id} %}
         {% call f.form_tag('usuarios.edit', fid='usuario_form', **form_kwargs) %}

@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page_breadcrumb('Edicto') }}
+    {{ detail.page('Edicto') }}
     <div class="container-fluid">
         {% call detail.card(estatus=edicto.estatus) %}
             {{ detail.label_value_big('Edicto', edicto.descripcion) }}

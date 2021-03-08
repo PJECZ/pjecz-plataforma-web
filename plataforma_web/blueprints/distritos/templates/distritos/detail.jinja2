@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page_breadcrumb('Distrito') }}
+    {{ detail.page('Distrito') }}
     <div class="container-fluid">
         {% call detail.card(estatus=distrito.estatus) %}
             {{ detail.label_value_big('Distrito', distrito.nombre) }}

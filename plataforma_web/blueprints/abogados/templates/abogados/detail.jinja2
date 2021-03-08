@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page_breadcrumb('Abogado registrado') }}
+    {{ detail.page('Abogado registrado') }}
     <div class="container-fluid">
         {% call detail.card(estatus=abogado.estatus) %}
             {{ detail.label_value_big('Nombre', abogado.nombre) }}

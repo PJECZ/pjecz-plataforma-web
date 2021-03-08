@@ -4,7 +4,7 @@
 {% block title %}Nuevo Distrito{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Nuevo Distrito') }}
+    {{ f.page('Nuevo Distrito') }}
     <div class="container-fluid">
         {% call f.form_tag('distritos.new', fid='distrito_form') %}
             {% call f.form_group(form.nombre) %}{% endcall %}

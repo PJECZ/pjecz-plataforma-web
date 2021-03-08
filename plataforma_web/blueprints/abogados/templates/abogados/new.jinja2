@@ -4,7 +4,7 @@
 {% block title %}Nuevo Abogado registrado{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Nuevo Abogado registrado') }}
+    {{ f.page('Nuevo Abogado registrado') }}
     <div class="container-fluid">
         {% call f.form_tag('abogados.new', fid='abogados_form') %}
             {% call f.form_group(form.numero) %}{% endcall %}

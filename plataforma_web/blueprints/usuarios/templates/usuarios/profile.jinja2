@@ -4,7 +4,7 @@
 {% block title %}Mi Perfil{% endblock %}
 
 {% block content %}
-    {{ detail.page_breadcrumb('Mi Perfil') }}
+    {{ detail.page('Mi Perfil') }}
     <div class="container-fluid">
         {% call detail.card() %}
             {{ detail.label_value_big('Nombre', current_user.nombre) }}

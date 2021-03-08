@@ -4,7 +4,7 @@
 {% block title %}Nuevo Glosa{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Nuevo Glosa') }}
+    {{ f.page('Nuevo Glosa') }}
     <div class="container-fluid">
         {% call f.form_tag('glosas.new', fid='glosa_form') %}
             {% call f.form_group(form.autoridad) %}{% endcall %}

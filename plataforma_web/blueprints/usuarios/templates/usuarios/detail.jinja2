@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page_breadcrumb('Usuario') }}
+    {{ detail.page('Usuario') }}
     <div class="container-fluid">
         {% call detail.card('', usuario.estatus) %}
             {{ detail.label_value_big('Nombre', usuario.nombre) }}

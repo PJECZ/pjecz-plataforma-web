@@ -106,27 +106,27 @@ class Rol(db.Model, UniversalMixin):
         """ ¿Tiene permiso para ver? """
         if module == "usuarios":
             return True
-        if module in ("bitacoras", "entradas_salidas", "roles"):
+        if module in ("bitacoras", "entradas_salidas", "roles", "tareas"):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.VER_CATALOGOS)
-        if module in ("abogados", "edictos", "glosas", "listas_de_acuerdos", "peritos", "sentencias", "tareas", "ubicaciones_expedientes"):
+        if module in ("abogados", "edictos", "glosas", "listas_de_acuerdos", "peritos", "sentencias", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.VER_CONTENIDOS)
         return False
 
     def can_insert(self, module):
         """ ¿Tiene permiso para agregar? """
-        if module == "usuarios":
+        if module in ("usuarios", "bitacoras", "entradas_salidas", "roles", "tareas"):
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
-        if module in ("abogados", "edictos", "glosas", "listas_de_acuerdos", "peritos", "sentencias", "tareas", "ubicaciones_expedientes"):
+        if module in ("abogados", "edictos", "glosas", "listas_de_acuerdos", "peritos", "sentencias", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.MODIFICAR_CONTENIDOS)
         return False
 
     def can_edit(self, module):
         """ ¿Tiene permiso para editar? """
-        if module == "usuarios":
+        if module in ("usuarios", "bitacoras", "entradas_salidas", "roles", "tareas"):
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.CREAR_CATALOGOS)

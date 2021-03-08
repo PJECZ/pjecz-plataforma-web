@@ -4,7 +4,7 @@
 {% block title %}Editar Distrito{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Editar ' + distrito.nombre) }}
+    {{ f.page('Editar ' + distrito.nombre) }}
     <div class="container-fluid">
         {% set form_kwargs = {'distrito_id': distrito.id} %}
         {% call f.form_tag('distritos.edit', fid='distrito_form', **form_kwargs) %}

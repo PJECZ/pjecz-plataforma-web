@@ -4,7 +4,7 @@
 {% block title %}Nueva Autoridad{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Nueva Autoridad') }}
+    {{ f.page('Nueva Autoridad') }}
     <div class="container-fluid">
         {% call f.form_tag('autoridades.new', fid='autoridad_form') %}
             {% call f.form_group(form.distrito) %}{% endcall %}

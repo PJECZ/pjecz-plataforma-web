@@ -4,7 +4,7 @@
 {% block title %}Editar Abogado registrado{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Editar ' + abogado.nombre) }}
+    {{ f.page('Editar ' + abogado.nombre) }}
     <div class="container-fluid">
         {% set form_kwargs = {'abogado_id': abogado.id} %}
         {% call f.form_tag('abogados.edit', fid='abogado_form', **form_kwargs) %}

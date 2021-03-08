@@ -4,7 +4,7 @@
 {% block title %}Buscar Listas de Acuerdos{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Buscar Listas de Acuerdos') }}
+    {{ f.page('Buscar Listas de Acuerdos') }}
     <div class="container-fluid">
         {% call f.form_tag('listas_de_acuerdos.search', fid='listas_de_acuerdos_form') %}
             {% call f.form_group(form.distrito) %}{% endcall %}

@@ -4,7 +4,7 @@
 {% block title %}Editar Autoridad{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Editar ' + autoridad.descripcion) }}
+    {{ f.page('Editar ' + autoridad.descripcion) }}
     <div class="container-fluid">
         {% set form_kwargs = {'autoridad_id': autoridad.id} %}
         {% call f.form_tag('autoridades.edit', fid='autoridad_form', **form_kwargs) %}

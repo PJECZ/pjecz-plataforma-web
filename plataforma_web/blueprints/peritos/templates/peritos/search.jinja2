@@ -4,7 +4,7 @@
 {% block title %}Buscar Peritos{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Buscar Peritos') }}
+    {{ f.page('Buscar Peritos') }}
     <div class="container-fluid">
         {% call f.form_tag('peritos.search', fid='perito_search_form') %}
             {% call f.form_group(form.nombre) %}{% endcall %}

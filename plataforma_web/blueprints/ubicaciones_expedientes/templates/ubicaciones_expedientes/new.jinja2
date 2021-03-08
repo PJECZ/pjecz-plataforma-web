@@ -4,7 +4,7 @@
 {% block title %}Nuevo Ubicacion de Expediente{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Nuevo Ubicacion de Expediente') }}
+    {{ f.page('Nuevo Ubicacion de Expediente') }}
     <div class="container-fluid">
         {% call f.form_tag('ubicaciones_expedientes.new', fid='ubicacion_expediente_form') %}
             {% call f.form_group(form.distrito) %}{% endcall %}

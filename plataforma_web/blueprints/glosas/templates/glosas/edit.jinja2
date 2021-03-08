@@ -4,7 +4,7 @@
 {% block title %}Editar Glosa{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Editar ' + glosa.expediente) }}
+    {{ f.page('Editar ' + glosa.expediente) }}
         <div class="container-fluid">
         {% set form_kwargs = {'glosa_id': glosa.id} %}
         {% call f.form_tag('glosas.edit', fid='glosa_form', **form_kwargs) %}

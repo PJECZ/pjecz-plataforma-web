@@ -4,7 +4,7 @@
 {% block title %}Buscar Ubicación de Expediente{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Buscar Ubicación de Expediente') }}
+    {{ f.page('Buscar Ubicación de Expediente') }}
     <div class="container-fluid">
         {% call f.form_tag('ubicaciones_expedientes.search', fid='ubicacion_expediente_search_form') %}
             {% call f.form_group(form.expediente) %}{% endcall %}

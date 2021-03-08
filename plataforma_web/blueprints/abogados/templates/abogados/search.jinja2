@@ -4,7 +4,7 @@
 {% block title %}Buscar Abogados registrados{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Buscar Abogados registrados') }}
+    {{ f.page('Buscar Abogados registrados') }}
     <div class="container-fluid">
         {% call f.form_tag('abogados.search', fid='abogados_search_form') %}
             {% call f.form_group(form.nombre) %}{% endcall %}

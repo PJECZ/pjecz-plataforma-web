@@ -4,7 +4,7 @@
 {% block title %}Buscar Autoridades{% endblock %}
 
 {% block content %}
-    {{ f.page_breadcrumb('Buscar Autoridades') }}
+    {{ f.page('Buscar Autoridades') }}
     <div class="container-fluid">
         {% call f.form_tag('autoridades.search', fid='autoridades_search_form') %}
             {% call f.form_group(form.descripcion) %}{% endcall %}

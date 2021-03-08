@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page_breadcrumb('Autoridad') }}
+    {{ detail.page('Autoridad') }}
     <div class="container-fluid">
         {% call detail.card(estatus=autoridad.estatus) %}
             {{ detail.label_value_big('Autoridad', autoridad.descripcion) }}
