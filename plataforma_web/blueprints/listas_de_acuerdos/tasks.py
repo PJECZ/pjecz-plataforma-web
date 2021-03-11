@@ -1,5 +1,5 @@
 """
-Tasks, tareas para ejecutar en el fondo
+Listas de Acuerdos, tareas para ejecutar en el fondo
 """
 import logging
 from datetime import datetime
@@ -12,7 +12,6 @@ from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.tareas.models import Tarea
-
 
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
