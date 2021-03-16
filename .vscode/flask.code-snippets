@@ -38,13 +38,27 @@
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}')",
 			"def list_active():",
-			"\t\"\"\" Listado de ${2:Modulo} \"\"\"",
+			"\t\"\"\" Listado de ${2:Modulo} activos \"\"\"",
 			"\t${3:registros}_activos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'A').all()",
-			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_activos)",
+			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_activos, estatus='A')",
 			"",
 			""
 		],
 		"description": "Listado de registros activos"
+	},
+	"Flask views list_inactive": {
+		"scope": "python",
+		"prefix": "fviews_list_inactive",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
+			"def list_inactive():",
+			"\t\"\"\" Listado de ${2:Modulo} inactivos \"\"\"",
+			"\t${3:registros}_inactivos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'B').all()",
+			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_inactivos, estatus='B')",
+			"",
+			""
+		],
+		"description": "Listado de registros inactivos"
 	},
 	"Flask views detail": {
 		"scope": "python",

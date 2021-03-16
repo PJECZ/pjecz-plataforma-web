@@ -35,7 +35,7 @@ def create_app():
     app.config.from_pyfile("settings.py", silent=True)
     # Redis
     app.redis = Redis.from_url(app.config["REDIS_URL"])
-    app.task_queue = rq.Queue(app.config["TASK_QUEUE"], connection=app.redis)
+    app.task_queue = rq.Queue(app.config["TASK_QUEUE"], connection=app.redis, default_timeout=1920)
     # Cargar los blueprints
     app.register_blueprint(roles)
     app.register_blueprint(usuarios)

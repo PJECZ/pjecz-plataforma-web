@@ -18,7 +18,7 @@
 			"{% endblock %}",
 			""
 		],
-		"description": "Plantilla detail.jinja2"
+		"description": "Detalle"
 	},
 	"Jinja2 detail delete recover": {
 		"scope": "jinja-html",
@@ -59,7 +59,7 @@
 			"{% endblock %}",
 			""
 		],
-		"description": "Plantilla detail.jinja2 acciones eliminar y recuperar"
+		"description": "Detalle con eliminar y recuperar"
 	},
 	"Jinja2 edit": {
 		"scope": "jinja-html",
@@ -82,7 +82,7 @@
 			"{% endblock %}",
 			""
 		],
-		"description": "Plantilla edit.jinja2"
+		"description": "Editar"
 	},
 	"Jinja2 list": {
 		"scope": "jinja-html",
@@ -97,7 +97,7 @@
 			"\t{{ list.page('${1:Titulo}') }}",
 			"\t<div class=\"container-fluid\">",
 			"\t\t{% call list.card() %}",
-			"\t\t\t<table id=\"${2:blueprint}_datatable\" class=\"table\">",
+			"\t\t\t<table id=\"${2:blueprint}_datatable\" class=\"table {% if estatus == 'B'%}table-dark{% endif %}\">",
 			"\t\t\t\t<thead>",
 			"\t\t\t\t\t<tr>",
 			"\t\t\t\t\t\t<th>${1:Titulo}</th>",
@@ -122,70 +122,26 @@
 			"{% endblock %}",
 			""
 		],
-		"description": "Plantilla list.jinja2"
+		"description": "Listado"
 	},
-	"Jinja2 list new": {
+	"Jinja2 list topbar": {
 		"scope": "jinja-html",
-		"prefix": "j2_list_new",
+		"prefix": "j2_list_topbar",
 		"body": [
-			"{% extends 'layouts/app.jinja2' %}",
-			"{% import 'macros/list.jinja2' as list with context %}",
-			"",
-			"{% block title %}${1:Titulo}{% endblock %}",
-			"",
 			"{% block topbar_actions %}",
-			"\t{% if current_user.can_insert('${2:blueprint}') %}",
-			"\t\t{% call list.topbar_actions() %}",
+			"\t{% call list.topbar_actions() %}",
+			"\t\t{% if current_user.can_edit('${2:blueprint}') %}",
+			"\t\t\t{% if estatus == 'A' %}{{ list.topbar_actions_option('Inactivos', url_for('${2:blueprint}.list_inactive')) }}{% endif %}",
+			"\t\t\t{% if estatus == 'B' %}{{ list.topbar_actions_option('Activos', url_for('${2:blueprint}.list_active')) }}{% endif %}",
+			"\t\t{% endif %}",
+			"\t\t{% if current_user.can_insert('${2:blueprint}') %}",
 			"\t\t\t{{ list.topbar_actions_option('Nuevo ${1:Titulo}', url_for('${2:blueprint}.new')) }}",
-			"\t\t{% endcall %}",
-			"\t{% endif %}",
-			"{% endblock %}",
-			"",
-			"{% block content %}",
-			"\t{{ list.page('${1:Titulo}') }}",
-			"\t<div class=\"container-fluid\">",
-			"\t\t{% call list.card() %}",
-			"\t\t\t<table id=\"${2:blueprint}_datatable\" class=\"table\">",
-			"\t\t\t\t<thead>",
-			"\t\t\t\t\t<tr>",
-			"\t\t\t\t\t\t<th>${1:Titulo}</th>",
-			"\t\t\t\t\t</tr>",
-			"\t\t\t\t</thead>",
-			"\t\t\t\t<tbody>",
-			"\t\t\t\t\t{% for ${3:registro} in ${4:registros} %}",
-			"\t\t\t\t\t<tr>",
-			"\t\t\t\t\t\t<td><a href=\"{{ url_for('${2:blueprint}.detail', ${3:registro}_id=${3:registro}.id) }}\">{{ ${3:registro}.${5:nombre_o_descripcion} }}</a></td>",
-			"\t\t\t\t\t</tr>",
-			"\t\t\t\t\t{% endfor %}",
-			"\t\t\t\t</tbody>",
-			"\t\t\t</table>",
-			"\t\t{% endcall %}",
-			"\t</div>",
-			"{% endblock %}",
-			"",
-			"{% block custom_javascript %}",
-			"\t<script>",
-			"\t\t$('#${2:blueprint}_datatable').DataTable();",
-			"\t</script>",
+			"\t\t{% endif %}",
+			"\t{% endcall %}",
 			"{% endblock %}",
 			""
 		],
-		"description": "Plantilla list.jinja2 acción nuevo"
-	},
-	"Jinja2 list new topbar": {
-		"scope": "jinja-html",
-		"prefix": "j2_list_new_topbar",
-		"body": [
-			"{% block topbar_actions %}",
-			"\t{% if current_user.can_insert('${2:blueprint}') %}",
-			"\t\t{% call list.topbar_actions() %}",
-			"\t\t\t{{ list.topbar_actions_option('Nuevo ${1:Titulo}', url_for('${2:blueprint}.new')) }}",
-			"\t\t{% endcall %}",
-			"\t{% endif %}",
-			"{% endblock %}",
-			""
-		],
-		"description": "Plantilla list.jinja2 acción nuevo topbar actions"
+		"description": "Listado topbar actions"
 	},
 	"Jinja2 new": {
 		"scope": "jinja-html",
@@ -200,13 +156,13 @@
 			"\t{{ f.page('Nuevo ${1:Titulo}') }}",
 			"\t<div class=\"container-fluid\">",
 			"\t\t{% call f.form_tag('${2:blueprint}.new', fid='${3:registro}_form') %}",
-			"\t\t\t{% call f.form_group(form.nombre) %}{% endcall %}",
+			"\t\t\t{% call f.form_group(form.${4:nombre_o_descripcion}) %}{% endcall %}",
 			"\t\t\t{{ form.guardar() }}",
 			"\t\t{% endcall %}",
 			"\t</div>",
 			"{% endblock %}",
 			""
 		],
-		"description": "Plantilla new.jinja2"
+		"description": "Nuevo"
 	}
 }
