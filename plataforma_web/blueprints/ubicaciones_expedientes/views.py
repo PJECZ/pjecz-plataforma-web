@@ -24,7 +24,7 @@ def before_request():
 @ubicaciones_expedientes.route("/ubicaciones_expedientes")
 def list_active():
     """ Listado de Ubicaciones de Expedientes """
-    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").limit(100).all()
+    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").limit(400).all()
     return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=ubicaciones_expedientes_activos)
 
 
@@ -44,7 +44,7 @@ def search():
         if form_search.expediente.data:
             expediente = form_search.expediente.data.strip().upper()
             consulta = consulta.filter(UbicacionExpediente.expediente.like(f"%{expediente}%"))
-        consulta = consulta.limit(100).all()
+        consulta = consulta.limit(400).all()
         return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=consulta)
     return render_template("ubicaciones_expedientes/search.jinja2", form=form_search)
 

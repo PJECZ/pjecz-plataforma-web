@@ -127,7 +127,7 @@ def list_active():
 def detail(usuario_id):
     """ Detalle de un Usuario """
     usuario = Usuario.query.get_or_404(usuario_id)
-    entradas_salidas = EntradaSalida.query.filter(EntradaSalida.usuario == usuario).order_by(EntradaSalida.creado).limit(100).all()
+    entradas_salidas = EntradaSalida.query.filter(EntradaSalida.usuario == usuario).order_by(EntradaSalida.creado).limit(400).all()
     return render_template("usuarios/detail.jinja2", usuario=usuario, entradas_salidas=entradas_salidas)
 
 
