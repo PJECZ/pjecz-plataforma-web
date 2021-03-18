@@ -22,7 +22,7 @@ def before_request():
 @edictos.route("/edictos")
 def list_active():
     """ Listado de Edictos """
-    edictos_activos = Edicto.query.filter(Edicto.estatus == "A").all()
+    edictos_activos = Edicto.query.filter(Edicto.estatus == "A").limit(100).all()
     return render_template("edictos/list.jinja2", edictos=edictos_activos)
 
 
@@ -57,7 +57,7 @@ def new():
         )
         edicto.save()
         flash(f"Edicto {edicto.descripcion} guardado.", "success")
-        return redirect(url_for("edictos.list_active"))
+        return redirect(url_for("edictos.detail", edicto_id=edicto.id))
     return render_template("edictos/new.jinja2", form=form)
 
 

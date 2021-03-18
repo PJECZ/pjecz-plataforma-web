@@ -36,7 +36,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#edictos_datatable').DataTable();
-    </script>
+    {{ list.datatable('edictos_datatable') }}
 {% endblock %}

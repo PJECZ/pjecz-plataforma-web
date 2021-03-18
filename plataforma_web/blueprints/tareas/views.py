@@ -21,5 +21,5 @@ def before_request():
 @tareas.route("/tareas")
 def list_active():
     """ Listado de Tareas """
-    tareas_activas = Tarea.query.filter(Tarea.estatus == "A").order_by(Tarea.creado.desc()).limit(400).all()
+    tareas_activas = Tarea.query.filter(Tarea.estatus == "A").order_by(Tarea.creado.desc()).limit(100).all()
     return render_template("tareas/list.jinja2", tareas=tareas_activas)

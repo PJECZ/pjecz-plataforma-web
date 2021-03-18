@@ -23,7 +23,7 @@ def before_request():
 @abogados.route("/abogados")
 def list_active():
     """ Listado de Abogados """
-    abogados_activos = Abogado.query.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(400).all()
+    abogados_activos = Abogado.query.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(100).all()
     return render_template("abogados/list.jinja2", abogados=abogados_activos)
 
 
@@ -47,7 +47,7 @@ def search():
             consulta = consulta.filter(Abogado.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Abogado.fecha <= form_search.fecha_hasta.data)
-        consulta = consulta.order_by(Abogado.fecha).limit(400).all()
+        consulta = consulta.order_by(Abogado.fecha).limit(100).all()
         return render_template("abogados/list.jinja2", abogados=consulta)
     return render_template("abogados/search.jinja2", form=form_search)
 

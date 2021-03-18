@@ -43,9 +43,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#listas_de_acuerdos_datatable').DataTable({
-            "order": [[0, "desc"]]
-        });
-    </script>
+    {{ list.datatable('listas_de_acuerdos_datatable', order='desc') }}
 {% endblock %}

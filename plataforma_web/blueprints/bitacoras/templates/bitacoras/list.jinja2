@@ -30,7 +30,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#bitacoras_datatable').DataTable();
-    </script>
+    {{ list.datatable('bitacoras_datatable') }}
 {% endblock %}

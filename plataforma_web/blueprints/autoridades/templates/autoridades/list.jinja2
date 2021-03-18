@@ -39,7 +39,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#autoridades_datatable').DataTable();
-    </script>
+    {{ list.datatable('autoridades_datatable') }}
 {% endblock %}

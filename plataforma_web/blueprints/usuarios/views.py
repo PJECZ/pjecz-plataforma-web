@@ -117,7 +117,7 @@ def change_password():
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """ Listado de Usuarios """
-    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").order_by(Usuario.nombres).order_by(Usuario.apellido_paterno).all()
+    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").order_by(Usuario.nombres).order_by(Usuario.apellido_paterno).limit(100).all()
     return render_template("usuarios/list.jinja2", usuarios=usuarios_activos)
 
 
@@ -127,7 +127,7 @@ def list_active():
 def detail(usuario_id):
     """ Detalle de un Usuario """
     usuario = Usuario.query.get_or_404(usuario_id)
-    entradas_salidas = EntradaSalida.query.filter(EntradaSalida.usuario == usuario).order_by(EntradaSalida.creado).limit(400).all()
+    entradas_salidas = EntradaSalida.query.filter(EntradaSalida.usuario == usuario).order_by(EntradaSalida.creado).limit(100).all()
     return render_template("usuarios/detail.jinja2", usuario=usuario, entradas_salidas=entradas_salidas)
 
 
@@ -148,7 +148,7 @@ def new():
         )
         usuario.save()
         flash(f"Usuario {usuario.nombre} guardado.", "success")
-        return redirect(url_for("usuarios.list_active"))
+        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
     return render_template("usuarios/new.jinja2", form=form)
 
 
@@ -169,7 +169,7 @@ def edit(usuario_id):
         usuario.rol = form.rol.data
         usuario.save()
         flash(f"Usuario {usuario.nombre} guardado.", "success")
-        return redirect(url_for("usuarios.list_active"))
+        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno

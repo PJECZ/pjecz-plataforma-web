@@ -32,7 +32,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#tareas_datatable').DataTable();
-    </script>
+    {{ list.datatable('tareas_datatable', order='desc') }}
 {% endblock %}

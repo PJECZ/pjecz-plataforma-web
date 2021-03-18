@@ -24,7 +24,7 @@ def before_request():
 @ubicaciones_expedientes.route("/ubicaciones_expedientes")
 def list_active():
     """ Listado de Ubicaciones de Expedientes """
-    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").limit(400).all()
+    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").limit(100).all()
     return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=ubicaciones_expedientes_activos)
 
 
@@ -44,7 +44,7 @@ def search():
         if form_search.expediente.data:
             expediente = form_search.expediente.data.strip().upper()
             consulta = consulta.filter(UbicacionExpediente.expediente.like(f"%{expediente}%"))
-        consulta = consulta.limit(400).all()
+        consulta = consulta.limit(100).all()
         return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=consulta)
     return render_template("ubicaciones_expedientes/search.jinja2", form=form_search)
 
@@ -63,7 +63,7 @@ def new():
         )
         ubicacion_expediente.save()
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
-        return redirect(url_for("ubicaciones_expedientes.list_active"))
+        return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
     distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     return render_template("ubicaciones_expedientes/new.jinja2", form=form, distritos=distritos)
 

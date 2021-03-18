@@ -51,9 +51,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#entradas_salidas_datatable').DataTable({ "searching": false, "info":false, "paging": false });
-    </script>
+    {{ detail.datatable('entradas_salidas_datatable') }}
     {% if current_user.can_edit('usuarios') %}
         {{ detail.custom_javascript_delete_recover() }}
     {% endif %}

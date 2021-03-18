@@ -38,7 +38,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#glosas_datatable').DataTable();
-    </script>
+    {{ list.datatable('glosas_datatable') }}
 {% endblock %}

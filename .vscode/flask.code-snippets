@@ -87,7 +87,7 @@
 			"\t\t${4:instance} = ${5:Class}(${6:nombre_o_descripcion}=form.${6:nombre_o_descripcion}.data)",
 			"\t\t${4:instance}.save()",
 			"\t\tflash(f'${2:description} {${4:instance}.${6:nombre_o_descripcion}} guardado.', 'success')",
-			"\t\treturn redirect(url_for('${1:blueprint}.list_active'))",
+			"\t\treturn redirect(url_for('${1:blueprint}.detail', ${7:column_id}=${4:instance}.id))",
 			"\treturn render_template('${1:blueprint}/new.jinja2', form=form)",
 			"",
 			""

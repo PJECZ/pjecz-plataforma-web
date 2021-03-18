@@ -22,7 +22,7 @@ def before_request():
 @glosas.route("/glosas")
 def list_active():
     """ Listado de Glosas """
-    glosas_activos = Glosa.query.filter(Glosa.estatus == "A").all()
+    glosas_activos = Glosa.query.filter(Glosa.estatus == "A").limit(100).all()
     return render_template("glosas/list.jinja2", glosas=glosas_activos)
 
 
@@ -48,7 +48,7 @@ def new():
         )
         glosa.save()
         flash(f"Glosa {glosa.expediente} guardado.", "success")
-        return redirect(url_for("glosas.list_active"))
+        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
     return render_template("glosas/new.jinja2", form=form)
 
 

@@ -39,7 +39,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#peritos_datatable').DataTable();
-    </script>
+    {{ list.datatable('peritos_datatable') }}
 {% endblock %}

@@ -47,7 +47,7 @@ def list_autoridades(distrito_id):
 def list_active(autoridad_id):
     """ Listado de Listas de Acuerdos activas de una Autoridad """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").all()
+    listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_activas)
 
 
@@ -112,7 +112,7 @@ def new():
         )
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
-        return redirect(url_for("listas_de_acuerdos.list_active"))
+        return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
     distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     return render_template("listas_de_acuerdos/new.jinja2", form=form, distritos=distritos)
 

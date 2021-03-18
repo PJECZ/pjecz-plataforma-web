@@ -38,7 +38,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#usuarios_datatable').DataTable();
-    </script>
+    {{ list.datatable('usuarios_datatable') }}
 {% endblock %}

@@ -26,7 +26,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#roles_datatable').DataTable();
-    </script>
+    {{ list.datatable('roles_datatable') }}
 {% endblock %}

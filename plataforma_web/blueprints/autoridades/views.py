@@ -23,7 +23,7 @@ def before_request():
 @autoridades.route("/autoridades")
 def list_active():
     """ Listado de Autoridades """
-    autoridades_activas = Autoridad.query.filter(Autoridad.estatus == "A").all()
+    autoridades_activas = Autoridad.query.filter(Autoridad.estatus == "A").limit(100).all()
     return render_template("autoridades/list.jinja2", autoridades=autoridades_activas)
 
 
@@ -41,7 +41,7 @@ def search():
     if form_search.validate_on_submit():
         descripcion = form_search.descripcion.data
         consulta = Autoridad.query.filter(Autoridad.descripcion.ilike(f"%{descripcion}%"))
-        consulta = consulta.order_by(Autoridad.descripcion).limit(400).all()
+        consulta = consulta.order_by(Autoridad.descripcion).limit(100).all()
         return render_template("autoridades/list.jinja2", autoridades=consulta)
     return render_template("autoridades/search.jinja2", form=form_search)
 
@@ -63,7 +63,7 @@ def new():
         )
         autoridad.save()  # TODO Está fallando
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
-        return redirect(url_for("autoridades.list_active"))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     return render_template("autoridades/new.jinja2", form=form)
 
 

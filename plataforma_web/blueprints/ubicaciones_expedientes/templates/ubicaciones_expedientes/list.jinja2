@@ -41,7 +41,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#ubicaciones_expedientes_datatable').DataTable();
-    </script>
+    {{ list.datatable('ubicaciones_expedientes_datatable') }}
 {% endblock %}

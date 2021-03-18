@@ -33,7 +33,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#usuarios_datatable').DataTable({ "searching": false, "info":false, "paging": false });
-    </script>
+    {{ detail.datatable('usuarios_datatable') }}
 {% endblock %}

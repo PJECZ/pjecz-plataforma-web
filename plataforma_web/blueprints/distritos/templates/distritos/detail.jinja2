@@ -47,6 +47,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ detail.datatable('autoridades_datatable') }}
     {% if current_user.can_edit('distritos') %}
         {{ detail.custom_javascript_delete_recover() }}
     {% endif %}

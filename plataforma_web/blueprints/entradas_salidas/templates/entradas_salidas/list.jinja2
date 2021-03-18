@@ -32,7 +32,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#entradas_salidas_datatable').DataTable();
-    </script>
+    {{ list.datatable('entradas_salidas_datatable') }}
 {% endblock %}

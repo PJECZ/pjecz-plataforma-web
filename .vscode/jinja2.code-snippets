@@ -116,9 +116,7 @@
 			"{% endblock %}",
 			"",
 			"{% block custom_javascript %}",
-			"\t<script>",
-			"\t\t$('#${2:blueprint}_datatable').DataTable();",
-			"\t</script>",
+			"\t{{ list.datatable('${2:blueprint}_datatable') }}",
 			"{% endblock %}",
 			""
 		],

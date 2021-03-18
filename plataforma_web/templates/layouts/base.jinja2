@@ -17,8 +17,9 @@
         <!-- JQuery -->
         <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/jquery/dist/jquery.min.js') }}"></script>
         <!-- Bootstrap -->
-        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
         <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+        <!-- popper.js.org tooltip & popover positioning engine -->
+        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
         {% block template_javascript %}{% endblock %}
         {% block custom_javascript %}{% endblock %}
     </body>

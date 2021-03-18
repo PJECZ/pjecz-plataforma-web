@@ -44,7 +44,7 @@ def new():
         distrito = Distrito(nombre=form.nombre.data)
         distrito.save()
         flash(f"Distrito {distrito.nombre} guardado.", "success")
-        return redirect(url_for("distritos.list_active"))
+        return redirect(url_for("distritos.detail", distrito_id=distrito.id))
     return render_template("distritos/new.jinja2", form=form)
 
 

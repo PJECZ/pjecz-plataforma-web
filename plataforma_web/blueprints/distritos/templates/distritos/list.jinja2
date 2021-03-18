@@ -34,7 +34,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#distritos_datatable').DataTable();
-    </script>
+    {{ list.datatable('distritos_datatable') }}
 {% endblock %}
