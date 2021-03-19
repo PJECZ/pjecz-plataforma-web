@@ -7,9 +7,11 @@
     {{ f.page('Buscar Abogados registrados') }}
     <div class="container-fluid">
         {% call f.form_tag('abogados.search', fid='abogados_search_form') %}
-            {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.fecha_desde) %}{% endcall %}
             {% call f.form_group(form.fecha_hasta) %}{% endcall %}
+            {% call f.form_group(form.numero) %}{% endcall %}
+            {% call f.form_group(form.libro) %}{% endcall %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     </div>

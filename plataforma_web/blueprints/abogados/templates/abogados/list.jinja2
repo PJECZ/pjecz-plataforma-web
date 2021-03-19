@@ -20,8 +20,8 @@
                 <thead>
                     <tr>
                         <th>Fecha</th>
-                        <th>Libro</th>
                         <th>Número</th>
+                        <th>Libro</th>
                         <th>Nombre</th>
                     </tr>
                 </thead>
@@ -29,8 +29,8 @@
                     {% for abogado in abogados %}
                     <tr>
                         <td>{{ abogado.fecha }}</td>
-                        <td>{{ abogado.libro }}</td>
                         <td>{{ abogado.numero }}</td>
+                        <td>{{ abogado.libro }}</td>
                         <td><a href="{{ url_for('abogados.detail', abogado_id=abogado.id) }}">{{ abogado.nombre }}</a></td>
                     </tr>
                     {% endfor %}

@@ -27,7 +27,6 @@
             {{ flash.render() }}
             {% include 'layouts/tasks_progress.jinja2' %}
             {% block content %}{% endblock %}
-            <!-- Footer -->
             <footer class="footer text-center">
                 <a href="https://www.pjecz.gob.mx/">Poder Judicial del Estado de Coahuila de Zaragoza</a>.
             </footer>
@@ -36,7 +35,7 @@
 {% endblock %}
 
 {% block template_javascript %}
-    <!-- Slimscrollbar scrollbar JavaScript -->
+    <!-- Perfect Scrollbar -->
     <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js') }}"></script>
     <!-- Wave Effects -->
     <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/js/waves.js') }}"></script>

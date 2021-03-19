@@ -2,7 +2,7 @@
 Peritos, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import DateField,  SelectField, StringField, SubmitField
+from wtforms import DateField, SelectField, StringField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Email, Length, Optional
 
@@ -33,6 +33,7 @@ class PeritoForm(FlaskForm):
 class PeritoSearchForm(FlaskForm):
     """ Formulario para buscar Peritos """
 
+    distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre", allow_blank=True)
     nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     tipo = SelectField("Tipo", choices=Perito.TIPOS, validators=[Optional()])
     buscar = SubmitField("Buscar")

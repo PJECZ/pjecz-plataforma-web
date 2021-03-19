@@ -38,11 +38,16 @@ def detail(perito_id):
 def search():
     """ Buscar Peritos """
     form_search = PeritoSearchForm()
+    form_search.tipo.choices.insert(0, "")  # Poner la primer opción del select vacía
     if form_search.validate_on_submit():
         consulta = Perito.query
+        if form_search.distrito.data:
+            consulta = consulta.filter(Perito.distrito == form_search.distrito.data)
         if form_search.nombre.data:
             nombre = unidecode(form_search.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
             consulta = consulta.filter(Perito.nombre.like(f"%{nombre}%"))
+        if form_search.tipo.data:
+            consulta = consulta.filter(Perito.tipo == form_search.tipo.data)
         consulta = consulta.order_by(Perito.nombre).limit(100).all()
         return render_template("peritos/list.jinja2", peritos=consulta)
     return render_template("peritos/search.jinja2", form=form_search)

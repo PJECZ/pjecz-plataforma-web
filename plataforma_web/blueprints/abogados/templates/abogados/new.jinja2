@@ -7,10 +7,10 @@
     {{ f.page('Nuevo Abogado registrado') }}
     <div class="container-fluid">
         {% call f.form_tag('abogados.new', fid='abogados_form') %}
-            {% call f.form_group(form.numero) %}{% endcall %}
-            {% call f.form_group(form.nombre) %}{% endcall %}
-            {% call f.form_group(form.libro) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.numero) %}{% endcall %}
+            {% call f.form_group(form.libro) %}{% endcall %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
             {{ form.guardar() }}
         {% endcall %}
     </div>

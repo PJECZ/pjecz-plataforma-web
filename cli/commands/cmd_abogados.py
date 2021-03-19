@@ -46,9 +46,9 @@ def alimentar(entrada_csv):
                 click.echo(f"  Dato con error: {mensaje}")
                 continue
             datos = {
-                "numero": row["numero"].strip(),  # Hay números como 000-Bis
-                "nombre": unidecode(row["nombre"].strip()).upper(),  # Nombre sin acentos y en mayúsculas
-                "libro": row["libro"].strip(),
+                "numero": unidecode(row["numero"].strip()).upper(),  # Hay números como 000-Bis, sin acentos y en mayúsculas
+                "nombre": unidecode(row["nombre"].strip()).upper(),  # Sin acentos y en mayúsculas
+                "libro": unidecode(row["libro"].strip()).upper(),  # Sin acentos y en mayúsculas
                 "fecha": fecha,
             }
             Abogado(**datos).save()

@@ -16,9 +16,9 @@ class Abogado(db.Model, UniversalMixin):
 
     # Columnas
     fecha = db.Column(db.Date, nullable=False, index=True)
-    numero = db.Column(db.String(16), nullable=False)  # Hay datos como 000-Bis
+    numero = db.Column(db.String(24), nullable=False)  # Hay datos como 000-Bis
+    libro = db.Column(db.String(24), nullable=False)
     nombre = db.Column(db.String(256), nullable=False)
-    libro = db.Column(db.String(256), nullable=False)
 
     def __repr__(self):
         """ Representación """

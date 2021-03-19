@@ -40,13 +40,19 @@ def search():
     form_search = AbogadoSearchForm()
     if form_search.validate_on_submit():
         consulta = Abogado.query
-        if form_search.nombre.data:
-            nombre = unidecode(form_search.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
-            consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Abogado.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Abogado.fecha <= form_search.fecha_hasta.data)
+        if form_search.numero.data:
+            numero = unidecode(form_search.numero.data).upper()  # Sin acentos y en mayúsculas
+            consulta = consulta.filter(Abogado.numero == numero)
+        if form_search.libro.data:
+            libro = unidecode(form_search.libro.data).upper()  # Sin acentos y en mayúsculas
+            consulta = consulta.filter(Abogado.libro == libro)
+        if form_search.nombre.data:
+            nombre = unidecode(form_search.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
+            consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
         consulta = consulta.order_by(Abogado.fecha).limit(100).all()
         return render_template("abogados/list.jinja2", abogados=consulta)
     return render_template("abogados/search.jinja2", form=form_search)

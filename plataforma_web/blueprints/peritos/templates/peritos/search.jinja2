@@ -7,6 +7,7 @@
     {{ f.page('Buscar Peritos') }}
     <div class="container-fluid">
         {% call f.form_tag('peritos.search', fid='perito_search_form') %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
             {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.tipo) %}{% endcall %}
             {{ form.buscar() }}
