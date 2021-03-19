@@ -38,7 +38,7 @@ def detail(perito_id):
 def search():
     """ Buscar Peritos """
     form_search = PeritoSearchForm()
-    form_search.tipo.choices.insert(0, "")  # Poner la primer opción del select vacía
+    # form_search.tipo.choices.insert(0, "")  # Poner la primer opción del select vacía
     if form_search.validate_on_submit():
         consulta = Perito.query
         if form_search.distrito.data:
