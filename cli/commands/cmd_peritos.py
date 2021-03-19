@@ -1,7 +1,8 @@
 """
 Peritos
 
-- alimentar: Alimentar la tabla abogados insertando registros desde un archivo CSV
+- alimentar: Alimentar insertando registros desde un archivo CSV
+- respaldar: Respaldar a un archivo CSV
 """
 from pathlib import Path
 import csv
@@ -68,4 +69,39 @@ def alimentar(entrada_csv):
     click.echo(f"- {contador} peritos alimentados.")
 
 
+@click.command()
+@click.argument("salida_csv")
+def respaldar(salida_csv):
+    """ Respaldar la tabla peritos a su archivo CSV """
+    ruta = Path(salida_csv)
+    if ruta.exists():
+        click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
+        return
+    click.echo("Respaldando peritos...")
+    contador = 0
+    peritos = Perito.query.filter(Perito.estatus == "A").order_by(Perito.distrito_id, Perito.tipo, Perito.nombre).all()
+    with open(ruta, "w") as puntero:
+        escritor = csv.writer(puntero)
+        escritor.writerow(["distrito", "tipo", "nombre", "domicilio", "telefono_fijo", "telefono_celular", "email", "renovacion", "notas"])
+        for perito in peritos:
+            escritor.writerow(
+                [
+                    perito.distrito.nombre,
+                    perito.tipo,
+                    perito.nombre,
+                    perito.domicilio,
+                    perito.telefono_fijo,
+                    perito.telefono_celular,
+                    perito.email,
+                    perito.renovacion.strftime("%Y-%m-%d"),
+                    perito.notas,
+                ]
+            )
+            contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador} registros...")
+    click.echo(f"Respaldados {contador} registros.")
+
+
 cli.add_command(alimentar)
+cli.add_command(respaldar)

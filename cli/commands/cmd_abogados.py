@@ -1,8 +1,8 @@
 """
 Abogados
 
-- alimentar: Alimentar la tabla abogados insertando registros desde un archivo CSV
-- respaldar: Respaldar la tabla 'abogados' a su archivo CSV
+- alimentar: Alimentar insertando registros desde un archivo CSV
+- respaldar: Respaldar a un archivo CSV
 """
 from datetime import datetime
 from pathlib import Path
