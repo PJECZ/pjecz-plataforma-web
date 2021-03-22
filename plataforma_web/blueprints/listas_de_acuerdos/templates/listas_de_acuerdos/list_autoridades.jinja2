@@ -18,7 +18,7 @@
     {% endcall %}
     <div class="container-fluid">
         {% call list.card() %}
-        <table class="table">
+        <table id="autoridades_datatable" class="table">
             <thead>
                 <tr>
                     <th>Autoridades</th>
@@ -34,4 +34,8 @@
         </table>
         {% endcall %}
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('autoridades_datatable') }}
 {% endblock %}

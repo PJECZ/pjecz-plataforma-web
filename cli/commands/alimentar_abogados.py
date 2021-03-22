@@ -35,10 +35,11 @@ def alimentar_abogados():
                         click.echo(f"  Dato con error: {mensaje}")
             numero = row["numero"].strip()  # Hay datos como 000-Bis
             nombre = unidecode(row["nombre"].strip()).upper()  # Sin acentos y en mayúsculas
+            libro = unidecode(row["libro"].strip()).upper()  # Sin acentos y en mayúsculas
             datos = {
                 "numero": numero,
                 "nombre": nombre,
-                "libro": row["libro"].strip(),
+                "libro": libro,
                 "fecha": fecha,
             }
             Abogado(**datos).save()
