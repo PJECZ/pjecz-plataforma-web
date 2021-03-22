@@ -27,7 +27,7 @@ def cli():
 @click.command()
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
-    """ Alimentar la tabla peritos insertando registros desde un archivo CSV """
+    """ Alimentar insertando registros desde un archivo CSV """
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -72,7 +72,7 @@ def alimentar(entrada_csv):
 @click.command()
 @click.argument("salida_csv")
 def respaldar(salida_csv):
-    """ Respaldar la tabla peritos a su archivo CSV """
+    """ Respaldar a un archivo CSV """
     ruta = Path(salida_csv)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")

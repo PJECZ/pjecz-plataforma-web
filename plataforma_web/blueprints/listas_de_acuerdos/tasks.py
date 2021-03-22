@@ -55,8 +55,8 @@ def set_task_error(mensaje: str):
             tarea.save()
 
 
-def agregar_con_correo_electronico(autoridad_email, fecha, archivo, descripcion=None, url=None):
-    """ Construir la estructura de directorios y archivos para Pelican """
+def agregar(autoridad_email, fecha, archivo, descripcion=None, url=None, usuario_id=None):
+    """ Agregar una lista de acuerdos que se recibió vía correo electrónico """
     # Validar autoridad_email
     autoridad = Autoridad.query.filter(Autoridad.email == autoridad_email).first()
     if autoridad is False:
@@ -121,19 +121,25 @@ def construir():
     """ Construir la estructura de directorios y archivos para Pelican """
 
 
-def rastrear(usuario_id, autoridad_id):
+def rastrear(autoridad_email, usuario_id=None):
     """ Rastrear las listas de acuerdos en Storage para agregarlas o actualizarlas a la BD """
     bitacora.info("Inicia listas_de_acuerdos.tasks.rastrear")
-    # Consultar autoridad
-    autoridad = Autoridad.query.get(autoridad_id)
+    # Validar autoridad_email
+    autoridad = Autoridad.query.filter(Autoridad.email == autoridad_email).first()
     if autoridad is False:
-        return  # No es válida la autoridad
-    if autoridad.listas_de_acuerdos == "":
-        return  # No tiene listas de acuerdos
+        mensaje = f"El e-mail {autoridad_email} no se encuentra en autoridades"
+        bitacora.error(mensaje)
+        set_task_error(mensaje)
+        return mensaje
+    if autoridad.directorio_listas_de_acuerdos == "":
+        mensaje = f"La autoridad {autoridad_email} no tiene directorio para listas de acuerdos"
+        bitacora.error(mensaje)
+        set_task_error(mensaje)
+        return mensaje
     bitacora.info("- Distrito %s", autoridad.distrito.nombre)
     bitacora.info("- Autoridad %s", autoridad.descripcion)
     # Consultar listas de acuerdos
-    listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad_id == autoridad_id).all()
+    listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad_id == autoridad.id).all()
     fechas = [lista_de_acuerdo.fecha for lista_de_acuerdo in listas_de_acuerdos]
     bitacora.info("- En la base de datos hay %d listas de acuerdos", len(fechas))
     # Rastrear en Google Cloud Storage
@@ -142,7 +148,10 @@ def rastrear(usuario_id, autoridad_id):
     blobs = list(bucket.list_blobs(prefix=subdirectorio))
     total = len(blobs)
     if total == 0:
-        return  # No exite el subdirectorio o no tiene archivos
+        mensaje = "No exite el subdirectorio o no tiene archivos"
+        bitacora.error(mensaje)
+        set_task_error(mensaje)
+        return mensaje
     bitacora.info("- En Storage hay %d listas de acuerdos", total)
     # Arrancar tarea
     set_task_progress(0)

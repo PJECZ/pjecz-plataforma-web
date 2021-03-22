@@ -19,7 +19,7 @@ class Autoridad(db.Model, UniversalMixin):
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
-    email = db.Column(db.String(256), index=True)
+    email = db.Column(db.String(256), unique=True, index=True)
     directorio_listas_de_acuerdos = db.Column(db.String(256))
     directorio_sentencias = db.Column(db.String(256))
 

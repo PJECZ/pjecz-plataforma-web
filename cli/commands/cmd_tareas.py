@@ -1,5 +1,7 @@
 """
 Tareas
+
+- terminar: Terminar todas las tareas
 """
 import click
 
@@ -7,7 +9,6 @@ from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.tareas.models import Tarea
-from plataforma_web.blueprints.usuarios.models import Usuario
 
 app = create_app()
 db.app = app
@@ -22,7 +23,7 @@ def cli():
 def terminar():
     """ Terminar todas las tareas """
     contador = 0
-    for tarea in Tarea.query.filter(Tarea.ha_terminado == False).all():
+    for tarea in Tarea.query.filter(Tarea.ha_terminado is False).all():
         tarea.ha_terminado = True
         tarea.save()
         contador += 1
