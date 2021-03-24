@@ -8,15 +8,29 @@ from lib.universal_mixin import UniversalMixin
 class Permiso:
     """ Permiso tiene como constantes enteros de potencia dos """
 
-    VER_CATALOGOS = 1
-    MODIFICAR_CATALOGOS = 2
-    CREAR_CATALOGOS = 4
-    VER_CONTENIDOS = 8
-    MODIFICAR_CONTENIDOS = 16
-    CREAR_CONTENIDOS = 32
-    VER_CUENTAS = 64
-    MODIFICAR_CUENTAS = 128
-    CREAR_CUENTAS = 256
+    VER_CUENTAS = 1
+    MODIFICAR_CUENTAS = 2
+    CREAR_CUENTAS = 4
+
+    VER_CATALOGOS = 8
+    MODIFICAR_CATALOGOS = 16
+    CREAR_CATALOGOS = 32
+
+    VER_CONTENIDOS = 64
+    MODIFICAR_CONTENIDOS = 128
+    CREAR_CONTENIDOS = 256
+
+    VER_ABOGADOS = 512
+    MODIFICAR_ABOGADOS = 1024
+    CREAR_ABOGADOS = 2048
+
+    VER_PERITOS = 4096
+    MODIFICAR_PERITOS = 8192
+    CREAR_PERITOS = 16384
+
+    VER_LISTAS_DE_ACUERDOS = 32768
+    MODIFICAR_LISTAS_DE_ACUERDOS = 65536
+    CREAR_LISTAS_DE_ACUERDOS = 131072
 
     def __repr__(self):
         """ Representación """
@@ -73,19 +87,38 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.MODIFICAR_CONTENIDOS,
                 Permiso.CREAR_CONTENIDOS,
             ],
-            "TECNICO": [
+            "SOPORTE TECNICO": [
                 Permiso.VER_CUENTAS,
                 Permiso.MODIFICAR_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONTENIDOS,
             ],
-            "USUARIO": [
+            "JUZGADO": [
+                Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONTENIDOS,
-                Permiso.MODIFICAR_CONTENIDOS,
-                Permiso.CREAR_CONTENIDOS,
+                Permiso.VER_LISTAS_DE_ACUERDOS,
+                Permiso.MODIFICAR_LISTAS_DE_ACUERDOS,
+                Permiso.CREAR_LISTAS_DE_ACUERDOS,
+            ],
+            "SECRETARIA TECNICA": [
+                Permiso.VER_CUENTAS,
+                Permiso.VER_CATALOGOS,
+                Permiso.VER_CONTENIDOS,
+                Permiso.VER_ABOGADOS,
+                Permiso.MODIFICAR_ABOGADOS,
+                Permiso.CREAR_ABOGADOS,
+                Permiso.VER_PERITOS,
+                Permiso.MODIFICAR_PERITOS,
+                Permiso.CREAR_PERITOS,
+            ],
+            "USUARIO": [
+                Permiso.VER_CUENTAS,
+                Permiso.VER_CATALOGOS,
+                Permiso.VER_CONTENIDOS,
             ],
             "OBSERVADOR": [
+                Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONTENIDOS,
             ],

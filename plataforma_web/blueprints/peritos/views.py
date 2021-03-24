@@ -16,6 +16,7 @@ peritos = Blueprint("peritos", __name__, template_folder="templates")
 @peritos.before_request
 @login_required
 @permission_required(Permiso.VER_CONTENIDOS)
+@permission_required(Permiso.VER_PERITOS)
 def before_request():
     """ Permiso por defecto """
 
@@ -55,6 +56,7 @@ def search():
 
 @peritos.route("/peritos/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_CONTENIDOS)
+@permission_required(Permiso.CREAR_PERITOS)
 def new():
     """ Nuevo Perito """
     form = PeritoForm()
@@ -79,6 +81,7 @@ def new():
 
 @peritos.route("/peritos/edicion/<int:perito_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_PERITOS)
 def edit(perito_id):
     """ Editar Perito """
     perito = Perito.query.get_or_404(perito_id)
@@ -110,6 +113,7 @@ def edit(perito_id):
 
 @peritos.route("/peritos/eliminar/<int:perito_id>")
 @permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_PERITOS)
 def delete(perito_id):
     """ Eliminar Perito """
     perito = Perito.query.get_or_404(perito_id)
@@ -121,6 +125,7 @@ def delete(perito_id):
 
 @peritos.route("/peritos/recuperar/<int:perito_id>")
 @permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_PERITOS)
 def recover(perito_id):
     """ Recuperar Perito """
     perito = Perito.query.get_or_404(perito_id)
