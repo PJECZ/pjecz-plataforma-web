@@ -15,7 +15,7 @@ def alimentar_ubicacion_expedientes():
     """ Alimentar ubicación de expedientes """
     ubicacion_expedientes_csv = Path(UBICACION_EXPEDIENTES_CSV)
     if not ubicacion_expedientes_csv.exists():
-        click.echo(f"- NO se alimentaron autoridades porque no se encontró {UBICACION_EXPEDIENTES_CSV}")
+        click.echo(f"  NO se alimentaron autoridades porque no se encontró {UBICACION_EXPEDIENTES_CSV}")
         return
     contador = 0
     with open(ubicacion_expedientes_csv, encoding="utf8") as puntero:

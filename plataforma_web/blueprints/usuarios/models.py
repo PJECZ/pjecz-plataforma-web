@@ -27,12 +27,12 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     )
 
     # Columnas
+    email = db.Column(db.String(256), unique=True, index=True)
     contrasena = db.Column(db.String(256), nullable=False)
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256))
     telefono_celular = db.Column(db.String(256))
-    email = db.Column(db.String(256))
     # edicion Google Workspace
 
     # Hijos

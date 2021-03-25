@@ -29,25 +29,30 @@ def alimentar_usuarios():
     """ Alimentar usuarios """
     usuarios_csv = Path(USUARIOS_CSV)
     if not usuarios_csv.exists():
-        click.echo(f"- No se alimentaron usuarios porque no se encontró {USUARIOS_CSV}")
+        click.echo(f"  No se alimentaron usuarios porque no se encontró {USUARIOS_CSV}")
         return
     agregados = []
+    omitidos = []
+    invalidos = []
+    cantidad_sin_email = 0
     with open(usuarios_csv, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
             email = row["email"].strip()
             if email == "":
+                cantidad_sin_email += 1
                 continue
             if email.find("@") == -1:
                 email = email + "@pjecz.gob.mx"
             if email in agregados:
-                click.echo(f"- Se omite el usuario {email} por estar duplicado.")
+                omitidos.append(email)
                 continue
             if row["rol"].strip() == "":
+                invalidos.append(email)
                 continue
             rol = Rol.query.filter_by(nombre=row["rol"].strip()).first()
             if rol is None:
-                click.echo(f"- Se omite el usuario {email} porque rol {row['rol']} no es válido.")
+                invalidos.append(email)
                 continue
             contrasena = row["contrasena"].strip()
             if contrasena == "":
@@ -62,4 +67,7 @@ def alimentar_usuarios():
             }
             Usuario(**datos).save()
             agregados.append(email)
+    click.echo(f"  {cantidad_sin_email} usuarios omitidos porque no tienen e-mail.")
+    click.echo(f"  {len(omitidos)} usuarios omitidos por duplicados.")
+    click.echo(f"  {len(invalidos)} usuarios porque el rol es vacío o incorrecto.")
     click.echo(f"- {len(agregados)} usuarios alimentados.")

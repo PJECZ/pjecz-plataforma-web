@@ -17,7 +17,7 @@ def alimentar_peritos():
     """ Alimentar Peritos """
     peritos_csv = Path(PERITOS_CSV)
     if not peritos_csv.exists():
-        click.echo(f"- NO se alimentaron los peritos porque no se encontró {PERITOS_CSV}")
+        click.echo(f"  NO se alimentaron los peritos porque no se encontró {PERITOS_CSV}")
         return
     contador = 0
     with open(peritos_csv, encoding="utf8") as puntero:

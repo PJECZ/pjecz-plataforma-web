@@ -14,7 +14,7 @@ def alimentar_distritos():
     """ Alimentar distritos """
     distritos_cvs = Path(DISTRITOS_CSV)
     if not distritos_cvs.exists():
-        click.echo(f"- No se alimentaron distritos porque no encontró {DISTRITOS_CSV}")
+        click.echo(f"  No se alimentaron distritos porque no encontró {DISTRITOS_CSV}")
         return
     agregados = []
     with open(distritos_cvs, encoding="utf8") as puntero:

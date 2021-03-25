@@ -15,7 +15,7 @@ def alimentar_listas_de_acuerdos():
     """ Alimentar Listas de Acuerdos """
     listas_de_acuerdos_csv = Path(LISTAS_DE_ACUERDOS_CSV)
     if not listas_de_acuerdos_csv.exists():
-        click.echo(f"- NO se alimentaron listas de acuerdos porque no se encontró {LISTAS_DE_ACUERDOS_CSV}")
+        click.echo(f"  NO se alimentaron listas de acuerdos porque no se encontró {LISTAS_DE_ACUERDOS_CSV}")
         return
     contador = 0
     with open(listas_de_acuerdos_csv, encoding="utf8") as puntero:
