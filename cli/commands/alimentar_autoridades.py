@@ -18,7 +18,7 @@ def alimentar_autoridades():
         click.echo(f"  NO se alimentaron autoridades porque no se encontró {AUTORIDADES_CSV}")
         return
     agregados = []
-    omitidos = []
+    duplicados = []
     cantidad_activos = 0
     cantidad_inactivos = 0
     with open(autoridades_csv, encoding="utf8") as puntero:
@@ -27,7 +27,7 @@ def alimentar_autoridades():
             distrito = Distrito.query.filter_by(nombre=row["distrito"].strip()).first()
             descripcion = row["autoridad"].strip()
             if f"{distrito.nombre}, {descripcion}" in agregados:
-                omitidos.append(descripcion)
+                duplicados.append(descripcion)
                 continue
             email = row["email"].strip()
             if email == "":
@@ -45,5 +45,6 @@ def alimentar_autoridades():
             }
             Autoridad(**datos).save()
             agregados.append(f"{distrito.nombre}, {descripcion}")
-    click.echo(f"  {len(omitidos)} autoridades omitidas por duplicados.")
+    if len(duplicados) > 0:
+        click.echo(f"  {len(duplicados)} autoridades omitidas por duplicados.")
     click.echo(f"- {len(agregados)} autoridades alimentadas: {cantidad_activos} activas, {cantidad_inactivos} inactivas.")

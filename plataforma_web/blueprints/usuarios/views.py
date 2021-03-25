@@ -116,9 +116,17 @@ def change_password():
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
-    """ Listado de Usuarios """
-    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").order_by(Usuario.nombres).order_by(Usuario.apellido_paterno).limit(100).all()
-    return render_template("usuarios/list.jinja2", usuarios=usuarios_activos)
+    """ Listado de Usuarios activos """
+    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").limit(200).all()
+    return render_template("usuarios/list.jinja2", usuarios=usuarios_activos, estatus="A")
+
+
+@usuarios.route("/usuarios/inactivos")
+@permission_required(Permiso.VER_CUENTAS)
+def list_inactive():
+    """ Listado de Usuarios inactivos """
+    usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").limit(200).all()
+    return render_template("usuarios/list.jinja2", usuarios=usuarios_inactivos, estatus="B")
 
 
 @usuarios.route("/usuarios/<int:usuario_id>")

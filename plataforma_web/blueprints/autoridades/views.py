@@ -23,8 +23,15 @@ def before_request():
 @autoridades.route("/autoridades")
 def list_active():
     """ Listado de Autoridades """
-    autoridades_activas = Autoridad.query.filter(Autoridad.estatus == "A").limit(100).all()
-    return render_template("autoridades/list.jinja2", autoridades=autoridades_activas)
+    autoridades_activas = Autoridad.query.filter(Autoridad.estatus == "A").all()
+    return render_template("autoridades/list.jinja2", autoridades=autoridades_activas, estatus="A")
+
+
+@autoridades.route("/autoridades/inactivas")
+def list_inactive():
+    """ Listado de Autoridades inactivas """
+    autoridades_inactivas = Autoridad.query.filter(Autoridad.estatus == "B").all()
+    return render_template("autoridades/list.jinja2", autoridades=autoridades_inactivas, estatus="B")
 
 
 @autoridades.route("/autoridades/<int:autoridad_id>")

@@ -1,6 +1,7 @@
 """
 Usuarios, modelos
 """
+from collections import OrderedDict
 from flask import current_app
 from flask_login import UserMixin
 from lib.universal_mixin import UniversalMixin
@@ -10,6 +11,13 @@ from plataforma_web.blueprints.tareas.models import Tarea
 
 class Usuario(db.Model, UserMixin, UniversalMixin):
     """ Usuario """
+
+    WORKSPACES = OrderedDict(
+        [
+            ("Business Started", "Business Started"),
+            ("Business Standard", "Business Standard"),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "usuarios"
@@ -33,7 +41,11 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256))
     telefono_celular = db.Column(db.String(256))
-    # edicion Google Workspace
+    workspace = db.Column(
+        db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False),
+        index=True,
+        nullable=False,
+    )
 
     # Hijos
     bitacoras = db.relationship("Bitacora", backref="usuario", lazy="noload")

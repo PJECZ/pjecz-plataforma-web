@@ -24,7 +24,14 @@ def before_request():
 def list_active():
     """ Listado de Distritos """
     distritos_activos = Distrito.query.filter(Distrito.estatus == "A").all()
-    return render_template("distritos/list.jinja2", distritos=distritos_activos)
+    return render_template("distritos/list.jinja2", distritos=distritos_activos, estatus="A")
+
+
+@distritos.route("/distritos/inactivos")
+def list_inactive():
+    """ Listado de Distritos inactivos """
+    distritos_inactivos = Distrito.query.filter(Distrito.estatus == "B").all()
+    return render_template("distritos/list.jinja2", distritos=distritos_inactivos, estatus="B")
 
 
 @distritos.route("/distritos/<int:distrito_id>")

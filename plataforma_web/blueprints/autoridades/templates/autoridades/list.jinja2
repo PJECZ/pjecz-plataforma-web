@@ -5,7 +5,11 @@
 
 {% block topbar_actions %}
     {% call list.topbar_actions() %}
-        {{ list.topbar_actions_option('Buscar Autoridad', url_for('autoridades.search')) }}
+        {{ list.topbar_actions_option('Buscar', url_for('autoridades.search')) }}
+        {% if current_user.can_edit('autoridades') %}
+            {% if estatus == 'A' %}{{ list.topbar_actions_option('Inactivos', url_for('autoridades.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_actions_option('Activos', url_for('autoridades.list_active')) }}{% endif %}
+        {% endif %}
         {% if current_user.can_insert('autoridades') %}
             {{ list.topbar_actions_option('Nueva Autoridad', url_for('autoridades.new')) }}
         {% endif %}
@@ -16,7 +20,7 @@
     {{ list.page('Autoridades') }}
     <div class="container-fluid">
         {% call list.card() %}
-            <table id="autoridades_datatable" class="table">
+            <table id="autoridades_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
                         <th>Distrito</th>

@@ -4,18 +4,22 @@
 {% block title %}Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_insert('distritos') %}
-        {% call list.topbar_actions() %}
+    {% call list.topbar_actions() %}
+        {% if current_user.can_edit('distritos') %}
+            {% if estatus == 'A' %}{{ list.topbar_actions_option('Inactivos', url_for('distritos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_actions_option('Activos', url_for('distritos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('distritos') %}
             {{ list.topbar_actions_option('Nuevo Distrito', url_for('distritos.new')) }}
-        {% endcall %}
-    {% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
     {{ list.page('Distritos') }}
     <div class="container-fluid">
         {% call list.card() %}
-            <table id="distritos_datatable" class="table">
+            <table id="distritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
                         <th>Distritos</th>

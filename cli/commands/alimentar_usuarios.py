@@ -32,7 +32,7 @@ def alimentar_usuarios():
         click.echo(f"  No se alimentaron usuarios porque no se encontró {USUARIOS_CSV}")
         return
     agregados = []
-    omitidos = []
+    duplicados = []
     invalidos = []
     cantidad_sin_email = 0
     with open(usuarios_csv, encoding="utf8") as puntero:
@@ -45,7 +45,7 @@ def alimentar_usuarios():
             if email.find("@") == -1:
                 email = email + "@pjecz.gob.mx"
             if email in agregados:
-                omitidos.append(email)
+                duplicados.append(email)
                 continue
             if row["rol"].strip() == "":
                 invalidos.append(email)
@@ -64,10 +64,14 @@ def alimentar_usuarios():
                 "email": email,
                 "contrasena": pwd_context.hash(contrasena),
                 "rol": rol,
+                "workspace": row["workspace"].strip(),
             }
             Usuario(**datos).save()
             agregados.append(email)
-    click.echo(f"  {cantidad_sin_email} usuarios omitidos porque no tienen e-mail.")
-    click.echo(f"  {len(omitidos)} usuarios omitidos por duplicados.")
-    click.echo(f"  {len(invalidos)} usuarios porque el rol es vacío o incorrecto.")
+    if cantidad_sin_email > 0:
+        click.echo(f"  {cantidad_sin_email} usuarios omitidos porque no tienen e-mail.")
+    if len(duplicados) > 0:
+        click.echo(f"  {len(duplicados)} usuarios omitidos por duplicados.")
+    if len(invalidos) > 0:
+        click.echo(f"  {len(invalidos)} usuarios porque el rol es vacío o incorrecto.")
     click.echo(f"- {len(agregados)} usuarios alimentados.")
