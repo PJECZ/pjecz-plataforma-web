@@ -8,7 +8,7 @@ import click
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.autoridades.models import Autoridad
 
-AUTORIDADES_CSV = "seed/distritos_autoridades.csv"
+AUTORIDADES_CSV = "seed/distritos_autoridades_usuarios.csv"
 
 
 def alimentar_autoridades():
@@ -17,17 +17,21 @@ def alimentar_autoridades():
     if not autoridades_csv.exists():
         click.echo(f"- NO se alimentaron autoridades porque no se encontró {AUTORIDADES_CSV}")
         return
-    contador = 0
+    agregados = []
     with open(autoridades_csv, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            distrito = Distrito.query.filter_by(nombre=row["distrito"].strip()).first()
+            descripcion = row["autoridad"].strip()
+            if f"{distrito.nombre}, {descripcion}" in agregados:
+                click.echo(f"- Se omite la autoridad {distrito.nombre}, {descripcion} por estar duplicado.")
+                continue
             datos = {
-                "descripcion": row["autoridad"].strip(),
-                "distrito": Distrito.query.filter_by(nombre=row["distrito"].strip()).first(),
-                "email": row["email"].strip(),
+                "descripcion": descripcion,
+                "distrito": distrito,
                 "directorio_listas_de_acuerdos": row["directorio_listas_de_acuerdos"].strip(),
                 "directorio_sentencias": row["directorio_sentencias"].strip(),
             }
             Autoridad(**datos).save()
-            contador += 1
-    click.echo(f"- {contador} autoridades alimentadas.")
+            agregados.append(f"{distrito.nombre}, {descripcion}")
+    click.echo(f"- {len(agregados)} autoridades alimentadas.")
