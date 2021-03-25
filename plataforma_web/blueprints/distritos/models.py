@@ -9,18 +9,19 @@ class Distrito(db.Model, UniversalMixin):
     """ Distrito """
 
     # Nombre de la tabla
-    __tablename__ = 'distritos'
+    __tablename__ = "distritos"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Columnas
     nombre = db.Column(db.String(256), unique=True, nullable=False)
+    # es_jurisdiccional
 
     # Hijos
-    autoridades = db.relationship('Autoridad', backref='distrito')
-    peritos = db.relationship('Perito', backref='distrito', lazy='noload')
+    autoridades = db.relationship("Autoridad", backref="distrito")
+    peritos = db.relationship("Perito", backref="distrito", lazy="noload")
 
     def __repr__(self):
         """ Representación """
-        return f'<Distrito {self.nombre}>'
+        return f"<Distrito {self.nombre}>"

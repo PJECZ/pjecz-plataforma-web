@@ -17,7 +17,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer(), primary_key=True)
 
-    # Clave foránea
+    # Clave foránea, autoridad
     rol_id = db.Column(
         "rol",
         db.Integer,
@@ -33,6 +33,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     apellido_materno = db.Column(db.String(256))
     telefono_celular = db.Column(db.String(256))
     email = db.Column(db.String(256))
+    # edicion Google Workspace
 
     # Hijos
     bitacoras = db.relationship("Bitacora", backref="usuario", lazy="noload")

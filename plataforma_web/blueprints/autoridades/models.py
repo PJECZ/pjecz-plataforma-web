@@ -22,6 +22,7 @@ class Autoridad(db.Model, UniversalMixin):
     email = db.Column(db.String(256), unique=True, index=True)
     directorio_listas_de_acuerdos = db.Column(db.String(256))
     directorio_sentencias = db.Column(db.String(256))
+    # es_jurisdiccional
 
     # Hijos
     glosas = db.relationship("Glosa", backref="autoridad", lazy="noload")
