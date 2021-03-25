@@ -23,7 +23,6 @@ listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="
 
 @listas_de_acuerdos.before_request
 @login_required
-@permission_required(Permiso.VER_CONTENIDOS)
 @permission_required(Permiso.VER_LISTAS_DE_ACUERDOS)
 def before_request():
     """ Permiso por defecto """
@@ -53,7 +52,7 @@ def list_active(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/rastrear/<int:autoridad_id>")
-@permission_required(Permiso.CREAR_CONTENIDOS)
+@permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
 def trace(autoridad_id):
     """ Rastrear Listas de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -86,7 +85,6 @@ def search():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CONTENIDOS)
 @permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
 def new():
     """ Nueva Lista de Acuerdos """
@@ -121,7 +119,6 @@ def new():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
 @permission_required(Permiso.MODIFICAR_LISTAS_DE_ACUERDOS)
 def edit(lista_de_acuerdo_id):
     """ Editar Lista de Acuerdos """
@@ -139,7 +136,6 @@ def edit(lista_de_acuerdo_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/eliminar/<int:lista_de_acuerdo_id>")
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
 @permission_required(Permiso.MODIFICAR_LISTAS_DE_ACUERDOS)
 def delete(lista_de_acuerdo_id):
     """ Eliminar Lista de Acuerdos """
@@ -151,7 +147,6 @@ def delete(lista_de_acuerdo_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/recuperar/<int:lista_de_acuerdo_id>")
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
 @permission_required(Permiso.MODIFICAR_LISTAS_DE_ACUERDOS)
 def recover(lista_de_acuerdo_id):
     """ Recuperar Lista de Acuerdos """

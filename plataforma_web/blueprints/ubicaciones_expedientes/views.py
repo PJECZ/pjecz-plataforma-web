@@ -16,7 +16,7 @@ ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, templat
 
 @ubicaciones_expedientes.before_request
 @login_required
-@permission_required(Permiso.VER_CONTENIDOS)
+@permission_required(Permiso.VER_CONSULTAS)
 def before_request():
     """ Permiso por defecto """
 
@@ -50,7 +50,7 @@ def search():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CONTENIDOS)
+@permission_required(Permiso.CREAR_CONSULTAS)
 def new():
     """ Nuevo Ubicación de Expedientes """
     form = UbicacionExpedienteNewForm()
@@ -69,7 +69,7 @@ def new():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def edit(ubicacion_expediente_id):
     """ Editar Ubicación de Expedientes """
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
@@ -87,7 +87,7 @@ def edit(ubicacion_expediente_id):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/eliminar/<int:ubicacion_expediente_id>")
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def delete(ubicacion_expediente_id):
     """ Eliminar Ubicacion de Expedientes """
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
@@ -98,7 +98,7 @@ def delete(ubicacion_expediente_id):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/recuperar/<int:ubicacion_expediente_id>")
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def recover(ubicacion_expediente_id):
     """ Recuperar Lista de Acuerdos """
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)

@@ -21,6 +21,7 @@ from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
+from plataforma_web.blueprints.transcripciones.views import transcripciones
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -51,6 +52,7 @@ def create_app():
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(peritos)
     app.register_blueprint(ubicaciones_expedientes)
+    app.register_blueprint(transcripciones)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)

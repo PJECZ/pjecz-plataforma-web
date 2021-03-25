@@ -14,7 +14,7 @@ edictos = Blueprint("edictos", __name__, template_folder="templates")
 
 @edictos.before_request
 @login_required
-@permission_required(Permiso.VER_CONTENIDOS)
+@permission_required(Permiso.VER_EDICTOS)
 def before_request():
     """ Permiso por defecto """
 
@@ -27,7 +27,7 @@ def list_active():
 
 
 @edictos.route("/edictos/eliminados")
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_EDICTOS)
 def list_removed():
     """ Listado de Edictos """
     edictos_eliminados = Edicto.query.filter(Edicto.estatus == "B").all()
@@ -42,7 +42,7 @@ def detail(edicto_id):
 
 
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CONTENIDOS)
+@permission_required(Permiso.CREAR_EDICTOS)
 def new():
     """ Nuevo Edicto """
     form = EdictoForm()
@@ -62,7 +62,7 @@ def new():
 
 
 @edictos.route("/edictos/edicion/<int:edicto_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_EDICTOS)
 def edit(edicto_id):
     """ Editar Edicto """
     edicto = Edicto.query.get_or_404(edicto_id)
@@ -87,7 +87,7 @@ def edit(edicto_id):
 
 
 @edictos.route("/edictos/eliminar/<int:edicto_id>")
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_EDICTOS)
 def delete(edicto_id):
     """ Eliminar Edicto """
     edicto = Edicto.query.get_or_404(edicto_id)
@@ -98,7 +98,7 @@ def delete(edicto_id):
 
 
 @edictos.route("/edictos/recuperar/<int:edicto_id>")
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_EDICTOS)
 def recover(edicto_id):
     """ Recuperar Edicto """
     edicto = Edicto.query.get_or_404(edicto_id)

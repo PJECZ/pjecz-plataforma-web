@@ -13,7 +13,7 @@ tareas = Blueprint("tareas", __name__, template_folder="templates")
 
 @tareas.before_request
 @login_required
-@permission_required(Permiso.VER_CUENTAS)
+@permission_required(Permiso.VER_TAREAS)
 def before_request():
     """ Permiso por defecto """
 

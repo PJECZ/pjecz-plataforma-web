@@ -15,8 +15,7 @@ abogados = Blueprint("abogados", __name__, template_folder="templates")
 
 @abogados.before_request
 @login_required
-@permission_required(Permiso.VER_ABOGADOS)
-@permission_required(Permiso.VER_CONTENIDOS)
+@permission_required(Permiso.VER_CONSULTAS)
 def before_request():
     """ Permiso por defecto """
 
@@ -60,8 +59,7 @@ def search():
 
 
 @abogados.route("/abogados/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_ABOGADOS)
-@permission_required(Permiso.CREAR_CONTENIDOS)
+@permission_required(Permiso.CREAR_CONSULTAS)
 def new():
     """ Nuevo Abogado """
     form = AbogadoForm()
@@ -80,8 +78,7 @@ def new():
 
 
 @abogados.route("/abogados/edicion/<int:abogado_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_ABOGADOS)
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def edit(abogado_id):
     """ Editar Abogado """
     abogado = Abogado.query.get_or_404(abogado_id)
@@ -102,8 +99,7 @@ def edit(abogado_id):
 
 
 @abogados.route("/abogados/eliminar/<int:abogado_id>")
-@permission_required(Permiso.MODIFICAR_ABOGADOS)
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def delete(abogado_id):
     """ Eliminar Abogado """
     abogado = Abogado.query.get_or_404(abogado_id)
@@ -114,8 +110,7 @@ def delete(abogado_id):
 
 
 @abogados.route("/abogados/recuperar/<int:abogado_id>")
-@permission_required(Permiso.MODIFICAR_ABOGADOS)
-@permission_required(Permiso.MODIFICAR_CONTENIDOS)
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def recover(abogado_id):
     """ Recuperar Abogado """
     abogado = Abogado.query.get_or_404(abogado_id)
