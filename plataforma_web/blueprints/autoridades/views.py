@@ -8,7 +8,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm, AutoridadSearchForm
-from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.usuarios.models import Usuario
 
 autoridades = Blueprint("autoridades", __name__, template_folder="templates")
 
@@ -38,7 +38,8 @@ def list_inactive():
 def detail(autoridad_id):
     """ Detalle de una Autoridad """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    return render_template("autoridades/detail.jinja2", autoridad=autoridad)
+    usuarios = Usuario.query.filter(Usuario.autoridad == autoridad).filter(Usuario.estatus == "A").all()
+    return render_template("autoridades/detail.jinja2", autoridad=autoridad, usuarios=usuarios)
 
 
 @autoridades.route("/autoridades/buscar", methods=["GET", "POST"])

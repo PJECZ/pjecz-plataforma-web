@@ -7,6 +7,8 @@ from pathlib import Path
 import csv
 import click
 
+from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.extensions import pwd_context
@@ -54,6 +56,14 @@ def alimentar_usuarios():
             if rol is None:
                 invalidos.append(email)
                 continue
+            distrito = Distrito.query.filter_by(nombre=row["distrito"].strip()).first()
+            if distrito is None:
+                invalidos.append(email)
+                continue
+            autoridad = Autoridad.query.filter_by(distrito_id=distrito.id).filter_by(descripcion=row["autoridad"].strip()).first()
+            if autoridad is None:
+                invalidos.append(email)
+                continue
             contrasena = row["contrasena"].strip()
             if contrasena == "":
                 contrasena = generar_contrasena()
@@ -65,6 +75,7 @@ def alimentar_usuarios():
                 "contrasena": pwd_context.hash(contrasena),
                 "rol": rol,
                 "workspace": row["workspace"].strip(),
+                "autoridad": autoridad,
             }
             Usuario(**datos).save()
             agregados.append(email)

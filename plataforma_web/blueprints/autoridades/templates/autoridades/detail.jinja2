@@ -22,6 +22,28 @@
             {{ detail.label_value('Directorio listas de acuerdos', autoridad.directorio_listas_de_acuerdos) }}
             {{ detail.label_value('Directorio sentencias', autoridad.directorio_sentencias) }}
         {% endcall %}
+        {% call detail.card('Usuarios') %}
+            <table id="usuarios_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>e-mail</th>
+                        <th>Rol</th>
+                        <th>Workspace</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.rol.nombre }}</td>
+                        <td>{{ usuario.workspace }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
     </div>
     {% if current_user.can_edit('autoridades') %}
         {{ detail.modal('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?', 'modalDelete', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}
@@ -30,6 +52,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ detail.datatable('usuarios_datatable') }}
     {% if current_user.can_edit('autoridades') %}
         {{ detail.custom_javascript_delete_recover() }}
     {% endif %}

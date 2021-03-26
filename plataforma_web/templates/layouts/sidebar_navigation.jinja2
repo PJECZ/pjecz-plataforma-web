@@ -19,7 +19,7 @@
                     {% if current_user.can_view('entradas_salidas') %} {{ app.sidebar_nav_option('Entradas/Salidas', '/entradas_salidas', 'mdi mdi-calendar-clock') }} {% endif %}
                     {% if current_user.can_view('roles') %} {{ app.sidebar_nav_option('Roles', '/roles', 'mdi mdi-gamepad') }} {% endif %}
                 {% endcall %}
-                {% if current_user.can_view('transcripciones') %} {{ app.sidebar_nav_option('Transcripciones', '/transcripciones', 'mdi mdi-washing-machine') }} {% endif %}
+                {% if current_user.can_view('transcripciones') %} {{ app.sidebar_nav_option('Transcripciones', '/transcripciones', 'mdi mdi-voicemail') }} {% endif %}
                 {% if current_user.can_view('tareas') %} {{ app.sidebar_nav_option('Tareas', '/tareas', 'mdi mdi-washing-machine') }} {% endif %}
                 {% if current_user.can_view('usuarios') %}{{ app.sidebar_nav_option('Usuarios', '/usuarios', 'mdi mdi-account-key') }}{% endif %}
             </ul>

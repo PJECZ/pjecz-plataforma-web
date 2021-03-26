@@ -40,9 +40,9 @@ def inicializar():
 def alimentar():
     """ Alimentar """
     alimentar_roles()
-    alimentar_usuarios()
     alimentar_distritos()
     alimentar_autoridades()
+    alimentar_usuarios()
     alimentar_abogados()
     alimentar_listas_de_acuerdos()
     alimentar_ubicacion_expedientes()

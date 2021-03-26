@@ -25,14 +25,9 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer(), primary_key=True)
 
-    # Clave foránea, autoridad
-    rol_id = db.Column(
-        "rol",
-        db.Integer,
-        db.ForeignKey("roles.id"),
-        index=True,
-        nullable=False,
-    )
+    # Claves foráneas
+    rol_id = db.Column("rol", db.Integer, db.ForeignKey("roles.id"), index=True, nullable=False)
+    autoridad_id = db.Column("autoridad", db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
 
     # Columnas
     email = db.Column(db.String(256), unique=True, index=True)
@@ -41,11 +36,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256))
     telefono_celular = db.Column(db.String(256))
-    workspace = db.Column(
-        db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False),
-        index=True,
-        nullable=False,
-    )
+    workspace = db.Column(db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False), index=True, nullable=False)
 
     # Hijos
     bitacoras = db.relationship("Bitacora", backref="usuario", lazy="noload")
