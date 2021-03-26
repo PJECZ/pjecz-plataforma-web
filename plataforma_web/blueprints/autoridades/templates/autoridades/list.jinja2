@@ -25,6 +25,7 @@
                     <tr>
                         <th>Distrito</th>
                         <th>Autoridad</th>
+                        <th>Clave</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,6 +33,7 @@
                     <tr>
                         <td>{{ autoridad.distrito.nombre }}</td>
                         <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
+                        <td>{{ autoridad.clave }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

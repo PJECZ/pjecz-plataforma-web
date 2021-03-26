@@ -14,11 +14,15 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page('Autoridad') }}
+    {% call detail.page_breadcrumb(autoridad.descripcion) %}
+        {% if autoridad.estatus == 'A' %}{{ detail.page_breadcrumb_item('Autoridades', link=url_for('autoridades.list_active')) }}{% endif %}
+        {% if autoridad.estatus == 'B' %}{{ detail.page_breadcrumb_item('Autoridades inactivas', link=url_for('autoridades.list_inactive')) }}{% endif %}
+    {% endcall %}
     <div class="container-fluid">
         {% call detail.card(estatus=autoridad.estatus) %}
             {{ detail.label_value_big('Autoridad', autoridad.descripcion) }}
             {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
+            {{ detail.label_value('Clave', autoridad.clave) }}
             {{ detail.label_value('Directorio listas de acuerdos', autoridad.directorio_listas_de_acuerdos) }}
             {{ detail.label_value('Directorio sentencias', autoridad.directorio_sentencias) }}
         {% endcall %}

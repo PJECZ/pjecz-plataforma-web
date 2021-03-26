@@ -14,7 +14,10 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page('Usuario') }}
+    {% call detail.page_breadcrumb(usuario.nombre) %}
+        {% if usuario.estatus == 'A' %}{{ detail.page_breadcrumb_item('Usuarios', link=url_for('usuarios.list_active')) }}{% endif %}
+        {% if usuario.estatus == 'B' %}{{ detail.page_breadcrumb_item('Usuarios inactivos', link=url_for('usuarios.list_inactive')) }}{% endif %}
+    {% endcall %}
     <div class="container-fluid">
         {% call detail.card('', usuario.estatus) %}
             {{ detail.label_value_big('Nombre', usuario.nombre) }}

@@ -24,6 +24,7 @@
                     <tr>
                         <th>Nombre</th>
                         <th>e-mail</th>
+                        <th>Clave</th>
                         <th>Rol</th>
                         <th>Workspace</th>
                     </tr>
@@ -33,6 +34,7 @@
                     <tr>
                         <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
                         <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.autoridad.clave }}</td>
                         <td>{{ usuario.rol.nombre }}</td>
                         <td>{{ usuario.workspace }}</td>
                     </tr>

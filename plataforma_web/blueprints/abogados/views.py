@@ -22,9 +22,16 @@ def before_request():
 
 @abogados.route("/abogados")
 def list_active():
-    """ Listado de Abogados """
+    """ Listado de Abogados activos """
     abogados_activos = Abogado.query.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(100).all()
-    return render_template("abogados/list.jinja2", abogados=abogados_activos)
+    return render_template("abogados/list.jinja2", abogados=abogados_activos, estatus="A")
+
+
+@abogados.route("/abogados/inactivos")
+def list_inactive():
+    """ Listado de Abogados inactivos """
+    abogados_inactivos = Abogado.query.filter(Abogado.estatus == "B").order_by(Abogado.fecha.desc()).limit(100).all()
+    return render_template("abogados/list.jinja2", abogados=abogados_inactivos, estatus="B")
 
 
 @abogados.route("/abogados/<int:abogado_id>")

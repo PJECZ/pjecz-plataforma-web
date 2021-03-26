@@ -14,7 +14,10 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page('Abogado registrado') }}
+    {% call detail.page_breadcrumb(abogado.nombre) %}
+        {% if abogado.estatus == 'A' %}{{ detail.page_breadcrumb_item('Abogados', link=url_for('abogados.list_active')) }}{% endif %}
+        {% if abogado.estatus == 'B' %}{{ detail.page_breadcrumb_item('Abogados inactivos', link=url_for('abogados.list_inactive')) }}{% endif %}
+    {% endcall %}
     <div class="container-fluid">
         {% call detail.card(estatus=abogado.estatus) %}
             {{ detail.label_value_big('Nombre', abogado.nombre) }}

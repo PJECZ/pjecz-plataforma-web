@@ -14,7 +14,10 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page('Perito') }}
+    {% call detail.page_breadcrumb(perito.nombre) %}
+        {% if perito.estatus == 'A' %}{{ detail.page_breadcrumb_item('Peritos', link=url_for('peritos.list_active')) }}{% endif %}
+        {% if perito.estatus == 'B' %}{{ detail.page_breadcrumb_item('Peritos inactivos', link=url_for('peritos.list_inactive')) }}{% endif %}
+    {% endcall %}
     <div class="container-fluid">
         {% call detail.card(estatus=perito.estatus) %}
             {{ detail.label_value_big('Nombre', perito.nombre) }}

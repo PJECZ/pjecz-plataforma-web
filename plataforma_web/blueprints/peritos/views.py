@@ -24,7 +24,14 @@ def before_request():
 def list_active():
     """ Listado de Peritos """
     peritos_activos = Perito.query.filter(Perito.estatus == "A").limit(100).all()
-    return render_template("peritos/list.jinja2", peritos=peritos_activos)
+    return render_template("peritos/list.jinja2", peritos=peritos_activos, estatus="A")
+
+
+@peritos.route("/peritos/inactivos")
+def list_inactive():
+    """ Listado de Peritos inactivos """
+    peritos_inactivos = Perito.query.filter(Perito.estatus == "B").limit(100).all()
+    return render_template("peritos/list.jinja2", peritos=peritos_inactivos, estatus="B")
 
 
 @peritos.route("/peritos/<int:perito_id>")
@@ -38,7 +45,6 @@ def detail(perito_id):
 def search():
     """ Buscar Peritos """
     form_search = PeritoSearchForm()
-    # form_search.tipo.choices.insert(0, "")  # Poner la primer opción del select vacía
     if form_search.validate_on_submit():
         consulta = Perito.query
         if form_search.distrito.data:
