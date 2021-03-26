@@ -27,8 +27,8 @@ def alimentar_peritos():
             if distrito_str == "":
                 click.echo("  Sin distrito...")
                 continue
-            distrito = Distrito.query.get(int(distrito_str))
-            if distrito is False:
+            distrito = Distrito.query.filter(Distrito.nombre == distrito_str).first()
+            if distrito is None:
                 click.echo(f"  No es válido el distrito {row['distrito']}...")
                 continue
             tipo = row["tipo"].strip()
