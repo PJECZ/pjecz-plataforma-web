@@ -19,9 +19,10 @@ class Autoridad(db.Model, UniversalMixin):
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
+    clave = db.Column(db.String(16), nullable=True, unique=True)
+    es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
     directorio_listas_de_acuerdos = db.Column(db.String(256))
     directorio_sentencias = db.Column(db.String(256))
-    # es_jurisdiccional
 
     # Hijos
     glosas = db.relationship("Glosa", backref="autoridad", lazy="noload")

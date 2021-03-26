@@ -29,6 +29,9 @@ def alimentar_autoridades():
             if f"{distrito.nombre}, {descripcion}" in agregados:
                 duplicados.append(descripcion)
                 continue
+            clave = row["clave"].strip()
+            if clave == "":
+                clave = None
             email = row["email"].strip()
             if email == "":
                 estatus = "B"
@@ -39,6 +42,7 @@ def alimentar_autoridades():
             datos = {
                 "descripcion": descripcion,
                 "distrito": distrito,
+                "clave": clave,
                 "directorio_listas_de_acuerdos": row["directorio_listas_de_acuerdos"].strip(),
                 "directorio_sentencias": row["directorio_sentencias"].strip(),
                 "estatus": estatus,
