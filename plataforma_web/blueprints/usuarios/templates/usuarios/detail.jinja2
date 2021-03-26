@@ -21,10 +21,11 @@
     <div class="container-fluid">
         {% call detail.card('', usuario.estatus) %}
             {{ detail.label_value_big('Nombre', usuario.nombre) }}
-            {{ detail.label_value('e-mail', usuario.email) }}
-            {{ detail.label_value('Rol', usuario.rol.nombre) }}
             {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
             {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
+            {{ detail.label_value('e-mail', usuario.email) }}
+            {{ detail.label_value('Workspace', usuario.workspace) }}
+            {{ detail.label_value('Rol', usuario.rol.nombre) }}
         {% endcall %}
         {% if entradas_salidas %}
             {% call detail.card('Entradas/Salidas') %}

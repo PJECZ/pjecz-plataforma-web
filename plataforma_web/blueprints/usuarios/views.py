@@ -6,14 +6,17 @@ import google.oauth2.id_token
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from lib.firebase_auth import firebase_auth
+from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
 from plataforma_web.extensions import pwd_context
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew, UsuarioFormEdit, CambiarContrasenaForm
 from plataforma_web.blueprints.usuarios.models import Usuario
-from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 
 HTTP_REQUEST = google.auth.transport.requests.Request()
 
@@ -146,18 +149,26 @@ def new():
     """ Nuevo usuario """
     form = UsuarioFormNew()
     if form.validate_on_submit():
+        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        if form.contrasena.data == "":
+            contrasena = pwd_context.hash(generar_contrasena())
+        else:
+            contrasena = pwd_context.hash(form.contrasena.data)
         usuario = Usuario(
+            autoridad=autoridad,
             nombres=form.nombres.data,
             apellido_paterno=form.apellido_paterno.data,
             apellido_materno=form.apellido_materno.data,
             email=form.email.data,
-            contrasena=pwd_context.hash(form.contrasena.data),
+            workspace=form.workspace.data,
             rol=form.rol.data,
+            contrasena=contrasena,
         )
         usuario.save()
         flash(f"Usuario {usuario.nombre} guardado.", "success")
         return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
-    return render_template("usuarios/new.jinja2", form=form)
+    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    return render_template("usuarios/new.jinja2", form=form, distritos=distritos)
 
 
 @usuarios.route("/usuarios/edicion/<int:usuario_id>", methods=["GET", "POST"])
@@ -172,6 +183,7 @@ def edit(usuario_id):
         usuario.apellido_paterno = form.apellido_paterno.data
         usuario.apellido_materno = form.apellido_materno.data
         usuario.email = form.email.data
+        usuario.workspace = form.workspace.data
         if form.email.data != "":
             usuario.contrasena = pwd_context.hash(form.contrasena.data)
         usuario.rol = form.rol.data
@@ -182,6 +194,7 @@ def edit(usuario_id):
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno
     form.email.data = usuario.email
+    form.workspace.data = usuario.workspace
     form.rol.data = usuario.rol
     return render_template("usuarios/edit.jinja2", form=form, usuario=usuario)
 

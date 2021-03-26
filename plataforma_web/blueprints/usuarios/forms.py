@@ -2,11 +2,12 @@
 Usuarios, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, PasswordField, StringField, SubmitField
+from wtforms import HiddenField, PasswordField, SelectField, StringField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp
 
 from plataforma_web.blueprints.roles.models import Rol
+from plataforma_web.blueprints.usuarios.models import Usuario
 
 CONTRASENA_REGEXP = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,48}$"
 CONTRASENA_MENSAJE = "De 8 a 48 caracteres con al menos una mayúscula, una minúscula y un número. No acentos, ni eñe."
@@ -31,20 +32,23 @@ class AccesoForm(FlaskForm):
 class UsuarioFormNew(FlaskForm):
     """ Formulario para nuevo usuario """
 
+    distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
+    workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
     rol = QuerySelectField(query_factory=roles_opciones, get_label="nombre")
     contrasena = PasswordField(
         "Contraseña",
         validators=[
-            DataRequired(),
+            Optional(),
             Regexp(CONTRASENA_REGEXP, 0, CONTRASENA_MENSAJE),
             EqualTo("contrasena_repetir", message="Las contraseñas deben coincidir."),
         ],
     )
-    contrasena_repetir = PasswordField("Repetir contraseña", validators=[DataRequired()])
+    contrasena_repetir = PasswordField("Repetir contraseña", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
@@ -55,6 +59,7 @@ class UsuarioFormEdit(FlaskForm):
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
+    workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
     rol = QuerySelectField(query_factory=roles_opciones, get_label="nombre")
     contrasena = PasswordField(
         "Contraseña",

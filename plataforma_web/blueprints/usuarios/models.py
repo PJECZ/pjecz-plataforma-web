@@ -14,8 +14,9 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
 
     WORKSPACES = OrderedDict(
         [
-            ("Business Started", "Business Started"),
-            ("Business Standard", "Business Standard"),
+            ("BUSINESS STARTED", "Business Started"),
+            ("BUSINESS STANDARD", "Business Standard"),
+            ("EXTERNO", "Externo"),
         ]
     )
 
