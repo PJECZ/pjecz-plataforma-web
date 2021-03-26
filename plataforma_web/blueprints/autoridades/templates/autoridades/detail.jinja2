@@ -23,6 +23,7 @@
             {{ detail.label_value_big('Autoridad', autoridad.descripcion) }}
             {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
             {{ detail.label_value('Clave', autoridad.clave) }}
+            {{ detail.label_value_boolean('Es jurisdiccional', autoridad.es_jurisdiccional) }}
             {{ detail.label_value('Directorio listas de acuerdos', autoridad.directorio_listas_de_acuerdos) }}
             {{ detail.label_value('Directorio sentencias', autoridad.directorio_sentencias) }}
         {% endcall %}

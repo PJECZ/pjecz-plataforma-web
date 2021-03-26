@@ -23,12 +23,14 @@
                 <thead>
                     <tr>
                         <th>Distritos</th>
+                        <th>Es distrito judicial</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for distrito in distritos %}
                     <tr>
                         <td><a href="{{ url_for('distritos.detail', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
+                        <td>{% if distrito.es_distrito_judicial %}SI{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

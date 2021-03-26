@@ -26,6 +26,7 @@
                         <th>Distrito</th>
                         <th>Autoridad</th>
                         <th>Clave</th>
+                        <th>Es jurisdiccional</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,6 +35,7 @@
                         <td>{{ autoridad.distrito.nombre }}</td>
                         <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
                         <td>{{ autoridad.clave }}</td>
+                        <td>{% if autoridad.es_jurisdiccional %}SI{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

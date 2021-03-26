@@ -12,7 +12,7 @@ from plataforma_web.blueprints.peritos.models import Perito
 
 def distritos_opciones():
     """ Distritos: opciones para select """
-    return Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    return Distrito.query.filter(Distrito.estatus == "A").filter(Distrito.es_distrito_judicial == True).order_by(Distrito.nombre).all()
 
 
 class PeritoForm(FlaskForm):

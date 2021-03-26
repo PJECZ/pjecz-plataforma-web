@@ -21,9 +21,9 @@ def alimentar_distritos():
         rows = csv.DictReader(puntero)
         for row in rows:
             nombre = row["distrito"].strip()
-            es_jurisdiccional = int(row["es_jurisdiccional"].strip()) == 1
+            es_distrito_judicial = int(row["es_distrito_judicial"].strip()) == 1
             if nombre in agregados:
                 continue
-            Distrito(nombre=nombre, es_jurisdiccional=es_jurisdiccional).save()
+            Distrito(nombre=nombre, es_distrito_judicial=es_distrito_judicial).save()
             agregados.append(nombre)
     click.echo(f"- {len(agregados)} distritos alimentados.")

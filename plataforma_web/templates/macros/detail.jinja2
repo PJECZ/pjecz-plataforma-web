@@ -81,6 +81,17 @@
     </div>
 {%- endmacro -%}
 
+{%- macro label_value_boolean(label, value) -%}
+    <div class="row">
+        <div class="col-md-3 text-right">
+            {{ label }}
+        </div>
+        <div class="col-md-9">
+            {% if value %}<strong>Sí</strong>{% else %}No{% endif %}
+        </div>
+    </div>
+{%- endmacro -%}
+
 {%- macro button_for_modal(label, id) -%}
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{ id }}">
         {{ label }}
