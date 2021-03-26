@@ -19,19 +19,25 @@ def alimentar_autoridades():
         return
     agregados = []
     duplicados = []
+    cantidad_sin_clave = 0
     cantidad_activos = 0
     cantidad_inactivos = 0
     with open(autoridades_csv, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            distrito = Distrito.query.filter_by(nombre=row["distrito"].strip()).first()
-            descripcion = row["autoridad"].strip()
-            if f"{distrito.nombre}, {descripcion}" in agregados:
-                duplicados.append(descripcion)
-                continue
             clave = row["clave"].strip()
             if clave == "":
-                clave = None
+                cantidad_sin_clave += 1
+                continue
+            if clave in agregados:
+                duplicados.append(clave)
+                continue
+            distrito = Distrito.query.filter_by(nombre=row["distrito"].strip()).first()
+            if distrito is None:
+                continue
+            descripcion = row["autoridad"].strip()
+            if descripcion == "":
+                continue
             email = row["email"].strip()
             if email == "":
                 estatus = "B"
@@ -39,16 +45,20 @@ def alimentar_autoridades():
             else:
                 estatus = "A"
                 cantidad_activos += 1
+            es_jurisdiccional = int(row["es_jurisdiccional"].strip()) == 1
             datos = {
                 "descripcion": descripcion,
                 "distrito": distrito,
                 "clave": clave,
                 "directorio_listas_de_acuerdos": row["directorio_listas_de_acuerdos"].strip(),
                 "directorio_sentencias": row["directorio_sentencias"].strip(),
+                "es_jurisdiccional": es_jurisdiccional,
                 "estatus": estatus,
             }
             Autoridad(**datos).save()
-            agregados.append(f"{distrito.nombre}, {descripcion}")
+            agregados.append(clave)
+    if cantidad_sin_clave > 0:
+        click.echo(f"  {cantidad_sin_clave} autoridades omitidas por no tener clave.")
     if len(duplicados) > 0:
         click.echo(f"  {len(duplicados)} autoridades omitidas por duplicados.")
     click.echo(f"- {len(agregados)} autoridades alimentadas: {cantidad_activos} activas, {cantidad_inactivos} inactivas.")
