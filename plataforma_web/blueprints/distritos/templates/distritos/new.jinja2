@@ -1,10 +1,10 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Nuevo Distrito{% endblock %}
+{% block title %}Nuevo Departamento{% endblock %}
 
 {% block content %}
-    {{ f.page('Nuevo Distrito') }}
+    {{ f.page('Nuevo Departamento') }}
     <div class="container-fluid">
         {% call f.form_tag('distritos.new', fid='distrito_form') %}
             {% call f.form_group(form.nombre) %}{% endcall %}

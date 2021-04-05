@@ -1,7 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/list.jinja2' as list with context %}
 
-{% block title %}Distritos{% endblock %}
+{% block title %}Departamentos{% endblock %}
 
 {% block topbar_actions %}
     {% call list.topbar_actions() %}
@@ -10,19 +10,19 @@
             {% if estatus == 'B' %}{{ list.topbar_actions_option('Activos', url_for('distritos.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('distritos') %}
-            {{ list.topbar_actions_option('Nuevo Distrito', url_for('distritos.new')) }}
+            {{ list.topbar_actions_option('Nuevo Departamento', url_for('distritos.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Distritos') }}
+    {{ list.page('Departamentos') }}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="distritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
-                        <th>Distritos</th>
+                        <th>Departamentos</th>
                         <th>Es distrito judicial</th>
                     </tr>
                 </thead>

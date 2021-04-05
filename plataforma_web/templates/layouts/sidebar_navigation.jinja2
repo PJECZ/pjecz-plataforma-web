@@ -11,7 +11,7 @@
                 {% if current_user.can_view('peritos') %}{{ app.sidebar_nav_option('Peritos', '/peritos', 'mdi mdi-clipboard-account') }}{% endif %}
                 {% if current_user.can_view('ubicaciones_expedientes') %}{{ app.sidebar_nav_option('Ubicación de Expedientes', '/ubicaciones_expedientes', 'mdi mdi-file-find') }}{% endif %}
                 {% call app.sidebar_nav_submenu('Catálogos', 'mdi mdi-label') %}
-                    {% if current_user.can_view('distritos') %}{{ app.sidebar_nav_option('Distritos', '/distritos', 'mdi mdi-apps') }}{% endif %}
+                    {% if current_user.can_view('distritos') %}{{ app.sidebar_nav_option('Departamentos', '/distritos', 'mdi mdi-apps') }}{% endif %}
                     {% if current_user.can_view('autoridades') %}{{ app.sidebar_nav_option('Autoridades', '/autoridades', 'mdi mdi-scale-balance') }}{% endif %}
                 {% endcall %}
                 {% call app.sidebar_nav_submenu('Autentificaciones', 'mdi mdi-account-settings') %}

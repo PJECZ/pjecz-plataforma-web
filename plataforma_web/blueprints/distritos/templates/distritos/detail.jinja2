@@ -1,7 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail with context %}
 
-{% block title %}Distrito{% endblock %}
+{% block title %}Departamento{% endblock %}
 
 {% block topbar_actions %}
     {% call detail.topbar_actions() %}
@@ -15,12 +15,12 @@
 
 {% block content %}
     {% call detail.page_breadcrumb(distrito.nombre) %}
-        {% if distrito.estatus == 'A' %}{{ detail.page_breadcrumb_item('Distritos', link=url_for('distritos.list_active')) }}{% endif %}
-        {% if distrito.estatus == 'B' %}{{ detail.page_breadcrumb_item('Distritos inactivos', link=url_for('distritos.list_inactive')) }}{% endif %}
+        {% if distrito.estatus == 'A' %}{{ detail.page_breadcrumb_item('Departamentos', link=url_for('distritos.list_active')) }}{% endif %}
+        {% if distrito.estatus == 'B' %}{{ detail.page_breadcrumb_item('Departamentos inactivos', link=url_for('distritos.list_inactive')) }}{% endif %}
     {% endcall %}
     <div class="container-fluid">
         {% call detail.card(estatus=distrito.estatus) %}
-            {{ detail.label_value_big('Distrito', distrito.nombre) }}
+            {{ detail.label_value_big('Departamento', distrito.nombre) }}
             {{ detail.label_value_boolean('Es distrito judicial', distrito.es_distrito_judicial) }}
         {% endcall %}
         {% if autoridades %}
