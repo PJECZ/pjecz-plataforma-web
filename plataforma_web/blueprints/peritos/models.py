@@ -42,6 +42,8 @@ class Perito(db.Model, UniversalMixin):
             ("ODONTOLOGIA LEGAL Y FORENSE", "Odontología Legal y Forense"),
             ("POLIGRAFIA", "Poligrafía"),
             ("PSICOLOGIA", "Psicología"),
+            ("PSICOANALISIS", "Psicoanálisis"),
+            ("PSICOTERAPIA FAMILIAR", "Psicoterapia Familiar"),
             ("QUIMICA", "Química"),
             ("TOPOGRAFIA", "Topografía"),
             ("TRADUCCION", "Traducción"),
@@ -49,7 +51,7 @@ class Perito(db.Model, UniversalMixin):
             ("TUTORES", "Tutores"),
             ("VALUACION", "Valuación"),
             ("VALUACION INMOBILIARIA", "Valuación Inmobiliaria"),
-            ("VALUACION VEHICULOS DAÑADOS", "Valuación Vehículos Dañados"),
+            ("VALUACION DE VEHICULOS DAÑADOS", "Valuación de Vehículos Dañados"),
             ("VALUACION AGROPECUARIA MAQUINARIA AGRICOLA Y EQUIPO INDUSTRIAL", "Valuación agropecuaria maquinaria agrícola y equipo industrial"),
         ]
     )
