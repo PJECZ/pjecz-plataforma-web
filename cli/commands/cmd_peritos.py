@@ -2,6 +2,7 @@
 Peritos
 
 - alimentar: Alimentar insertando registros desde un archivo CSV
+- borrar: Borrar todos los peritos
 - respaldar: Respaldar a un archivo CSV
 """
 from pathlib import Path
@@ -104,7 +105,7 @@ def respaldar(salida_csv):
 
 
 @click.command()
-def borrar(salida_csv):
+def borrar():
     """ Borrar todos los peritos """
     cantidad = Perito.query().delete()
     click.echo(f"Han sido borrados {str(cantidad)} registros.")
