@@ -103,5 +103,13 @@ def respaldar(salida_csv):
     click.echo(f"Respaldados {contador} registros.")
 
 
+@click.command()
+def borrar(salida_csv):
+    """ Borrar todos los peritos """
+    cantidad = Perito.query().delete()
+    click.echo(f"Han sido borrados {str(cantidad)} registros.")
+
+
 cli.add_command(alimentar)
 cli.add_command(respaldar)
+cli.add_command(borrar)
