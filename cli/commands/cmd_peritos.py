@@ -5,10 +5,11 @@ Peritos
 - borrar: Borrar todos los peritos
 - respaldar: Respaldar a un archivo CSV
 """
+from datetime import datetime
 from pathlib import Path
 import csv
-from unidecode import unidecode
 import click
+from unidecode import unidecode
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -41,18 +42,28 @@ def alimentar(entrada_csv):
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            distrito_str = row["distrito"].strip()
-            if distrito_str == "":
-                click.echo("  Sin distrito...")
+            # Validar distrito
+            distrito_nombre = row["distrito"].strip()
+            if distrito_nombre == "":
+                click.echo("  Sin distrito")
                 continue
-            distrito = Distrito.query.get(int(distrito_str))
-            if distrito is False:
-                click.echo(f"  No es válido el distrito {row['distrito']}...")
+            distrito = Distrito.query.filter(Distrito.nombre == distrito_nombre).first()
+            if distrito is None:
+                click.echo(f"  No es válido el distrito {distrito_nombre}")
                 continue
+            # Validar tipo
             tipo = row["tipo"].strip()
             if not tipo in Perito.TIPOS.keys():
-                click.echo(f"  No es válida el tipo {tipo}...")
+                click.echo(f"  No es válido el tipo {tipo}")
                 continue
+            # Validar renovación
+            renovacion_str = row["renovacion"].strip()
+            try:
+                renovacion = datetime.strptime(renovacion_str, "%Y-%m-%d")
+            except ValueError:
+                click.echo(f"  No es válida la fecha {renovacion_str}")
+                continue
+            # Insertar
             datos = {
                 "distrito": distrito,
                 "tipo": tipo,
@@ -62,6 +73,7 @@ def alimentar(entrada_csv):
                 "telefono_celular": row["telefono_celular"].strip(),
                 "email": unidecode(row["email"].strip()).lower(),  # Sin acentos y en minúsculas
                 "notas": unidecode(row["notas"].strip()).upper(),  # Sin acentos y en mayúsculas
+                "renovacion": renovacion,
             }
             Perito(**datos).save()
             contador += 1
@@ -107,6 +119,7 @@ def respaldar(salida_csv):
 @click.command()
 def borrar():
     """ Borrar todos los peritos """
+    click.echo("Borrando peritos...")
     cantidad = db.session.query(Perito).delete()
     db.session.commit()
     click.echo(f"Han sido borrados {str(cantidad)} registros.")
