@@ -107,7 +107,8 @@ def respaldar(salida_csv):
 @click.command()
 def borrar():
     """ Borrar todos los peritos """
-    cantidad = Perito.query().delete()
+    cantidad = db.session.query(Perito).delete()
+    db.session.commit()
     click.echo(f"Han sido borrados {str(cantidad)} registros.")
 
 
