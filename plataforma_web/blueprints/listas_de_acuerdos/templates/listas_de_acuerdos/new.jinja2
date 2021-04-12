@@ -3,6 +3,10 @@
 
 {% block title %}Subir Lista de Acuerdos{% endblock %}
 
+{% block custom_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropzone.css') }}" type="text/css">
+{% endblock %}
+
 {% block content %}
     {{ f.page('Subir Lista de Acuerdos') }}
     <div class="container-fluid">
@@ -11,8 +15,36 @@
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.archivo) %}{% endcall %}
+            <div class="dropzone-wrapper mb-3">
+                <div class="dropzone-desc">
+                    <p id="name_file_upload">
+                        Adjunta el documento ó arrastralo. <br>
+                        <i class="fas fa-upload"></i>
+                    </p>
+                </div>
+                {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
+            </div>
             {{ form.guardar() }}
         {% endcall %}
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $(document).ready(function(){
+            $(".dropzone").change(function() {
+                readFile(this);
+            });
+            function readFile(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var htmlPreview = input.files[0].name;
+                        $("#name_file_upload").html('<i class="fa fa-file"></i>  ' + htmlPreview);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+        });
+    </script>
 {% endblock %}
