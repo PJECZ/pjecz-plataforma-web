@@ -1,22 +1,18 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Nueva Lista de Acuerdos{% endblock %}
+{% block title %}Subir Lista de Acuerdos{% endblock %}
 
 {% block content %}
-    {{ f.page('Nueva Lista de Acuerdos') }}
+    {{ f.page('Subir Lista de Acuerdos') }}
     <div class="container-fluid">
         {% call f.form_tag_multipart('listas_de_acuerdos.new', fid='lista_de_acuerdo_form') %}
-            {% call f.form_group(form.distrito) %}{% endcall %}
-            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.archivo) %}{% endcall %}
             {{ form.guardar() }}
         {% endcall %}
     </div>
-{% endblock %}
-
-{% block custom_javascript %}
-    {{ f.js_select_distrito_autoridad(distritos) }}
 {% endblock %}

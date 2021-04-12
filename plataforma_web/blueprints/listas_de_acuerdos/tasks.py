@@ -121,9 +121,9 @@ def construir():
     """ Construir la estructura de directorios y archivos para Pelican """
 
 
-def rastrear(autoridad_email, usuario_id=None):
+def refrescar(autoridad_email, usuario_id=None):
     """ Rastrear las listas de acuerdos en Storage para agregarlas o actualizarlas a la BD """
-    bitacora.info("Inicia listas_de_acuerdos.tasks.rastrear")
+    bitacora.info("Inicia listas_de_acuerdos.tasks.refrescar")
     # Validar autoridad_email
     autoridad = Autoridad.query.filter(Autoridad.email == autoridad_email).first()
     if autoridad is False:
@@ -195,7 +195,7 @@ def rastrear(autoridad_email, usuario_id=None):
     # Terminar tarea
     set_task_progress(100)
     bitacora.info("- Se agregaron %d listas de acuerdos", contador_agregados)
-    bitacora.info("Termina listas_de_acuerdos.tasks.rastrear")
+    bitacora.info("Termina listas_de_acuerdos.tasks.refrescar")
     return f"Se agregaron {contador_agregados} listas de acuerdos"
 
 

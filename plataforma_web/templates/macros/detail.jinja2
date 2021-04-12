@@ -38,6 +38,12 @@
     <a class="dropdown-item" href="{{ url }}">{{ label }}</a>
 {%- endmacro -%}
 
+{%- macro topbar_option(label, url, icon) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
 {%- macro card(title='', estatus='') -%}
     {% if estatus == 'B' %}
     <div class="card text-white bg-dark">

@@ -15,7 +15,7 @@ from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNew
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
-DEPOSITO = "conatrib-pjecz-gob-mx"
+DEPOSITO = "pjecz-pruebas"
 SUBDIRECTORIO = "Listas de Acuerdos"
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
@@ -29,9 +29,22 @@ def before_request():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos")
+def list_active():
+    """ Listado de Listas de Acuerdos activas más recientes """
+    activas = ListaDeAcuerdo.query
+    if current_user.can_insert("tareas"):
+        autoridad = None
+    else:
+        autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
+        activas = activas.filter(ListaDeAcuerdo.autoridad == autoridad)
+    activas = activas.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+    return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=activas)
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/distritos")
 def list_distritos():
     """ Listado de Distritos """
-    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    distritos = Distrito.query.filter(Distrito.estatus == "A").filter(Distrito.es_distrito_judicial == True).order_by(Distrito.nombre).all()
     return render_template("listas_de_acuerdos/list_distritos.jinja2", distritos=distritos)
 
 
@@ -39,29 +52,30 @@ def list_distritos():
 def list_autoridades(distrito_id):
     """ Listado de Autoridades de un Distrito """
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).order_by(Autoridad.descripcion).all()
+    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).order_by(Autoridad.descripcion).all()
     return render_template("listas_de_acuerdos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/autoridad/<int:autoridad_id>")
-def list_active(autoridad_id):
+def list_autoridad_listas_de_acuerdos(autoridad_id):
     """ Listado de Listas de Acuerdos activas de una Autoridad """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_activas)
 
 
-@listas_de_acuerdos.route("/listas_de_acuerdos/rastrear/<int:autoridad_id>")
+@listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
 @permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
-def trace(autoridad_id):
-    """ Rastrear Listas de Acuerdos """
+@permission_required(Permiso.CREAR_TAREAS)
+def refresh(autoridad_id):
+    """ Refrescar Listas de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.get_task_in_progress("listas_de_acuerdos.tasks.rastrear"):
+    if current_user.get_task_in_progress("listas_de_acuerdos.tasks.refrescar"):
         flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
     else:
         tarea = current_user.launch_task(
-            nombre="listas_de_acuerdos.tasks.rastrear",
-            descripcion=f"Rastrear listas de acuerdos de {autoridad.descripcion} de {autoridad.distrito.nombre}",
+            nombre="listas_de_acuerdos.tasks.refrescar",
+            descripcion=f"Refrescar listas de acuerdos de {autoridad.descripcion} de {autoridad.distrito.nombre}",
             usuario_id=current_user.id,
             autoridad_id=autoridad.id,
         )
@@ -88,9 +102,9 @@ def search():
 @permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
 def new():
     """ Nueva Lista de Acuerdos """
+    autoridad = current_user.autoridad
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
-        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         fecha = form.fecha.data
         # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
         ano_str = fecha.strftime("%Y")
@@ -114,8 +128,45 @@ def new():
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
-    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("listas_de_acuerdos/new.jinja2", form=form, distritos=distritos)
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    return render_template("listas_de_acuerdos/new.jinja2", form=form)
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
+@permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
+@permission_required(Permiso.CREAR_TAREAS)
+def new_for_autoridad(autoridad_id):
+    """ Nueva Lista de Acuerdos """
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        fecha = form.fecha.data
+        # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
+        ano_str = fecha.strftime("%Y")
+        mes_str = fecha.strftime("%m")
+        archivo_str = fecha.strftime("%Y-%m-%d") + "-lista-de-acuerdos.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
+        # Subir archivo a Google Storage
+        archivo = request.files["archivo"]
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(DEPOSITO)
+        blob = bucket.blob(ruta_str)
+        blob.upload_from_string(archivo.stream.read())
+        # Insertar en la base de datos
+        lista_de_acuerdo = ListaDeAcuerdo(
+            autoridad=autoridad,
+            fecha=fecha,
+            archivo=archivo_str,
+            descripcion=form.descripcion.data,
+            url=blob.path,
+        )
+        lista_de_acuerdo.save()
+        flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
+        return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])

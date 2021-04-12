@@ -35,7 +35,13 @@
 {%- endmacro -%}
 
 {%- macro topbar_actions_option(label, url) -%}
-    <a class="dropdown-item" href="{{ url }}">{{ label }}</a>
+            <a class="dropdown-item" href="{{ url }}">{{ label }}</a>
+{%- endmacro -%}
+
+{%- macro topbar_option(label, url, icon) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
+    </li>
 {%- endmacro -%}
 
 {%- macro card() -%}

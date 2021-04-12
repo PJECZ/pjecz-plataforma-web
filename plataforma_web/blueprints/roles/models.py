@@ -140,13 +140,13 @@ class Rol(db.Model, UniversalMixin):
             "USUARIO": [
                 Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
-                Permiso.VER_TAREAS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_EDICTOS,
                 Permiso.VER_LISTAS_DE_ACUERDOS,
                 Permiso.VER_SENTENCIAS,
             ],
             "OBSERVADOR": [
+                Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_EDICTOS,
