@@ -65,8 +65,10 @@ def new():
         autoridad = Autoridad(
             distrito=distrito,
             descripcion=form.descripcion.data,
+            clave=form.clave.data.upper(),
             directorio_listas_de_acuerdos=directorio,
             directorio_sentencias=directorio,
+            es_jurisdiccional=form.es_jurisdiccional.data,
         )
         autoridad.save()
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
@@ -83,15 +85,19 @@ def edit(autoridad_id):
     if form.validate_on_submit():
         autoridad.distrito = form.distrito.data
         autoridad.descripcion = form.descripcion.data
+        autoridad.clave = form.clave.data
         autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data
         autoridad.directorio_sentencias = form.directorio_sentencias.data
+        autoridad.es_jurisdiccional = form.es_jurisdiccional.data
         autoridad.save()
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
         return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     form.distrito.data = autoridad.distrito
     form.descripcion.data = autoridad.descripcion
+    form.clave.data = autoridad.clave
     form.directorio_listas_de_acuerdos.data = autoridad.directorio_listas_de_acuerdos
     form.directorio_sentencias.data = autoridad.directorio_sentencias
+    form.es_jurisdiccional.data = autoridad.es_jurisdiccional
     return render_template("autoridades/edit.jinja2", form=form, autoridad=autoridad)
 
 

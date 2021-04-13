@@ -2,7 +2,7 @@
 Autoridades, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import BooleanField, StringField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length, Optional
 
@@ -19,6 +19,8 @@ class AutoridadNewForm(FlaskForm):
 
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
     descripcion = StringField("Autoridad", validators=[DataRequired(), Length(max=256)])
+    clave = StringField("Clave", validators=[DataRequired(), Length(max=16)])
+    es_jurisdiccional = BooleanField("Es jurisdiccional", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
@@ -27,8 +29,10 @@ class AutoridadEditForm(FlaskForm):
 
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
     descripcion = StringField("Autoridad", validators=[DataRequired(), Length(max=256)])
+    clave = StringField("Clave", validators=[DataRequired(), Length(max=16)])
     directorio_listas_de_acuerdos = StringField("Directorio listas de acuerdos", validators=[Optional(), Length(max=256)])
     directorio_sentencias = StringField("Directorio listas de acuerdos", validators=[Optional(), Length(max=256)])
+    es_jurisdiccional = BooleanField("Es jurisdiccional", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 

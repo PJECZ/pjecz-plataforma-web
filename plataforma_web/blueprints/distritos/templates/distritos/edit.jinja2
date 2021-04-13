@@ -9,6 +9,7 @@
         {% set form_kwargs = {'distrito_id': distrito.id} %}
         {% call f.form_tag('distritos.edit', fid='distrito_form', **form_kwargs) %}
             {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.es_distrito_judicial) %}{% endcall %}
             {{ form.guardar() }}
         {% endcall %}
     </div>

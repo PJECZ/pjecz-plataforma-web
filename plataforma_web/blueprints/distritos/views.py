@@ -48,7 +48,10 @@ def new():
     """ Nuevo Distrito """
     form = DistritoForm()
     if form.validate_on_submit():
-        distrito = Distrito(nombre=form.nombre.data)
+        distrito = Distrito(
+            nombre=form.nombre.data,
+            es_distrito_judicial=form.es_distrito_judicial.data,
+        )
         distrito.save()
         flash(f"Distrito {distrito.nombre} guardado.", "success")
         return redirect(url_for("distritos.detail", distrito_id=distrito.id))
@@ -63,10 +66,12 @@ def edit(distrito_id):
     form = DistritoForm()
     if form.validate_on_submit():
         distrito.nombre = form.nombre.data
+        distrito.es_distrito_judicial = form.es_distrito_judicial.data
         distrito.save()
         flash(f"Distrito {distrito.nombre} guardado.", "success")
         return redirect(url_for("distritos.detail", distrito_id=distrito.id))
     form.nombre.data = distrito.nombre
+    form.es_distrito_judicial.data = distrito.es_distrito_judicial
     return render_template("distritos/edit.jinja2", form=form, distrito=distrito)
 
 
