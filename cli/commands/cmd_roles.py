@@ -1,7 +1,7 @@
 """
 Roles
 
-- alimentar: Alimentar/Actualizar la BD a partir de lo programado en el modelo Rol
+- recargar: Alimentar/Actualizar la BD a partir de lo programado en el modelo Rol
 """
 import click
 
@@ -23,10 +23,10 @@ def cli():
 
 
 @click.command()
-def alimentar():
+def recargar():
     """ Alimentar/Actualizar la BD a partir de lo programado en el modelo Rol """
     click.echo("Alimentando Roles...")
     Rol.insert_roles()
 
 
-cli.add_command(alimentar)
+cli.add_command(recargar)

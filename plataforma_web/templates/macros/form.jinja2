@@ -175,3 +175,42 @@
         });
     </script>
 {%- endmacro -%}
+
+{# Drop Zone CSS #}}
+{%- macro drop_zone_css() -%}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropzone.css') }}" type="text/css">
+{%- endmacro -%}
+
+{# Drop Zone wrapper #}}
+{%- macro drop_zone_wrapper() -%}
+    <div class="dropzone-wrapper mb-3">
+        <div class="dropzone-desc">
+            <p id="name_file_upload">
+                Adjunta el documento ó arrastralo. <br>
+                <i class="fas fa-upload"></i>
+            </p>
+        </div>
+        {{ caller () }}
+    </div>
+{%- endmacro -%}
+
+{# Drop Zone javascript #}}
+{%- macro drop_zone_js() -%}
+    <script>
+        $(document).ready(function(){
+            $(".dropzone").change(function() {
+                readFile(this);
+            });
+            function readFile(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var htmlPreview = input.files[0].name;
+                        $("#name_file_upload").html('<i class="fa fa-file"></i>  ' + htmlPreview);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+        });
+    </script>
+{%- endmacro -%}

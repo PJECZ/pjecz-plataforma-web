@@ -1,6 +1,7 @@
 """
 Listas de Acuerdos, vistas
 """
+from datetime import date
 from pathlib import Path
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -16,9 +17,27 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
 DEPOSITO = "pjecz-pruebas"
-SUBDIRECTORIO = "Listas de Acuerdos"
+SUBDIRECTORIO = "listas-de-acuerdos"
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
+
+
+def subir_archivo(autoridad, fecha, archivo):
+    """ Subir archivio de lista de acuerdos """
+    # TODO: Validar fecha
+    # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
+    ano_str = fecha.strftime("%Y")
+    mes_str = fecha.strftime("%m")
+    archivo_str = fecha.strftime("%Y-%m-%d") + "-lista-de-acuerdos.pdf"
+    ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
+    # Subir archivo a Google Storage
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(DEPOSITO)
+    blob = bucket.blob(ruta_str)
+    # TODO: Si hay error en subida
+    blob.upload_from_string(archivo.stream.read())
+    url = blob.path
+    return (archivo_str, url)
 
 
 @listas_de_acuerdos.before_request
@@ -93,7 +112,15 @@ def detail(lista_de_acuerdo_id):
 @listas_de_acuerdos.route("/listas_de_acuerdos/buscar", methods=["GET", "POST"])
 def search():
     """ Buscar Lista de Acuerdos """
-    form_search = ListaDeAcuerdoSearchForm()  # TODO Programar búsqueda
+    form_search = ListaDeAcuerdoSearchForm()
+    if form_search.validate_on_submit():
+        consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == form.autoridad.data)
+        if form_search.fecha_desde.data:
+            consulta = consulta.filter(ListaDeAcuerdo.fecha >= form_search.fecha_desde.data)
+        if form_search.fecha_hasta.data:
+            consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
+        consulta = consulta.order_by(Abogado.fecha).limit(100).all()
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=None, listas_de_acuerdos=consulta)
     distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     return render_template("listas_de_acuerdos/search.jinja2", form=form_search, distritos=distritos)
 
@@ -106,30 +133,22 @@ def new():
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
         fecha = form.fecha.data
-        # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
-        ano_str = fecha.strftime("%Y")
-        mes_str = fecha.strftime("%m")
-        archivo_str = fecha.strftime("%Y-%m-%d") + "-lista-de-acuerdos.pdf"
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
-        # Subir archivo a Google Storage
         archivo = request.files["archivo"]
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(DEPOSITO)
-        blob = bucket.blob(ruta_str)
-        blob.upload_from_string(archivo.stream.read())
-        # Insertar en la base de datos
+        archivo_str, url = subir_archivo(autoridad, fecha, archivo)
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=fecha,
             archivo=archivo_str,
             descripcion=form.descripcion.data,
-            url=blob.path,
+            url=url,
         )
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
+    form.descripcion.data = "Lista de Acuerdos"
+    form.fecha.data = date.today()
     return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
 
@@ -142,31 +161,23 @@ def new_for_autoridad(autoridad_id):
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
         fecha = form.fecha.data
-        # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
-        ano_str = fecha.strftime("%Y")
-        mes_str = fecha.strftime("%m")
-        archivo_str = fecha.strftime("%Y-%m-%d") + "-lista-de-acuerdos.pdf"
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
-        # Subir archivo a Google Storage
         archivo = request.files["archivo"]
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(DEPOSITO)
-        blob = bucket.blob(ruta_str)
-        blob.upload_from_string(archivo.stream.read())
-        # Insertar en la base de datos
+        archivo_str, url = subir_archivo(autoridad, fecha, archivo)
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=fecha,
             archivo=archivo_str,
             descripcion=form.descripcion.data,
-            url=blob.path,
+            url=url,
         )
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    return render_template("listas_de_acuerdos/new.jinja2", form=form)
+    form.descripcion.data = "Lista de Acuerdos"
+    form.fecha.data = date.today()
+    return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
