@@ -1,12 +1,13 @@
 """
 Listas de Acuerdos, vistas
 """
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from google.cloud import storage
+from werkzeug import secure_filename
 from werkzeug.datastructures import CombinedMultiDict
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -17,14 +18,33 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
 DEPOSITO = "pjecz-pruebas"
-SUBDIRECTORIO = "listas-de-acuerdos"
+SUBDIRECTORIO = "Listas de Acuerdos"
+DIAS_LIMITE = 5
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
 
 def subir_archivo(autoridad, fecha, archivo):
-    """ Subir archivio de lista de acuerdos """
-    # TODO: Validar fecha
+    """ Subir archivo de lista de acuerdos """
+    # Validar autoridad
+    if not isinstance(autoridad, Autoridad):
+        raise ValueError("El juzgado no es del tipo correcto.")
+    if not autoridad.distrito.es_distrito_judicial:
+        raise ValueError("El juzgado no está en un distrito jurisdiccional.")
+    if not autoridad.es_jurisdiccional:
+        raise ValueError("El juzgado no es jurisdiccional.")
+    if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
+        raise ValueError("El juzgado no tiene directorio para listas de acuerdos.")
+    # Validar fecha
+    if not isinstance(fecha, date):
+        raise ValueError("La fecha no es del tipo correcto.")
+    if fecha > date.today():
+        raise ValueError("La fecha no debe ser del futuro.")
+    if fecha < timedelta.days(DIAS_LIMITE):
+        raise ValueError(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
+    # Validar que el archivo sea PDF
+    archivo_nombre = secure_filename(archivo.filename)
+    # Si ya existe una lista de acuerdo de mismo día
     # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
     ano_str = fecha.strftime("%Y")
     mes_str = fecha.strftime("%m")
@@ -114,12 +134,12 @@ def search():
     """ Buscar Lista de Acuerdos """
     form_search = ListaDeAcuerdoSearchForm()
     if form_search.validate_on_submit():
-        consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == form.autoridad.data)
+        consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == form_search.autoridad.data)
         if form_search.fecha_desde.data:
             consulta = consulta.filter(ListaDeAcuerdo.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
-        consulta = consulta.order_by(Abogado.fecha).limit(100).all()
+        consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=None, listas_de_acuerdos=consulta)
     distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     return render_template("listas_de_acuerdos/search.jinja2", form=form_search, distritos=distritos)

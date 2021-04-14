@@ -61,11 +61,11 @@ def new():
     form = AutoridadNewForm()
     if form.validate_on_submit():
         distrito = form.distrito.data
-        directorio = f"{distrito.nombre}/{form.descripcion.data}"
+        directorio = f"{distrito.nombre}/{form.descripcion.data.strip()}"
         autoridad = Autoridad(
             distrito=distrito,
-            descripcion=form.descripcion.data,
-            clave=form.clave.data.upper(),
+            descripcion=form.descripcion.data.strip(),
+            clave=form.clave.data.strip().upper(),
             directorio_listas_de_acuerdos=directorio,
             directorio_sentencias=directorio,
             es_jurisdiccional=form.es_jurisdiccional.data,
@@ -84,10 +84,10 @@ def edit(autoridad_id):
     form = AutoridadEditForm()
     if form.validate_on_submit():
         autoridad.distrito = form.distrito.data
-        autoridad.descripcion = form.descripcion.data
-        autoridad.clave = form.clave.data
-        autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data
-        autoridad.directorio_sentencias = form.directorio_sentencias.data
+        autoridad.descripcion = form.descripcion.data.strip()
+        autoridad.clave = form.clave.data.strip().upper()
+        autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data.strip()
+        autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
         autoridad.es_jurisdiccional = form.es_jurisdiccional.data
         autoridad.save()
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")

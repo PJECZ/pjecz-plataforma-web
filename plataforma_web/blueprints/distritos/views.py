@@ -49,7 +49,7 @@ def new():
     form = DistritoForm()
     if form.validate_on_submit():
         distrito = Distrito(
-            nombre=form.nombre.data,
+            nombre=form.nombre.data.strip(),
             es_distrito_judicial=form.es_distrito_judicial.data,
         )
         distrito.save()
@@ -65,7 +65,7 @@ def edit(distrito_id):
     distrito = Distrito.query.get_or_404(distrito_id)
     form = DistritoForm()
     if form.validate_on_submit():
-        distrito.nombre = form.nombre.data
+        distrito.nombre = form.nombre.data.strip()
         distrito.es_distrito_judicial = form.es_distrito_judicial.data
         distrito.save()
         flash(f"Distrito {distrito.nombre} guardado.", "success")

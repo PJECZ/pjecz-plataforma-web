@@ -55,10 +55,9 @@ def new():
     """ Nuevo Ubicación de Expedientes """
     form = UbicacionExpedienteNewForm()
     if form.validate_on_submit():
-        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         ubicacion_expediente = UbicacionExpediente(
-            autoridad=autoridad,
-            expediente=form.expediente.data,
+            autoridad=Autoridad.query.get_or_404(form.autoridad.data),
+            expediente=form.expediente.data.strip(),
             ubicacion=form.ubicacion.data,
         )
         ubicacion_expediente.save()
@@ -75,6 +74,8 @@ def edit(ubicacion_expediente_id):
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     form = UbicacionExpedienteEditForm()
     if form.validate_on_submit():
+        ubicacion_expediente.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        ubicacion_expediente.expediente = form.expediente.data.strip()
         ubicacion_expediente.ubicacion = form.ubicacion.data
         ubicacion_expediente.save()
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")

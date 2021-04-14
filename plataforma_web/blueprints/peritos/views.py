@@ -65,17 +65,17 @@ def new():
     """ Nuevo Perito """
     form = PeritoForm()
     if form.validate_on_submit():
-        nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
+        nombre =
         perito = Perito(
             distrito=form.distrito.data,
             tipo=form.tipo.data,
-            nombre=nombre,
-            domicilio=form.domicilio.data,
-            telefono_fijo=form.telefono_fijo.data,
-            telefono_celular=form.telefono_celular.data,
-            email=form.email.data,
+            nombre=unidecode(form.nombre.data.strip()).upper(),  # Sin acentos y en mayúsculas
+            domicilio=form.domicilio.data.strip(),
+            telefono_fijo=form.telefono_fijo.data.strip(),
+            telefono_celular=form.telefono_celular.data.strip(),
+            email=form.email.data.strip(),
             renovacion=form.renovacion.data,
-            notas=form.notas.data,
+            notas=form.notas.data.strip(),
         )
         perito.save()
         flash(f"Perito {perito.nombre} guardado.", "success")
@@ -93,12 +93,12 @@ def edit(perito_id):
         perito.distrito = form.distrito.data
         perito.tipo = form.tipo.data
         perito.nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
-        perito.domicilio = form.domicilio.data
-        perito.telefono_fijo = form.telefono_fijo.data
-        perito.telefono_celular = form.telefono_celular.data
-        perito.email = form.email.data
+        perito.domicilio = form.domicilio.data.strip()
+        perito.telefono_fijo = form.telefono_fijo.data.strip()
+        perito.telefono_celular = form.telefono_celular.data.strip()
+        perito.email = form.email.data.strip()
         perito.renovacion = form.renovacion.data
-        perito.notas = form.notas.data
+        perito.notas = form.notas.data.strip()
         perito.save()
         flash(f"Perito {perito.nombre} guardado.", "success")
         return redirect(url_for("peritos.detail", perito_id=perito.id))

@@ -71,11 +71,10 @@ def new():
     """ Nuevo Abogado """
     form = AbogadoForm()
     if form.validate_on_submit():
-        nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
         abogado = Abogado(
-            numero=form.numero.data,
-            nombre=nombre,
-            libro=form.libro.data,
+            numero=form.numero.data.strip(),
+            nombre=unidecode(form.nombre.data.strip()).upper(),  # Sin acentos y en mayúsculas
+            libro=form.libro.data.strip(),
             fecha=form.fecha.data,
         )
         abogado.save()
@@ -91,9 +90,9 @@ def edit(abogado_id):
     abogado = Abogado.query.get_or_404(abogado_id)
     form = AbogadoForm()
     if form.validate_on_submit():
-        abogado.numero = form.numero.data
+        abogado.numero = form.numero.data.strip()
         abogado.nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
-        abogado.libro = form.libro.data
+        abogado.libro = form.libro.data.strip()
         abogado.fecha = form.fecha.data
         abogado.save()
         flash(f"Abogado {abogado.nombre} guardado.", "success")
