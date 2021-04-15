@@ -51,7 +51,7 @@ class Perito(db.Model, UniversalMixin):
             ("TUTORES", "Tutores"),
             ("VALUACION", "Valuación"),
             ("VALUACION INMOBILIARIA", "Valuación Inmobiliaria"),
-            ("VALUACION DE VEHICULOS DAÑADOS", "Valuación de Vehículos Dañados"),
+            ("VALUACION VEHICULOS DAÑADOS", "Valuación de Vehículos Dañados"),
             ("VALUACION AGROPECUARIA MAQUINARIA AGRICOLA Y EQUIPO INDUSTRIAL", "Valuación agropecuaria maquinaria agrícola y equipo industrial"),
         ]
     )

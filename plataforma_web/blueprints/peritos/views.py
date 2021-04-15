@@ -65,7 +65,6 @@ def new():
     """ Nuevo Perito """
     form = PeritoForm()
     if form.validate_on_submit():
-        nombre =
         perito = Perito(
             distrito=form.distrito.data,
             tipo=form.tipo.data,
