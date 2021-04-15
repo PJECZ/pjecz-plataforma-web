@@ -7,7 +7,7 @@ from pathlib import Path
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from google.cloud import storage
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from werkzeug.datastructures import CombinedMultiDict
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -43,8 +43,13 @@ def subir_archivo(autoridad, fecha, archivo):
     if fecha < timedelta.days(DIAS_LIMITE):
         raise ValueError(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
     # Validar que el archivo sea PDF
-    archivo_nombre = secure_filename(archivo.filename)
+    archivo_nombre = secure_filename(archivo.filename.lower())
+    if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+        raise ValueError("No es un archivo PDF.")
     # Si ya existe una lista de acuerdo de mismo día
+    lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
+    if lista_de_acuerdo is not None:
+        raise ValueError("No se puede subir porque ya existe una lista de acuerdo con esa fecha.")
     # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
     ano_str = fecha.strftime("%Y")
     mes_str = fecha.strftime("%m")
