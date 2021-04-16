@@ -40,7 +40,7 @@ def subir_archivo(autoridad, fecha, archivo):
         raise ValueError("La fecha no es del tipo correcto.")
     if fecha > date.today():
         raise ValueError("La fecha no debe ser del futuro.")
-    if fecha < timedelta.days(DIAS_LIMITE):
+    if fecha < date.today() - timedelta(days=DIAS_LIMITE):
         raise ValueError(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
     # Validar que el archivo sea PDF
     archivo_nombre = secure_filename(archivo.filename.lower())
@@ -59,10 +59,8 @@ def subir_archivo(autoridad, fecha, archivo):
     storage_client = storage.Client()
     bucket = storage_client.bucket(DEPOSITO)
     blob = bucket.blob(ruta_str)
-    # TODO: Si hay error en subida
     blob.upload_from_string(archivo.stream.read())
-    url = blob.path
-    return (archivo_str, url)
+    return (archivo_str, blob.public_url)
 
 
 @listas_de_acuerdos.before_request
