@@ -74,7 +74,7 @@ def before_request():
 def list_active():
     """ Listado de Listas de Acuerdos activas más recientes """
     activas = ListaDeAcuerdo.query
-    if current_user.can_insert("tareas"):
+    if current_user.can_admin("listas_de_acuerdos"):
         autoridad = None
     else:
         autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
@@ -108,7 +108,7 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
 @permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
-@permission_required(Permiso.CREAR_TAREAS)
+@permission_required(Permiso.ADMINISTRAR_LISTAS_DE_ACUERDOS)
 def refresh(autoridad_id):
     """ Refrescar Listas de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -177,7 +177,7 @@ def new():
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
-@permission_required(Permiso.CREAR_TAREAS)
+@permission_required(Permiso.ADMINISTRAR_LISTAS_DE_ACUERDOS)
 def new_for_autoridad(autoridad_id):
     """ Nueva Lista de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)

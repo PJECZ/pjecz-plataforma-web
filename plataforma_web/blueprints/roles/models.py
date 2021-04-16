@@ -31,22 +31,27 @@ class Permiso:
     VER_AGENDAS = 0b1000000000000
     MODIFICAR_AGENDAS = 0b10000000000000
     CREAR_AGENDAS = 0b100000000000000
+    ADMINISTRAR_AGENDAS = 0b1000000000000000
 
-    VER_EDICTOS = 0b1000000000000000
-    MODIFICAR_EDICTOS = 0b10000000000000000
-    CREAR_EDICTOS = 0b100000000000000000
+    VER_EDICTOS = 0b10000000000000000
+    MODIFICAR_EDICTOS = 0b100000000000000000
+    CREAR_EDICTOS = 0b1000000000000000000
+    ADMINISTRAR_EDICTOS = 0b10000000000000000000
 
-    VER_GLOSAS = 0b1000000000000000000
-    MODIFICAR_GLOSAS = 0b10000000000000000000
-    CREAR_GLOSAS = 0b100000000000000000000
+    VER_GLOSAS = 0b100000000000000000000
+    MODIFICAR_GLOSAS = 0b1000000000000000000000
+    CREAR_GLOSAS = 0b10000000000000000000000
+    ADMINISTRAR_GLOSAS = 0b100000000000000000000000
 
-    VER_LISTAS_DE_ACUERDOS = 0b1000000000000000000000
-    MODIFICAR_LISTAS_DE_ACUERDOS = 0b10000000000000000000000
-    CREAR_LISTAS_DE_ACUERDOS = 0b100000000000000000000000
+    VER_LISTAS_DE_ACUERDOS = 0b1000000000000000000000000
+    MODIFICAR_LISTAS_DE_ACUERDOS = 0b10000000000000000000000000
+    CREAR_LISTAS_DE_ACUERDOS = 0b100000000000000000000000000
+    ADMINISTRAR_LISTAS_DE_ACUERDOS = 0b1000000000000000000000000000
 
-    VER_SENTENCIAS = 0b1000000000000000000000000
-    MODIFICAR_SENTENCIAS = 0b10000000000000000000000000
-    CREAR_SENTENCIAS = 0b100000000000000000000000000
+    VER_SENTENCIAS = 0b10000000000000000000000000000
+    MODIFICAR_SENTENCIAS = 0b100000000000000000000000000000
+    CREAR_SENTENCIAS = 0b1000000000000000000000000000000
+    ADMINISTRAR_SENTENCIAS = 0b10000000000000000000000000000000
 
     def __repr__(self):
         """ Representación """
@@ -108,18 +113,23 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_AGENDAS,
                 Permiso.MODIFICAR_AGENDAS,
                 Permiso.CREAR_AGENDAS,
+                Permiso.ADMINISTRAR_AGENDAS,
                 Permiso.VER_EDICTOS,
                 Permiso.MODIFICAR_EDICTOS,
                 Permiso.CREAR_EDICTOS,
+                Permiso.ADMINISTRAR_EDICTOS,
                 Permiso.VER_GLOSAS,
                 Permiso.MODIFICAR_GLOSAS,
                 Permiso.CREAR_GLOSAS,
+                Permiso.ADMINISTRAR_GLOSAS,
                 Permiso.VER_LISTAS_DE_ACUERDOS,
                 Permiso.MODIFICAR_LISTAS_DE_ACUERDOS,
                 Permiso.CREAR_LISTAS_DE_ACUERDOS,
+                Permiso.ADMINISTRAR_LISTAS_DE_ACUERDOS,
                 Permiso.VER_SENTENCIAS,
                 Permiso.MODIFICAR_SENTENCIAS,
                 Permiso.CREAR_SENTENCIAS,
+                Permiso.ADMINISTRAR_SENTENCIAS,
             ],
             "SOPORTE TECNICO": [
                 Permiso.VER_CUENTAS,
@@ -250,6 +260,20 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_LISTAS_DE_ACUERDOS)
         if module == "sentencias":
             return self.has_permission(Permiso.CREAR_SENTENCIAS)
+        return False
+
+    def can_admin(self, module):
+        """ ¿Tiene permiso para administrar? """
+        if module == "agendas":
+            return self.has_permission(Permiso.ADMINISTRAR_SENTENCIAS)
+        if module == "edictos":
+            return self.has_permission(Permiso.ADMINISTRAR_EDICTOS)
+        if module == "glosas":
+            return self.has_permission(Permiso.ADMINISTRAR_GLOSAS)
+        if module == "listas_de_acuerdos":
+            return self.has_permission(Permiso.ADMINISTRAR_LISTAS_DE_ACUERDOS)
+        if module == "sentencias":
+            return self.has_permission(Permiso.ADMINISTRAR_SENTENCIAS)
         return False
 
     def __repr__(self):
