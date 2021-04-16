@@ -8,33 +8,45 @@ from lib.universal_mixin import UniversalMixin
 class Permiso:
     """ Permiso tiene como constantes enteros de potencia dos """
 
+    # Usuarios, Bitácoras, Entradas-Salidas, Roles
     VER_CUENTAS = 0b1
     MODIFICAR_CUENTAS = 0b10
     CREAR_CUENTAS = 0b100
 
+    # Distritos, Autoridades
     VER_CATALOGOS = 0b1000
     MODIFICAR_CATALOGOS = 0b10000
     CREAR_CATALOGOS = 0b100000
 
+    # Tareas, Transcripciones
     VER_TAREAS = 0b1000000
     MODIFICAR_TAREAS = 0b10000000
     CREAR_TAREAS = 0b100000000
 
+    # Abogados registrados, Peritos, Ubicación de expedientes
     VER_CONSULTAS = 0b1000000000
     MODIFICAR_CONSULTAS = 0b10000000000
     CREAR_CONSULTAS = 0b100000000000
 
-    VER_EDICTOS = 0b1000000000000
-    MODIFICAR_EDICTOS = 0b10000000000000
-    CREAR_EDICTOS = 0b10000000000000
+    VER_AGENDAS = 0b1000000000000
+    MODIFICAR_AGENDAS = 0b10000000000000
+    CREAR_AGENDAS = 0b100000000000000
 
-    VER_LISTAS_DE_ACUERDOS = 0b100000000000000
-    MODIFICAR_LISTAS_DE_ACUERDOS = 0b1000000000000000
-    CREAR_LISTAS_DE_ACUERDOS = 0b10000000000000000
+    VER_EDICTOS = 0b1000000000000000
+    MODIFICAR_EDICTOS = 0b10000000000000000
+    CREAR_EDICTOS = 0b100000000000000000
 
-    VER_SENTENCIAS = 0b100000000000000000
-    MODIFICAR_SENTENCIAS = 0b1000000000000000000
-    CREAR_SENTENCIAS = 0b10000000000000000000
+    VER_GLOSAS = 0b1000000000000000000
+    MODIFICAR_GLOSAS = 0b10000000000000000000
+    CREAR_GLOSAS = 0b100000000000000000000
+
+    VER_LISTAS_DE_ACUERDOS = 0b1000000000000000000000
+    MODIFICAR_LISTAS_DE_ACUERDOS = 0b10000000000000000000000
+    CREAR_LISTAS_DE_ACUERDOS = 0b100000000000000000000000
+
+    VER_SENTENCIAS = 0b1000000000000000000000000
+    MODIFICAR_SENTENCIAS = 0b10000000000000000000000000
+    CREAR_SENTENCIAS = 0b100000000000000000000000000
 
     def __repr__(self):
         """ Representación """
@@ -93,9 +105,15 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_CONSULTAS,
                 Permiso.MODIFICAR_CONSULTAS,
                 Permiso.CREAR_CONSULTAS,
+                Permiso.VER_AGENDAS,
+                Permiso.MODIFICAR_AGENDAS,
+                Permiso.CREAR_AGENDAS,
                 Permiso.VER_EDICTOS,
                 Permiso.MODIFICAR_EDICTOS,
                 Permiso.CREAR_EDICTOS,
+                Permiso.VER_GLOSAS,
+                Permiso.MODIFICAR_GLOSAS,
+                Permiso.CREAR_GLOSAS,
                 Permiso.VER_LISTAS_DE_ACUERDOS,
                 Permiso.MODIFICAR_LISTAS_DE_ACUERDOS,
                 Permiso.CREAR_LISTAS_DE_ACUERDOS,
@@ -108,32 +126,30 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.MODIFICAR_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_TAREAS,
-                Permiso.MODIFICAR_TAREAS,
                 Permiso.VER_CONSULTAS,
+                Permiso.VER_AGENDAS,
                 Permiso.VER_EDICTOS,
+                Permiso.VER_GLOSAS,
                 Permiso.VER_LISTAS_DE_ACUERDOS,
                 Permiso.VER_SENTENCIAS,
             ],
             "JUZGADO": [
                 Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
-                Permiso.VER_TAREAS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_LISTAS_DE_ACUERDOS,
                 Permiso.MODIFICAR_LISTAS_DE_ACUERDOS,
                 Permiso.CREAR_LISTAS_DE_ACUERDOS,
-                Permiso.VER_SENTENCIAS,
-                Permiso.MODIFICAR_SENTENCIAS,
-                Permiso.CREAR_SENTENCIAS,
             ],
             "SECRETARIA TECNICA": [
                 Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
-                Permiso.VER_TAREAS,
                 Permiso.VER_CONSULTAS,
                 Permiso.MODIFICAR_CONSULTAS,
                 Permiso.CREAR_CONSULTAS,
+                Permiso.VER_AGENDAS,
                 Permiso.VER_EDICTOS,
+                Permiso.VER_GLOSAS,
                 Permiso.VER_LISTAS_DE_ACUERDOS,
                 Permiso.VER_SENTENCIAS,
             ],
@@ -141,7 +157,9 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
+                Permiso.VER_AGENDAS,
                 Permiso.VER_EDICTOS,
+                Permiso.VER_GLOSAS,
                 Permiso.VER_LISTAS_DE_ACUERDOS,
                 Permiso.VER_SENTENCIAS,
             ],
@@ -149,7 +167,9 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
+                Permiso.VER_AGENDAS,
                 Permiso.VER_EDICTOS,
+                Permiso.VER_GLOSAS,
                 Permiso.VER_LISTAS_DE_ACUERDOS,
                 Permiso.VER_SENTENCIAS,
             ],
@@ -168,18 +188,20 @@ class Rol(db.Model, UniversalMixin):
 
     def can_view(self, module):
         """ ¿Tiene permiso para ver? """
-        if module == "usuarios":
-            return True
-        if module in ("bitacoras", "entradas_salidas", "roles"):
+        if module in ("bitacoras", "entradas_salidas", "roles", "usuarios"):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.VER_CATALOGOS)
         if module in ("tareas", "transcripciones"):
             return self.has_permission(Permiso.VER_TAREAS)
-        if module in ("abogados", "glosas", "peritos", "ubicaciones_expedientes"):
+        if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.VER_CONSULTAS)
+        if module == "agendas":
+            return self.has_permission(Permiso.VER_AGENDAS)
         if module == "edictos":
             return self.has_permission(Permiso.VER_EDICTOS)
+        if module == "glosas":
+            return self.has_permission(Permiso.VER_GLOSAS)
         if module == "listas_de_acuerdos":
             return self.has_permission(Permiso.VER_LISTAS_DE_ACUERDOS)
         if module == "sentencias":
@@ -194,10 +216,14 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
         if module in ("tareas", "transcripciones"):
             return self.has_permission(Permiso.MODIFICAR_TAREAS)
-        if module in ("abogados", "glosas", "peritos", "ubicaciones_expedientes"):
+        if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.MODIFICAR_CONSULTAS)
+        if module == "agendas":
+            return self.has_permission(Permiso.MODIFICAR_AGENDAS)
         if module == "edictos":
             return self.has_permission(Permiso.MODIFICAR_EDICTOS)
+        if module == "glosas":
+            return self.has_permission(Permiso.MODIFICAR_GLOSAS)
         if module == "listas_de_acuerdos":
             return self.has_permission(Permiso.MODIFICAR_LISTAS_DE_ACUERDOS)
         if module == "sentencias":
@@ -212,10 +238,14 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
         if module in ("tareas", "transcripciones"):
             return self.has_permission(Permiso.CREAR_TAREAS)
-        if module in ("abogados", "glosas", "peritos", "ubicaciones_expedientes"):
+        if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.CREAR_CONSULTAS)
+        if module == "agendas":
+            return self.has_permission(Permiso.CREAR_AGENDAS)
         if module == "edictos":
             return self.has_permission(Permiso.CREAR_EDICTOS)
+        if module == "glosas":
+            return self.has_permission(Permiso.CREAR_GLOSAS)
         if module == "listas_de_acuerdos":
             return self.has_permission(Permiso.CREAR_LISTAS_DE_ACUERDOS)
         if module == "sentencias":
