@@ -14,7 +14,7 @@ glosas = Blueprint("glosas", __name__, template_folder="templates")
 
 @glosas.before_request
 @login_required
-@permission_required(Permiso.VER_GLOSAS)
+@permission_required(Permiso.VER_JUSTICIABLES)
 def before_request():
     """ Permiso por defecto """
 
@@ -34,7 +34,7 @@ def detail(glosa_id):
 
 
 @glosas.route("/glosas/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_GLOSAS)
+@permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """ Nuevo Glosa """
     form = GlosaForm()
@@ -53,7 +53,7 @@ def new():
 
 
 @glosas.route("/glosas/edicion/<int:glosa_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_GLOSAS)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit(glosa_id):
     """ Editar Glosa """
     glosa = Glosa.query.get_or_404(glosa_id)

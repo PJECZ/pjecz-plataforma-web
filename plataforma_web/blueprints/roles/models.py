@@ -28,30 +28,17 @@ class Permiso:
     MODIFICAR_CONSULTAS = 0b10000000000
     CREAR_CONSULTAS = 0b100000000000
 
-    VER_AGENDAS = 0b1000000000000
-    MODIFICAR_AGENDAS = 0b10000000000000
-    CREAR_AGENDAS = 0b100000000000000
-    ADMINISTRAR_AGENDAS = 0b1000000000000000
+    # Agendas, Glosas, Listas de Acuerdos, Sentencias
+    VER_JUSTICIABLES = 0b1000000000000
+    MODIFICAR_JUSTICIABLES = 0b10000000000000
+    CREAR_JUSTICIABLES = 0b100000000000000
+    ADMINISTRAR_JUSTICIABLES = 0b1000000000000000
 
-    VER_EDICTOS = 0b10000000000000000
-    MODIFICAR_EDICTOS = 0b100000000000000000
-    CREAR_EDICTOS = 0b1000000000000000000
-    ADMINISTRAR_EDICTOS = 0b10000000000000000000
-
-    VER_GLOSAS = 0b100000000000000000000
-    MODIFICAR_GLOSAS = 0b1000000000000000000000
-    CREAR_GLOSAS = 0b10000000000000000000000
-    ADMINISTRAR_GLOSAS = 0b100000000000000000000000
-
-    VER_LISTAS_DE_ACUERDOS = 0b1000000000000000000000000
-    MODIFICAR_LISTAS_DE_ACUERDOS = 0b10000000000000000000000000
-    CREAR_LISTAS_DE_ACUERDOS = 0b100000000000000000000000000
-    ADMINISTRAR_LISTAS_DE_ACUERDOS = 0b1000000000000000000000000000
-
-    VER_SENTENCIAS = 0b10000000000000000000000000000
-    MODIFICAR_SENTENCIAS = 0b100000000000000000000000000000
-    CREAR_SENTENCIAS = 0b1000000000000000000000000000000
-    ADMINISTRAR_SENTENCIAS = 0b10000000000000000000000000000000
+    # Edictos
+    VER_NOTARIALES = 0b10000000000000000
+    MODIFICAR_NOTARIALES = 0b100000000000000000
+    CREAR_NOTARIALES = 0b1000000000000000000
+    ADMINISTRAR_NOTARIALES = 0b10000000000000000000
 
     def __repr__(self):
         """ Representación """
@@ -110,46 +97,40 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_CONSULTAS,
                 Permiso.MODIFICAR_CONSULTAS,
                 Permiso.CREAR_CONSULTAS,
-                Permiso.VER_AGENDAS,
-                Permiso.MODIFICAR_AGENDAS,
-                Permiso.CREAR_AGENDAS,
-                Permiso.ADMINISTRAR_AGENDAS,
-                Permiso.VER_EDICTOS,
-                Permiso.MODIFICAR_EDICTOS,
-                Permiso.CREAR_EDICTOS,
-                Permiso.ADMINISTRAR_EDICTOS,
-                Permiso.VER_GLOSAS,
-                Permiso.MODIFICAR_GLOSAS,
-                Permiso.CREAR_GLOSAS,
-                Permiso.ADMINISTRAR_GLOSAS,
-                Permiso.VER_LISTAS_DE_ACUERDOS,
-                Permiso.MODIFICAR_LISTAS_DE_ACUERDOS,
-                Permiso.CREAR_LISTAS_DE_ACUERDOS,
-                Permiso.ADMINISTRAR_LISTAS_DE_ACUERDOS,
-                Permiso.VER_SENTENCIAS,
-                Permiso.MODIFICAR_SENTENCIAS,
-                Permiso.CREAR_SENTENCIAS,
-                Permiso.ADMINISTRAR_SENTENCIAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.MODIFICAR_JUSTICIABLES,
+                Permiso.CREAR_JUSTICIABLES,
+                Permiso.ADMINISTRAR_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
+                Permiso.MODIFICAR_NOTARIALES,
+                Permiso.CREAR_NOTARIALES,
+                Permiso.ADMINISTRAR_NOTARIALES,
             ],
             "SOPORTE TECNICO": [
                 Permiso.VER_CUENTAS,
                 Permiso.MODIFICAR_CUENTAS,
                 Permiso.VER_CATALOGOS,
-                Permiso.VER_TAREAS,
                 Permiso.VER_CONSULTAS,
-                Permiso.VER_AGENDAS,
-                Permiso.VER_EDICTOS,
-                Permiso.VER_GLOSAS,
-                Permiso.VER_LISTAS_DE_ACUERDOS,
-                Permiso.VER_SENTENCIAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
             ],
             "JUZGADO": [
                 Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
-                Permiso.VER_LISTAS_DE_ACUERDOS,
-                Permiso.MODIFICAR_LISTAS_DE_ACUERDOS,
-                Permiso.CREAR_LISTAS_DE_ACUERDOS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.MODIFICAR_JUSTICIABLES,
+                Permiso.CREAR_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
+            ],
+            "NOTARIA": [
+                Permiso.VER_CUENTAS,
+                Permiso.VER_CATALOGOS,
+                Permiso.VER_CONSULTAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
+                Permiso.MODIFICAR_NOTARIALES,
+                Permiso.CREAR_NOTARIALES,
             ],
             "SECRETARIA TECNICA": [
                 Permiso.VER_CUENTAS,
@@ -157,31 +138,22 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_CONSULTAS,
                 Permiso.MODIFICAR_CONSULTAS,
                 Permiso.CREAR_CONSULTAS,
-                Permiso.VER_AGENDAS,
-                Permiso.VER_EDICTOS,
-                Permiso.VER_GLOSAS,
-                Permiso.VER_LISTAS_DE_ACUERDOS,
-                Permiso.VER_SENTENCIAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
             ],
             "USUARIO": [
                 Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
-                Permiso.VER_AGENDAS,
-                Permiso.VER_EDICTOS,
-                Permiso.VER_GLOSAS,
-                Permiso.VER_LISTAS_DE_ACUERDOS,
-                Permiso.VER_SENTENCIAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
             ],
             "OBSERVADOR": [
                 Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
-                Permiso.VER_AGENDAS,
-                Permiso.VER_EDICTOS,
-                Permiso.VER_GLOSAS,
-                Permiso.VER_LISTAS_DE_ACUERDOS,
-                Permiso.VER_SENTENCIAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
             ],
         }
         rol_por_defecto = "OBSERVADOR"
@@ -206,16 +178,10 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_TAREAS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.VER_CONSULTAS)
-        if module == "agendas":
-            return self.has_permission(Permiso.VER_AGENDAS)
+        if module in ("agendas", "glosas", "listas_de_acuerdos"):
+            return self.has_permission(Permiso.VER_JUSTICIABLES)
         if module == "edictos":
-            return self.has_permission(Permiso.VER_EDICTOS)
-        if module == "glosas":
-            return self.has_permission(Permiso.VER_GLOSAS)
-        if module == "listas_de_acuerdos":
-            return self.has_permission(Permiso.VER_LISTAS_DE_ACUERDOS)
-        if module == "sentencias":
-            return self.has_permission(Permiso.VER_SENTENCIAS)
+            return self.has_permission(Permiso.VER_NOTARIALES)
         return False
 
     def can_insert(self, module):
@@ -228,16 +194,10 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_TAREAS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.MODIFICAR_CONSULTAS)
-        if module == "agendas":
-            return self.has_permission(Permiso.MODIFICAR_AGENDAS)
+        if module in ("agendas", "glosas", "listas_de_acuerdos"):
+            return self.has_permission(Permiso.MODIFICAR_JUSTICIABLES)
         if module == "edictos":
-            return self.has_permission(Permiso.MODIFICAR_EDICTOS)
-        if module == "glosas":
-            return self.has_permission(Permiso.MODIFICAR_GLOSAS)
-        if module == "listas_de_acuerdos":
-            return self.has_permission(Permiso.MODIFICAR_LISTAS_DE_ACUERDOS)
-        if module == "sentencias":
-            return self.has_permission(Permiso.MODIFICAR_SENTENCIAS)
+            return self.has_permission(Permiso.MODIFICAR_NOTARIALES)
         return False
 
     def can_edit(self, module):
@@ -250,30 +210,18 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_TAREAS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.CREAR_CONSULTAS)
-        if module == "agendas":
-            return self.has_permission(Permiso.CREAR_AGENDAS)
+        if module in ("agendas", "glosas", "listas_de_acuerdos"):
+            return self.has_permission(Permiso.CREAR_JUSTICIABLES)
         if module == "edictos":
-            return self.has_permission(Permiso.CREAR_EDICTOS)
-        if module == "glosas":
-            return self.has_permission(Permiso.CREAR_GLOSAS)
-        if module == "listas_de_acuerdos":
-            return self.has_permission(Permiso.CREAR_LISTAS_DE_ACUERDOS)
-        if module == "sentencias":
-            return self.has_permission(Permiso.CREAR_SENTENCIAS)
+            return self.has_permission(Permiso.CREAR_NOTARIALES)
         return False
 
     def can_admin(self, module):
         """ ¿Tiene permiso para administrar? """
-        if module == "agendas":
-            return self.has_permission(Permiso.ADMINISTRAR_SENTENCIAS)
+        if module in ("agendas", "glosas", "listas_de_acuerdos"):
+            return self.has_permission(Permiso.ADMINISTRAR_JUSTICIABLES)
         if module == "edictos":
-            return self.has_permission(Permiso.ADMINISTRAR_EDICTOS)
-        if module == "glosas":
-            return self.has_permission(Permiso.ADMINISTRAR_GLOSAS)
-        if module == "listas_de_acuerdos":
-            return self.has_permission(Permiso.ADMINISTRAR_LISTAS_DE_ACUERDOS)
-        if module == "sentencias":
-            return self.has_permission(Permiso.ADMINISTRAR_SENTENCIAS)
+            return self.has_permission(Permiso.ADMINISTRAR_NOTARIALES)
         return False
 
     def __repr__(self):

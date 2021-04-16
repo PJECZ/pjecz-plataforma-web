@@ -81,6 +81,10 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
         """ ¿Tiene permiso para editar? """
         return self.rol.can_edit(module)
 
+    def can_admin(self, module):
+        """ ¿Tiene permiso para administrar? """
+        return self.rol.can_admin(module)
+
     def launch_task(self, nombre, descripcion, *args, **kwargs):
         """ Arrancar tarea """
         rq_job = current_app.task_queue.enqueue("plataforma_web.blueprints." + nombre, *args, **kwargs)

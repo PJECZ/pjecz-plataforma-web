@@ -1,14 +1,14 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Subir Lista de Acuerdos{% endblock %}
+{% block title %}Subir Lista de Acuerdos para {{ autoridad.clave }}{% endblock %}
 
 {% block custom_head %}
     {{ f.drop_zone_css() }}
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Subir Lista de Acuerdos para ' + autoridad.distrito.nombre + ', ' + autoridad.descripcion) }}
+    {{ f.page('Subir Lista de Acuerdos para ' + autoridad.clave) }}
     <div class="container-fluid">
         {% set form_kwargs = {'autoridad_id': autoridad.id} %}
         {% call f.form_tag_multipart('listas_de_acuerdos.new_for_autoridad', fid='lista_de_acuerdo_form', **form_kwargs) %}

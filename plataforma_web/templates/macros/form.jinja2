@@ -111,43 +111,45 @@
     </form>
 {%- endmacro -%}
 
-{# javascript para formularios con combo distrito/autoridad #}
+{# javascript para combo distrito/autoridad #}
 {%- macro js_select_distrito_autoridad(distritos) -%}
     <script>
-        /**
-         * Combo de opciones para selects distrito / autoridad
-         */
+        let distritos;
+        let autoridades;
+        let encontradoIndice;
         $(document).ready(function() {
-            // Cargar las opciones de distrito
-            {% for distrito in distritos %}
-                $('#distrito').append($('<option>', {
-                    value: {{ loop.index - 1 }},
-                    text: "{{ distrito.nombre }}"
-                }));
-            {% endfor -%}
-            // Cargar las opciones de autoridad
-            var autoridades_opciones = [];
-            {% for distrito in distritos %}
-                var opciones = [];
-                {% for autoridad in distrito.autoridades -%}
-                    opciones.push({
-                        value: {{ autoridad.id }},
-                        text: "{{ autoridad.descripcion }}"
-                    });
-                {% endfor -%}
-                autoridades_opciones.push(opciones);
-            {% endfor %}
-            // Al cambiar el select distrito, cambiar las opciones de autoridad
-            $("#distrito").change(function() {
-                $('#autoridad').empty();
-                autoridades_opciones[$(this).val()].forEach(cargarAutoridades);
+            // Cargar
+            //distritos = [];
+            autoridades = [];
+            {% for autoridad in autoridades %}
+            autoridades.push({
+                value: {{ autoridad.id }},
+                text: "{{ autoridad.descripcion }}"
             });
-            // Al inicio cargar opciones de autoridad con las del primer distrito
-            autoridades_opciones[0].forEach(cargarAutoridades);
-            // Función para cargar opciones opciones de autoridad
-            function cargarAutoridades(value, index, array) {
-                $("#autoridad").append($('<option>', value));
-            };
+            {% endfor %}
+
+
+            //$('#distrito').append($('<option>', {
+            //    value:  distrito.id ,
+            //    text: " distrito.nombre "
+            //}));
+            // distritos.push({
+            //     id:  distrito.id ,
+            //     nombre: " distrito.nombre ",
+            //     autoridades: autoridades
+            // });
+            // Poner las autoridades del primer distrito
+            // distritos[0]['autoridades'].forEach(
+            //     valor_texto => $('#autoridad').append($('<option>', valor_texto))
+            // );
+            // Al cambiar el select distrito, cambiar las opciones de autoridad
+            //$("#distrito").change(function () {
+            //    $('#autoridad').empty();
+            //    encontradoIndice = distritos.findIndex(x => x.id == $(this).val());
+            //    distritos[encontradoIndice]['autoridades'].forEach(
+            //        valor_texto => $('#autoridad').append($('<option>', valor_texto))
+            //    );
+            //});
         });
     </script>
 {%- endmacro -%}

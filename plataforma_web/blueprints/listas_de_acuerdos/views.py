@@ -59,13 +59,13 @@ def subir_archivo(autoridad, fecha, archivo):
     storage_client = storage.Client()
     bucket = storage_client.bucket(DEPOSITO)
     blob = bucket.blob(ruta_str)
-    blob.upload_from_string(archivo.stream.read())
+    blob.upload_from_file(archivo.stream.read())
     return (archivo_str, blob.public_url)
 
 
 @listas_de_acuerdos.before_request
 @login_required
-@permission_required(Permiso.VER_LISTAS_DE_ACUERDOS)
+@permission_required(Permiso.VER_JUSTICIABLES)
 def before_request():
     """ Permiso por defecto """
 
@@ -107,8 +107,8 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
-@permission_required(Permiso.ADMINISTRAR_LISTAS_DE_ACUERDOS)
+@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def refresh(autoridad_id):
     """ Refrescar Listas de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -144,12 +144,13 @@ def search():
             consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
         consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=None, listas_de_acuerdos=consulta)
-    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("listas_de_acuerdos/search.jinja2", form=form_search, distritos=distritos)
+    # distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    return render_template("listas_de_acuerdos/search.jinja2", form=form_search, autoridades=autoridades)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
+@permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """ Nueva Lista de Acuerdos """
     autoridad = current_user.autoridad
@@ -176,8 +177,8 @@ def new():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_LISTAS_DE_ACUERDOS)
-@permission_required(Permiso.ADMINISTRAR_LISTAS_DE_ACUERDOS)
+@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """ Nueva Lista de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -204,7 +205,7 @@ def new_for_autoridad(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_LISTAS_DE_ACUERDOS)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit(lista_de_acuerdo_id):
     """ Editar Lista de Acuerdos """
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
@@ -221,7 +222,7 @@ def edit(lista_de_acuerdo_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/eliminar/<int:lista_de_acuerdo_id>")
-@permission_required(Permiso.MODIFICAR_LISTAS_DE_ACUERDOS)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def delete(lista_de_acuerdo_id):
     """ Eliminar Lista de Acuerdos """
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
@@ -232,7 +233,7 @@ def delete(lista_de_acuerdo_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/recuperar/<int:lista_de_acuerdo_id>")
-@permission_required(Permiso.MODIFICAR_LISTAS_DE_ACUERDOS)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def recover(lista_de_acuerdo_id):
     """ Recuperar Lista de Acuerdos """
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
