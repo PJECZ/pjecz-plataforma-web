@@ -13,7 +13,7 @@ class ListaDeAcuerdoNewForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     fecha = DateField("Fecha", validators=[DataRequired()])
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    descripcion = StringField("Descripción")  # Read only
     archivo = FileField("Archivo", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 

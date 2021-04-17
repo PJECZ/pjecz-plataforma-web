@@ -15,7 +15,7 @@
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.descripcion, readonly=true) %}{% endcall %}
             {% call f.drop_zone_wrapper() %}
                 {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
             {% endcall %}
