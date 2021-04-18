@@ -147,7 +147,7 @@
             // Al cambiar el select distrito, cambiar las opciones de autoridad
             $('#distrito').change(function() {
                 $('#autoridad').empty();
-                console.log($('#distrito').val());
+                cambiarAutoridadesSelect($('#distrito').val());
             });
         });
     </script>
