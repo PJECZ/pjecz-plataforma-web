@@ -112,12 +112,22 @@
 {%- endmacro -%}
 
 {# javascript para combo distrito/autoridad #}
-{%- macro js_select_distrito_autoridad(distritos, autoridades) -%}
+{%- macro js_select_distrito_autoridad(distritos, autoridades, mi_distrito=-1, mi_autoridad=-1) -%}
     <!-- Combo distrito/autoridad -->
     <script>
         let distritos = [];
         let autoridades = [];
+        let mi_distrito = {{ mi_distrito }};
+        let mi_autoridad = {{ mi_autoridad }};
         $(document).ready(function() {
+            // Función
+            function cambiarAutoridadesSelect(distrito_id) {
+                autoridades.forEach(function(item) {
+                    if (item.distrito_id == distrito_id) {
+                        $('#autoridad').append($('<option>', { value: item.id, text: item.descripcion }));
+                    }
+                });
+            }
             // Cargar distritos
             {% for distrito in distritos %}
             distritos.push({ id: {{ distrito.id }}, nombre: "{{ distrito.nombre }}" });
@@ -130,20 +140,14 @@
             distritos.forEach( 
                 item => $('#distrito').append($('<option>', { value: item.id, text: item.nombre })) 
             );
-            // Poner las opciones del primer distrito en el select de autoridades
-            autoridades.forEach(function(item) {
-                if (item.distrito_id == distritos[0].id) {
-                    $('#autoridad').append($('<option>', { value: item.id, text: item.descripcion }));
-                }
-            });
+            // Pendiente seleccionar mi_distrito y mi_autoridad
+            if (mi_distrito == -1) mi_distrito = distritos[0].id;
+            // De inicio, poner las opciones en el select de autoridades
+            cambiarAutoridadesSelect(mi_distrito);
             // Al cambiar el select distrito, cambiar las opciones de autoridad
-            $('#distrito').change(function () {
+            $('#distrito').change(function() {
                 $('#autoridad').empty();
-                autoridades.forEach(function(item) {
-                    if (item.distrito_id == $('#distrito').val()) {
-                        $('#autoridad').append($('<option>', { value: item.id, text: item.descripcion }));
-                    }
-                });
+                console.log($('#distrito').val());
             });
         });
     </script>
