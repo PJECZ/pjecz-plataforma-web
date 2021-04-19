@@ -24,8 +24,9 @@ DIAS_LIMITE = 5
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
 
-def subir_archivo(autoridad, fecha, archivo):
+def subir_archivo(autoridad, fecha, archivo, puede_reemplazar=False):
     """ Subir archivo de lista de acuerdos """
+    hoy = date.today()
     # Validar autoridad
     if not isinstance(autoridad, Autoridad):
         raise ValueError("El juzgado no es del tipo correcto.")
@@ -38,18 +39,21 @@ def subir_archivo(autoridad, fecha, archivo):
     # Validar fecha
     if not isinstance(fecha, date):
         raise ValueError("La fecha no es del tipo correcto.")
-    if fecha > date.today():
+    if fecha > hoy:
         raise ValueError("La fecha no debe ser del futuro.")
-    if fecha < date.today() - timedelta(days=DIAS_LIMITE):
+    if fecha < hoy - timedelta(days=DIAS_LIMITE):
         raise ValueError(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
     # Validar que el archivo sea PDF
     archivo_nombre = secure_filename(archivo.filename.lower())
     if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
         raise ValueError("No es un archivo PDF.")
-    # Si ya existe una lista de acuerdo de mismo día
     lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
-    if lista_de_acuerdo is not None:
-        raise ValueError("No se puede subir porque ya existe una lista de acuerdo con esa fecha.")
+    # Si puede reemplazar
+    if puede_reemplazar and lista_de_acuerdo is not None:
+        raise ValueError("Ya existe una lista de acuerdo con esa fecha. Si va a reemplazar, primero debe eliminarlo.")
+    # Si NO puede reemplazar
+    if puede_reemplazar is False and fecha != hoy:
+        raise ValueError("No puede subir archivos que no sean de hoy.")
     # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
     ano_str = fecha.strftime("%Y")
     mes_str = fecha.strftime("%m")
@@ -59,7 +63,7 @@ def subir_archivo(autoridad, fecha, archivo):
     storage_client = storage.Client()
     bucket = storage_client.bucket(DEPOSITO)
     blob = bucket.blob(ruta_str)
-    blob.upload_from_file(archivo.stream.read())
+    blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
     return (archivo_str, blob.public_url)
 
 
@@ -73,20 +77,21 @@ def before_request():
 @listas_de_acuerdos.route("/listas_de_acuerdos")
 def list_active():
     """ Listado de Listas de Acuerdos activas más recientes """
+    autoridad = None
     activas = ListaDeAcuerdo.query
-    if current_user.can_admin("listas_de_acuerdos"):
-        autoridad = None
-    else:
+    if not current_user.can_admin("listas_de_acuerdos"):
         autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
         activas = activas.filter(ListaDeAcuerdo.autoridad == autoridad)
     activas = activas.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+    if current_user.can_admin("listas_de_acuerdos"):
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=autoridad, listas_de_acuerdos=activas)
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=activas)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/distritos")
 def list_distritos():
     """ Listado de Distritos """
-    distritos = Distrito.query.filter(Distrito.estatus == "A").filter(Distrito.es_distrito_judicial == True).order_by(Distrito.nombre).all()
+    distritos = Distrito.query.filter(Distrito.estatus == "A").filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     return render_template("listas_de_acuerdos/list_distritos.jinja2", distritos=distritos)
 
 
@@ -94,7 +99,7 @@ def list_distritos():
 def list_autoridades(distrito_id):
     """ Listado de Autoridades de un Distrito """
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).order_by(Autoridad.descripcion).all()
+    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.descripcion).all()
     return render_template("listas_de_acuerdos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
 
 
@@ -107,8 +112,8 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.CREAR_JUSTICIABLES)
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(Permiso.CREAR_TAREAS)
 def refresh(autoridad_id):
     """ Refrescar Listas de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -158,7 +163,11 @@ def new():
     if form.validate_on_submit():
         fecha = form.fecha.data
         archivo = request.files["archivo"]
-        archivo_str, url = subir_archivo(autoridad, fecha, archivo)
+        try:
+            archivo_str, url = subir_archivo(autoridad, fecha, archivo)
+        except ValueError as error:
+            flash(error, "error")
+            return redirect(url_for("listas_de_acuerdos.new"))
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=fecha,
@@ -186,7 +195,11 @@ def new_for_autoridad(autoridad_id):
     if form.validate_on_submit():
         fecha = form.fecha.data
         archivo = request.files["archivo"]
-        archivo_str, url = subir_archivo(autoridad, fecha, archivo)
+        try:
+            archivo_str, url = subir_archivo(autoridad, fecha, archivo, puede_reemplazar=True)
+        except ValueError as error:
+            flash(error, "error")
+            return redirect(url_for("listas_de_acuerdos.new_for_autoridad", autoridad_id=autoridad_id))
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=fecha,
@@ -205,7 +218,7 @@ def new_for_autoridad(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def edit(lista_de_acuerdo_id):
     """ Editar Lista de Acuerdos """
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)

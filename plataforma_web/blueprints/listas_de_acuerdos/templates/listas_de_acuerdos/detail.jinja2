@@ -4,13 +4,13 @@
 {% block title %}Lista de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {% call detail.topbar_actions() %}
-        {% if current_user.can_edit('listas_de_acuerdos') %}
-            {{ detail.topbar_actions_option('Editar', url_for('listas_de_acuerdos.edit', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
-            {% if lista_de_acuerdo.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if lista_de_acuerdo.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-        {% endif %}
-    {% endcall %}
+    {% if current_user.can_admin('listas_de_acuerdos') %}
+        {{ detail.topbar_option('Editar', url_for('listas_de_acuerdos.edit', lista_de_acuerdo_id=lista_de_acuerdo.id), 'fas fa-edit') }}
+    {% endif %}
+    {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}
+        {% if lista_de_acuerdo.estatus == 'A' %}{{ detail.topbar_option('Eliminar', 'javascript:showModalDelete()', 'fas fa-trash') }}{% endif %}
+        {% if lista_de_acuerdo.estatus == 'B' %}{{ detail.topbar_option('Recuperar', 'javascript:showModalRecover()', 'fas fa-recycle') }}{% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -25,20 +25,20 @@
             {{ detail.label_value_big('Archivo', lista_de_acuerdo.archivo) }}
             {{ detail.label_value('Tiempo de creación', lista_de_acuerdo.creado) }}
             {{ detail.label_value('Distrito', lista_de_acuerdo.autoridad.distrito.nombre) }}
-            {{ detail.label_value('Autoridad', lista_de_acuerdo.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=lista_de_acuerdo.autoridad_id)) }}
+            {{ detail.label_value('Autoridad', lista_de_acuerdo.autoridad.descripcion) }}
             {{ detail.label_value('Fecha', lista_de_acuerdo.fecha) }}
             {{ detail.label_value('Descripción', lista_de_acuerdo.descripcion) }}
             {{ detail.label_value('Abrir URL', lista_de_acuerdo.archivo, lista_de_acuerdo.url) }}
         {% endcall %}
     </div>
-    {% if current_user.can_edit('listas_de_acuerdos') %}
+    {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}
         {{ detail.modal('Eliminar', '¿Eliminar la lista de acuerdos del ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?', 'modalDelete', url_for('listas_de_acuerdos.delete', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
         {{ detail.modal('Recuperar', '¿Recuperar la lista de acuerdos del ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?', 'modalRecover', url_for('listas_de_acuerdos.recover', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
     {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('listas_de_acuerdos') %}
+    {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}
         {{ detail.custom_javascript_delete_recover() }}
     {% endif %}
 {% endblock %}

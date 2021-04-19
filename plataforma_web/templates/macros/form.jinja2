@@ -22,6 +22,12 @@
     <a href="{{ link }}">{{ label }}</a> /
 {%- endmacro -%}
 
+{%- macro topbar_option(label, url, icon) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
 {# card sirve para contener algo; es necesario para que las tablas sean usables en pantallas chicas #}}
 {%- macro card() -%}
     <div class="card">
@@ -137,8 +143,8 @@
             autoridades.push({ distrito_id: {{ autoridad.distrito_id }}, id: {{ autoridad.id }}, descripcion: "{{ autoridad.descripcion }}" });
             {% endfor %}
             // Opciones select de distritos
-            distritos.forEach( 
-                item => $('#distrito').append($('<option>', { value: item.id, text: item.nombre })) 
+            distritos.forEach(
+                item => $('#distrito').append($('<option>', { value: item.id, text: item.nombre }))
             );
             // Pendiente seleccionar mi_distrito y mi_autoridad
             if (mi_distrito == -1) mi_distrito = distritos[0].id;

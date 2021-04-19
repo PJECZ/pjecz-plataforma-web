@@ -3,6 +3,10 @@
 
 {% block title %}Buscar Listas de Acuerdos{% endblock %}
 
+{% block topbar_actions %}
+    {{ f.topbar_option('Distritos', url_for('listas_de_acuerdos.list_distritos'), 'fas fa-sitemap') }}
+{% endblock %}
+
 {% block content %}
     {{ f.page('Buscar Listas de Acuerdos') }}
     <div class="container-fluid">
