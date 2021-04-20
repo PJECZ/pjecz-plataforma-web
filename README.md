@@ -2,11 +2,15 @@
 
 Administrador de contenidos del sitio web del PJECZ.
 
-## Pasos para preparar el Entorno Virtual
+## Crear Entorno Virtual
 
-Crear el enorno virtual dentro de la copia local del repositorio
+Crear el enorno virtual dentro de la copia local del repositorio, con
 
     python -m venv venv
+
+O con virtualenv
+
+    virtualenv -p python3 venv
 
 Active el entorno virtual, en Linux con...
 
@@ -32,40 +36,52 @@ Verifique con
 
     pip list
 
-## Pasos para configurar para desarrollo local
+## Configurar
 
-Crear su archivo de configuración config/settings.py
+Crear archivo .env con las variables de entorno, por ejemplo:
 
-    # Siempre en falso
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    FLASK_APP=plataforma_web.app
+    FLASK_DEBUG=1
+    SECRET_KEY=****************
+    DB_USER=pjeczadmin
+    DB_PASS=********
+    DB_NAME=pjecz_plataforma_web
+    DB_HOST=127.0.0.1
 
-    # Secret key
+Crear su archivo de configuración instance/settings.py
+
     SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxx'
 
-    # SQLite
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///pjecz_plataforma_web.sqlite3'
+Ejemplo para SQLLite
 
-## Pasos para inicializar la base de datos
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///pjecz_tres_de_tres.sqlite3'
 
-Dentro del entorno virtual, instale el script con...
+Ejemplo para PostgreSQL que obtiene datos de las varaibles de entorno
+
+    import os
+    DB_USER = os.environ.get("DB_USER", "wronguser")
+    DB_PASS = os.environ.get("DB_PASS", "badpassword")
+    DB_NAME = os.environ.get("DB_NAME", "pjecz_tres_de_tres")
+    DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
+    SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
+
+Ejemplo para MariaDB en Justicia (172.30.37.233)
+
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://wronguser:badpassword@172.30.37.233/pjecz_tres_de_tres'
+
+## Cargar registros iniciales
+
+Crear directorio seed
+
+    mkdir seed
+
+Copiar archivos CSV desde Archivista y ponerlos en seed. Ejecutar...
 
     pip install --editable .
-
-Pruebe que funcione
-
-    plataforma_web --help
-
-Para inicializar la base de datos
-
     plataforma_web db inicializar
-
-Copie los archivos CSV desde archivista a seed
-
-Alimentar la base de datos con
-
     plataforma_web db alimentar
 
-Para su conocimiento, reiniciar es inicializar y alimentar
+En el futuro, use reiniciar que es inicializar y alimentar
 
     plataforma_web db reiniciar
 
