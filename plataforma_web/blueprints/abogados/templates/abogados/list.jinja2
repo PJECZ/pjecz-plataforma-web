@@ -4,16 +4,14 @@
 {% block title %}Abogados registrados{% endblock %}
 
 {% block topbar_actions %}
-    {% call list.topbar_actions() %}
-        {{ list.topbar_actions_option('Buscar', url_for('abogados.search')) }}
-        {% if current_user.can_edit('abogados') %}
-            {% if estatus == 'A' %}{{ list.topbar_actions_option('Inactivos', url_for('abogados.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_actions_option('Activos', url_for('abogados.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('abogados') %}
-            {{ list.topbar_actions_option('Nuevo Abogado', url_for('abogados.new')) }}
-        {% endif %}
-    {% endcall %}
+    {{ list.topbar_option('Buscar', url_for('abogados.search'), 'fas fa-search') }}
+    {% if current_user.can_edit('abogados') %}
+        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('abogados.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('abogados.list_active'), 'fas fa-eye') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_insert('abogados') %}
+        {{ list.topbar_option('Nuevo Abogado', url_for('abogados.new'), 'fas fa-plus') }}
+    {% endif %}
 {% endblock %}
 
 {% block content %}
