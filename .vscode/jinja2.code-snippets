@@ -172,5 +172,27 @@
 			""
 		],
 		"description": "Nuevo"
+	},
+	"Jinja2 search": {
+		"scope": "jinja-html",
+		"prefix": "j2_search",
+		"body": [
+			"{% extends 'layouts/app.jinja2' %}",
+			"{% import 'macros/form.jinja2' as f with context %}",
+			"",
+			"{% block title %}Buscar ${1:Titulo}{% endblock %}",
+			"",
+			"{% block content %}",
+			"\t{{ f.page('Buscar ${1:Titulo}') }}",
+			"\t<div class=\"container-fluid\">",
+			"\t\t{% call f.form_tag('${2:blueprint}.search', fid='${3:registro}_search_form') %}",
+			"\t\t\t{% call f.form_group(form.${4:nombre_o_descripcion}) %}{% endcall %}",
+			"\t\t\t{{ form.buscar() }}",
+			"\t\t{% endcall %}",
+			"\t</div>",
+			"{% endblock %}",
+			""
+		],
+		"description": "Buscar"
 	}
 }

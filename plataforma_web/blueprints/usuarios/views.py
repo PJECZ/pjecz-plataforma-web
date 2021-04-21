@@ -15,7 +15,7 @@ from plataforma_web.extensions import pwd_context
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
-from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew, UsuarioFormEdit, CambiarContrasenaForm
+from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew, UsuarioFormEdit, CambiarContrasenaForm, UsuarioSearchForm
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 HTTP_REQUEST = google.auth.transport.requests.Request()
@@ -140,6 +140,28 @@ def detail(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     entradas_salidas = EntradaSalida.query.filter(EntradaSalida.usuario == usuario).order_by(EntradaSalida.creado).limit(100).all()
     return render_template("usuarios/detail.jinja2", usuario=usuario, entradas_salidas=entradas_salidas)
+
+
+@usuarios.route("/usuarios/buscar", methods=["GET", "POST"])
+@login_required
+@permission_required(Permiso.VER_CUENTAS)
+def search():
+    """ Buscar Usuarios """
+    form_search = UsuarioSearchForm()
+    if form_search.validate_on_submit():
+        consulta = Usuario.query
+        if form_search.nombres.data:
+            nombres = form_search.nombres.data.strip()
+            consulta = consulta.filter(Usuario.nombres.like(f"%{nombres}%"))
+        if form_search.apellido_paterno.data:
+            apellido_paterno = form_search.apellido_paterno.data.strip()
+            consulta = consulta.filter(Usuario.apellido_paterno.like(f"%{apellido_paterno}%"))
+        if form_search.apellido_materno.data:
+            apellido_materno = form_search.apellido_materno.data.strip()
+            consulta = consulta.filter(Usuario.apellido_materno.like(f"%{apellido_materno}%"))
+        consulta = consulta.limit(100).all()
+        return render_template("usuarios/list.jinja2", usuarios=consulta)
+    return render_template("usuarios/search.jinja2", form=form_search)
 
 
 @usuarios.route("/usuarios/nuevo", methods=["GET", "POST"])

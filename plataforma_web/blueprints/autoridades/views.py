@@ -47,9 +47,11 @@ def search():
     """ Buscar Autoridades """
     form_search = AutoridadSearchForm()
     if form_search.validate_on_submit():
-        descripcion = form_search.descripcion.data
-        consulta = Autoridad.query.filter(Autoridad.descripcion.ilike(f"%{descripcion}%"))
-        consulta = consulta.order_by(Autoridad.descripcion).limit(100).all()
+        consulta = Autoridad.query
+        if form_search.descripcion.data:
+            descripcion = form_search.descripcion.data.strip()
+            consulta = consulta.filter(Autoridad.descripcion.like(f"%{descripcion}%"))
+        consulta = consulta.limit(100).all()
         return render_template("autoridades/list.jinja2", autoridades=consulta)
     return render_template("autoridades/search.jinja2", form=form_search)
 

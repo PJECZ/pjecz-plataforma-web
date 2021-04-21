@@ -32,4 +32,4 @@ class UbicacionExpedienteSearchForm(FlaskForm):
     """ Formulario para buscar Ubicación de Expediente """
 
     expediente = StringField("Expediente", validators=[DataRequired(), Length(max=256)])
-    guardar = SubmitField("Buscar")
+    buscar = SubmitField("Buscar")

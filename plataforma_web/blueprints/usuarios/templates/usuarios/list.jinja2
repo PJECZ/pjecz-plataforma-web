@@ -4,15 +4,14 @@
 {% block title %}Usuarios{% endblock %}
 
 {% block topbar_actions %}
-    {% call list.topbar_actions() %}
-        {% if current_user.can_edit('usuarios') %}
-            {% if estatus == 'A' %}{{ list.topbar_actions_option('Inactivos', url_for('usuarios.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_actions_option('Activos', url_for('usuarios.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('usuarios') %}
-            {{ list.topbar_actions_option('Nuevo Usuario', url_for('usuarios.new')) }}
-        {% endif %}
-    {% endcall %}
+    {{ list.topbar_option('Buscar', url_for('usuarios.search'), 'fas fa-search') }}
+    {% if current_user.can_edit('usuarios') %}
+        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('usuarios.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('usuarios.list_active'), 'fas fa-eye') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_insert('usuarios') %}
+        {{ list.topbar_option('Nuevo Usuario', url_for('usuarios.new'), 'fas fa-plus') }}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

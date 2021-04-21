@@ -57,7 +57,7 @@ class UsuarioFormEdit(FlaskForm):
 
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
-    apellido_materno = StringField("Apellido materno", validators=[Length(max=256)])
+    apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
     workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
     rol = QuerySelectField(query_factory=roles_opciones, get_label="nombre")
@@ -93,3 +93,12 @@ class CambiarContrasenaForm(FlaskForm):
     )
     contrasena_repetir = PasswordField("Repetir la nueva contraseña")
     actualizar = SubmitField("Actualizar")
+
+
+class UsuarioSearchForm(FlaskForm):
+    """ Formulario para buscar Usuarios """
+
+    nombres = StringField("Nombres", validators=[Optional(), Length(max=256)])
+    apellido_paterno = StringField("Apellido paterno", validators=[Optional(), Length(max=256)])
+    apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
+    buscar = SubmitField("Buscar")

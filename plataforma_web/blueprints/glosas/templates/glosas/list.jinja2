@@ -4,10 +4,13 @@
 {% block title %}Glosas{% endblock %}
 
 {% block topbar_actions %}
+    {{ list.topbar_option('Buscar', url_for('glosas.search'), 'fas fa-search') }}
+    {% if current_user.can_edit('glosas') %}
+        {% if estatus == 'A' %}{{ list.topbar_option('Inactivas', url_for('glosas.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option('Activas', url_for('glosas.list_active'), 'fas fa-eye') }}{% endif %}
+    {% endif %}
     {% if current_user.can_insert('glosas') %}
-        {% call list.topbar_actions() %}
-            {{ list.topbar_actions_option('Nuevo Glosas', url_for('glosas.new')) }}
-        {% endcall %}
+        {{ list.topbar_option('Nueva Glosa', url_for('glosas.new'), 'fas fa-plus') }}
     {% endif %}
 {% endblock %}
 
@@ -15,7 +18,7 @@
     {{ list.page('Glosas') }}
     <div class="container-fluid">
         {% call list.card() %}
-            <table id="glosas_datatable" class="table">
+            <table id="glosas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
                         <th>Fechas</th>

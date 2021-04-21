@@ -4,15 +4,13 @@
 {% block title %}Departamentos{% endblock %}
 
 {% block topbar_actions %}
-    {% call list.topbar_actions() %}
-        {% if current_user.can_edit('distritos') %}
-            {% if estatus == 'A' %}{{ list.topbar_actions_option('Inactivos', url_for('distritos.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_actions_option('Activos', url_for('distritos.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('distritos') %}
-            {{ list.topbar_actions_option('Nuevo Departamento', url_for('distritos.new')) }}
-        {% endif %}
-    {% endcall %}
+    {% if current_user.can_edit('distritos') %}
+        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('distritos.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('distritos.list_active'), 'fas fa-eye') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_insert('distritos') %}
+        {{ list.topbar_option('Nuevo Distrito', url_for('distritos.new'), 'fas fa-plus') }}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

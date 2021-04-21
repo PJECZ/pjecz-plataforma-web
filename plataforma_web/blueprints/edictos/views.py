@@ -7,7 +7,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.edictos.models import Edicto
-from plataforma_web.blueprints.edictos.forms import EdictoForm
+from plataforma_web.blueprints.edictos.forms import EdictoForm, EdictoSearchForm
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
@@ -21,17 +21,16 @@ def before_request():
 
 @edictos.route("/edictos")
 def list_active():
-    """ Listado de Edictos """
-    edictos_activos = Edicto.query.filter(Edicto.estatus == "A").limit(100).all()
-    return render_template("edictos/list.jinja2", edictos=edictos_activos)
+    """ Listado de Edictos activos """
+    edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
+    return render_template("edictos/list.jinja2", edictos=edictos_activos, estatus="A")
 
 
-@edictos.route("/edictos/eliminados")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
-def list_removed():
-    """ Listado de Edictos """
-    edictos_eliminados = Edicto.query.filter(Edicto.estatus == "B").all()
-    return render_template("edictos/list.jinja2", edictos=edictos_eliminados)
+@edictos.route("/edictos/inactivos")
+def list_inactive():
+    """ Listado de Edictos inactivos """
+    edictos_inactivos = Edicto.query.filter(Edicto.estatus == "B").order_by(Edicto.fecha.desc()).limit(100).all()
+    return render_template("edictos/list.jinja2", edictos=edictos_inactivos, estatus="B")
 
 
 @edictos.route("/edictos/<int:edicto_id>")
@@ -39,6 +38,20 @@ def detail(edicto_id):
     """ Detalle de un Edicto """
     edicto = Edicto.query.get_or_404(edicto_id)
     return render_template("edictos/detail.jinja2", edicto=edicto)
+
+
+@edictos.route("/edictos/buscar", methods=["GET", "POST"])
+def search():
+    """ Buscar Edictos """
+    form_search = EdictoSearchForm()
+    if form_search.validate_on_submit():
+        consulta = Edicto.query
+        if form_search.expediente.data:
+            expediente = form_search.expediente.data.strip()
+            consulta = consulta.filter(Edicto.expediente.like(f"%{expediente}%"))
+        consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
+        return render_template("edictos/list.jinja2", edictos=consulta)
+    return render_template("edictos/search.jinja2", form=form_search)
 
 
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])
@@ -93,7 +106,7 @@ def delete(edicto_id):
     edicto = Edicto.query.get_or_404(edicto_id)
     if edicto.estatus == "A":
         edicto.delete()
-        flash(f"Edicto {edicto.descripcion} eliminado.", "success")
+        flash(f"Edicto {edicto.Edicto} eliminado.", "success")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
 
 
@@ -104,5 +117,5 @@ def recover(edicto_id):
     edicto = Edicto.query.get_or_404(edicto_id)
     if edicto.estatus == "B":
         edicto.recover()
-        flash(f"Edicto {edicto.descripcion} recuperado.", "success")
+        flash(f"Edicto {edicto.Edicto} recuperado.", "success")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))

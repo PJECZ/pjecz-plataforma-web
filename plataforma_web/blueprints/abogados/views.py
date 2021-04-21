@@ -60,7 +60,7 @@ def search():
         if form_search.nombre.data:
             nombre = unidecode(form_search.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
             consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
-        consulta = consulta.order_by(Abogado.fecha).limit(100).all()
+        consulta = consulta.order_by(Abogado.fecha.desc()).limit(100).all()
         return render_template("abogados/list.jinja2", abogados=consulta)
     return render_template("abogados/search.jinja2", form=form_search)
 

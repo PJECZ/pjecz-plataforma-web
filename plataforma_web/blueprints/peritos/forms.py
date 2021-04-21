@@ -35,5 +35,5 @@ class PeritoSearchForm(FlaskForm):
 
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre", allow_blank=True)
     nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
-    tipo = SelectField("Tipo", choices=Perito.TIPOS, validators=[Optional()])
+    tipo = SelectField("Tipo", choices=list(Perito.TIPOS), validators=[Optional()])
     buscar = SubmitField("Buscar")

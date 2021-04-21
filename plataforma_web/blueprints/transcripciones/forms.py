@@ -11,7 +11,7 @@ class TranscripcionNewForm(FlaskForm):
     """ Formulario Transcripcion """
 
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
-    expediente = StringField("Expediente", validators=[Optional(), Length(max=24)])
+    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=24)])
     audio = FileField("Archivo de audio FLAC", validators=[FileRequired()])
     guardar = SubmitField("Transcribir")
 
@@ -20,5 +20,13 @@ class TranscripcionEditForm(FlaskForm):
     """ Formulario Transcripcion """
 
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
-    expediente = StringField("Expediente", validators=[Optional(), Length(max=24)])
+    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=24)])
     guardar = SubmitField("Guardar")
+
+
+class TranscripcionSearchForm(FlaskForm):
+    """ Formulario para buscar Transcripciones """
+
+    descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
+    expediente = StringField("Expediente", validators=[Optional(), Length(max=24)])
+    buscar = SubmitField("Buscar")

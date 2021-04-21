@@ -1,12 +1,12 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Buscar Ubicación de Expediente{% endblock %}
+{% block title %}Buscar Glosas{% endblock %}
 
 {% block content %}
-    {{ f.page('Buscar Ubicación de Expediente') }}
+    {{ f.page('Buscar Glosas') }}
     <div class="container-fluid">
-        {% call f.form_tag('ubicaciones_expedientes.search', fid='ubicacion_expediente_search_form') %}
+        {% call f.form_tag('glosas.search', fid='glosa_search_form') %}
             {% call f.form_group(form.expediente) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}

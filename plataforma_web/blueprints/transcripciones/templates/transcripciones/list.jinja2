@@ -4,15 +4,14 @@
 {% block title %}Transcripciones{% endblock %}
 
 {% block topbar_actions %}
-    {% call list.topbar_actions() %}
-        {% if current_user.can_edit('transcripciones') %}
-            {% if estatus == 'A' %}{{ list.topbar_actions_option('Inactivas', url_for('transcripciones.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_actions_option('Activas', url_for('transcripciones.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('transcripciones') %}
-            {{ list.topbar_actions_option('Nueva Transcripción', url_for('transcripciones.new')) }}
-        {% endif %}
-    {% endcall %}
+    {{ list.topbar_option('Buscar', url_for('transcripciones.search'), 'fas fa-search') }}
+    {% if current_user.can_edit('transcripciones') %}
+        {% if estatus == 'A' %}{{ list.topbar_option('Inactivas', url_for('transcripciones.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option('Activas', url_for('transcripciones.list_active'), 'fas fa-eye') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_insert('transcripciones') %}
+        {{ list.topbar_option('Nueva Transcripción', url_for('transcripciones.new'), 'fas fa-plus') }}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

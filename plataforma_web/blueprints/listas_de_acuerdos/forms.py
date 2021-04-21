@@ -27,7 +27,7 @@ class ListaDeAcuerdoEditForm(FlaskForm):
 
 
 class ListaDeAcuerdoSearchForm(FlaskForm):
-    """ Formulario para buscar Abogado """
+    """ Formulario para buscar Lista de Acuerdo """
 
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
