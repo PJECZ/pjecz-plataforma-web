@@ -107,3 +107,20 @@ Para la terminal GNU/Linux...
 Y ejecute Flask
 
     flask run
+
+## Configurar VSCode
+
+Aparte de su configuració particular, agregue el archivo .vscode/settings.json con
+
+    {
+        "editor.formatOnSave": true,
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": ["--line-length", "192"],
+        "python.linting.pylintArgs": ["--max-line-length", "192", "--load-plugins", "pylint_flask_sqlalchemy"]
+    }
+
+Esto habilita
+
+- El formateo del código con [Black](https://black.readthedocs.io/en/stable/)
+- Líneas más largas
+- Reconocimiento de sintaxis de SQLAlchemy
