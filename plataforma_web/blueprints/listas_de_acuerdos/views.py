@@ -77,15 +77,18 @@ def before_request():
 @listas_de_acuerdos.route("/listas_de_acuerdos")
 def list_active():
     """ Listado de Listas de Acuerdos activas más recientes """
-    autoridad = None
-    activas = ListaDeAcuerdo.query
-    if not current_user.can_admin("listas_de_acuerdos"):
-        autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
-        activas = activas.filter(ListaDeAcuerdo.autoridad == autoridad)
-    activas = activas.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+    # Si es administrador, ve las listas de acuerdos de todas las autoridades
     if current_user.can_admin("listas_de_acuerdos"):
-        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=autoridad, listas_de_acuerdos=activas)
-    return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=activas)
+        todas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=todas)
+    # No es administrador, consultar su autoridad
+    autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
+    # Si su autoridad es jurisdiccional
+    if current_user.autoridad.es_jurisdiccional:
+        sus_listas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=sus_listas)
+    # No es jurisdiccional, se redirige al listado de distritos
+    return redirect(url_for("listas_de_acuerdos.list_distritos"))
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/distritos")

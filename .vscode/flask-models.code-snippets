@@ -1,24 +1,20 @@
 {
-    "Flask models top": {
+	"Flask models": {
 		"scope": "python",
-		"prefix": "fmodels_top",
+		"prefix": "fmodels",
 		"body": [
-			"from ${1:web_system}.extensions import db",
+			"\"\"\"",
+			"${1:Modulos}, modelos",
+			"\"\"\"",
+			"from ${2:sistema}.extensions import db",
 			"from lib.universal_mixin import UniversalMixin",
 			"",
-			""
-		],
-		"description": "Cargar paquetes"
-	},
-	"Flask models model": {
-		"scope": "python",
-		"prefix": "fmodels_class",
-		"body": [
-			"class ${1:Class}(db.Model, UniversalMixin):",
-			"\t\"\"\" ${1:Class} \"\"\"",
+			"",
+			"class ${3:Clase}(db.Model, UniversalMixin):",
+			"\t\"\"\" ${3:Clase} \"\"\"",
 			"",
 			"\t# Nombre de la tabla",
-			"\t__tablename__ = '${2:table}'",
+			"\t__tablename__ = '${4:tabla}'",
 			"",
 			"\t# Clave primaria",
 			"\tid = db.Column(db.Integer, primary_key=True)",
@@ -29,21 +25,20 @@
 			"",
 			"\tdef __repr__(self):",
 			"\t\t\"\"\" Representación \"\"\"",
-			"\t\treturn f'<${1:Class} {self.nombre}>'",
-			"",
+			"\t\treturn f'<${3:Clase}>'",
 			""
 		],
-		"description": "Modelo"
+		"description": "Contenido inicial para modelos"
 	},
 	"Flask models foreign key": {
 		"scope": "python",
-		"prefix": "fmodels_class_foreign_key",
+		"prefix": "fmodels_clave_foranea",
 		"body": [
 			"# Clave foránea",
-			"${1:column}_id = db.Column(",
-			"\t'${1:column}',",
+			"${1:columna}_id = db.Column(",
+			"\t'${1:columna}',",
 			"\tdb.Integer,",
-			"\tdb.ForeignKey('${2:table}.id'),",
+			"\tdb.ForeignKey('${2:tabla}.id'),",
 			"\tindex=True,",
 			"\tnullable=False",
 			")",
@@ -53,8 +48,8 @@
 	},
 	"Flask models child": {
 		"scope": "python",
-		"prefix": "fmodels_class_child",
-		"body": "${1:plural} = db.relationship('${2:Name}', backref='${3:column}')",
+		"prefix": "fmodels_hijo",
+		"body": "${1:plural} = db.relationship('${2:Clase}', backref='${3:columna}')",
 		"description": "Hijo"
 	}
 }
