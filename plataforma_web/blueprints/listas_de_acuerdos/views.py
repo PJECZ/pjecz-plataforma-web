@@ -160,7 +160,7 @@ def search():
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
-    """ Nueva Lista de Acuerdos """
+    """ Subir Lista de Acuerdos como juzgado """
     autoridad = current_user.autoridad
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
@@ -181,10 +181,16 @@ def new():
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+    # Si ya hay una lista de acuerdo de hoy, mostrar un mensaje que advierta que se va a reemplazar
+    hoy = date.today()
+    lista_de_hoy = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.fecha == hoy).first()
+    if lista_de_hoy is not None:
+        flash(f"¡ADVERTENCIA! Ya hay una lista de acuerdos del {hoy}. Si la sube se reemplazará.", "warning")
+    # Como juzgados son predefinidos estos campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.descripcion.data = "Lista de Acuerdos"
-    form.fecha.data = date.today()
+    form.fecha.data = hoy
     return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
 
