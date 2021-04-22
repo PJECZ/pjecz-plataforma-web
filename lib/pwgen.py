@@ -14,3 +14,13 @@ def generar_contrasena(largo=16):
     todos = minusculas + mayusculas + digitos + simbolos
     temp = random.sample(todos, largo)
     return "".join(temp)
+
+
+def generar_aleatorio(largo=16):
+    """ Generar contraseña """
+    minusculas = string.ascii_lowercase
+    mayusculas = string.ascii_uppercase
+    digitos = string.digits
+    todos = minusculas + mayusculas + digitos
+    temp = random.sample(todos, largo)
+    return "".join(temp)

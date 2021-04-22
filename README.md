@@ -40,34 +40,39 @@ Verifique con
 
 Crear archivo .env con las variables de entorno, por ejemplo:
 
+    # Flask
     FLASK_APP=plataforma_web.app
     FLASK_DEBUG=1
     SECRET_KEY=****************
+
+O crear archivo instance/settings.py que defina...
+
+    # Flask
+    SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxx'
+
+    # Base de datos en SQLLite
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///pjecz_tres_de_tres.sqlite3'
+
+Ejemplo para PostgreSQL, agregue en .env los datos de conexión
+
+    # Base de datos local
     DB_USER=pjeczadmin
     DB_PASS=********
     DB_NAME=pjecz_plataforma_web
     DB_HOST=127.0.0.1
 
-Crear su archivo de configuración instance/settings.py
-
-    SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxx'
-
-Ejemplo para SQLLite
-
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///pjecz_tres_de_tres.sqlite3'
-
-Ejemplo para PostgreSQL que obtiene datos de las varaibles de entorno
+Y los obtiene por variables de entorno en instace/settings.py
 
     import os
     DB_USER = os.environ.get("DB_USER", "wronguser")
     DB_PASS = os.environ.get("DB_PASS", "badpassword")
-    DB_NAME = os.environ.get("DB_NAME", "pjecz_tres_de_tres")
+    DB_NAME = os.environ.get("DB_NAME", "pjecz_plataforma_web")
     DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
     SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 
 Ejemplo para MariaDB en Justicia (172.30.37.233)
 
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://wronguser:badpassword@172.30.37.233/pjecz_tres_de_tres'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://wronguser:badpassword@172.30.37.233/pjecz_plataforma_web'
 
 ## Cargar registros iniciales
 
@@ -85,7 +90,7 @@ En el futuro, use reiniciar que es inicializar y alimentar
 
     plataforma_web db reiniciar
 
-## Pasos para arrancar el sistema web
+## Arrancar el Flask
 
 En el entorno virtual cargue las variables de entorno
 
@@ -101,8 +106,8 @@ Para la power shell de windows...
 
 Para la terminal GNU/Linux...
 
-    FLASK_APP=plataforma_web.app
-    FLASK_DEBUG=1
+    export FLASK_APP=plataforma_web.app
+    export FLASK_DEBUG=1
 
 Y ejecute Flask
 
@@ -122,5 +127,5 @@ Aparte de su configuració particular, agregue el archivo .vscode/settings.json 
 Esto habilita
 
 - El formateo del código con [Black](https://black.readthedocs.io/en/stable/)
-- Líneas más largas
-- Reconocimiento de sintaxis de SQLAlchemy
+- Líneas más largas de hasta 192 caracteres
+- Reconocimiento de sintaxis de Flask SQLAlchemy
