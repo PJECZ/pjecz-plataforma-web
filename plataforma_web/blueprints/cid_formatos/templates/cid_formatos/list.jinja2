@@ -3,6 +3,16 @@
 
 {% block title %}Formatos{% endblock %}
 
+{% block topbar_actions %}
+    {% if current_user.can_edit('cid_formatos') %}
+        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('cid_formatos.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('cid_formatos.list_active'), 'fas fa-eye') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_insert('cid_formatos') %}
+        {{ list.topbar_option('Nuevo Formato', url_for('cid_formatos.new'), 'fas fa-plus') }}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     {{ list.page('Formatos') }}
     <div class="container-fluid">
@@ -10,12 +20,14 @@
             <table id="cid_formatos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
+                        <th>Procedimientos</th>
                         <th>Formatos</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for cid_formato in cid_formatos %}
                     <tr>
+                        <td>{{ cid_formato.procedimiento.descripcion }}</td>
                         <td><a href="{{ url_for('cid_formatos.detail', cid_formato_id=cid_formato.id) }}">{{ cid_formato.descripcion }}</a></td>
                     </tr>
                     {% endfor %}

@@ -3,11 +3,32 @@
 
 {% block title %}Procedimiento{% endblock %}
 
+{% block topbar_actions %}
+    {% if current_user.can_edit('cid_procedimientos') %}
+        {{ detail.topbar_option('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id), 'fas fa-edit') }}
+        {% if cid_procedimiento.estatus == 'A' %}{{ detail.topbar_option('Eliminar', 'javascript:showModalDelete()', 'fas fa-trash') }}{% endif %}
+        {% if cid_procedimiento.estatus == 'B' %}{{ detail.topbar_option('Recuperar', 'javascript:showModalRecover()', 'fas fa-recycle') }}{% endif %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-    {{ detail.page('Procedimiento') }}
+    {% call detail.page_breadcrumb(cid_procedimiento.id) %}
+        {% if cid_procedimiento.estatus == 'A' %}{{ detail.page_breadcrumb_item('Procedimientos', link=url_for('cid_procedimientos.list_active')) }}{% endif %}
+        {% if cid_procedimiento.estatus == 'B' %}{{ detail.page_breadcrumb_item('Procedimientos inactivos', link=url_for('cid_procedimientos.list_inactive')) }}{% endif %}
+    {% endcall %}
     <div class="container-fluid">
-        {% call detail.card() %}
+        {% call detail.card(estatus=cid_procedimiento.estatus) %}
             {{ detail.label_value_big('Procedimiento', cid_procedimiento.descripcion) }}
         {% endcall %}
     </div>
+    {% if current_user.can_edit('cid_procedimientos') %}
+        {{ detail.modal('Eliminar', '¿Eliminar a ' + cid_procedimiento.descripcion + '?', 'modalDelete', url_for('cid_procedimientos.delete', cid_procedimiento_id=cid_procedimiento.id)) }}
+        {{ detail.modal('Recuperar', '¿Recuperar a ' + cid_procedimiento.descripcion + '?', 'modalRecover', url_for('cid_procedimientos.recover', cid_procedimiento_id=cid_procedimiento.id)) }}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('cid_procedimientos') %}
+        {{ detail.custom_javascript_delete_recover() }}
+    {% endif %}
 {% endblock %}

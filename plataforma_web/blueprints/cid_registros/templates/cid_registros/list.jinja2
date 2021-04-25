@@ -3,6 +3,16 @@
 
 {% block title %}Registros{% endblock %}
 
+{% block topbar_actions %}
+    {% if current_user.can_edit('cid_registros') %}
+        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('cid_registros.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('cid_registros.list_active'), 'fas fa-eye') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_insert('cid_registros') %}
+        {{ list.topbar_option('Nuevo Registro', url_for('cid_registros.new'), 'fas fa-plus') }}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     {{ list.page('Registros') }}
     <div class="container-fluid">
@@ -10,12 +20,18 @@
             <table id="cid_registros_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
+                        <th>Fechas</th>
+                        <th>Procedimientos</th>
+                        <th>Formatos</th>
                         <th>Registros</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for cid_registro in cid_registros %}
                     <tr>
+                        <td>{{ cid_registro.creado.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ cid_registro.formato.procedimiento.descripcion }}</td>
+                        <td>{{ cid_registro.formato.descripcion }}</td>
                         <td><a href="{{ url_for('cid_registros.detail', cid_registro_id=cid_registro.id) }}">{{ cid_registro.descripcion }}</a></td>
                     </tr>
                     {% endfor %}

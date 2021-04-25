@@ -1,0 +1,14 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Nuevo Procedimiento{% endblock %}
+
+{% block content %}
+    {{ f.page('Nuevo Procedimiento') }}
+    <div class="container-fluid">
+        {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form') %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {{ form.guardar() }}
+        {% endcall %}
+    </div>
+{% endblock %}

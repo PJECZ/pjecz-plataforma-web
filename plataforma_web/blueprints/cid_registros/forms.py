@@ -14,8 +14,8 @@ def formatos_opciones():
     return CIDFormato.query.filter(CIDFormato.estatus == "A").order_by(CIDFormato.descripcion).limit(100).all()
 
 
-class RegistroForm(FlaskForm):
-    """ Formulario Registro """
+class CIDRegistroForm(FlaskForm):
+    """ Formulario CID Registro """
 
     formato = QuerySelectField(query_factory=formatos_opciones, get_label="descripcion")
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])

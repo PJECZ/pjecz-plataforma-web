@@ -15,7 +15,7 @@ def procedimientos_opciones():
 
 
 class CIDFormatoForm(FlaskForm):
-    """ Formulario Formato """
+    """ Formulario CID Formato """
 
     procedimiento = QuerySelectField(query_factory=procedimientos_opciones, get_label="descripcion")
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])

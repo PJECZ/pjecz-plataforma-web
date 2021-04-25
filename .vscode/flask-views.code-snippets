@@ -153,7 +153,7 @@
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
 			"\tif ${4:instance}.estatus == 'A':",
 			"\t\t${4:instance}.delete()",
-			"\t\tflash(f'${3:Modulo} {${4:instance}.${5:nombre_o_descripcion}} eliminado.', 'success')",
+			"\t\tflash(f'${3:Modulo} {${4:instance}.${6:nombre_o_descripcion}} eliminado.', 'success')",
 			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${2:column_id}))",
 			"",
 			""
@@ -171,7 +171,7 @@
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
 			"\tif ${4:instance}.estatus == 'B':",
 			"\t\t${4:instance}.recover()",
-			"\t\tflash(f'${3:Modulo} {${4:instance}.${5:nombre_o_descripcion}} recuperado.', 'success')",
+			"\t\tflash(f'${3:Modulo} {${4:instance}.${6:nombre_o_descripcion}} recuperado.', 'success')",
 			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${2:column_id}))",
 			"",
 			""
