@@ -116,7 +116,7 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
-@permission_required(Permiso.CREAR_TAREAS)
+@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
 def refresh(autoridad_id):
     """ Refrescar Listas de Acuerdos """
     autoridad = Autoridad.query.get_or_404(autoridad_id)

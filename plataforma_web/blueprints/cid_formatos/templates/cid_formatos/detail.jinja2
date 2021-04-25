@@ -1,0 +1,14 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Formato{% endblock %}
+
+{% block content %}
+    {{ detail.page('Formato') }}
+    <div class="container-fluid">
+        {% call detail.card() %}
+            {{ detail.label_value_big('Formato', cid_formato.descripcion) }}
+            {{ detail.label_value('Procedimiento', cid_formato.procedimiento.descripcion, url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_formato_id)) }}
+        {% endcall %}
+    </div>
+{% endblock %}

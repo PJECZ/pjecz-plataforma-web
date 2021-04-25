@@ -18,10 +18,10 @@ class Permiso:
     MODIFICAR_CATALOGOS = 0b10000
     CREAR_CATALOGOS = 0b100000
 
-    # Tareas, Transcripciones
-    VER_TAREAS = 0b1000000
-    MODIFICAR_TAREAS = 0b10000000
-    CREAR_TAREAS = 0b100000000
+    # CID, Tareas, Transcripciones
+    VER_ADMINISTRATIVOS = 0b1000000
+    MODIFICAR_ADMINISTRATIVOS = 0b10000000
+    CREAR_ADMINISTRATIVOS = 0b100000000
 
     # Abogados registrados, Peritos, Ubicación de expedientes
     VER_CONSULTAS = 0b1000000000
@@ -91,9 +91,9 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_CATALOGOS,
                 Permiso.MODIFICAR_CATALOGOS,
                 Permiso.CREAR_CATALOGOS,
-                Permiso.VER_TAREAS,
-                Permiso.MODIFICAR_TAREAS,
-                Permiso.CREAR_TAREAS,
+                Permiso.VER_ADMINISTRATIVOS,
+                Permiso.MODIFICAR_ADMINISTRATIVOS,
+                Permiso.CREAR_ADMINISTRATIVOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.MODIFICAR_CONSULTAS,
                 Permiso.CREAR_CONSULTAS,
@@ -174,8 +174,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.VER_CATALOGOS)
-        if module in ("tareas", "transcripciones"):
-            return self.has_permission(Permiso.VER_TAREAS)
+        if module in ("cid_procedimientos", "cid_formatos", "cid_registros", "tareas", "transcripciones"):
+            return self.has_permission(Permiso.VER_ADMINISTRATIVOS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.VER_CONSULTAS)
         if module in ("agendas", "glosas", "listas_de_acuerdos"):
@@ -190,8 +190,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
-        if module in ("tareas", "transcripciones"):
-            return self.has_permission(Permiso.MODIFICAR_TAREAS)
+        if module in ("cid_procedimientos", "cid_formatos", "cid_registros", "tareas", "transcripciones"):
+            return self.has_permission(Permiso.MODIFICAR_ADMINISTRATIVOS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.MODIFICAR_CONSULTAS)
         if module in ("agendas", "glosas", "listas_de_acuerdos"):
@@ -206,8 +206,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
-        if module in ("tareas", "transcripciones"):
-            return self.has_permission(Permiso.CREAR_TAREAS)
+        if module in ("cid_procedimientos", "cid_formatos", "cid_registros", "tareas", "transcripciones"):
+            return self.has_permission(Permiso.CREAR_ADMINISTRATIVOS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.CREAR_CONSULTAS)
         if module in ("agendas", "glosas", "listas_de_acuerdos"):

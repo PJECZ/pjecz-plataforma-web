@@ -18,7 +18,7 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
-    formatos = db.relationship("Formato", backref="procedimiento")
+    formatos = db.relationship("CIDFormato", backref="procedimiento")
 
     def __repr__(self):
         """ Representación """

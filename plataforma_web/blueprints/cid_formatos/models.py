@@ -21,7 +21,7 @@ class CIDFormato(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
-    registros = db.relationship("Registro", backref="formato")
+    registros = db.relationship("CIDRegistro", backref="formato")
 
     def __repr__(self):
         """ Representación """

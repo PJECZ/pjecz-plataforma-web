@@ -1,0 +1,13 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Procedimiento{% endblock %}
+
+{% block content %}
+    {{ detail.page('Procedimiento') }}
+    <div class="container-fluid">
+        {% call detail.card() %}
+            {{ detail.label_value_big('Procedimiento', cid_procedimiento.descripcion) }}
+        {% endcall %}
+    </div>
+{% endblock %}

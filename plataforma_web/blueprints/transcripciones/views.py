@@ -14,7 +14,7 @@ transcripciones = Blueprint("transcripciones", __name__, template_folder="templa
 
 @transcripciones.before_request
 @login_required
-@permission_required(Permiso.VER_TAREAS)
+@permission_required(Permiso.VER_ADMINISTRATIVOS)
 def before_request():
     """ Permiso por defecto """
 
@@ -58,7 +58,7 @@ def search():
 
 
 @transcripciones.route("/transcripciones/nueva", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_TAREAS)
+@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
 def new():
     """ Nueva Transcripción """
     form = TranscripcionNewForm()

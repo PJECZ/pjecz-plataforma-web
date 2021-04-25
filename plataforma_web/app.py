@@ -23,6 +23,10 @@ from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
 from plataforma_web.blueprints.transcripciones.views import transcripciones
 
+from plataforma_web.blueprints.cid_procedimientos.views import cid_procedimientos
+from plataforma_web.blueprints.cid_formatos.views import cid_formatos
+from plataforma_web.blueprints.cid_registros.views import cid_registros
+
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 
@@ -53,6 +57,9 @@ def create_app():
     app.register_blueprint(peritos)
     app.register_blueprint(ubicaciones_expedientes)
     app.register_blueprint(transcripciones)
+    app.register_blueprint(cid_procedimientos)
+    app.register_blueprint(cid_formatos)
+    app.register_blueprint(cid_registros)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)
