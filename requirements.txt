@@ -12,6 +12,7 @@ google-auth
 google-auth-httplib2
 google-cloud-logging
 google-cloud-storage
+hashids
 Jinja2
 passlib
 psycopg2-binary

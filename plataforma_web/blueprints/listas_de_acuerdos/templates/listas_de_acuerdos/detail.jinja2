@@ -28,7 +28,8 @@
             {{ detail.label_value('Autoridad', lista_de_acuerdo.autoridad.descripcion) }}
             {{ detail.label_value('Fecha', lista_de_acuerdo.fecha) }}
             {{ detail.label_value('Descripción', lista_de_acuerdo.descripcion) }}
-            {{ detail.label_value('Abrir URL', lista_de_acuerdo.archivo, lista_de_acuerdo.url) }}
+            {{ detail.label_value('Archivo URL', lista_de_acuerdo.archivo, lista_de_acuerdo.url) }}
+            {{ detail.label_value('Acuse URL', 'De clic aqui', url_for('listas_de_acuerdos.checkout', id_hashed=lista_de_acuerdo.encode_id())) }}
         {% endcall %}
     </div>
     {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}

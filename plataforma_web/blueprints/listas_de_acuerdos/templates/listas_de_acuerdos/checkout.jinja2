@@ -1,0 +1,24 @@
+{% extends 'layouts/public.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Lista de Acuerdos{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="md-col-4"></div>
+            <div class="md-col-6">
+                {% call detail.card(estatus=lista_de_acuerdo.estatus) %}
+                    {{ detail.label_value_big('Archivo', lista_de_acuerdo.archivo) }}
+                    {{ detail.label_value('Tiempo de creación', lista_de_acuerdo.creado) }}
+                    {{ detail.label_value('Distrito', lista_de_acuerdo.autoridad.distrito.nombre) }}
+                    {{ detail.label_value('Autoridad', lista_de_acuerdo.autoridad.descripcion) }}
+                    {{ detail.label_value('Fecha', lista_de_acuerdo.fecha) }}
+                    {{ detail.label_value('Descripción', lista_de_acuerdo.descripcion) }}
+                    {{ detail.label_value('Archivo URL', lista_de_acuerdo.archivo, lista_de_acuerdo.url) }}
+                {% endcall %}
+            </div>
+            <div class="md-col-4"></div>
+        </div>
+    </div>
+{% endblock %}
