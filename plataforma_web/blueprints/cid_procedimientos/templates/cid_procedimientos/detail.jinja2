@@ -5,9 +5,9 @@
 
 {% block topbar_actions %}
     {% if current_user.can_edit('cid_procedimientos') %}
-        {{ detail.topbar_option('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id), 'fas fa-edit') }}
-        {% if cid_procedimiento.estatus == 'A' %}{{ detail.topbar_option('Eliminar', 'javascript:showModalDelete()', 'fas fa-trash') }}{% endif %}
-        {% if cid_procedimiento.estatus == 'B' %}{{ detail.topbar_option('Recuperar', 'javascript:showModalRecover()', 'fas fa-recycle') }}{% endif %}
+        {{ detail.topbar_option_edit('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id)) }}
+        {% if cid_procedimiento.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+        {% if cid_procedimiento.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
     {% endif %}
 {% endblock %}
 

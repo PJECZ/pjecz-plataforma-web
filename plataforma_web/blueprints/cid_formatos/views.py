@@ -27,6 +27,7 @@ def list_active():
 
 
 @cid_formatos.route("/cid_formatos/inactivos")
+@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
 def list_inactive():
     """ Listado de CID Formatos inactivos """
     cid_formatos_inactivos = CIDFormato.query.filter(CIDFormato.estatus == "B").order_by(CIDFormato.creado.desc()).limit(100).all()

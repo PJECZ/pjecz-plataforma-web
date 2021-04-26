@@ -27,6 +27,7 @@ def list_active():
 
 
 @transcripciones.route("/transcripciones/inactivas")
+@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
 def list_inactive():
     """ Listado de Transcripciones inactivas """
     transcripciones_inactivas = Transcripcion.query.filter(Transcripcion.estatus == "B").order_by(Transcripcion.creado.desc()).limit(100).all()

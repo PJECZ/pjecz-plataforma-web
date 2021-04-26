@@ -4,18 +4,19 @@
 {% block title %}Abogados registrados{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('abogados.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('abogados.search')) }}
     {% if current_user.can_edit('abogados') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('abogados.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('abogados.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('abogados.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('abogados.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('abogados') %}
-        {{ list.topbar_option('Nuevo Abogado', url_for('abogados.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nuevo Abogado', url_for('abogados.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Abogados') }}
+    {% if estatus == 'A' %}{{ list.page('Abogados') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Abogados inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="abogados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

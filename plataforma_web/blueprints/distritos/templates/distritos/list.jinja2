@@ -5,16 +5,17 @@
 
 {% block topbar_actions %}
     {% if current_user.can_edit('distritos') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('distritos.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('distritos.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('distritos.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('distritos.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('distritos') %}
-        {{ list.topbar_option('Nuevo Distrito', url_for('distritos.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nuevo Distrito', url_for('distritos.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Departamentos') }}
+    {% if estatus == 'A' %}{{ list.page('Departamentos') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Departamentos inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="distritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

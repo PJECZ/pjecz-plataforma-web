@@ -4,13 +4,11 @@
 {% block title %}Autoridad{% endblock %}
 
 {% block topbar_actions %}
-    {% call detail.topbar_actions() %}
-        {% if current_user.can_edit('autoridades') %}
-            {{ detail.topbar_actions_option('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
-            {% if autoridad.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if autoridad.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-        {% endif %}
-    {% endcall %}
+    {% if current_user.can_edit('autoridades') %}
+        {{ detail.topbar_option_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
+        {% if autoridad.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+        {% if autoridad.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

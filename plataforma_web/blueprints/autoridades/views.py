@@ -28,6 +28,7 @@ def list_active():
 
 
 @autoridades.route("/autoridades/inactivas")
+@permission_required(Permiso.MODIFICAR_CATALOGOS)
 def list_inactive():
     """ Listado de Autoridades inactivas """
     autoridades_inactivas = Autoridad.query.filter(Autoridad.estatus == "B").all()

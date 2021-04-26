@@ -27,6 +27,7 @@ def list_active():
 
 
 @cid_registros.route("/cid_registros/inactivos")
+@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
 def list_inactive():
     """ Listado de CID Registros inactivos """
     cid_registros_inactivos = CIDRegistro.query.filter(CIDRegistro.estatus == "B").order_by(CIDRegistro.creado.desc()).limit(100).all()

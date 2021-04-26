@@ -27,6 +27,7 @@ def list_active():
 
 
 @edictos.route("/edictos/inactivos")
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def list_inactive():
     """ Listado de Edictos inactivos """
     edictos_inactivos = Edicto.query.filter(Edicto.estatus == "B").order_by(Edicto.fecha.desc()).limit(100).all()

@@ -120,12 +120,12 @@ Aparte de su configuració particular, agregue el archivo .vscode/settings.json 
     {
         "editor.formatOnSave": true,
         "python.formatting.provider": "black",
-        "python.formatting.blackArgs": ["--line-length", "192"],
-        "python.linting.pylintArgs": ["--max-line-length", "192", "--load-plugins", "pylint_flask_sqlalchemy"]
+        "python.formatting.blackArgs": ["--line-length", "256"],
+        "python.linting.pylintArgs": ["--max-line-length", "256", "--load-plugins", "pylint_flask_sqlalchemy"]
     }
 
 Esto habilita
 
 - El formateo del código con [Black](https://black.readthedocs.io/en/stable/)
-- Líneas más largas de hasta 192 caracteres
+- Líneas más largas de hasta 256 caracteres
 - Reconocimiento de sintaxis de Flask SQLAlchemy

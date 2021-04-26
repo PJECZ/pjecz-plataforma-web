@@ -4,23 +4,24 @@
 {% block title %}Listas de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('listas_de_acuerdos.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('listas_de_acuerdos.search')) }}
     {{ list.topbar_option('Distritos', url_for('listas_de_acuerdos.list_distritos'), 'fas fa-sitemap') }}
     {% if autoridad %}
         {% if current_user.can_admin('listas_de_acuerdos') %}
-            {{ list.topbar_option('Subir', url_for('listas_de_acuerdos.new_for_autoridad', autoridad_id=autoridad.id), 'fas fa-upload') }}
+            {{ list.topbar_option_upload('Subir', url_for('listas_de_acuerdos.new_for_autoridad', autoridad_id=autoridad.id)) }}
         {% endif %}
         {% if current_user.can_insert('tareas') %}
-            {{ list.topbar_option('Refrescar', url_for('listas_de_acuerdos.refresh', autoridad_id=autoridad.id), 'fas fa-redo') }}
+            {{ list.topbar_option_refresh('Refrescar', url_for('listas_de_acuerdos.refresh', autoridad_id=autoridad.id)) }}
         {% endif %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Listas de Acuerdos') }}
+    {% if estatus == 'A'%}{{ list.page('Listas de Acuerdos') }}{% endif %}
+    {% if estatus == 'B'%}{{ list.page('Listas de Acuerdos inactivas') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
-            <table id="listas_de_acuerdos_datatable" class="table">
+            <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
                         <th>Tiempos</th>

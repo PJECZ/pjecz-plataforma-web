@@ -4,7 +4,7 @@
 {% block title %}Listas de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('listas_de_acuerdos.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('listas_de_acuerdos.search')) }}
 {% endblock %}
 
 {% block content %}

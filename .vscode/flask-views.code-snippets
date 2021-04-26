@@ -18,7 +18,7 @@
 			"",
 			"@${3:blueprint}.before_request",
 			"@login_required",
-			"@permission_required(Permiso.VER_JUSTICIABLES)",
+			"@permission_required(Permiso.VER_)",
 			"def before_request():",
 			"\t\"\"\" Permiso por defecto \"\"\"",
 			"",
@@ -52,6 +52,7 @@
 		"prefix": "fviews_list_inactive",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
+			"@permission_required(Permiso.MODIFICAR_)",
 			"def list_inactive():",
 			"\t\"\"\" Listado de ${2:Modulo} inactivos \"\"\"",
 			"\t${3:registros}_inactivos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'B').order_by(${4:Clase}.creado.desc()).limit(100).all()",
@@ -105,7 +106,7 @@
 		"prefix": "fviews_new",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/nuevo', methods=['GET', 'POST'])",
-			"@permission_required(Permiso.CREAR_CONTENIDOS)",
+			"@permission_required(Permiso.CREAR_)",
 			"def new():",
 			"\t\"\"\" Nuevo ${2:Modulo} \"\"\"",
 			"\tform = ${3:ClassForm}()",
@@ -125,7 +126,7 @@
 		"prefix": "fviews_edit",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/edicion/<int:${2:column_id}>', methods=['GET', 'POST'])",
-			"@permission_required(Permiso.MODIFICAR_CONTENIDOS)",
+			"@permission_required(Permiso.MODIFICAR_)",
 			"def edit(${2:column_id}):",
 			"\t\"\"\" Editar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
@@ -147,7 +148,7 @@
 		"prefix": "fviews_delete",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/eliminar/<int:${2:column_id}>')",
-			"@permission_required(Permiso.MODIFICAR_CONTENIDOS)",
+			"@permission_required(Permiso.MODIFICAR_)",
 			"def delete(${2:column_id}):",
 			"\t\"\"\" Eliminar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
@@ -165,7 +166,7 @@
 		"prefix": "fviews_recover",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/recuperar/<int:${2:column_id}>')",
-			"@permission_required(Permiso.MODIFICAR_CONTENIDOS)",
+			"@permission_required(Permiso.MODIFICAR_)",
 			"def recover(${2:column_id}):",
 			"\t\"\"\" Recuperar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",

@@ -4,13 +4,11 @@
 {% block title %}Perito{% endblock %}
 
 {% block topbar_actions %}
-    {% call detail.topbar_actions() %}
-        {% if current_user.can_edit('peritos') %}
-            {{ detail.topbar_actions_option('Editar', url_for('peritos.edit', perito_id=perito.id)) }}
-            {% if perito.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if perito.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-        {% endif %}
-    {% endcall %}
+    {% if current_user.can_edit('peritos') %}
+        {{ detail.topbar_option_edit('Editar', url_for('peritos.edit', perito_id=perito.id)) }}
+        {% if perito.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+        {% if perito.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

@@ -4,18 +4,19 @@
 {% block title %}Transcripciones{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('transcripciones.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('transcripciones.search')) }}
     {% if current_user.can_edit('transcripciones') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivas', url_for('transcripciones.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activas', url_for('transcripciones.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('transcripciones.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('transcripciones.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('transcripciones') %}
-        {{ list.topbar_option('Nueva Transcripción', url_for('transcripciones.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nueva Transcripción', url_for('transcripciones.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Transcripciones') }}
+    {% if estatus == 'A' %}{{ list.page('Transcripciones') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Transcripciones inactivas') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="transcripciones_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

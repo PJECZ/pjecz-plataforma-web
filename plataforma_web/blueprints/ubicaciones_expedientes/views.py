@@ -29,6 +29,7 @@ def list_active():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/inactivos")
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """ Listado de Ubicaciones de Expedientes inactivos """
     ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(100).all()

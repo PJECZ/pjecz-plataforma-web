@@ -35,12 +35,30 @@
 {%- endmacro -%}
 
 {%- macro topbar_actions_option(label, url) -%}
-    <a class="dropdown-item" href="{{ url }}">{{ label }}</a>
+            <a class="dropdown-item" href="{{ url }}">{{ label }}</a>
 {%- endmacro -%}
 
 {%- macro topbar_option(label, url, icon) -%}
     <li class="nav-item">
         <a class="nav-link" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_option_edit(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-edit"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_option_delete(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-trash"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_option_recover(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-recycle"></i> {{ label }}</a>
     </li>
 {%- endmacro -%}
 

@@ -5,9 +5,9 @@
 
 {% block topbar_actions %}
     {% if current_user.can_edit('cid_formatos') %}
-        {{ detail.topbar_option('Editar', url_for('cid_formatos.edit', cid_formato_id=cid_formato.id), 'fas fa-edit') }}
-        {% if cid_formato.estatus == 'A' %}{{ detail.topbar_option('Eliminar', 'javascript:showModalDelete()', 'fas fa-trash') }}{% endif %}
-        {% if cid_formato.estatus == 'B' %}{{ detail.topbar_option('Recuperar', 'javascript:showModalRecover()', 'fas fa-recycle') }}{% endif %}
+        {{ detail.topbar_option_edit('Editar', url_for('cid_formatos.edit', cid_formato_id=cid_formato.id)) }}
+        {% if cid_formato.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+        {% if cid_formato.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
     {% endif %}
 {% endblock %}
 

@@ -28,6 +28,7 @@ def list_active():
 
 
 @distritos.route("/distritos/inactivos")
+@permission_required(Permiso.MODIFICAR_CATALOGOS)
 def list_inactive():
     """ Listado de Distritos inactivos """
     distritos_inactivos = Distrito.query.filter(Distrito.estatus == "B").all()

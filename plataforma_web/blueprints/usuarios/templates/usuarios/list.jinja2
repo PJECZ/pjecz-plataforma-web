@@ -4,18 +4,19 @@
 {% block title %}Usuarios{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('usuarios.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('usuarios.search')) }}
     {% if current_user.can_edit('usuarios') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('usuarios.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('usuarios.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('usuarios.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('usuarios.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('usuarios') %}
-        {{ list.topbar_option('Nuevo Usuario', url_for('usuarios.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nuevo Usuario', url_for('usuarios.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Usuarios') }}
+    {% if estatus == 'A' %}{{ list.page('Usuarios') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Usuarios inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

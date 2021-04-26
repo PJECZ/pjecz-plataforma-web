@@ -4,18 +4,19 @@
 {% block title %}Edictos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('edictos.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('edictos.search')) }}
     {% if current_user.can_edit('edictos') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('edictos.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('edictos.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('edictos.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('edictos') %}
-        {{ list.topbar_option('Nuevo Edicto', url_for('edictos.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nuevo Edicto', url_for('edictos.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Edictos') }}
+    {% if estatus == 'A' %}{{ list.page('Edictos') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Edictos inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

@@ -4,18 +4,19 @@
 {% block title %}Peritos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('peritos.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('peritos.search')) }}
     {% if current_user.can_edit('peritos') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('peritos.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('peritos.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('peritos.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('peritos.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('peritos') %}
-        {{ list.topbar_option('Nuevo Perito', url_for('peritos.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nuevo Perito', url_for('peritos.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Peritos') }}
+    {% if estatus == 'A' %}{{ list.page('Peritos') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Peritos inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="peritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

@@ -44,6 +44,42 @@
     </li>
 {%- endmacro -%}
 
+{%- macro topbar_option_search(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-search"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_option_new(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-plus"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_option_list_active(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-eye-slash"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_option_list_inactive(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-eye"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_option_refresh(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-redo"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
+{%- macro topbar_option_upload(label, url) -%}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url }}"><i class="fas fa-upload"></i> {{ label }}</a>
+    </li>
+{%- endmacro -%}
+
 {%- macro card() -%}
     <div class="card">
         <div class="card-body">

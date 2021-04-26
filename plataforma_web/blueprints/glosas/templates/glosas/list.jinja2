@@ -4,18 +4,19 @@
 {% block title %}Glosas{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('glosas.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('glosas.search')) }}
     {% if current_user.can_edit('glosas') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivas', url_for('glosas.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activas', url_for('glosas.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('glosas.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('glosas') %}
-        {{ list.topbar_option('Nueva Glosa', url_for('glosas.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nueva Glosa', url_for('glosas.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Glosas') }}
+    {% if estatus == 'A' %}{{ list.page('Glosas') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Glosas inactivas') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="glosas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

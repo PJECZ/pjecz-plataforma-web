@@ -4,13 +4,11 @@
 {% block title %}Usuario{% endblock %}
 
 {% block topbar_actions %}
-    {% call detail.topbar_actions() %}
-        {% if current_user.can_edit('usuarios') %}
-            {{ detail.topbar_actions_option('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
-            {% if usuario.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if usuario.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-        {% endif %}
-    {% endcall %}
+    {% if current_user.can_edit('usuarios') %}
+        {{ detail.topbar_option_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
+        {% if usuario.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+        {% if usuario.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

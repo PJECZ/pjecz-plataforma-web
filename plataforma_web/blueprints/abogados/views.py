@@ -28,6 +28,7 @@ def list_active():
 
 
 @abogados.route("/abogados/inactivos")
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """ Listado de Abogados inactivos """
     abogados_inactivos = Abogado.query.filter(Abogado.estatus == "B").order_by(Abogado.fecha.desc()).limit(100).all()

@@ -1,0 +1,73 @@
+{
+    "Jinja2 detail": {
+        "scope": "jinja-html",
+        "prefix": "j2_detail",
+        "body": [
+            "{% extends 'layouts/app.jinja2' %}",
+            "{% import 'macros/detail.jinja2' as detail with context %}",
+            "",
+            "{% block title %}${1:Titulo}{% endblock %}",
+            "",
+            "{% block content %}",
+            "\t{{ detail.page('${1:Titulo}') }}",
+            "\t<div class=\"container-fluid\">",
+            "\t\t{% call detail.card() %}",
+            "\t\t\t{{ detail.label_value_big('${1:Titulo}', ${2:instancia}.${3:nombre_o_descripcion}) }}",
+            "\t\t{% endcall %}",
+            "\t</div>",
+            "{% endblock %}",
+            ""
+        ],
+        "description": "Detalle"
+    },
+    "Jinja2 detail page breadcrumb": {
+        "scope": "jinja-html",
+        "prefix": "j2_detail_breadcrumb",
+        "body": [
+            "{% call detail.page_breadcrumb(${1:instancia}.${2:nombre_o_descripcion}) %}",
+            "\t{% if ${1:instancia}.estatus == 'A' %}{{ detail.page_breadcrumb_item('${3:Titulos}', link=url_for('${4:blueprint}.list_active')) }}{% endif %}",
+            "\t{% if ${1:instancia}.estatus == 'B' %}{{ detail.page_breadcrumb_item('${3:Titulos} inactivos', link=url_for('${4:blueprint}.list_inactive')) }}{% endif %}",
+            "{% endcall %}"
+        ],
+        "description": "Detalle breadcrumb listados activos e inactivos"
+    },
+    "Jinja2 detail delete recover": {
+        "scope": "jinja-html",
+        "prefix": "j2_detail_edit_delete_recover",
+        "body": [
+            "{% extends 'layouts/app.jinja2' %}",
+            "{% import 'macros/detail.jinja2' as detail with context %}",
+            "",
+            "{% block title %}${1:Titulo}{% endblock %}",
+            "",
+            "{% block topbar_actions %}",
+            "\t{% if current_user.can_edit('${2:blueprint}') %}",
+            "\t\t{{ detail.topbar_option_edit('Editar', url_for('${2:blueprint}.edit', ${3:instancia}_id=${3:instancia}.id)) }}",
+            "\t\t{% if ${3:instancia}.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}",
+            "\t\t{% if ${3:instancia}.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}",
+            "\t{% endif %}",
+            "{% endblock %}",
+            "",
+            "{% block content %}",
+            "\t{{ detail.page('${1:Titulo}') }}",
+            "\t<div class=\"container-fluid\">",
+            "\t\t{% call detail.card(estatus=${3:instancia}.estatus) %}",
+            "\t\t\t{{ detail.label_value_big('${1:Titulo}', ${3:instancia}.${4:nombre_o_descripcion}) }}",
+            "\t\t{% endcall %}",
+            "\t</div>",
+            "\t{% if current_user.can_edit('${2:blueprint}') %}",
+            "\t\t{{ detail.modal('Eliminar', '¿Eliminar a ' + ${3:instancia}.${4:nombre_o_descripcion} + '?', 'modalDelete', url_for('${2:blueprint}.delete', ${3:instancia}_id=${3:instancia}.id)) }}",
+            "\t\t{{ detail.modal('Recuperar', '¿Recuperar a ' + ${3:instancia}.${4:nombre_o_descripcion} + '?', 'modalRecover', url_for('${2:blueprint}.recover', ${3:instancia}_id=${3:instancia}.id)) }}",
+            "\t{% endif %}",
+            "{% endblock %}",
+            "",
+            "{% block custom_javascript %}",
+            "\t{% if current_user.can_edit('${2:blueprint}') %}",
+            "\t\t{{ detail.custom_javascript_delete_recover() }}",
+            "\t{% endif %}",
+            "{% endblock %}",
+            ""
+        ],
+        "description": "Detalle con eliminar y recuperar"
+    }
+}

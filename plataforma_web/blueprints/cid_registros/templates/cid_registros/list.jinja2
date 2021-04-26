@@ -5,16 +5,17 @@
 
 {% block topbar_actions %}
     {% if current_user.can_edit('cid_registros') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivos', url_for('cid_registros.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activos', url_for('cid_registros.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('cid_registros.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('cid_registros.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('cid_registros') %}
-        {{ list.topbar_option('Nuevo Registro', url_for('cid_registros.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nuevo Registro', url_for('cid_registros.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Registros') }}
+    {% if estatus == 'A' %}{{ list.page('Registros') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Registros inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="cid_registros_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

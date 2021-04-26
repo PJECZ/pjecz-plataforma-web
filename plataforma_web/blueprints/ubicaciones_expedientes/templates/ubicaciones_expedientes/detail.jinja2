@@ -4,13 +4,11 @@
 {% block title %}Ubicación de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {% call detail.topbar_actions() %}
-        {% if current_user.can_edit('ubicaciones_expedientes') %}
-            {{ detail.topbar_actions_option('Editar', url_for('ubicaciones_expedientes.edit', ubicacion_expediente_id=ubicacion_expediente.id)) }}
-            {% if ubicacion_expediente.estatus == 'A' %}{{ detail.topbar_actions_option('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if ubicacion_expediente.estatus == 'B' %}{{ detail.topbar_actions_option('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-        {% endif %}
-    {% endcall %}
+    {% if current_user.can_edit('ubicaciones_expedientes') %}
+        {{ detail.topbar_option_edit('Editar', url_for('ubicaciones_expedientes.edit', ubicacion_expediente_id=ubicacion_expediente.id)) }}
+        {% if ubicacion_expediente.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+        {% if ubicacion_expediente.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

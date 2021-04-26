@@ -4,18 +4,19 @@
 {% block title %}Autoridades{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('autoridades.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('autoridades.search')) }}
     {% if current_user.can_edit('autoridades') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivas', url_for('autoridades.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activas', url_for('autoridades.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('autoridades.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('autoridades.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('autoridades') %}
-        {{ list.topbar_option('Nueva Autoridad', url_for('autoridades.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nueva Autoridad', url_for('autoridades.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Autoridades') }}
+    {% if estatus == 'A' %}{{ list.page('Autoridades') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Autoridades inactivas') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="autoridades_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

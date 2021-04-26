@@ -27,6 +27,7 @@ def list_active():
 
 
 @glosas.route("/glosas/inactivos")
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def list_inactive():
     """ Listado de Glosas inactivas """
     glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.fecha.desc()).limit(100).all()

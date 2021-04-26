@@ -4,21 +4,22 @@
 {% block title %}Ubicacion de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option('Buscar', url_for('ubicaciones_expedientes.search'), 'fas fa-search') }}
+    {{ list.topbar_option_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
     {% if current_user.can_edit('ubicaciones_expedientes') %}
-        {% if estatus == 'A' %}{{ list.topbar_option('Inactivas', url_for('ubicaciones_expedientes.list_inactive'), 'fas fa-eye-slash') }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option('Activas', url_for('ubicaciones_expedientes.list_active'), 'fas fa-eye') }}{% endif %}
+        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('ubicaciones_expedientes') %}
-        {{ list.topbar_option('Nueva Ubicación de Expedientes', url_for('ubicaciones_expedientes.new'), 'fas fa-plus') }}
+        {{ list.topbar_option_new('Nueva Ubicación de Expedientes', url_for('ubicaciones_expedientes.new')) }}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ list.page('Ubicación de Expedientes') }}
+    {% if estatus == 'A' %}{{ list.page('Ubicación de Expedientes') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Ubicación de Expedientes inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
-            <table id="ubicaciones_expedientes_datatable" class="table">
+            <table id="ubicaciones_expedientes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
                         <th>Distrito</th>

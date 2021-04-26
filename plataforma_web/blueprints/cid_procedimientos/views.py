@@ -27,6 +27,7 @@ def list_active():
 
 
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
+@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
 def list_inactive():
     """ Listado de CID Procedimientos inactivos """
     cid_procedimientos_inactivos = CIDProcedimiento.query.filter(CIDProcedimiento.estatus == "B").order_by(CIDProcedimiento.creado.desc()).limit(100).all()

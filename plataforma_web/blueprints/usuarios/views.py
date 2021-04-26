@@ -125,7 +125,7 @@ def list_active():
 
 
 @usuarios.route("/usuarios/inactivos")
-@permission_required(Permiso.VER_CUENTAS)
+@permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """ Listado de Usuarios inactivos """
     usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").limit(200).all()

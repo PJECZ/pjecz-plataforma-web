@@ -28,6 +28,7 @@ def list_active():
 
 
 @peritos.route("/peritos/inactivos")
+@permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """ Listado de Peritos inactivos """
     peritos_inactivos = Perito.query.filter(Perito.estatus == "B").order_by(Perito.creado.desc()).limit(100).all()

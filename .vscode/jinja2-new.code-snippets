@@ -1,0 +1,24 @@
+{
+    "Jinja2 new": {
+        "scope": "jinja-html",
+        "prefix": "j2_new",
+        "body": [
+            "{% extends 'layouts/app.jinja2' %}",
+            "{% import 'macros/form.jinja2' as f with context %}",
+            "",
+            "{% block title %}Nuevo ${1:Titulo}{% endblock %}",
+            "",
+            "{% block content %}",
+            "\t{{ f.page('Nuevo ${1:Titulo}') }}",
+            "\t<div class=\"container-fluid\">",
+            "\t\t{% call f.form_tag('${2:blueprint}.new', fid='${3:registro}_form') %}",
+            "\t\t\t{% call f.form_group(form.${4:nombre_o_descripcion}) %}{% endcall %}",
+            "\t\t\t{{ form.guardar() }}",
+            "\t\t{% endcall %}",
+            "\t</div>",
+            "{% endblock %}",
+            ""
+        ],
+        "description": "Nuevo"
+    }
+}

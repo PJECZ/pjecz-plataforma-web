@@ -5,11 +5,11 @@
 
 {% block topbar_actions %}
     {% if current_user.can_admin('listas_de_acuerdos') %}
-        {{ detail.topbar_option('Editar', url_for('listas_de_acuerdos.edit', lista_de_acuerdo_id=lista_de_acuerdo.id), 'fas fa-edit') }}
+        {{ detail.topbar_option_edit('Editar', url_for('listas_de_acuerdos.edit', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
     {% endif %}
     {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}
-        {% if lista_de_acuerdo.estatus == 'A' %}{{ detail.topbar_option('Eliminar', 'javascript:showModalDelete()', 'fas fa-trash') }}{% endif %}
-        {% if lista_de_acuerdo.estatus == 'B' %}{{ detail.topbar_option('Recuperar', 'javascript:showModalRecover()', 'fas fa-recycle') }}{% endif %}
+        {% if lista_de_acuerdo.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+        {% if lista_de_acuerdo.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
     {% endif %}
 {% endblock %}
 
