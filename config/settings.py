@@ -21,3 +21,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # Redis
 REDIS_URL = os.environ.get("REDIS_URL", "redis://")
 TASK_QUEUE = os.environ.get("TASK_QUEUE", "pjecz_plataforma_web")
+
+# Google Cloud Storage
+CLOUD_STORAGE_DEPOSITO = os.environ.get("CLOUD_STORAGE_DEPOSITO", "")
+
+# Host, para los vínculos en los mensajes como <HOST>/ficha/<HASHID>
+HOST = os.environ.get("HOST", "https://plataforma-web-dot-pjecz-268521.uc.r.appspot.com")
