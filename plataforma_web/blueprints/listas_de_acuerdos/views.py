@@ -144,7 +144,7 @@ def refresh(autoridad_id):
     else:
         tarea = current_user.launch_task(
             nombre="listas_de_acuerdos.tasks.refrescar",
-            descripcion=f"Refrescar listas de acuerdos de {autoridad.descripcion} de {autoridad.distrito.nombre}",
+            descripcion=f"Refrescar listas de acuerdos de {autoridad.clave}",
             usuario_id=current_user.id,
             autoridad_id=autoridad.id,
         )
