@@ -23,13 +23,13 @@ db.app = app
 
 @click.group()
 def cli():
-    """ Peritos """
+    """Peritos"""
 
 
 @click.command()
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
-    """ Alimentar insertando registros desde un archivo CSV """
+    """Alimentar insertando registros desde un archivo CSV"""
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -85,7 +85,7 @@ def alimentar(entrada_csv):
 @click.command()
 @click.argument("salida_csv")
 def respaldar(salida_csv):
-    """ Respaldar a un archivo CSV """
+    """Respaldar a un archivo CSV"""
     ruta = Path(salida_csv)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
@@ -118,8 +118,8 @@ def respaldar(salida_csv):
 
 @click.command()
 def borrar():
-    """ Borrar todos los peritos """
-    click.echo("Borrando peritos...")
+    """Borrar todos los peritos de la base de datos"""
+    click.echo("Borrando los peritos en la base de datos...")
     cantidad = db.session.query(Perito).delete()
     db.session.commit()
     click.echo(f"Han sido borrados {str(cantidad)} registros.")

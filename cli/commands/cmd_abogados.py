@@ -2,6 +2,7 @@
 Abogados
 
 - alimentar: Alimentar insertando registros desde un archivo CSV
+- borrar: Borrar todos los abogados de la base de datos
 - respaldar: Respaldar a un archivo CSV
 """
 from datetime import datetime
@@ -21,13 +22,13 @@ db.app = app
 
 @click.group()
 def cli():
-    """ Abogados """
+    """Abogados"""
 
 
 @click.command()
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
-    """ Alimentar la tabla abogados insertando registros desde un archivo CSV """
+    """Alimentar la tabla abogados insertando registros desde un archivo CSV"""
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -62,7 +63,7 @@ def alimentar(entrada_csv):
 @click.argument("salida_csv")
 @click.option("--desde", default="", type=str, help="Fecha de inicio, use AAAA-MM-DD")
 def respaldar(desde, salida_csv):
-    """ Respaldar la tabla abogados a su archivo CSV """
+    """Respaldar la tabla abogados a su archivo CSV"""
     ruta = Path(salida_csv)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
@@ -99,5 +100,15 @@ def respaldar(desde, salida_csv):
     click.echo(f"Respaldados {contador} registros.")
 
 
+@click.command()
+def borrar():
+    """Borrar todos los abogados de la base de datos"""
+    click.echo("Borrando los abogados en la base de datos...")
+    cantidad = db.session.query(Abogado).delete()
+    db.session.commit()
+    click.echo(f"Han sido borrados {str(cantidad)} registros.")
+
+
 cli.add_command(alimentar)
 cli.add_command(respaldar)
+cli.add_command(borrar)

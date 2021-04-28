@@ -4,6 +4,7 @@ Listas de Acuerdos, tareas para ejecutar en el fondo
 import logging
 import os
 from datetime import datetime
+from dateutil.tz import tzutc, tzlocal
 from pathlib import Path
 from unidecode import unidecode
 
@@ -18,7 +19,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
-formato = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
 empunadura = logging.FileHandler("listas_de_acuerdos.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
@@ -66,9 +67,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "pjecz-pruebas")
     # Validad usuario
     usuario = None
-    if usuario_id is None:
-        bitacora.info("- Sin usuario")
-    else:
+    if usuario_id is not None:
         usuario = Usuario.query.get(usuario_id)
         if usuario is None or usuario.estatus != "A":
             return set_task_error("El usuario no existe o no es activo")
@@ -98,22 +97,23 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     contador_insertados = 0
     # Bucle por los archivos en el depósito
     for blob in blobs:
+        # Validar que sea PDF
         ruta = Path(blob.name)
+        if ruta.suffix.lower() != ".pdf":
+            continue
+        # Validar la fecha
         archivo_str = ruta.name
-        # A partir del nombre del archivo
         fecha_str = archivo_str[:10]
         try:
             fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
         except ValueError:
             bitacora.warning("X Fecha incorrecta: %s", ruta)
             continue
-        if ruta.suffix.lower() != ".pdf":
-            bitacora.warning("X No es PDF: %s", ruta)
-            continue
+        # Tomar la descripción
         if len(archivo_str) > 14:  # YYYY-MM-DD.pdf
             descripcion = unidecode(archivo_str[11:-4]).strip().upper()
         else:
-            descripcion = ""
+            descripcion = "Lista de Acuerdo"
         # Si ya existe esa fecha en la BD
         esta_en_bd = True
         try:
@@ -123,9 +123,10 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             esta_en_bd = False
         # Insertar
         if not esta_en_bd:
+            tiempo_local = blob.time_created.astimezone(tzlocal())
             ListaDeAcuerdo(
-                creado=blob.time_created,
-                modificado=blob.time_created,
+                creado=tiempo_local,
+                modificado=tiempo_local,
                 autoridad=autoridad,
                 fecha=fecha,
                 archivo=archivo_str,
