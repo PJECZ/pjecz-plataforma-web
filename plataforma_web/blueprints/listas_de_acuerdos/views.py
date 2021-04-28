@@ -3,12 +3,14 @@ Listas de Acuerdos, vistas
 """
 from datetime import date, timedelta
 from pathlib import Path
+from unidecode import unidecode
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from google.cloud import storage
-from werkzeug.utils import secure_filename
 from werkzeug.datastructures import CombinedMultiDict
+from werkzeug.utils import secure_filename
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -18,27 +20,28 @@ from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNew
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
-# DEPOSITO = current_app.config["CLOUD_STORAGE_DEPOSITO"]
-DEPOSITO = "pjecz-pruebas"
+listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
+
 SUBDIRECTORIO = "Listas de Acuerdos"
 DIAS_LIMITE = 5
 
-listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
-
-def subir_archivo(autoridad, fecha, archivo, puede_reemplazar=False):
+def subir_archivo(autoridad_id: int, fecha: date, archivo: str, puede_reemplazar: bool = False):
     """Subir archivo de lista de acuerdos"""
-    hoy = date.today()
+    # Configuración
+    deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
     # Validar autoridad
-    if not isinstance(autoridad, Autoridad):
-        raise ValueError("El juzgado no es del tipo correcto.")
+    autoridad = Autoridad.query.get(autoridad_id)
+    if autoridad is None or autoridad.estatus != "A":
+        raise ValueError("El juzgado/autoridad no existe o no es activa.")
     if not autoridad.distrito.es_distrito_judicial:
-        raise ValueError("El juzgado no está en un distrito jurisdiccional.")
+        raise ValueError("El juzgado/autoridad no está en un distrito jurisdiccional.")
     if not autoridad.es_jurisdiccional:
-        raise ValueError("El juzgado no es jurisdiccional.")
+        raise ValueError("El juzgado/autoridad no es jurisdiccional.")
     if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
-        raise ValueError("El juzgado no tiene directorio para listas de acuerdos.")
+        raise ValueError("El juzgado/autoridad no tiene directorio para listas de acuerdos.")
     # Validar fecha
+    hoy = date.today()
     if not isinstance(fecha, date):
         raise ValueError("La fecha no es del tipo correcto.")
     if fecha > hoy:
@@ -50,20 +53,21 @@ def subir_archivo(autoridad, fecha, archivo, puede_reemplazar=False):
     if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
         raise ValueError("No es un archivo PDF.")
     lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
-    # Si puede reemplazar
+    # Parar si no puede reemplazar
     if puede_reemplazar and lista_de_acuerdo is not None:
         raise ValueError("Ya existe una lista de acuerdo con esa fecha. Si va a reemplazar, primero debe eliminarlo.")
-    # Si NO puede reemplazar
+    # Si va a reemplazar, que sea de hoy solamente
     if puede_reemplazar is False and fecha != hoy:
-        raise ValueError("No puede subir archivos que no sean de hoy.")
+        raise ValueError("No puede reemplazar archivos que no sean de hoy.")
     # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
     ano_str = fecha.strftime("%Y")
     mes_str = fecha.strftime("%m")
-    archivo_str = fecha.strftime("%Y-%m-%d") + "-lista-de-acuerdos.pdf"
+    fecha_str = fecha.strftime("%Y-%m-%d")
+    archivo_str = fecha_str + "-lista-de-acuerdos.pdf"
     ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
     # Subir archivo a Google Storage
     storage_client = storage.Client()
-    bucket = storage_client.bucket(DEPOSITO)
+    bucket = storage_client.bucket(deposito)
     blob = bucket.blob(ruta_str)
     blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
     return (archivo_str, blob.public_url)
@@ -185,7 +189,11 @@ def new():
         fecha = form.fecha.data
         archivo = request.files["archivo"]
         try:
-            archivo_str, url = subir_archivo(autoridad, fecha, archivo)
+            archivo_str, url = subir_archivo(
+                autoridad_id=autoridad.id,
+                fecha=fecha,
+                archivo=archivo,
+            )
         except ValueError as error:
             flash(error, "error")
             return redirect(url_for("listas_de_acuerdos.new"))
@@ -193,7 +201,7 @@ def new():
             autoridad=autoridad,
             fecha=fecha,
             archivo=archivo_str,
-            descripcion=form.descripcion.data,
+            descripcion=unidecode(form.descripcion.data.strip()),
             url=url,
         )
         lista_de_acuerdo.save()
@@ -203,7 +211,7 @@ def new():
     hoy = date.today()
     lista_de_hoy = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.fecha == hoy).first()
     if lista_de_hoy is not None:
-        flash(f"¡ADVERTENCIA! Ya hay una lista de acuerdos del {hoy}. Si la sube se reemplazará.", "warning")
+        flash("¡ADVERTENCIA! Ya hay una lista de acuerdos de hoy. Si la sube se reemplazará.", "warning")
     # Como juzgados son predefinidos estos campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
@@ -223,7 +231,12 @@ def new_for_autoridad(autoridad_id):
         fecha = form.fecha.data
         archivo = request.files["archivo"]
         try:
-            archivo_str, url = subir_archivo(autoridad, fecha, archivo, puede_reemplazar=True)
+            archivo_str, url = subir_archivo(
+                autoridad_id=autoridad.id,
+                fecha=fecha,
+                archivo=archivo,
+                puede_reemplazar=True,
+            )
         except ValueError as error:
             flash(error, "error")
             return redirect(url_for("listas_de_acuerdos.new_for_autoridad", autoridad_id=autoridad_id))
@@ -231,7 +244,7 @@ def new_for_autoridad(autoridad_id):
             autoridad=autoridad,
             fecha=fecha,
             archivo=archivo_str,
-            descripcion=form.descripcion.data,
+            descripcion=unidecode(form.descripcion.data.strip()),
             url=url,
         )
         lista_de_acuerdo.save()
