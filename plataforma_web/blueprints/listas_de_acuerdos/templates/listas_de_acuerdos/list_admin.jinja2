@@ -24,7 +24,7 @@
             <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
-                        <th>Tiempos</th>
+                        <th>Creados</th>
                         <th>Autoridades</th>
                         <th>Fechas</th>
                         <th>URL</th>
@@ -33,7 +33,7 @@
                 <tbody>
                     {% for lista_de_acuerdo in listas_de_acuerdos %}
                     <tr>
-                        <td>{{ lista_de_acuerdo.modificado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ lista_de_acuerdo.autoridad.clave }}</td>
                         <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.fecha }}</a></td>
                         <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">{{ lista_de_acuerdo.archivo }}</a></td>

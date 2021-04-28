@@ -4,6 +4,7 @@ Listas de Acuerdos, tareas para ejecutar en el fondo
 import logging
 from datetime import datetime
 from pathlib import Path
+from unidecode import unidecode
 
 import google.cloud.storage
 from rq import get_current_job
@@ -75,6 +76,8 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     autoridad = Autoridad.query.get(autoridad_id)
     if autoridad is None or autoridad.estatus != "A":
         return set_task_error("La autoridad no existe o no es activa")
+    if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
+        return set_task_error("La autoridad no tiene directorio para listas de acuerdos")
     bitacora.info("- Autoridad %s", autoridad.clave)
     # Consultar las listas de acuerdos en la base de datos
     listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).all()
@@ -87,7 +90,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     blobs = list(bucket.list_blobs(prefix=subdirectorio))
     total_en_deposito = len(blobs)
     if total_en_deposito == 0:
-        return set_task_error("No existe o no hay archivos en {subdirectorio}")
+        return set_task_error(f"No existe o no hay archivos en {subdirectorio}")
     bitacora.info("- En Storage hay %d archivos", total_en_deposito)
     # Poner el progreso de la tarea y los contadores en cero
     set_task_progress(0)
@@ -107,7 +110,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             bitacora.warning("X No es PDF: %s", ruta)
             continue
         if len(archivo_str) > 14:  # YYYY-MM-DD.pdf
-            descripcion = archivo_str[11:-4].strip()
+            descripcion = unidecode(archivo_str[11:-4]).strip().upper()
         else:
             descripcion = ""
         # Si ya existe esa fecha en la BD
@@ -120,6 +123,8 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # Insertar
         if not esta_en_bd:
             ListaDeAcuerdo(
+                creado=blob.time_created,
+                modificado=blob.time_created,
                 autoridad=autoridad,
                 fecha=fecha,
                 archivo=archivo_str,

@@ -72,8 +72,7 @@ def subir_archivo(autoridad, fecha, archivo, puede_reemplazar=False):
 @listas_de_acuerdos.route("/listas_de_acuerdos/acuses/<id_hashed>")
 def checkout(id_hashed):
     """Acuse"""
-    lista_de_acuerdo_id = ListaDeAcuerdo.decode_id(id_hashed)
-    lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
+    lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(ListaDeAcuerdo.decode_id(id_hashed))
     return render_template("listas_de_acuerdos/checkout.jinja2", lista_de_acuerdo=lista_de_acuerdo)
 
 
@@ -156,7 +155,6 @@ def refresh(autoridad_id):
 def detail(lista_de_acuerdo_id):
     """Detalle de una Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
-    flash("Prueba " + lista_de_acuerdo.encode_id(), "info")
     return render_template("listas_de_acuerdos/detail.jinja2", lista_de_acuerdo=lista_de_acuerdo)
 
 
