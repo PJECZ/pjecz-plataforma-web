@@ -169,13 +169,14 @@ def search():
     """Buscar Lista de Acuerdos"""
     form_search = ListaDeAcuerdoSearchForm()
     if form_search.validate_on_submit():
-        consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == form_search.autoridad.data)
+        autoridad = Autoridad.query.get(form_search.autoridad.data)
+        consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad)
         if form_search.fecha_desde.data:
             consulta = consulta.filter(ListaDeAcuerdo.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
         consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
-        return render_template("listas_de_acuerdos/list.jinja2", autoridad=None, listas_de_acuerdos=consulta)
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("listas_de_acuerdos/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
