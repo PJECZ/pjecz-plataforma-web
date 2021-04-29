@@ -10,6 +10,7 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
+from lib.time_to_text import dia_mes_ano
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -77,7 +78,8 @@ def subir_archivo(autoridad_id: int, fecha: date, archivo: str, puede_reemplazar
 def checkout(id_hashed):
     """Acuse"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(ListaDeAcuerdo.decode_id(id_hashed))
-    return render_template("listas_de_acuerdos/checkout.jinja2", lista_de_acuerdo=lista_de_acuerdo)
+    dia, mes, ano = dia_mes_ano(lista_de_acuerdo.creado)
+    return render_template("listas_de_acuerdos/checkout.jinja2", lista_de_acuerdo=lista_de_acuerdo, dia=dia, mes=mes.upper(), ano=ano)
 
 
 @listas_de_acuerdos.before_request

@@ -1,24 +1,39 @@
 {% extends 'layouts/public.jinja2' %}
 {% import 'macros/detail.jinja2' as detail with context %}
 
-{% block title %}Lista de Acuerdos{% endblock %}
+{% block title %}Constancia de Recepción de Documentos{% endblock %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="md-col-4"></div>
-            <div class="md-col-6">
-                {% call detail.card(estatus=lista_de_acuerdo.estatus) %}
-                    {{ detail.label_value_big('Archivo', lista_de_acuerdo.archivo) }}
-                    {{ detail.label_value('Tiempo de creación', lista_de_acuerdo.creado) }}
-                    {{ detail.label_value('Distrito', lista_de_acuerdo.autoridad.distrito.nombre) }}
-                    {{ detail.label_value('Autoridad', lista_de_acuerdo.autoridad.descripcion) }}
-                    {{ detail.label_value('Fecha', lista_de_acuerdo.fecha) }}
-                    {{ detail.label_value('Descripción', lista_de_acuerdo.descripcion) }}
-                    {{ detail.label_value_new_tab('Lista de Acuerdos PDF URL', lista_de_acuerdo.archivo, lista_de_acuerdo.url) }}
-                {% endcall %}
-            </div>
-            <div class="md-col-4"></div>
+    <div class="container py-2">
+        <div class="text-center py-2">
+            <h2>PODER JUDICIAL<br>DEL ESTADO DE COAHUILA DE ZARAGOZA<h2>
+            <h3>CONSTANCIA DE RECEPCIÓN DE DOCUMENTOS</h3>
+        </div>
+        <div class="py-2">
+            <p>
+                Fecha {{ lista_de_acuerdo.creado }}<br>
+                ID LA{{ lista_de_acuerdo.id }}<br>
+                <strong>{{ lista_de_acuerdo.autoridad.descripcion }}</strong><br>
+                <strong>{{ lista_de_acuerdo.autoridad.distrito.nombre }}</strong>
+            </p>
+        </div>
+        <div class="text-center py-2">
+            <h3>P R E S E N T E</h3>
+        </div>
+        <div class="py-2">
+            <p>Por este medio se confirma la recepción de su documento:</p>
+            <ul>
+                <li>{{ lista_de_acuerdo.archivo }}</li>
+            </ul>
+            <p>Mismo que estará disponible en el sitio web del Poder Judicial de Coahuila de Zaragoza a la brevedad.</p>
+            <p>Lo anterior para los efectos legales que haya lugar.</p>
+        </div>
+        <div class="text-center py-2">
+            <p><strong>
+                ATENTAMENTE<br>
+                SALTILLO, COAHUILA DE ZARAGOZA, A {{ dia }} DE {{ mes }} DE {{ ano }}<br>
+                DIRECCIÓN DE INFORMÁTICA
+            </strong></p>
         </div>
     </div>
 {% endblock %}
