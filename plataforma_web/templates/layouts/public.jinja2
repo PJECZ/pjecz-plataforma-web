@@ -1,33 +1,11 @@
 {% extends 'layouts/base.jinja2' %}
 
 {% block main %}
-    <div id="main-wrapper">
-        <!-- Topbar -->
-        <header class="topbar" data-navbarbg="skin5">
-            <nav class="navbar top-navbar navbar-expand-md navbar-dark">
-                <!-- Topbar logo -->
-                <div class="navbar-header" data-logobg="skin5">
-                    <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="#"><i class="ti-menu ti-close"></i></a>
-                    <a class="navbar-brand" href="https://www.pjecz.gob.mx/">
-                        <!-- Topbar logo icon -->
-                        <b class="logo-icon p-l-10">
-                            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="homepage" class="light-logo" />
-                        </b>
-                        <!-- Topbar logo text -->
-                        <span class="logo-text">
-                            <img src="{{ url_for('static', filename='images/logo-text.png') }}" alt="homepage" class="light-logo" />
-                        </span>
-                    </a>
-                    <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="#" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><i class="ti-more"></i></a>
-                </div>
-            </nav>
-        </header>
-        <!-- Page wrapper -->
-        <div class="page-wrapper">
-            {% block content %}{% endblock %}
-            <footer class="footer text-center">
-                <a href="https://www.pjecz.gob.mx/">Poder Judicial del Estado de Coahuila de Zaragoza</a>.
-            </footer>
+    <div class="auth-wrapper d-flex no-block justify-content-center align-items-center">
+        <div class="auth-box">
+            <div class="py-3 text-center">
+                {% block content %}{% endblock %}
+            </div>
         </div>
     </div>
 {% endblock %}

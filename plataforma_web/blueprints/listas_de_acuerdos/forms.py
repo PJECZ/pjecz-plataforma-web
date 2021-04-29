@@ -8,18 +8,18 @@ from wtforms.validators import DataRequired, Length, Optional
 
 
 class ListaDeAcuerdoNewForm(FlaskForm):
-    """ Formulario Lista de Acuerdo """
+    """Formulario Lista de Acuerdo"""
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción")  # Read only
-    archivo = FileField("Archivo", validators=[FileRequired()])
+    archivo = FileField("Lista de Acuerdos PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
 
 class ListaDeAcuerdoEditForm(FlaskForm):
-    """ Formulario Lista de Acuerdo """
+    """Formulario Lista de Acuerdo"""
 
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
@@ -27,7 +27,7 @@ class ListaDeAcuerdoEditForm(FlaskForm):
 
 
 class ListaDeAcuerdoSearchForm(FlaskForm):
-    """ Formulario para buscar Lista de Acuerdo """
+    """Formulario para buscar Lista de Acuerdo"""
 
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS

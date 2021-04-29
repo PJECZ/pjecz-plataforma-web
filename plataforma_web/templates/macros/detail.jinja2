@@ -90,6 +90,17 @@
     </div>
 {%- endmacro -%}
 
+{%- macro label_value_new_tab(label, value, link) -%}
+    <div class="row">
+        <div class="col-md-3 text-right">
+            {{ label }}
+        </div>
+        <div class="col-md-9">
+            <strong><a href="{{ link }}" target="_blank">{{ value }} <i class="fas fa-external-link-alt"></i></a></strong>
+        </div>
+    </div>
+{%- endmacro -%}
+
 {%- macro label_value_big(label, value, link='') -%}
     <div class="row">
         <div class="col-md-3 text-right">

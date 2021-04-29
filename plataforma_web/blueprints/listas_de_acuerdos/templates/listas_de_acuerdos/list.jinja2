@@ -38,7 +38,7 @@
                     <tr>
                         <th>Fechas</th>
                         <th>Descripciones</th>
-                        <th>URL</th>
+                        <th>Listas de Acuerdos PDF URL</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,7 +46,7 @@
                     <tr>
                         <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.fecha }}</a></td>
                         <td>{{ lista_de_acuerdo.descripcion }}</td>
-                        <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">{{ lista_de_acuerdo.archivo }}</a></td>
+                        <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">{{ lista_de_acuerdo.archivo }} <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
