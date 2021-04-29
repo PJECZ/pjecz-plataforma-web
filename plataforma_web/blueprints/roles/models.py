@@ -6,7 +6,7 @@ from lib.universal_mixin import UniversalMixin
 
 
 class Permiso:
-    """ Permiso tiene como constantes enteros de potencia dos """
+    """Permiso tiene como constantes enteros de potencia dos"""
 
     # Usuarios, Bitácoras, Entradas-Salidas, Roles
     VER_CUENTAS = 0b1
@@ -41,12 +41,12 @@ class Permiso:
     ADMINISTRAR_NOTARIALES = 0b10000000000000000000
 
     def __repr__(self):
-        """ Representación """
+        """Representación"""
         return "<Permiso>"
 
 
 class Rol(db.Model, UniversalMixin):
-    """ Rol """
+    """Rol"""
 
     # Nombre de la tabla
     __tablename__ = "roles"
@@ -63,26 +63,26 @@ class Rol(db.Model, UniversalMixin):
     usuarios = db.relationship("Usuario", backref="rol")
 
     def add_permission(self, perm):
-        """ Agregar permiso """
+        """Agregar permiso"""
         if not self.has_permission(perm):
             self.permiso += perm
 
     def remove_permission(self, perm):
-        """ Retirar permiso """
+        """Retirar permiso"""
         if self.has_permission(perm):
             self.permiso -= perm
 
     def reset_permissions(self):
-        """ Poner permisos a cero """
+        """Poner permisos a cero"""
         self.permiso = 0
 
     def has_permission(self, perm):
-        """ ¿Tiene el permiso dado? """
+        """¿Tiene el permiso dado?"""
         return self.permiso & perm == perm
 
     @staticmethod
     def insert_roles():
-        """ Insertar roles iniciales """
+        """Insertar roles iniciales"""
         roles = {
             "ADMINISTRADOR": [
                 Permiso.VER_CUENTAS,
@@ -169,7 +169,7 @@ class Rol(db.Model, UniversalMixin):
         db.session.commit()
 
     def can_view(self, module):
-        """ ¿Tiene permiso para ver? """
+        """¿Tiene permiso para ver?"""
         if module in ("bitacoras", "entradas_salidas", "roles", "usuarios"):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ("distritos", "autoridades"):
@@ -178,14 +178,14 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_ADMINISTRATIVOS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.VER_CONSULTAS)
-        if module in ("agendas", "glosas", "listas_de_acuerdos"):
+        if module in ("agendas", "glosas", "listas_de_acuerdos", "sentencias"):
             return self.has_permission(Permiso.VER_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.VER_NOTARIALES)
         return False
 
     def can_insert(self, module):
-        """ ¿Tiene permiso para agregar? """
+        """¿Tiene permiso para agregar?"""
         if module == "usuarios":
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ("distritos", "autoridades"):
@@ -194,14 +194,14 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_ADMINISTRATIVOS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.MODIFICAR_CONSULTAS)
-        if module in ("agendas", "glosas", "listas_de_acuerdos"):
+        if module in ("agendas", "glosas", "listas_de_acuerdos", "sentencias"):
             return self.has_permission(Permiso.MODIFICAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.MODIFICAR_NOTARIALES)
         return False
 
     def can_edit(self, module):
-        """ ¿Tiene permiso para editar? """
+        """¿Tiene permiso para editar?"""
         if module == "usuarios":
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ("distritos", "autoridades"):
@@ -210,20 +210,20 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_ADMINISTRATIVOS)
         if module in ("abogados", "peritos", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.CREAR_CONSULTAS)
-        if module in ("agendas", "glosas", "listas_de_acuerdos"):
+        if module in ("agendas", "glosas", "listas_de_acuerdos", "sentencias"):
             return self.has_permission(Permiso.CREAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.CREAR_NOTARIALES)
         return False
 
     def can_admin(self, module):
-        """ ¿Tiene permiso para administrar? """
-        if module in ("agendas", "glosas", "listas_de_acuerdos"):
+        """¿Tiene permiso para administrar?"""
+        if module in ("agendas", "glosas", "listas_de_acuerdos", "sentencias"):
             return self.has_permission(Permiso.ADMINISTRAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.ADMINISTRAR_NOTARIALES)
         return False
 
     def __repr__(self):
-        """ Representación """
+        """Representación"""
         return f"<Rol {self.nombre}>"

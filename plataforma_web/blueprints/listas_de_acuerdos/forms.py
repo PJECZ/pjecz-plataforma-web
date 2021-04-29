@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired, Length, Optional
 
 
 class ListaDeAcuerdoNewForm(FlaskForm):
-    """Formulario Lista de Acuerdo"""
+    """Formulario para nueva Lista de Acuerdo"""
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
@@ -19,7 +19,7 @@ class ListaDeAcuerdoNewForm(FlaskForm):
 
 
 class ListaDeAcuerdoEditForm(FlaskForm):
-    """Formulario Lista de Acuerdo"""
+    """Formulario para editar Lista de Acuerdo"""
 
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])

@@ -1,15 +1,15 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/list.jinja2' as list with context %}
 
-{% block title %}Listas de Acuerdos - Distritos{% endblock %}
+{% block title %}Versiones Públicas de Sentencias - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('listas_de_acuerdos.search')) }}
+    {{ list.topbar_option_search('Buscar', url_for('sentencias.search')) }}
 {% endblock %}
 
 {% block content %}
     {% call list.page_breadcrumb('Distritos') %}
-        {{ list.page_breadcrumb_item('Listas de Acuerdos', link=url_for('listas_de_acuerdos.list_active')) }}
+        {{ list.page_breadcrumb_item('V.P. Sentencias', link=url_for('sentencias.list_active')) }}
     {% endcall %}
     <div class="container-fluid">
         {% call list.card() %}
@@ -22,7 +22,7 @@
                 <tbody>
                     {% for distrito in distritos %}
                     <tr>
-                        <td><a href="{{ url_for('listas_de_acuerdos.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
+                        <td><a href="{{ url_for('sentencias.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

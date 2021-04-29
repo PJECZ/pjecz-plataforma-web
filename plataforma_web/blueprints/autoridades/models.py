@@ -6,7 +6,7 @@ from lib.universal_mixin import UniversalMixin
 
 
 class Autoridad(db.Model, UniversalMixin):
-    """ Autoridad """
+    """Autoridad"""
 
     # Nombre de la tabla
     __tablename__ = "autoridades"
@@ -27,9 +27,10 @@ class Autoridad(db.Model, UniversalMixin):
     # Hijos
     glosas = db.relationship("Glosa", backref="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", backref="autoridad", lazy="noload")
+    sentencias = db.relationship("Sentencia", backref="autoridad", lazy="noload")
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", backref="autoridad", lazy="noload")
     usuarios = db.relationship("Usuario", backref="autoridad")
 
     def __repr__(self):
-        """ Representación """
+        """Representación"""
         return f"<Autoridad {self.descripcion}>"

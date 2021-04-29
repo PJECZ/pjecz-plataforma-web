@@ -15,8 +15,8 @@ from lib.time_to_text import dia_mes_ano
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm
+from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
@@ -53,8 +53,8 @@ def subir_archivo(autoridad_id: int, fecha: date, archivo: str, puede_reemplazar
     archivo_nombre = secure_filename(archivo.filename.lower())
     if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
         raise ValueError("No es un archivo PDF.")
+    # Sacar si ya existe y no puede reemplazar
     lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
-    # Parar si no puede reemplazar
     if puede_reemplazar and lista_de_acuerdo is not None:
         raise ValueError("Ya existe una lista de acuerdo con esa fecha. Si va a reemplazar, primero debe eliminarlo.")
     # Si va a reemplazar, que sea de hoy solamente
@@ -98,7 +98,7 @@ def list_active():
         return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=todas, estatus="A")
     # No es administrador, consultar su autoridad
     autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
-    # Si su autoridad es jurisdiccional
+    # Si su autoridad es jurisdiccional, ve sus propias listas de acuerdos
     if current_user.autoridad.es_jurisdiccional:
         sus_listas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=sus_listas, estatus="A")
@@ -115,7 +115,7 @@ def list_distritos():
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/distrito/<int:distrito_id>")
 def list_autoridades(distrito_id):
-    """Listado de Autoridades de un Distrito"""
+    """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
     autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.descripcion).all()
     return render_template("listas_de_acuerdos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades, estatus="A")
@@ -123,7 +123,7 @@ def list_autoridades(distrito_id):
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/autoridad/<int:autoridad_id>")
 def list_autoridad_listas_de_acuerdos(autoridad_id):
-    """Listado de Listas de Acuerdos activas de una Autoridad"""
+    """Listado de Listas de Acuerdos activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_activas, estatus="A")
@@ -132,7 +132,7 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 @listas_de_acuerdos.route("/listas_de_acuerdos/inactivos/autoridad/<int:autoridad_id>")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
-    """Listado de Listas de Acuerdos inactivas de una Autoridad"""
+    """Listado de Listas de Acuerdos inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     listas_de_acuerdos_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.creado.desc()).limit(100).all()
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_inactivas, estatus="B")
@@ -215,7 +215,7 @@ def new():
     lista_de_hoy = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.fecha == hoy).first()
     if lista_de_hoy is not None:
         flash("¡ADVERTENCIA! Ya hay una lista de acuerdos de hoy. Si la sube se reemplazará.", "warning")
-    # Como juzgados son predefinidos estos campos
+    # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.descripcion.data = "Lista de Acuerdos"
@@ -227,7 +227,7 @@ def new():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
-    """Nueva Lista de Acuerdos"""
+    """Nueva Lista de Acuerdos para una autoridad dada"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
@@ -253,6 +253,7 @@ def new_for_autoridad(autoridad_id):
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+    # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.descripcion.data = "Lista de Acuerdos"
@@ -283,8 +284,11 @@ def delete(lista_de_acuerdo_id):
     """Eliminar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "A":
-        lista_de_acuerdo.delete()
-        flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
+        if current_user.can_admin("listas_de_acuerdos") or (current_user.autoridad_id == lista_de_acuerdo.autoridad_id):
+            lista_de_acuerdo.delete()
+            flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
+        else:
+            flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))
 
 
@@ -294,6 +298,9 @@ def recover(lista_de_acuerdo_id):
     """Recuperar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "B":
-        lista_de_acuerdo.recover()
-        flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
+        if current_user.can_admin("listas_de_acuerdos") or (current_user.autoridad_id == lista_de_acuerdo.autoridad_id):
+            lista_de_acuerdo.recover()
+            flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
+        else:
+            flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo=lista_de_acuerdo))

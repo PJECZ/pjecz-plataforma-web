@@ -1,17 +1,17 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/list.jinja2' as list with context %}
 
-{% block title %}Listas de Acuerdos - Autoridades{% endblock %}
+{% block title %}Versiones Públicas de Sentencias - Autoridades{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('listas_de_acuerdos.search')) }}
-    {{ list.topbar_option('Distritos', url_for('listas_de_acuerdos.list_distritos'), 'fas fa-sitemap') }}
+    {{ list.topbar_option_search('Buscar', url_for('sentencias.search')) }}
+    {{ list.topbar_option('Distritos', url_for('sentencias.list_distritos'), 'fas fa-sitemap') }}
 {% endblock %}
 
 {% block content %}
     {% call list.page_breadcrumb(distrito.nombre) %}
-        {{ list.page_breadcrumb_item('Listas de Acuerdos', link=url_for('listas_de_acuerdos.list_active')) }}
-        {{ list.page_breadcrumb_item('Distritos', link=url_for('listas_de_acuerdos.list_distritos')) }}
+        {{ list.page_breadcrumb_item('V.P. Sentencias', link=url_for('sentencias.list_active')) }}
+        {{ list.page_breadcrumb_item('Distritos', link=url_for('sentencias.list_distritos')) }}
     {% endcall %}
     <div class="container-fluid">
         {% call list.card() %}
@@ -24,7 +24,7 @@
                 <tbody>
                     {% for autoridad in autoridades %}
                     <tr>
-                        <td><a href="{{ url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
+                        <td><a href="{{ url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

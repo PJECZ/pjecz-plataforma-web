@@ -1,0 +1,56 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+
+{% block title %}Versiones Públicas de Sentencias{% endblock %}
+
+{% block topbar_actions %}
+    {{ list.topbar_option_search('Buscar', url_for('sentencias.search')) }}
+    {{ list.topbar_option('Distritos', url_for('sentencias.list_distritos'), 'fas fa-sitemap') }}
+    {% if autoridad %}
+        {% if current_user.can_admin('sentencias') %}
+            {{ list.topbar_option_upload('Subir', url_for('sentencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
+        {% endif %}
+        {% if current_user.can_insert('tareas') %}
+            {{ list.topbar_option_refresh('Refrescar', url_for('sentencias.refresh', autoridad_id=autoridad.id)) }}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if estatus == 'A'%}{{ list.page('V.P. Sentencias') }}{% endif %}
+    {% if estatus == 'B'%}{{ list.page('V.P. Sentencias inactivas') }}{% endif %}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+                <thead>
+                    <tr>
+                        <th>Creados</th>
+                        <th>Autoridades</th>
+                        <th>Fechas</th>
+                        <th>Sentencias</th>
+                        <th>Expedientes</th>
+                        <th>P. Género</th>
+                        <th>V.P. Sentencias PDFs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sentencia in sentencias %}
+                    <tr>
+                        <td>{{ sentencia.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ sentencia.autoridad.clave }}</td>
+                        <td><a href="{{ url_for('sentencias.detail', sentencia_id=sentencia.id) }}">{{ sentencia.fecha }}</a></td>
+                        <td>{{ sentencia.sentencia }}</td>
+                        <td>{{ sentencia.expediente }}</td>
+                        <td>{% if sentencia.es_paridad_genero %}SI{% endif %}</td>
+                        <td><a href="{{ sentencia.url }}" target="_blank">{{ sentencia.archivo }} <i class="fas fa-external-link-alt"></a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('sentencias_datatable') }}
+{% endblock %}

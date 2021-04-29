@@ -1,0 +1,18 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Editar Versión Pública de Sentencia{% endblock %}
+
+{% block content %}
+    {{ f.page('Editar ' + sentencia.archivo) }}
+        <div class="container-fluid">
+        {% set form_kwargs = {'sentencia_id': sentencia.id} %}
+        {% call f.form_tag('sentencias.edit', fid='sentencia_form', **form_kwargs) %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.sentencia) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.es_paridad_genero) %}{% endcall %}
+            {{ form.guardar() }}
+        {% endcall %}
+    </div>
+{% endblock %}
