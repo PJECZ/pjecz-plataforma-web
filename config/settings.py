@@ -27,3 +27,6 @@ CLOUD_STORAGE_DEPOSITO = os.environ.get("CLOUD_STORAGE_DEPOSITO", "")
 
 # Host, para los vínculos en los mensajes como <HOST>/ficha/<HASHID>
 HOST = os.environ.get("HOST", "https://plataforma-web-dot-pjecz-268521.uc.r.appspot.com")
+
+# Salt para convertir/reconverir el id en hash
+SALT = os.environ.get("SALT", "Esta es una muy mala cadena aleatoria")

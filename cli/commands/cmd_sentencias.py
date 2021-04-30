@@ -1,9 +1,9 @@
 """
 Sentencias
 
+- borrar: Borrar todos los registros
 - refrescar: Rastrear el depósito para agregar o dar de baja
 - refrescar_todos: Rastrear el depósito para agregar o dar de baja
-- borrar: Borrar todas de la base de datos
 """
 import click
 
@@ -71,7 +71,7 @@ def refrescar_todos():
 
 @click.command()
 def borrar():
-    """Borrar todas de la base de datos"""
+    """Borrar todos los registros"""
     click.echo("Borrando las listas de acuerdos en la base de datos...")
     cantidad = db.session.query(Sentencia).delete()
     db.session.commit()

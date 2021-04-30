@@ -2,7 +2,7 @@
 Abogados
 
 - alimentar: Alimentar insertando registros desde un archivo CSV
-- borrar: Borrar todos los abogados de la base de datos
+- borrar: Borrar todos los registros
 - respaldar: Respaldar a un archivo CSV
 """
 from datetime import datetime
@@ -102,7 +102,7 @@ def respaldar(desde, salida_csv):
 
 @click.command()
 def borrar():
-    """Borrar todos los abogados de la base de datos"""
+    """Borrar todos los registros"""
     click.echo("Borrando los abogados en la base de datos...")
     cantidad = db.session.query(Abogado).delete()
     db.session.commit()

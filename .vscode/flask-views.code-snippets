@@ -155,7 +155,7 @@
 			"\tif ${4:instance}.estatus == 'A':",
 			"\t\t${4:instance}.delete()",
 			"\t\tflash(f'${3:Modulo} {${4:instance}.${6:nombre_o_descripcion}} eliminado.', 'success')",
-			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${2:column_id}))",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${4:instance}.id))",
 			"",
 			""
 		],
@@ -173,7 +173,7 @@
 			"\tif ${4:instance}.estatus == 'B':",
 			"\t\t${4:instance}.recover()",
 			"\t\tflash(f'${3:Modulo} {${4:instance}.${6:nombre_o_descripcion}} recuperado.', 'success')",
-			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${2:column_id}))",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${4:instance}.id))",
 			"",
 			""
 		],
