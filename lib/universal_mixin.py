@@ -1,12 +1,12 @@
 """
 UniversalMixin define las columnas y métodos comunes de todos los modelos
 """
-from flask import current_app
+import os
 from sqlalchemy.sql import func
 from hashids import Hashids
-from plataforma_web.extensions import db
+from rrpp.extensions import db
 
-hashids = Hashids(salt=current_app.config["SALT"], min_length=16)
+hashids = Hashids(salt=os.environ.get("SALT", "Esta es una muy mala cadena aleatoria"), min_length=16)
 
 
 class UniversalMixin(object):
