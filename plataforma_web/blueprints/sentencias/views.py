@@ -22,7 +22,7 @@ from plataforma_web.blueprints.distritos.models import Distrito
 
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
-SUBDIRECTORIO = "Listas de Acuerdos"
+SUBDIRECTORIO = "Sentencias"
 DIAS_LIMITE = 5
 
 
@@ -177,7 +177,7 @@ def search():
         if form_search.sentencia.data:
             consulta = consulta.filter(Sentencia.sentencia == form_search.sentencia.data)
         if form_search.expediente.data:
-            consulta = consulta.filter(Sentencia.expediente == form_search.sentencia.data)
+            consulta = consulta.filter(Sentencia.expediente == form_search.expediente.data)
         consulta = consulta.order_by(Sentencia.fecha.desc()).limit(100).all()
         return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()

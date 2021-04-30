@@ -4,10 +4,10 @@ Listas de Acuerdos, tareas para ejecutar en el fondo
 import logging
 import os
 from datetime import datetime
-from dateutil.tz import tzutc, tzlocal
 from pathlib import Path
-from unidecode import unidecode
 
+from dateutil.tz import tzlocal
+from unidecode import unidecode
 from google.cloud import storage
 from rq import get_current_job
 
@@ -57,6 +57,7 @@ def set_task_error(mensaje: str):
             tarea.descripcion = mensaje
             tarea.save()
     bitacora.error(mensaje)
+    bitacora.info("Termina por ERROR listas_de_acuerdos.tasks.refrescar")
     return mensaje
 
 
@@ -79,7 +80,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
         return set_task_error("La autoridad no tiene directorio para listas de acuerdos")
     bitacora.info("- Autoridad %s", autoridad.clave)
-    # Consultar las listas de acuerdos en la base de datos
+    # Obtener las fechas de las listas de acuerdos en BD
     listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).all()
     total_en_bd = len(listas_de_acuerdos)
     bitacora.info("- Tiene %d listas de acuerdos en la base de datos", total_en_bd)
@@ -118,7 +119,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         esta_en_bd = True
         try:
             posicion = fechas.index(fecha)
-            fechas.pop(posicion)
+            fechas.pop(posicion)  # Se saca de la lista
         except ValueError:
             esta_en_bd = False
         # Insertar
@@ -139,7 +140,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     for fecha in fechas:
         lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.fecha == fecha).first()
         if lista_de_acuerdo:
-            lista_de_acuerdo.delete()
+            lista_de_acuerdo.delete()  # Dar de baja porque no está en el depósito
             contador_borrados += 1
     # Mensaje final
     resultados = []

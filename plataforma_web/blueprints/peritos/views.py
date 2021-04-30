@@ -17,34 +17,34 @@ peritos = Blueprint("peritos", __name__, template_folder="templates")
 @login_required
 @permission_required(Permiso.VER_CONSULTAS)
 def before_request():
-    """ Permiso por defecto """
+    """Permiso por defecto"""
 
 
 @peritos.route("/peritos")
 def list_active():
-    """ Listado de Peritos """
-    peritos_activos = Perito.query.filter(Perito.estatus == "A").order_by(Perito.creado.desc()).limit(100).all()
+    """Listado de Peritos"""
+    peritos_activos = Perito.query.filter(Perito.estatus == "A").order_by(Perito.nombre).limit(100).all()
     return render_template("peritos/list.jinja2", peritos=peritos_activos, estatus="A")
 
 
 @peritos.route("/peritos/inactivos")
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
-    """ Listado de Peritos inactivos """
-    peritos_inactivos = Perito.query.filter(Perito.estatus == "B").order_by(Perito.creado.desc()).limit(100).all()
+    """Listado de Peritos inactivos"""
+    peritos_inactivos = Perito.query.filter(Perito.estatus == "B").order_by(Perito.nombre).limit(100).all()
     return render_template("peritos/list.jinja2", peritos=peritos_inactivos, estatus="B")
 
 
 @peritos.route("/peritos/<int:perito_id>")
 def detail(perito_id):
-    """ Detalle de un Perito """
+    """Detalle de un Perito"""
     perito = Perito.query.get_or_404(perito_id)
     return render_template("peritos/detail.jinja2", perito=perito)
 
 
 @peritos.route("/peritos/buscar", methods=["GET", "POST"])
 def search():
-    """ Buscar Peritos """
+    """Buscar Peritos"""
     form_search = PeritoSearchForm()
     if form_search.validate_on_submit():
         consulta = Perito.query
@@ -63,7 +63,7 @@ def search():
 @peritos.route("/peritos/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_CONSULTAS)
 def new():
-    """ Nuevo Perito """
+    """Nuevo Perito"""
     form = PeritoForm()
     if form.validate_on_submit():
         perito = Perito(
@@ -86,7 +86,7 @@ def new():
 @peritos.route("/peritos/edicion/<int:perito_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def edit(perito_id):
-    """ Editar Perito """
+    """Editar Perito"""
     perito = Perito.query.get_or_404(perito_id)
     form = PeritoForm()
     if form.validate_on_submit():
@@ -117,7 +117,7 @@ def edit(perito_id):
 @peritos.route("/peritos/eliminar/<int:perito_id>")
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def delete(perito_id):
-    """ Eliminar Perito """
+    """Eliminar Perito"""
     perito = Perito.query.get_or_404(perito_id)
     if perito.estatus == "A":
         perito.delete()
@@ -128,7 +128,7 @@ def delete(perito_id):
 @peritos.route("/peritos/recuperar/<int:perito_id>")
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def recover(perito_id):
-    """ Recuperar Perito """
+    """Recuperar Perito"""
     perito = Perito.query.get_or_404(perito_id)
     if perito.estatus == "B":
         perito.recover()

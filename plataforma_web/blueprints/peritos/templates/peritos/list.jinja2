@@ -22,17 +22,17 @@
             <table id="peritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
-                        <th>Distritos</th>
-                        <th>Tipos</th>
                         <th>Nombre</th>
+                        <th>Tipos</th>
+                        <th>Distritos</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for perito in peritos %}
                     <tr>
-                        <td>{{ perito.distrito.nombre }}</td>
-                        <td>{{ perito.tipo }}</td>
                         <td><a href="{{ url_for('peritos.detail', perito_id=perito.id) }}">{{ perito.nombre }}</a></td>
+                        <td>{{ perito.tipo }}</td>
+                        <td>{{ perito.distrito.nombre }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

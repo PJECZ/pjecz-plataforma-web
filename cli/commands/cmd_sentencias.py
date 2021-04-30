@@ -1,5 +1,5 @@
 """
-Listas de Acuerdos
+Sentencias
 
 - refrescar: Rastrear el depósito para agregar o dar de baja
 - refrescar_todos: Rastrear el depósito para agregar o dar de baja
@@ -11,7 +11,7 @@ from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
+from plataforma_web.blueprints.sentencias.models import Sentencia
 
 app = create_app()
 db.app = app
@@ -19,7 +19,7 @@ db.app = app
 
 @click.group()
 def cli():
-    """Listas de Acuerdos"""
+    """Sentencias"""
 
 
 @click.command()
@@ -40,11 +40,11 @@ def refrescar(autoridad_clave):
         click.echo(f"La autoridad {autoridad_clave} no tiene directorio para listas de acuerdos")
         return
     app.task_queue.enqueue(
-        "plataforma_web.blueprints.listas_de_acuerdos.tasks.refrescar",
+        "plataforma_web.blueprints.sentencias.tasks.refrescar",
         autoridad_id=autoridad.id,
         usuario_id=None,
     )
-    click.echo(f"Refrescar Listas de Acuerdos de {autoridad.clave} se está ejecutando en el fondo.")
+    click.echo(f"Refrescar Sentencias de {autoridad.clave} se está ejecutando en el fondo.")
 
 
 @click.command()
@@ -60,11 +60,11 @@ def refrescar_todos():
         if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
             continue
         app.task_queue.enqueue(
-            "plataforma_web.blueprints.listas_de_acuerdos.tasks.refrescar",
+            "plataforma_web.blueprints.sentencias.tasks.refrescar",
             autoridad_id=autoridad.id,
             usuario_id=None,
         )
-        click.echo(f"- Refrescar Listas de Acuerdos a {autoridad.clave}")
+        click.echo(f"- Refrescar Sentencias a {autoridad.clave}")
         contador += 1
     click.echo(f"Se lanzaron {contador} tareas para ejecutar en el fondo.")
 
@@ -73,7 +73,7 @@ def refrescar_todos():
 def borrar():
     """Borrar todas de la base de datos"""
     click.echo("Borrando las listas de acuerdos en la base de datos...")
-    cantidad = db.session.query(ListaDeAcuerdo).delete()
+    cantidad = db.session.query(Sentencia).delete()
     db.session.commit()
     click.echo(f"Han sido borrados {str(cantidad)} registros.")
 
