@@ -18,7 +18,31 @@
 			"\tguardar = SubmitField('Guardar')",
 			""
 		],
-		"description": "Contenido inicial para formularios"
+		"description": "Contenido para formulario sencillo"
+	},
+	"Flask forms upload file": {
+		"scope": "python",
+		"prefix": "fforms_upload",
+		"body": [
+			"\"\"\"",
+			"${1:Modulos}, formularios",
+			"\"\"\"",
+			"",
+			"from flask_wtf import FlaskForm",
+			"from flask_wtf.file import FileField, FileRequired",
+			"from wtforms import StringField, SubmitField",
+			"from wtforms.validators import DataRequired, Length, Optional",
+			"",
+			"",
+			"class ${2:Clase}Form(FlaskForm):",
+			"\t\"\"\" Formulario ${2:Clase} \"\"\"",
+			"\tnombre = StringField('Nombre', validators=[DataRequired(), Length(max=256)])",
+			"\tdescripcion = StringField('Descripción', validators=[DataRequired(), Length(max=256)])",
+			"\tarchivo = FileField('Lista de Acuerdos PDF', validators=[FileRequired()])",
+			"\tguardar = SubmitField('Guardar')",
+			""
+		],
+		"description": "Contenido para subir un archivo"
 	},
 	"Flask forms import queryselectfield": {
 		"scope": "python",
@@ -26,7 +50,7 @@
 		"body": "from wtforms.ext.sqlalchemy.fields import QuerySelectField",
 		"description": "Importar QuerySelectField"
 	},
-	"Flask forms query select function": {
+	"Flask forms function query select": {
 		"scope": "python",
 		"prefix": "fforms_function_opciones",
 		"body": [
@@ -38,7 +62,7 @@
 		],
 		"description": "Función que consulta para las opciones de un select"
 	},
-	"Flask forms form": {
+	"Flask forms class Form": {
 		"scope": "python",
 		"prefix": "fforms_clase",
 		"body": [
@@ -50,22 +74,23 @@
 			"",
 			""
 		],
-		"description": "Formulario"
+		"description": "Clase Form"
 	},
-	"Flask forms search form": {
+	"Flask forms class search form": {
 		"scope": "python",
 		"prefix": "fforms_clase_buscar",
 		"body": [
-			"class ${1:Clase}FormSearch(FlaskForm):",
+			"class ${1:Clase}SearchForm(FlaskForm):",
 			"\t\"\"\" Formulario para buscar ${2:Clases} \"\"\"",
-			"\t${3:nombre_o_descripcion} = StringField('${4:Nombre_o_Descripción}', validators=[Optional(), Length(max=256)])",
+			"\tnombre = StringField('Nombre', validators=[DataRequired(), Length(max=256)])",
+			"\tdescripcion = StringField('Descripción', validators=[DataRequired(), Length(max=256)])",
 			"\tbuscar = SubmitField('Buscar')",
 			"",
 			""
 		],
 		"description": "Formulario para buscar"
 	},
-	"Flask forms query select field": {
+	"Flask forms field query select": {
 		"scope": "python",
 		"prefix": "fforms_query_select_field",
 		"body": "${1:columna} = QuerySelectField(query_factory=${2:plural}_opciones, get_label='${3:nombre_o_descripcion}')",

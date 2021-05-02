@@ -25,6 +25,7 @@ class Autoridad(db.Model, UniversalMixin):
     directorio_sentencias = db.Column(db.String(256))
 
     # Hijos
+    edictos = db.relationship("Edicto", backref="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", backref="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", backref="autoridad", lazy="noload")
     sentencias = db.relationship("Sentencia", backref="autoridad", lazy="noload")

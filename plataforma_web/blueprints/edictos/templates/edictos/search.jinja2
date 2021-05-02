@@ -8,7 +8,6 @@
     <div class="container-fluid">
         {% call f.form_tag('edictos.search', fid='edicto_search_form') %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     </div>

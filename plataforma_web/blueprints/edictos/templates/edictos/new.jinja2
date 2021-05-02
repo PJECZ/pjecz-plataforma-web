@@ -1,19 +1,28 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Nuevo Edicto{% endblock %}
+{% block title %}Subir Edicto{% endblock %}
+
+{% block custom_head %}
+    {{ f.drop_zone_css() }}
+{% endblock %}
 
 {% block content %}
     {{ f.page('Nuevo Edicto') }}
     <div class="container-fluid">
-        {% call f.form_tag('edictos.new', fid='edicto_form') %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.archivo) %}{% endcall %}
+        {% call f.form_tag_multipart('edictos.new', fid='edicto_form') %}
             {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.numero_publicacion) %}{% endcall %}
-            {% call f.form_group(form.url) %}{% endcall %}
+            {% call f.drop_zone_wrapper() %}
+                {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
+            {% endcall %}
             {{ form.guardar() }}
         {% endcall %}
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.drop_zone_js() }}
 {% endblock %}

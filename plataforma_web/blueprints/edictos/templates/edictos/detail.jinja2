@@ -4,15 +4,22 @@
 {% block title %}Edicto{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('edictos') %}
+    {% if current_user.can_admin('edictos') %}
         {{ detail.topbar_option_edit('Editar', url_for('edictos.edit', edicto_id=edicto.id)) }}
+    {% endif %}
+    {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
         {% if edicto.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
         {% if edicto.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ detail.page('Edicto') }}
+    {% call detail.page_breadcrumb(edicto.fecha) %}
+        {{ detail.page_breadcrumb_item('Edictos', link=url_for('edictos.list_active')) }}
+        {{ detail.page_breadcrumb_item('Distritos', link=url_for('edictos.list_distritos')) }}
+        {{ detail.page_breadcrumb_item(edicto.autoridad.distrito.nombre, link=url_for('edictos.list_autoridades', distrito_id=edicto.autoridad.distrito_id)) }}
+        {{ detail.page_breadcrumb_item(edicto.autoridad.descripcion, link=url_for('edictos.list_autoridad_listas_de_acuerdos', autoridad_id=edicto.autoridad_id)) }}
+    {% endcall %}
     <div class="container-fluid">
         {% call detail.card(estatus=edicto.estatus) %}
             {{ detail.label_value_big('Edicto', edicto.descripcion) }}
@@ -20,18 +27,18 @@
             {{ detail.label_value('Descripción', edicto.descripcion) }}
             {{ detail.label_value('Expediente', edicto.expediente) }}
             {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
-            {{ detail.label_value('Archivo', edicto.archivo) }}
-            {{ detail.label_value('URL', edicto.url) }}
+            {{ detail.label_value_new_tab('Edicto PDF', edicto.archivo, edicto.url) }}
+            {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('listas_de_acuerdos.checkout', id_hashed=edicto.encode_id())) }}
         {% endcall %}
     </div>
-    {% if current_user.can_edit('edictos') %}
+    {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
         {{ detail.modal('Eliminar', '¿Eliminar a ' + edicto.descripcion + '?', 'modalDelete', url_for('edictos.delete', edicto_id=edicto.id)) }}
         {{ detail.modal('Recuperar', '¿Recuperar a ' + edicto.descripcion + '?', 'modalRecover', url_for('edictos.recover', edicto_id=edicto.id)) }}
     {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('edictos') %}
+    {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
         {{ detail.custom_javascript_delete_recover() }}
     {% endif %}
 {% endblock %}
