@@ -10,10 +10,10 @@
 {% block content %}
     {{ f.page('Nuevo Glosa') }}
     <div class="container-fluid">
-        {% call f.form_tag_multipart('edictos.new', fid='edicto_form') %}
+        {% call f.form_tag_multipart('glosas.new', fid='glosa_form') %}
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.fecha, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.tipo_juicio) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}

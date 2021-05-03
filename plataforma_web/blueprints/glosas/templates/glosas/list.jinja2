@@ -5,34 +5,52 @@
 
 {% block topbar_actions %}
     {{ list.topbar_option_search('Buscar', url_for('glosas.search')) }}
-    {% if current_user.can_edit('glosas') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('glosas.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('glosas') %}
-        {{ list.topbar_option_new('Nueva Glosa', url_for('glosas.new')) }}
+    {{ list.topbar_option('Distritos', url_for('glosas.list_distritos'), 'fas fa-sitemap') }}
+    {% if autoridad %}
+        {% if current_user.can_admin('glosas') %}
+            {{ list.topbar_option_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('glosas.list_autoridad_glosas_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}{% endif %}
+        {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
+            {{ list.topbar_option_upload('Subir', url_for('glosas.new')) }}
+        {% endif %}
+        {% if current_user.can_admin('glosas') and current_user.can_insert('tareas') %}
+            {{ list.topbar_option_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
+        {% endif %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Glosas') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Glosas inactivas') }}{% endif %}
+    {% if autoridad %}
+        {% call list.page_breadcrumb(autoridad.descripcion) %}
+            {{ list.page_breadcrumb_item('Glosas', link=url_for('glosas.list_active')) }}
+            {{ list.page_breadcrumb_item('Distritos', link=url_for('glosas.list_distritos')) }}
+            {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('glosas.list_autoridades', distrito_id=autoridad.distrito_id)) }}
+        {% endcall %}
+    {% else %}
+        {% if estatus == 'A'%}{{ list.page('Glosas') }}{% endif %}
+        {% if estatus == 'B'%}{{ list.page('Glosas inactivas') }}{% endif %}
+    {% endif %}
     <div class="container-fluid">
         {% call list.card() %}
-            <table id="glosas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <table id="blueprint_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
+                        {% if current_user.can_admin('glosas') %}<th>Creados</th>{% endif %}
                         <th>Fechas</th>
+                        <th>Tipos de juicios</th>
                         <th>Expedientes</th>
-                        <th>Tipos de juicio</th>
+                        <th>Glosas PDF</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for glosa in glosas %}
                     <tr>
-                        <td>{{ glosa.fecha }}</td>
-                        <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.expediente }}</a></td>
-                        <td>{{ glosa.juicio_tipo }}</td>
+                        {% if current_user.can_admin('glosas') %}<td>{{ glosa.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>{% endif %}
+                        <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.fecha }}</a></td>
+                        <td>{{ glosa.tipo_juicio }}</td>
+                        <td>{{ glosa.expediente }}</td>
+                        <td><a href="{{ glosa.url }}" target="_blank">{{ glosa.archivo }} <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -42,5 +60,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('glosas_datatable') }}
+    {{ list.datatable('blueprint_datatable', order='desc') }}
 {% endblock %}
