@@ -3,12 +3,24 @@
 
 {% block title %}Buscar Glosas{% endblock %}
 
+{% block topbar_actions %}
+    {{ f.topbar_option('Distritos', url_for('glosas.list_distritos'), 'fas fa-sitemap') }}
+{% endblock %}
+
 {% block content %}
     {{ f.page('Buscar Glosas') }}
     <div class="container-fluid">
         {% call f.form_tag('glosas.search', fid='glosa_search_form') %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_distrito_autoridad(distritos, autoridades) }}
 {% endblock %}

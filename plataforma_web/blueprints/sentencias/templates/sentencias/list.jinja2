@@ -47,7 +47,7 @@
                 <tbody>
                     {% for sentencia in sentencias %}
                     <tr>
-                        {% if current_user.can_admin('sentencias') %}<td>{{ sentencia.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>{% endif %}
+                        {% if current_user.can_admin('sentencias') %}<td>{{ sentencia.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
                         <td><a href="{{ url_for('sentencias.detail', sentencia_id=sentencia.id) }}">{{ sentencia.fecha }}</a></td>
                         <td>{{ sentencia.sentencia }}</td>
                         <td>{{ sentencia.expediente }}</td>

@@ -3,13 +3,45 @@
 
 {% block title %}Glosa{% endblock %}
 
+{% block topbar_actions %}
+    {% if current_user.can_admin('glosas') %}
+        {{ detail.topbar_option_edit('Editar', url_for('glosas.edit', glosa_id=glosa.id)) }}
+    {% endif %}
+    {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
+        {% if glosa.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+        {% if glosa.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-    {{ detail.page('Glosa') }}
+    {% call detail.page_breadcrumb(glosa.descripcion) %}
+        {{ detail.page_breadcrumb_item('Glosas', link=url_for('glosas.list_active')) }}
+        {{ detail.page_breadcrumb_item('Distritos', link=url_for('glosas.list_distritos')) }}
+        {{ detail.page_breadcrumb_item(glosa.autoridad.distrito.nombre, link=url_for('glosas.list_autoridades', distrito_id=glosa.autoridad.distrito_id)) }}
+        {{ detail.page_breadcrumb_item(glosa.autoridad.descripcion, link=url_for('glosas.list_autoridad_glosas', autoridad_id=glosa.autoridad_id)) }}
+    {% endcall %}
     <div class="container-fluid">
-        {% call detail.card() %}
-            {{ detail.label_value_big('Expediente', glosa.expediente) }}
+        {% call detail.card(estatus=glosa.estatus) %}
+            {{ detail.label_value_big('Archivo', glosa.archivo) }}
+            {{ detail.label_value('Tiempo de creación', glosa.creado) }}
+            {{ detail.label_value('Distrito', glosa.autoridad.distrito.nombre) }}
+            {{ detail.label_value('Autoridad', glosa.autoridad.descripcion) }}
             {{ detail.label_value('Fecha', glosa.fecha) }}
-            {{ detail.label_value('Tipo de juicio', glosa.juicio_tipo) }}
+            {{ detail.label_value('Tipo de juicio', glosa.tipo_juicio) }}
+            {{ detail.label_value('Descripción', glosa.descripcion) }}
+            {{ detail.label_value('Expediente', glosa.expediente) }}
+            {{ detail.label_value_new_tab('Glosa PDF', glosa.archivo, glosa.url) }}
+            {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('listas_de_acuerdos.checkout', id_hashed=glosa.encode_id())) }}
         {% endcall %}
     </div>
+    {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
+        {{ detail.modal('Eliminar', '¿Eliminar a ' + glosa.descripcion + '?', 'modalDelete', url_for('glosas.delete', glosa_id=glosa.id)) }}
+        {{ detail.modal('Recuperar', '¿Recuperar a ' + glosa.descripcion + '?', 'modalRecover', url_for('glosas.recover', glosa_id=glosa.id)) }}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
+        {{ detail.custom_javascript_delete_recover() }}
+    {% endif %}
 {% endblock %}
