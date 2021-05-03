@@ -18,12 +18,14 @@
             <table id="autoridades_datatable" class="table">
                 <thead>
                     <tr>
+                        <th>Claves</th>
                         <th>Autoridades</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for autoridad in autoridades %}
                     <tr>
+                        <td>{{ autoridad.clave }}</td>
                         <td><a href="{{ url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
                     </tr>
                     {% endfor %}

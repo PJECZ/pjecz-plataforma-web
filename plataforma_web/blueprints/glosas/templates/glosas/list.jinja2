@@ -46,7 +46,7 @@
                 <tbody>
                     {% for glosa in glosas %}
                     <tr>
-                        {% if current_user.can_admin('glosas') %}<td>{{ glosa.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>{% endif %}
+                        {% if current_user.can_admin('glosas') %}<td>{{ glosa.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
                         <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.fecha }}</a></td>
                         <td>{{ glosa.tipo_juicio }}</td>
                         <td>{{ glosa.expediente }}</td>
