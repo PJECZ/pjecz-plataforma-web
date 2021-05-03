@@ -1,0 +1,39 @@
+{% extends 'layouts/public.jinja2' %}
+{% import 'macros/detail.jinja2' as detail with context %}
+
+{% block title %}Constancia de Recepción de Documentos{% endblock %}
+
+{% block content %}
+    <div class="container py-2">
+        <div class="text-center py-2">
+            <h2>PODER JUDICIAL<br>DEL ESTADO DE COAHUILA DE ZARAGOZA<h2>
+            <h3>CONSTANCIA DE RECEPCIÓN DE DOCUMENTOS</h3>
+        </div>
+        <div class="py-2">
+            <p>
+                Fecha {{ glosa.creado }}<br>
+                ID G{{ glosa.id }}<br>
+                <strong>{{ glosa.autoridad.descripcion }}</strong><br>
+                <strong>{{ glosa.autoridad.distrito.nombre }}</strong>
+            </p>
+        </div>
+        <div class="text-center py-2">
+            <h3>P R E S E N T E</h3>
+        </div>
+        <div class="py-2">
+            <p>Por este medio se confirma la recepción de su documento:</p>
+            <ul>
+                <li>{{ glosa.archivo }}</li>
+            </ul>
+            <p>Mismo que estará disponible en el sitio web del Poder Judicial de Coahuila de Zaragoza a la brevedad.</p>
+            <p>Lo anterior para los efectos legales que haya lugar.</p>
+        </div>
+        <div class="text-center py-2">
+            <p><strong>
+                ATENTAMENTE<br>
+                SALTILLO, COAHUILA DE ZARAGOZA, A {{ dia }} DE {{ mes }} DE {{ ano }}<br>
+                DIRECCIÓN DE INFORMÁTICA
+            </strong></p>
+        </div>
+    </div>
+{% endblock %}

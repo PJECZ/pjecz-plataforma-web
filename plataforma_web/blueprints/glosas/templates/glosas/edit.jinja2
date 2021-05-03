@@ -4,15 +4,14 @@
 {% block title %}Editar Glosa{% endblock %}
 
 {% block content %}
-    {{ f.page('Editar ' + glosa.expediente) }}
+    {{ f.page('Editar ' + glosa.descripcion) }}
         <div class="container-fluid">
         {% set form_kwargs = {'glosa_id': glosa.id} %}
         {% call f.form_tag('glosas.edit', fid='glosa_form', **form_kwargs) %}
-            {% call f.form_group(form.autoridad) %}{% endcall %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.juicio_tipo) %}{% endcall %}
+            {% call f.form_group(form.fecha, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
-            {% call f.form_group(form.url) %}{% endcall %}
             {{ form.guardar() }}
         {% endcall %}
     </div>
