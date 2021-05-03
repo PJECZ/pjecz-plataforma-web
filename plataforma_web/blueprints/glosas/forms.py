@@ -2,31 +2,44 @@
 Glosas, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import DateField, StringField, SubmitField
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from flask_wtf.file import FileField, FileRequired
+from wtforms import DateField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional
 
-from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.glosas.models import Glosa
 
 
-def autoridades_opciones():
-    """ Autoridades: opciones para select """
-    return Autoridad.query.filter(Autoridad.estatus == "A").order_by(Autoridad.descripcion).all()
+class GlosaNewForm(FlaskForm):
+    """Formulario para nueva Glosa"""
 
-
-class GlosaForm(FlaskForm):
-    """ Formulario Glosa """
-
-    autoridad = QuerySelectField(query_factory=autoridades_opciones, get_label="descripcion")
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
     fecha = DateField("Fecha", validators=[DataRequired()])
-    juicio_tipo = StringField("Tipo de juicio", validators=[DataRequired(), Length(max=256)])
-    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=256)])
-    url = StringField("URL", validators=[DataRequired(), Length(max=256)])
+    tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
+    descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
+    expediente = StringField("Expediente", validators=[Optional(), Length(max=256)])
+    archivo = FileField("Lista de Acuerdos PDF", validators=[FileRequired()])
+    guardar = SubmitField("Guardar")
+
+
+class GlosaEditForm(FlaskForm):
+    """Formulario para editar Glosa"""
+
+    fecha = DateField("Fecha", validators=[DataRequired()])
+    tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
+    descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
+    expediente = StringField("Expediente", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
 
 
 class GlosaSearchForm(FlaskForm):
-    """ Formulario para buscar Glosas """
+    """Formulario para buscar Glosas"""
 
+    distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    fecha_desde = DateField("Fecha desde", validators=[Optional()])
+    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
+    tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
+    descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     expediente = StringField("Expediente", validators=[Optional(), Length(max=256)])
     buscar = SubmitField("Buscar")
