@@ -1,4 +1,63 @@
 """
+Edictos, vistas
+"""
+from datetime import date, timedelta
+from pathlib import Path
+from unidecode import unidecode
+
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+from google.cloud import storage
+from werkzeug.datastructures import CombinedMultiDict
+from werkzeug.utils import secure_filename
+from lib.time_to_text import dia_mes_ano
+
+from plataforma_web.blueprints.roles.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
+
+from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm
+from plataforma_web.blueprints.edictos.models import Edicto
+
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.distritos.models import Distrito
+
+edictos = Blueprint("edictos", __name__, template_folder="templates")
+
+SUBDIRECTORIO = "Edictos"
+DIAS_LIMITE = 5
+
+
+def subir_archivo(autoridad_id: int, fecha: date, archivo: str, puede_reemplazar: bool = False):
+    """Subir archivo de edictos"""
+    # Configuración
+    deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+    # Validar autoridad
+    autoridad = Autoridad.query.get(autoridad_id)
+    if autoridad is None or autoridad.estatus != "A":
+        raise ValueError("El juzgado/autoridad no existe o no es activa.")
+    if not autoridad.distrito.es_distrito_judicial:
+        raise ValueError("El juzgado/autoridad no está en un distrito jurisdiccional.")
+    if not autoridad.es_jurisdiccional:
+        raise ValueError("El juzgado/autoridad no es jurisdiccional.")
+    if autoridad.directorio_edictos is None or autoridad.directorio_edictos == "":
+        raise ValueError("El juzgado/autoridad no tiene directorio para edictos.")
+
+
+@edictos.before_request
+@login_required
+@permission_required(Permiso.VER_)
+def before_request():
+    """Permiso por defecto"""
+
+
+@edictos.route("/edictos")
+def list_active():
+    """Listado de Edictos activos"""
+    edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.creado.desc()).limit(100).all()
+    return render_template("edictos/list.jinja2", edictos=edictos_activos, estatus="A")
+
+
+"""
 @edictos.route("/edictos")
 def list_active():
     edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()

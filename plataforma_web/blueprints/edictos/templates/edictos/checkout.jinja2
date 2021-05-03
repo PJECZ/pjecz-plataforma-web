@@ -11,10 +11,10 @@
         </div>
         <div class="py-2">
             <p>
-                Fecha {{ sentencia.creado }}<br>
-                ID S{{ sentencia.id }}<br>
-                <strong>{{ sentencia.autoridad.descripcion }}</strong><br>
-                <strong>{{ sentencia.autoridad.distrito.nombre }}</strong>
+                Fecha {{ edicto.creado }}<br>
+                ID VPE{{ edicto.id }}<br>
+                <strong>{{ edicto.autoridad.descripcion }}</strong><br>
+                <strong>{{ edicto.autoridad.distrito.nombre }}</strong>
             </p>
         </div>
         <div class="text-center py-2">
@@ -23,7 +23,7 @@
         <div class="py-2">
             <p>Por este medio se confirma la recepción de su documento:</p>
             <ul>
-                <li>{{ sentencia.archivo }}</li>
+                <li>{{ edicto.archivo }}</li>
             </ul>
             <p>Mismo que estará disponible en el sitio web del Poder Judicial de Coahuila de Zaragoza a la brevedad.</p>
             <p>Lo anterior para los efectos legales que haya lugar.</p>

@@ -21,6 +21,7 @@ class Autoridad(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
     clave = db.Column(db.String(16), nullable=False, unique=True)
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
+    directorio_edictos = db.Column(db.String(256))
     directorio_listas_de_acuerdos = db.Column(db.String(256))
     directorio_sentencias = db.Column(db.String(256))
 

@@ -1,0 +1,38 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+
+{% block title %}Edictos - Autoridades{% endblock %}
+
+{% block topbar_actions %}
+    {{ list.topbar_option_search('Buscar', url_for('edictos.search')) }}
+    {{ list.topbar_option('Distritos', url_for('edictos.list_distritos'), 'fas fa-sitemap') }}
+{% endblock %}
+
+{% block content %}
+    {% call list.page_breadcrumb(distrito.nombre) %}
+        {{ list.page_breadcrumb_item('Edictos', link=url_for('edictos.list_active')) }}
+        {{ list.page_breadcrumb_item('Distritos', link=url_for('edictos.list_distritos')) }}
+    {% endcall %}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="autoridades_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Autoridades</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for autoridad in autoridades %}
+                    <tr>
+                        <td><a href="{{ url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('autoridades_datatable') }}
+{% endblock %}
