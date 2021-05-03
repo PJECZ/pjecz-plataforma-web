@@ -232,7 +232,7 @@ def new():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
-    """Nueva Sentencia para una autoridad dada"""
+    """Subir Sentencia para una autoridad dada"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = SentenciaNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():

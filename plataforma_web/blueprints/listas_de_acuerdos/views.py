@@ -203,8 +203,8 @@ def new():
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=fecha,
-            archivo=archivo_str,
             descripcion=unidecode(form.descripcion.data.strip()),
+            archivo=archivo_str,
             url=url,
         )
         lista_de_acuerdo.save()
@@ -227,7 +227,7 @@ def new():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
-    """Nueva Lista de Acuerdos para una autoridad dada"""
+    """Subir Lista de Acuerdos para una autoridad dada"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
