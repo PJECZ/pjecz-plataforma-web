@@ -27,7 +27,7 @@ SUBDIRECTORIO = "Glosas"
 DIAS_LIMITE = 5
 
 
-def subir_archivo(autoridad_id: int, fecha: date, archivo: str, puede_reemplazar: bool = False):
+def subir_archivo(autoridad_id: int, fecha: date, archivo: str):
     """Subir archivo de glosa"""
     # Configuración
     deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
@@ -176,3 +176,127 @@ def search():
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("glosas/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+
+@glosas.route("/glosas/nuevo", methods=["GET", "POST"])
+@permission_required(Permiso.CREAR_JUSTICIABLES)
+def new():
+    """Subir Glosa"""
+    autoridad = current_user.autoridad
+    form = GlosaNewForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        fecha = form.fecha.data
+        archivo = request.files["archivo"]
+        try:
+            archivo_str, url = subir_archivo(
+                autoridad_id=autoridad.id,
+                fecha=fecha,
+                archivo=archivo,
+            )
+        except ValueError as error:
+            flash(error, "error")
+            return redirect(url_for("glosas.new"))
+        glosa = Glosa(
+            autoridad=autoridad,
+            fecha=fecha,
+            tipo_juicio=form.tipo_juicio.data,
+            descripcion=unidecode(form.descripcion.data.strip()),
+            expediente=form.expediente.data,
+            archivo=archivo_str,
+            url=url,
+        )
+        glosa.save()
+        flash(f"Glosa {glosa.descripcion} guardada.", "success")
+        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+    # Prellenado de los campos
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    form.fecha.data = date.today()
+    return render_template("glosas/new.jinja2", form=form)
+
+
+@glosas.route("/glosas/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
+@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+def new_for_autoridad(autoridad_id):
+    """Subir Glosa para una autoridad dada"""
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    form = GlosaNewForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        fecha = form.fecha.data
+        archivo = request.files["archivo"]
+        try:
+            archivo_str, url = subir_archivo(
+                autoridad_id=autoridad.id,
+                fecha=fecha,
+                archivo=archivo,
+            )
+        except ValueError as error:
+            flash(error, "error")
+            return redirect(url_for("glosas.new_for_autoridad", autoridad_id=autoridad_id))
+        glosa = Glosa(
+            autoridad=autoridad,
+            fecha=fecha,
+            tipo_juicio=form.tipo_juicio.data,
+            descripcion=unidecode(form.descripcion.data.strip()),
+            expediente=form.expediente.data,
+            archivo=archivo_str,
+            url=url,
+        )
+        glosa.save()
+        flash(f"Glosa {glosa.archivo} guardada.", "success")
+        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+    # Prellenado de los campos
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    form.fecha.data = date.today()
+    return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+
+@glosas.route("/glosas/edicion/<int:glosa_id>", methods=["GET", "POST"])
+@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+def edit(glosa_id):
+    """Editar Glosa"""
+    glosa = Glosa.query.get_or_404(glosa_id)
+    form = GlosaEditForm()
+    if form.validate_on_submit():
+        glosa.fecha = form.fecha.data
+        glosa.tipo_juicio = form.tipo_juicio.data
+        glosa.descripcion = form.descripcion.data
+        glosa.expediente = form.expediente.data
+        glosa.save()
+        flash(f"Glosa {glosa.descripcion} guardada.", "success")
+        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+    form.fecha.data = glosa.fecha
+    form.tipo_juicio.data = glosa.tipo_juicio
+    form.descripcion.data = glosa.descripcion
+    form.expediente.data = glosa.expediente
+    return render_template("glosas/edit.jinja2", form=form, glosa=glosa)
+
+
+@glosas.route("/glosas/eliminar/<int:glosa_id>")
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def delete(glosa_id):
+    """Eliminar Glosa"""
+    glosa = Glosa.query.get_or_404(glosa_id)
+    if glosa.estatus == "A":
+        if current_user.can_admin("glosas") or (current_user.autoridad_id == glosa.autoridad_id):
+            glosa.delete()
+            flash(f"Glosa {glosa.descripcion} eliminada.", "success")
+        else:
+            flash("No tiene permiso para eliminar.", "warning")
+    return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+
+
+@glosas.route("/glosas/recuperar/<int:glosa_id>")
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def recover(glosa_id):
+    """Recuperar Glosa"""
+    glosa = Glosa.query.get_or_404(glosa_id)
+    if glosa.estatus == "B":
+        if current_user.can_admin("glosas") or (current_user.autoridad_id == glosa.autoridad_id):
+            glosa.recover()
+            flash(f"Glosa {glosa.descripcion} recuperado.", "success")
+        else:
+            flash("No tiene permiso para recuperar.", "warning")
+    return redirect(url_for("glosas.detail", glosa_id=glosa.id))
