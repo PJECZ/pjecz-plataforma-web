@@ -56,15 +56,14 @@ def set_task_error(mensaje: str):
             tarea.descripcion = mensaje
             tarea.save()
     bitacora.error(mensaje)
-    bitacora.info("Termina por ERROR sentencias.tasks.refrescar")
+    bitacora.info("Termina por ERROR.")
     return mensaje
 
 
 def refrescar(autoridad_id: int, usuario_id: int = None):
     """Rastrear las sentencias para agregar las que no tiene y dar de baja las que no existen en la BD"""
-    bitacora.info("Inicia sentencias.tasks.refrescar")
-    # Configuración
-    deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "pjecz-pruebas")
+    bitacora.info("Inicia")
+
     # Validad usuario
     usuario = None
     if usuario_id is not None:
@@ -72,6 +71,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         if usuario is None or usuario.estatus != "A":
             return set_task_error("El usuario no existe o no es activo")
         bitacora.info("- Usuario %s", usuario.email)
+
     # Validar autoridad
     autoridad = Autoridad.query.get(autoridad_id)
     if autoridad is None or autoridad.estatus != "A":
@@ -79,12 +79,15 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     if autoridad.directorio_sentencias is None or autoridad.directorio_sentencias == "":
         return set_task_error("La autoridad no tiene directorio para sentencias")
     bitacora.info("- Autoridad %s", autoridad.clave)
-    # Obtener los nombres de los archivos de las sentencias en BD
+
+    # Obtener los nombres de los archivos en la BD
     sentencias = Sentencia.query.filter(Sentencia.autoridad == autoridad).all()
     total_en_bd = len(sentencias)
     bitacora.info("- Tiene %d sentencias en la base de datos", total_en_bd)
     archivos = [sentencia.archivo for sentencia in sentencias]
+
     # Obtener archivos en el depósito
+    deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "pjecz-pruebas")
     bucket = storage.Client().get_bucket(deposito)
     subdirectorio = f"{SUBDIRECTORIO}/{autoridad.directorio_sentencias}"
     blobs = list(bucket.list_blobs(prefix=subdirectorio))
@@ -92,15 +95,19 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     if total_en_deposito == 0:
         return set_task_error(f"No existe o no hay archivos en {subdirectorio}")
     bitacora.info("- Tiene %d archivos en el depósito", total_en_deposito)
-    # Poner el progreso de la tarea y los contadores en cero
+
+    # Iniciar la tarea y contadores
     set_task_progress(0)
     contador_insertados = 0
-    # Bucle por los archivos en el depósito
+
+    # Bucle por los archivos en el depósito AAAA-MM-DD-EEEE-EEEE-SENT-SENT-g-IDHASED.pdf
     for blob in blobs:
+
         # Validar que sea PDF
         ruta = Path(blob.name)
         if ruta.suffix.lower() != ".pdf":
             continue
+
         # Validar la fecha
         archivo_str = ruta.name
         fecha_str = archivo_str[:10]
@@ -109,6 +116,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         except ValueError:
             bitacora.warning("X Fecha incorrecta: %s", ruta)
             continue
+
         # Tomar la sentencia
         elementos = archivo_str[10:-4].strip("-").split("-")
         if len(elementos) >= 2:
@@ -116,17 +124,20 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         else:
             bitacora.warning("X Sentencia incorrecta: %s", archivo_str)
             continue
+
         # Tomar el expediente
         if len(elementos) >= 4:
             expediente = elementos[2] + "/" + elementos[3]
         else:
             bitacora.warning("X Expediente incorrecto: %s", archivo_str)
             continue
+
         # Tomar la paridad de género
         if len(elementos) >= 5 and elementos[4].lower() == "g":
             es_paridad_genero = True
         else:
             es_paridad_genero = False
+
         # Si ya existe ese archivo en la BD
         esta_en_bd = True
         try:
@@ -134,6 +145,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             archivos.pop(posicion)  # Se saca de la lista
         except ValueError:
             esta_en_bd = False
+
         # Insertar
         if not esta_en_bd:
             tiempo_local = blob.time_created.astimezone(tzlocal())
@@ -149,6 +161,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
                 url=blob.public_url,
             ).save()
             contador_insertados += 1
+
     # Bucle por los archivos que quedaron sin encontrarse
     contador_borrados = 0
     for archivo_str in archivos:
@@ -156,6 +169,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         if sentencia:
             sentencia.delete()  # Dar de baja porque no está en el depósito
             contador_borrados += 1
+
     # Mensaje final
     resultados = []
     if contador_insertados > 0:
@@ -167,6 +181,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     else:
         resultados.append("No se borraron registros")
     mensaje_final = "- " + ". ".join(resultados) + "."
+
     # Terminar tarea
     set_task_progress(100)
     bitacora.info(mensaje_final)
