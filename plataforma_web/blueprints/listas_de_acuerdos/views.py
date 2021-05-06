@@ -54,12 +54,12 @@ def subir_archivo(autoridad_id: int, fecha: date, archivo: str, puede_reemplazar
     if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
         raise ValueError("No es un archivo PDF.")
     # Sacar si ya existe y no puede reemplazar
-    lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
-    if puede_reemplazar and lista_de_acuerdo is not None:
-        raise ValueError("Ya existe una lista de acuerdo con esa fecha. Si va a reemplazar, primero debe eliminarlo.")
+    # lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
+    # if puede_reemplazar and lista_de_acuerdo is not None:
+    #    raise ValueError("Ya existe una lista de acuerdo con esa fecha. Si va a reemplazar, primero debe eliminarlo.")
     # Si va a reemplazar, que sea de hoy solamente
-    if puede_reemplazar is False and fecha != hoy:
-        raise ValueError("No puede reemplazar archivos que no sean de hoy.")
+    # if puede_reemplazar is False and fecha != hoy:
+    #    raise ValueError("No puede reemplazar archivos que no sean de hoy.")
     # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
     ano_str = fecha.strftime("%Y")
     mes_str = fecha.strftime("%m")

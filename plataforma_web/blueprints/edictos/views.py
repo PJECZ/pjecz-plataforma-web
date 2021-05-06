@@ -16,58 +16,15 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm
-from plataforma_web.blueprints.edictos.models import Edicto
+from plataforma_web.blueprints.edictos.models import Edicto, EdictoException
 
-from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.autoridades.models import Autoridad, AutoridadException
 from plataforma_web.blueprints.distritos.models import Distrito
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
 SUBDIRECTORIO = "Edictos"
 DIAS_LIMITE = 5
-
-
-def subir_archivo(autoridad_id: int, fecha: date, archivo: str, puede_reemplazar: bool = False):
-    """Subir archivo de edictos"""
-    # Configuración
-    deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
-    # Validar autoridad
-    autoridad = Autoridad.query.get(autoridad_id)
-    if autoridad is None or autoridad.estatus != "A":
-        raise ValueError("El juzgado/autoridad no existe o no es activa.")
-    if not autoridad.distrito.es_distrito_judicial:
-        raise ValueError("El juzgado/autoridad no está en un distrito jurisdiccional.")
-    if not autoridad.es_jurisdiccional:
-        raise ValueError("El juzgado/autoridad no es jurisdiccional.")
-    if autoridad.directorio_edictos is None or autoridad.directorio_edictos == "":
-        raise ValueError("El juzgado/autoridad no tiene directorio para edictos.")
-    # Validar fecha
-    hoy = date.today()
-    if not isinstance(fecha, date):
-        raise ValueError("La fecha no es del tipo correcto.")
-    if fecha > hoy:
-        raise ValueError("La fecha no debe ser del futuro.")
-    if fecha < hoy - timedelta(days=DIAS_LIMITE):
-        raise ValueError(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
-    # Validar que el archivo sea PDF
-    archivo_nombre = secure_filename(archivo.filename.lower())
-    if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-        raise ValueError("No es un archivo PDF.")
-    # Si va a reemplazar, que sea de hoy solamente
-    if puede_reemplazar is False and fecha != hoy:
-        raise ValueError("No puede reemplazar archivos que no sean de hoy.")
-    # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-descripcion.pdf
-    ano_str = fecha.strftime("%Y")
-    mes_str = fecha.strftime("%m")
-    fecha_str = fecha.strftime("%Y-%m-%d")
-    archivo_str = fecha_str + ".pdf"
-    ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
-    # Subir archivo a Google Storage
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(deposito)
-    blob = bucket.blob(ruta_str)
-    blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
-    return (archivo_str, blob.public_url)
 
 
 @edictos.route("/edictos/acuses/<id_hashed>")
@@ -182,35 +139,87 @@ def search():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """Subir Edicto como juzgado"""
+
+    # Validar autoridad
     autoridad = current_user.autoridad
+    try:
+        if autoridad is None or autoridad.estatus != "A":
+            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
+        if not autoridad.distrito.es_distrito_judicial:
+            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
+        if not autoridad.es_jurisdiccional:
+            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
+        if autoridad.directorio_edictos is None or autoridad.directorio_edictos == "":
+            raise AutoridadException("El juzgado/autoridad no tiene directorio para edictos.")
+    except AutoridadException as error:
+        return redirect(url_for("sistemas.bad_request", error=str(error)))
+
+    # Si viene el formulario
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
+
+        # Tomar valores del formulario
         fecha = form.fecha.data
+        descripcion = unidecode(form.descripcion.data.strip())
+        expediente = form.expediente.data
+        numero_publicacion = form.numero_publicacion.data
         archivo = request.files["archivo"]
+
+        # Validar fecha y archivo
+        hoy = date.today()
+        archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            archivo_str, url = subir_archivo(
-                autoridad_id=autoridad.id,
-                fecha=fecha,
-                archivo=archivo,
-            )
-        except ValueError as error:
-            flash(error, "error")
-            return redirect(url_for("edictos.new"))
+            if fecha > hoy:
+                raise EdictoException("La fecha no debe ser del futuro.")
+            if fecha < hoy - timedelta(days=DIAS_LIMITE):
+                raise EdictoException(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
+            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+                raise EdictoException("No es un archivo PDF.")
+        except EdictoException as error:
+            flash(str(error), "error")
+            form.fecha.data = date.today()
+            return render_template("edictos/new.jinja2", form=form)
+
+        # Insertar registro
         edicto = Edicto(
             autoridad=autoridad,
             fecha=fecha,
-            descripcion=unidecode(form.descripcion.data.strip()),
-            archivo=archivo_str,
-            url=url,
+            descripcion=descripcion,
+            expediente=expediente,
+            numero_publicacion=numero_publicacion,
         )
         edicto.save()
-        flash(f"Lista de Acuerdos {edicto.archivo} guardado.", "success")
+
+        # Elaborar nombre del archivo y ruta
+        ano_str = fecha.strftime("%Y")
+        mes_str = fecha.strftime("%m")
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        expediente_str = expediente.replace("/", "-")
+        archivo_str = f"{fecha_str}-{expediente_str}-{str(numero_publicacion)}-{edicto.encode_id()}.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
+
+        # Subir el archivo
+        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(deposito)
+        blob = bucket.blob(ruta_str)
+        blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
+        url = blob.public_url
+
+        # Actualizar el nombre del archivo y el url
+        edicto.archivo = archivo_str
+        edicto.url = url
+        edicto.save()
+
+        # Mostrar mensaje de éxito y detalle
+        flash(f"Edicto {edicto.archivo} guardado.", "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = date.today()
-    return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+    return render_template("edictos/new.jinja2", form=form)
 
 
 @edictos.route("/edictos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
@@ -218,31 +227,80 @@ def new():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Edicto para una autoridad dada"""
+
+    # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
+    try:
+        if autoridad is None or autoridad.estatus != "A":
+            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
+        if not autoridad.distrito.es_distrito_judicial:
+            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
+        if not autoridad.es_jurisdiccional:
+            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
+        if autoridad.directorio_edictos is None or autoridad.directorio_edictos == "":
+            raise AutoridadException("El juzgado/autoridad no tiene directorio para edictos.")
+    except AutoridadException as error:
+        return redirect(url_for("sistemas.bad_request", error=str(error)))
+
+    # Si viene el formulario
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
+
+        # Tomar valores del formulario
         fecha = form.fecha.data
+        descripcion = unidecode(form.descripcion.data.strip())
+        expediente = form.expediente.data
+        numero_publicacion = form.numero_publicacion.data
         archivo = request.files["archivo"]
+
+        # Validar fecha y archivo
+        hoy = date.today()
+        archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            archivo_str, url = subir_archivo(
-                autoridad_id=autoridad.id,
-                fecha=fecha,
-                archivo=archivo,
-                puede_reemplazar=True,
-            )
-        except ValueError as error:
-            flash(error, "error")
-            return redirect(url_for("edictos.new_for_autoridad", autoridad_id=autoridad_id))
+            if fecha > hoy:
+                raise EdictoException("La fecha no debe ser del futuro.")
+            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+                raise EdictoException("No es un archivo PDF.")
+        except EdictoException as error:
+            flash(str(error), "error")
+            form.fecha.data = date.today()
+            return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Insertar registro
         edicto = Edicto(
             autoridad=autoridad,
             fecha=fecha,
-            archivo=archivo_str,
-            descripcion=unidecode(form.descripcion.data.strip()),
-            url=url,
+            descripcion=descripcion,
+            expediente=expediente,
+            numero_publicacion=numero_publicacion,
         )
         edicto.save()
+
+        # Elaborar nombre del archivo y ruta
+        ano_str = fecha.strftime("%Y")
+        mes_str = fecha.strftime("%m")
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        expediente_str = expediente.replace("/", "-")
+        archivo_str = f"{fecha_str}-{expediente_str}-{str(numero_publicacion)}-{edicto.encode_id()}.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
+
+        # Subir el archivo
+        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(deposito)
+        blob = bucket.blob(ruta_str)
+        blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
+        url = blob.public_url
+
+        # Actualizar el nombre del archivo y el url
+        edicto.archivo = archivo_str
+        edicto.url = url
+        edicto.save()
+
+        # Mostrar mensaje de éxito y detalle
         flash(f"Edicto {edicto.archivo} guardado.", "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion

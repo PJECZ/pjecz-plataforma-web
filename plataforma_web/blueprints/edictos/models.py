@@ -1,8 +1,11 @@
 """
 Edictos, modelos
 """
+from pathlib import Path
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
+
+SUBDIRECTORIO = "Edictos"
 
 
 class Edicto(db.Model, UniversalMixin):
@@ -20,11 +23,19 @@ class Edicto(db.Model, UniversalMixin):
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
-    expediente = db.Column(db.String(256))
-    numero_publicacion = db.Column(db.Integer())
-    archivo = db.Column(db.String(256), nullable=False)
-    url = db.Column(db.String(512), nullable=False)
+    expediente = db.Column(db.String(256), nullable=False)
+    numero_publicacion = db.Column(db.Integer(), nullable=False)
+    archivo = db.Column(db.String(256))
+    url = db.Column(db.String(512))
 
     def __repr__(self):
         """Representación"""
         return f"<Edicto {self.archivo}>"
+
+    @property
+    def ruta(self):
+        """Ruta para guardar el archivo"""
+
+
+class EdictoException(Exception):
+    """Error por datos ilegales"""

@@ -26,7 +26,7 @@ SUBDIRECTORIO = "Sentencias"
 DIAS_LIMITE = 5
 
 
-def subir_archivo(autoridad_id: int, fecha: date, sentencia: str, expediente: str, es_paridad_genero: bool, archivo: str, puede_reemplazar: bool = False):
+def subir_archivo(autoridad_id: int, fecha: date, sentencia: str, expediente: str, es_paridad_genero: bool, archivo: str):
     """Subir archivo de sentencia"""
     # Configuración
     deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
@@ -53,9 +53,9 @@ def subir_archivo(autoridad_id: int, fecha: date, sentencia: str, expediente: st
     if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
         raise ValueError("No es un archivo PDF.")
     # Sacar si ya existe y no puede reemplazar
-    sentencia = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.fecha == fecha).filter(Sentencia.expediente == expediente).filter(Sentencia.sentencia == sentencia).filter(Sentencia.estatus == "A").first()
-    if puede_reemplazar and sentencia is not None:
-        raise ValueError("Ya existe una sentencia con la misma fecha, expediente y sentencia. Si va a reemplazar, primero debe eliminarlo.")
+    # sentencia = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.fecha == fecha).filter(Sentencia.expediente == expediente).filter(Sentencia.sentencia == sentencia).filter(Sentencia.estatus == "A").first()
+    # if puede_reemplazar and sentencia is not None:
+    #    raise ValueError("Ya existe una sentencia con la misma fecha, expediente y sentencia. Si va a reemplazar, primero debe eliminarlo.")
     # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-sentencia-expediente-g.pdf
     ano_str = fecha.strftime("%Y")
     mes_str = fecha.strftime("%m")
@@ -188,7 +188,7 @@ def search():
 @sentencias.route("/sentencias/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
-    """Nuevo Sentencia"""
+    """Nuevo Sentencia como juzgado"""
     autoridad = current_user.autoridad
     form = SentenciaNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
@@ -249,7 +249,6 @@ def new_for_autoridad(autoridad_id):
                 expediente=expediente,
                 es_paridad_genero=es_paridad_genero,
                 archivo=archivo,
-                puede_reemplazar=True,
             )
         except ValueError as error:
             flash(error, "error")

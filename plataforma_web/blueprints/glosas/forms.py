@@ -4,9 +4,11 @@ Glosas, formularios
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import DateField, SelectField, StringField, SubmitField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length, Optional, Regexp
 
 from plataforma_web.blueprints.glosas.models import Glosa
+
+EXPEDIENTE_REGEXP = r"^\d+/[12]\d\d\d$"
 
 
 class GlosaNewForm(FlaskForm):
@@ -17,7 +19,7 @@ class GlosaNewForm(FlaskForm):
     fecha = DateField("Fecha", validators=[DataRequired()])
     tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
-    expediente = StringField("Expediente", validators=[Optional(), Length(max=256)])
+    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=10), Regexp(EXPEDIENTE_REGEXP)])
     archivo = FileField("Lista de Acuerdos PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
@@ -28,7 +30,7 @@ class GlosaEditForm(FlaskForm):
     fecha = DateField("Fecha", validators=[DataRequired()])
     tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
-    expediente = StringField("Expediente", validators=[Optional(), Length(max=256)])
+    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=10), Regexp(EXPEDIENTE_REGEXP)])
     guardar = SubmitField("Guardar")
 
 
@@ -41,5 +43,5 @@ class GlosaSearchForm(FlaskForm):
     fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
-    expediente = StringField("Expediente", validators=[Optional(), Length(max=256)])
+    expediente = StringField("Expediente", validators=[Optional(), Length(max=10), Regexp(EXPEDIENTE_REGEXP)])
     buscar = SubmitField("Buscar")

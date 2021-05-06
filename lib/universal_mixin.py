@@ -4,9 +4,9 @@ UniversalMixin define las columnas y métodos comunes de todos los modelos
 import os
 from sqlalchemy.sql import func
 from hashids import Hashids
-from rrpp.extensions import db
+from plataforma_web.extensions import db
 
-hashids = Hashids(salt=os.environ.get("SALT", "Esta es una muy mala cadena aleatoria"), min_length=16)
+hashids = Hashids(salt=os.environ.get("SALT", "Esta es una muy mala cadena aleatoria"), min_length=8)
 
 
 class UniversalMixin(object):
