@@ -142,6 +142,7 @@ def search():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """Subir Glosa como juzgado"""
+    hoy = date.today()
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -169,7 +170,6 @@ def new():
         archivo = request.files["archivo"]
 
         # Validar fecha y archivo
-        hoy = date.today()
         archivo_nombre = secure_filename(archivo.filename.lower())
         try:
             if fecha > hoy:
@@ -180,7 +180,7 @@ def new():
                 raise GlosaException("No es un archivo PDF.")
         except GlosaException as error:
             flash(str(error), "error")
-            form.fecha.data = date.today()
+            form.fecha.data = hoy
             return render_template("glosas/new.jinja2", form=form)
 
         # Insertar registro
@@ -222,7 +222,7 @@ def new():
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.fecha.data = date.today()
+    form.fecha.data = hoy
     return render_template("glosas/new.jinja2", form=form)
 
 
@@ -231,6 +231,7 @@ def new():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Glosa para una autoridad dada"""
+    hoy = date.today()
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -258,7 +259,6 @@ def new_for_autoridad(autoridad_id):
         archivo = request.files["archivo"]
 
         # Validar fecha y archivo
-        hoy = date.today()
         archivo_nombre = secure_filename(archivo.filename.lower())
         try:
             if fecha > hoy:
@@ -267,14 +267,14 @@ def new_for_autoridad(autoridad_id):
                 raise GlosaException("No es un archivo PDF.")
         except GlosaException as error:
             flash(str(error), "error")
-            form.fecha.data = date.today()
+            form.fecha.data = hoy
             return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Insertar registro
         glosa = Glosa(
             autoridad=autoridad,
             fecha=fecha,
-            tipo_juicio=form.tipo_juicio.data,
+            tipo_juicio=tipo_juicio,
             descripcion=unidecode(form.descripcion.data.strip()),
             expediente=form.expediente.data,
         )
@@ -309,7 +309,7 @@ def new_for_autoridad(autoridad_id):
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.fecha.data = date.today()
+    form.fecha.data = hoy
     return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
 

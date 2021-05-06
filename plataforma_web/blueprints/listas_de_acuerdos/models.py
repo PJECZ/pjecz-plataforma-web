@@ -26,3 +26,7 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     def __repr__(self):
         """Representación"""
         return f"<ListaDeAcuerdo {self.archivo}>"
+
+
+class ListaDeAcuerdoException(Exception):
+    """Error por datos ilegales"""

@@ -16,9 +16,9 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm
-from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
+from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo, ListaDeAcuerdoException
 
-from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.autoridades.models import Autoridad, AutoridadException
 from plataforma_web.blueprints.distritos.models import Distrito
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
@@ -186,35 +186,82 @@ def search():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """Subir Lista de Acuerdos como juzgado"""
+    hoy = date.today()
+
+    # Validar autoridad
     autoridad = current_user.autoridad
+    try:
+        if autoridad is None or autoridad.estatus != "A":
+            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
+        if not autoridad.distrito.es_distrito_judicial:
+            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
+        if not autoridad.es_jurisdiccional:
+            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
+        if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
+            raise AutoridadException("El juzgado/autoridad no tiene directorio para listas de acuerdos.")
+    except AutoridadException as error:
+        return redirect(url_for("sistemas.bad_request", error=str(error)))
+
+    # Si viene el formulario
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
+
+        # Tomar valores del formulario
         fecha = form.fecha.data
+        descripcion = unidecode(form.descripcion.data.strip())
         archivo = request.files["archivo"]
+
+        # Validar fecha y archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            archivo_str, url = subir_archivo(
-                autoridad_id=autoridad.id,
-                fecha=fecha,
-                archivo=archivo,
-            )
-        except ValueError as error:
-            flash(error, "error")
-            return redirect(url_for("listas_de_acuerdos.new"))
+            if fecha > hoy:
+                raise ListaDeAcuerdoException("La fecha no debe ser del futuro.")
+            if fecha < hoy - timedelta(days=DIAS_LIMITE):
+                raise ListaDeAcuerdoException(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
+            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+                raise ListaDeAcuerdoException("No es un archivo PDF.")
+        except ListaDeAcuerdoException as error:
+            flash(str(error), "error")
+            form.fecha.data = hoy
+            return render_template("listas_de_acuerdos/new.jinja2", form=form)
+
+        # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=fecha,
-            descripcion=unidecode(form.descripcion.data.strip()),
-            archivo=archivo_str,
-            url=url,
+            descripcion=descripcion,
         )
         lista_de_acuerdo.save()
+
+        # Elaborar nombre del archivo y ruta
+        ano_str = fecha.strftime("%Y")
+        mes_str = fecha.strftime("%m")
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        archivo_str = f"{fecha_str}-lista-de-acuerdos-{lista_de_acuerdo.encode_id()}.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
+
+        # Subir el archivo
+        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(deposito)
+        blob = bucket.blob(ruta_str)
+        blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
+        url = blob.public_url
+
+        # Actualizar el nombre del archivo y el url
+        lista_de_acuerdo.archivo = archivo_str
+        lista_de_acuerdo.url = url
+        lista_de_acuerdo.save()
+
+        # Mostrar mensaje de éxito y detalle
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+
     # Si ya hay una lista de acuerdo de hoy, mostrar un mensaje que advierta que se va a reemplazar
-    hoy = date.today()
-    lista_de_hoy = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.fecha == hoy).first()
-    if lista_de_hoy is not None:
-        flash("¡ADVERTENCIA! Ya hay una lista de acuerdos de hoy. Si la sube se reemplazará.", "warning")
+    # lista_de_hoy = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.fecha == hoy).first()
+    # if lista_de_hoy is not None:
+    #     flash("¡ADVERTENCIA! Ya hay una lista de acuerdos de hoy. Si la sube se reemplazará.", "warning")
+
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
@@ -228,31 +275,75 @@ def new():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Lista de Acuerdos para una autoridad dada"""
+    hoy = date.today()
+
+    # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
+    try:
+        if autoridad is None or autoridad.estatus != "A":
+            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
+        if not autoridad.distrito.es_distrito_judicial:
+            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
+        if not autoridad.es_jurisdiccional:
+            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
+        if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
+            raise AutoridadException("El juzgado/autoridad no tiene directorio para listas de acuerdos.")
+    except AutoridadException as error:
+        return redirect(url_for("sistemas.bad_request", error=str(error)))
+
+    # Si viene el formulario
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
+
+        # Tomar valores del formulario
         fecha = form.fecha.data
+        descripcion = unidecode(form.descripcion.data.strip())
         archivo = request.files["archivo"]
+
+        # Validar fecha y archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            archivo_str, url = subir_archivo(
-                autoridad_id=autoridad.id,
-                fecha=fecha,
-                archivo=archivo,
-                puede_reemplazar=True,
-            )
-        except ValueError as error:
-            flash(error, "error")
-            return redirect(url_for("listas_de_acuerdos.new_for_autoridad", autoridad_id=autoridad_id))
+            if fecha > hoy:
+                raise ListaDeAcuerdoException("La fecha no debe ser del futuro.")
+            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+                raise ListaDeAcuerdoException("No es un archivo PDF.")
+        except ListaDeAcuerdoException as error:
+            flash(str(error), "error")
+            form.fecha.data = hoy
+            return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
             fecha=fecha,
-            archivo=archivo_str,
-            descripcion=unidecode(form.descripcion.data.strip()),
-            url=url,
+            descripcion=descripcion,
         )
         lista_de_acuerdo.save()
+
+        # Elaborar nombre del archivo y ruta
+        ano_str = fecha.strftime("%Y")
+        mes_str = fecha.strftime("%m")
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        archivo_str = f"{fecha_str}-lista-de-acuerdos-{lista_de_acuerdo.encode_id()}.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
+
+        # Subir el archivo
+        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(deposito)
+        blob = bucket.blob(ruta_str)
+        blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
+        url = blob.public_url
+
+        # Actualizar el nombre del archivo y el url
+        lista_de_acuerdo.archivo = archivo_str
+        lista_de_acuerdo.url = url
+        lista_de_acuerdo.save()
+
+        # Mostrar mensaje de éxito y detalle
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
