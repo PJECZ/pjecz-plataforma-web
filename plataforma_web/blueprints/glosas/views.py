@@ -181,7 +181,7 @@ def new():
         except GlosaException as error:
             flash(str(error), "error")
             form.fecha.data = date.today()
-            return render_template("edictos/new.jinja2", form=form)
+            return render_template("glosas/new.jinja2", form=form)
 
         # Insertar registro
         glosa = Glosa(
@@ -199,8 +199,8 @@ def new():
         fecha_str = fecha.strftime("%Y-%m-%d")
         expediente_str = expediente.replace("/", "-")
         descripcion_str = descripcion.replace(" ", "-")
-        archivo_str = f"{fecha_str}-{expediente_str}-{descripcion_str}-{edicto.encode_id()}.pdf"
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
+        archivo_str = f"{fecha_str}-{expediente_str}-{descripcion_str}-{glosa.encode_id()}.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
         deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
@@ -286,8 +286,8 @@ def new_for_autoridad(autoridad_id):
         fecha_str = fecha.strftime("%Y-%m-%d")
         expediente_str = expediente.replace("/", "-")
         descripcion_str = descripcion.replace(" ", "-")
-        archivo_str = f"{fecha_str}-{expediente_str}-{descripcion_str}-{edicto.encode_id()}.pdf"
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
+        archivo_str = f"{fecha_str}-{expediente_str}-{descripcion_str}-{glosa.encode_id()}.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
         deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
