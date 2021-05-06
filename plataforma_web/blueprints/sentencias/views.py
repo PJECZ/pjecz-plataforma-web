@@ -15,9 +15,9 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.sentencias.forms import SentenciaNewForm, SentenciaEditForm, SentenciaSearchForm
-from plataforma_web.blueprints.sentencias.models import Sentencia
+from plataforma_web.blueprints.sentencias.models import Sentencia, SentenciaException
 
-from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.autoridades.models import Autoridad, AutoridadException
 from plataforma_web.blueprints.distritos.models import Distrito
 
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
@@ -189,38 +189,83 @@ def search():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """Nuevo Sentencia como juzgado"""
+    hoy = date.today()
+
+    # Validar autoridad
     autoridad = current_user.autoridad
+    try:
+        if autoridad is None or autoridad.estatus != "A":
+            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
+        if not autoridad.distrito.es_distrito_judicial:
+            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
+        if not autoridad.es_jurisdiccional:
+            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
+        if autoridad.directorio_sentencias is None or autoridad.directorio_sentencias == "":
+            raise AutoridadException("El juzgado/autoridad no tiene directorio para sentencias.")
+    except AutoridadException as error:
+        return redirect(url_for("sistemas.bad_request", error=str(error)))
+
+    # Si viene el formulario
     form = SentenciaNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
+
+        # Tomar valores del formulario
         fecha = form.fecha.data
-        sentencia = form.sentencia.data.strip()
+        sentencia_str = form.sentencia.data.strip()
         expediente = form.expediente.data.strip()
-        es_paridad_genero = form.es_paridad_genero.data
+        es_paridad_genero = form.es_paridad_genero.data  # Boleano
         archivo = request.files["archivo"]
+
+        # Validar fecha y archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            archivo_str, url = subir_archivo(
-                autoridad_id=autoridad.id,
-                fecha=fecha,
-                sentencia=sentencia,
-                expediente=expediente,
-                es_paridad_genero=es_paridad_genero,
-                archivo=archivo,
-            )
-        except ValueError as error:
-            flash(error, "error")
-            return redirect(url_for("sentencias.new"))
+            if fecha > hoy:
+                raise SentenciaException("La fecha no debe ser del futuro.")
+            if fecha < hoy - timedelta(days=DIAS_LIMITE):
+                raise SentenciaException(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
+            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+                raise SentenciaException("No es un archivo PDF.")
+        except SentenciaException as error:
+            flash(str(error), "error")
+            form.fecha.data = hoy
+            return render_template("sentencias/new.jinja2", form=form)
+
+        # Insertar registro
         sentencia = Sentencia(
             autoridad=autoridad,
             fecha=fecha,
-            sentencia=sentencia,
+            sentencia=sentencia_str,
             expediente=expediente,
             es_paridad_genero=es_paridad_genero,
-            archivo=archivo_str,
-            url=url,
         )
         sentencia.save()
+
+        # Elaborar nombre del archivo y ruta
+        ano_str = fecha.strftime("%Y")
+        mes_str = fecha.strftime("%m")
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        expediente_str = expediente.replace("/", "-")
+        sentencia_str = sentencia_str.replace("/", "-")
+        archivo_str = f"{fecha_str}-{expediente_str}-{sentencia_str}-{sentencia.encode_id()}.pdf"
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
+
+        # Subir el archivo
+        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(deposito)
+        blob = bucket.blob(ruta_str)
+        blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
+        url = blob.public_url
+
+        # Actualizar el nombre del archivo y el url
+        sentencia.archivo = archivo_str
+        sentencia.url = url
+        sentencia.save()
+
+        # Mostrar mensaje de éxito y detalle
         flash(f"Sentencia {sentencia.archivo_str} guardado.", "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
+
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion

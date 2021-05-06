@@ -19,8 +19,8 @@ class Sentencia(db.Model, UniversalMixin):
 
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
-    sentencia = db.Column(db.String(256), index=True, nullable=False)
-    expediente = db.Column(db.String(256), index=True, nullable=False)
+    sentencia = db.Column(db.String(16), index=True, nullable=False)
+    expediente = db.Column(db.String(16), index=True, nullable=False)
     es_paridad_genero = db.Column(db.Boolean, nullable=False, default=False)
     archivo = db.Column(db.String(256), nullable=False)
     url = db.Column(db.String(512), nullable=False)
@@ -28,3 +28,7 @@ class Sentencia(db.Model, UniversalMixin):
     def __repr__(self):
         """Representación"""
         return f"<Sentencia {self.archivo}>"
+
+
+class SentenciaException(Exception):
+    """Error por datos ilegales"""

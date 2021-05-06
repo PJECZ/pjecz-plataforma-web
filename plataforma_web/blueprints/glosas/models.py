@@ -42,7 +42,7 @@ class Glosa(db.Model, UniversalMixin):
     fecha = db.Column(db.Date, index=True, nullable=False)
     tipo_juicio = db.Column(db.Enum(*TIPOS_JUICIOS, name="tipos_juicios", native_enum=False), index=True, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
-    expediente = db.Column(db.String(256), nullable=False)
+    expediente = db.Column(db.String(16), index=True, nullable=False)
     archivo = db.Column(db.String(256))
     url = db.Column(db.String(512))
 

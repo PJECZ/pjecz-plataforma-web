@@ -23,7 +23,7 @@ class Edicto(db.Model, UniversalMixin):
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
-    expediente = db.Column(db.String(256), nullable=False)
+    expediente = db.Column(db.String(16), index=True, nullable=False)
     numero_publicacion = db.Column(db.Integer(), nullable=False)
     archivo = db.Column(db.String(256))
     url = db.Column(db.String(512))
