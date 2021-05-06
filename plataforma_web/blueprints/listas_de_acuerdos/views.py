@@ -27,53 +27,6 @@ SUBDIRECTORIO = "Listas de Acuerdos"
 DIAS_LIMITE = 5
 
 
-def subir_archivo(autoridad_id: int, fecha: date, archivo: str, puede_reemplazar: bool = False):
-    """Subir archivo de lista de acuerdos"""
-    # Configuración
-    deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
-    # Validar autoridad
-    autoridad = Autoridad.query.get(autoridad_id)
-    if autoridad is None or autoridad.estatus != "A":
-        raise ValueError("El juzgado/autoridad no existe o no es activa.")
-    if not autoridad.distrito.es_distrito_judicial:
-        raise ValueError("El juzgado/autoridad no está en un distrito jurisdiccional.")
-    if not autoridad.es_jurisdiccional:
-        raise ValueError("El juzgado/autoridad no es jurisdiccional.")
-    if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
-        raise ValueError("El juzgado/autoridad no tiene directorio para listas de acuerdos.")
-    # Validar fecha
-    hoy = date.today()
-    if not isinstance(fecha, date):
-        raise ValueError("La fecha no es del tipo correcto.")
-    if fecha > hoy:
-        raise ValueError("La fecha no debe ser del futuro.")
-    if fecha < hoy - timedelta(days=DIAS_LIMITE):
-        raise ValueError(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
-    # Validar que el archivo sea PDF
-    archivo_nombre = secure_filename(archivo.filename.lower())
-    if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-        raise ValueError("No es un archivo PDF.")
-    # Sacar si ya existe y no puede reemplazar
-    # lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
-    # if puede_reemplazar and lista_de_acuerdo is not None:
-    #    raise ValueError("Ya existe una lista de acuerdo con esa fecha. Si va a reemplazar, primero debe eliminarlo.")
-    # Si va a reemplazar, que sea de hoy solamente
-    # if puede_reemplazar is False and fecha != hoy:
-    #    raise ValueError("No puede reemplazar archivos que no sean de hoy.")
-    # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-lista-de-acuerdos.pdf
-    ano_str = fecha.strftime("%Y")
-    mes_str = fecha.strftime("%m")
-    fecha_str = fecha.strftime("%Y-%m-%d")
-    archivo_str = fecha_str + "-lista-de-acuerdos.pdf"
-    ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
-    # Subir archivo a Google Storage
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(deposito)
-    blob = bucket.blob(ruta_str)
-    blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
-    return (archivo_str, blob.public_url)
-
-
 @listas_de_acuerdos.route("/listas_de_acuerdos/acuses/<id_hashed>")
 def checkout(id_hashed):
     """Acuse"""
