@@ -30,6 +30,8 @@ class AutoridadEditForm(FlaskForm):
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
     descripcion = StringField("Autoridad", validators=[DataRequired(), Length(max=256)])
     clave = StringField("Clave", validators=[DataRequired(), Length(max=16)])
+    directorio_edictos = StringField("Directorio para edictos", validators=[Optional(), Length(max=256)])
+    directorio_glosas = StringField("Directorio para glosas", validators=[Optional(), Length(max=256)])
     directorio_listas_de_acuerdos = StringField("Directorio para listas de acuerdos", validators=[Optional(), Length(max=256)])
     directorio_sentencias = StringField("Directorio para sentencias", validators=[Optional(), Length(max=256)])
     es_jurisdiccional = BooleanField("Es jurisdiccional", validators=[Optional()])
