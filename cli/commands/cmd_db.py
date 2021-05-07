@@ -14,7 +14,6 @@ from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_distritos import alimentar_distritos
 from cli.commands.alimentar_autoridades import alimentar_autoridades
 from cli.commands.alimentar_abogados import alimentar_abogados
-from cli.commands.alimentar_listas_de_acuerdos import alimentar_listas_de_acuerdos
 from cli.commands.alimentar_ubicacion_expedientes import alimentar_ubicacion_expedientes
 from cli.commands.alimentar_peritos import alimentar_peritos
 
@@ -25,12 +24,12 @@ db.app = app
 
 @click.group()
 def cli():
-    """ Base de Datos """
+    """Base de Datos"""
 
 
 @click.command()
 def inicializar():
-    """ Inicializar """
+    """Inicializar"""
     db.drop_all()
     db.create_all()
     click.echo("Inicializado.")
@@ -38,13 +37,12 @@ def inicializar():
 
 @click.command()
 def alimentar():
-    """ Alimentar """
+    """Alimentar"""
     alimentar_roles()
     alimentar_distritos()
     alimentar_autoridades()
     alimentar_usuarios()
     alimentar_abogados()
-    alimentar_listas_de_acuerdos()
     alimentar_ubicacion_expedientes()
     alimentar_peritos()
     click.echo("Alimentado.")
@@ -53,7 +51,7 @@ def alimentar():
 @click.command()
 @click.pass_context
 def reiniciar(ctx):
-    """ Reiniciar ejecuta inicializar y alimentar """
+    """Reiniciar ejecuta inicializar y alimentar"""
     ctx.invoke(inicializar)
     ctx.invoke(alimentar)
 
