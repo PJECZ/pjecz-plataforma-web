@@ -22,18 +22,18 @@
             <table id="autoridades_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
+                        <th>Clave</th>
                         <th>Distrito</th>
                         <th>Autoridad</th>
-                        <th>Clave</th>
                         <th>Es jurisdiccional</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for autoridad in autoridades %}
                     <tr>
+                        <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
                         <td>{{ autoridad.distrito.nombre }}</td>
-                        <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.descripcion }}</a></td>
-                        <td>{{ autoridad.clave }}</td>
+                        <td>{{ autoridad.descripcion }}</td>
                         <td>{% if autoridad.es_jurisdiccional %}SI{% endif %}</td>
                     </tr>
                     {% endfor %}
