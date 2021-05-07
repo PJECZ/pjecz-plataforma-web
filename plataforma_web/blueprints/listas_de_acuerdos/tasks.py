@@ -3,7 +3,8 @@ Listas de Acuerdos, tareas para ejecutar en el fondo
 """
 import logging
 import os
-from datetime import datetime
+import re
+from datetime import date
 from pathlib import Path
 
 from dateutil.tz import tzlocal
@@ -96,9 +97,14 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         return set_task_error(f"No existe o no hay archivos en {subdirectorio}")
     bitacora.info("- Tiene %d archivos en el depósito", total_en_deposito)
 
+    # Precompilar expresión regular para letras y digitos
+    letras_digitos_regex = re.compile("[^0-9a-zA-Z]+")
+
     # Iniciar la tarea y contadores
     set_task_progress(0)
+    contador_incorrectos = 0
     contador_insertados = 0
+    contador_presentes = 0
 
     # Bucle por los archivos en el depósito
     for blob in blobs:
@@ -111,31 +117,38 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # Saltar y quitar de la lista si se encuentra en la consulta
         esta_en_bd = False
         for indice, lista_de_acuerdo in enumerate(listas_de_acuerdos):
-            if blob.url == lista_de_acuerdo.url:
+            if blob.public_url == lista_de_acuerdo.url:
                 listas_de_acuerdos.pop(indice)
                 esta_en_bd = True
                 break
         if esta_en_bd:
+            contador_presentes += 1
             continue
 
         # A partir de aquí tenemos un archivo que no está en la base de datos
         # El nombre del archivo para una lista de acuerdos debe ser como
         # AAAA-MM-DD-LISTA-DE-ACUERDOS-IDHASED.pdf
 
+        # Separar elementos del nombre del archivo, sin extensión, en mayúsculas y sin caracteres especiales
+        nombre_sin_extension = unidecode(ruta.name[:-4]).upper()
+        elementos = re.sub(letras_digitos_regex, "-", nombre_sin_extension).strip("-").split("-")
+
         # Tomar la fecha
-        archivo_str = ruta.name
-        fecha_str = archivo_str[:10]
         try:
-            fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+            ano = int(elementos[0])
+            mes = int(elementos[1])
+            dia = int(elementos[2])
+            fecha = date(ano, mes, dia)
         except ValueError:
             bitacora.warning("X Fecha incorrecta: %s", ruta)
+            contador_incorrectos += 1
             continue
 
         # Tomar la descripción
-        if len(archivo_str) > 14:  # YYYY-MM-DD.pdf
-            descripcion = unidecode(archivo_str[11:-4]).strip().upper()
+        if len(elementos) > 3:
+            descripcion = " ".join(elementos[3:])
         else:
-            descripcion = "Lista de Acuerdo"
+            descripcion = "LISTA DE ACUERDOS"
 
         # Tomar el ID hashed
 
@@ -146,8 +159,8 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             modificado=tiempo_local,
             autoridad=autoridad,
             fecha=fecha,
-            archivo=archivo_str,
             descripcion=descripcion,
+            archivo=ruta.name,
             url=blob.public_url,
         ).save()
         contador_insertados += 1

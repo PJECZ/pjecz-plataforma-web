@@ -11,21 +11,22 @@ class Glosa(db.Model, UniversalMixin):
 
     TIPOS_JUICIOS = OrderedDict(
         [
-            ("AMPARO", "Amparo"),
-            ("AUDIENCIA ORAL", "Audiencia Oral"),
-            ("CUESTION DE INCONSTITUCIONALIDAD", "Cuestión de Inconstitucionalidad"),
-            ("JUICIO ORAL", "Juicio Oral"),
-            ("JUICIO DE NULIDAD", "Juicio de Nulidad"),
-            ("JUICIO ORDINARIO CIVIL", "Juicio Ordinario Civil"),
-            ("JUICIO ORDINARIO MERCANTIL", "Juicio Ordinario Mercantil"),
-            ("LABORAL LAUDO", "Laboral Laudo"),
-            ("PENAL", "Penal"),
-            ("PROCEDIMIENTO A PERITO", "Procedimiento a Perito"),
-            ("PROCEDIMIENTO DISCIPLINARIO", "Procedimiento Disciplinario"),
-            ("RECURSO DE APELACION", "Recurso de Apelación"),
-            ("RECURSO DE QUEJA", "Recurso de Queja"),
-            ("SALA", "Sala"),
-            ("SALA COLEGIADA CIVIL Y FAMILIAR", "Sala Colegiada Civil y Familiar"),
+            ("ND", "No Definido"),
+            ("AMP", "Amparo"),
+            ("AUD", "Audiencia Oral"),
+            ("INC", "Cuestión de Inconstitucionalidad"),
+            ("JO", "Juicio Oral"),
+            ("JN", "Juicio de Nulidad"),
+            ("JOC", "Juicio Ordinario Civil"),
+            ("JOM", "Juicio Ordinario Mercantil"),
+            ("LAB", "Laboral Laudo"),
+            ("PEN", "Penal"),
+            ("PD", "Procedimiento Disciplinario"),
+            ("PP", "Procedimiento a Perito"),
+            ("RA", "Recurso de Apelación"),
+            ("RQ", "Recurso de Queja"),
+            ("S", "Sala"),
+            ("SCF", "Sala Civil y Familiar"),
         ]
     )
 

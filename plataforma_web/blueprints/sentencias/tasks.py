@@ -3,10 +3,12 @@ Sentencias, tareas para ejecutar en el fondo
 """
 import logging
 import os
-from datetime import datetime
+import re
+from datetime import date
 from pathlib import Path
 
 from dateutil.tz import tzlocal
+from unidecode import unidecode
 from google.cloud import storage
 from rq import get_current_job
 
@@ -95,9 +97,14 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         return set_task_error(f"No existe o no hay archivos en {subdirectorio}")
     bitacora.info("- Tiene %d archivos en el depósito", total_en_deposito)
 
+    # Precompilar expresión regular para letras y digitos
+    letras_digitos_regex = re.compile("[^0-9a-zA-Z]+")
+
     # Iniciar la tarea y contadores
     set_task_progress(0)
+    contador_incorrectos = 0
     contador_insertados = 0
+    contador_presentes = 0
 
     # Bucle por los archivos en el depósito
     for blob in blobs:
@@ -110,45 +117,57 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # Saltar y quitar de la lista si se encuentra en la consulta
         esta_en_bd = False
         for indice, sentencia in enumerate(sentencias):
-            if blob.url == sentencia.url:
+            if blob.public_url == sentencia.url:
                 sentencias.pop(indice)
                 esta_en_bd = True
                 break
         if esta_en_bd:
+            contador_presentes += 1
             continue
 
         # A partir de aquí tenemos un archivo que no está en la base de datos
         # El nombre del archivo para una sentencia debe ser como
-        # AAAA-MM-DD-EEEE-EEEE-SENT-SENT-g-IDHASED.pdf
+        # AAAA-MM-DD-EEEE-EEEE-SENT-SENT-G-IDHASED.pdf
+
+        # Separar elementos del nombre del archivo, sin extensión, en mayúsculas y sin caracteres especiales
+        nombre_sin_extension = unidecode(ruta.name[:-4]).upper()
+        elementos = re.sub(letras_digitos_regex, "-", nombre_sin_extension).strip("-").split("-")
 
         # Tomar la fecha
-        archivo_str = ruta.name
-        fecha_str = archivo_str[:10]
         try:
-            fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+            ano = int(elementos[0])
+            mes = int(elementos[1])
+            dia = int(elementos[2])
+            fecha = date(ano, mes, dia)
         except ValueError:
             bitacora.warning("X Fecha incorrecta: %s", ruta)
+            contador_incorrectos += 1
             continue
 
-        # Validar la sentencia
-        elementos = archivo_str[10:-4].strip("-").split("-")
-        if len(elementos) >= 2:
-            sentencia = elementos[0] + "/" + elementos[1]
-        else:
-            bitacora.warning("X Sentencia incorrecta: %s", archivo_str)
+        # Tomar el expediente
+        try:
+            numero = int(elementos[3])
+            ano = int(elementos[4])
+            expediente = str(numero) + "/" + str(ano)
+        except ValueError:
+            bitacora.warning("X Expediente incorrecto: %s", ruta)
+            contador_incorrectos += 1
             continue
 
-        # Validar el expediente
-        if len(elementos) >= 4:
-            expediente = elementos[2] + "/" + elementos[3]
-        else:
-            bitacora.warning("X Expediente incorrecto: %s", archivo_str)
+        # Tomar la sentencia
+        try:
+            numero = int(elementos[5])
+            ano = int(elementos[6])
+            sentencia = str(numero) + "/" + str(ano)
+        except ValueError:
+            bitacora.warning("X Sentencia incorrecta: %s", ruta)
+            contador_incorrectos += 1
             continue
 
         # Tomar la paridad de género
-        if len(elementos) >= 5 and elementos[4].lower() == "g":
-            es_paridad_genero = True
-        else:
+        try:
+            es_paridad_genero = elementos[7] == "G"
+        except ValueError:
             es_paridad_genero = False
 
         # Tomar el ID hashed
@@ -163,7 +182,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             sentencia=sentencia,
             expediente=expediente,
             es_paridad_genero=es_paridad_genero,
-            archivo=archivo_str,
+            archivo=ruta.name,
             url=blob.public_url,
         ).save()
         contador_insertados += 1
@@ -178,13 +197,15 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     # Mensaje final
     mensajes = []
     if contador_insertados > 0:
-        mensajes.append(f"Se insertaron {contador_insertados} registros")
+        mensajes.append(f"Se insertaron {contador_insertados}")
     else:
         mensajes.append("No se insertaron registros")
     if contador_borrados > 0:
-        mensajes.append(f"Se borraron {contador_borrados} registros")
-    else:
-        mensajes.append("No se borraron registros")
+        mensajes.append(f"Se borraron {contador_borrados}")
+    if contador_presentes > 0:
+        mensajes.append(f"Están presentes {contador_presentes}")
+    if contador_incorrectos > 0:
+        mensajes.append(f"Hay {contador_incorrectos} archivos con nombres incorrectos")
     mensaje_final = "- " + ". ".join(mensajes) + "."
 
     # Terminar tarea
