@@ -81,11 +81,10 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         return set_task_error("La autoridad no tiene directorio para glosas")
     bitacora.info("- Autoridad %s", autoridad.clave)
 
-    # Obtener los nombres de los archivos en la BD
+    # Consultar las glosas (activos e inactivos) y elaborar lista de archivos
     glosas = Glosa.query.filter(Glosa.autoridad == autoridad).all()
     total_en_bd = len(glosas)
-    bitacora.info("- Tiene %d glosas en la base de datos", total_en_bd)
-    archivos = [glosa.archivo for glosa in glosas]
+    bitacora.info("- Tiene %d registros en la base de datos", total_en_bd)
 
     # Obtener archivos en el depósito
     deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "pjecz-pruebas")
@@ -101,7 +100,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     set_task_progress(0)
     contador_insertados = 0
 
-    # Bucle por los archivos en el depósito AAAA-MM-DD-EEEE-EEEE-DESCRIPCION-BLA-BLA-IDHASED.pdf
+    # Bucle por los archivos en el depósito
     for blob in blobs:
 
         # Validar que sea PDF
@@ -109,7 +108,21 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         if ruta.suffix.lower() != ".pdf":
             continue
 
-        # Validar la fecha
+        # Saltar y quitar de la lista si se encuentra en la consulta
+        esta_en_bd = False
+        for indice, glosa in enumerate(glosas):
+            if blob.url == glosa.url:
+                glosas.pop(indice)
+                esta_en_bd = True
+                break
+        if esta_en_bd:
+            continue
+
+        # A partir de aquí tenemos un archivo que no está en la base de datos
+        # El nombre del archivo para una glosa debe ser como
+        # AAAA-MM-DD-EEEE-EEEE-DESCRIPCION-BLA-BLA-IDHASED.pdf
+
+        # Tomar la fecha
         archivo_str = ruta.name
         fecha_str = archivo_str[:10]
         try:
@@ -117,3 +130,54 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         except ValueError:
             bitacora.warning("X Fecha incorrecta: %s", ruta)
             continue
+
+        # Tomar el tipo de juicio
+        tipo_juicio = None
+
+        # Tomar el expediente
+        expediente = None
+
+        # Tomar la descripción
+        descripcion = None
+
+        # Tomar el ID hashed
+
+        # Insertar
+        tiempo_local = blob.time_created.astimezone(tzlocal())
+        Glosa(
+            creado=tiempo_local,
+            modificado=tiempo_local,
+            autoridad=autoridad,
+            fecha=fecha,
+            tipo_juicio=tipo_juicio,
+            descripcion=descripcion,
+            expediente=expediente,
+            archivo=archivo_str,
+            url=blob.public_url,
+        ).save()
+        contador_insertados += 1
+
+    # Los registros que no se encontraron serán dados de baja
+    contador_borrados = 0
+    for glosa in glosas:
+        if glosa.estatus == "A":
+            glosa.delete()
+            contador_borrados += 1
+
+    # Mensaje final
+    mensajes = []
+    if contador_insertados > 0:
+        mensajes.append(f"Se insertaron {contador_insertados} registros")
+    else:
+        mensajes.append("No se insertaron registros")
+    if contador_borrados > 0:
+        mensajes.append(f"Se borraron {contador_borrados} registros")
+    else:
+        mensajes.append("No se borraron registros")
+    mensaje_final = "- " + ". ".join(mensajes) + "."
+
+    # Terminar tarea
+    set_task_progress(100)
+    bitacora.info(mensaje_final)
+    bitacora.info("Termina")
+    return mensaje_final

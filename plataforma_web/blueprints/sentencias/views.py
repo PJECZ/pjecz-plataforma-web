@@ -244,9 +244,9 @@ def new():
         ano_str = fecha.strftime("%Y")
         mes_str = fecha.strftime("%m")
         fecha_str = fecha.strftime("%Y-%m-%d")
-        expediente_str = expediente.replace("/", "-")
         sentencia_str = sentencia_str.replace("/", "-")
-        archivo_str = f"{fecha_str}-{expediente_str}-{sentencia_str}-{sentencia.encode_id()}.pdf"
+        expediente_str = expediente.replace("/", "-")
+        archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
 
         # Subir el archivo

@@ -81,11 +81,10 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         return set_task_error("La autoridad no tiene directorio para listas de acuerdos")
     bitacora.info("- Autoridad %s", autoridad.clave)
 
-    # Obtener las fechas de las listas de acuerdos en BD
+    # Consultar las listas de acuerdos (activos e inactivos) y elaborar lista de fechas
     listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).all()
     total_en_bd = len(listas_de_acuerdos)
-    bitacora.info("- Tiene %d listas de acuerdos en la base de datos", total_en_bd)
-    fechas = [lista_de_acuerdo.fecha for lista_de_acuerdo in listas_de_acuerdos]
+    bitacora.info("- Tiene %d registros en la base de datos", total_en_bd)
 
     # Obtener archivos en el depósito
     deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "pjecz-pruebas")
@@ -101,7 +100,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     set_task_progress(0)
     contador_insertados = 0
 
-    # Bucle por los archivos en el depósito AAAA-MM-DD-LISTA-DE-ACUERDOS-IDHASED.pdf
+    # Bucle por los archivos en el depósito
     for blob in blobs:
 
         # Validar que sea PDF
@@ -109,7 +108,21 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         if ruta.suffix.lower() != ".pdf":
             continue
 
-        # Validar la fecha
+        # Saltar y quitar de la lista si se encuentra en la consulta
+        esta_en_bd = False
+        for indice, lista_de_acuerdo in enumerate(listas_de_acuerdos):
+            if blob.url == lista_de_acuerdo.url:
+                listas_de_acuerdos.pop(indice)
+                esta_en_bd = True
+                break
+        if esta_en_bd:
+            continue
+
+        # A partir de aquí tenemos un archivo que no está en la base de datos
+        # El nombre del archivo para una lista de acuerdos debe ser como
+        # AAAA-MM-DD-LISTA-DE-ACUERDOS-IDHASED.pdf
+
+        # Tomar la fecha
         archivo_str = ruta.name
         fecha_str = archivo_str[:10]
         try:
@@ -124,50 +137,42 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         else:
             descripcion = "Lista de Acuerdo"
 
-        # Si ya existe esa fecha en la BD
-        esta_en_bd = True
-        try:
-            posicion = fechas.index(fecha)
-            fechas.pop(posicion)  # Se saca de la lista
-        except ValueError:
-            esta_en_bd = False
+        # Tomar el ID hashed
 
-        # Insertar
-        if not esta_en_bd:
-            tiempo_local = blob.time_created.astimezone(tzlocal())
-            ListaDeAcuerdo(
-                creado=tiempo_local,
-                modificado=tiempo_local,
-                autoridad=autoridad,
-                fecha=fecha,
-                archivo=archivo_str,
-                descripcion=descripcion,
-                url=blob.public_url,
-            ).save()
-            contador_insertados += 1
+        # Insertar si no está
+        tiempo_local = blob.time_created.astimezone(tzlocal())
+        ListaDeAcuerdo(
+            creado=tiempo_local,
+            modificado=tiempo_local,
+            autoridad=autoridad,
+            fecha=fecha,
+            archivo=archivo_str,
+            descripcion=descripcion,
+            url=blob.public_url,
+        ).save()
+        contador_insertados += 1
 
-    # Bucle por las fechas que quedaron sin encontrarse
+    # Los registros que no se encontraron serán dados de baja
     contador_borrados = 0
-    for fecha in fechas:
-        lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.fecha == fecha).first()
-        if lista_de_acuerdo:
-            lista_de_acuerdo.delete()  # Dar de baja porque no está en el depósito
+    for lista_de_acuerdo in listas_de_acuerdos:
+        if lista_de_acuerdo.estatus == "A":
+            lista_de_acuerdo.delete()
             contador_borrados += 1
 
     # Mensaje final
-    resultados = []
+    mensajes = []
     if contador_insertados > 0:
-        resultados.append(f"Se insertaron {contador_insertados} registros")
+        mensajes.append(f"Se insertaron {contador_insertados} registros")
     else:
-        resultados.append("No se insertaron registros")
+        mensajes.append("No se insertaron registros")
     if contador_borrados > 0:
-        resultados.append(f"Se borraron {contador_borrados} registros")
+        mensajes.append(f"Se borraron {contador_borrados} registros")
     else:
-        resultados.append("No se borraron registros")
-    mensaje_final = "- " + ". ".join(resultados) + "."
+        mensajes.append("No se borraron registros")
+    mensaje_final = "- " + ". ".join(mensajes) + "."
 
     # Terminar tarea
     set_task_progress(100)
     bitacora.info(mensaje_final)
-    bitacora.info("Termina listas_de_acuerdos.tasks.refrescar")
+    bitacora.info("Termina")
     return mensaje_final
