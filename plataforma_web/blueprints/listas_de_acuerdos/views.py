@@ -178,6 +178,8 @@ def new():
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
+        # TODO Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
+
         # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
@@ -218,7 +220,7 @@ def new():
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.descripcion.data = "Lista de Acuerdos"
+    form.descripcion.data = "LISTA DE ACUERDOS"
     form.fecha.data = hoy
     return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
@@ -265,6 +267,8 @@ def new_for_autoridad(autoridad_id):
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
+        # TODO Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
+
         # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
             autoridad=autoridad,
@@ -300,7 +304,7 @@ def new_for_autoridad(autoridad_id):
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.descripcion.data = "Lista de Acuerdos"
+    form.descripcion.data = "LISTA DE ACUERDOS"
     form.fecha.data = date.today()
     return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 

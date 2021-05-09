@@ -22,8 +22,8 @@ class Sentencia(db.Model, UniversalMixin):
     sentencia = db.Column(db.String(16), index=True, nullable=False)
     expediente = db.Column(db.String(16), index=True, nullable=False)
     es_paridad_genero = db.Column(db.Boolean, nullable=False, default=False)
-    archivo = db.Column(db.String(256), nullable=False)
-    url = db.Column(db.String(512), nullable=False)
+    archivo = db.Column(db.String(256))
+    url = db.Column(db.String(512))
 
     def __repr__(self):
         """Representación"""

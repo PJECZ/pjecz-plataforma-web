@@ -129,3 +129,13 @@ Esto habilita
 - El formateo del código con [Black](https://black.readthedocs.io/en/stable/)
 - Líneas más largas de hasta 256 caracteres
 - Reconocimiento de sintaxis de Flask SQLAlchemy
+
+## Arrancar RQ worker
+
+Las tareas en el fondo requieren un servicio Redis
+
+Abra una terminal, cargue el entorno virtual y deje en ejecución el worker
+
+    rq worker pjecz_plataforma_web
+
+Estará vigilante de Redis
