@@ -23,7 +23,7 @@
     <div class="container-fluid">
         {% call detail.card(estatus=lista_de_acuerdo.estatus) %}
             {{ detail.label_value_big('Archivo', lista_de_acuerdo.archivo) }}
-            {{ detail.label_value('Tiempo de creación', lista_de_acuerdo.creado) }}
+            {{ detail.label_value('Tiempo de creación', lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M:%S')) }}
             {{ detail.label_value('Distrito', lista_de_acuerdo.autoridad.distrito.nombre) }}
             {{ detail.label_value('Autoridad', lista_de_acuerdo.autoridad.descripcion) }}
             {{ detail.label_value('Fecha', lista_de_acuerdo.fecha) }}

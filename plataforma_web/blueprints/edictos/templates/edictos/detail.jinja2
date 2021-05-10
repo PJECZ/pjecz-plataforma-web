@@ -23,6 +23,8 @@
     <div class="container-fluid">
         {% call detail.card(estatus=edicto.estatus) %}
             {{ detail.label_value_big('Edicto', edicto.descripcion) }}
+            {{ detail.label_value('Distrito', edicto.autoridad.distrito.nombre) }}
+            {{ detail.label_value('Autoridad', edicto.autoridad.descripcion) }}
             {{ detail.label_value('Fecha', edicto.fecha) }}
             {{ detail.label_value('Descripción', edicto.descripcion) }}
             {{ detail.label_value('Expediente', edicto.expediente) }}

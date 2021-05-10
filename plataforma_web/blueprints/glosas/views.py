@@ -1,7 +1,7 @@
 """
 Glosas, vistas
 """
-from datetime import date, timedelta
+import datetime
 from pathlib import Path
 from unidecode import unidecode
 
@@ -24,7 +24,6 @@ from plataforma_web.blueprints.distritos.models import Distrito
 glosas = Blueprint("glosas", __name__, template_folder="templates")
 
 SUBDIRECTORIO = "Glosas"
-DIAS_LIMITE = 5
 
 
 @glosas.route("/glosas/acuses/<id_hashed>")
@@ -142,7 +141,12 @@ def search():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """Subir Glosa como juzgado"""
-    hoy = date.today()
+
+    # Para validar la fecha
+    dias_limite = 7
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -172,14 +176,12 @@ def new():
         # Validar fecha y archivo
         archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            if fecha > hoy:
-                raise GlosaException("La fecha no debe ser del futuro.")
-            if fecha < hoy - timedelta(days=DIAS_LIMITE):
-                raise GlosaException(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
+            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+                raise GlosaException(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.")
             if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
                 raise GlosaException("No es un archivo PDF.")
         except GlosaException as error:
-            flash(str(error), "error")
+            flash(str(error), "warning")
             form.fecha.data = hoy
             return render_template("glosas/new.jinja2", form=form)
 
@@ -231,7 +233,12 @@ def new():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Glosa para una autoridad dada"""
-    hoy = date.today()
+
+    # Para validar la fecha
+    dias_limite = 30
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -261,12 +268,12 @@ def new_for_autoridad(autoridad_id):
         # Validar fecha y archivo
         archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            if fecha > hoy:
-                raise GlosaException("La fecha no debe ser del futuro.")
+            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+                raise GlosaException(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.")
             if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
                 raise GlosaException("No es un archivo PDF.")
         except GlosaException as error:
-            flash(str(error), "error")
+            flash(str(error), "warning")
             form.fecha.data = hoy
             return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 

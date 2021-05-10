@@ -23,7 +23,6 @@
     <div class="container-fluid">
         {% call detail.card(estatus=sentencia.estatus) %}
             {{ detail.label_value_big('Archivo', sentencia.archivo) }}
-            {{ detail.label_value('Tiempo de creación', sentencia.creado) }}
             {{ detail.label_value('Distrito', sentencia.autoridad.distrito.nombre) }}
             {{ detail.label_value('Autoridad', sentencia.autoridad.descripcion) }}
             {{ detail.label_value('Fecha', sentencia.fecha) }}

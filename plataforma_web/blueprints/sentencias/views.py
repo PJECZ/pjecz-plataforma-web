@@ -1,7 +1,7 @@
 """
 Sentencias, vistas
 """
-from datetime import date, timedelta
+import datetime
 from pathlib import Path
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -23,54 +23,6 @@ from plataforma_web.blueprints.distritos.models import Distrito
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
 SUBDIRECTORIO = "Sentencias"
-DIAS_LIMITE = 5
-
-
-def subir_archivo(autoridad_id: int, fecha: date, sentencia: str, expediente: str, es_paridad_genero: bool, archivo: str):
-    """Subir archivo de sentencia"""
-    # Configuración
-    deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
-    # Validar autoridad
-    autoridad = Autoridad.query.get(autoridad_id)
-    if autoridad is None or autoridad.estatus != "A":
-        raise ValueError("El juzgado/autoridad no existe o no es activa.")
-    if not autoridad.distrito.es_distrito_judicial:
-        raise ValueError("El juzgado/autoridad no está en un distrito jurisdiccional.")
-    if not autoridad.es_jurisdiccional:
-        raise ValueError("El juzgado/autoridad no es jurisdiccional.")
-    if autoridad.directorio_sentencias is None or autoridad.directorio_sentencias == "":
-        raise ValueError("El juzgado/autoridad no tiene directorio para sentencias.")
-    # Validar fecha
-    hoy = date.today()
-    if not isinstance(fecha, date):
-        raise ValueError("La fecha no es del tipo correcto.")
-    if fecha > hoy:
-        raise ValueError("La fecha no debe ser del futuro.")
-    if fecha < hoy - timedelta(days=DIAS_LIMITE):
-        raise ValueError(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
-    # Validar que el archivo sea PDF
-    archivo_nombre = secure_filename(archivo.filename.lower())
-    if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-        raise ValueError("No es un archivo PDF.")
-    # Sacar si ya existe y no puede reemplazar
-    # sentencia = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.fecha == fecha).filter(Sentencia.expediente == expediente).filter(Sentencia.sentencia == sentencia).filter(Sentencia.estatus == "A").first()
-    # if puede_reemplazar and sentencia is not None:
-    #    raise ValueError("Ya existe una sentencia con la misma fecha, expediente y sentencia. Si va a reemplazar, primero debe eliminarlo.")
-    # Definir ruta /SUBDIRECTORIO/DISTRITO/AUTORIDAD/YYYY/MM/YYYY-MM-DD-sentencia-expediente-g.pdf
-    ano_str = fecha.strftime("%Y")
-    mes_str = fecha.strftime("%m")
-    fecha_str = fecha.strftime("%Y-%m-%d")
-    genero_str = ""
-    if es_paridad_genero:
-        genero_str = "-g"
-    archivo_str = fecha_str + sentencia.replace("/", "-") + "-" + expediente.replace("/", "-") + genero_str + ".pdf"
-    ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_sentencias, ano_str, mes_str, archivo_str))
-    # Subir archivo a Google Storage
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(deposito)
-    blob = bucket.blob(ruta_str)
-    blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
-    return (archivo_str, blob.public_url)
 
 
 @sentencias.route("/sentencias/acuses/<id_hashed>")
@@ -189,7 +141,12 @@ def search():
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """Nuevo Sentencia como juzgado"""
-    hoy = date.today()
+
+    # Para validar la fecha
+    dias_limite = 7
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -219,14 +176,12 @@ def new():
         # Validar fecha y archivo
         archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            if fecha > hoy:
-                raise SentenciaException("La fecha no debe ser del futuro.")
-            if fecha < hoy - timedelta(days=DIAS_LIMITE):
-                raise SentenciaException(f"La fecha no debe ser más antigua a {DIAS_LIMITE} días.")
+            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+                raise SentenciaException(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.")
             if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
                 raise SentenciaException("No es un archivo PDF.")
         except SentenciaException as error:
-            flash(str(error), "error")
+            flash(str(error), "warning")
             form.fecha.data = hoy
             return render_template("sentencias/new.jinja2", form=form)
 
@@ -269,7 +224,7 @@ def new():
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.fecha.data = date.today()
+    form.fecha.data = hoy
     return render_template("sentencias/new.jinja2", form=form)
 
 
@@ -278,7 +233,12 @@ def new():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Sentencia para una autoridad dada"""
-    hoy = date.today()
+
+    # Para validar la fecha
+    dias_limite = 30
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -308,12 +268,12 @@ def new_for_autoridad(autoridad_id):
         # Validar fecha y archivo
         archivo_nombre = secure_filename(archivo.filename.lower())
         try:
-            if fecha > hoy:
-                raise SentenciaException("La fecha no debe ser del futuro.")
+            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+                raise SentenciaException(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.")
             if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
                 raise SentenciaException("No es un archivo PDF.")
         except SentenciaException as error:
-            flash(str(error), "error")
+            flash(str(error), "warning")
             form.fecha.data = hoy
             return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
@@ -356,7 +316,7 @@ def new_for_autoridad(autoridad_id):
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.fecha.data = date.today()
+    form.fecha.data = hoy
     return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
 
