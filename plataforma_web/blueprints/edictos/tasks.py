@@ -10,6 +10,7 @@ from pathlib import Path
 from dateutil.tz import tzlocal
 from unidecode import unidecode
 from google.cloud import storage
+from hashids import Hashids
 from rq import get_current_job
 
 from plataforma_web.app import create_app
@@ -97,8 +98,14 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         return set_task_error(f"No existe o no hay archivos en {subdirectorio}")
     bitacora.info("- Tiene %d archivos en el depósito", total_en_deposito)
 
-    # Precompilar expresión regular para letras y digitos
+    # Precompilar expresión regular para "NO" letras y digitos
     letras_digitos_regex = re.compile("[^0-9a-zA-Z]+")
+
+    # Precompilar expresión regular para hashid
+    hashid_regexp = re.compile("[0-9a-zA-Z]{8}")
+
+    # Para descifrar los hash ids
+    hashids = Hashids(salt=os.environ.get("SALT", "Esta es una muy mala cadena aleatoria"), min_length=8)
 
     # Iniciar la tarea y contadores
     set_task_progress(0)
@@ -129,8 +136,8 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # El nombre del archivo para un edicto debe ser como
         # AAAA-MM-DD-EEEE-EEEE-NUMP-NUMP-DESCRIPCION-BLA-BLA-IDHASED.pdf
 
-        # Separar elementos del nombre del archivo, sin extensión, en mayúsculas y sin caracteres especiales
-        nombre_sin_extension = unidecode(ruta.name[:-4]).upper()
+        # Separar elementos del nombre del archivo
+        nombre_sin_extension = unidecode(ruta.name[:-4])
         elementos = re.sub(letras_digitos_regex, "-", nombre_sin_extension).strip("-").split("-")
 
         # Tomar la fecha
@@ -164,13 +171,18 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             contador_incorrectos += 1
             continue
 
-        # Tomar la descripción
+        # Tomar la descripción, sin el hash del id de estar presente
         if len(elementos) > 7:
-            descripcion = " ".join(elementos[7:])
+            if re.match(hashid_regexp, elementos[-1]) is None:
+                descripcion = " ".join(elementos[7:]).upper()
+            else:
+                decodificado = hashids.decode(elementos[-1])
+                if isinstance(decodificado, tuple) and len(decodificado) > 0:
+                    descripcion = " ".join(elementos[7:-1]).upper()
+                else:
+                    descripcion = " ".join(elementos[7:]).upper()
         else:
-            descripcion = ""
-
-        # Tomar el ID hashed
+            descripcion = "SIN DESCRIPCION"
 
         # Insertar
         tiempo_local = blob.time_created.astimezone(tzlocal())

@@ -97,7 +97,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         return set_task_error(f"No existe o no hay archivos en {subdirectorio}")
     bitacora.info("- Tiene %d archivos en el depósito", total_en_deposito)
 
-    # Precompilar expresión regular para letras y digitos
+    # Precompilar expresión regular para "NO" letras y digitos
     letras_digitos_regex = re.compile("[^0-9a-zA-Z]+")
 
     # Iniciar la tarea y contadores
@@ -129,8 +129,8 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # El nombre del archivo para una sentencia debe ser como
         # AAAA-MM-DD-EEEE-EEEE-SENT-SENT-G-IDHASED.pdf
 
-        # Separar elementos del nombre del archivo, sin extensión, en mayúsculas y sin caracteres especiales
-        nombre_sin_extension = unidecode(ruta.name[:-4]).upper()
+        # Separar elementos del nombre del archivo
+        nombre_sin_extension = unidecode(ruta.name[:-4])
         elementos = re.sub(letras_digitos_regex, "-", nombre_sin_extension).strip("-").split("-")
 
         # Tomar la fecha
@@ -169,8 +169,6 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             es_paridad_genero = elementos[7] == "G"
         except ValueError:
             es_paridad_genero = False
-
-        # Tomar el ID hashed
 
         # Insertar
         tiempo_local = blob.time_created.astimezone(tzlocal())
