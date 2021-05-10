@@ -10,7 +10,6 @@
 *.sqlite3-journal
 *.yaml
 __pycache__/
-/.vscode/settings.json
 /instance/settings.py
 /seed/
 /setup.cfg

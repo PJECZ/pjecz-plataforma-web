@@ -10,7 +10,7 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.time_to_text import dia_mes_ano
+from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -193,9 +193,9 @@ def new():
         )
         glosa.save()
 
-        # Elaborar nombre del archivo y ruta
+        # Elaborar nombre del archivo y ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
         ano_str = fecha.strftime("%Y")
-        mes_str = fecha.strftime("%m")
+        mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
         expediente_str = expediente.replace("/", "-")
         descripcion_str = descripcion.replace(" ", "-")
@@ -280,9 +280,9 @@ def new_for_autoridad(autoridad_id):
         )
         glosa.save()
 
-        # Elaborar nombre del archivo y ruta
+        # Elaborar nombre del archivo y ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
         ano_str = fecha.strftime("%Y")
-        mes_str = fecha.strftime("%m")
+        mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
         expediente_str = expediente.replace("/", "-")
         descripcion_str = descripcion.replace(" ", "-")

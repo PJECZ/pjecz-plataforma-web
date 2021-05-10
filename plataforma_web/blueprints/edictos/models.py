@@ -1,7 +1,6 @@
 """
 Edictos, modelos
 """
-from pathlib import Path
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -30,7 +29,7 @@ class Edicto(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Edicto {self.archivo}>"
+        return f"<Edicto {self.autoridad.clave} {self.fecha}>"
 
     @property
     def ruta(self):
