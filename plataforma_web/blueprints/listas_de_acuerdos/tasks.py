@@ -146,7 +146,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             mes = int(elementos[1])
             dia = int(elementos[2])
             fecha = date(ano, mes, dia)
-        except ValueError:
+        except (IndexError, ValueError):
             bitacora.warning("X Fecha incorrecta: %s", ruta)
             contador_incorrectos += 1
             continue

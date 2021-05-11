@@ -139,7 +139,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             mes = int(elementos[1])
             dia = int(elementos[2])
             fecha = date(ano, mes, dia)
-        except ValueError:
+        except (IndexError, ValueError):
             bitacora.warning("X Fecha incorrecta: %s", ruta)
             contador_incorrectos += 1
             continue
@@ -149,7 +149,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             numero = int(elementos[3])
             ano = int(elementos[4])
             expediente = str(numero) + "/" + str(ano)
-        except ValueError:
+        except (IndexError, ValueError):
             bitacora.warning("X Expediente incorrecto: %s", ruta)
             contador_incorrectos += 1
             continue
@@ -159,7 +159,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             numero = int(elementos[5])
             ano = int(elementos[6])
             sentencia = str(numero) + "/" + str(ano)
-        except ValueError:
+        except (IndexError, ValueError):
             bitacora.warning("X Sentencia incorrecta: %s", ruta)
             contador_incorrectos += 1
             continue
@@ -167,7 +167,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # Tomar la paridad de género
         try:
             es_paridad_genero = elementos[7] == "G"
-        except ValueError:
+        except IndexError:
             es_paridad_genero = False
 
         # Insertar

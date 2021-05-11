@@ -146,7 +146,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             mes = int(elementos[1])
             dia = int(elementos[2])
             fecha = date(ano, mes, dia)
-        except ValueError:
+        except (IndexError, ValueError):
             bitacora.warning("X Fecha incorrecta: %s", ruta)
             contador_incorrectos += 1
             continue
@@ -157,7 +157,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
                 tipo_juicio = elementos[3]
             else:
                 tipo_juicio = "ND"
-        except ValueError:
+        except IndexError:
             bitacora.warning("X Tipo de juicio incorrecto: %s", ruta)
             contador_incorrectos += 1
             continue
@@ -167,7 +167,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             numero = int(elementos[4])
             ano = int(elementos[5])
             expediente = str(numero) + "/" + str(ano)
-        except ValueError:
+        except (IndexError, ValueError):
             bitacora.warning("X Expediente incorrecto: %s", ruta)
             contador_incorrectos += 1
             continue
