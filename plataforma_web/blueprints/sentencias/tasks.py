@@ -4,7 +4,7 @@ Sentencias, tareas para ejecutar en el fondo
 import logging
 import os
 import re
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from pathlib import Path
 
 from dateutil.tz import tzlocal
@@ -68,9 +68,9 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
 
     # Para validar la fecha
     anos_limite = 20
-    hoy = datetime.date.today()
-    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(years=-anos_limite)
+    hoy = date.today()
+    hoy_dt = datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + timedelta(years=-anos_limite)
 
     # Validad usuario
     usuario = None
@@ -151,7 +151,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             continue
 
         # Descartar fechas en el futuro o muy en el pasado
-        if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+        if not limite_dt <= datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             bitacora.warning("X Fecha fuera de rango: %s", ruta)
             contador_incorrectos += 1
             continue
