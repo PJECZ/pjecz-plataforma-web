@@ -1,6 +1,15 @@
 {
     "editor.formatOnSave": true,
-    "python.linting.pylintArgs": ["--max-line-length", "256", "--load-plugins", "pylint_flask_sqlalchemy"],
+    "python.linting.pylintArgs": [
+        "--max-line-length",
+        "256",
+        "--load-plugins",
+        "pylint_flask_sqlalchemy"
+    ],
     "python.formatting.provider": "black",
-    "python.formatting.blackArgs": ["--line-length", "256"]
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "256"
+    ],
+    "python.linting.pylintEnabled": true
 }
