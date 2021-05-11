@@ -4,7 +4,7 @@ Sentencias, tareas para ejecutar en el fondo
 import logging
 import os
 import re
-from datetime import date
+from datetime import datetime, date
 from pathlib import Path
 
 from dateutil.tz import tzlocal
@@ -65,6 +65,12 @@ def set_task_error(mensaje: str):
 def refrescar(autoridad_id: int, usuario_id: int = None):
     """Rastrear las sentencias para agregar las que no tiene y dar de baja las que no existen en la BD"""
     bitacora.info("Inicia")
+
+    # Para validar la fecha
+    anos_limite = 20
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + datetime.timedelta(years=-anos_limite)
 
     # Validad usuario
     usuario = None
@@ -141,6 +147,12 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             fecha = date(ano, mes, dia)
         except (IndexError, ValueError):
             bitacora.warning("X Fecha incorrecta: %s", ruta)
+            contador_incorrectos += 1
+            continue
+
+        # Descartar fechas en el futuro o muy en el pasado
+        if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+            bitacora.warning("X Fecha fuera de rango: %s", ruta)
             contador_incorrectos += 1
             continue
 
