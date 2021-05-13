@@ -4,7 +4,7 @@ Edictos, tareas para ejecutar en el fondo
 import logging
 import os
 import re
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 from pathlib import Path
 
 from dateutil.tz import tzlocal
@@ -71,7 +71,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     anos_limite = 20
     hoy = date.today()
     hoy_dt = datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + timedelta(years=-anos_limite)
+    limite_dt = datetime(year=hoy.year - anos_limite, month=1, day=1)
 
     # Validad usuario
     usuario = None
