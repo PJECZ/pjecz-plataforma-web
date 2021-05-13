@@ -42,14 +42,25 @@ def alimentar(entrada_csv):
         rows = csv.DictReader(puntero)
         for row in rows:
             try:
-                fecha = datetime.strptime(row["fecha"].strip(), "%Y-%m-%d")  # Probar que fecha sea correcta
+                ano = int(row["año"])
+                mes = int(row["mes"])
+                dia = int(row["dia"])
+                numero = row["número"]
+                nombre = row["nombre"]
+                libro = row["libro"]
+            except (IndexError, ValueError):
+                click.echo("  Dato faltante: " + str(row))
+                continue
+            try:
+                fecha_str = "{}-{}-{}".format(ano, mes, dia)
+                fecha = datetime.strptime(fecha_str, "%Y-%m-%d")  # Probar que fecha sea correcta
             except ValueError as mensaje:
-                click.echo(f"  Dato con error: {mensaje}")
+                click.echo(f"  Fecha incorrecta: {fecha_str}")
                 continue
             datos = {
-                "numero": unidecode(row["numero"].strip()).upper(),  # Hay números como 000-Bis, sin acentos y en mayúsculas
-                "nombre": unidecode(row["nombre"].strip()).upper(),  # Sin acentos y en mayúsculas
-                "libro": unidecode(row["libro"].strip()).upper(),  # Sin acentos y en mayúsculas
+                "numero": unidecode(numero.strip()).upper(),  # Hay números como 000-Bis, sin acentos y en mayúsculas
+                "nombre": unidecode(nombre.strip()).upper(),  # Sin acentos y en mayúsculas
+                "libro": unidecode(libro.strip()).upper(),  # Sin acentos y en mayúsculas
                 "fecha": fecha,
             }
             Abogado(**datos).save()
