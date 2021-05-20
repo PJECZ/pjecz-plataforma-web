@@ -8,8 +8,8 @@ Abogados
 from datetime import datetime
 from pathlib import Path
 import csv
-from unidecode import unidecode
 import click
+from unidecode import unidecode
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -54,7 +54,7 @@ def alimentar(entrada_csv):
             try:
                 fecha_str = "{}-{}-{}".format(ano, mes, dia)
                 fecha = datetime.strptime(fecha_str, "%Y-%m-%d")  # Probar que fecha sea correcta
-            except ValueError as mensaje:
+            except ValueError:
                 click.echo(f"  Fecha incorrecta: {fecha_str}")
                 continue
             datos = {
