@@ -67,7 +67,7 @@ def alimentar(entrada_csv):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
-    click.echo(f"- {contador} abogados alimentados.")
+    click.echo(f"{contador} abogados alimentados.")
 
 
 @click.command()
@@ -95,14 +95,16 @@ def respaldar(desde, salida_csv):
     abogados = abogados.order_by(Abogado.fecha).all()
     with open(ruta, "w") as puntero:
         escritor = csv.writer(puntero)
-        escritor.writerow(["numero", "nombre", "libro", "fecha"])
+        escritor.writerow(["numero", "nombre", "libro", "año", "mes", "dia"])
         for abogado in abogados:
             escritor.writerow(
                 [
                     abogado.numero,
                     abogado.nombre,
                     abogado.libro,
-                    abogado.fecha.strftime("%Y-%m-%d"),
+                    abogado.fecha.strftime("%Y"),
+                    abogado.fecha.strftime("%m"),
+                    abogado.fecha.strftime("%d"),
                 ]
             )
             contador += 1
