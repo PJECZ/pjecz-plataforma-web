@@ -7,19 +7,18 @@ from lib.universal_mixin import UniversalMixin
 
 
 class Perito(db.Model, UniversalMixin):
-    """ Perito """
+    """Perito"""
 
     TIPOS = OrderedDict(
         [
             ("ALBACEA", "Albacea"),
             ("AMBIENTAL", "Ambiental"),
             ("ARBITRO", "Árbitro"),
-            ("ARBITRO VOLUNTARIO", "Árbitro Voluntario"),
+            ("AREA DE RECONOCIMIENTO DE VOZ Y CONTROL DE RUIDO", "Área de reconocimiento de voz y control de ruido"),
             ("AUDITORIA INTERNA", "Auditoría Interna"),
             ("BALISTICA", "Balística"),
             ("CALIGRAFIA", "Caligrafía"),
             ("CONTABILIDAD", "Contabilidad"),
-            ("CRIMINOLOGIA", "Criminología"),
             ("CRIMINALISTICA", "Criminalística"),
             ("DACTILOSCOPIA", "Dactiloscopía"),
             ("DEPOSITARIO", "Depositario"),
@@ -28,12 +27,10 @@ class Perito(db.Model, UniversalMixin):
             ("FOTOGRAFIA FORENSE", "Fotografía Forence"),
             ("GASTROENTEROLOGIA", "Gastroenterología"),
             ("GENETICA", "Genética"),
-            ("GENETICA HUMANA", "Genética Humana"),
             ("GRAFOLOGIA", "Grafología"),
             ("GRAFOSCOPIA", "Grafoscopía"),
-            ("HECHOS DE TRANSITO", "Hechos de Tránsito"),
-            ("HECHOS DE TRANSITO TERRESTRE", "Hechos de Tránsito Terrestre"),
             ("INCENDIOS Y EXPLOSIVOS", "Incendios y Explosivos"),
+            ("INGENIERIA CIVIL", "Ingeniería Civil"),
             ("INFORMATICA", "Informática"),
             ("INTERPRETE EN LENGUA DE SEÑAS MEXICANAS", "Intérprete en Lengua de Señas Mexicanas"),
             ("INTERVENTORES", "Interventores"),
@@ -80,5 +77,5 @@ class Perito(db.Model, UniversalMixin):
     notas = db.Column(db.String(256))
 
     def __repr__(self):
-        """ Representación """
+        """Representación"""
         return f"<Perito {self.nombre}>"

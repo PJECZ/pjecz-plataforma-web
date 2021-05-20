@@ -8,8 +8,8 @@ Abogados
 from datetime import datetime
 from pathlib import Path
 import csv
-from unidecode import unidecode
 import click
+from unidecode import unidecode
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -54,7 +54,7 @@ def alimentar(entrada_csv):
             try:
                 fecha_str = "{}-{}-{}".format(ano, mes, dia)
                 fecha = datetime.strptime(fecha_str, "%Y-%m-%d")  # Probar que fecha sea correcta
-            except ValueError as mensaje:
+            except ValueError:
                 click.echo(f"  Fecha incorrecta: {fecha_str}")
                 continue
             datos = {
@@ -67,7 +67,7 @@ def alimentar(entrada_csv):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
-    click.echo(f"- {contador} abogados alimentados.")
+    click.echo(f"{contador} abogados alimentados.")
 
 
 @click.command()
@@ -95,14 +95,16 @@ def respaldar(desde, salida_csv):
     abogados = abogados.order_by(Abogado.fecha).all()
     with open(ruta, "w") as puntero:
         escritor = csv.writer(puntero)
-        escritor.writerow(["numero", "nombre", "libro", "fecha"])
+        escritor.writerow(["numero", "nombre", "libro", "año", "mes", "dia"])
         for abogado in abogados:
             escritor.writerow(
                 [
                     abogado.numero,
                     abogado.nombre,
                     abogado.libro,
-                    abogado.fecha.strftime("%Y-%m-%d"),
+                    abogado.fecha.strftime("%Y"),
+                    abogado.fecha.strftime("%m"),
+                    abogado.fecha.strftime("%d"),
                 ]
             )
             contador += 1
