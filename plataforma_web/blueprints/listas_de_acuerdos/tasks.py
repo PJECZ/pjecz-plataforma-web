@@ -206,6 +206,10 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         mensajes.append(f"Se borraron {contador_borrados} registros")
     else:
         mensajes.append("No se borraron registros")
+    if contador_presentes > 0:
+        mensajes.append(f"Están presentes {contador_presentes}")
+    if contador_incorrectos > 0:
+        mensajes.append(f"Hay {contador_incorrectos} archivos con nombres incorrectos")
     mensaje_final = "- " + ". ".join(mensajes) + "."
 
     # Terminar tarea

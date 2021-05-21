@@ -221,11 +221,13 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     # Mensaje final
     mensajes = []
     if contador_insertados > 0:
-        mensajes.append(f"Se insertaron {contador_insertados}")
+        mensajes.append(f"Se insertaron {contador_insertados} registros")
     else:
         mensajes.append("No se insertaron registros")
     if contador_borrados > 0:
-        mensajes.append(f"Se borraron {contador_borrados}")
+        mensajes.append(f"Se borraron {contador_borrados} registros")
+    else:
+        mensajes.append("No se borraron registros")
     if contador_presentes > 0:
         mensajes.append(f"Están presentes {contador_presentes}")
     if contador_incorrectos > 0:
