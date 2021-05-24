@@ -26,7 +26,7 @@ usuarios = Blueprint("usuarios", __name__, template_folder="templates")
 @usuarios.route("/login", methods=["GET", "POST"])
 @anonymous_required()
 def login():
-    """ Acceso al Sistema """
+    """Acceso al Sistema"""
     form = AccesoForm(siguiente=request.args.get("siguiente"))
     if form.validate_on_submit():
         # Validar
@@ -80,7 +80,7 @@ def login():
 @usuarios.route("/logout")
 @login_required
 def logout():
-    """ Salir del Sistema """
+    """Salir del Sistema"""
     EntradaSalida(
         usuario_id=current_user.id,
         tipo="SALIO",
@@ -94,14 +94,14 @@ def logout():
 @usuarios.route("/perfil")
 @login_required
 def profile():
-    """ Mostrar el Perfil """
+    """Mostrar el Perfil"""
     return render_template("usuarios/profile.jinja2")
 
 
 @usuarios.route("/cambiar_contrasena", methods=["GET", "POST"])
 @login_required
 def change_password():
-    """ Cambiar Contraseña """
+    """Cambiar Contraseña"""
     form = CambiarContrasenaForm()
     usuario = Usuario.query.get_or_404(current_user.id)
     if form.validate_on_submit():
@@ -119,7 +119,7 @@ def change_password():
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
-    """ Listado de Usuarios activos """
+    """Listado de Usuarios activos"""
     usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").limit(200).all()
     return render_template("usuarios/list.jinja2", usuarios=usuarios_activos, estatus="A")
 
@@ -127,7 +127,7 @@ def list_active():
 @usuarios.route("/usuarios/inactivos")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
-    """ Listado de Usuarios inactivos """
+    """Listado de Usuarios inactivos"""
     usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").limit(200).all()
     return render_template("usuarios/list.jinja2", usuarios=usuarios_inactivos, estatus="B")
 
@@ -136,7 +136,7 @@ def list_inactive():
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def detail(usuario_id):
-    """ Detalle de un Usuario """
+    """Detalle de un Usuario"""
     usuario = Usuario.query.get_or_404(usuario_id)
     entradas_salidas = EntradaSalida.query.filter(EntradaSalida.usuario == usuario).order_by(EntradaSalida.creado).limit(100).all()
     return render_template("usuarios/detail.jinja2", usuario=usuario, entradas_salidas=entradas_salidas)
@@ -146,7 +146,7 @@ def detail(usuario_id):
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def search():
-    """ Buscar Usuarios """
+    """Buscar Usuarios"""
     form_search = UsuarioSearchForm()
     if form_search.validate_on_submit():
         consulta = Usuario.query
@@ -168,7 +168,7 @@ def search():
 @login_required
 @permission_required(Permiso.CREAR_CUENTAS)
 def new():
-    """ Nuevo usuario """
+    """Nuevo usuario"""
     form = UsuarioFormNew()
     if form.validate_on_submit():
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
@@ -189,8 +189,8 @@ def new():
         usuario.save()
         flash(f"Usuario {usuario.nombre} guardado.", "success")
         return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    autoridades = Autoridad.query.filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("usuarios/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)
 
 
@@ -198,7 +198,7 @@ def new():
 @login_required
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def edit(usuario_id):
-    """ Editar Usuario, solo al escribir la contraseña se cambia """
+    """Editar Usuario, solo al escribir la contraseña se cambia"""
     usuario = Usuario.query.get_or_404(usuario_id)
     form = UsuarioFormEdit()
     if form.validate_on_submit():
@@ -225,7 +225,7 @@ def edit(usuario_id):
 @usuarios.route("/usuarios/eliminar/<int:usuario_id>")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def delete(usuario_id):
-    """ Eliminar Usuario """
+    """Eliminar Usuario"""
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus == "A":
         usuario.delete()
@@ -236,7 +236,7 @@ def delete(usuario_id):
 @usuarios.route("/usuarios/recuperar/<int:usuario_id>")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def recover(usuario_id):
-    """ Recuperar Usuario """
+    """Recuperar Usuario"""
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus == "B":
         usuario.recover()

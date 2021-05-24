@@ -9,10 +9,12 @@
     {% if autoridad %}
         {% if current_user.can_admin('listas_de_acuerdos') %}
             {{ list.topbar_option_upload('Subir', url_for('listas_de_acuerdos.new_for_autoridad', autoridad_id=autoridad.id)) }}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}{% endif %}
         {% elif current_user.can_insert('listas_de_acuerdos') and current_user.autoridad_id == autoridad.id %}
             {{ list.topbar_option_upload('Subir', url_for('listas_de_acuerdos.new')) }}
+        {% endif %}
+        {% if current_user.can_edit('listas_de_acuerdos') and current_user.autoridad_id == autoridad.id %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('listas_de_acuerdos.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_admin('listas_de_acuerdos') and current_user.can_insert('tareas') %}
             {{ list.topbar_option_refresh('Refrescar', url_for('listas_de_acuerdos.refresh', autoridad_id=autoridad.id)) }}

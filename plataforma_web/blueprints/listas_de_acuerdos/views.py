@@ -46,14 +46,28 @@ def list_active():
     """Listado de Listas de Acuerdos activas más recientes"""
     # Si es administrador, ve las listas de acuerdos de todas las autoridades
     if current_user.can_admin("listas_de_acuerdos"):
-        todas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
-        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=todas, estatus="A")
-    # No es administrador, consultar su autoridad
-    autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
-    # Si su autoridad es jurisdiccional, ve sus propias listas de acuerdos
+        activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=activas, estatus="A")
+    # Si es jurisdiccional, ve sus propias listas de acuerdos
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
-        return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=sus_listas, estatus="A")
+        sus_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_activas, estatus="A")
+    # No es jurisdiccional, se redirige al listado de distritos
+    return redirect(url_for("listas_de_acuerdos.list_distritos"))
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/inactivos")
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def list_inactive():
+    """Listado de Listas de Acuerdos inactivas"""
+    # Si es administrador, ve las listas de acuerdos de todas las autoridades
+    if current_user.can_admin("listas_de_acuerdos"):
+        inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.creado.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=inactivas, estatus="B")
+    # Si es jurisdiccional, ve sus propias listas de acuerdos
+    if current_user.autoridad.es_jurisdiccional:
+        sus_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
 
@@ -180,7 +194,12 @@ def new():
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
-        # TODO Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
+        # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
+        anterior_borrada = False
+        anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
+        if anterior_lista_de_acuerdo:
+            anterior_lista_de_acuerdo.delete()
+            anterior_borrada = True
 
         # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
@@ -211,7 +230,10 @@ def new():
         lista_de_acuerdo.save()
 
         # Mostrar mensaje de éxito y detalle
-        flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
+        if anterior_borrada:
+            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} reemplazada.", "success")
+        else:
+            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} guardada.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
 
     # Prellenado de los campos
@@ -359,7 +381,9 @@ def recover(lista_de_acuerdo_id):
     """Recuperar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "B":
-        if current_user.can_admin("listas_de_acuerdos"):
+        if ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.fecha == lista_de_acuerdo.fecha).filter(ListaDeAcuerdo.estatus == "A").first():
+            flash("No puede recuperar esta lista porque ya hay una activa de la misma fecha.", "warning")
+        elif current_user.can_admin("listas_de_acuerdos"):
             lista_de_acuerdo.recover()
             flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
         elif current_user.autoridad_id == lista_de_acuerdo.autoridad_id and lista_de_acuerdo.fecha == datetime.date.today():
@@ -367,4 +391,4 @@ def recover(lista_de_acuerdo_id):
             flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
         else:
             flash("No tiene permiso para recuperar o sólo puede recuperar de hoy.", "warning")
-    return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo=lista_de_acuerdo))
+    return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))
