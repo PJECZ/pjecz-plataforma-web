@@ -71,8 +71,9 @@ def new():
         ubicacion_expediente.save()
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
-    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("ubicaciones_expedientes/new.jinja2", form=form, distritos=distritos)
+    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    return render_template("ubicaciones_expedientes/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])

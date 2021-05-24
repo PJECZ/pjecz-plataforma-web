@@ -269,7 +269,12 @@ def new_for_autoridad(autoridad_id):
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
-        # TODO Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
+        # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
+        anterior_borrada = False
+        anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
+        if anterior_lista_de_acuerdo:
+            anterior_lista_de_acuerdo.delete()
+            anterior_borrada = True
 
         # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
@@ -300,7 +305,10 @@ def new_for_autoridad(autoridad_id):
         lista_de_acuerdo.save()
 
         # Mostrar mensaje de éxito y detalle
-        flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
+        if anterior_borrada:
+            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} reemplazada.", "success")
+        else:
+            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} guardada.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
 
     # Prellenado de los campos
@@ -334,11 +342,14 @@ def delete(lista_de_acuerdo_id):
     """Eliminar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "A":
-        if current_user.can_admin("listas_de_acuerdos") or (current_user.autoridad_id == lista_de_acuerdo.autoridad_id):
+        if current_user.can_admin("listas_de_acuerdos"):
+            lista_de_acuerdo.delete()
+            flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
+        elif current_user.autoridad_id == lista_de_acuerdo.autoridad_id and lista_de_acuerdo.fecha == datetime.date.today():
             lista_de_acuerdo.delete()
             flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
         else:
-            flash("No tiene permiso para eliminar.", "warning")
+            flash("No tiene permiso para eliminar o sólo puede eliminar de hoy.", "warning")
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))
 
 
@@ -348,9 +359,12 @@ def recover(lista_de_acuerdo_id):
     """Recuperar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "B":
-        if current_user.can_admin("listas_de_acuerdos") or (current_user.autoridad_id == lista_de_acuerdo.autoridad_id):
+        if current_user.can_admin("listas_de_acuerdos"):
+            lista_de_acuerdo.recover()
+            flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
+        elif current_user.autoridad_id == lista_de_acuerdo.autoridad_id and lista_de_acuerdo.fecha == datetime.date.today():
             lista_de_acuerdo.recover()
             flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
         else:
-            flash("No tiene permiso para recuperar.", "warning")
+            flash("No tiene permiso para recuperar o sólo puede recuperar de hoy.", "warning")
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo=lista_de_acuerdo))
