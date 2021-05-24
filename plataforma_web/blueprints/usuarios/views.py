@@ -189,8 +189,9 @@ def new():
         usuario.save()
         flash(f"Usuario {usuario.nombre} guardado.", "success")
         return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
-    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("usuarios/new.jinja2", form=form, distritos=distritos)
+    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    return render_template("usuarios/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)
 
 
 @usuarios.route("/usuarios/edicion/<int:usuario_id>", methods=["GET", "POST"])

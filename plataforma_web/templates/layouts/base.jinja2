@@ -6,20 +6,29 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
         <title>{% block title %}{% endblock %}</title>
+        <!-- Bootstrap 4, Datatables -->
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.bootstrap4.min.css">
         <!-- Matrix Admin BT4 CSS -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.css') }}" type="text/css">
-        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/css/style.min.css') }}" type="text/css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/css/style.min.css') }}">
         {% block template_head %}{% endblock %}
         {% block custom_head %}{% endblock %}
     </head>
     <body>
         {% block main %}{% endblock %}
         <!-- JQuery -->
-        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/jquery/dist/jquery.min.js') }}"></script>
-        <!-- Bootstrap -->
-        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+        <!-- Bootstrap 4, Datatables -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.bootstrap4.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
         <!-- popper.js.org tooltip & popover positioning engine -->
-        <script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
+        <script src="https://unpkg.com/@popperjs/core@2"></script>
         {% block template_javascript %}{% endblock %}
         {% block custom_javascript %}{% endblock %}
     </body>

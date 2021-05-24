@@ -2,6 +2,7 @@
 {% import 'macros/flash.jinja2' as flash with context %}
 
 {% block template_head %}
+    <!-- CSRF token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 {% endblock %}
 
