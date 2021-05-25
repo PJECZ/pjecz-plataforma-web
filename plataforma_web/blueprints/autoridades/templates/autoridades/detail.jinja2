@@ -22,6 +22,7 @@
             {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
             {{ detail.label_value('Clave', autoridad.clave) }}
             {{ detail.label_value_boolean('Es jurisdiccional', autoridad.es_jurisdiccional) }}
+            {{ detail.label_value_boolean('Es notaría', autoridad.es_notaria) }}
             {{ detail.label_value('Directorio para edictos', autoridad.directorio_edictos) }}
             {{ detail.label_value('Directorio para glosas', autoridad.directorio_glosas) }}
             {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos) }}

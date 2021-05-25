@@ -26,6 +26,7 @@
                         <th>Distrito</th>
                         <th>Autoridad</th>
                         <th>Es jurisdiccional</th>
+                        <th>Es notaría</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,6 +36,7 @@
                         <td>{{ autoridad.distrito.nombre }}</td>
                         <td>{{ autoridad.descripcion }}</td>
                         <td>{% if autoridad.es_jurisdiccional %}SI{% endif %}</td>
+                        <td>{% if autoridad.es_notaria %}SI{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

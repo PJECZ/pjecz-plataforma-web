@@ -21,6 +21,7 @@ class AutoridadNewForm(FlaskForm):
     descripcion = StringField("Autoridad", validators=[DataRequired(), Length(max=256)])
     clave = StringField("Clave", validators=[DataRequired(), Length(max=16)])
     es_jurisdiccional = BooleanField("Es jurisdiccional", validators=[Optional()])
+    es_notaria = BooleanField("Es notaría", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
@@ -35,6 +36,7 @@ class AutoridadEditForm(FlaskForm):
     directorio_listas_de_acuerdos = StringField("Directorio para listas de acuerdos", validators=[Optional(), Length(max=256)])
     directorio_sentencias = StringField("Directorio para sentencias", validators=[Optional(), Length(max=256)])
     es_jurisdiccional = BooleanField("Es jurisdiccional", validators=[Optional()])
+    es_notaria = BooleanField("Es notaría", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
