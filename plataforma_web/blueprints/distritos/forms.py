@@ -10,5 +10,5 @@ class DistritoForm(FlaskForm):
     """ Formulario Distrito """
 
     nombre = StringField("Distrito", validators=[DataRequired(), Length(max=256)])
-    es_distrito_judicial = BooleanField("Es distrito judicial", validators=[Optional()])
+    es_distrito_judicial = BooleanField("Es judicial", validators=[Optional()])
     guardar = SubmitField("Guardar")

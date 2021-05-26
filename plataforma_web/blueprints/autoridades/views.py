@@ -64,15 +64,28 @@ def new():
     form = AutoridadNewForm()
     if form.validate_on_submit():
         distrito = form.distrito.data
-        directorio = f"{distrito.nombre}/{form.descripcion.data.strip()}"
+        es_jurisdiccional = form.es_jurisdiccional.data
+        es_notaria = form.es_notaria.data
+        directorio_listas_de_acuerdos = ""
+        directorio_sentencias = ""
+        directorio_edictos = ""
+        directorio_glosas = ""
+        if es_jurisdiccional:
+            directorio_listas_de_acuerdos = f"{distrito.nombre}/{form.descripcion.data.strip()}"
+            directorio_sentencias = directorio_listas_de_acuerdos
+            directorio_glosas = directorio_listas_de_acuerdos
+        if es_notaria:
+            directorio_edictos = f"{distrito.nombre}/{form.descripcion.data.strip()}"
         autoridad = Autoridad(
             distrito=distrito,
             descripcion=form.descripcion.data.strip(),
             clave=form.clave.data.strip().upper(),
-            directorio_listas_de_acuerdos=directorio,
-            directorio_sentencias=directorio,
-            es_jurisdiccional=form.es_jurisdiccional.data,
-            es_notaria=form.es_notaria.data,
+            directorio_listas_de_acuerdos=directorio_listas_de_acuerdos,
+            directorio_sentencias=directorio_sentencias,
+            directorio_edictos=directorio_edictos,
+            directorio_glosas=directorio_glosas,
+            es_jurisdiccional=es_jurisdiccional,
+            es_notaria=es_notaria,
         )
         autoridad.save()
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
@@ -90,20 +103,24 @@ def edit(autoridad_id):
         autoridad.distrito = form.distrito.data
         autoridad.descripcion = form.descripcion.data.strip()
         autoridad.clave = form.clave.data.strip().upper()
-        autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data.strip()
-        autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
         autoridad.es_jurisdiccional = form.es_jurisdiccional.data
         autoridad.es_notaria = form.es_notaria.data
+        autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data.strip()
+        autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
+        autoridad.directorio_edictos = form.directorio_edictos.data.strip()
+        autoridad.directorio_glosas = form.directorio_glosas.data.strip()
         autoridad.save()
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
         return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     form.distrito.data = autoridad.distrito
     form.descripcion.data = autoridad.descripcion
     form.clave.data = autoridad.clave
-    form.directorio_listas_de_acuerdos.data = autoridad.directorio_listas_de_acuerdos
-    form.directorio_sentencias.data = autoridad.directorio_sentencias
     form.es_jurisdiccional.data = autoridad.es_jurisdiccional
     form.es_notaria.data = autoridad.es_notaria
+    form.directorio_listas_de_acuerdos.data = autoridad.directorio_listas_de_acuerdos
+    form.directorio_sentencias.data = autoridad.directorio_sentencias
+    form.directorio_edictos.data = autoridad.directorio_edictos
+    form.directorio_glosas.data = autoridad.directorio_glosas
     return render_template("autoridades/edit.jinja2", form=form, autoridad=autoridad)
 
 
