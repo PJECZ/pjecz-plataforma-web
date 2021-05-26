@@ -9,7 +9,7 @@
         {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('distritos.list_active')) }}{% endif %}
     {% endif %}
     {% if current_user.can_insert('distritos') %}
-        {{ list.topbar_option_new('Nuevo Distrito', url_for('distritos.new')) }}
+        {{ list.topbar_option_new('Nuevo Departamento', url_for('distritos.new')) }}
     {% endif %}
 {% endblock %}
 
@@ -22,14 +22,14 @@
                 <thead>
                     <tr>
                         <th>Departamentos</th>
-                        <th>Es distrito judicial</th>
+                        <th>Es judicial</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for distrito in distritos %}
                     <tr>
                         <td><a href="{{ url_for('distritos.detail', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
-                        <td>{% if distrito.es_distrito_judicial %}SI{% endif %}</td>
+                        <td>{% if distrito.es_distrito_judicial %}Judicial{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

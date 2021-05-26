@@ -36,7 +36,7 @@
                         <tr>
                             <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
                             <td>{{ autoridad.descripcion }}</td>
-                            <td>{% if autoridad.es_jurisdiccional %}SI{% endif %}</td>
+                            <td>{% if autoridad.es_jurisdiccional %}Jurisdiccional{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -24,8 +24,10 @@
                     <tr>
                         <th>Clave</th>
                         <th>Distrito</th>
+                        <th>Es Judicial</th>
                         <th>Autoridad</th>
-                        <th>Es jurisdiccional</th>
+                        <th>Es Jurisdiccional</th>
+                        <th>Es Notaría</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,8 +35,10 @@
                     <tr>
                         <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
                         <td>{{ autoridad.distrito.nombre }}</td>
+                        <td>{% if autoridad.distrito.es_distrito_judicial %}Judicial{% endif %}</td>
                         <td>{{ autoridad.descripcion }}</td>
-                        <td>{% if autoridad.es_jurisdiccional %}SI{% endif %}</td>
+                        <td>{% if autoridad.es_jurisdiccional %}Jurisdiccional{% endif %}</td>
+                        <td>{% if autoridad.es_notaria %}Notaría{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

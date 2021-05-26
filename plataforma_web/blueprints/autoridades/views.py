@@ -17,12 +17,12 @@ autoridades = Blueprint("autoridades", __name__, template_folder="templates")
 @login_required
 @permission_required(Permiso.VER_CATALOGOS)
 def before_request():
-    """ Permiso por defecto """
+    """Permiso por defecto"""
 
 
 @autoridades.route("/autoridades")
 def list_active():
-    """ Listado de Autoridades """
+    """Listado de Autoridades"""
     autoridades_activas = Autoridad.query.filter(Autoridad.estatus == "A").all()
     return render_template("autoridades/list.jinja2", autoridades=autoridades_activas, estatus="A")
 
@@ -30,14 +30,14 @@ def list_active():
 @autoridades.route("/autoridades/inactivas")
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def list_inactive():
-    """ Listado de Autoridades inactivas """
+    """Listado de Autoridades inactivas"""
     autoridades_inactivas = Autoridad.query.filter(Autoridad.estatus == "B").all()
     return render_template("autoridades/list.jinja2", autoridades=autoridades_inactivas, estatus="B")
 
 
 @autoridades.route("/autoridades/<int:autoridad_id>")
 def detail(autoridad_id):
-    """ Detalle de una Autoridad """
+    """Detalle de una Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     usuarios = Usuario.query.filter(Usuario.autoridad == autoridad).filter(Usuario.estatus == "A").all()
     return render_template("autoridades/detail.jinja2", autoridad=autoridad, usuarios=usuarios)
@@ -45,7 +45,7 @@ def detail(autoridad_id):
 
 @autoridades.route("/autoridades/buscar", methods=["GET", "POST"])
 def search():
-    """ Buscar Autoridades """
+    """Buscar Autoridades"""
     form_search = AutoridadSearchForm()
     if form_search.validate_on_submit():
         consulta = Autoridad.query
@@ -60,18 +60,32 @@ def search():
 @autoridades.route("/autoridades/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_CATALOGOS)
 def new():
-    """ Nueva Autoridad """
+    """Nueva Autoridad"""
     form = AutoridadNewForm()
     if form.validate_on_submit():
         distrito = form.distrito.data
-        directorio = f"{distrito.nombre}/{form.descripcion.data.strip()}"
+        es_jurisdiccional = form.es_jurisdiccional.data
+        es_notaria = form.es_notaria.data
+        directorio_listas_de_acuerdos = ""
+        directorio_sentencias = ""
+        directorio_edictos = ""
+        directorio_glosas = ""
+        if es_jurisdiccional:
+            directorio_listas_de_acuerdos = f"{distrito.nombre}/{form.descripcion.data.strip()}"
+            directorio_sentencias = directorio_listas_de_acuerdos
+            directorio_glosas = directorio_listas_de_acuerdos
+        if es_notaria:
+            directorio_edictos = f"{distrito.nombre}/{form.descripcion.data.strip()}"
         autoridad = Autoridad(
             distrito=distrito,
             descripcion=form.descripcion.data.strip(),
             clave=form.clave.data.strip().upper(),
-            directorio_listas_de_acuerdos=directorio,
-            directorio_sentencias=directorio,
-            es_jurisdiccional=form.es_jurisdiccional.data,
+            directorio_listas_de_acuerdos=directorio_listas_de_acuerdos,
+            directorio_sentencias=directorio_sentencias,
+            directorio_edictos=directorio_edictos,
+            directorio_glosas=directorio_glosas,
+            es_jurisdiccional=es_jurisdiccional,
+            es_notaria=es_notaria,
         )
         autoridad.save()
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
@@ -82,32 +96,38 @@ def new():
 @autoridades.route("/autoridades/edicion/<int:autoridad_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def edit(autoridad_id):
-    """ Editar Autoridad """
+    """Editar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = AutoridadEditForm()
     if form.validate_on_submit():
         autoridad.distrito = form.distrito.data
         autoridad.descripcion = form.descripcion.data.strip()
         autoridad.clave = form.clave.data.strip().upper()
+        autoridad.es_jurisdiccional = form.es_jurisdiccional.data
+        autoridad.es_notaria = form.es_notaria.data
         autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data.strip()
         autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
-        autoridad.es_jurisdiccional = form.es_jurisdiccional.data
+        autoridad.directorio_edictos = form.directorio_edictos.data.strip()
+        autoridad.directorio_glosas = form.directorio_glosas.data.strip()
         autoridad.save()
         flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
         return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     form.distrito.data = autoridad.distrito
     form.descripcion.data = autoridad.descripcion
     form.clave.data = autoridad.clave
+    form.es_jurisdiccional.data = autoridad.es_jurisdiccional
+    form.es_notaria.data = autoridad.es_notaria
     form.directorio_listas_de_acuerdos.data = autoridad.directorio_listas_de_acuerdos
     form.directorio_sentencias.data = autoridad.directorio_sentencias
-    form.es_jurisdiccional.data = autoridad.es_jurisdiccional
+    form.directorio_edictos.data = autoridad.directorio_edictos
+    form.directorio_glosas.data = autoridad.directorio_glosas
     return render_template("autoridades/edit.jinja2", form=form, autoridad=autoridad)
 
 
 @autoridades.route("/autoridades/eliminar/<int:autoridad_id>")
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def delete(autoridad_id):
-    """ Eliminar Autoridad """
+    """Eliminar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad.estatus == "A":
         autoridad.delete()
@@ -118,7 +138,7 @@ def delete(autoridad_id):
 @autoridades.route("/autoridades/recuperar/<int:autoridad_id>")
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def recover(autoridad_id):
-    """ Recuperar Autoridad """
+    """Recuperar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad.estatus == "B":
         autoridad.recover()
