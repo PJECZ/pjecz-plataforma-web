@@ -69,7 +69,7 @@ def list_distritos():
 def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.descripcion).all()
+    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("edictos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades, estatus="A")
 
 
@@ -127,6 +127,10 @@ def search():
             consulta = consulta.filter(Edicto.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Edicto.fecha <= form_search.fecha_hasta.data)
+        if form_search.expediente.data:
+            consulta = consulta.filter(Edicto.expediente == form_search.expediente.data)
+        if form_search.numero_publicacion.data:
+            consulta = consulta.filter(Edicto.numero_publicacion == form_search.numero_publicacion.data)
         consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
         return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()

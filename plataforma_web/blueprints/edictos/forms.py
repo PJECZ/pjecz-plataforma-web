@@ -3,10 +3,11 @@ Edictos, formularios
 """
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import DateField, IntegerField, SelectField, StringField, SubmitField
-from wtforms.validators import DataRequired, Length, NumberRange, Optional, Regexp
+from wtforms import DateField, SelectField, StringField, SubmitField
+from wtforms.validators import DataRequired, Length, Optional, Regexp
 
 EXPEDIENTE_REGEXP = r"^\d+/[12]\d\d\d$"
+NUMERO_PUBLICACION_REGEXP = r"^\d+/[12]\d\d\d$"
 
 
 class EdictoNewForm(FlaskForm):
@@ -17,7 +18,7 @@ class EdictoNewForm(FlaskForm):
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripcion", validators=[DataRequired(), Length(max=256)])
     expediente = StringField("Expediente", validators=[DataRequired(), Length(max=10), Regexp(EXPEDIENTE_REGEXP)])
-    numero_publicacion = IntegerField("No. de publicación", validators=[DataRequired(), NumberRange(min=1)])
+    numero_publicacion = StringField("No. de publicación", validators=[DataRequired(), Length(max=10), Regexp(EXPEDIENTE_REGEXP)])
     archivo = FileField("Lista de Acuerdos PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
@@ -27,8 +28,8 @@ class EdictoEditForm(FlaskForm):
 
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripcion", validators=[DataRequired(), Length(max=256)])
-    expediente = StringField("Expediente", validators=[Optional(), Length(max=256), Regexp(EXPEDIENTE_REGEXP)])
-    numero_publicacion = IntegerField("No. de publicación", validators=[Optional(), NumberRange(min=1)])
+    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=10), Regexp(EXPEDIENTE_REGEXP)])
+    numero_publicacion = StringField("No. de publicación", validators=[DataRequired(), Length(max=10), Regexp(EXPEDIENTE_REGEXP)])
     guardar = SubmitField("Guardar")
 
 
@@ -39,7 +40,7 @@ class EdictoSearchForm(FlaskForm):
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     expediente = StringField("Expediente", validators=[Optional(), Length(max=256), Regexp(EXPEDIENTE_REGEXP)])
-    numero_publicacion = IntegerField("No. de publicación", validators=[Optional()])
+    numero_publicacion = StringField("No. de publicación", validators=[Optional(), Length(max=10), Regexp(EXPEDIENTE_REGEXP)])
     fecha_desde = DateField("Fecha desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")
