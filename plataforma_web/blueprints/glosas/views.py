@@ -92,7 +92,6 @@ def list_autoridad_glosas_inactive(autoridad_id):
 
 @glosas.route("/glosas/refrescar/<int:autoridad_id>")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
-@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
 def refresh(autoridad_id):
     """Refrescar Glosas"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -229,7 +228,6 @@ def new():
 
 
 @glosas.route("/glosas/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Glosa para una autoridad dada"""

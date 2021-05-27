@@ -91,7 +91,6 @@ def list_autoridad_sentencias_inactive(autoridad_id):
 
 @sentencias.route("/sentencias/refrescar/<int:autoridad_id>")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
-@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
 def refresh(autoridad_id):
     """Refrescar Listas de Acuerdos"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -229,7 +228,6 @@ def new():
 
 
 @sentencias.route("/sentencias/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Sentencia para una autoridad dada"""

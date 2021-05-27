@@ -58,7 +58,7 @@ def set_task_error(mensaje: str):
             tarea.descripcion = mensaje
             tarea.save()
     bitacora.error(mensaje)
-    bitacora.info("Termina por ERROR.")
+    bitacora.info("Termina")
     return mensaje
 
 

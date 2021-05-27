@@ -36,7 +36,7 @@ def checkout(id_hashed):
 
 @edictos.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(Permiso.VER_NOTARIALES)
 def before_request():
     """Permiso por defecto"""
 
@@ -82,7 +82,7 @@ def list_autoridad_edictos(autoridad_id):
 
 
 @edictos.route("/edictos/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -91,8 +91,7 @@ def list_autoridad_edictos_inactive(autoridad_id):
 
 
 @edictos.route("/edictos/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
-@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
+@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def refresh(autoridad_id):
     """Refrescar Edictos"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -139,7 +138,7 @@ def search():
 
 
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(Permiso.CREAR_NOTARIALES)
 def new():
     """Subir Edicto como juzgado"""
 
@@ -229,8 +228,7 @@ def new():
 
 
 @edictos.route("/edictos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def new_for_autoridad(autoridad_id):
     """Subir Edicto para una autoridad dada"""
 
@@ -320,7 +318,7 @@ def new_for_autoridad(autoridad_id):
 
 
 @edictos.route("/edictos/edicion/<int:edicto_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def edit(edicto_id):
     """Editar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
@@ -337,7 +335,7 @@ def edit(edicto_id):
 
 
 @edictos.route("/edictos/eliminar/<int:edicto_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(Permiso.MODIFICAR_NOTARIALES)
 def delete(edicto_id):
     """Eliminar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
@@ -351,7 +349,7 @@ def delete(edicto_id):
 
 
 @edictos.route("/edictos/recuperar/<int:edicto_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(Permiso.MODIFICAR_NOTARIALES)
 def recover(edicto_id):
     """Recuperar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
