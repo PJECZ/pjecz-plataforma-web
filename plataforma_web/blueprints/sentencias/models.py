@@ -28,7 +28,3 @@ class Sentencia(db.Model, UniversalMixin):
     def __repr__(self):
         """Representación"""
         return f"<Sentencia {self.archivo}>"
-
-
-class SentenciaException(Exception):
-    """Error por datos ilegales"""

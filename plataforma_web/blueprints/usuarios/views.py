@@ -138,8 +138,7 @@ def list_inactive():
 def detail(usuario_id):
     """Detalle de un Usuario"""
     usuario = Usuario.query.get_or_404(usuario_id)
-    entradas_salidas = EntradaSalida.query.filter(EntradaSalida.usuario == usuario).order_by(EntradaSalida.creado).limit(100).all()
-    return render_template("usuarios/detail.jinja2", usuario=usuario, entradas_salidas=entradas_salidas)
+    return render_template("usuarios/detail.jinja2", usuario=usuario)
 
 
 @usuarios.route("/usuarios/buscar", methods=["GET", "POST"])

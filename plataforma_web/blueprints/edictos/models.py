@@ -34,7 +34,3 @@ class Edicto(db.Model, UniversalMixin):
     @property
     def ruta(self):
         """Ruta para guardar el archivo"""
-
-
-class EdictoException(Exception):
-    """Error por datos ilegales"""

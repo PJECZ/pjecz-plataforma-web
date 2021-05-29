@@ -38,7 +38,3 @@ class Autoridad(db.Model, UniversalMixin):
     def __repr__(self):
         """Representación"""
         return f"<Autoridad {self.descripcion}>"
-
-
-class AutoridadException(Exception):
-    """Error por autoridad que no existe, no es activa o no tiene un directorio"""

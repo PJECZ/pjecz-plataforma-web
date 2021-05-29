@@ -36,6 +36,7 @@
             <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
+                        {% if current_user.can_admin('listas_de_acuerdos') %}<th>Creados</th>{% endif %}
                         <th>Fechas</th>
                         <th>Descripciones</th>
                         <th>Expedientes</th>
@@ -45,6 +46,7 @@
                 <tbody>
                     {% for edicto in edictos %}
                     <tr>
+                        {% if current_user.can_admin('listas_de_acuerdos') %}<td>{{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
                         <td>{{ edicto.fecha }}</td>
                         <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
                         <td>{{ edicto.expediente }}</td>
