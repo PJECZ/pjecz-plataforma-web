@@ -100,6 +100,7 @@ def profile():
 
 @usuarios.route("/cambiar_contrasena", methods=["GET", "POST"])
 @login_required
+@permission_required(Permiso.MODIFICAR_CUENTAS)
 def change_password():
     """Cambiar Contraseña"""
     form = CambiarContrasenaForm()

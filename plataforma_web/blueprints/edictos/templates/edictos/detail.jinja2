@@ -18,7 +18,7 @@
         {{ detail.page_breadcrumb_item('Edictos', link=url_for('edictos.list_active')) }}
         {{ detail.page_breadcrumb_item('Distritos', link=url_for('edictos.list_distritos')) }}
         {{ detail.page_breadcrumb_item(edicto.autoridad.distrito.nombre, link=url_for('edictos.list_autoridades', distrito_id=edicto.autoridad.distrito_id)) }}
-        {{ detail.page_breadcrumb_item(edicto.autoridad.descripcion, link=url_for('edictos.list_autoridad_listas_de_acuerdos', autoridad_id=edicto.autoridad_id)) }}
+        {{ detail.page_breadcrumb_item(edicto.autoridad.descripcion, link=url_for('edictos.list_autoridad_edictos', autoridad_id=edicto.autoridad_id)) }}
     {% endcall %}
     <div class="container-fluid">
         {% call detail.card(estatus=edicto.estatus) %}
@@ -30,7 +30,7 @@
             {{ detail.label_value('Expediente', edicto.expediente) }}
             {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
             {{ detail.label_value_new_tab('Edicto PDF', edicto.archivo, edicto.url) }}
-            {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('listas_de_acuerdos.checkout', id_hashed=edicto.encode_id())) }}
+            {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
         {% endcall %}
     </div>
     {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}

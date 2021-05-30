@@ -46,14 +46,30 @@ def list_active():
     """Listado de Glosas activos"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
-        todas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
-        return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=todas, estatus="A")
+        glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
+        return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_activas, estatus="A")
     # No es administrador, consultar su autoridad
     autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
     # Si su autoridad es jurisdiccional, ve sus propias glosas
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
-        return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=sus_listas, estatus="A")
+        sus_glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
+        return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=sus_glosas_activas, estatus="A")
+    # No es jurisdiccional, se redirige al listado de distritos
+    return redirect(url_for("glosas.list_distritos"))
+
+
+@glosas.route('/glosas/inactivos')
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def list_inactive():
+    """ Listado de Glosas inactivas """
+    # Si es administrador, ve las glosas de todas las autoridades
+    if current_user.can_admin("glosas"):
+        glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(100).all()
+        return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_inactivas, estatus="B")
+    # Si es jurisdiccional, ve sus propios glosas
+    if current_user.autoridad.es_jurisdiccional:
+        sus_glosas_inactivas = Glosa.query.filter(Glosa.autoridad == current_user.autoridad).filter(Glosa.estatus == "B").order_by(Glosa.fecha.desc()).limit(100).all()
+        return render_template("glosas/list.jinja2", autoridad=current_user.autoridad, glosas=sus_glosas_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("glosas.list_distritos"))
 

@@ -46,15 +46,31 @@ def list_active():
     """Listado de Edictos activos"""
     # Si es administrador, ve los edictos de todas las autoridades
     if current_user.can_admin("edictos"):
-        todas = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
-        return render_template("edictos/list_admin.jinja2", autoridad=None, edictos=todas, estatus="A")
+        edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
+        return render_template("edictos/list_admin.jinja2", autoridad=None, edictos=edictos_activos, estatus="A")
     # No es administrador, consultar su autoridad
     autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
     # Si su autoridad es jurisdiccional, ve sus propios edictos
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
-        return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=sus_listas, estatus="A")
+        sus_edictos_activos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
+        return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=sus_edictos_activos, estatus="A")
     # No es jurisdiccional, se redirige al listado de edictos
+    return redirect(url_for("edictos.list_distritos"))
+
+
+@edictos.route("/edictos/inactivos")
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def list_inactive():
+    """Listado de Edictos inactivos"""
+    # Si es administrador, ve los edictos de todas las autoridades
+    if current_user.can_admin("edictos"):
+        edictos_inactivos = Edicto.query.filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(100).all()
+        return render_template("edictos/list_admin.jinja2", autoridad=None, edictos=edictos_inactivos, estatus="B")
+    # Si es jurisdiccional, ve sus propios edictos
+    if current_user.autoridad.es_jurisdiccional:
+        sus_edictos_inactivos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "B").order_by(Edicto.fecha.desc()).limit(100).all()
+        return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, edictos=sus_edictos_inactivos, estatus="B")
+    # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("edictos.list_distritos"))
 
 
@@ -152,16 +168,16 @@ def new():
     autoridad = current_user.autoridad
     if autoridad is None or autoridad.estatus != "A":
         flash("El juzgado/autoridad no existe o no es activa.", "warning")
-        return redirect(url_for('edictos.list_active'))
+        return redirect(url_for("edictos.list_active"))
     if not autoridad.distrito.es_distrito_judicial:
         flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
-        return redirect(url_for('edictos.list_active'))
+        return redirect(url_for("edictos.list_active"))
     if not autoridad.es_jurisdiccional:
         flash("El juzgado/autoridad no es jurisdiccional.", "warning")
-        return redirect(url_for('edictos.list_active'))
+        return redirect(url_for("edictos.list_active"))
     if autoridad.directorio_edictos is None or autoridad.directorio_edictos == "":
         flash("El juzgado/autoridad no tiene directorio para edictos.", "warning")
-        return redirect(url_for('edictos.list_active'))
+        return redirect(url_for("edictos.list_active"))
 
     # Si viene el formulario
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
@@ -242,19 +258,19 @@ def new_for_autoridad(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad is None:
         flash("El juzgado/autoridad no existe.", "warning")
-        return redirect(url_for('edictos.list_active'))
+        return redirect(url_for("edictos.list_active"))
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if not autoridad.distrito.es_distrito_judicial:
         flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if not autoridad.es_jurisdiccional:
         flash("El juzgado/autoridad no es jurisdiccional.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if autoridad.directorio_edictos is None or autoridad.directorio_edictos == "":
         flash("El juzgado/autoridad no tiene directorio para edictos.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
     # Si viene el formulario
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))

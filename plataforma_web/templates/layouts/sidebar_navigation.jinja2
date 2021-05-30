@@ -17,15 +17,15 @@
                     {% if current_user.can_view('cid_formatos') %}{{ app.sidebar_nav_option('Formatos', '/cid_formatos', 'mdi mdi-file') }}{% endif %}
                     {% if current_user.can_view('cid_registros') %}{{ app.sidebar_nav_option('Registros', '/cid_registros', 'mdi mdi-file') }}{% endif %}
                 {% endcall %}
-                {% call app.sidebar_nav_submenu('Auditorías', 'mdi mdi-account-settings') %}
-                    {% if current_user.can_view('bitacoras') %} {{ app.sidebar_nav_option('Bitácoras', '/bitacoras', 'mdi mdi-calendar-clock') }} {% endif %}
-                    {% if current_user.can_view('entradas_salidas') %} {{ app.sidebar_nav_option('Entradas/Salidas', '/entradas_salidas', 'mdi mdi-calendar-clock') }} {% endif %}
-                    {% if current_user.can_view('roles') %} {{ app.sidebar_nav_option('Roles', '/roles', 'mdi mdi-gamepad') }} {% endif %}
-                    {% if current_user.can_view('tareas') %} {{ app.sidebar_nav_option('Tareas', '/tareas', 'mdi mdi-washing-machine') }} {% endif %}
-                {% endcall %}
                 {% if current_user.can_view('distritos') %}{{ app.sidebar_nav_option('Departamentos', '/distritos', 'mdi mdi-apps') }}{% endif %}
                 {% if current_user.can_view('autoridades') %}{{ app.sidebar_nav_option('Autoridades', '/autoridades', 'mdi mdi-scale-balance') }}{% endif %}
                 {% if current_user.can_view('usuarios') %}{{ app.sidebar_nav_option('Usuarios', '/usuarios', 'mdi mdi-account-key') }}{% endif %}
+                {# call app.sidebar_nav_submenu('Auditorías', 'mdi mdi-account-settings') #}
+                    {% if current_user.can_edit('bitacoras') %} {{ app.sidebar_nav_option('Bitácoras', '/bitacoras', 'mdi mdi-calendar-clock') }} {% endif %}
+                    {% if current_user.can_edit('entradas_salidas') %} {{ app.sidebar_nav_option('Entradas/Salidas', '/entradas_salidas', 'mdi mdi-calendar-clock') }} {% endif %}
+                    {% if current_user.can_edit('roles') %} {{ app.sidebar_nav_option('Roles', '/roles', 'mdi mdi-gamepad') }} {% endif %}
+                    {% if current_user.can_edit('tareas') %} {{ app.sidebar_nav_option('Tareas', '/tareas', 'mdi mdi-washing-machine') }} {% endif %}
+                {# endcall #}
             </ul>
         </nav>
     </div>

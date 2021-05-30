@@ -22,8 +22,10 @@
             {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
             {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
             {{ detail.label_value('e-mail', usuario.email) }}
-            {{ detail.label_value('Workspace', usuario.workspace) }}
-            {{ detail.label_value('Rol', usuario.rol.nombre) }}
+            {% if current_user.can_edit('usuarios') %}
+                {{ detail.label_value('Workspace', usuario.workspace) }}
+                {{ detail.label_value('Rol', usuario.rol.nombre) }}
+            {% endif %}
         {% endcall %}
     </div>
     {% if current_user.can_edit('usuarios') %}

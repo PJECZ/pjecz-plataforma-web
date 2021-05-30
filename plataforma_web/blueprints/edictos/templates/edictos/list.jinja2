@@ -13,6 +13,8 @@
             {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}{% endif %}
         {% elif current_user.can_insert('edictos') and current_user.autoridad_id == autoridad.id %}
             {{ list.topbar_option_upload('Subir', url_for('edictos.new')) }}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('edictos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_admin('edictos') and current_user.can_insert('tareas') %}
             {{ list.topbar_option_refresh('Refrescar', url_for('edictos.refresh', autoridad_id=autoridad.id)) }}
@@ -29,14 +31,14 @@
         {% endcall %}
     {% else %}
         {% if estatus == 'A'%}{{ list.page('Edictos') }}{% endif %}
-        {% if estatus == 'B'%}{{ list.page('Edictos inactivas') }}{% endif %}
+        {% if estatus == 'B'%}{{ list.page('Edictos inactivos') }}{% endif %}
     {% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
-                        {% if current_user.can_admin('listas_de_acuerdos') %}<th>Creados</th>{% endif %}
+                        {% if current_user.can_admin('edictos') %}<th>Creados</th>{% endif %}
                         <th>Fechas</th>
                         <th>Descripciones</th>
                         <th>Expedientes</th>
@@ -46,7 +48,7 @@
                 <tbody>
                     {% for edicto in edictos %}
                     <tr>
-                        {% if current_user.can_admin('listas_de_acuerdos') %}<td>{{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
+                        {% if current_user.can_admin('edictos') %}<td>{{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
                         <td>{{ edicto.fecha }}</td>
                         <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
                         <td>{{ edicto.expediente }}</td>

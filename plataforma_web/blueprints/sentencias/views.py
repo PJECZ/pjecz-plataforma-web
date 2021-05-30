@@ -45,14 +45,30 @@ def list_active():
     """Listado de Sentencias activas más recientes"""
     # Si es administrador, ve las sentencias de todas las autoridades
     if current_user.can_admin("sentencias"):
-        todas = Sentencia.query.filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
-        return render_template("sentencias/list_admin.jinja2", autoridad=None, sentencias=todas, estatus="A")
+        sentencias_activas = Sentencia.query.filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
+        return render_template("sentencias/list_admin.jinja2", autoridad=None, sentencias=sentencias_activas, estatus="A")
     # No es administrador, consultar su autoridad
     autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
     # Si su autoridad es jurisdiccional, ve sus propias sentencias
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
-        return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sus_listas, estatus="A")
+        sus_sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
+        return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sus_sentencias_activas, estatus="A")
+    # No es jurisdiccional, se redirige al listado de distritos
+    return redirect(url_for("sentencias.list_distritos"))
+
+
+@sentencias.route("/sentencias/inactivos")
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def list_inactive():
+    """Listado de Sentencias inactivas"""
+    # Si es administrador, ve las sentencias de todas las autoridades
+    if current_user.can_admin("sentencias"):
+        sentencias_inactivas = Sentencia.query.filter(Sentencia.estatus == "B").order_by(Sentencia.creado.desc()).limit(100).all()
+        return render_template("sentencias/list_admin.jinja2", autoridad=None, sentencias=sentencias_inactivas, estatus="B")
+    # Si es jurisdiccional, ve sus propias sentencias
+    if current_user.autoridad.es_jurisdiccional:
+        sus_sentencias_inactivas = Sentencia.query.filter(Sentencia.autoridad == current_user.autoridad).filter(Sentencia.estatus == "B").order_by(Sentencia.fecha.desc()).limit(100).all()
+        return render_template("sentencias/list.jinja2", autoridad=current_user.autoridad, sentencias=sus_sentencias_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("sentencias.list_distritos"))
 
@@ -242,19 +258,19 @@ def new_for_autoridad(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad is None:
         flash("El juzgado/autoridad no existe.", "warning")
-        return redirect(url_for('sentencias.list_active'))
+        return redirect(url_for("sentencias.list_active"))
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if not autoridad.distrito.es_distrito_judicial:
         flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if not autoridad.es_jurisdiccional:
         flash("El juzgado/autoridad no es jurisdiccional.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if autoridad.directorio_sentencias is None or autoridad.directorio_sentencias == "":
         flash("El juzgado/autoridad no tiene directorio para edictos.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
     # Si viene el formulario
     form = SentenciaNewForm(CombinedMultiDict((request.files, request.form)))

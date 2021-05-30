@@ -8,7 +8,7 @@ from lib.universal_mixin import UniversalMixin
 class Permiso:
     """Permiso tiene como constantes enteros de potencia dos"""
 
-    # Usuarios, Bitácoras, Entradas-Salidas, Roles
+    # Usuarios, Bitácoras, Entradas-Salidas, Roles, Tareas, Transcripciones
     VER_CUENTAS = 0b1
     MODIFICAR_CUENTAS = 0b10
     CREAR_CUENTAS = 0b100
@@ -18,17 +18,17 @@ class Permiso:
     MODIFICAR_CATALOGOS = 0b10000
     CREAR_CATALOGOS = 0b100000
 
-    # CID, Tareas, Transcripciones
+    # CID
     VER_DOCUMENTACIONES = 0b1000000
     MODIFICAR_DOCUMENTACIONES = 0b10000000
     CREAR_DOCUMENTACIONES = 0b100000000
 
-    # Abogados registrados, Peritos, Ubicación de expedientes
+    # Abogados, Peritos
     VER_CONSULTAS = 0b1000000000
     MODIFICAR_CONSULTAS = 0b10000000000
     CREAR_CONSULTAS = 0b100000000000
 
-    # Agendas, Glosas, Listas de Acuerdos, Sentencias
+    # Glosas, Listas de Acuerdos, Sentencias, Ubicación de expedientes
     VER_JUSTICIABLES = 0b1000000000000
     MODIFICAR_JUSTICIABLES = 0b10000000000000
     CREAR_JUSTICIABLES = 0b100000000000000
@@ -172,7 +172,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_view(self, module):
         """¿Tiene permiso para ver?"""
-        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
+        if module == "usuarios":
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.VER_CATALOGOS)
@@ -188,7 +188,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_insert(self, module):
         """¿Tiene permiso para agregar?"""
-        if module in ("tareas", "usuarios"):
+        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
@@ -204,7 +204,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_edit(self, module):
         """¿Tiene permiso para editar?"""
-        if module in ("tareas", "usuarios"):
+        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ("distritos", "autoridades"):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
