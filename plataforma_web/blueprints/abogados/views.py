@@ -53,13 +53,13 @@ def search():
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Abogado.fecha <= form_search.fecha_hasta.data)
         if form_search.numero.data:
-            numero = safe_string(form_search.numero)
+            numero = safe_string(form_search.numero.data)
             consulta = consulta.filter(Abogado.numero == numero)
         if form_search.libro.data:
-            libro = safe_string(form_search.libro)
+            libro = safe_string(form_search.libro.data)
             consulta = consulta.filter(Abogado.libro == libro)
         if form_search.nombre.data:
-            nombre = safe_string(form_search.nombre)
+            nombre = safe_string(form_search.nombre.data)
             consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
         consulta = consulta.order_by(Abogado.fecha.desc()).limit(100).all()
         return render_template("abogados/list.jinja2", abogados=consulta)
