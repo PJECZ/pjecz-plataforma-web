@@ -9,7 +9,7 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_string, safe_expediente
+from lib.safe_string import safe_string, safe_expediente, safe_numero_publicacion
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -142,10 +142,6 @@ def search():
             consulta = consulta.filter(Edicto.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Edicto.fecha <= form_search.fecha_hasta.data)
-        if form_search.expediente.data:
-            consulta = consulta.filter(Edicto.expediente == safe_expediente(form_search.expediente.data))
-        if form_search.numero_publicacion.data:
-            consulta = consulta.filter(Edicto.numero_publicacion == safe_expediente(form_search.numero_publicacion.data))
         consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
         return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
@@ -187,7 +183,7 @@ def new():
         fecha = form.fecha.data
         descripcion = safe_string(form.descripcion.data)
         expediente = safe_expediente(form.expediente.data)
-        numero_publicacion = safe_expediente(form.numero_publicacion.data)
+        numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
         archivo = request.files["archivo"]
 
         # Validar fecha
@@ -199,16 +195,6 @@ def new():
         # Validar descripcion, porque safe_string puede resultar vacío
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
-            return render_template("edictos/new.jinja2", form=form)
-
-        # Validar expediente, porque safe_expediente puede resultar vacío
-        if expediente == "":
-            flash("El expediente es incorrecto.", "warning")
-            return render_template("edictos/new.jinja2", form=form)
-
-        # Validar número publicación, porque safe_expediente puede resultar vacío
-        if numero_publicacion == "":
-            flash("El número de publicación es incorrecto.", "warning")
             return render_template("edictos/new.jinja2", form=form)
 
         # Validar archivo
@@ -227,14 +213,20 @@ def new():
         )
         edicto.save()
 
-        # Elaborar nombre del archivo y ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
+        # Elaborar nombre del archivo
+        elementos = []
+        elementos.append(fecha.strftime("%Y-%m-%d"))
+        if expediente != "":
+            elementos.append(expediente.replace("/", "-"))
+        if numero_publicacion != "":
+            elementos.append(numero_publicacion.replace("/", "-"))
+        elementos.append(descripcion.replace(" ", "-"))
+        elementos.append(edicto.encode_id())
+        archivo_str = "-".join(elementos) + ".pdf"
+
+        # Elaborar ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
-        fecha_str = fecha.strftime("%Y-%m-%d")
-        expediente_str = expediente.replace("/", "-")
-        numero_publicacion_str = numero_publicacion.replace("/", "-")
-        descripcion_str = descripcion.replace(" ", "-")
-        archivo_str = f"{fecha_str}-{expediente_str}-{numero_publicacion_str}-{descripcion_str}-{edicto.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -298,7 +290,7 @@ def new_for_autoridad(autoridad_id):
         fecha = form.fecha.data
         descripcion = safe_string(form.descripcion.data)
         expediente = safe_expediente(form.expediente.data)
-        numero_publicacion = safe_expediente(form.numero_publicacion.data)
+        numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
         archivo = request.files["archivo"]
 
         # Validar fecha
@@ -310,16 +302,6 @@ def new_for_autoridad(autoridad_id):
         # Validar descripcion, porque safe_string puede resultar vacío
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
-            return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
-
-        # Validar expediente, porque safe_expediente puede resultar vacío
-        if expediente == "":
-            flash("El expediente es incorrecto.", "warning")
-            return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
-
-        # Validar número publicación, porque safe_expediente puede resultar vacío
-        if numero_publicacion == "":
-            flash("El número de publicación es incorrecto.", "warning")
             return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Validar archivo
@@ -338,14 +320,20 @@ def new_for_autoridad(autoridad_id):
         )
         edicto.save()
 
-        # Elaborar nombre del archivo y ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
+        # Elaborar nombre del archivo
+        elementos = []
+        elementos.append(fecha.strftime("%Y-%m-%d"))
+        if expediente != "":
+            elementos.append(expediente.replace("/", "-"))
+        if numero_publicacion != "":
+            elementos.append(numero_publicacion.replace("/", "-"))
+        elementos.append(descripcion.replace(" ", "-"))
+        elementos.append(edicto.encode_id())
+        archivo_str = "-".join(elementos) + ".pdf"
+
+        # Elaborar ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
-        fecha_str = fecha.strftime("%Y-%m-%d")
-        expediente_str = expediente.replace("/", "-")
-        numero_publicacion_str = numero_publicacion.replace("/", "-")
-        descripcion_str = descripcion.replace(" ", "-")
-        archivo_str = f"{fecha_str}-{expediente_str}-{numero_publicacion_str}-{descripcion_str}-{edicto.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -382,7 +370,7 @@ def edit(edicto_id):
         edicto.fecha = form.fecha.data
         edicto.descripcion = safe_string(form.descripcion.data)
         edicto.expediente = safe_expediente(form.expediente.data)
-        edicto.numero_publicacion = safe_expediente(form.numero_publicacion.data)
+        edicto.numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
         edicto.save()
         flash(f"Edicto {edicto.descripcion} guardado.", "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
