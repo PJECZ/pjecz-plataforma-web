@@ -36,6 +36,9 @@ def refrescar(autoridad_clave):
     if not autoridad.es_jurisdiccional:
         click.echo(f"La autoridad {autoridad_clave} no es jurisdiccional")
         return
+    if autoridad.es_notaria:
+        click.echo(f"La autoridad {autoridad_clave} es una notaría")
+        return
     if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
         click.echo(f"La autoridad {autoridad_clave} no tiene directorio para listas de acuerdos")
         return

@@ -14,7 +14,7 @@ cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="
 
 @cid_procedimientos.before_request
 @login_required
-@permission_required(Permiso.VER_ADMINISTRATIVOS)
+@permission_required(Permiso.VER_DOCUMENTACIONES)
 def before_request():
     """ Permiso por defecto """
 
@@ -27,7 +27,7 @@ def list_active():
 
 
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
     """ Listado de CID Procedimientos inactivos """
     cid_procedimientos_inactivos = CIDProcedimiento.query.filter(CIDProcedimiento.estatus == "B").order_by(CIDProcedimiento.creado.desc()).limit(100).all()
@@ -42,7 +42,7 @@ def detail(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
+@permission_required(Permiso.CREAR_DOCUMENTACIONES)
 def new():
     """ Nuevo CID Procedimiento """
     form = CIDProcedimientoForm()
@@ -55,7 +55,7 @@ def new():
 
 
 @cid_procedimientos.route("/cid_procedimientos/edicion/<int:cid_procedimiento_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def edit(cid_procedimiento_id):
     """ Editar CID Procedimiento """
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -70,7 +70,7 @@ def edit(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/eliminar/<int:cid_procedimiento_id>")
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def delete(cid_procedimiento_id):
     """ Eliminar CID Procedimiento """
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -81,7 +81,7 @@ def delete(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/recuperar/<int:cid_procedimiento_id>")
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def recover(cid_procedimiento_id):
     """ Recuperar CID Procedimiento """
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)

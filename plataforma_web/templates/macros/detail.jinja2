@@ -76,44 +76,50 @@
 {%- endmacro -%}
 
 {%- macro label_value(label, value, link='') -%}
-    <div class="row">
-        <div class="col-md-3 text-right">
-            {{ label }}
+    {% if value != None and value != '' %}
+        <div class="row">
+            <div class="col-md-3 text-right">
+                {{ label }}
+            </div>
+            <div class="col-md-9">
+                {% if link %}
+                <strong><a href="{{ link }}">{{ value }}</a></strong>
+                {% else %}
+                <strong>{{ value }}</strong>
+                {% endif %}
+            </div>
         </div>
-        <div class="col-md-9">
-            {% if link %}
-            <strong><a href="{{ link }}">{{ value }}</a></strong>
-            {% else %}
-            <strong>{{ value }}</strong>
-            {% endif %}
-        </div>
-    </div>
+    {% endif %}
 {%- endmacro -%}
 
 {%- macro label_value_new_tab(label, value, link) -%}
-    <div class="row">
-        <div class="col-md-3 text-right">
-            {{ label }}
+    {% if value != None and value != '' %}
+        <div class="row">
+            <div class="col-md-3 text-right">
+                {{ label }}
+            </div>
+            <div class="col-md-9">
+                <strong><a href="{{ link }}" target="_blank">{{ value }} <i class="fas fa-external-link-alt"></i></a></strong>
+            </div>
         </div>
-        <div class="col-md-9">
-            <strong><a href="{{ link }}" target="_blank">{{ value }} <i class="fas fa-external-link-alt"></i></a></strong>
-        </div>
-    </div>
+    {% endif %}
 {%- endmacro -%}
 
 {%- macro label_value_big(label, value, link='') -%}
-    <div class="row">
-        <div class="col-md-3 text-right">
-            <!-- No se muestra el label -->
+    {% if value != None and value != '' %}
+        <div class="row">
+            <div class="col-md-3 text-right">
+                <!-- No se muestra el label -->
+            </div>
+            <div class="col-md-9">
+                {% if link %}
+                <h3><a href="{{ link }}">{{ value }}</a></h3>
+                {% else %}
+                <h3>{{ value }}</h3>
+                {% endif %}
+            </div>
         </div>
-        <div class="col-md-9">
-            {% if link %}
-            <h3><a href="{{ link }}">{{ value }}</a></h3>
-            {% else %}
-            <h3>{{ value }}</h3>
-            {% endif %}
-        </div>
-    </div>
+    {% endif %}
 {%- endmacro -%}
 
 {%- macro label_value_boolean(label, value) -%}

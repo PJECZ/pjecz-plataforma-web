@@ -30,7 +30,7 @@
                         <th>Sentencias</th>
                         <th>Expedientes</th>
                         <th>P. Género</th>
-                        <th>V.P. Sentencias PDFs</th>
+                        <th>Archivos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,11 +38,11 @@
                     <tr>
                         <td>{{ sentencia.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ sentencia.autoridad.clave }}</td>
-                        <td><a href="{{ url_for('sentencias.detail', sentencia_id=sentencia.id) }}">{{ sentencia.fecha }}</a></td>
-                        <td>{{ sentencia.sentencia }}</td>
+                        <td>{{ sentencia.fecha }}</td>
+                        <td><a href="{{ url_for('sentencias.detail', sentencia_id=sentencia.id) }}">{{ sentencia.sentencia }}</a></td>
                         <td>{{ sentencia.expediente }}</td>
                         <td>{% if sentencia.es_paridad_genero %}SI{% endif %}</td>
-                        <td><a href="{{ sentencia.url }}" target="_blank">{{ sentencia.archivo }} <i class="fas fa-external-link-alt"></a></td>
+                        <td><a href="{{ sentencia.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

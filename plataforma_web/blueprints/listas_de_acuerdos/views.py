@@ -3,22 +3,22 @@ Listas de Acuerdos, vistas
 """
 import datetime
 from pathlib import Path
-from unidecode import unidecode
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
+from lib.safe_string import safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm
-from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo, ListaDeAcuerdoException
+from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 
-from plataforma_web.blueprints.autoridades.models import Autoridad, AutoridadException
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
@@ -46,12 +46,12 @@ def list_active():
     """Listado de Listas de Acuerdos activas más recientes"""
     # Si es administrador, ve las listas de acuerdos de todas las autoridades
     if current_user.can_admin("listas_de_acuerdos"):
-        activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
-        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=activas, estatus="A")
+        listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=listas_activas, estatus="A")
     # Si es jurisdiccional, ve sus propias listas de acuerdos
     if current_user.autoridad.es_jurisdiccional:
-        sus_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
-        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_activas, estatus="A")
+        sus_listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_listas_activas, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
 
@@ -66,8 +66,8 @@ def list_inactive():
         return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=inactivas, estatus="B")
     # Si es jurisdiccional, ve sus propias listas de acuerdos
     if current_user.autoridad.es_jurisdiccional:
-        sus_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
-        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_inactivas, estatus="B")
+        sus_listas_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_listas_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
 
@@ -83,7 +83,7 @@ def list_distritos():
 def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("listas_de_acuerdos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades, estatus="A")
 
 
@@ -106,7 +106,6 @@ def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
-@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
 def refresh(autoridad_id):
     """Refrescar Listas de Acuerdos"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -144,7 +143,7 @@ def search():
         consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("listas_de_acuerdos/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
 
 
@@ -161,17 +160,18 @@ def new():
 
     # Validar autoridad
     autoridad = current_user.autoridad
-    try:
-        if autoridad is None or autoridad.estatus != "A":
-            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
-        if not autoridad.distrito.es_distrito_judicial:
-            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
-        if not autoridad.es_jurisdiccional:
-            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
-        if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
-            raise AutoridadException("El juzgado/autoridad no tiene directorio para listas de acuerdos.")
-    except AutoridadException as error:
-        return redirect(url_for("sistemas.bad_request", error=str(error)))
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("listas_de_acuerdos.list_active"))
+    if not autoridad.distrito.es_distrito_judicial:
+        flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
+        return redirect(url_for("listas_de_acuerdos.list_active"))
+    if not autoridad.es_jurisdiccional:
+        flash("El juzgado/autoridad no es jurisdiccional.", "warning")
+        return redirect(url_for("listas_de_acuerdos.list_active"))
+    if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
+        flash("El juzgado/autoridad no tiene directorio para listas de acuerdos.", "warning")
+        return redirect(url_for("listas_de_acuerdos.list_active"))
 
     # Si viene el formulario
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
@@ -179,19 +179,24 @@ def new():
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        descripcion = unidecode(form.descripcion.data.strip())
+        descripcion = safe_string(form.descripcion.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
-        try:
-            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-                raise ListaDeAcuerdoException(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.")
-            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-                raise ListaDeAcuerdoException("No es un archivo PDF.")
-        except ListaDeAcuerdoException as error:
-            flash(str(error), "warning")
+        # Validar fecha
+        if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+            flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
+            return render_template("listas_de_acuerdos/new.jinja2", form=form)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("listas_de_acuerdos/new.jinja2", form=form)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
+        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+            flash("No es un archivo PDF.", "warning")
             return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
@@ -213,7 +218,8 @@ def new():
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
-        archivo_str = f"{fecha_str}-lista-de-acuerdos-{lista_de_acuerdo.encode_id()}.pdf"
+        descripcion_str = descripcion.replace(" ", "-")
+        archivo_str = f"{fecha_str}-{descripcion_str}-{lista_de_acuerdo.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -245,30 +251,33 @@ def new():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Lista de Acuerdos para una autoridad dada"""
 
     # Para validar la fecha
-    dias_limite = 30
+    dias_limite = 90
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
     limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    try:
-        if autoridad is None or autoridad.estatus != "A":
-            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
-        if not autoridad.distrito.es_distrito_judicial:
-            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
-        if not autoridad.es_jurisdiccional:
-            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
-        if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
-            raise AutoridadException("El juzgado/autoridad no tiene directorio para listas de acuerdos.")
-    except AutoridadException as error:
-        return redirect(url_for("sistemas.bad_request", error=str(error)))
+    if autoridad is None:
+        flash("El juzgado/autoridad no existe.", "warning")
+        return redirect(url_for("listas_de_acuerdos.list_active"))
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no es activa.", "warning")
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+    if not autoridad.distrito.es_distrito_judicial:
+        flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+    if not autoridad.es_jurisdiccional:
+        flash("El juzgado/autoridad no es jurisdiccional.", "warning")
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+    if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
+        flash("El juzgado/autoridad no tiene directorio para edictos.", "warning")
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
     # Si viene el formulario
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
@@ -276,19 +285,24 @@ def new_for_autoridad(autoridad_id):
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        descripcion = unidecode(form.descripcion.data.strip())
+        descripcion = safe_string(form.descripcion.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
+        # Validar fecha
         archivo_nombre = secure_filename(archivo.filename.lower())
-        try:
-            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-                raise ListaDeAcuerdoException(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.")
-            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-                raise ListaDeAcuerdoException("No es un archivo PDF.")
-        except ListaDeAcuerdoException as error:
-            flash(str(error), "warning")
+        if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+            flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
+            return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar archivo
+        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+            flash("No es un archivo PDF.", "warning")
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
@@ -310,7 +324,8 @@ def new_for_autoridad(autoridad_id):
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
-        archivo_str = f"{fecha_str}-lista-de-acuerdos-{lista_de_acuerdo.encode_id()}.pdf"
+        descripcion_str = descripcion.replace(" ", "-")
+        archivo_str = f"{fecha_str}-{descripcion_str}-{lista_de_acuerdo.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -349,7 +364,7 @@ def edit(lista_de_acuerdo_id):
     form = ListaDeAcuerdoEditForm()
     if form.validate_on_submit():
         lista_de_acuerdo.fecha = form.fecha.data
-        lista_de_acuerdo.descripcion = form.descripcion.data
+        lista_de_acuerdo.descripcion = safe_string(form.descripcion.data)
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))

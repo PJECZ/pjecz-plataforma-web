@@ -3,9 +3,9 @@ Abogados, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
-from unidecode import unidecode
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.abogados.models import Abogado
 from plataforma_web.blueprints.abogados.forms import AbogadoForm, AbogadoSearchForm
@@ -53,13 +53,13 @@ def search():
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Abogado.fecha <= form_search.fecha_hasta.data)
         if form_search.numero.data:
-            numero = unidecode(form_search.numero.data).upper()  # Sin acentos y en mayúsculas
+            numero = safe_string(form_search.numero)
             consulta = consulta.filter(Abogado.numero == numero)
         if form_search.libro.data:
-            libro = unidecode(form_search.libro.data).upper()  # Sin acentos y en mayúsculas
+            libro = safe_string(form_search.libro)
             consulta = consulta.filter(Abogado.libro == libro)
         if form_search.nombre.data:
-            nombre = unidecode(form_search.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
+            nombre = safe_string(form_search.nombre)
             consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
         consulta = consulta.order_by(Abogado.fecha.desc()).limit(100).all()
         return render_template("abogados/list.jinja2", abogados=consulta)
@@ -73,9 +73,9 @@ def new():
     form = AbogadoForm()
     if form.validate_on_submit():
         abogado = Abogado(
-            numero=form.numero.data.strip(),
-            nombre=unidecode(form.nombre.data.strip()).upper(),  # Sin acentos y en mayúsculas
-            libro=form.libro.data.strip(),
+            numero=safe_string(form.numero.data),
+            nombre=safe_string(form.nombre.data),
+            libro=safe_string(form.libro.data),
             fecha=form.fecha.data,
         )
         abogado.save()
@@ -91,9 +91,9 @@ def edit(abogado_id):
     abogado = Abogado.query.get_or_404(abogado_id)
     form = AbogadoForm()
     if form.validate_on_submit():
-        abogado.numero = form.numero.data.strip()
-        abogado.nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
-        abogado.libro = form.libro.data.strip()
+        abogado.numero = safe_string(form.numero.data)
+        abogado.nombre = safe_string(form.nombre.data)
+        abogado.libro = safe_string(form.libro.data)
         abogado.fecha = form.fecha.data
         abogado.save()
         flash(f"Abogado {abogado.nombre} guardado.", "success")

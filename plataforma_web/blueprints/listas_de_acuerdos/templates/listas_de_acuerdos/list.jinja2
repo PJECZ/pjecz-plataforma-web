@@ -8,13 +8,13 @@
     {{ list.topbar_option('Distritos', url_for('listas_de_acuerdos.list_distritos'), 'fas fa-sitemap') }}
     {% if autoridad %}
         {% if current_user.can_admin('listas_de_acuerdos') %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
             {{ list.topbar_option_upload('Subir', url_for('listas_de_acuerdos.new_for_autoridad', autoridad_id=autoridad.id)) }}
         {% elif current_user.can_insert('listas_de_acuerdos') and current_user.autoridad_id == autoridad.id %}
-            {{ list.topbar_option_upload('Subir', url_for('listas_de_acuerdos.new')) }}
-        {% endif %}
-        {% if current_user.can_edit('listas_de_acuerdos') and current_user.autoridad_id == autoridad.id %}
             {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('listas_de_acuerdos.list_active')) }}{% endif %}
+            {{ list.topbar_option_upload('Subir', url_for('listas_de_acuerdos.new')) }}
         {% endif %}
         {% if current_user.can_admin('listas_de_acuerdos') and current_user.can_insert('tareas') %}
             {{ list.topbar_option_refresh('Refrescar', url_for('listas_de_acuerdos.refresh', autoridad_id=autoridad.id)) }}
@@ -48,8 +48,8 @@
                     {% for lista_de_acuerdo in listas_de_acuerdos %}
                     <tr>
                         {% if current_user.can_admin('listas_de_acuerdos') %}<td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
-                        <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.fecha }}</a></td>
-                        <td>{{ lista_de_acuerdo.descripcion }}</td>
+                        <td>{{ lista_de_acuerdo.fecha }}</td>
+                        <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.descripcion }}</a></td>
                         <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">{{ lista_de_acuerdo.archivo }} <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
