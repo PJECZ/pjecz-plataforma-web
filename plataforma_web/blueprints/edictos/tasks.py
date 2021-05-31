@@ -11,7 +11,7 @@ from dateutil.tz import tzlocal
 from google.cloud import storage
 from hashids import Hashids
 from rq import get_current_job
-from lib.safe_string import safe_string
+from lib.safe_string import safe_string, safe_expediente, safe_numero_publicacion
 
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -148,9 +148,9 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
 
         # Tomar la fecha
         try:
-            ano = int(elementos[0])
-            mes = int(elementos[1])
-            dia = int(elementos[2])
+            ano = int(elementos.pop(0))
+            mes = int(elementos.pop(0))
+            dia = int(elementos.pop(0))
             fecha = date(ano, mes, dia)
         except (IndexError, ValueError):
             bitacora.warning("X Fecha incorrecta: %s", ruta)
@@ -165,34 +165,34 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
 
         # Tomar el expediente
         try:
-            numero = int(elementos[3])
-            ano = int(elementos[4])
+            numero = int(elementos[0])
+            ano = int(elementos[1])
             expediente = str(numero) + "/" + str(ano)
+            elementos.pop(0)
+            elementos.pop(0)
         except (IndexError, ValueError):
-            bitacora.warning("X Expediente incorrecto: %s", ruta)
-            contador_incorrectos += 1
-            continue
+            expediente = None
 
         # Tomar el número publicación
         try:
-            numero = int(elementos[5])
-            ano = int(elementos[6])
+            numero = int(elementos[0])
+            ano = int(elementos[1])
             numero_publicacion = str(numero) + "/" + str(ano)
+            elementos.pop(0)
+            elementos.pop(0)
         except (IndexError, ValueError):
-            bitacora.warning("X Número publicación incorrecto: %s", ruta)
-            contador_incorrectos += 1
-            continue
+            numero_publicacion = None
 
         # Tomar la descripción, sin el hash del id de estar presente
-        if len(elementos) > 7:
+        if len(elementos) > 1:
             if re.match(hashid_regexp, elementos[-1]) is None:
-                descripcion = safe_string(" ".join(elementos[7:]))
+                descripcion = safe_string(" ".join(elementos))
             else:
                 decodificado = hashids.decode(elementos[-1])
                 if isinstance(decodificado, tuple) and len(decodificado) > 0:
-                    descripcion = safe_string(" ".join(elementos[7:-1]))
+                    descripcion = safe_string(" ".join(elementos[:-1]))
                 else:
-                    descripcion = safe_string(" ".join(elementos[7:]))
+                    descripcion = safe_string(" ".join(elementos))
         else:
             descripcion = "SIN DESCRIPCION"
 

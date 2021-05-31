@@ -30,3 +30,8 @@ def safe_expediente(input_str):
     if ano < 1950 or ano > date.today().year:
         return ""
     return f"{str(numero)}/{str(ano)}"
+
+
+def safe_numero_publicacion(input_str):
+    """Safe número publicación"""
+    return safe_expediente(input_str)
