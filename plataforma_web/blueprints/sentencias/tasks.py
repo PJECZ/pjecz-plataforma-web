@@ -8,7 +8,6 @@ from datetime import datetime, date
 from pathlib import Path
 
 from dateutil.tz import tzlocal
-from unidecode import unidecode
 from google.cloud import storage
 from rq import get_current_job
 
@@ -136,7 +135,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # AAAA-MM-DD-EEEE-EEEE-SENT-SENT-G-IDHASED.pdf
 
         # Separar elementos del nombre del archivo
-        nombre_sin_extension = unidecode(ruta.name[:-4])
+        nombre_sin_extension = ruta.name[:-4]
         elementos = re.sub(letras_digitos_regex, "-", nombre_sin_extension).strip("-").split("-")
 
         # Tomar la fecha

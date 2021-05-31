@@ -3,13 +3,13 @@ Edictos, vistas
 """
 import datetime
 from pathlib import Path
-from unidecode import unidecode
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
+from lib.safe_string import safe_string, safe_expediente
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -143,9 +143,9 @@ def search():
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Edicto.fecha <= form_search.fecha_hasta.data)
         if form_search.expediente.data:
-            consulta = consulta.filter(Edicto.expediente == form_search.expediente.data)
+            consulta = consulta.filter(Edicto.expediente == safe_expediente(form_search.expediente.data))
         if form_search.numero_publicacion.data:
-            consulta = consulta.filter(Edicto.numero_publicacion == form_search.numero_publicacion.data)
+            consulta = consulta.filter(Edicto.numero_publicacion == safe_expediente(form_search.numero_publicacion.data))
         consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
         return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
@@ -185,20 +185,36 @@ def new():
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        descripcion = unidecode(form.descripcion.data.strip())
-        expediente = form.expediente.data
-        numero_publicacion = form.numero_publicacion.data
+        descripcion = safe_string(form.descripcion.data)
+        expediente = safe_expediente(form.expediente.data)
+        numero_publicacion = safe_expediente(form.numero_publicacion.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
+        # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("edictos/new.jinja2", form=form)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("edictos/new.jinja2", form=form)
+
+        # Validar expediente, porque safe_expediente puede resultar vacío
+        if expediente == "":
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("edictos/new.jinja2", form=form)
+
+        # Validar número publicación, porque safe_expediente puede resultar vacío
+        if numero_publicacion == "":
+            flash("El número de publicación es incorrecto.", "warning")
+            return render_template("edictos/new.jinja2", form=form)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            form.fecha.data = hoy
             return render_template("edictos/new.jinja2", form=form)
 
         # Insertar registro
@@ -216,7 +232,9 @@ def new():
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
         expediente_str = expediente.replace("/", "-")
-        archivo_str = f"{fecha_str}-{expediente_str}-{str(numero_publicacion)}-{edicto.encode_id()}.pdf"
+        numero_publicacion_str = numero_publicacion.replace("/", "-")
+        descripcion_str = descripcion.replace(" ", "-")
+        archivo_str = f"{fecha_str}-{expediente_str}-{numero_publicacion_str}-{descripcion_str}-{edicto.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -278,20 +296,36 @@ def new_for_autoridad(autoridad_id):
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        descripcion = unidecode(form.descripcion.data.strip())
-        expediente = form.expediente.data
-        numero_publicacion = form.numero_publicacion.data
+        descripcion = safe_string(form.descripcion.data)
+        expediente = safe_expediente(form.expediente.data)
+        numero_publicacion = safe_expediente(form.numero_publicacion.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
+        # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar expediente, porque safe_expediente puede resultar vacío
+        if expediente == "":
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar número publicación, porque safe_expediente puede resultar vacío
+        if numero_publicacion == "":
+            flash("El número de publicación es incorrecto.", "warning")
+            return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            form.fecha.data = hoy
             return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Insertar registro
@@ -309,7 +343,9 @@ def new_for_autoridad(autoridad_id):
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
         expediente_str = expediente.replace("/", "-")
-        archivo_str = f"{fecha_str}-{expediente_str}-{str(numero_publicacion)}-{edicto.encode_id()}.pdf"
+        numero_publicacion_str = numero_publicacion.replace("/", "-")
+        descripcion_str = descripcion.replace(" ", "-")
+        archivo_str = f"{fecha_str}-{expediente_str}-{numero_publicacion_str}-{descripcion_str}-{edicto.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -344,12 +380,16 @@ def edit(edicto_id):
     form = EdictoEditForm()
     if form.validate_on_submit():
         edicto.fecha = form.fecha.data
-        edicto.descripcion = form.descripcion.data
+        edicto.descripcion = safe_string(form.descripcion.data)
+        edicto.expediente = safe_expediente(form.expediente.data)
+        edicto.numero_publicacion = safe_expediente(form.numero_publicacion.data)
         edicto.save()
-        flash(f"Edicto {edicto.archivo} guardado.", "success")
+        flash(f"Edicto {edicto.descripcion} guardado.", "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
     form.fecha.data = edicto.fecha
     form.descripcion.data = edicto.descripcion
+    form.expediente.data = edicto.expediente
+    form.numero_publicacion.data = edicto.numero_publicacion
     return render_template("edictos/edit.jinja2", form=form, edicto=edicto)
 
 
@@ -361,7 +401,7 @@ def delete(edicto_id):
     if edicto.estatus == "A":
         if current_user.can_admin("edictos") or (current_user.autoridad_id == edicto.autoridad_id):
             edicto.delete()
-            flash(f"Edicto {edicto.archivo} eliminado.", "success")
+            flash(f"Edicto {edicto.descripcion} eliminado.", "success")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
@@ -375,7 +415,7 @@ def recover(edicto_id):
     if edicto.estatus == "B":
         if current_user.can_admin("edictos") or (current_user.autoridad_id == edicto.autoridad_id):
             edicto.recover()
-            flash(f"Edicto {edicto.archivo} recuperado.", "success")
+            flash(f"Edicto {edicto.descripcion} recuperado.", "success")
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))

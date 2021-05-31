@@ -3,13 +3,13 @@ Listas de Acuerdos, vistas
 """
 import datetime
 from pathlib import Path
-from unidecode import unidecode
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
+from lib.safe_string import safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -179,18 +179,24 @@ def new():
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        descripcion = unidecode(form.descripcion.data.strip())
+        descripcion = safe_string(form.descripcion.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
+        # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new.jinja2", form=form)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("listas_de_acuerdos/new.jinja2", form=form)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
@@ -212,7 +218,8 @@ def new():
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
-        archivo_str = f"{fecha_str}-lista-de-acuerdos-{lista_de_acuerdo.encode_id()}.pdf"
+        descripcion_str = descripcion.replace(" ", "-")
+        archivo_str = f"{fecha_str}-{descripcion_str}-{lista_de_acuerdo.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -258,19 +265,19 @@ def new_for_autoridad(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad is None:
         flash("El juzgado/autoridad no existe.", "warning")
-        return redirect(url_for('listas_de_acuerdos.list_active'))
+        return redirect(url_for("listas_de_acuerdos.list_active"))
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if not autoridad.distrito.es_distrito_judicial:
         flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if not autoridad.es_jurisdiccional:
         flash("El juzgado/autoridad no es jurisdiccional.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
         flash("El juzgado/autoridad no tiene directorio para edictos.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
     # Si viene el formulario
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
@@ -278,18 +285,24 @@ def new_for_autoridad(autoridad_id):
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        descripcion = unidecode(form.descripcion.data.strip())
+        descripcion = safe_string(form.descripcion.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
+        # Validar fecha
         archivo_nombre = secure_filename(archivo.filename.lower())
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar archivo
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
@@ -311,7 +324,8 @@ def new_for_autoridad(autoridad_id):
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
-        archivo_str = f"{fecha_str}-lista-de-acuerdos-{lista_de_acuerdo.encode_id()}.pdf"
+        descripcion_str = descripcion.replace(" ", "-")
+        archivo_str = f"{fecha_str}-{descripcion_str}-{lista_de_acuerdo.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_listas_de_acuerdos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -350,7 +364,7 @@ def edit(lista_de_acuerdo_id):
     form = ListaDeAcuerdoEditForm()
     if form.validate_on_submit():
         lista_de_acuerdo.fecha = form.fecha.data
-        lista_de_acuerdo.descripcion = form.descripcion.data
+        lista_de_acuerdo.descripcion = safe_string(form.descripcion.data)
         lista_de_acuerdo.save()
         flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))

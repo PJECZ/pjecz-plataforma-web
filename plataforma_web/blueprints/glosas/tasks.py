@@ -8,10 +8,10 @@ from datetime import datetime, date
 from pathlib import Path
 
 from dateutil.tz import tzlocal
-from unidecode import unidecode
 from google.cloud import storage
 from hashids import Hashids
 from rq import get_current_job
+from lib.safe_string import safe_string
 
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -143,7 +143,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # AAAA-MM-DD-TIPO-EEEE-EEEE-DESCRIPCION-BLA-BLA-IDHASED.pdf
 
         # Separar elementos del nombre del archivo
-        nombre_sin_extension = unidecode(ruta.name[:-4])
+        nombre_sin_extension = ruta.name[:-4]
         elementos = re.sub(letras_digitos_regex, "-", nombre_sin_extension).strip("-").split("-")
 
         # Tomar la fecha
@@ -187,13 +187,13 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         # Tomar la descripción, sin el hash del id de estar presente
         if len(elementos) > 6:
             if re.match(hashid_regexp, elementos[-1]) is None:
-                descripcion = " ".join(elementos[6:]).upper()
+                descripcion = safe_string(" ".join(elementos[6:]))
             else:
                 decodificado = hashids.decode(elementos[-1])
                 if isinstance(decodificado, tuple) and len(decodificado) > 0:
-                    descripcion = " ".join(elementos[6:-1]).upper()
+                    descripcion = safe_string(" ".join(elementos[6:-1]))
                 else:
-                    descripcion = " ".join(elementos[6:]).upper()
+                    descripcion = safe_string(" ".join(elementos[6:]))
         else:
             descripcion = "SIN DESCRIPCION"
 

@@ -3,13 +3,13 @@ Glosas, vistas
 """
 import datetime
 from pathlib import Path
-from unidecode import unidecode
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
+from lib.safe_string import safe_string, safe_expediente
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -185,19 +185,30 @@ def new():
         # Tomar valores del formulario
         fecha = form.fecha.data
         tipo_juicio = form.tipo_juicio.data
-        descripcion = unidecode(form.descripcion.data.strip())
-        expediente = form.expediente.data
+        descripcion = safe_string(form.descripcion.data)
+        expediente = safe_expediente(form.expediente.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
+        # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("glosas/new.jinja2", form=form)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("glosas/new.jinja2", form=form)
+
+        # Validar expediente, porque safe_expediente puede resultar vacío
+        if expediente == "":
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("glosas/new.jinja2", form=form)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            form.fecha.data = hoy
             return render_template("glosas/new.jinja2", form=form)
 
         # Insertar registro
@@ -279,19 +290,30 @@ def new_for_autoridad(autoridad_id):
         # Tomar valores del formulario
         fecha = form.fecha.data
         tipo_juicio = form.tipo_juicio.data
-        descripcion = unidecode(form.descripcion.data.strip())
-        expediente = form.expediente.data
+        descripcion = safe_string(form.descripcion.data)
+        expediente = safe_expediente(form.expediente.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
+        # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar expediente, porque safe_expediente puede resultar vacío
+        if expediente == "":
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            form.fecha.data = hoy
             return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Insertar registro
@@ -299,7 +321,7 @@ def new_for_autoridad(autoridad_id):
             autoridad=autoridad,
             fecha=fecha,
             tipo_juicio=tipo_juicio,
-            descripcion=unidecode(form.descripcion.data.strip()),
+            descripcion=descripcion,
             expediente=form.expediente.data,
         )
         glosa.save()
@@ -346,8 +368,8 @@ def edit(glosa_id):
     if form.validate_on_submit():
         glosa.fecha = form.fecha.data
         glosa.tipo_juicio = form.tipo_juicio.data
-        glosa.descripcion = form.descripcion.data
-        glosa.expediente = form.expediente.data
+        glosa.descripcion = safe_string(form.descripcion.data)
+        glosa.expediente = safe_expediente(form.expediente.data)
         glosa.save()
         flash(f"Glosa {glosa.descripcion} guardada.", "success")
         return redirect(url_for("glosas.detail", glosa_id=glosa.id))

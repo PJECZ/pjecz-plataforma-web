@@ -8,13 +8,13 @@
     {{ list.topbar_option('Distritos', url_for('edictos.list_distritos'), 'fas fa-sitemap') }}
     {% if autoridad %}
         {% if current_user.can_admin('edictos') %}
-            {{ list.topbar_option_upload('Subir', url_for('edictos.new_for_autoridad', autoridad_id=autoridad.id)) }}
             {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('edictos.list_autoridad_edictos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
             {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}{% endif %}
+            {{ list.topbar_option_upload('Subir', url_for('edictos.new_for_autoridad', autoridad_id=autoridad.id)) }}
         {% elif current_user.can_insert('edictos') and current_user.autoridad_id == autoridad.id %}
-            {{ list.topbar_option_upload('Subir', url_for('edictos.new')) }}
             {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('edictos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
+            {{ list.topbar_option_upload('Subir', url_for('edictos.new')) }}
         {% endif %}
         {% if current_user.can_admin('edictos') and current_user.can_insert('tareas') %}
             {{ list.topbar_option_refresh('Refrescar', url_for('edictos.refresh', autoridad_id=autoridad.id)) }}
@@ -43,6 +43,7 @@
                         <th>Descripciones</th>
                         <th>Expedientes</th>
                         <th>No. Pub.</th>
+                        <th>Archivos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -53,6 +54,7 @@
                         <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
                         <td>{{ edicto.expediente }}</td>
                         <td>{{ edicto.numero_publicacion }}</td>
+                        <td><a href="{{ edicto.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

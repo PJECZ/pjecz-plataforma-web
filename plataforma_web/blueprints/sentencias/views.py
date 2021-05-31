@@ -9,6 +9,7 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
+from lib.safe_string import safe_expediente
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -142,9 +143,9 @@ def search():
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Sentencia.fecha <= form_search.fecha_hasta.data)
         if form_search.sentencia.data:
-            consulta = consulta.filter(Sentencia.sentencia == form_search.sentencia.data)
+            consulta = consulta.filter(Sentencia.sentencia == safe_expediente(form_search.sentencia.data))
         if form_search.expediente.data:
-            consulta = consulta.filter(Sentencia.expediente == form_search.expediente.data)
+            consulta = consulta.filter(Sentencia.expediente == safe_expediente(form_search.expediente.data))
         consulta = consulta.order_by(Sentencia.fecha.desc()).limit(100).all()
         return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
@@ -184,27 +185,38 @@ def new():
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        sentencia_str = form.sentencia.data.strip()
-        expediente = form.expediente.data.strip()
+        sentencia_input = safe_expediente(form.sentencia.data)
+        expediente = safe_expediente(form.expediente.data)
         es_paridad_genero = form.es_paridad_genero.data  # Boleano
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
+        # Validar fecha
         archivo_nombre = secure_filename(archivo.filename.lower())
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("sentencias/new.jinja2", form=form)
+
+        # Validar sentencia, porque safe_expediente puede resultar vacío
+        if sentencia_input == "":
+            flash("La sentencia es incorrecta.", "warning")
+            return render_template("sentencias/new.jinja2", form=form)
+
+        # Validar expediente, porque safe_expediente puede resultar vacío
+        if expediente == "":
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("sentencias/new.jinja2", form=form)
+
+        # Validar archivo
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            form.fecha.data = hoy
             return render_template("sentencias/new.jinja2", form=form)
 
         # Insertar registro
         sentencia = Sentencia(
             autoridad=autoridad,
             fecha=fecha,
-            sentencia=sentencia_str,
+            sentencia=sentencia_input,
             expediente=expediente,
             es_paridad_genero=es_paridad_genero,
         )
@@ -214,9 +226,12 @@ def new():
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
-        sentencia_str = sentencia_str.replace("/", "-")
+        sentencia_str = sentencia_input.replace("/", "-")
         expediente_str = expediente.replace("/", "-")
-        archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
+        if es_paridad_genero:
+            archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-G-{sentencia.encode_id()}.pdf"
+        else:
+            archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -233,7 +248,7 @@ def new():
         sentencia.save()
 
         # Mostrar mensaje de éxito y detalle
-        flash(f"Sentencia {sentencia.archivo_str} guardado.", "success")
+        flash(f"Sentencia {sentencia.archivo} guardada.", "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
 
     # Prellenado de los campos
@@ -278,27 +293,38 @@ def new_for_autoridad(autoridad_id):
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        sentencia_str = form.sentencia.data.strip()
-        expediente = form.expediente.data.strip()
+        sentencia_input = safe_expediente(form.sentencia.data)
+        expediente = safe_expediente(form.expediente.data)
         es_paridad_genero = form.es_paridad_genero.data  # Boleano
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
+        # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar sentencia, porque safe_expediente puede resultar vacío
+        if sentencia_input == "":
+            flash("La sentencia es incorrecta.", "warning")
+            return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar expediente, porque safe_expediente puede resultar vacío
+        if expediente == "":
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            form.fecha.data = hoy
             return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Insertar registro
         sentencia = Sentencia(
             autoridad=autoridad,
             fecha=fecha,
-            sentencia=sentencia_str,
+            sentencia=sentencia_input,
             expediente=expediente,
             es_paridad_genero=es_paridad_genero,
         )
@@ -309,8 +335,11 @@ def new_for_autoridad(autoridad_id):
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
         expediente_str = expediente.replace("/", "-")
-        sentencia_str = sentencia_str.replace("/", "-")
-        archivo_str = f"{fecha_str}-{expediente_str}-{sentencia_str}-{sentencia.encode_id()}.pdf"
+        sentencia_str = sentencia_input.replace("/", "-")
+        if es_paridad_genero:
+            archivo_str = f"{fecha_str}-{expediente_str}-{sentencia_str}-{sentencia.encode_id()}.pdf"
+        else:
+            archivo_str = f"{fecha_str}-{expediente_str}-{sentencia_str}-G-{sentencia.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
@@ -327,7 +356,7 @@ def new_for_autoridad(autoridad_id):
         sentencia.save()
 
         # Mostrar mensaje de éxito y detalle
-        flash(f"Sentencia {sentencia.archivo_str} guardado.", "success")
+        flash(f"Sentencia {sentencia.archivo} guardada.", "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
 
     # Prellenado de los campos
@@ -345,14 +374,16 @@ def edit(sentencia_id):
     form = SentenciaEditForm()
     if form.validate_on_submit():
         sentencia.fecha = form.fecha.data
-        sentencia.sentencia = form.sentencia.data
-        sentencia.expediente = form.expediente.data
+        sentencia.sentencia = safe_expediente(form.sentencia.data)
+        sentencia.expediente = safe_expediente(form.expediente.data)
+        sentencia.es_paridad_genero = form.es_paridad_genero.data
         sentencia.save()
-        flash(f"Sentencia {sentencia.archivo} guardado.", "success")
+        flash(f"Sentencia {sentencia.archivo} guardada.", "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
     form.fecha.data = sentencia.fecha
     form.sentencia.data = sentencia.sentencia
     form.expediente.data = sentencia.expediente
+    form.es_paridad_genero.data = sentencia.es_paridad_genero
     return render_template("sentencias/edit.jinja2", form=form, sentencia=sentencia)
 
 
@@ -364,7 +395,7 @@ def delete(sentencia_id):
     if sentencia.estatus == "A":
         if current_user.can_admin("sentencias") or (current_user.autoridad_id == sentencia.autoridad_id):
             sentencia.delete()
-            flash(f"Sentencia {sentencia.archivo} eliminado.", "success")
+            flash(f"Sentencia {sentencia.archivo} eliminada.", "success")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))
@@ -378,7 +409,7 @@ def recover(sentencia_id):
     if sentencia.estatus == "B":
         if current_user.can_admin("sentencias") or (current_user.autoridad_id == sentencia.autoridad_id):
             sentencia.recover()
-            flash(f"Sentencia {sentencia.archivo} recuperado.", "success")
+            flash(f"Sentencia {sentencia.archivo} recuperada.", "success")
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))

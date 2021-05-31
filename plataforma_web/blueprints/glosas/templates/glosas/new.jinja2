@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Nuevo Glosa') }}
+    {{ f.page('Subir Glosa') }}
     <div class="container-fluid">
         {% call f.form_tag_multipart('glosas.new', fid='glosa_form') %}
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}

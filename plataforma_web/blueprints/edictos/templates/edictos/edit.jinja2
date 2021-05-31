@@ -4,10 +4,10 @@
 {% block title %}Editar Edicto{% endblock %}
 
 {% block content %}
-    {{ f.page('Editar ' + edictos.descripcion) }}
+    {{ f.page('Editar ' + edicto.descripcion) }}
         <div class="container-fluid">
-        {% set form_kwargs = {'edictos_id': edictos.id} %}
-        {% call f.form_tag('edictos.edit', fid='edictos_form', **form_kwargs) %}
+        {% set form_kwargs = {'edicto_id': edicto.id} %}
+        {% call f.form_tag('edictos.edit', fid='edicto_form', **form_kwargs) %}
             {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
