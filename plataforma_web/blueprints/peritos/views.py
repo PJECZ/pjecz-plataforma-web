@@ -3,9 +3,9 @@ Peritos, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
-from unidecode import unidecode
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.peritos.models import Perito
 from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
@@ -51,7 +51,7 @@ def search():
         if form_search.distrito.data:
             consulta = consulta.filter(Perito.distrito == form_search.distrito.data)
         if form_search.nombre.data:
-            nombre = unidecode(form_search.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
+            nombre = safe_string(form_search.nombre.data)
             consulta = consulta.filter(Perito.nombre.like(f"%{nombre}%"))
         if form_search.tipo.data:
             consulta = consulta.filter(Perito.tipo == form_search.tipo.data)
@@ -69,13 +69,13 @@ def new():
         perito = Perito(
             distrito=form.distrito.data,
             tipo=form.tipo.data,
-            nombre=unidecode(form.nombre.data.strip()).upper(),  # Sin acentos y en mayúsculas
-            domicilio=form.domicilio.data.strip(),
-            telefono_fijo=form.telefono_fijo.data.strip(),
-            telefono_celular=form.telefono_celular.data.strip(),
-            email=form.email.data.strip(),
+            nombre=safe_string(form.nombre.data),
+            domicilio=safe_string(form.domicilio.data),
+            telefono_fijo=safe_string(form.telefono_fijo.data),
+            telefono_celular=safe_string(form.telefono_celular.data),
+            email=form.email.data,
             renovacion=form.renovacion.data,
-            notas=form.notas.data.strip(),
+            notas=safe_string(form.notas.data),
         )
         perito.save()
         flash(f"Perito {perito.nombre} guardado.", "success")
@@ -92,13 +92,13 @@ def edit(perito_id):
     if form.validate_on_submit():
         perito.distrito = form.distrito.data
         perito.tipo = form.tipo.data
-        perito.nombre = unidecode(form.nombre.data.strip()).upper()  # Sin acentos y en mayúsculas
-        perito.domicilio = form.domicilio.data.strip()
-        perito.telefono_fijo = form.telefono_fijo.data.strip()
-        perito.telefono_celular = form.telefono_celular.data.strip()
-        perito.email = form.email.data.strip()
+        perito.nombre = safe_string(form.nombre.data)
+        perito.domicilio = safe_string(form.domicilio.data)
+        perito.telefono_fijo = safe_string(form.telefono_fijo.data)
+        perito.telefono_celular = safe_string(form.telefono_celular.data)
+        perito.email = form.email.data
         perito.renovacion = form.renovacion.data
-        perito.notas = form.notas.data.strip()
+        perito.notas = safe_string(form.notas.data)
         perito.save()
         flash(f"Perito {perito.nombre} guardado.", "success")
         return redirect(url_for("peritos.detail", perito_id=perito.id))

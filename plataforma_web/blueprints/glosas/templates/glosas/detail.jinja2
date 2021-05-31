@@ -30,7 +30,7 @@
             {{ detail.label_value('Descripción', glosa.descripcion) }}
             {{ detail.label_value('Expediente', glosa.expediente) }}
             {{ detail.label_value_new_tab('Glosa PDF', glosa.archivo, glosa.url) }}
-            {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('listas_de_acuerdos.checkout', id_hashed=glosa.encode_id())) }}
+            {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('glosas.checkout', id_hashed=glosa.encode_id())) }}
         {% endcall %}
     </div>
     {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}

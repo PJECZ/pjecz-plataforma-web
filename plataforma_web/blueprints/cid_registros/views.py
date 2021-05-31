@@ -14,7 +14,7 @@ cid_registros = Blueprint("cid_registros", __name__, template_folder="templates"
 
 @cid_registros.before_request
 @login_required
-@permission_required(Permiso.VER_ADMINISTRATIVOS)
+@permission_required(Permiso.VER_DOCUMENTACIONES)
 def before_request():
     """ Permiso por defecto """
 
@@ -27,7 +27,7 @@ def list_active():
 
 
 @cid_registros.route("/cid_registros/inactivos")
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
     """ Listado de CID Registros inactivos """
     cid_registros_inactivos = CIDRegistro.query.filter(CIDRegistro.estatus == "B").order_by(CIDRegistro.creado.desc()).limit(100).all()
@@ -42,7 +42,7 @@ def detail(cid_registro_id):
 
 
 @cid_registros.route("/cid_registros/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
+@permission_required(Permiso.CREAR_DOCUMENTACIONES)
 def new():
     """ Nuevo CID Registro """
     form = CIDRegistroForm()
@@ -58,7 +58,7 @@ def new():
 
 
 @cid_registros.route("/cid_registros/edicion/<int:cid_registro_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def edit(cid_registro_id):
     """ Editar CID Registro """
     cid_registro = CIDRegistro.query.get_or_404(cid_registro_id)
@@ -75,7 +75,7 @@ def edit(cid_registro_id):
 
 
 @cid_registros.route("/cid_registros/eliminar/<int:cid_registro_id>")
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def delete(cid_registro_id):
     """ Eliminar CID Registro """
     cid_registro = CIDRegistro.query.get_or_404(cid_registro_id)
@@ -86,7 +86,7 @@ def delete(cid_registro_id):
 
 
 @cid_registros.route("/cid_registros/recuperar/<int:cid_registro_id>")
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def recover(cid_registro_id):
     """ Recuperar CID Registro """
     cid_registro = CIDRegistro.query.get_or_404(cid_registro_id)

@@ -27,9 +27,10 @@
                         <th>Creados</th>
                         <th>Autoridades</th>
                         <th>Fechas</th>
+                        <th>Descripciones</th>
                         <th>Tipos de juicios</th>
                         <th>Expedientes</th>
-                        <th>Glosas PDF</th>
+                        <th>Archivos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,10 +38,11 @@
                     <tr>
                         <td>{{ glosa.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ glosa.autoridad.clave }}</td>
-                        <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.fecha }}</a></td>
+                        <td>{{ glosa.fecha }}</td>
+                        <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.descripcion }}</a></td>
                         <td>{{ glosa.tipo_juicio }}</td>
                         <td>{{ glosa.expediente }}</td>
-                        <td><a href="{{ glosa.url }}" target="_blank">{{ glosa.archivo }} <i class="fas fa-external-link-alt"></a></td>
+                        <td><a href="{{ glosa.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

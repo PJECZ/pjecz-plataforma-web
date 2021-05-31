@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Nuevo Edicto') }}
+    {{ f.page('Subir Edicto') }}
     <div class="container-fluid">
         {% call f.form_tag_multipart('edictos.new', fid='edicto_form') %}
             {% call f.form_group(form.fecha) %}{% endcall %}

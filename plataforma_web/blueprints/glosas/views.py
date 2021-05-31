@@ -3,22 +3,22 @@ Glosas, vistas
 """
 import datetime
 from pathlib import Path
-from unidecode import unidecode
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
+from lib.safe_string import safe_string, safe_expediente
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.glosas.forms import GlosaEditForm, GlosaNewForm, GlosaSearchForm
-from plataforma_web.blueprints.glosas.models import Glosa, GlosaException
+from plataforma_web.blueprints.glosas.models import Glosa
 
-from plataforma_web.blueprints.autoridades.models import Autoridad, AutoridadException
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 
 glosas = Blueprint("glosas", __name__, template_folder="templates")
@@ -46,14 +46,30 @@ def list_active():
     """Listado de Glosas activos"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
-        todas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
-        return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=todas, estatus="A")
+        glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
+        return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_activas, estatus="A")
     # No es administrador, consultar su autoridad
     autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
     # Si su autoridad es jurisdiccional, ve sus propias glosas
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
-        return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=sus_listas, estatus="A")
+        sus_glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
+        return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=sus_glosas_activas, estatus="A")
+    # No es jurisdiccional, se redirige al listado de distritos
+    return redirect(url_for("glosas.list_distritos"))
+
+
+@glosas.route('/glosas/inactivos')
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def list_inactive():
+    """ Listado de Glosas inactivas """
+    # Si es administrador, ve las glosas de todas las autoridades
+    if current_user.can_admin("glosas"):
+        glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(100).all()
+        return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_inactivas, estatus="B")
+    # Si es jurisdiccional, ve sus propios glosas
+    if current_user.autoridad.es_jurisdiccional:
+        sus_glosas_inactivas = Glosa.query.filter(Glosa.autoridad == current_user.autoridad).filter(Glosa.estatus == "B").order_by(Glosa.fecha.desc()).limit(100).all()
+        return render_template("glosas/list.jinja2", autoridad=current_user.autoridad, glosas=sus_glosas_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("glosas.list_distritos"))
 
@@ -69,7 +85,7 @@ def list_distritos():
 def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("glosas/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades, estatus="A")
 
 
@@ -92,7 +108,6 @@ def list_autoridad_glosas_inactive(autoridad_id):
 
 @glosas.route("/glosas/refrescar/<int:autoridad_id>")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
-@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
 def refresh(autoridad_id):
     """Refrescar Glosas"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -133,7 +148,7 @@ def search():
         consulta = consulta.order_by(Glosa.creado.desc()).limit(100).all()
         return render_template("glosas/list.jinja2", glosas=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("glosas/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
 
 
@@ -143,24 +158,25 @@ def new():
     """Subir Glosa como juzgado"""
 
     # Para validar la fecha
-    dias_limite = 7
+    dias_limite = 30
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
     limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
 
     # Validar autoridad
     autoridad = current_user.autoridad
-    try:
-        if autoridad is None or autoridad.estatus != "A":
-            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
-        if not autoridad.distrito.es_distrito_judicial:
-            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
-        if not autoridad.es_jurisdiccional:
-            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
-        if autoridad.directorio_glosas is None or autoridad.directorio_glosas == "":
-            raise AutoridadException("El juzgado/autoridad no tiene directorio para glosas.")
-    except AutoridadException as error:
-        return redirect(url_for("sistemas.bad_request", error=str(error)))
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("glosas.list_active"))
+    if not autoridad.distrito.es_distrito_judicial:
+        flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
+        return redirect(url_for("glosas.list_active"))
+    if not autoridad.es_jurisdiccional:
+        flash("El juzgado/autoridad no es jurisdiccional.", "warning")
+        return redirect(url_for("glosas.list_active"))
+    if autoridad.directorio_glosas is None or autoridad.directorio_glosas == "":
+        flash("El juzgado/autoridad no tiene directorio para glosas.", "warning")
+        return redirect(url_for("glosas.list_active"))
 
     # Si viene el formulario
     form = GlosaNewForm(CombinedMultiDict((request.files, request.form)))
@@ -169,20 +185,30 @@ def new():
         # Tomar valores del formulario
         fecha = form.fecha.data
         tipo_juicio = form.tipo_juicio.data
-        descripcion = unidecode(form.descripcion.data.strip())
-        expediente = form.expediente.data
+        descripcion = safe_string(form.descripcion.data)
+        expediente = safe_expediente(form.expediente.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
-        try:
-            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-                raise GlosaException(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.")
-            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-                raise GlosaException("No es un archivo PDF.")
-        except GlosaException as error:
-            flash(str(error), "warning")
+        # Validar fecha
+        if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+            flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
+            return render_template("glosas/new.jinja2", form=form)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("glosas/new.jinja2", form=form)
+
+        # Validar expediente, porque safe_expediente puede resultar vacío
+        if expediente == "":
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("glosas/new.jinja2", form=form)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
+        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+            flash("No es un archivo PDF.", "warning")
             return render_template("glosas/new.jinja2", form=form)
 
         # Insertar registro
@@ -229,30 +255,33 @@ def new():
 
 
 @glosas.route("/glosas/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Glosa para una autoridad dada"""
 
     # Para validar la fecha
-    dias_limite = 30
+    dias_limite = 90
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
     limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    try:
-        if autoridad is None or autoridad.estatus != "A":
-            raise AutoridadException("El juzgado/autoridad no existe o no es activa.")
-        if not autoridad.distrito.es_distrito_judicial:
-            raise AutoridadException("El juzgado/autoridad no está en un distrito jurisdiccional.")
-        if not autoridad.es_jurisdiccional:
-            raise AutoridadException("El juzgado/autoridad no es jurisdiccional.")
-        if autoridad.directorio_glosas is None or autoridad.directorio_glosas == "":
-            raise AutoridadException("El juzgado/autoridad no tiene directorio para glosas.")
-    except AutoridadException as error:
-        return redirect(url_for("sistemas.bad_request", error=str(error)))
+    if autoridad is None:
+        flash("El juzgado/autoridad no existe.", "warning")
+        return redirect(url_for('glosas.list_active'))
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+    if not autoridad.distrito.es_distrito_judicial:
+        flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
+        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+    if not autoridad.es_jurisdiccional:
+        flash("El juzgado/autoridad no es jurisdiccional.", "warning")
+        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+    if autoridad.directorio_glosas is None or autoridad.directorio_glosas == "":
+        flash("El juzgado/autoridad no tiene directorio para glosas.", "warning")
+        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
 
     # Si viene el formulario
     form = GlosaNewForm(CombinedMultiDict((request.files, request.form)))
@@ -261,20 +290,30 @@ def new_for_autoridad(autoridad_id):
         # Tomar valores del formulario
         fecha = form.fecha.data
         tipo_juicio = form.tipo_juicio.data
-        descripcion = unidecode(form.descripcion.data.strip())
-        expediente = form.expediente.data
+        descripcion = safe_string(form.descripcion.data)
+        expediente = safe_expediente(form.expediente.data)
         archivo = request.files["archivo"]
 
-        # Validar fecha y archivo
-        archivo_nombre = secure_filename(archivo.filename.lower())
-        try:
-            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-                raise GlosaException(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.")
-            if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-                raise GlosaException("No es un archivo PDF.")
-        except GlosaException as error:
-            flash(str(error), "warning")
+        # Validar fecha
+        if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+            flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
+            return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar descripcion, porque safe_string puede resultar vacío
+        if descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar expediente, porque safe_expediente puede resultar vacío
+        if expediente == "":
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+        # Validar archivo
+        archivo_nombre = secure_filename(archivo.filename.lower())
+        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
+            flash("No es un archivo PDF.", "warning")
             return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Insertar registro
@@ -282,7 +321,7 @@ def new_for_autoridad(autoridad_id):
             autoridad=autoridad,
             fecha=fecha,
             tipo_juicio=tipo_juicio,
-            descripcion=unidecode(form.descripcion.data.strip()),
+            descripcion=descripcion,
             expediente=form.expediente.data,
         )
         glosa.save()
@@ -329,8 +368,8 @@ def edit(glosa_id):
     if form.validate_on_submit():
         glosa.fecha = form.fecha.data
         glosa.tipo_juicio = form.tipo_juicio.data
-        glosa.descripcion = form.descripcion.data
-        glosa.expediente = form.expediente.data
+        glosa.descripcion = safe_string(form.descripcion.data)
+        glosa.expediente = safe_expediente(form.expediente.data)
         glosa.save()
         flash(f"Glosa {glosa.descripcion} guardada.", "success")
         return redirect(url_for("glosas.detail", glosa_id=glosa.id))

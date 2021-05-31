@@ -14,7 +14,7 @@ class ListaDeAcuerdoNewForm(FlaskForm):
     autoridad = StringField("Autoridad")  # Read only
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción")  # Read only
-    archivo = FileField("Lista de Acuerdos PDF", validators=[FileRequired()])
+    archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
 

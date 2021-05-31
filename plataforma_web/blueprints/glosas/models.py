@@ -42,7 +42,7 @@ class Glosa(db.Model, UniversalMixin):
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
     tipo_juicio = db.Column(db.Enum(*TIPOS_JUICIOS, name="tipos_juicios", native_enum=False), index=True, nullable=False)
-    descripcion = db.Column(db.String(256), nullable=False)
+    descripcion = db.Column(db.String(64), nullable=False)
     expediente = db.Column(db.String(16), index=True, nullable=False)
     archivo = db.Column(db.String(256))
     url = db.Column(db.String(512))
@@ -50,7 +50,3 @@ class Glosa(db.Model, UniversalMixin):
     def __repr__(self):
         """Representación"""
         return f"<Glosa {self.archivo}>"
-
-
-class GlosaException(Exception):
-    """Error por datos ilegales"""

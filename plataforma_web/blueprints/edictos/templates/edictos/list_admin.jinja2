@@ -26,15 +26,23 @@
                     <tr>
                         <th>Creados</th>
                         <th>Autoridades</th>
-                        <th>Edictos PDFs</th>
+                        <th>Fechas</th>
+                        <th>Descripciones</th>
+                        <th>Expedientes</th>
+                        <th>No. Pub.</th>
+                        <th>Archivos</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for edicto in edictos %}
                     <tr>
                         <td>{{ edicto.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.autoridad.clave }}</a></td>
-                        <td><a href="{{ edicto.url }}" target="_blank">{{ edicto.archivo }} <i class="fas fa-external-link-alt"></a></td>
+                        <td>{{ edicto.autoridad.clave }}</td>
+                        <td>{{ edicto.fecha }}</td>
+                        <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
+                        <td>{{ edicto.expediente }}</td>
+                        <td>{{ edicto.numero_publicacion }}</td>
+                        <td><a href="{{ edicto.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

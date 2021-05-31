@@ -30,7 +30,8 @@
                         <th>Creados</th>
                         <th>Autoridades</th>
                         <th>Fechas</th>
-                        <th>Listas de Acuerdos PDFs</th>
+                        <th>Descripciones</th>
+                        <th>Archivos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,8 +39,9 @@
                     <tr>
                         <td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ lista_de_acuerdo.autoridad.clave }}</td>
-                        <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.fecha }}</a></td>
-                        <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">{{ lista_de_acuerdo.archivo }} <i class="fas fa-external-link-alt"></a></td>
+                        <td>{{ lista_de_acuerdo.fecha }}</td>
+                        <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.descripcion }}</a></td>
+                        <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -16,7 +16,7 @@ ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, templat
 
 @ubicaciones_expedientes.before_request
 @login_required
-@permission_required(Permiso.VER_CONSULTAS)
+@permission_required(Permiso.VER_JUSTICIABLES)
 def before_request():
     """ Permiso por defecto """
 
@@ -29,7 +29,7 @@ def list_active():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/inactivos")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def list_inactive():
     """ Listado de Ubicaciones de Expedientes inactivos """
     ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
@@ -58,7 +58,7 @@ def search():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CONSULTAS)
+@permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """ Nuevo Ubicación de Expedientes """
     form = UbicacionExpedienteNewForm()
@@ -72,12 +72,12 @@ def new():
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("ubicaciones_expedientes/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit(ubicacion_expediente_id):
     """ Editar Ubicación de Expedientes """
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
@@ -97,7 +97,7 @@ def edit(ubicacion_expediente_id):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/eliminar/<int:ubicacion_expediente_id>")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def delete(ubicacion_expediente_id):
     """ Eliminar Ubicacion de Expedientes """
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
@@ -108,7 +108,7 @@ def delete(ubicacion_expediente_id):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/recuperar/<int:ubicacion_expediente_id>")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def recover(ubicacion_expediente_id):
     """ Recuperar Lista de Acuerdos """
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)

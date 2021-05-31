@@ -1,25 +1,25 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Subir Glosa para {{ autoridad.clave }}{% endblock %}
+{% block title %}Subir Edicto para {{ autoridad.clave }}{% endblock %}
 
 {% block custom_head %}
     {{ f.drop_zone_css() }}
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Subir Glosa para ' + autoridad.clave) }}
+    {{ f.page('Subir Edicto para ' + autoridad.clave) }}
     <div class="container-fluid">
         {% set form_kwargs = {'autoridad_id': autoridad.id} %}
-        {% call f.form_tag_multipart('glosas.new_for_autoridad', fid='glosa_form', **form_kwargs) %}
+        {% call f.form_tag_multipart('edictos.new_for_autoridad', fid='edicto_form', **form_kwargs) %}
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.numero_publicacion) %}{% endcall %}
             {% call f.drop_zone_wrapper() %}
-                {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
+                {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
             {% endcall %}
             {{ form.guardar() }}
         {% endcall %}

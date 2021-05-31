@@ -14,7 +14,7 @@ transcripciones = Blueprint("transcripciones", __name__, template_folder="templa
 
 @transcripciones.before_request
 @login_required
-@permission_required(Permiso.VER_ADMINISTRATIVOS)
+@permission_required(Permiso.VER_CUENTAS)
 def before_request():
     """ Permiso por defecto """
 
@@ -27,7 +27,7 @@ def list_active():
 
 
 @transcripciones.route("/transcripciones/inactivas")
-@permission_required(Permiso.MODIFICAR_ADMINISTRATIVOS)
+@permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """ Listado de Transcripciones inactivas """
     transcripciones_inactivas = Transcripcion.query.filter(Transcripcion.estatus == "B").order_by(Transcripcion.creado.desc()).limit(100).all()
@@ -59,7 +59,7 @@ def search():
 
 
 @transcripciones.route("/transcripciones/nueva", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_ADMINISTRATIVOS)
+@permission_required(Permiso.CREAR_CUENTAS)
 def new():
     """ Nueva Transcripción """
     form = TranscripcionNewForm()
