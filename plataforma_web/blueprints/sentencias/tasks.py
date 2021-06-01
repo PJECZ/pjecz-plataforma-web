@@ -155,23 +155,23 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             contador_incorrectos += 1
             continue
 
-        # Tomar el expediente
+        # Tomar la sentencia
         try:
             numero = int(elementos[3])
             ano = int(elementos[4])
-            expediente = str(numero) + "/" + str(ano)
-        except (IndexError, ValueError):
-            bitacora.warning("X Expediente incorrecto: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Tomar la sentencia
-        try:
-            numero = int(elementos[5])
-            ano = int(elementos[6])
             sentencia = str(numero) + "/" + str(ano)
         except (IndexError, ValueError):
             bitacora.warning("X Sentencia incorrecta: %s", ruta)
+            contador_incorrectos += 1
+            continue
+
+        # Tomar el expediente
+        try:
+            numero = int(elementos[5])
+            ano = int(elementos[6])
+            expediente = str(numero) + "/" + str(ano)
+        except (IndexError, ValueError):
+            bitacora.warning("X Expediente incorrecto: %s", ruta)
             contador_incorrectos += 1
             continue
 
