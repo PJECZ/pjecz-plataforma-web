@@ -11,7 +11,7 @@ from dateutil.tz import tzlocal
 from google.cloud import storage
 from hashids import Hashids
 from rq import get_current_job
-from lib.safe_string import safe_string, safe_expediente, safe_numero_publicacion
+from lib.safe_string import safe_string
 
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
