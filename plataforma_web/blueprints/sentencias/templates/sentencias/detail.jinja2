@@ -28,7 +28,7 @@
             {{ detail.label_value('Fecha', sentencia.fecha) }}
             {{ detail.label_value('Sentencia', sentencia.sentencia) }}
             {{ detail.label_value('Expediente', sentencia.expediente) }}
-            {{ detail.label_value_boolean('P. Género', sentencia.es_paridad_genero) }}
+            {{ detail.label_value_boolean('Es Perspectiva de Género', sentencia.es_paridad_genero) }}
             {{ detail.label_value_new_tab('Versión Pública PDF', sentencia.archivo, sentencia.url) }}
             {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('sentencias.checkout', id_hashed=sentencia.encode_id())) }}
         {% endcall %}

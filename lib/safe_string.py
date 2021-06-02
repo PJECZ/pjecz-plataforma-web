@@ -17,21 +17,26 @@ def safe_string(input_str):
 
 def safe_expediente(input_str):
     """Safe expediente"""
-    if not isinstance(input_str, str):
+    if not isinstance(input_str, str) or input_str.strip() == "":
         return ""
     elementos = re.sub(r"[^0-9]+", "-", input_str).split("-")
     try:
         numero = int(elementos[0])
         ano = int(elementos[1])
-    except (IndexError, ValueError):
-        return ""
-    if numero <= 0:
-        return ""
+    except (IndexError, ValueError) as error:
+        raise error
+    if numero < 0:
+        raise ValueError
     if ano < 1950 or ano > date.today().year:
-        return ""
+        raise ValueError
     return f"{str(numero)}/{str(ano)}"
 
 
 def safe_numero_publicacion(input_str):
     """Safe número publicación"""
+    return safe_expediente(input_str)
+
+
+def safe_sentencia(input_str):
+    """Safe sentencia"""
     return safe_expediente(input_str)

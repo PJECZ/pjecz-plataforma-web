@@ -58,10 +58,10 @@ def list_active():
     return redirect(url_for("glosas.list_distritos"))
 
 
-@glosas.route('/glosas/inactivos')
+@glosas.route("/glosas/inactivos")
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def list_inactive():
-    """ Listado de Glosas inactivas """
+    """Listado de Glosas inactivas"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
         glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(100).all()
@@ -182,30 +182,31 @@ def new():
     form = GlosaNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
 
-        # Tomar valores del formulario
-        fecha = form.fecha.data
-        tipo_juicio = form.tipo_juicio.data
-        descripcion = safe_string(form.descripcion.data)
-        expediente = safe_expediente(form.expediente.data)
-        archivo = request.files["archivo"]
-
         # Validar fecha
+        fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("glosas/new.jinja2", form=form)
 
-        # Validar descripcion, porque safe_string puede resultar vacío
+        # Tomar tipo de juicio
+        tipo_juicio = form.tipo_juicio.data
+
+        # Validar descripcion
+        descripcion = safe_string(form.descripcion.data)
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
             return render_template("glosas/new.jinja2", form=form)
 
-        # Validar expediente, porque safe_expediente puede resultar vacío
-        if expediente == "":
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             return render_template("glosas/new.jinja2", form=form)
 
         # Validar archivo
+        archivo = request.files["archivo"]
         archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
@@ -269,48 +270,49 @@ def new_for_autoridad(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad is None:
         flash("El juzgado/autoridad no existe.", "warning")
-        return redirect(url_for('glosas.list_active'))
+        return redirect(url_for("glosas.list_active"))
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no existe o no es activa.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if not autoridad.distrito.es_distrito_judicial:
         flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if not autoridad.es_jurisdiccional:
         flash("El juzgado/autoridad no es jurisdiccional.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
     if autoridad.directorio_glosas is None or autoridad.directorio_glosas == "":
         flash("El juzgado/autoridad no tiene directorio para glosas.", "warning")
-        return redirect(url_for('autoridades.detail', autoridad_id=autoridad.id))
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
     # Si viene el formulario
     form = GlosaNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
 
-        # Tomar valores del formulario
-        fecha = form.fecha.data
-        tipo_juicio = form.tipo_juicio.data
-        descripcion = safe_string(form.descripcion.data)
-        expediente = safe_expediente(form.expediente.data)
-        archivo = request.files["archivo"]
-
         # Validar fecha
+        fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
+        # Tomar tipo de juicio
+        tipo_juicio = form.tipo_juicio.data
+
         # Validar descripcion, porque safe_string puede resultar vacío
+        descripcion = safe_string(form.descripcion.data)
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
             return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
-        # Validar expediente, porque safe_expediente puede resultar vacío
-        if expediente == "":
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             return render_template("glosas/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Validar archivo
+        archivo = request.files["archivo"]
         archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
@@ -366,13 +368,19 @@ def edit(glosa_id):
     glosa = Glosa.query.get_or_404(glosa_id)
     form = GlosaEditForm()
     if form.validate_on_submit():
+        es_valido = True
         glosa.fecha = form.fecha.data
         glosa.tipo_juicio = form.tipo_juicio.data
         glosa.descripcion = safe_string(form.descripcion.data)
-        glosa.expediente = safe_expediente(form.expediente.data)
-        glosa.save()
-        flash(f"Glosa {glosa.descripcion} guardada.", "success")
-        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+        try:
+            glosa.expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            es_valido = False
+        if es_valido:
+            glosa.save()
+            flash(f"Glosa {glosa.descripcion} guardada.", "success")
+            return redirect(url_for("glosas.detail", glosa_id=glosa.id))
     form.fecha.data = glosa.fecha
     form.tipo_juicio.data = glosa.tipo_juicio
     form.descripcion.data = glosa.descripcion
