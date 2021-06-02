@@ -136,14 +136,33 @@ def search():
     """Buscar Edictos"""
     form_search = EdictoSearchForm()
     if form_search.validate_on_submit():
+        mostrar_resultados = True
         autoridad = Autoridad.query.get(form_search.autoridad.data)
         consulta = Edicto.query.filter(Edicto.autoridad == autoridad)
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Edicto.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Edicto.fecha <= form_search.fecha_hasta.data)
-        consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
-        return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
+        descripcion = safe_string(form_search.descripcion.data)
+        if descripcion != "":
+            consulta = consulta.filter(Edicto.descripcion.like(f"%{descripcion}%"))
+        try:
+            expediente = safe_expediente(form_search.expediente.data)
+            if expediente != "":
+                consulta = consulta.filter(Edicto.expediente == expediente)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            mostrar_resultados = False
+        try:
+            numero_publicacion = safe_numero_publicacion(form_search.numero_publicacion.data)
+            if numero_publicacion != "":
+                consulta = consulta.filter(Edicto.numero_publicacion == numero_publicacion)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            mostrar_resultados = False
+        if mostrar_resultados:
+            consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
+            return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("edictos/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
@@ -179,25 +198,35 @@ def new():
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
 
-        # Tomar valores del formulario
-        fecha = form.fecha.data
-        descripcion = safe_string(form.descripcion.data)
-        expediente = safe_expediente(form.expediente.data)
-        numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
-        archivo = request.files["archivo"]
-
         # Validar fecha
+        fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("edictos/new.jinja2", form=form)
 
-        # Validar descripcion, porque safe_string puede resultar vacío
+        # Validar descripcion
+        descripcion = safe_string(form.descripcion.data)
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
             return render_template("edictos/new.jinja2", form=form)
 
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("edictos/new.jinja2", form=form)
+
+        # Validar número de publicación
+        try:
+            numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
+        except (IndexError, ValueError):
+            flash("El número de publicación es incorrecto.", "warning")
+            return render_template("edictos/new.jinja2", form=form)
+
         # Validar archivo
+        archivo = request.files["archivo"]
         archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
@@ -286,25 +315,35 @@ def new_for_autoridad(autoridad_id):
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
 
-        # Tomar valores del formulario
-        fecha = form.fecha.data
-        descripcion = safe_string(form.descripcion.data)
-        expediente = safe_expediente(form.expediente.data)
-        numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
-        archivo = request.files["archivo"]
-
         # Validar fecha
+        fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
-        # Validar descripcion, porque safe_string puede resultar vacío
+        # Validar descripcion
+        descripcion = safe_string(form.descripcion.data)
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
             return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("edictos/new.jinja2", form=form)
+
+        # Validar número de publicación
+        try:
+            numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
+        except (IndexError, ValueError):
+            flash("El número de publicación es incorrecto.", "warning")
+            return render_template("edictos/new.jinja2", form=form)
+
         # Validar archivo
+        archivo = request.files["archivo"]
         archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
@@ -367,13 +406,23 @@ def edit(edicto_id):
     edicto = Edicto.query.get_or_404(edicto_id)
     form = EdictoEditForm()
     if form.validate_on_submit():
+        es_valido = True
         edicto.fecha = form.fecha.data
         edicto.descripcion = safe_string(form.descripcion.data)
-        edicto.expediente = safe_expediente(form.expediente.data)
-        edicto.numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
-        edicto.save()
-        flash(f"Edicto {edicto.descripcion} guardado.", "success")
-        return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+        try:
+            edicto.expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            es_valido = False
+        try:
+            edicto.numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
+        except (IndexError, ValueError):
+            flash("El número de publicación es incorrecto.", "warning")
+            es_valido = False
+        if es_valido:
+            edicto.save()
+            flash(f"Edicto {edicto.descripcion} guardado.", "success")
+            return redirect(url_for("edictos.detail", edicto_id=edicto.id))
     form.fecha.data = edicto.fecha
     form.descripcion.data = edicto.descripcion
     form.expediente.data = edicto.expediente
@@ -387,9 +436,19 @@ def delete(edicto_id):
     """Eliminar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
     if edicto.estatus == "A":
-        if current_user.can_admin("edictos") or (current_user.autoridad_id == edicto.autoridad_id):
+        if current_user.can_admin("edictos"):
             edicto.delete()
             flash(f"Edicto {edicto.descripcion} eliminado.", "success")
+        elif current_user.autoridad_id == edicto.autoridad_id:
+            dias_limite = 7  # Puede eliminar hasta de esta cantidad de días desde que fue creado
+            hoy = datetime.date.today()
+            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+            limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
+            if limite_dt <= edicto.creado:
+                edicto.delete()
+                flash(f"Edicto {edicto.descripcion} eliminado.", "success")
+            else:
+                flash(f"No tiene permiso para eliminar si fue creado hace {dias_limite} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
@@ -401,9 +460,19 @@ def recover(edicto_id):
     """Recuperar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
     if edicto.estatus == "B":
-        if current_user.can_admin("edictos") or (current_user.autoridad_id == edicto.autoridad_id):
+        if current_user.can_admin("edictos"):
             edicto.recover()
             flash(f"Edicto {edicto.descripcion} recuperado.", "success")
+        elif current_user.autoridad_id == edicto.autoridad_id:
+            dias_limite = 7  # Puede recuperar hasta de esta cantidad de días desde que fue creado
+            hoy = datetime.date.today()
+            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+            limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
+            if limite_dt <= edicto.creado:
+                edicto.recover()
+                flash(f"Edicto {edicto.descripcion} recuperado.", "success")
+            else:
+                flash(f"No tiene permiso para recuperar si fue creado hace {dias_limite} días o más.", "warning")
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
