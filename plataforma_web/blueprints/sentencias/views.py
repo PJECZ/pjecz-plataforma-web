@@ -9,7 +9,7 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_expediente
+from lib.safe_string import safe_expediente, safe_sentencia
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -136,18 +136,30 @@ def search():
     """Buscar Sentencias"""
     form_search = SentenciaSearchForm()
     if form_search.validate_on_submit():
+        mostrar_resultados = True
         autoridad = Autoridad.query.get(form_search.autoridad.data)
         consulta = Sentencia.query.filter(Sentencia.autoridad == autoridad)
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Sentencia.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Sentencia.fecha <= form_search.fecha_hasta.data)
-        if form_search.sentencia.data:
-            consulta = consulta.filter(Sentencia.sentencia == safe_expediente(form_search.sentencia.data))
-        if form_search.expediente.data:
-            consulta = consulta.filter(Sentencia.expediente == safe_expediente(form_search.expediente.data))
-        consulta = consulta.order_by(Sentencia.fecha.desc()).limit(100).all()
-        return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=consulta)
+        try:
+            sentencia = safe_sentencia(form_search.sentencia.data)
+            if sentencia != "":
+                consulta = consulta.filter(Sentencia.sentencia == sentencia)
+        except (IndexError, ValueError):
+            flash("La sentencia es incorrecta.", "warning")
+            mostrar_resultados = False
+        try:
+            expediente = safe_expediente(form_search.expediente.data)
+            if expediente != "":
+                consulta = consulta.filter(Sentencia.expediente == expediente)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            mostrar_resultados = False
+        if mostrar_resultados:
+            consulta = consulta.order_by(Sentencia.fecha.desc()).limit(100).all()
+            return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("sentencias/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
@@ -183,31 +195,33 @@ def new():
     form = SentenciaNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
 
-        # Tomar valores del formulario
-        fecha = form.fecha.data
-        sentencia_input = safe_expediente(form.sentencia.data)
-        expediente = safe_expediente(form.expediente.data)
-        es_paridad_genero = form.es_paridad_genero.data  # Boleano
-        archivo = request.files["archivo"]
-
         # Validar fecha
-        archivo_nombre = secure_filename(archivo.filename.lower())
+        fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("sentencias/new.jinja2", form=form)
 
-        # Validar sentencia, porque safe_expediente puede resultar vacío
-        if sentencia_input == "":
+        # Validar sentencia
+        try:
+            sentencia_input = safe_sentencia(form.sentencia.data)
+        except (IndexError, ValueError):
             flash("La sentencia es incorrecta.", "warning")
             return render_template("sentencias/new.jinja2", form=form)
 
-        # Validar expediente, porque safe_expediente puede resultar vacío
-        if expediente == "":
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             return render_template("sentencias/new.jinja2", form=form)
 
+        # Tomar perspectiva de género
+        es_paridad_genero = form.es_paridad_genero.data  # Boleano
+
         # Validar archivo
+        archivo = request.files["archivo"]
+        archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
             return render_template("sentencias/new.jinja2", form=form)
@@ -291,30 +305,32 @@ def new_for_autoridad(autoridad_id):
     form = SentenciaNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
 
-        # Tomar valores del formulario
-        fecha = form.fecha.data
-        sentencia_input = safe_expediente(form.sentencia.data)
-        expediente = safe_expediente(form.expediente.data)
-        es_paridad_genero = form.es_paridad_genero.data  # Boleano
-        archivo = request.files["archivo"]
-
         # Validar fecha
+        fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
             form.fecha.data = hoy
             return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
-        # Validar sentencia, porque safe_expediente puede resultar vacío
-        if sentencia_input == "":
+        # Validar sentencia
+        try:
+            sentencia_input = safe_sentencia(form.sentencia.data)
+        except (IndexError, ValueError):
             flash("La sentencia es incorrecta.", "warning")
             return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
-        # Validar expediente, porque safe_expediente puede resultar vacío
-        if expediente == "":
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
+        # Tomar perspectiva de género
+        es_paridad_genero = form.es_paridad_genero.data  # Boleano
+
         # Validar archivo
+        archivo = request.files["archivo"]
         archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
@@ -373,13 +389,23 @@ def edit(sentencia_id):
     sentencia = Sentencia.query.get_or_404(sentencia_id)
     form = SentenciaEditForm()
     if form.validate_on_submit():
+        es_valido = True
         sentencia.fecha = form.fecha.data
-        sentencia.sentencia = safe_expediente(form.sentencia.data)
-        sentencia.expediente = safe_expediente(form.expediente.data)
+        try:
+            sentencia.sentencia = safe_sentencia(form.sentencia.data)
+        except (IndexError, ValueError):
+            flash("La sentencia es incorrecta.", "warning")
+            es_valido = False
+        try:
+            sentencia.expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            es_valido = False
         sentencia.es_paridad_genero = form.es_paridad_genero.data
-        sentencia.save()
-        flash(f"Sentencia {sentencia.archivo} guardada.", "success")
-        return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
+        if es_valido:
+            sentencia.save()
+            flash(f"Sentencia {sentencia.archivo} guardada.", "success")
+            return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
     form.fecha.data = sentencia.fecha
     form.sentencia.data = sentencia.sentencia
     form.expediente.data = sentencia.expediente
@@ -393,9 +419,19 @@ def delete(sentencia_id):
     """Eliminar Sentencia"""
     sentencia = Sentencia.query.get_or_404(sentencia_id)
     if sentencia.estatus == "A":
-        if current_user.can_admin("sentencias") or (current_user.autoridad_id == sentencia.autoridad_id):
+        if current_user.can_admin("sentencias"):
             sentencia.delete()
             flash(f"Sentencia {sentencia.archivo} eliminada.", "success")
+        elif current_user.autoridad_id == sentencia.autoridad_id:
+            dias_limite = 7  # Puede eliminar hasta de esta cantidad de días desde que fue creado
+            hoy = datetime.date.today()
+            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+            limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
+            if limite_dt <= sentencia.creado:
+                sentencia.delete()
+                flash(f"Sentencia {sentencia.archivo} eliminada.", "success")
+            else:
+                flash(f"No tiene permiso para eliminar si fue creado hace {dias_limite} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))
@@ -407,9 +443,19 @@ def recover(sentencia_id):
     """Recuperar Sentencia"""
     sentencia = Sentencia.query.get_or_404(sentencia_id)
     if sentencia.estatus == "B":
-        if current_user.can_admin("sentencias") or (current_user.autoridad_id == sentencia.autoridad_id):
+        if current_user.can_admin("sentencias"):
             sentencia.recover()
             flash(f"Sentencia {sentencia.archivo} recuperada.", "success")
+        elif current_user.autoridad_id == sentencia.autoridad_id:
+            dias_limite = 7  # Puede recuperar hasta de esta cantidad de días desde que fue creado
+            hoy = datetime.date.today()
+            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+            limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
+            if limite_dt <= sentencia.creado:
+                sentencia.recover()
+                flash(f"Sentencia {sentencia.archivo} recuperada.", "success")
+            else:
+                flash(f"No tiene permiso para recuperar si fue creado hace {dias_limite} días o más.", "warning")
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))
