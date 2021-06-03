@@ -20,7 +20,7 @@
                     {% for entrada_salida in entradas_salidas %}
                     <tr>
                         <td>{{ entrada_salida.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td>{{ entrada_salida.usuario.nombre }}</td>
+                        <td><a href="{{ url_for('usuarios.detalle', usuario_id={{ entrada_salida.usuario.id }}) }}">{{ entrada_salida.usuario.nombre }}</a></td>
                         <td>{{ entrada_salida.tipo }}</td>
                         <td>{{ entrada_salida.direccion_ip }}</td>
                     </tr>
