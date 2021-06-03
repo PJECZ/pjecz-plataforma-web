@@ -18,7 +18,7 @@ class SentenciaNewForm(FlaskForm):
     fecha = DateField("Fecha", validators=[DataRequired()])
     sentencia = StringField("Sentencia", validators=[DataRequired(), Length(max=16), Regexp(SENTENCIA_REGEXP)])
     expediente = StringField("Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
-    es_paridad_genero = BooleanField("Es paridad de género", validators=[Optional()])
+    es_paridad_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
@@ -29,7 +29,7 @@ class SentenciaEditForm(FlaskForm):
     fecha = DateField("Fecha", validators=[DataRequired()])
     sentencia = StringField("Sentencia", validators=[DataRequired(), Length(max=16), Regexp(SENTENCIA_REGEXP)])
     expediente = StringField("Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
-    es_paridad_genero = BooleanField("Es paridad de género", validators=[Optional()])
+    es_paridad_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 

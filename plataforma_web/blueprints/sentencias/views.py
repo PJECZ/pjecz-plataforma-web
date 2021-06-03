@@ -350,12 +350,12 @@ def new_for_autoridad(autoridad_id):
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")
-        expediente_str = expediente.replace("/", "-")
         sentencia_str = sentencia_input.replace("/", "-")
+        expediente_str = expediente.replace("/", "-")
         if es_paridad_genero:
-            archivo_str = f"{fecha_str}-{expediente_str}-{sentencia_str}-{sentencia.encode_id()}.pdf"
+            archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
         else:
-            archivo_str = f"{fecha_str}-{expediente_str}-{sentencia_str}-G-{sentencia.encode_id()}.pdf"
+            archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-G-{sentencia.encode_id()}.pdf"
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
