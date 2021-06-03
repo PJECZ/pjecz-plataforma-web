@@ -48,12 +48,10 @@ def list_active():
     if current_user.can_admin("sentencias"):
         sentencias_activas = Sentencia.query.filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
         return render_template("sentencias/list_admin.jinja2", autoridad=None, sentencias=sentencias_activas, estatus="A")
-    # No es administrador, consultar su autoridad
-    autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
     # Si su autoridad es jurisdiccional, ve sus propias sentencias
     if current_user.autoridad.es_jurisdiccional:
-        sus_sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
-        return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sus_sentencias_activas, estatus="A")
+        sus_sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == current_user.autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
+        return render_template("sentencias/list.jinja2", autoridad=current_user.autoridad, sentencias=sus_sentencias_activas, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("sentencias.list_distritos"))
 

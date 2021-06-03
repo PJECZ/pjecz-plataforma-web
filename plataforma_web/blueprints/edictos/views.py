@@ -48,12 +48,10 @@ def list_active():
     if current_user.can_admin("edictos"):
         edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
         return render_template("edictos/list_admin.jinja2", autoridad=None, edictos=edictos_activos, estatus="A")
-    # No es administrador, consultar su autoridad
-    autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
     # Si su autoridad es jurisdiccional, ve sus propios edictos
     if current_user.autoridad.es_jurisdiccional:
-        sus_edictos_activos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
-        return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=sus_edictos_activos, estatus="A")
+        sus_edictos_activos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
+        return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, edictos=sus_edictos_activos, estatus="A")
     # No es jurisdiccional, se redirige al listado de edictos
     return redirect(url_for("edictos.list_distritos"))
 
