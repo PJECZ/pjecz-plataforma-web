@@ -24,6 +24,8 @@ from plataforma_web.blueprints.distritos.models import Distrito
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
 SUBDIRECTORIO = "Listas de Acuerdos"
+LIMITE_JUSTICIABLES_DIAS = 1
+LIMITE_ADMINISTRADORES_DIAS = 90
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/acuses/<id_hashed>")
@@ -153,10 +155,9 @@ def new():
     """Subir Lista de Acuerdos como juzgado"""
 
     # Para validar la fecha
-    dias_limite = 7
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_JUSTICIABLES_DIAS)
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -184,7 +185,7 @@ def new():
 
         # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
+            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_JUSTICIABLES_DIAS} días.", "warning")
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new.jinja2", form=form)
 
@@ -256,10 +257,9 @@ def new_for_autoridad(autoridad_id):
     """Subir Lista de Acuerdos para una autoridad dada"""
 
     # Para validar la fecha
-    dias_limite = 90
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -291,7 +291,7 @@ def new_for_autoridad(autoridad_id):
         # Validar fecha
         archivo_nombre = secure_filename(archivo.filename.lower())
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
+            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_ADMINISTRADORES_DIAS} días.", "warning")
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
@@ -380,8 +380,13 @@ def delete(lista_de_acuerdo_id):
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "A":
         if current_user.can_admin("listas_de_acuerdos"):
-            lista_de_acuerdo.delete()
-            flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
+            hoy = datetime.date.today()
+            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:
+                lista_de_acuerdo.delete()
+                flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
+            else:
+                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == lista_de_acuerdo.autoridad_id and lista_de_acuerdo.fecha == datetime.date.today():
             lista_de_acuerdo.delete()
             flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
@@ -398,12 +403,18 @@ def recover(lista_de_acuerdo_id):
     if lista_de_acuerdo.estatus == "B":
         if ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.fecha == lista_de_acuerdo.fecha).filter(ListaDeAcuerdo.estatus == "A").first():
             flash("No puede recuperar esta lista porque ya hay una activa de la misma fecha.", "warning")
-        elif current_user.can_admin("listas_de_acuerdos"):
-            lista_de_acuerdo.recover()
-            flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
-        elif current_user.autoridad_id == lista_de_acuerdo.autoridad_id and lista_de_acuerdo.fecha == datetime.date.today():
-            lista_de_acuerdo.recover()
-            flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
         else:
-            flash("No tiene permiso para recuperar o sólo puede recuperar de hoy.", "warning")
+            if current_user.can_admin("listas_de_acuerdos"):
+                hoy = datetime.date.today()
+                hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+                if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:
+                    lista_de_acuerdo.recover()
+                    flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
+                else:
+                    flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
+            elif current_user.autoridad_id == lista_de_acuerdo.autoridad_id and lista_de_acuerdo.fecha == datetime.date.today():
+                lista_de_acuerdo.recover()
+                flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
+            else:
+                flash("No tiene permiso para recuperar o sólo puede recuperar de hoy.", "warning")
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))

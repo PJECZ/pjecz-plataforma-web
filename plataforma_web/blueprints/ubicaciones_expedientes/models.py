@@ -26,7 +26,7 @@ class UbicacionExpediente(db.Model, UniversalMixin):
     autoridad_id = db.Column("autoridad", db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
 
     # Columnas
-    expediente = db.Column(db.String(256), nullable=False)
+    expediente = db.Column(db.String(16), index=True, nullable=False)
     ubicacion = db.Column(
         db.Enum(*UBICACIONES, name="ubicaciones_opciones", native_enum=False),
         index=True,
@@ -35,4 +35,4 @@ class UbicacionExpediente(db.Model, UniversalMixin):
 
     def __repr__(self):
         """ Representación """
-        return f"<UbicacionExpediente {self.nombre}>"
+        return f"<UbicacionExpediente {self.autoridad.clave} {self.expediente}>"
