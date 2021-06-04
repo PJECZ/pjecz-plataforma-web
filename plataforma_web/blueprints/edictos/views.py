@@ -24,6 +24,8 @@ from plataforma_web.blueprints.distritos.models import Distrito
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
 SUBDIRECTORIO = "Edictos"
+LIMITE_NOTARIALES_DIAS = 30
+LIMITE_ADMINISTRADORES_DIAS = 90
 
 
 @edictos.route("/edictos/acuses/<id_hashed>")
@@ -172,10 +174,9 @@ def new():
     """Subir Edicto como juzgado"""
 
     # Para validar la fecha
-    dias_limite = 30
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS)
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -199,7 +200,7 @@ def new():
         # Validar fecha
         fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
+            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_NOTARIALES_DIAS} días.", "warning")
             form.fecha.data = hoy
             return render_template("edictos/new.jinja2", form=form)
 
@@ -286,10 +287,9 @@ def new_for_autoridad(autoridad_id):
     """Subir Edicto para una autoridad dada"""
 
     # Para validar la fecha
-    dias_limite = 90
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -316,7 +316,7 @@ def new_for_autoridad(autoridad_id):
         # Validar fecha
         fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            flash(f"La fecha no debe ser del futuro ni anterior a {dias_limite} días.", "warning")
+            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_ADMINISTRADORES_DIAS} días.", "warning")
             form.fecha.data = hoy
             return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
@@ -434,19 +434,20 @@ def delete(edicto_id):
     """Eliminar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
     if edicto.estatus == "A":
+        hoy = datetime.date.today()
+        hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("edictos"):
-            edicto.delete()
-            flash(f"Edicto {edicto.descripcion} eliminado.", "success")
-        elif current_user.autoridad_id == edicto.autoridad_id:
-            dias_limite = 7  # Puede eliminar hasta de esta cantidad de días desde que fue creado
-            hoy = datetime.date.today()
-            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-            limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
-            if limite_dt <= edicto.creado:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.delete()
                 flash(f"Edicto {edicto.descripcion} eliminado.", "success")
             else:
-                flash(f"No tiene permiso para eliminar si fue creado hace {dias_limite} días o más.", "warning")
+                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
+        elif current_user.autoridad_id == edicto.autoridad_id:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS) <= edicto.creado:
+                edicto.delete()
+                flash(f"Edicto {edicto.descripcion} eliminado.", "success")
+            else:
+                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_NOTARIALES_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
@@ -458,19 +459,20 @@ def recover(edicto_id):
     """Recuperar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
     if edicto.estatus == "B":
+        hoy = datetime.date.today()
+        hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("edictos"):
-            edicto.recover()
-            flash(f"Edicto {edicto.descripcion} recuperado.", "success")
-        elif current_user.autoridad_id == edicto.autoridad_id:
-            dias_limite = 7  # Puede recuperar hasta de esta cantidad de días desde que fue creado
-            hoy = datetime.date.today()
-            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-            limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
-            if limite_dt <= edicto.creado:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.recover()
                 flash(f"Edicto {edicto.descripcion} recuperado.", "success")
             else:
-                flash(f"No tiene permiso para recuperar si fue creado hace {dias_limite} días o más.", "warning")
+                flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
+        elif current_user.autoridad_id == edicto.autoridad_id:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS) <= edicto.creado:
+                edicto.recover()
+                flash(f"Edicto {edicto.descripcion} recuperado.", "success")
+            else:
+                flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_NOTARIALES_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))

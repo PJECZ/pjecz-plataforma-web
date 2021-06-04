@@ -24,6 +24,8 @@ from plataforma_web.blueprints.distritos.models import Distrito
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
 SUBDIRECTORIO = "Sentencias"
+LIMITE_JUSTICIABLES_DIAS = 365
+LIMITE_ADMINISTRADORES_DIAS = 365
 
 
 @sentencias.route("/sentencias/acuses/<id_hashed>")
@@ -417,19 +419,20 @@ def delete(sentencia_id):
     """Eliminar Sentencia"""
     sentencia = Sentencia.query.get_or_404(sentencia_id)
     if sentencia.estatus == "A":
+        hoy = datetime.date.today()
+        hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("sentencias"):
-            sentencia.delete()
-            flash(f"Sentencia {sentencia.archivo} eliminada.", "success")
-        elif current_user.autoridad_id == sentencia.autoridad_id:
-            dias_limite = 7  # Puede eliminar hasta de esta cantidad de días desde que fue creado
-            hoy = datetime.date.today()
-            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-            limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
-            if limite_dt <= sentencia.creado:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
                 sentencia.delete()
                 flash(f"Sentencia {sentencia.archivo} eliminada.", "success")
             else:
-                flash(f"No tiene permiso para eliminar si fue creado hace {dias_limite} días o más.", "warning")
+                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
+        elif current_user.autoridad_id == sentencia.autoridad_id:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_JUSTICIABLES_DIAS) <= sentencia.creado:
+                sentencia.delete()
+                flash(f"Sentencia {sentencia.archivo} eliminada.", "success")
+            else:
+                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_JUSTICIABLES_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))
@@ -441,19 +444,20 @@ def recover(sentencia_id):
     """Recuperar Sentencia"""
     sentencia = Sentencia.query.get_or_404(sentencia_id)
     if sentencia.estatus == "B":
+        hoy = datetime.date.today()
+        hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("sentencias"):
-            sentencia.recover()
-            flash(f"Sentencia {sentencia.archivo} recuperada.", "success")
-        elif current_user.autoridad_id == sentencia.autoridad_id:
-            dias_limite = 7  # Puede recuperar hasta de esta cantidad de días desde que fue creado
-            hoy = datetime.date.today()
-            hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-            limite_dt = hoy_dt + datetime.timedelta(days=-dias_limite)
-            if limite_dt <= sentencia.creado:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
                 sentencia.recover()
                 flash(f"Sentencia {sentencia.archivo} recuperada.", "success")
             else:
-                flash(f"No tiene permiso para recuperar si fue creado hace {dias_limite} días o más.", "warning")
+                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
+        elif current_user.autoridad_id == sentencia.autoridad_id:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_JUSTICIABLES_DIAS) <= sentencia.creado:
+                sentencia.recover()
+                flash(f"Sentencia {sentencia.archivo} recuperada.", "success")
+            else:
+                flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_JUSTICIABLES_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))

@@ -120,9 +120,72 @@ def search():
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
-    """Nuevo Ubicación de Expedientes"""
+    """Nuevo Ubicación de Expedientes como juzgado"""
+
+    # Validar autoridad
+    autoridad = current_user.autoridad
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("sentencias.list_active"))
+    if not autoridad.distrito.es_distrito_judicial:
+        flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
+        return redirect(url_for("sentencias.list_active"))
+    if not autoridad.es_jurisdiccional:
+        flash("El juzgado/autoridad no es jurisdiccional.", "warning")
+        return redirect(url_for("sentencias.list_active"))
+
+    # Si viene el formulario
     form = UbicacionExpedienteNewForm()
     if form.validate_on_submit():
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("sentencias/new.jinja2", form=form)
+
+        # Insertar registro
+        ubicacion_expediente = UbicacionExpediente(
+            autoridad=autoridad,
+            expediente=expediente,
+            ubicacion=form.ubicacion.data,
+        )
+        ubicacion_expediente.save()
+        flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
+        return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
+
+    # Prellenado de los campos
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    return render_template("ubicaciones_expedientes/new.jinja2", form=form)
+
+
+@ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
+@permission_required(Permiso.CREAR_JUSTICIABLES)
+def new_for_autoridad(autoridad_id):
+    """Nuevo Ubicación de Expedientes para una autoridad dada"""
+
+    # Validar autoridad
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    if autoridad is None:
+        flash("El juzgado/autoridad no existe.", "warning")
+        return redirect(url_for("sentencias.list_active"))
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no es activa.", "warning")
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+    if not autoridad.distrito.es_distrito_judicial:
+        flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+    if not autoridad.es_jurisdiccional:
+        flash("El juzgado/autoridad no es jurisdiccional.", "warning")
+        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+
+    # Si viene el formulario
+    form = UbicacionExpedienteNewForm()
+    if form.validate_on_submit():
+
+        # Insertar registro
         ubicacion_expediente = UbicacionExpediente(
             autoridad=Autoridad.query.get_or_404(form.autoridad.data),
             expediente=form.expediente.data.strip(),
@@ -131,10 +194,11 @@ def new():
         ubicacion_expediente.save()
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("ubicaciones_expedientes/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)
 
+    # Prellenado de los campos
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    return render_template("ubicaciones_expedientes/new.jinja2", form=form, autoridad=autoridad)
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
