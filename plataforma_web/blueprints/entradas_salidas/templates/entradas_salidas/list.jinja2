@@ -21,8 +21,8 @@
                     <tr>
                         <td>{{ entrada_salida.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ entrada_salida.tipo }}</td>
-                        <td><a href="{{ url_for('usuarios.detalle', usuario_id={{ entrada_salida.usuario.id }}) }}">{{ entrada_salida.usuario.nombre }}</a></td>
-                        <td><a href="{{ url_for('usuarios.detalle', usuario_id={{ entrada_salida.usuario.autoridad.id }}) }}">{{ entrada_salida.usuario.autoridad.clave }}</a></td>
+                        <td><a href="{{ url_for('usuarios.detail', usuario_id=entrada_salida.usuario.id) }}">{{ entrada_salida.usuario.nombre }}</a></td>
+                        <td><a href="{{ url_for('autoridades.detail', autoridad_id=entrada_salida.usuario.autoridad.id) }}">{{ entrada_salida.usuario.autoridad.clave }}</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -23,10 +23,10 @@
             {{ detail.label_value('Clave', autoridad.clave) }}
             {{ detail.label_value_boolean('Es jurisdiccional', autoridad.es_jurisdiccional) }}
             {{ detail.label_value_boolean('Es notaría', autoridad.es_notaria) }}
-            {{ detail.label_value('Directorio para edictos', autoridad.directorio_edictos) }}
-            {{ detail.label_value('Directorio para glosas', autoridad.directorio_glosas) }}
-            {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos) }}
-            {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias) }}
+            {{ detail.label_value('Directorio para edictos', autoridad.directorio_edictos, link=url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}
+            {{ detail.label_value('Directorio para glosas', autoridad.directorio_glosas, link=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}
+            {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos, link=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
+            {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias, link=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
         {% endcall %}
         {% call detail.card('Usuarios') %}
             <table id="usuarios_datatable" class="table">
