@@ -7,7 +7,7 @@
     {{ list.page('Roles') }}
     <div class="container-fluid">
         {% call list.card() %}
-            <table id="roles_datatable" class="table">
+            <table class="table">
                 <thead>
                     <tr>
                         <th>Rol</th>
@@ -23,8 +23,4 @@
             </table>
         {% endcall %}
     </div>
-{% endblock %}
-
-{% block custom_javascript %}
-    {{ list.datatable('roles_datatable') }}
 {% endblock %}
