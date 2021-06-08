@@ -39,7 +39,7 @@ def refrescar(autoridad_clave):
     if autoridad.es_notaria:
         click.echo(f"La autoridad {autoridad_clave} es una notaría")
         return
-    if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
+    if autoridad.directorio_sentencias is None or autoridad.directorio_sentencias == "":
         click.echo(f"La autoridad {autoridad_clave} no tiene directorio para listas de acuerdos")
         return
     app.task_queue.enqueue(
@@ -60,7 +60,7 @@ def refrescar_todos():
             continue
         if not autoridad.es_jurisdiccional:
             continue
-        if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
+        if autoridad.directorio_sentencias is None or autoridad.directorio_sentencias == "":
             continue
         app.task_queue.enqueue(
             "plataforma_web.blueprints.sentencias.tasks.refrescar",

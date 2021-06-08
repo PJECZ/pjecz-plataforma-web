@@ -246,7 +246,7 @@ def new():
             archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-G-{sentencia.encode_id()}.pdf"
         else:
             archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_sentencias, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
         deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
@@ -356,7 +356,7 @@ def new_for_autoridad(autoridad_id):
             archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
         else:
             archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-G-{sentencia.encode_id()}.pdf"
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
+        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_sentencias, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
         deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
