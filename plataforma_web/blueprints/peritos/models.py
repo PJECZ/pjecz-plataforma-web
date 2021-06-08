@@ -60,7 +60,8 @@ class Perito(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    distrito_id = db.Column("distrito", db.Integer, db.ForeignKey("distritos.id"), index=True, nullable=False)
+    distrito_id = db.Column(db.Integer, db.ForeignKey('distritos.id'), index=True, nullable=False)
+    distrito = db.relationship('Distrito', back_populates='peritos')
 
     # Columnas
     tipo = db.Column(

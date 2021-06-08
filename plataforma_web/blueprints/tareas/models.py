@@ -18,7 +18,8 @@ class Tarea(db.Model, UniversalMixin):
     id = db.Column(db.String(36), primary_key=True)
 
     # Clave foránea
-    usuario_id = db.Column("usuario", db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), index=True, nullable=False)
+    usuario = db.relationship('Usuario', back_populates='tareas')
 
     # Columnas
     nombre = db.Column(db.String(128), index=True)
