@@ -45,7 +45,7 @@ def alimentar(entrada_csv):
                 ano = int(row["año"])
                 mes = int(row["mes"])
                 dia = int(row["dia"])
-                numero = row["número"]
+                numero = row["numero"]
                 nombre = row["nombre"]
                 libro = row["libro"]
             except (IndexError, ValueError):
