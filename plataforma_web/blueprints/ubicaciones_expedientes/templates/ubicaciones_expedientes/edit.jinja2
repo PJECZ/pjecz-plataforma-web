@@ -8,8 +8,6 @@
         <div class="container-fluid">
         {% set form_kwargs = {'ubicacion_expediente_id': ubicacion_expediente.id} %}
         {% call f.form_tag('ubicaciones_expedientes.edit', fid='ubicacion_expediente_form', **form_kwargs) %}
-            {% call f.form_group(form.distrito, disabled=True) %}{% endcall %}
-            {% call f.form_group(form.autoridad, disabled=True) %}{% endcall %}
             {% call f.form_group(form.expediente, disabled=True) %}{% endcall %}
             {% call f.form_group(form.ubicacion) %}{% endcall %}
             {{ form.guardar() }}
