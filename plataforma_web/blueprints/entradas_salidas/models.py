@@ -20,14 +20,9 @@ class EntradaSalida(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Claves foráneas
-    usuario_id = db.Column(
-        'usuario',
-        db.Integer,
-        db.ForeignKey('usuarios.id'),
-        index=True,
-        nullable=False,
-    )
+    # Clave foránea
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), index=True, nullable=False)
+    usuario = db.relationship('Usuario', back_populates='entradas_salidas')
 
     # Columnas
     tipo = db.Column(

@@ -14,14 +14,9 @@ class Bitacora(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Claves foráneas
-    usuario_id = db.Column(
-        'usuario',
-        db.Integer,
-        db.ForeignKey('usuarios.id'),
-        index=True,
-        nullable=False,
-    )
+    # Clave foránea
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), index=True, nullable=False)
+    usuario = db.relationship('Usuario', back_populates='bitacoras')
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)

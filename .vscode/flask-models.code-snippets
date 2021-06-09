@@ -19,9 +19,16 @@
 			"\t# Clave primaria",
 			"\tid = db.Column(db.Integer, primary_key=True)",
 			"",
+			"\t# Clave foránea",
+			"\t${5:clave_foranea}_id = db.Column(db.Integer, db.ForeignKey('${6:Tabla_clave_foranea}.id'), index=True, nullable=False)",
+			"\t${5:clave_foranea} = db.relationship('${7:Clase_clave_foranea}', back_populates='${8:plural_esta_clase}')",
+			"",
 			"\t# Columnas",
 			"\tnombre = db.Column(db.String(256), unique=True, nullable=False)",
 			"\tdescripcion = db.Column(db.String(256), nullable=False)",
+			"",
+			"\t# Hijos",
+			"\t${9:plural_hijos} = db.relationship('${10:Clase_hijo}', back_populates='${11:singular_esta_clase}')",
 			"",
 			"\tdef __repr__(self):",
 			"\t\t\"\"\" Representación \"\"\"",
@@ -35,13 +42,8 @@
 		"prefix": "fmodels_clave_foranea",
 		"body": [
 			"# Clave foránea",
-			"${1:columna}_id = db.Column(",
-			"\t'${1:columna}',",
-			"\tdb.Integer,",
-			"\tdb.ForeignKey('${2:tabla}.id'),",
-			"\tindex=True,",
-			"\tnullable=False",
-			")",
+			"${1:clave_foranea}_id = db.Column(db.Integer, db.ForeignKey('${2:Tabla_clave_foranea}.id'), index=True, nullable=False)",
+			"${1:clave_foranea} = db.relationship('${3:Clase_clave_foranea}', back_populates='${4:plural_esta_clase}')",
 			""
 		],
 		"description": "Clave foránea"
@@ -49,7 +51,11 @@
 	"Flask models child": {
 		"scope": "python",
 		"prefix": "fmodels_hijo",
-		"body": "${1:plural} = db.relationship('${2:Clase}', backref='${3:columna}')",
+		"body": [
+			"# Hijos",
+			"${1:plural_hijos} = db.relationship('${2:Clase_hijo}', back_populates='${3:singular_esta_clase}')",
+			""
+		],
 		"description": "Hijo"
 	}
 }
