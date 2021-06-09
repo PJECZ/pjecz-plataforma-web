@@ -15,7 +15,8 @@ class Autoridad(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    distrito_id = db.Column("distrito", db.Integer, db.ForeignKey("distritos.id"), index=True, nullable=False)
+    distrito_id = db.Column(db.Integer, db.ForeignKey('distritos.id'), index=True, nullable=False)
+    distrito = db.relationship('Distrito', back_populates='autoridades')
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
@@ -28,12 +29,13 @@ class Autoridad(db.Model, UniversalMixin):
     directorio_sentencias = db.Column(db.String(256), default="")
 
     # Hijos
-    edictos = db.relationship("Edicto", backref="autoridad", lazy="noload")
-    glosas = db.relationship("Glosa", backref="autoridad", lazy="noload")
-    listas_de_acuerdos = db.relationship("ListaDeAcuerdo", backref="autoridad", lazy="noload")
-    sentencias = db.relationship("Sentencia", backref="autoridad", lazy="noload")
-    ubicaciones_expedientes = db.relationship("UbicacionExpediente", backref="autoridad", lazy="noload")
-    usuarios = db.relationship("Usuario", backref="autoridad")
+    edictos = db.relationship('Edicto', back_populates='autoridad', lazy="noload")
+    glosas = db.relationship('Glosa', back_populates='autoridad', lazy="noload")
+    listas_de_acuerdos = db.relationship('ListaDeAcuerdo', back_populates='autoridad', lazy="noload")
+    sentencias = db.relationship('Sentencia', back_populates='autoridad', lazy="noload")
+    transcripciones = db.relationship('Transcripcion', back_populates='autoridad', lazy="noload")
+    ubicaciones_expedientes = db.relationship('UbicacionExpediente', back_populates='autoridad', lazy="noload")
+    usuarios = db.relationship('Usuario', back_populates='autoridad')
 
     def __repr__(self):
         """Representación"""

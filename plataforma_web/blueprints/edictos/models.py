@@ -17,7 +17,8 @@ class Edicto(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    autoridad_id = db.Column("autoridad", db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad_id = db.Column(db.Integer, db.ForeignKey('autoridades.id'), index=True, nullable=False)
+    autoridad = db.relationship('Autoridad', back_populates='edictos')
 
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)

@@ -60,7 +60,7 @@ class Rol(db.Model, UniversalMixin):
     por_defecto = db.Column(db.Boolean, default=False, index=True)
 
     # Hijos
-    usuarios = db.relationship("Usuario", backref="rol")
+    usuarios = db.relationship('Usuario', back_populates='rol')
 
     def add_permission(self, perm):
         """Agregar permiso"""
@@ -180,7 +180,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_DOCUMENTACIONES)
         if module in ("abogados", "peritos"):
             return self.has_permission(Permiso.VER_CONSULTAS)
-        if module in ("glosas", "listas_de_acuerdos", "sentencias", "ubicaciones_expedientes"):
+        if module in ("listas_de_acuerdos", "sentencias"):
             return self.has_permission(Permiso.VER_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.VER_NOTARIALES)
@@ -196,7 +196,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_DOCUMENTACIONES)
         if module in ("abogados", "peritos"):
             return self.has_permission(Permiso.MODIFICAR_CONSULTAS)
-        if module in ("glosas", "listas_de_acuerdos", "sentencias", "ubicaciones_expedientes"):
+        if module in ("listas_de_acuerdos", "sentencias"):
             return self.has_permission(Permiso.MODIFICAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.MODIFICAR_NOTARIALES)
@@ -212,7 +212,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_DOCUMENTACIONES)
         if module in ("abogados", "peritos"):
             return self.has_permission(Permiso.CREAR_CONSULTAS)
-        if module in ("glosas", "listas_de_acuerdos", "sentencias", "ubicaciones_expedientes"):
+        if module in ("listas_de_acuerdos", "sentencias"):
             return self.has_permission(Permiso.CREAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.CREAR_NOTARIALES)
@@ -220,7 +220,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_admin(self, module):
         """¿Tiene permiso para administrar?"""
-        if module in ("glosas", "listas_de_acuerdos", "sentencias", "ubicaciones_expedientes"):
+        if module in ("listas_de_acuerdos", "sentencias"):
             return self.has_permission(Permiso.ADMINISTRAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.ADMINISTRAR_NOTARIALES)

@@ -19,8 +19,8 @@ class Distrito(db.Model, UniversalMixin):
     es_distrito_judicial = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
-    autoridades = db.relationship("Autoridad", backref="distrito")
-    peritos = db.relationship("Perito", backref="distrito", lazy="noload")
+    autoridades = db.relationship('Autoridad', back_populates='distrito')
+    peritos = db.relationship('Perito', back_populates='distrito', lazy="noload")
 
     def __repr__(self):
         """ Representación """
