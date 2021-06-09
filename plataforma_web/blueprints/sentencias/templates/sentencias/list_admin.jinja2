@@ -10,8 +10,17 @@
         {% if current_user.can_admin('sentencias') %}
             {{ list.topbar_option_upload('Subir', url_for('sentencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
         {% endif %}
+        {% if current_user.can_edit('sentencias') %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('sentencias.list_autoridad_sentencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}{% endif %}
+        {% endif %}
         {% if current_user.can_insert('tareas') %}
             {{ list.topbar_option_refresh('Refrescar', url_for('sentencias.refresh', autoridad_id=autoridad.id)) }}
+        {% endif %}
+    {% else %}
+        {% if current_user.can_edit('sentencias') %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('sentencias.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('sentencias.list_active')) }}{% endif %}
         {% endif %}
     {% endif %}
 {% endblock %}

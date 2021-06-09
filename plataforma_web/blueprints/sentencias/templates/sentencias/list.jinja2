@@ -10,10 +10,13 @@
         {% if current_user.can_admin('sentencias') %}
             {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('sentencias.list_autoridad_sentencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
             {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}{% endif %}
-            {{ list.topbar_option_upload('Subir', url_for('sentencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
         {% elif current_user.can_insert('sentencias') and current_user.autoridad_id == autoridad.id %}
             {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('sentencias.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('sentencias.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_admin('sentencias') %}
+            {{ list.topbar_option_upload('Subir', url_for('sentencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
+        {% elif current_user.can_insert('sentencias') and current_user.autoridad_id == autoridad.id %}
             {{ list.topbar_option_upload('Subir', url_for('sentencias.new')) }}
         {% endif %}
         {% if current_user.can_admin('sentencias') and current_user.can_insert('tareas') %}

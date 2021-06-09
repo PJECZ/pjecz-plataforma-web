@@ -78,7 +78,7 @@ def list_inactive():
 def list_distritos():
     """Listado de Distritos"""
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("edictos/list_distritos.jinja2", distritos=distritos, estatus="A")
+    return render_template("edictos/list_distritos.jinja2", distritos=distritos)
 
 
 @edictos.route("/edictos/distrito/<int:distrito_id>")
@@ -86,7 +86,7 @@ def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
     autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("edictos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades, estatus="A")
+    return render_template("edictos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
 
 
 @edictos.route("/edictos/autoridad/<int:autoridad_id>")
