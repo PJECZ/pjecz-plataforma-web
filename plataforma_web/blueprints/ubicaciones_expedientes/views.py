@@ -30,7 +30,7 @@ def list_active():
     # Si es administrador, ve las ubicaciones de expedientes de todas las autoridades
     if current_user.can_admin("sentencias"):
         ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
-        return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
+        return render_template("ubicaciones_expedientes/list_admin.jinja2", ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
         sus_ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
@@ -46,7 +46,7 @@ def list_inactive():
     # Si es administrador, ve las ubicaciones de expedientes de todas las autoridades
     if current_user.can_admin("sentencias"):
         ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
-        return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
+        return render_template("ubicaciones_expedientes/list_admin.jinja2", ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
         sus_ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
@@ -59,7 +59,7 @@ def list_inactive():
 def list_distritos():
     """Listado de Distritos"""
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("ubicaciones_expedientes/list_distritos.jinja2", distritos=distritos, estatus="A")
+    return render_template("ubicaciones_expedientes/list_distritos.jinja2", distritos=distritos)
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/distrito/<int:distrito_id>")
@@ -67,7 +67,7 @@ def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
     autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("ubicaciones_expedientes/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades, estatus="A")
+    return render_template("ubicaciones_expedientes/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/autoridad/<int:autoridad_id>")
@@ -104,8 +104,7 @@ def search():
         consulta = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad)
         try:
             expediente = safe_expediente(form_search.expediente.data)
-            if expediente != "":
-                consulta = consulta.filter(UbicacionExpediente.expediente == expediente)
+            consulta = consulta.filter(UbicacionExpediente.expediente == expediente)
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
@@ -155,7 +154,7 @@ def new():
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
 
-    # Prellenado de los campos
+    # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     return render_template("ubicaciones_expedientes/new.jinja2", form=form)
@@ -185,17 +184,24 @@ def new_for_autoridad(autoridad_id):
     form = UbicacionExpedienteNewForm()
     if form.validate_on_submit():
 
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("sentencias/new.jinja2", form=form)
+
         # Insertar registro
         ubicacion_expediente = UbicacionExpediente(
-            autoridad=Autoridad.query.get_or_404(form.autoridad.data),
-            expediente=form.expediente.data.strip(),
+            autoridad=autoridad,
+            expediente=expediente,
             ubicacion=form.ubicacion.data,
         )
         ubicacion_expediente.save()
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
 
-    # Prellenado de los campos
+    # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     return render_template("ubicaciones_expedientes/new.jinja2", form=form, autoridad=autoridad)
@@ -207,11 +213,22 @@ def edit(ubicacion_expediente_id):
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     form = UbicacionExpedienteEditForm()
     if form.validate_on_submit():
-        ubicacion_expediente.expediente = form.expediente.data.strip()
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("sentencias/new.jinja2", form=form)
+
+        # Actualizar registro
+        ubicacion_expediente.expediente = expediente
         ubicacion_expediente.ubicacion = form.ubicacion.data
         ubicacion_expediente.save()
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
+
+    # Prellenado del formulario
     form.expediente.data = ubicacion_expediente.expediente
     form.ubicacion.data = ubicacion_expediente.ubicacion
     return render_template("ubicaciones_expedientes/edit.jinja2", form=form, ubicacion_expediente=ubicacion_expediente)
