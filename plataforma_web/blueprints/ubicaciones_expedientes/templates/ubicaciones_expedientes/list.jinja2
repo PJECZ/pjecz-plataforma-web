@@ -5,12 +5,20 @@
 
 {% block topbar_actions %}
     {{ list.topbar_option_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
-    {% if current_user.can_edit('ubicaciones_expedientes') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('ubicaciones_expedientes') %}
-        {{ list.topbar_option_new('Nueva Ubicación de Expedientes', url_for('ubicaciones_expedientes.new')) }}
+    {{ list.topbar_option('Distritos', url_for('ubicaciones_expedientes.list_distritos'), 'fas fa-sitemap') }}
+    {% if autoridad %}
+        {% if current_user.can_admin('ubicaciones_expedientes') %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes', autoridad_id=autoridad.id)) }}{% endif %}
+        {% elif current_user.can_insert('ubicaciones_expedientes') and current_user.autoridad_id == autoridad.id %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_admin('ubicaciones_expedientes') %}
+            {{ list.topbar_option_upload('Nueva Ubicación de Expedientes', url_for('ubicaciones_expedientes.new_for_autoridad', autoridad_id=autoridad.id)) }}
+        {% elif current_user.can_insert('ubicaciones_expedientes') and current_user.autoridad_id == autoridad.id %}
+            {{ list.topbar_option_upload('Nueva Ubicación de Expedientes', url_for('ubicaciones_expedientes.new')) }}
+        {% endif %}
     {% endif %}
 {% endblock %}
 
