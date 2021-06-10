@@ -29,8 +29,8 @@
                     <tr>
                         <th>Creados</th>
                         <th>Autoridades</th>
-                        <th>Expediente</th>
-                        <th>Ubicación</th>
+                        <th>Expedientes</th>
+                        <th>Ubicaciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,8 +38,8 @@
                     <tr>
                         <td>{{ ubicacion_expediente.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ ubicacion_expediente.autoridad.clave }}</td>
-                        <td>{{ ubicacion_expediente.expediente }}</td>
-                        <td><a href="{{ url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id) }}">{{ ubicacion_expediente.expedientes }}</a></td>
+                        <td><a href="{{ url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id) }}">{{ ubicacion_expediente.expediente }}</a></td>
+                        <td>{{ ubicacion_expediente.ubicacion }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

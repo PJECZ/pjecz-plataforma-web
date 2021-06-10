@@ -1,23 +1,22 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Buscar Edictos{% endblock %}
+{% block title %}Buscar Versiones Públicas de Sentencias{% endblock %}
 
 {% block topbar_actions %}
-    {{ f.topbar_option('Distritos', url_for('edictos.list_distritos'), 'fas fa-sitemap') }}
+    {{ f.topbar_option('Distritos', url_for('sentencias.list_distritos'), 'fas fa-sitemap') }}
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Buscar Edictos') }}
+    {{ f.page('Buscar Versiones Públicas de Sentencias') }}
     <div class="container-fluid">
-        {% call f.form_tag('edictos.search', fid='edicto_search_form') %}
+        {% call f.form_tag('sentencias.search', fid='sentencia_search_form') %}
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.sentencia) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.fecha_desde) %}{% endcall %}
             {% call f.form_group(form.fecha_hasta) %}{% endcall %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
-            {% call f.form_group(form.numero_publicacion) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     </div>
