@@ -6,12 +6,14 @@ import os
 import re
 from datetime import datetime, date
 from pathlib import Path
+import csv
 
+#
 from dateutil.tz import tzlocal
 from google.cloud import storage
 from hashids import Hashids
 from rq import get_current_job
-from lib.safe_string import safe_string
+from lib.safe_string import safe_string, safe_expediente
 
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -30,6 +32,7 @@ app = create_app()
 app.app_context().push()
 
 SUBDIRECTORIO = "Glosas"
+METADATOS_CSV = "seed/glosas-metadatos.csv"
 
 
 def set_task_progress(progress: int, mensaje: str = None):
@@ -89,7 +92,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         return set_task_error("La autoridad no tiene directorio para glosas")
     bitacora.info("- Autoridad %s", autoridad.clave)
 
-    # Consultar las glosas (activos e inactivos) y elaborar lista de archivos
+    # Consultar las glosas (activos e inactivos)
     glosas = Glosa.query.filter(Glosa.autoridad == autoridad).all()
     total_en_bd = len(glosas)
     bitacora.info("- Tiene %d registros en la base de datos", total_en_bd)
@@ -105,13 +108,47 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     bitacora.info("- Tiene %d archivos en el depósito", total_en_deposito)
 
     # Precompilar expresión regular para "NO" letras y digitos
-    letras_digitos_regex = re.compile("[^0-9a-zA-Z]+")
+    # letras_digitos_regex = re.compile("[^0-9a-zA-Z]+")
 
     # Precompilar expresión regular para hashid
-    hashid_regexp = re.compile("[0-9a-zA-Z]{8}")
+    # hashid_regexp = re.compile("[0-9a-zA-Z]{8}")
 
     # Para descifrar los hash ids
-    hashids = Hashids(salt=os.environ.get("SALT", "Esta es una muy mala cadena aleatoria"), min_length=8)
+    # hashids = Hashids(salt=os.environ.get("SALT", "Esta es una muy mala cadena aleatoria"), min_length=8)
+
+    # Cargar metadatos de los archivos guardados en un CSV
+    metadatos_csv_ruta = Path(METADATOS_CSV)
+    if not metadatos_csv_ruta.exists():
+        return set_task_error(f"AVISO: {metadatos_csv_ruta.name} no se encontró.")
+    if not metadatos_csv_ruta.is_file():
+        return set_task_error(f"AVISO: {metadatos_csv_ruta.name} no es un archivo.")
+    metadatos = {}
+    contador_metadatos = 0
+    with open(metadatos_csv_ruta, encoding="utf8") as puntero:
+        rows = csv.DictReader(puntero)
+        for row in rows:
+            archivo_str = row["archivo"].strip()
+            try:
+                fecha = datetime.strptime(row["fecha"].strip(), "%Y-%m-%d").date()
+            except ValueError as error:
+                bitacora.warning("! METADATO INCORRECTO %s", str(error))
+                continue
+            try:
+                expediente_str = safe_expediente(row["expediente"].strip())
+            except (IndexError, ValueError):
+                expediente_str = ""
+            if row["tipo_juicio"].strip() in Glosa.TIPOS_JUICIOS:
+                tipo_juicio_str = row["tipo_juicio"].strip()
+            else:
+                tipo_juicio_str = "ND"
+            metadatos[archivo_str] = {
+                "fecha": fecha,
+                "expediente": expediente_str,
+                "tipo_juicio": tipo_juicio_str,
+            }
+            contador_metadatos += 1
+            if contador_metadatos % 100:
+                bitacora.info("  Van %d metadatos", contador_metadatos)
 
     # Iniciar la tarea y contadores
     set_task_progress(0)
@@ -138,79 +175,21 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
             contador_presentes += 1
             continue
 
-        # A partir de aquí tenemos un archivo que no está en la base de datos
-        # El nombre del archivo para una glosa debe ser como
-        # AAAA-MM-DD-TIPO-EEEE-EEEE-DESCRIPCION-BLA-BLA-IDHASED.pdf
-
-        # Separar elementos del nombre del archivo
-        nombre_sin_extension = ruta.name[:-4]
-        elementos = re.sub(letras_digitos_regex, "-", nombre_sin_extension).strip("-").split("-")
-
-        # Tomar la fecha
-        try:
-            ano = int(elementos[0])
-            mes = int(elementos[1])
-            dia = int(elementos[2])
-            fecha = date(ano, mes, dia)
-        except (IndexError, ValueError):
-            bitacora.warning("X Fecha incorrecta: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Descartar fechas en el futuro o muy en el pasado
-        if not limite_dt <= datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            bitacora.warning("X Fecha fuera de rango: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Tomar el tipo de juicio
-        try:
-            if elementos[3] in Glosa.TIPOS_JUICIOS:
-                tipo_juicio = elementos[3]
-            else:
-                tipo_juicio = "ND"
-        except IndexError:
-            bitacora.warning("X Tipo de juicio incorrecto: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Tomar el expediente
-        try:
-            numero = int(elementos[4])
-            ano = int(elementos[5])
-            expediente = str(numero) + "/" + str(ano)
-        except (IndexError, ValueError):
-            bitacora.warning("X Expediente incorrecto: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Tomar la descripción, sin el hash del id de estar presente
-        if len(elementos) > 6:
-            if re.match(hashid_regexp, elementos[-1]) is None:
-                descripcion = safe_string(" ".join(elementos[6:]))
-            else:
-                decodificado = hashids.decode(elementos[-1])
-                if isinstance(decodificado, tuple) and len(decodificado) > 0:
-                    descripcion = safe_string(" ".join(elementos[6:-1]))
-                else:
-                    descripcion = safe_string(" ".join(elementos[6:]))
-        else:
-            descripcion = "SIN DESCRIPCION"
-
         # Insertar
-        tiempo_local = blob.time_created.astimezone(tzlocal())
-        Glosa(
-            creado=tiempo_local,
-            modificado=tiempo_local,
-            autoridad=autoridad,
-            fecha=fecha,
-            tipo_juicio=tipo_juicio,
-            descripcion=descripcion,
-            expediente=expediente,
-            archivo=ruta.name,
-            url=blob.public_url,
-        ).save()
-        contador_insertados += 1
+        if ruta.name in metadatos:
+            glosa = Glosa(
+                autoridad=autoridad,
+                fecha=metadatos[ruta.name]["fecha"],
+                tipo_juicio=metadatos[ruta.name]["tipo_juicio"],
+                descripcion="SIN DESCRIPCION",
+                expediente=metadatos[ruta.name]["expediente"],
+                archivo=ruta.name,
+                url=blob.public_url,
+            )  # .save()
+            bitacora.info("- %s", repr(glosa))
+            contador_insertados += 1
+        else:
+            bitacora.warning("! SIN METADATOS %s", ruta.name)
 
     # Los registros que no se encontraron serán dados de baja
     contador_borrados = 0
