@@ -244,7 +244,7 @@ def new():
         glosa.url = url
         glosa.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         flash(f"Glosa {glosa.descripcion} guardada.", "success")
         return redirect(url_for("glosas.detail", glosa_id=glosa.id))
 
@@ -350,7 +350,7 @@ def new_for_autoridad(autoridad_id):
         glosa.url = url
         glosa.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         flash(f"Glosa {glosa.descripcion} guardada.", "success")
         return redirect(url_for("glosas.detail", glosa_id=glosa.id))
 

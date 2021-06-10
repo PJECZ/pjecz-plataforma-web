@@ -270,7 +270,7 @@ def new():
         edicto.url = url
         edicto.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         flash(f"Edicto {edicto.archivo} guardado.", "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
 
@@ -386,7 +386,7 @@ def new_for_autoridad(autoridad_id):
         edicto.url = url
         edicto.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         flash(f"Edicto {edicto.archivo} guardado.", "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
 

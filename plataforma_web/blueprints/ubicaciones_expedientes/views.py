@@ -151,6 +151,8 @@ def new():
             ubicacion=form.ubicacion.data,
         )
         ubicacion_expediente.save()
+
+        # Mostrar mensaje de éxito e ir al detalle
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
 
@@ -198,13 +200,15 @@ def new_for_autoridad(autoridad_id):
             ubicacion=form.ubicacion.data,
         )
         ubicacion_expediente.save()
+
+        # Mostrar mensaje de éxito e ir al detalle
         flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
 
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    return render_template("ubicaciones_expedientes/new.jinja2", form=form, autoridad=autoridad)
+    return render_template("ubicaciones_expedientes/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)

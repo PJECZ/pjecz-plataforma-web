@@ -236,7 +236,7 @@ def new():
         lista_de_acuerdo.url = url
         lista_de_acuerdo.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         if anterior_borrada:
             flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} reemplazada.", "success")
         else:
@@ -341,7 +341,7 @@ def new_for_autoridad(autoridad_id):
         lista_de_acuerdo.url = url
         lista_de_acuerdo.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         if anterior_borrada:
             flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} reemplazada.", "success")
         else:

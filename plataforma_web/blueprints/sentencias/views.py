@@ -261,7 +261,7 @@ def new():
         sentencia.url = url
         sentencia.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         flash(f"Sentencia {sentencia.archivo} guardada.", "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
 
@@ -371,7 +371,7 @@ def new_for_autoridad(autoridad_id):
         sentencia.url = url
         sentencia.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         flash(f"Sentencia {sentencia.archivo} guardada.", "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
 
