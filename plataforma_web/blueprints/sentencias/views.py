@@ -137,12 +137,21 @@ def search():
     form_search = SentenciaSearchForm()
     if form_search.validate_on_submit():
         mostrar_resultados = True
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
+
+        # Los administradores pueden buscar en todas las autoridades
+        if current_user.can_admin("sentencias"):
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+        else:
+            autoridad = Autoridad.query.get(current_user.autoridad)
         consulta = Sentencia.query.filter(Sentencia.autoridad == autoridad)
+
+        # Fecha
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Sentencia.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Sentencia.fecha <= form_search.fecha_hasta.data)
+
+        # Sentencia
         try:
             sentencia = safe_sentencia(form_search.sentencia.data)
             if sentencia != "":
@@ -150,6 +159,8 @@ def search():
         except (IndexError, ValueError):
             flash("La sentencia es incorrecta.", "warning")
             mostrar_resultados = False
+
+        # Expediente
         try:
             expediente = safe_expediente(form_search.expediente.data)
             if expediente != "":
@@ -157,12 +168,18 @@ def search():
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Mostrar resultados
         if mostrar_resultados:
             consulta = consulta.order_by(Sentencia.fecha.desc()).limit(100).all()
             return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("sentencias/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+    # Los administradores pueden buscar en todas las autoridades
+    if current_user.can_admin("sentencias"):
+        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+        return render_template("sentencias/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+    return render_template("sentencias/search.jinja2", form=form_search)
 
 
 @sentencias.route("/sentencias/nuevo", methods=["GET", "POST"])

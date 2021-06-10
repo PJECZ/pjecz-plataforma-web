@@ -137,15 +137,26 @@ def search():
     form_search = EdictoSearchForm()
     if form_search.validate_on_submit():
         mostrar_resultados = True
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
+
+        # Los administradores pueden buscar en todas las autoridades
+        if current_user.can_admin("edictos"):
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+        else:
+            autoridad = Autoridad.query.get(current_user.autoridad)
         consulta = Edicto.query.filter(Edicto.autoridad == autoridad)
+
+        # Fecha
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Edicto.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Edicto.fecha <= form_search.fecha_hasta.data)
+
+        # Descripción
         descripcion = safe_string(form_search.descripcion.data)
         if descripcion != "":
             consulta = consulta.filter(Edicto.descripcion.like(f"%{descripcion}%"))
+
+        # Expediente
         try:
             expediente = safe_expediente(form_search.expediente.data)
             if expediente != "":
@@ -153,6 +164,8 @@ def search():
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Número de publicación
         try:
             numero_publicacion = safe_numero_publicacion(form_search.numero_publicacion.data)
             if numero_publicacion != "":
@@ -160,12 +173,18 @@ def search():
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Mostrar resultados
         if mostrar_resultados:
             consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
             return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("edictos/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+    # Los administradores pueden buscar en todas las autoridades
+    if current_user.can_admin("edictos"):
+        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+        return render_template("edictos/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+    return render_template("edictos/search.jinja2", form=form_search)
 
 
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])

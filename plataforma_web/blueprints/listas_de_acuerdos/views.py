@@ -136,17 +136,30 @@ def search():
     """Buscar Lista de Acuerdos"""
     form_search = ListaDeAcuerdoSearchForm()
     if form_search.validate_on_submit():
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
+
+        # Los administradores pueden buscar en todas las autoridades
+        if current_user.can_admin("listas_de_acuerdos"):
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+        else:
+            autoridad = Autoridad.query.get(current_user.autoridad)
         consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad)
+
+        # Fecha
         if form_search.fecha_desde.data:
             consulta = consulta.filter(ListaDeAcuerdo.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
+
+        # Mostrar resultados
         consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("listas_de_acuerdos/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+    # Los administradores pueden buscar en todas las autoridades
+    if current_user.can_admin("listas_de_acuerdos"):
+        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+        return render_template("listas_de_acuerdos/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+    return render_template("listas_de_acuerdos/search.jinja2", form=form_search)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])

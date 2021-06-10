@@ -100,20 +100,33 @@ def search():
     form_search = UbicacionExpedienteSearchForm()
     if form_search.validate_on_submit():
         mostrar_resultados = True
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
+
+        # Los administradores pueden buscar en todas las autoridades
+        if current_user.can_admin("sentencias"):
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+        else:
+            autoridad = Autoridad.query.get(current_user.autoridad)
         consulta = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad)
+
+        # Expediente
         try:
             expediente = safe_expediente(form_search.expediente.data)
             consulta = consulta.filter(UbicacionExpediente.expediente == expediente)
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Mostrar resultados
         if mostrar_resultados:
             consulta = consulta.order_by(UbicacionExpediente.creado.desc()).limit(100).all()
             return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("ubicaciones_expedientes/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+    # Los administradores pueden buscar en todas las autoridades
+    if current_user.can_admin("sentencias"):
+        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+        return render_template("ubicaciones_expedientes/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+    return render_template("ubicaciones_expedientes/search.jinja2", form=form_search)
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo", methods=["GET", "POST"])
