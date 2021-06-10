@@ -1,7 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/list.jinja2' as list with context %}
 
-{% block title %}Ubicaciones de Expedientes{% endblock %}
+{% block title %}Todas las Ubicaciones de Expedientes{% endblock %}
 
 {% block topbar_actions %}
     {{ list.topbar_option_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
@@ -13,15 +13,15 @@
         {% endif %}
     {% else %}
         {% if current_user.can_edit('ubicaciones_expedientes') %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
         {% endif %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Ubicaciones de Expedientes') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Ubicaciones de Expedientes inactivos') }}{% endif %}
+    {% if estatus == 'A' %}{{ list.page('Todas las Ubicaciones de Expedientes') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Todas las Ubicaciones de Expedientes inactivas') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="ubicaciones_expedientes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

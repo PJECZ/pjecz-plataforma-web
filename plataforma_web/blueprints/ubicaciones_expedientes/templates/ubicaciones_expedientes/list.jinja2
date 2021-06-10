@@ -1,7 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/list.jinja2' as list with context %}
 
-{% block title %}Ubicacion de Expedientes{% endblock %}
+{% block title %}Ubicaciones de Expedientes{% endblock %}
 
 {% block topbar_actions %}
     {{ list.topbar_option_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
@@ -15,9 +15,9 @@
             {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_admin('ubicaciones_expedientes') %}
-            {{ list.topbar_option_upload('Nueva Ubicación de Expedientes', url_for('ubicaciones_expedientes.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {{ list.topbar_option_new('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new_for_autoridad', autoridad_id=autoridad.id)) }}
         {% elif current_user.can_insert('ubicaciones_expedientes') and current_user.autoridad_id == autoridad.id %}
-            {{ list.topbar_option_upload('Nueva Ubicación de Expedientes', url_for('ubicaciones_expedientes.new')) }}
+            {{ list.topbar_option_new('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new')) }}
         {% endif %}
     {% endif %}
 {% endblock %}
@@ -25,13 +25,13 @@
 {% block content %}
     {% if autoridad %}
         {% call list.page_breadcrumb(autoridad.descripcion) %}
-            {{ list.page_breadcrumb_item('Ubicacion de Expedientes', link=url_for('ubicaciones_expedientes.list_active')) }}
+            {{ list.page_breadcrumb_item('Ubicaciones de Expedientes', link=url_for('ubicaciones_expedientes.list_active')) }}
             {{ list.page_breadcrumb_item('Distritos', link=url_for('ubicaciones_expedientes.list_distritos')) }}
             {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('ubicaciones_expedientes.list_autoridades', distrito_id=autoridad.distrito_id)) }}
         {% endcall %}
     {% else %}
-        {% if estatus == 'A'%}{{ list.page('Ubicacion de Expedientes') }}{% endif %}
-        {% if estatus == 'B'%}{{ list.page('Ubicacion de Expedientes inactivas') }}{% endif %}
+        {% if estatus == 'A'%}{{ list.page('Ubicaciones de Expedientes') }}{% endif %}
+        {% if estatus == 'B'%}{{ list.page('Ubicaciones de Expedientes inactivas') }}{% endif %}
     {% endif %}
     <div class="container-fluid">
         {% call list.card() %}

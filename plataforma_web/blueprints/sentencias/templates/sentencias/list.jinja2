@@ -33,8 +33,8 @@
             {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('sentencias.list_autoridades', distrito_id=autoridad.distrito_id)) }}
         {% endcall %}
     {% else %}
-        {% if estatus == 'A'%}{{ list.page('V.P. Sentencias') }}{% endif %}
-        {% if estatus == 'B'%}{{ list.page('V.P. Sentencias inactivas') }}{% endif %}
+        {% if estatus == 'A'%}{{ list.page('Versiones Públicas de Sentencias') }}{% endif %}
+        {% if estatus == 'B'%}{{ list.page('Versiones Públicas de Sentencias inactivas') }}{% endif %}
     {% endif %}
     <div class="container-fluid">
         {% call list.card() %}
