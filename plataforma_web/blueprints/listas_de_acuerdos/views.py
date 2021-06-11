@@ -9,17 +9,17 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_string
+from lib.safe_string import safe_message, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
-
-from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.distritos.models import Distrito
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
@@ -251,9 +251,11 @@ def new():
 
         # Mostrar mensaje de éxito e ir al detalle
         if anterior_borrada:
-            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} reemplazada.", "success")
+            mensaje = safe_message(f"Nueva Lista de Acuerdos del {lista_de_acuerdo.fecha} de {autoridad.clave}")
         else:
-            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} guardada.", "success")
+            mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {lista_de_acuerdo.fecha} de {autoridad.clave}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
 
     # Prellenado de los campos
@@ -356,9 +358,11 @@ def new_for_autoridad(autoridad_id):
 
         # Mostrar mensaje de éxito e ir al detalle
         if anterior_borrada:
-            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} reemplazada.", "success")
+            mensaje = safe_message(f"Nueva Lista de Acuerdos del {lista_de_acuerdo.fecha} de {autoridad.clave}")
         else:
-            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} guardada.", "success")
+            mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {lista_de_acuerdo.fecha} de {autoridad.clave}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
 
     # Prellenado de los campos

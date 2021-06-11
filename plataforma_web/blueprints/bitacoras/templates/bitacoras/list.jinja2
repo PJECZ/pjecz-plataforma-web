@@ -10,8 +10,8 @@
             <table id="bitacoras_datatable" class="table">
                 <thead>
                     <tr>
-                        <th>Tiempo</th>
-                        <th>Usuario</th>
+                        <th>Tiempos</th>
+                        <th>Usuarios e-mail</th>
                         <th>Descripción</th>
                     </tr>
                 </thead>
@@ -19,7 +19,7 @@
                     {% for bitacora in bitacoras %}
                     <tr>
                         <td>{{ bitacora.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td>{{ bitacora.usuario.nombre }}</td>
+                        <td>{{ bitacora.usuario.email }}</td>
                         <td>{{ bitacora.descripcion }}</td>
                     </tr>
                     {% endfor %}

@@ -9,17 +9,17 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_string, safe_expediente, safe_numero_publicacion
+from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm
 from plataforma_web.blueprints.edictos.models import Edicto
-
-from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.distritos.models import Distrito
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
@@ -290,7 +290,9 @@ def new():
         edicto.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        flash(f"Edicto {edicto.archivo} guardado.", "success")
+        mensaje = safe_message(f"Nuevo Edicto {edicto.archivo} de {autoridad.clave}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
 
     # Prellenado de los campos
@@ -406,7 +408,9 @@ def new_for_autoridad(autoridad_id):
         edicto.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        flash(f"Edicto {edicto.archivo} guardado.", "success")
+        mensaje = safe_message(f"Nuevo Edicto {edicto.archivo} de {autoridad.clave}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
 
     # Prellenado de los campos

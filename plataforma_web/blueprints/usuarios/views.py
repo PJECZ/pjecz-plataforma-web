@@ -8,11 +8,13 @@ from flask_login import current_user, login_required, login_user, logout_user
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
 from plataforma_web.extensions import pwd_context
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew, UsuarioFormEdit, CambiarContrasenaForm, UsuarioSearchForm

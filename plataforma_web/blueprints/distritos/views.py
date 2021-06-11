@@ -2,10 +2,13 @@
 Distritos, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
+from lib.safe_string import safe_message
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.forms import DistritoForm
@@ -49,12 +52,15 @@ def new():
     """ Nuevo Distrito """
     form = DistritoForm()
     if form.validate_on_submit():
+        nombre = form.nombre.data.strip()
         distrito = Distrito(
-            nombre=form.nombre.data.strip(),
+            nombre=nombre,
             es_distrito_judicial=form.es_distrito_judicial.data,
         )
         distrito.save()
-        flash(f"Distrito {distrito.nombre} guardado.", "success")
+        mensaje = safe_message(f"Nuevo Distrito {nombre}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("distritos.detail", distrito_id=distrito.id))
     return render_template("distritos/new.jinja2", form=form)
 

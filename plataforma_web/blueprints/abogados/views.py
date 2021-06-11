@@ -2,13 +2,15 @@
 Abogados, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
+from lib.safe_string import safe_string, safe_message
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.abogados.models import Abogado
 from plataforma_web.blueprints.abogados.forms import AbogadoForm, AbogadoSearchForm
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 
 abogados = Blueprint("abogados", __name__, template_folder="templates")
 
@@ -72,14 +74,17 @@ def new():
     """ Nuevo Abogado """
     form = AbogadoForm()
     if form.validate_on_submit():
+        nombre = safe_string(form.nombre.data)
         abogado = Abogado(
             numero=safe_string(form.numero.data),
-            nombre=safe_string(form.nombre.data),
+            nombre=nombre,
             libro=safe_string(form.libro.data),
             fecha=form.fecha.data,
         )
         abogado.save()
-        flash(f"Abogado {abogado.nombre} guardado.", "success")
+        mensaje = safe_message(f"Nuevo Abogado registrado {nombre}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("abogados.detail", abogado_id=abogado.id))
     return render_template("abogados/new.jinja2", form=form)
 

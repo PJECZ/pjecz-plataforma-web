@@ -2,11 +2,13 @@
 Peritos, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
+from lib.safe_string import safe_message, safe_string
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-from lib.safe_string import safe_string
 
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.peritos.models import Perito
 from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
 
@@ -66,10 +68,13 @@ def new():
     """Nuevo Perito"""
     form = PeritoForm()
     if form.validate_on_submit():
+        distrito=form.distrito.data
+        tipo=form.tipo.data
+        nombre=safe_string(form.nombre.data)
         perito = Perito(
-            distrito=form.distrito.data,
-            tipo=form.tipo.data,
-            nombre=safe_string(form.nombre.data),
+            distrito=distrito,
+            tipo=tipo,
+            nombre=nombre,
             domicilio=safe_string(form.domicilio.data),
             telefono_fijo=safe_string(form.telefono_fijo.data),
             telefono_celular=safe_string(form.telefono_celular.data),
@@ -78,7 +83,9 @@ def new():
             notas=safe_string(form.notas.data),
         )
         perito.save()
-        flash(f"Perito {perito.nombre} guardado.", "success")
+        mensaje = safe_message(f"Nueva Perito {perito.nombre}, {tipo} en {distrito.nombre}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("peritos.detail", perito_id=perito.id))
     return render_template("peritos/new.jinja2", form=form)
 
