@@ -83,7 +83,7 @@ def new():
             notas=safe_string(form.notas.data),
         )
         perito.save()
-        mensaje = safe_message(f"Nueva Perito {perito.nombre}, {tipo} en {distrito.nombre}")
+        mensaje = safe_message(f"Nueva Perito {perito.nombre}, tipo {tipo} en {distrito.nombre}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("peritos.detail", perito_id=perito.id))

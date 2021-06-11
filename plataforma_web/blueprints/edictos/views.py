@@ -261,8 +261,8 @@ def new():
         edicto.save()
 
         # Elaborar nombre del archivo
-        elementos = []
-        elementos.append(fecha.strftime("%Y-%m-%d"))
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        elementos = [fecha_str]
         if expediente != "":
             elementos.append(expediente.replace("/", "-"))
         if numero_publicacion != "":
@@ -290,7 +290,13 @@ def new():
         edicto.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nuevo Edicto {archivo_str} de {autoridad.clave}")
+        piezas = ["Nuevo Edicto"]
+        if expediente != "":
+            piezas.append(f"expediente {expediente},")
+        if numero_publicacion != "":
+            piezas.append(f"No. {numero_publicacion},")
+        piezas.append(f"fecha {fecha_str} de {autoridad.clave}")
+        mensaje = safe_message(" ".join(piezas))
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))
@@ -379,8 +385,8 @@ def new_for_autoridad(autoridad_id):
         edicto.save()
 
         # Elaborar nombre del archivo
-        elementos = []
-        elementos.append(fecha.strftime("%Y-%m-%d"))
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        elementos = [fecha_str]
         if expediente != "":
             elementos.append(expediente.replace("/", "-"))
         if numero_publicacion != "":
@@ -408,7 +414,13 @@ def new_for_autoridad(autoridad_id):
         edicto.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nuevo Edicto {edicto.archivo} de {autoridad.clave}")
+        piezas = ["Nuevo Edicto"]
+        if expediente != "":
+            piezas.append(f"expediente {expediente},")
+        if numero_publicacion != "":
+            piezas.append(f"No. {numero_publicacion},")
+        piezas.append(f"fecha {fecha_str} de {autoridad.clave}")
+        mensaje = safe_message(" ".join(piezas))
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))

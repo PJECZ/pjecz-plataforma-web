@@ -279,7 +279,7 @@ def new():
         sentencia.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Sentencia {sentencia.archivo} de {autoridad.clave}")
+        mensaje = safe_message(f"Nueva Sentencia {sentencia_input}, expediente {expediente_str}, fecha {fecha_str} de {autoridad.clave}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
@@ -391,7 +391,7 @@ def new_for_autoridad(autoridad_id):
         sentencia.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Sentencia {archivo_str} de {autoridad.clave}")
+        mensaje = safe_message(f"Nueva Sentencia {sentencia_input}, expediente {expediente_str}, fecha {fecha_str} de {autoridad.clave}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))

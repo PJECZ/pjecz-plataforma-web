@@ -125,7 +125,7 @@ def search():
     if current_user.can_admin("sentencias"):
         distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
         autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-        return render_template("ubicaciones_expedientes/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+        return render_template("ubicaciones_expedientes/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
     return render_template("ubicaciones_expedientes/search.jinja2", form=form_search)
 
 
@@ -169,7 +169,7 @@ def new():
         ubicacion_expediente.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Ubicación de Expedientes {expediente} en {ubicacion} de {autoridad.clave}")
+        mensaje = safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
@@ -223,7 +223,7 @@ def new_for_autoridad(autoridad_id):
         ubicacion_expediente.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Ubicación de Expedientes {expediente} en {ubicacion} de {autoridad.clave}")
+        mensaje = safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
@@ -232,6 +232,7 @@ def new_for_autoridad(autoridad_id):
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     return render_template("ubicaciones_expedientes/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)

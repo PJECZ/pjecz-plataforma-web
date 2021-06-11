@@ -245,7 +245,7 @@ def new():
         glosa.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Glosa {glosa.archivo} de {autoridad.clave}")
+        mensaje = safe_message(f"Nueva Glosa del expediente {expediente_str}, tipo {tipo_juicio}, fecha {fecha_str} de {autoridad.clave}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("glosas.detail", glosa_id=glosa.id))
@@ -353,7 +353,7 @@ def new_for_autoridad(autoridad_id):
         glosa.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Glosa {archivo_str} de {autoridad.clave}")
+        mensaje = safe_message(f"Nueva Glosa del expediente {expediente_str}, tipo {tipo_juicio}, fecha {fecha_str} de {autoridad.clave}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("glosas.detail", glosa_id=glosa.id))

@@ -74,15 +74,16 @@ def new():
     """ Nuevo Abogado """
     form = AbogadoForm()
     if form.validate_on_submit():
+        numero = safe_string(form.numero.data)
         nombre = safe_string(form.nombre.data)
         abogado = Abogado(
-            numero=safe_string(form.numero.data),
+            numero=numero,
             nombre=nombre,
             libro=safe_string(form.libro.data),
             fecha=form.fecha.data,
         )
         abogado.save()
-        mensaje = safe_message(f"Nuevo Abogado registrado {nombre}")
+        mensaje = safe_message(f"Nuevo Abogado registrado {nombre} con número {numero}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("abogados.detail", abogado_id=abogado.id))
