@@ -358,9 +358,9 @@ def new_for_autoridad(autoridad_id):
 
         # Mostrar mensaje de éxito e ir al detalle
         if anterior_borrada:
-            mensaje = safe_message(f"Nueva Lista de Acuerdos del {lista_de_acuerdo.fecha} de {autoridad.clave}")
+            mensaje = safe_message(f"Nueva Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
         else:
-            mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {lista_de_acuerdo.fecha} de {autoridad.clave}")
+            mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))

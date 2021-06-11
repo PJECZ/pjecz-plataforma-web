@@ -9,7 +9,7 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_expediente, safe_sentencia
+from lib.safe_string import safe_expediente, safe_message, safe_sentencia
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -279,7 +279,9 @@ def new():
         sentencia.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        flash(f"Sentencia {sentencia.archivo} guardada.", "success")
+        mensaje = safe_message(f"Nueva Sentencia {sentencia.archivo} de {autoridad.clave}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
 
     # Prellenado de los campos
@@ -389,7 +391,9 @@ def new_for_autoridad(autoridad_id):
         sentencia.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        flash(f"Sentencia {sentencia.archivo} guardada.", "success")
+        mensaje = safe_message(f"Nueva Sentencia {archivo_str} de {autoridad.clave}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
 
     # Prellenado de los campos

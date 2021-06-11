@@ -290,7 +290,7 @@ def new():
         edicto.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nuevo Edicto {edicto.archivo} de {autoridad.clave}")
+        mensaje = safe_message(f"Nuevo Edicto {archivo_str} de {autoridad.clave}")
         Bitacora(usuario=current_user, descripcion=mensaje).save()
         flash(mensaje, "success")
         return redirect(url_for("edictos.detail", edicto_id=edicto.id))

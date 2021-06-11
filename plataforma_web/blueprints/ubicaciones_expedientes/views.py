@@ -3,7 +3,7 @@ Ubicacion de Expedientes, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
-from lib.safe_string import safe_expediente
+from lib.safe_string import safe_expediente, safe_message
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -157,16 +157,21 @@ def new():
             flash("El expediente es incorrecto.", "warning")
             return render_template("ubicaciones_expedientes/new.jinja2", form=form)
 
+        # Ubicación
+        ubicacion = form.ubicacion.data
+
         # Insertar registro
         ubicacion_expediente = UbicacionExpediente(
             autoridad=autoridad,
             expediente=expediente,
-            ubicacion=form.ubicacion.data,
+            ubicacion=ubicacion,
         )
         ubicacion_expediente.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
+        mensaje = safe_message(f"Nueva Ubicación de Expedientes {expediente} en {ubicacion} de {autoridad.clave}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
 
     # Prellenado del formulario
@@ -206,16 +211,21 @@ def new_for_autoridad(autoridad_id):
             flash("El expediente es incorrecto.", "warning")
             return render_template("ubicaciones_expedientes/new.jinja2", form=form)
 
+        # Ubicación
+        ubicacion = form.ubicacion.data
+
         # Insertar registro
         ubicacion_expediente = UbicacionExpediente(
             autoridad=autoridad,
             expediente=expediente,
-            ubicacion=form.ubicacion.data,
+            ubicacion=ubicacion,
         )
         ubicacion_expediente.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
+        mensaje = safe_message(f"Nueva Ubicación de Expedientes {expediente} en {ubicacion} de {autoridad.clave}")
+        Bitacora(usuario=current_user, descripcion=mensaje).save()
+        flash(mensaje, "success")
         return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
 
     # Prellenado del formulario
