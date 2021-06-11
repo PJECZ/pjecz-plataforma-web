@@ -10,17 +10,19 @@
 {% block content %}
     {{ f.page('Subir Glosa') }}
     <div class="container-fluid">
-        {% call f.form_tag_multipart('glosas.new', fid='glosa_form') %}
-            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
-            {% call f.drop_zone_wrapper() %}
-                {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
+        {% call f.card() %}
+            {% call f.form_tag_multipart('glosas.new', fid='glosa_form') %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.fecha) %}{% endcall %}
+                {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+                {% call f.form_group(form.descripcion) %}{% endcall %}
+                {% call f.form_group(form.expediente) %}{% endcall %}
+                {% call f.drop_zone_wrapper() %}
+                    {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
+                {% endcall %}
+                {{ form.guardar() }}
             {% endcall %}
-            {{ form.guardar() }}
         {% endcall %}
     </div>
 {% endblock %}

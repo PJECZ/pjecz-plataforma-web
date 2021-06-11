@@ -5,19 +5,21 @@
 
 {% block content %}
     {{ f.page('Editar ' + perito.nombre) }}
-        <div class="container-fluid">
-        {% set form_kwargs = {'perito_id': perito.id} %}
-        {% call f.form_tag('peritos.edit', fid='perito_form', **form_kwargs) %}
-            {% call f.form_group(form.nombre) %}{% endcall %}
-            {% call f.form_group(form.distrito) %}{% endcall %}
-            {% call f.form_group(form.tipo) %}{% endcall %}
-            {% call f.form_group(form.domicilio) %}{% endcall %}
-            {% call f.form_group(form.telefono_fijo) %}{% endcall %}
-            {% call f.form_group(form.telefono_celular) %}{% endcall %}
-            {% call f.form_group(form.email) %}{% endcall %}
-            {% call f.form_group(form.renovacion) %}{% endcall %}
-            {% call f.form_group(form.notas) %}{% endcall %}
-            {{ form.guardar() }}
+    <div class="container-fluid">
+        {% call f.card() %}
+            {% set form_kwargs = {'perito_id': perito.id} %}
+            {% call f.form_tag('peritos.edit', fid='perito_form', **form_kwargs) %}
+                {% call f.form_group(form.nombre) %}{% endcall %}
+                {% call f.form_group(form.distrito) %}{% endcall %}
+                {% call f.form_group(form.tipo) %}{% endcall %}
+                {% call f.form_group(form.domicilio) %}{% endcall %}
+                {% call f.form_group(form.telefono_fijo) %}{% endcall %}
+                {% call f.form_group(form.telefono_celular) %}{% endcall %}
+                {% call f.form_group(form.email) %}{% endcall %}
+                {% call f.form_group(form.renovacion) %}{% endcall %}
+                {% call f.form_group(form.notas) %}{% endcall %}
+                {{ form.guardar() }}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

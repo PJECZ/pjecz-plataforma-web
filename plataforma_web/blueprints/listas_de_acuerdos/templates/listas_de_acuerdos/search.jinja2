@@ -10,12 +10,14 @@
 {% block content %}
     {{ f.page('Buscar Listas de Acuerdos') }}
     <div class="container-fluid">
-        {% call f.form_tag('listas_de_acuerdos.search', fid='listas_de_acuerdos_form') %}
-            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.fecha_desde) %}{% endcall %}
-            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
-            {{ form.buscar() }}
+        {% call f.card() %}
+            {% call f.form_tag('listas_de_acuerdos.search', fid='listas_de_acuerdos_form') %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.fecha_desde) %}{% endcall %}
+                {% call f.form_group(form.fecha_hasta) %}{% endcall %}
+                {{ form.buscar() }}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

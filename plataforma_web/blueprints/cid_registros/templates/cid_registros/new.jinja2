@@ -6,10 +6,12 @@
 {% block content %}
     {{ f.page('Nuevo Registro') }}
     <div class="container-fluid">
-        {% call f.form_tag('cid_registros.new', fid='cid_registro_form') %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.formato) %}{% endcall %}
-            {{ form.guardar() }}
+        {% call f.card() %}
+            {% call f.form_tag('cid_registros.new', fid='cid_registro_form') %}
+                {% call f.form_group(form.descripcion) %}{% endcall %}
+                {% call f.form_group(form.formato) %}{% endcall %}
+                {{ form.guardar() }}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

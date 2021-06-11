@@ -1,11 +1,10 @@
 """
 Edictos, modelos
 
-La tabla edictos tiene opcionales los campos expediente y numero_publicacion.
-
-Flask con SQLAlchemy están creando las columnas que permiten valores NULOS.
-
-Una columna string con valor nulo ¡¡¡truena con FastAPI!!!
+- La tabla edictos tiene los campos expediente y numero_publicacion como varchar
+- SOLUCIONADO: Estas columnas (permitían) valores NULOS
+- Una columna string con valor nulo ¡¡¡truena con FastAPI!!!
+- En MariaDB se arregla ingresando con mysql y ejecutando...
 
     DESCRIBE edictos;
 
@@ -46,8 +45,8 @@ class Edicto(db.Model, UniversalMixin):
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
-    expediente = db.Column(db.String(16), nullable=False, default="")
-    numero_publicacion = db.Column(db.String(16), nullable=False, default="")
+    expediente = db.Column(db.String(16), nullable=False, default="", server_default="")  # No debe ser nulo, puede ser texto vacío por defecto ""
+    numero_publicacion = db.Column(db.String(16), nullable=False, default="", server_default="")  # No debe ser nulo, puede ser texto vacío por defecto ""
     archivo = db.Column(db.String(256))
     url = db.Column(db.String(512))
 
