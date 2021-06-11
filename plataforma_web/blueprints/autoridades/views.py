@@ -92,10 +92,15 @@ def new():
             es_notaria=es_notaria,
         )
         autoridad.save()
-        mensaje = safe_message(f"Nueva Autoridad {autoridad.clave}")
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+        bitacora = Bitacora(
+            modulo="AUTORIDADES",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Autoridad {autoridad.clave}"),
+            url=url_for("autoridades.detail", autoridad_id=autoridad.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     return render_template("autoridades/new.jinja2", form=form)
 
 

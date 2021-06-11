@@ -296,10 +296,15 @@ def new():
         if numero_publicacion != "":
             piezas.append(f"No. {numero_publicacion},")
         piezas.append(f"fecha {fecha_str} de {autoridad.clave}")
-        mensaje = safe_message(" ".join(piezas))
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+        bitacora = Bitacora(
+            modulo="EDICTOS",
+            usuario=current_user,
+            descripcion=safe_message(" ".join(piezas)),
+            url=url_for("edictos.detail", edicto_id=edicto.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -420,10 +425,15 @@ def new_for_autoridad(autoridad_id):
         if numero_publicacion != "":
             piezas.append(f"No. {numero_publicacion},")
         piezas.append(f"fecha {fecha_str} de {autoridad.clave}")
-        mensaje = safe_message(" ".join(piezas))
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+        bitacora = Bitacora(
+            modulo="EDICTOS",
+            usuario=current_user,
+            descripcion=safe_message(" ".join(piezas)),
+            url=url_for("edictos.detail", edicto_id=edicto.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre

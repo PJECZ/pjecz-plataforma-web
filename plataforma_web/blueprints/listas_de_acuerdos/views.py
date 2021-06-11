@@ -254,9 +254,15 @@ def new():
             mensaje = safe_message(f"Nueva Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
         else:
             mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+        bitacora = Bitacora(
+            modulo="LISTAS DE ACUERDOS",
+            usuario=current_user,
+            descripcion=mensaje,
+            url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -361,9 +367,15 @@ def new_for_autoridad(autoridad_id):
             mensaje = safe_message(f"Nueva Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
         else:
             mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+        bitacora = Bitacora(
+            modulo="LISTAS DE ACUERDOS",
+            usuario=current_user,
+            descripcion=mensaje,
+            url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre

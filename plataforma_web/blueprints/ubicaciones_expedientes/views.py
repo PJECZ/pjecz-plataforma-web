@@ -169,10 +169,15 @@ def new():
         ubicacion_expediente.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}")
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
+        bitacora = Bitacora(
+            modulo="UBICACIONES DE EXPEDIENTES",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}"),
+            url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
@@ -223,10 +228,15 @@ def new_for_autoridad(autoridad_id):
         ubicacion_expediente.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}")
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
+        bitacora = Bitacora(
+            modulo="UBICACIONES DE EXPEDIENTES",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}"),
+            url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre

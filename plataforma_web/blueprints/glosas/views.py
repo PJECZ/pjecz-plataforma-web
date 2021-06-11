@@ -245,10 +245,15 @@ def new():
         glosa.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Glosa del expediente {expediente_str}, tipo {tipo_juicio}, fecha {fecha_str} de {autoridad.clave}")
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+        bitacora = Bitacora(
+            modulo="GLOSAS",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Glosa del expediente {expediente_str}, tipo {tipo_juicio}, fecha {fecha_str} de {autoridad.clave}"),
+            url=url_for("glosas.detail", glosa_id=glosa.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -353,10 +358,15 @@ def new_for_autoridad(autoridad_id):
         glosa.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        mensaje = safe_message(f"Nueva Glosa del expediente {expediente_str}, tipo {tipo_juicio}, fecha {fecha_str} de {autoridad.clave}")
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+        bitacora = Bitacora(
+            modulo="GLOSAS",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Glosa del expediente {expediente_str}, tipo {tipo_juicio}, fecha {fecha_str} de {autoridad.clave}"),
+            url=url_for("glosas.detail", glosa_id=glosa.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre

@@ -68,9 +68,9 @@ def new():
     """Nuevo Perito"""
     form = PeritoForm()
     if form.validate_on_submit():
-        distrito=form.distrito.data
-        tipo=form.tipo.data
-        nombre=safe_string(form.nombre.data)
+        distrito = form.distrito.data
+        tipo = form.tipo.data
+        nombre = safe_string(form.nombre.data)
         perito = Perito(
             distrito=distrito,
             tipo=tipo,
@@ -83,10 +83,15 @@ def new():
             notas=safe_string(form.notas.data),
         )
         perito.save()
-        mensaje = safe_message(f"Nueva Perito {perito.nombre}, tipo {tipo} en {distrito.nombre}")
-        Bitacora(usuario=current_user, descripcion=mensaje).save()
-        flash(mensaje, "success")
-        return redirect(url_for("peritos.detail", perito_id=perito.id))
+        bitacora = Bitacora(
+            modulo="PERITOS",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Perito {perito.nombre}, tipo {tipo} en {distrito.nombre}"),
+            url=url_for("peritos.detail", perito_id=perito.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     return render_template("peritos/new.jinja2", form=form)
 
 

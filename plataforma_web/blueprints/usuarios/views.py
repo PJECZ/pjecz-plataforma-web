@@ -8,6 +8,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
+from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
@@ -189,8 +190,15 @@ def new():
             contrasena=contrasena,
         )
         usuario.save()
-        flash(f"Usuario {usuario.nombre} guardado.", "success")
-        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
+        bitacora = Bitacora(
+            modulo="USUARIOS",
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo Usuario {usuario.nombre} con e-mail {usuario.email} y rol {usuario.rol.nombre}"),
+            url=url_for("usuarios.detail", usuario_id=usuario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("usuarios/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)
