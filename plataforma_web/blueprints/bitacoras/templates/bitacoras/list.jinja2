@@ -19,8 +19,8 @@
                     {% for bitacora in bitacoras %}
                     <tr>
                         <td>{{ bitacora.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td>{{ bitacora.usuario.email }}</td>
-                        <td>{{ bitacora.descripcion }}</td>
+                        <td><a href="{{ url_for('usuarios.detail', usuario_id=bitacora.usuario_id) }}" target="_blank">{{ bitacora.usuario.email }} <i class="fas fa-external-link-alt"></a></td>
+                        <td><a href="{{ bitacora.url }}" target="_blank">{{ bitacora.descripcion }} <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
