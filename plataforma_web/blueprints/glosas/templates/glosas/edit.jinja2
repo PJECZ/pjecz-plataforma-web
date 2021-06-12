@@ -5,14 +5,16 @@
 
 {% block content %}
     {{ f.page('Editar ' + glosa.descripcion) }}
-        <div class="container-fluid">
-        {% set form_kwargs = {'glosa_id': glosa.id} %}
-        {% call f.form_tag('glosas.edit', fid='glosa_form', **form_kwargs) %}
-            {% call f.form_group(form.fecha, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
-            {{ form.guardar() }}
+    <div class="container-fluid">
+        {% call f.card() %}
+            {% set form_kwargs = {'glosa_id': glosa.id} %}
+            {% call f.form_tag('glosas.edit', fid='glosa_form', **form_kwargs) %}
+                {% call f.form_group(form.fecha, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+                {% call f.form_group(form.descripcion) %}{% endcall %}
+                {% call f.form_group(form.expediente) %}{% endcall %}
+                {{ form.guardar() }}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

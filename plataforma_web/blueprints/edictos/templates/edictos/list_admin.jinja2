@@ -1,7 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/list.jinja2' as list with context %}
 
-{% block title %}Edictos{% endblock %}
+{% block title %}Todos los Edictos{% endblock %}
 
 {% block topbar_actions %}
     {{ list.topbar_option_search('Buscar', url_for('edictos.search')) }}
@@ -26,8 +26,8 @@
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A'%}{{ list.page('Edictos') }}{% endif %}
-    {% if estatus == 'B'%}{{ list.page('Edictos inactivos') }}{% endif %}
+    {% if estatus == 'A'%}{{ list.page('Todos los Edictos') }}{% endif %}
+    {% if estatus == 'B'%}{{ list.page('Todos los Edictos inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

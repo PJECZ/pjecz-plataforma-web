@@ -6,10 +6,12 @@
 {% block content %}
     {{ f.page('Buscar Transcripciones') }}
     <div class="container-fluid">
-        {% call f.form_tag('transcripciones.search', fid='transcripciones_search_form') %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
-            {{ form.buscar() }}
+        {% call f.card() %}
+            {% call f.form_tag('transcripciones.search', fid='transcripciones_search_form') %}
+                {% call f.form_group(form.descripcion) %}{% endcall %}
+                {% call f.form_group(form.expediente) %}{% endcall %}
+                {{ form.buscar() }}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

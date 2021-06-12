@@ -1,23 +1,19 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Buscar Glosas{% endblock %}
-
-{% block topbar_actions %}
-    {{ f.topbar_option('Distritos', url_for('glosas.list_distritos'), 'fas fa-sitemap') }}
-{% endblock %}
+{% block title %}Nuevo Ubicacion de Expediente{% endblock %}
 
 {% block content %}
-    {{ f.page('Buscar Glosas') }}
+    {{ f.page('Nueva Ubicacion de Expediente para ' + autoridad.clave) }}
     <div class="container-fluid">
         {% call f.card() %}
-            {% call f.form_tag('glosas.search', fid='glosa_search_form') %}
+            {% set form_kwargs = {'autoridad_id': autoridad.id} %}
+            {% call f.form_tag('ubicaciones_expedientes.new', fid='ubicacion_expediente_form', **form_kwargs) %}
                 {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.tipo_juicio) %}{% endcall %}
-                {% call f.form_group(form.descripcion) %}{% endcall %}
                 {% call f.form_group(form.expediente) %}{% endcall %}
-                {{ form.buscar() }}
+                {% call f.form_group(form.ubicacion) %}{% endcall %}
+                {{ form.guardar() }}
             {% endcall %}
         {% endcall %}
     </div>

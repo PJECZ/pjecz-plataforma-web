@@ -9,17 +9,17 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_expediente, safe_sentencia
+from lib.safe_string import safe_expediente, safe_message, safe_sentencia
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.sentencias.forms import SentenciaNewForm, SentenciaEditForm, SentenciaSearchForm
 from plataforma_web.blueprints.sentencias.models import Sentencia
-
-from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.distritos.models import Distrito
 
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
@@ -137,12 +137,21 @@ def search():
     form_search = SentenciaSearchForm()
     if form_search.validate_on_submit():
         mostrar_resultados = True
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
+
+        # Los administradores pueden buscar en todas las autoridades
+        if current_user.can_admin("sentencias"):
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+        else:
+            autoridad = Autoridad.query.get(current_user.autoridad)
         consulta = Sentencia.query.filter(Sentencia.autoridad == autoridad)
+
+        # Fecha
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Sentencia.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Sentencia.fecha <= form_search.fecha_hasta.data)
+
+        # Sentencia
         try:
             sentencia = safe_sentencia(form_search.sentencia.data)
             if sentencia != "":
@@ -150,6 +159,8 @@ def search():
         except (IndexError, ValueError):
             flash("La sentencia es incorrecta.", "warning")
             mostrar_resultados = False
+
+        # Expediente
         try:
             expediente = safe_expediente(form_search.expediente.data)
             if expediente != "":
@@ -157,12 +168,18 @@ def search():
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Mostrar resultados
         if mostrar_resultados:
             consulta = consulta.order_by(Sentencia.fecha.desc()).limit(100).all()
             return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("sentencias/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+    # Los administradores pueden buscar en todas las autoridades
+    if current_user.can_admin("sentencias"):
+        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+        return render_template("sentencias/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+    return render_template("sentencias/search.jinja2", form=form_search)
 
 
 @sentencias.route("/sentencias/nuevo", methods=["GET", "POST"])
@@ -261,9 +278,16 @@ def new():
         sentencia.url = url
         sentencia.save()
 
-        # Mostrar mensaje de éxito y detalle
-        flash(f"Sentencia {sentencia.archivo} guardada.", "success")
-        return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
+        # Mostrar mensaje de éxito e ir al detalle
+        bitacora = Bitacora(
+            modulo="SENTENCIAS",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Sentencia {sentencia_input}, expediente {expediente_str}, fecha {fecha_str} de {autoridad.clave}"),
+            url=url_for("sentencias.detail", sentencia_id=sentencia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -371,9 +395,16 @@ def new_for_autoridad(autoridad_id):
         sentencia.url = url
         sentencia.save()
 
-        # Mostrar mensaje de éxito y detalle
-        flash(f"Sentencia {sentencia.archivo} guardada.", "success")
-        return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
+        # Mostrar mensaje de éxito e ir al detalle
+        bitacora = Bitacora(
+            modulo="SENTENCIAS",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Sentencia {sentencia_input}, expediente {expediente_str}, fecha {fecha_str} de {autoridad.clave}"),
+            url=url_for("sentencias.detail", sentencia_id=sentencia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre

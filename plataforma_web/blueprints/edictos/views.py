@@ -9,17 +9,17 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_string, safe_expediente, safe_numero_publicacion
+from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm
 from plataforma_web.blueprints.edictos.models import Edicto
-
-from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.distritos.models import Distrito
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
@@ -137,15 +137,26 @@ def search():
     form_search = EdictoSearchForm()
     if form_search.validate_on_submit():
         mostrar_resultados = True
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
+
+        # Los administradores pueden buscar en todas las autoridades
+        if current_user.can_admin("edictos"):
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+        else:
+            autoridad = Autoridad.query.get(current_user.autoridad)
         consulta = Edicto.query.filter(Edicto.autoridad == autoridad)
+
+        # Fecha
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Edicto.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Edicto.fecha <= form_search.fecha_hasta.data)
+
+        # Descripción
         descripcion = safe_string(form_search.descripcion.data)
         if descripcion != "":
             consulta = consulta.filter(Edicto.descripcion.like(f"%{descripcion}%"))
+
+        # Expediente
         try:
             expediente = safe_expediente(form_search.expediente.data)
             if expediente != "":
@@ -153,6 +164,8 @@ def search():
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Número de publicación
         try:
             numero_publicacion = safe_numero_publicacion(form_search.numero_publicacion.data)
             if numero_publicacion != "":
@@ -160,12 +173,18 @@ def search():
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Mostrar resultados
         if mostrar_resultados:
             consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
             return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("edictos/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+    # Los administradores pueden buscar en todas las autoridades
+    if current_user.can_admin("edictos"):
+        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+        return render_template("edictos/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+    return render_template("edictos/search.jinja2", form=form_search)
 
 
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])
@@ -242,8 +261,8 @@ def new():
         edicto.save()
 
         # Elaborar nombre del archivo
-        elementos = []
-        elementos.append(fecha.strftime("%Y-%m-%d"))
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        elementos = [fecha_str]
         if expediente != "":
             elementos.append(expediente.replace("/", "-"))
         if numero_publicacion != "":
@@ -270,9 +289,22 @@ def new():
         edicto.url = url
         edicto.save()
 
-        # Mostrar mensaje de éxito y detalle
-        flash(f"Edicto {edicto.archivo} guardado.", "success")
-        return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+        # Mostrar mensaje de éxito e ir al detalle
+        piezas = ["Nuevo Edicto"]
+        if expediente != "":
+            piezas.append(f"expediente {expediente},")
+        if numero_publicacion != "":
+            piezas.append(f"No. {numero_publicacion},")
+        piezas.append(f"fecha {fecha_str} de {autoridad.clave}")
+        bitacora = Bitacora(
+            modulo="EDICTOS",
+            usuario=current_user,
+            descripcion=safe_message(" ".join(piezas)),
+            url=url_for("edictos.detail", edicto_id=edicto.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -358,8 +390,8 @@ def new_for_autoridad(autoridad_id):
         edicto.save()
 
         # Elaborar nombre del archivo
-        elementos = []
-        elementos.append(fecha.strftime("%Y-%m-%d"))
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        elementos = [fecha_str]
         if expediente != "":
             elementos.append(expediente.replace("/", "-"))
         if numero_publicacion != "":
@@ -386,9 +418,22 @@ def new_for_autoridad(autoridad_id):
         edicto.url = url
         edicto.save()
 
-        # Mostrar mensaje de éxito y detalle
-        flash(f"Edicto {edicto.archivo} guardado.", "success")
-        return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+        # Mostrar mensaje de éxito e ir al detalle
+        piezas = ["Nuevo Edicto"]
+        if expediente != "":
+            piezas.append(f"expediente {expediente},")
+        if numero_publicacion != "":
+            piezas.append(f"No. {numero_publicacion},")
+        piezas.append(f"fecha {fecha_str} de {autoridad.clave}")
+        bitacora = Bitacora(
+            modulo="EDICTOS",
+            usuario=current_user,
+            descripcion=safe_message(" ".join(piezas)),
+            url=url_for("edictos.detail", edicto_id=edicto.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre

@@ -10,15 +10,17 @@
 {% block content %}
     {{ f.page('Subir Lista de Acuerdos') }}
     <div class="container-fluid">
-        {% call f.form_tag_multipart('listas_de_acuerdos.new', fid='lista_de_acuerdo_form') %}
-            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.fecha, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.descripcion, readonly=true) %}{% endcall %}
-            {% call f.drop_zone_wrapper() %}
-                {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
+        {% call f.card() %}
+            {% call f.form_tag_multipart('listas_de_acuerdos.new', fid='lista_de_acuerdo_form') %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.fecha, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.descripcion, readonly=true) %}{% endcall %}
+                {% call f.drop_zone_wrapper() %}
+                    {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
+                {% endcall %}
+                {{ form.guardar() }}
             {% endcall %}
-            {{ form.guardar() }}
         {% endcall %}
     </div>
 {% endblock %}
