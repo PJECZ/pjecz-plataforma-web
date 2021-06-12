@@ -2,12 +2,15 @@
 Autoridades, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
+from lib.safe_string import safe_message
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm, AutoridadSearchForm
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 autoridades = Blueprint("autoridades", __name__, template_folder="templates")
@@ -71,9 +74,10 @@ def new():
         directorio_edictos = ""
         directorio_glosas = ""
         if es_jurisdiccional:
-            directorio_listas_de_acuerdos = f"{distrito.nombre}/{form.descripcion.data.strip()}"
-            directorio_sentencias = directorio_listas_de_acuerdos
-            directorio_glosas = directorio_listas_de_acuerdos
+            directorio_edictos = f"{distrito.nombre}/{form.descripcion.data.strip()}"
+            directorio_listas_de_acuerdos = directorio_edictos
+            directorio_sentencias = directorio_edictos
+            directorio_glosas = directorio_edictos
         if es_notaria:
             directorio_edictos = f"{distrito.nombre}/{form.descripcion.data.strip()}"
         autoridad = Autoridad(
@@ -88,8 +92,15 @@ def new():
             es_notaria=es_notaria,
         )
         autoridad.save()
-        flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
-        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+        bitacora = Bitacora(
+            modulo="AUTORIDADES",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Autoridad {autoridad.clave}"),
+            url=url_for("autoridades.detail", autoridad_id=autoridad.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     return render_template("autoridades/new.jinja2", form=form)
 
 

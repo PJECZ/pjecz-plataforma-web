@@ -1,19 +1,19 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Buscar Glosas{% endblock %}
+{% block title %}Buscar en todas las Glosas{% endblock %}
 
 {% block topbar_actions %}
     {{ f.topbar_option('Distritos', url_for('glosas.list_distritos'), 'fas fa-sitemap') }}
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Buscar Glosas') }}
+    {{ f.page('Buscar en todas las Glosas') }}
     <div class="container-fluid">
         {% call f.card() %}
             {% call f.form_tag('glosas.search', fid='glosa_search_form') %}
-                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.distrito) %}{% endcall %}
+                {% call f.form_group(form.autoridad) %}{% endcall %}
                 {% call f.form_group(form.tipo_juicio) %}{% endcall %}
                 {% call f.form_group(form.descripcion) %}{% endcall %}
                 {% call f.form_group(form.expediente) %}{% endcall %}
@@ -21,4 +21,8 @@
             {% endcall %}
         {% endcall %}
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_distrito_autoridad(distritos, autoridades) }}
 {% endblock %}

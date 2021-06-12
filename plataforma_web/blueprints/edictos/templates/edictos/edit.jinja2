@@ -5,7 +5,7 @@
 
 {% block content %}
     {{ f.page('Editar ' + edicto.descripcion) }}
-        <div class="container-fluid">
+    <div class="container-fluid">
         {% set form_kwargs = {'edicto_id': edicto.id} %}
         {% call f.form_tag('edictos.edit', fid='edicto_form', **form_kwargs) %}
             {% call f.form_group(form.fecha) %}{% endcall %}

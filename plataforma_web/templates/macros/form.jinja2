@@ -29,8 +29,9 @@
 {%- endmacro -%}
 
 {# card sirve para contener algo; es necesario para que las tablas sean usables en pantallas chicas #}}
-{%- macro card() -%}
+{%- macro card(title='') -%}
     <div class="card">
+        {% if title %}<h5>{{ title }}{% endif %}</h5>
         <div class="card-body">
             {{ caller () }}
         </div>
@@ -66,21 +67,34 @@
 
 {# un campo del formulario #}
 {%- macro field(f, css_class='form-control') -%}
-    {% if f.type == 'HiddenField' %}
-        {{ f.description }}
-        {{ f(class=css_class, **kwargs) }}
-    {% elif f.type == 'DateField'  %}
-        {{ f(class=css_class, type='date', **kwargs) }}
-    {% elif f.type == 'DateTimeField'  %}
-        {{ f(class=css_class, type='datetime', **kwargs) }}
-    {% else %}
-        {{ f(class=css_class, **kwargs) }}
-    {% endif %}
+    <div>
+        {% if f.type == 'HiddenField' %}
+            {{ f.description }}
+            {{ f(class=css_class, **kwargs) }}
+        {% elif f.type == 'DateField'  %}
+            {{ f(class=css_class, type='date', **kwargs) }}
+        {% elif f.type == 'DateTimeField'  %}
+            {{ f(class=css_class, type='datetime', **kwargs) }}
+        {% else %}
+            {{ f(class=css_class, **kwargs) }}
+        {% endif %}
+    </div>
 {%- endmacro -%}
 
 {# un campo de opción múltiple #}
 {%- macro checkbox_field(f) -%}
     {{ f(type='checkbox', **kwargs) }} {{ f.label }}
+{%- endmacro -%}
+
+{# un campo de radio #}
+{%- macro radios_fields(f) -%}
+    {{ field_label(f) }}
+    {% for subfield in f %}
+        <div class="form-check">
+            {{ subfield }}
+            <label class="form-check-label mb-0" for="{{ subfield.id }}">{{ subfield.label }}</label>
+        </div>
+    {% endfor %}
 {%- endmacro -%}
 
 {# un grupo de un formulario, con errores si los hay #}
@@ -91,6 +105,9 @@
     {% if f.type == 'BooleanField' %}
         <div class="checkbox {{ css_class }}">
         {{ checkbox_field(f, **kwargs) }}
+    {% elif f.type == 'RadioField' %}
+        <div class="form-group {{ css_class }}">
+        {{ radios_fields(f, **kwargs) }}
     {% else %}
         <div class="form-group {{ css_class }}">
         {{ field_label(f) }}
@@ -99,7 +116,7 @@
     {{ field_errors(f) }}
     {{ caller () }}
     </div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {# un formulario, que contiene un token CSRF y campos ocultos #}
 {%- macro form_tag(endpoint, fid='', css_class='', method='post') -%}

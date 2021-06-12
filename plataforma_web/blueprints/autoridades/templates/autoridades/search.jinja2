@@ -6,9 +6,11 @@
 {% block content %}
     {{ f.page('Buscar Autoridades') }}
     <div class="container-fluid">
-        {% call f.form_tag('autoridades.search', fid='autoridades_search_form') %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {{ form.buscar() }}
+        {% call f.card() %}
+            {% call f.form_tag('autoridades.search', fid='autoridades_search_form') %}
+                {% call f.form_group(form.descripcion) %}{% endcall %}
+                {{ form.buscar() }}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

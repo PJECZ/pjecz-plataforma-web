@@ -6,10 +6,12 @@
 {% block content %}
     {{ f.page('Nuevo Departamento') }}
     <div class="container-fluid">
-        {% call f.form_tag('distritos.new', fid='distrito_form') %}
-            {% call f.form_group(form.nombre) %}{% endcall %}
-            {% call f.form_group(form.es_distrito_judicial) %}{% endcall %}
-            {{ form.guardar() }}
+        {% call f.card() %}
+            {% call f.form_tag('distritos.new', fid='distrito_form') %}
+                {% call f.form_group(form.nombre) %}{% endcall %}
+                {% call f.form_group(form.es_distrito_judicial) %}{% endcall %}
+                {{ form.guardar() }}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

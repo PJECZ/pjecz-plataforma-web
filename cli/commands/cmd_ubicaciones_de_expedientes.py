@@ -15,6 +15,8 @@ from plataforma_web.extensions import db
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 
+from lib.safe_string import safe_expediente, safe_sentencia
+
 app = create_app()
 db.app = app
 
@@ -40,30 +42,38 @@ def alimentar(entrada_csv):
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+
             # Validar autoridad
             autoridad_str = row["autoridad"].strip()
             if autoridad_str == "":
-                click.echo("  Sin autoridad")
+                click.echo("! Sin autoridad")
                 continue
             try:
                 autoridad_id = int(autoridad_str)
             except ValueError:
-                click.echo(f"  No es válida la autoridad {autoridad_str}")
+                click.echo("! El ID de la autoridad no es un entero")
                 continue
             autoridad = Autoridad.query.get(autoridad_id)
             if autoridad is False:
-                click.echo(f"  No es válida la autoridad {autoridad_str}")
+                click.echo("! No existe la autoridad")
                 continue
+            if autoridad.es_jurisdiccional is False:
+                click.echo("! La autoridad no es jurisdiccional")
+                continue
+
             # Validar ubicación
             ubicacion = row["ubicacion"].strip()
             if not ubicacion in UbicacionExpediente.UBICACIONES.keys():
-                click.echo(f"  No es válida la ubicación {ubicacion}")
+                click.echo("! Ubicación no válida")
                 continue
+
             # Validar expediente
-            expediente = row["expediente"].strip()
-            if expediente == "":
-                click.echo("  Sin expediente")
+            try:
+                expediente = safe_expediente(row["expediente"].strip())
+            except (IndexError, ValueError):
+                click.echo("! Expediente no válido")
                 continue
+
             # Insertar
             datos = {
                 "autoridad": autoridad,
@@ -74,6 +84,7 @@ def alimentar(entrada_csv):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} ubicaciones de expedientes...")
+
     click.echo(f"{contador} ubicaciones de expedientes alimentadas.")
 
 

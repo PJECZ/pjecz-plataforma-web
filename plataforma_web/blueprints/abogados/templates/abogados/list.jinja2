@@ -15,8 +15,8 @@
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Abogados') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Abogados inactivos') }}{% endif %}
+    {% if estatus == 'A' %}{{ list.page('Abogados registrados') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Abogados registrados inactivos') }}{% endif %}
     <div class="container-fluid">
         {% call list.card() %}
             <table id="abogados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">

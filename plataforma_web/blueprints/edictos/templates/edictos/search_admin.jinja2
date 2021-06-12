@@ -1,19 +1,19 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Buscar Edictos{% endblock %}
+{% block title %}Buscar en todos los Edictos{% endblock %}
 
 {% block topbar_actions %}
     {{ f.topbar_option('Distritos', url_for('edictos.list_distritos'), 'fas fa-sitemap') }}
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Buscar Edictos') }}
+    {{ f.page('Buscar en todos los Edictos') }}
     <div class="container-fluid">
         {% call f.card() %}
             {% call f.form_tag('edictos.search', fid='edicto_search_form') %}
-                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.distrito) %}{% endcall %}
+                {% call f.form_group(form.autoridad) %}{% endcall %}
                 {% call f.form_group(form.fecha_desde) %}{% endcall %}
                 {% call f.form_group(form.fecha_hasta) %}{% endcall %}
                 {% call f.form_group(form.descripcion) %}{% endcall %}
@@ -23,4 +23,8 @@
             {% endcall %}
         {% endcall %}
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_distrito_autoridad(distritos, autoridades) }}
 {% endblock %}

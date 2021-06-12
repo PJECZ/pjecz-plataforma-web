@@ -6,9 +6,13 @@
 {% block content %}
     {{ f.page('Buscar Ubicación de Expediente') }}
     <div class="container-fluid">
-        {% call f.form_tag('ubicaciones_expedientes.search', fid='ubicacion_expediente_search_form') %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
-            {{ form.buscar() }}
+        {% call f.card() %}
+            {% call f.form_tag('ubicaciones_expedientes.search', fid='ubicacion_expediente_search_form') %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.expediente) %}{% endcall %}
+                {{ form.buscar() }}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

@@ -9,17 +9,17 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_string, safe_expediente
+from lib.safe_string import safe_expediente, safe_message, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.glosas.forms import GlosaEditForm, GlosaNewForm, GlosaSearchForm
 from plataforma_web.blueprints.glosas.models import Glosa
-
-from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.distritos.models import Distrito
 
 glosas = Blueprint("glosas", __name__, template_folder="templates")
 
@@ -244,9 +244,16 @@ def new():
         glosa.url = url
         glosa.save()
 
-        # Mostrar mensaje de éxito y detalle
-        flash(f"Glosa {glosa.descripcion} guardada.", "success")
-        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+        # Mostrar mensaje de éxito e ir al detalle
+        bitacora = Bitacora(
+            modulo="GLOSAS",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Glosa del expediente {expediente_str}, tipo {tipo_juicio}, fecha {fecha_str} de {autoridad.clave}"),
+            url=url_for("glosas.detail", glosa_id=glosa.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -350,9 +357,16 @@ def new_for_autoridad(autoridad_id):
         glosa.url = url
         glosa.save()
 
-        # Mostrar mensaje de éxito y detalle
-        flash(f"Glosa {glosa.descripcion} guardada.", "success")
-        return redirect(url_for("glosas.detail", glosa_id=glosa.id))
+        # Mostrar mensaje de éxito e ir al detalle
+        bitacora = Bitacora(
+            modulo="GLOSAS",
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Glosa del expediente {expediente_str}, tipo {tipo_juicio}, fecha {fecha_str} de {autoridad.clave}"),
+            url=url_for("glosas.detail", glosa_id=glosa.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre

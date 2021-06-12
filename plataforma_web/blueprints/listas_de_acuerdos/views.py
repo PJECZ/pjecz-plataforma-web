@@ -9,17 +9,17 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_string
+from lib.safe_string import safe_message, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
-
-from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.distritos.models import Distrito
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
@@ -136,17 +136,30 @@ def search():
     """Buscar Lista de Acuerdos"""
     form_search = ListaDeAcuerdoSearchForm()
     if form_search.validate_on_submit():
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
+
+        # Los administradores pueden buscar en todas las autoridades
+        if current_user.can_admin("listas_de_acuerdos"):
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+        else:
+            autoridad = Autoridad.query.get(current_user.autoridad)
         consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad)
+
+        # Fecha
         if form_search.fecha_desde.data:
             consulta = consulta.filter(ListaDeAcuerdo.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
+
+        # Mostrar resultados
         consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("listas_de_acuerdos/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+    # Los administradores pueden buscar en todas las autoridades
+    if current_user.can_admin("listas_de_acuerdos"):
+        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+        return render_template("listas_de_acuerdos/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+    return render_template("listas_de_acuerdos/search.jinja2", form=form_search)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])
@@ -236,12 +249,20 @@ def new():
         lista_de_acuerdo.url = url
         lista_de_acuerdo.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         if anterior_borrada:
-            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} reemplazada.", "success")
+            mensaje = safe_message(f"Nueva Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
         else:
-            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} guardada.", "success")
-        return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+            mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
+        bitacora = Bitacora(
+            modulo="LISTAS DE ACUERDOS",
+            usuario=current_user,
+            descripcion=mensaje,
+            url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -341,12 +362,20 @@ def new_for_autoridad(autoridad_id):
         lista_de_acuerdo.url = url
         lista_de_acuerdo.save()
 
-        # Mostrar mensaje de éxito y detalle
+        # Mostrar mensaje de éxito e ir al detalle
         if anterior_borrada:
-            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} reemplazada.", "success")
+            mensaje = safe_message(f"Nueva Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
         else:
-            flash(f"Lista de Acuerdos del {lista_de_acuerdo.fecha} guardada.", "success")
-        return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+            mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
+        bitacora = Bitacora(
+            modulo="LISTAS DE ACUERDOS",
+            usuario=current_user,
+            descripcion=mensaje,
+            url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
