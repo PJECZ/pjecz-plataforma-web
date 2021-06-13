@@ -13,7 +13,7 @@ from plataforma_web.blueprints.abogados.forms import AbogadoForm, AbogadoSearchF
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 
 abogados = Blueprint("abogados", __name__, template_folder="templates")
-
+MODULO = "ABOGADOS"
 
 @abogados.before_request
 @login_required
@@ -84,9 +84,9 @@ def new():
         )
         abogado.save()
         bitacora = Bitacora(
-            modulo="ABOGADOS",
+            modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Abogado registrado {nombre} con número {numero}"),
+            descripcion=safe_message(f"Nuevo abogado registrado {nombre} con número {numero}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),
         )
         bitacora.save()
@@ -107,8 +107,15 @@ def edit(abogado_id):
         abogado.libro = safe_string(form.libro.data)
         abogado.fecha = form.fecha.data
         abogado.save()
-        flash(f"Abogado {abogado.nombre} guardado.", "success")
-        return redirect(url_for("abogados.detail", abogado_id=abogado.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Editado abogado registrado {abogado.nombre}'),
+            url=url_for('abogados.detail', abogado_id=abogado.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     form.numero.data = abogado.numero
     form.nombre.data = abogado.nombre
     form.libro.data = abogado.libro
@@ -123,7 +130,14 @@ def delete(abogado_id):
     abogado = Abogado.query.get_or_404(abogado_id)
     if abogado.estatus == "A":
         abogado.delete()
-        flash(f"Abogado {abogado.nombre} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Eliminado abogado registrado {abogado.nombre}'),
+            url=url_for('abogados.detail', abogado_id=abogado.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
     return redirect(url_for("abogados.detail", abogado_id=abogado_id))
 
 
@@ -134,5 +148,12 @@ def recover(abogado_id):
     abogado = Abogado.query.get_or_404(abogado_id)
     if abogado.estatus == "B":
         abogado.recover()
-        flash(f"Abogado {abogado.nombre} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Recuperado abogado registrado {abogado.nombre}'),
+            url=url_for('abogados.detail', abogado_id=abogado.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
     return redirect(url_for("abogados.detail", abogado_id=abogado_id))
