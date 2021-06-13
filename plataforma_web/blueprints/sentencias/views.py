@@ -23,6 +23,7 @@ from plataforma_web.blueprints.sentencias.models import Sentencia
 
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
+MODULO = "SENTENCIAS"
 SUBDIRECTORIO = "Sentencias"
 LIMITE_JUSTICIABLES_DIAS = 365
 LIMITE_ADMINISTRADORES_DIAS = 365
@@ -182,6 +183,18 @@ def search():
     return render_template("sentencias/search.jinja2", form=form_search)
 
 
+def new_success(sentencia):
+    """Mensaje de éxito en nueva sentencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Nueva sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
+        url=url_for("sentencias.detail", sentencia_id=sentencia.id),
+    )
+    bitacora.save()
+    return bitacora
+
+
 @sentencias.route("/sentencias/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
@@ -279,13 +292,7 @@ def new():
         sentencia.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        bitacora = Bitacora(
-            modulo="SENTENCIAS",
-            usuario=current_user,
-            descripcion=safe_message(f"Nueva Sentencia {sentencia_input}, expediente {expediente_str}, fecha {fecha_str} de {autoridad.clave}"),
-            url=url_for("sentencias.detail", sentencia_id=sentencia.id),
-        )
-        bitacora.save()
+        bitacora = new_success(sentencia)
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
@@ -396,13 +403,7 @@ def new_for_autoridad(autoridad_id):
         sentencia.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        bitacora = Bitacora(
-            modulo="SENTENCIAS",
-            usuario=current_user,
-            descripcion=safe_message(f"Nueva Sentencia {sentencia_input}, expediente {expediente_str}, fecha {fecha_str} de {autoridad.clave}"),
-            url=url_for("sentencias.detail", sentencia_id=sentencia.id),
-        )
-        bitacora.save()
+        bitacora = new_success(sentencia)
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
@@ -411,6 +412,18 @@ def new_for_autoridad(autoridad_id):
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
     return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+
+def edit_success(sentencia):
+    """Mensaje de éxito al editar una sentencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Editada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
+        url=url_for("sentencias.detail", sentencia_id=sentencia.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @sentencias.route("/sentencias/edicion/<int:sentencia_id>", methods=["GET", "POST"])
@@ -435,13 +448,26 @@ def edit(sentencia_id):
         sentencia.es_paridad_genero = form.es_paridad_genero.data
         if es_valido:
             sentencia.save()
-            flash(f"Sentencia {sentencia.archivo} guardada.", "success")
-            return redirect(url_for("sentencias.detail", sentencia_id=sentencia.id))
+            bitacora = edit_success(sentencia)
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.fecha.data = sentencia.fecha
     form.sentencia.data = sentencia.sentencia
     form.expediente.data = sentencia.expediente
     form.es_paridad_genero.data = sentencia.es_paridad_genero
     return render_template("sentencias/edit.jinja2", form=form, sentencia=sentencia)
+
+
+def delete_success(sentencia):
+    """Mensaje de éxito al eliminar una sentencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Eliminada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
+        url=url_for("sentencias.detail", sentencia_id=sentencia.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @sentencias.route("/sentencias/eliminar/<int:sentencia_id>")
@@ -455,18 +481,32 @@ def delete(sentencia_id):
         if current_user.can_admin("sentencias"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
                 sentencia.delete()
-                flash(f"Sentencia {sentencia.archivo} eliminada.", "success")
+                bitacora = delete_success(sentencia)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == sentencia.autoridad_id:
             if hoy_dt + datetime.timedelta(days=-LIMITE_JUSTICIABLES_DIAS) <= sentencia.creado:
                 sentencia.delete()
-                flash(f"Sentencia {sentencia.archivo} eliminada.", "success")
+                bitacora = delete_success(sentencia)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_JUSTICIABLES_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))
+
+
+def recover_success(sentencia):
+    """Mensaje de éxito al recuperar una sentencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Recuperada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
+        url=url_for("sentencias.detail", sentencia_id=sentencia.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @sentencias.route("/sentencias/recuperar/<int:sentencia_id>")
@@ -480,13 +520,15 @@ def recover(sentencia_id):
         if current_user.can_admin("sentencias"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
                 sentencia.recover()
-                flash(f"Sentencia {sentencia.archivo} recuperada.", "success")
+                bitacora = recover_success(sentencia)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == sentencia.autoridad_id:
             if hoy_dt + datetime.timedelta(days=-LIMITE_JUSTICIABLES_DIAS) <= sentencia.creado:
                 sentencia.recover()
-                flash(f"Sentencia {sentencia.archivo} recuperada.", "success")
+                bitacora = recover_success(sentencia)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_JUSTICIABLES_DIAS} días o más.", "warning")
         else:
