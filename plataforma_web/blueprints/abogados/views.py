@@ -74,11 +74,9 @@ def new():
     """Nuevo Abogado"""
     form = AbogadoForm()
     if form.validate_on_submit():
-        numero = safe_string(form.numero.data)
-        nombre = safe_string(form.nombre.data)
         abogado = Abogado(
-            numero=numero,
-            nombre=nombre,
+            numero=safe_string(form.numero.data),
+            nombre=safe_string(form.nombre.data),
             libro=safe_string(form.libro.data),
             fecha=form.fecha.data,
         )
@@ -86,7 +84,7 @@ def new():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo abogado registrado {nombre} con número {numero}"),
+            descripcion=safe_message(f"Nuevo abogado registrado {abogado.nombre} con número {abogado.numero}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),
         )
         bitacora.save()

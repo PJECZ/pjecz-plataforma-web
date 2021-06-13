@@ -24,6 +24,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 HTTP_REQUEST = google.auth.transport.requests.Request()
 
 usuarios = Blueprint("usuarios", __name__, template_folder="templates")
+MODULO = "USUARIOS"
 
 
 @usuarios.route("/login", methods=["GET", "POST"])
@@ -191,9 +192,9 @@ def new():
         )
         usuario.save()
         bitacora = Bitacora(
-            modulo="USUARIOS",
+            modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Usuario {usuario.nombre} con e-mail {usuario.email} y rol {usuario.rol.nombre}"),
+            descripcion=safe_message(f"Nuevo usuario {usuario.email}: {usuario.nombre} con rol {usuario.rol.nombre}"),
             url=url_for("usuarios.detail", usuario_id=usuario.id),
         )
         bitacora.save()
@@ -221,8 +222,15 @@ def edit(usuario_id):
             usuario.contrasena = pwd_context.hash(form.contrasena.data)
         usuario.rol = form.rol.data
         usuario.save()
-        flash(f"Usuario {usuario.nombre} guardado.", "success")
-        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Editado usuario {usuario.email}: {usuario.nombre} con rol {usuario.rol.nombre}'),
+            url=url_for('usuarios.detail', usuario_id=usuario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno
@@ -239,7 +247,15 @@ def delete(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus == "A":
         usuario.delete()
-        flash(f"Usuario {usuario.nombre} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Eliminado usuario {usuario.email}: {usuario.nombre}'),
+            url=url_for('usuarios.detail', usuario_id=usuario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))
 
 
@@ -250,5 +266,13 @@ def recover(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus == "B":
         usuario.recover()
-        flash(f"Usuario {usuario.nombre} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Recuperado usuario {usuario.email}: {usuario.nombre}'),
+            url=url_for('usuarios.detail', usuario_id=usuario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))

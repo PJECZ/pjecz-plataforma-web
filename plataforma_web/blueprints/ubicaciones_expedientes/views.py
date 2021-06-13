@@ -15,6 +15,7 @@ from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionEx
 from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm
 
 ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, template_folder="templates")
+MODULO = "UBICACIONES DE EXPEDIENTES"
 
 
 @ubicaciones_expedientes.before_request
@@ -170,7 +171,7 @@ def new():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo="UBICACIONES DE EXPEDIENTES",
+            modulo=MODULO,
             usuario=current_user,
             descripcion=safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}"),
             url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
@@ -227,11 +228,11 @@ def new_for_autoridad(autoridad_id):
         )
         ubicacion_expediente.save()
 
-        # Mostrar mensaje de éxito e ir al detalle
+        # Registrar en bitácoras e ir al detalle
         bitacora = Bitacora(
-            modulo="UBICACIONES DE EXPEDIENTES",
+            modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}"),
+            descripcion=safe_message(f"Nueva ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}"),
             url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
         )
         bitacora.save()
@@ -263,8 +264,17 @@ def edit(ubicacion_expediente_id):
         ubicacion_expediente.expediente = expediente
         ubicacion_expediente.ubicacion = form.ubicacion.data
         ubicacion_expediente.save()
-        flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
-        return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
+
+        # Registrar en bitácora e ir al detalle
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Editada ubicación de expediente {ubicacion_expediente.expediente} en {ubicacion_expediente.ubicacion}'),
+            url=url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
 
     # Prellenado del formulario
     form.expediente.data = ubicacion_expediente.expediente
@@ -279,7 +289,15 @@ def delete(ubicacion_expediente_id):
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "A":
         ubicacion_expediente.delete()
-        flash(f"Ubicacion de Expediente {ubicacion_expediente.expediente} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Eliminada ubicación de expediente {ubicacion_expediente.expediente}'),
+            url=url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente_id))
 
 
@@ -290,5 +308,13 @@ def recover(ubicacion_expediente_id):
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "B":
         ubicacion_expediente.recover()
-        flash(f"Ubicacion de Expediente {ubicacion_expediente.expediente} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Recuperada ubicación de expediente {ubicacion_expediente.expediente}'),
+            url=url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente_id))

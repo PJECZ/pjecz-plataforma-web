@@ -14,6 +14,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.forms import DistritoForm
 
 distritos = Blueprint("distritos", __name__, template_folder="templates")
+MODULO = "DISTRITOS"
 
 
 @distritos.before_request
@@ -52,16 +53,15 @@ def new():
     """Nuevo Distrito"""
     form = DistritoForm()
     if form.validate_on_submit():
-        nombre = form.nombre.data.strip()
         distrito = Distrito(
-            nombre=nombre,
+            nombre=form.nombre.data.strip(),
             es_distrito_judicial=form.es_distrito_judicial.data,
         )
         distrito.save()
         bitacora = Bitacora(
-            modulo="DISTRITOS",
+            modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Distrito {nombre}"),
+            descripcion=safe_message(f"Nuevo Distrito {distrito.nombre}"),
             url=url_for("distritos.detail", distrito_id=distrito.id),
         )
         bitacora.save()
@@ -80,8 +80,15 @@ def edit(distrito_id):
         distrito.nombre = form.nombre.data.strip()
         distrito.es_distrito_judicial = form.es_distrito_judicial.data
         distrito.save()
-        flash(f"Distrito {distrito.nombre} guardado.", "success")
-        return redirect(url_for("distritos.detail", distrito_id=distrito.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Editado distrito {distrito.nombre}'),
+            url=url_for('distritos.detail', distrito_id=distrito.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     form.nombre.data = distrito.nombre
     form.es_distrito_judicial.data = distrito.es_distrito_judicial
     return render_template("distritos/edit.jinja2", form=form, distrito=distrito)
@@ -94,7 +101,15 @@ def delete(distrito_id):
     distrito = Distrito.query.get_or_404(distrito_id)
     if distrito.estatus == "A":
         distrito.delete()
-        flash(f"Distrito {distrito.nombre} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Eliminado distrito {distrito.nombre}'),
+            url=url_for('distritos.detail', distrito_id=distrito.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     return redirect(url_for("distritos.detail", distrito_id=distrito_id))
 
 
@@ -105,5 +120,13 @@ def recover(distrito_id):
     distrito = Distrito.query.get_or_404(distrito_id)
     if distrito.estatus == "B":
         distrito.recover()
-        flash(f"Distrito {distrito.nombre} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Recuperado distrito {distrito.nombre}'),
+            url=url_for('distritos.detail', distrito_id=distrito.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     return redirect(url_for("distritos.detail", distrito_id=distrito_id))

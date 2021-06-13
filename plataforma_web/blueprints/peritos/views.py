@@ -69,13 +69,10 @@ def new():
     """Nuevo Perito"""
     form = PeritoForm()
     if form.validate_on_submit():
-        distrito = form.distrito.data
-        tipo = form.tipo.data
-        nombre = safe_string(form.nombre.data)
         perito = Perito(
-            distrito=distrito,
-            tipo=tipo,
-            nombre=nombre,
+            distrito=form.distrito.data,
+            tipo=form.tipo.data,
+            nombre=safe_string(form.nombre.data),
             domicilio=safe_string(form.domicilio.data),
             telefono_fijo=safe_string(form.telefono_fijo.data),
             telefono_celular=safe_string(form.telefono_celular.data),
@@ -87,7 +84,7 @@ def new():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nueva perito {perito.nombre}, tipo {tipo} en {distrito.nombre}"),
+            descripcion=safe_message(f"Nuevo perito {perito.nombre}, tipo {perito.tipo} en {perito.distrito.nombre}"),
             url=url_for("peritos.detail", perito_id=perito.id),
         )
         bitacora.save()
