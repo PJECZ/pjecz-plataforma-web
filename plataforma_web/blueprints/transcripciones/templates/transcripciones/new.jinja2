@@ -15,7 +15,7 @@
                 {% call f.form_group(form.descripcion) %}{% endcall %}
                 {% call f.form_group(form.expediente) %}{% endcall %}
                 {% call f.form_group(form.audio, class="dropzone") %}{% endcall %}
-                {{ form.guardar() }}
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
         {% endcall %}
     </div>

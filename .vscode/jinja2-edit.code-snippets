@@ -15,7 +15,7 @@
             "\t\t\t{% set form_kwargs = {'${2:instancia}_id': ${2:instancia}.id} %}",
             "\t\t\t{% call f.form_tag('${4:blueprint}.edit', fid='${2:instancia}_form', **form_kwargs) %}",
             "\t\t\t\t{% call f.form_group(form.${3:nombre_o_descripcion}) %}{% endcall %}",
-            "\t\t\t\t{{ form.guardar() }}",
+            "\t\t\t\t{% call f.form_group(form.guardar) %}{% endcall %}",
             "\t\t\t{% endcall %}",
             "\t\t{% endcall %}",
             "\t</div>",

@@ -18,7 +18,7 @@
                 {% call f.form_group(form.rol) %}{% endcall %}
                 {% call f.form_group(form.contrasena) %}{% endcall %}
                 {% call f.form_group(form.contrasena_repetir) %}{% endcall %}
-                {{ form.guardar() }}
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
         {% endcall %}
     </div>

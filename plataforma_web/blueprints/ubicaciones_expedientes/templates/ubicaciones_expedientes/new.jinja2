@@ -12,7 +12,7 @@
                 {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.expediente) %}{% endcall %}
                 {% call f.form_group(form.ubicacion) %}{% endcall %}
-                {{ form.guardar() }}
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
         {% endcall %}
     </div>
