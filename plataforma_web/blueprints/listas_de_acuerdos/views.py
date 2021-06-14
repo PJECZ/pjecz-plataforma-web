@@ -166,9 +166,9 @@ def search():
 def new_success(lista_de_acuerdo, anterior_borrada):
     """Mensaje de éxito en nueva lista de acuerdos"""
     if anterior_borrada:
-        mensaje = "Nueva "
-    else:
         mensaje = "Reemplazada "
+    else:
+        mensaje = "Nueva "
     mensaje = mensaje + f"lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"
     bitacora = Bitacora(
         modulo=MODULO,
