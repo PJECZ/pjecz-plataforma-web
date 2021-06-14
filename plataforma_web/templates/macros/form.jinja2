@@ -104,23 +104,36 @@
     {% if f.errors %}
         {% set css_class = css_class + ' has-error ' + kwargs.pop('class', '') %}
     {% endif %}
-    {% if f.type == 'BooleanField' %}
+    {% if f.type == 'FileField' %}
+        {{ field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+    {% elif f.type == 'BooleanField' %}
         <div class="checkbox {{ css_class }}">
         {{ checkbox_field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+        </div>
     {% elif f.type == 'RadioField' %}
         <div class="form-group {{ css_class }}">
         {{ radios_fields(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+        </div>
     {% elif f.type == 'SubmitField' %}
         <div class="form-group {{ css_class }}">
         {{ field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+        </div>
     {% else %}
         <div class="form-group {{ css_class }}">
         {{ field_label(f) }}
         {{ field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+        </div>
     {% endif %}
-    {{ field_errors(f) }}
-    {{ caller () }}
-    </div>
 {%- endmacro -%}
 
 {# un formulario, que contiene un token CSRF y campos ocultos #}
