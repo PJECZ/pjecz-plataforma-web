@@ -69,6 +69,8 @@ def new():
     if form.validate_on_submit():
         distrito = form.distrito.data
         es_jurisdiccional = form.es_jurisdiccional.data
+        es_juzgado_primera_instancia = form.es_juzgado_primera_instancia.data
+        es_pleno_sala = form.es_pleno_sala.data
         es_notaria = form.es_notaria.data
         directorio_listas_de_acuerdos = ""
         directorio_sentencias = ""
@@ -90,6 +92,8 @@ def new():
             directorio_edictos=directorio_edictos,
             directorio_glosas=directorio_glosas,
             es_jurisdiccional=es_jurisdiccional,
+            es_juzgado_primera_instancia=es_juzgado_primera_instancia,
+            es_pleno_sala=es_pleno_sala,
             es_notaria=es_notaria,
         )
         autoridad.save()
@@ -116,6 +120,9 @@ def edit(autoridad_id):
         autoridad.descripcion = form.descripcion.data.strip()
         autoridad.clave = form.clave.data.strip().upper()
         autoridad.es_jurisdiccional = form.es_jurisdiccional.data
+        autoridad.es_juzgado_primera_instancia = form.es_juzgado_primera_instancia.data
+        autoridad.es_pleno_sala = form.es_pleno_sala.data
+        autoridad.es_jurisdiccional = form.es_jurisdiccional.data
         autoridad.es_notaria = form.es_notaria.data
         autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data.strip()
         autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
@@ -135,6 +142,8 @@ def edit(autoridad_id):
     form.descripcion.data = autoridad.descripcion
     form.clave.data = autoridad.clave
     form.es_jurisdiccional.data = autoridad.es_jurisdiccional
+    form.es_juzgado_primera_instancia.data = autoridad.es_juzgado_primera_instancia
+    form.es_pleno_sala.data = autoridad.es_pleno_sala
     form.es_notaria.data = autoridad.es_notaria
     form.directorio_listas_de_acuerdos.data = autoridad.directorio_listas_de_acuerdos
     form.directorio_sentencias.data = autoridad.directorio_sentencias

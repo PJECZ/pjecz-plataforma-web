@@ -29,6 +29,7 @@
                             <th>Claves</th>
                             <th>Descripciones</th>
                             <th>Es jurisdiccional</th>
+                            <th>Es Notaría</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,6 +38,7 @@
                             <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
                             <td>{{ autoridad.descripcion }}</td>
                             <td>{% if autoridad.es_jurisdiccional %}Jurisdiccional{% endif %}</td>
+                            <td>{% if autoridad.es_notaria %}Notaría{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

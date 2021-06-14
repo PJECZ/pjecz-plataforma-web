@@ -18,10 +18,12 @@ class AutoridadNewForm(FlaskForm):
     """Formulario nueva Autoridad"""
 
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
-    descripcion = StringField("Autoridad", validators=[DataRequired(), Length(max=256)])
-    clave = StringField("Clave", validators=[DataRequired(), Length(max=16)])
-    es_jurisdiccional = BooleanField("Es jurisdiccional", validators=[Optional()])
-    es_notaria = BooleanField("Es notaría", validators=[Optional()])
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    clave = StringField("Clave (única)", validators=[DataRequired(), Length(max=16)])
+    es_jurisdiccional = BooleanField("Es Jurisdiccional (habilita edictos, listas de acuerdos, sentencias, ubicaciones de expedientes)", validators=[Optional()])
+    es_juzgado_primera_instancia = BooleanField("Es Juzgado de Primera Instancia (aparece en consultas por materia)", validators=[Optional()])
+    es_pleno_sala = BooleanField("Es Pleno o Sala (aparece en consultas al respecto)", validators=[Optional()])
+    es_notaria = BooleanField("Es Notaría (habilita edictos)", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
@@ -29,10 +31,12 @@ class AutoridadEditForm(FlaskForm):
     """Formulario modificar Autoridad"""
 
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
-    descripcion = StringField("Autoridad", validators=[DataRequired(), Length(max=256)])
-    clave = StringField("Clave", validators=[DataRequired(), Length(max=16)])
-    es_jurisdiccional = BooleanField("Es jurisdiccional", validators=[Optional()])
-    es_notaria = BooleanField("Es notaría", validators=[Optional()])
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    clave = StringField("Clave (única)", validators=[DataRequired(), Length(max=16)])
+    es_jurisdiccional = BooleanField("Es Jurisdiccional (habilita edictos, listas de acuerdos, sentencias, ubicaciones de expedientes)", validators=[Optional()])
+    es_juzgado_primera_instancia = BooleanField("Es Juzgado de Primera Instancia (aparece en consultas por materia)", validators=[Optional()])
+    es_pleno_sala = BooleanField("Es Pleno o Sala (aparece en consultas al respecto)", validators=[Optional()])
+    es_notaria = BooleanField("Es Notaría (habilita edictos)", validators=[Optional()])
     directorio_edictos = StringField("Directorio para edictos", validators=[Optional(), Length(max=256)])
     directorio_glosas = StringField("Directorio para glosas", validators=[Optional(), Length(max=256)])
     directorio_listas_de_acuerdos = StringField("Directorio para listas de acuerdos", validators=[Optional(), Length(max=256)])
