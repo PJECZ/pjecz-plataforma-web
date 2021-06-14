@@ -14,6 +14,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 autoridades = Blueprint("autoridades", __name__, template_folder="templates")
+MODULO = "AUTORIDADES"
 
 
 @autoridades.before_request
@@ -93,9 +94,9 @@ def new():
         )
         autoridad.save()
         bitacora = Bitacora(
-            modulo="AUTORIDADES",
+            modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nueva Autoridad {autoridad.clave}"),
+            descripcion=safe_message(f"Nueva autoridad {autoridad.clave}: {autoridad.descripcion}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
         )
         bitacora.save()
@@ -121,8 +122,15 @@ def edit(autoridad_id):
         autoridad.directorio_edictos = form.directorio_edictos.data.strip()
         autoridad.directorio_glosas = form.directorio_glosas.data.strip()
         autoridad.save()
-        flash(f"Autoridad {autoridad.descripcion} guardado.", "success")
-        return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Editada autoridad {autoridad.clave}: {autoridad.descripcion}"),
+            url=url_for("autoridades.detail", autoridad_id=autoridad.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     form.distrito.data = autoridad.distrito
     form.descripcion.data = autoridad.descripcion
     form.clave.data = autoridad.clave
@@ -142,7 +150,15 @@ def delete(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad.estatus == "A":
         autoridad.delete()
-        flash(f"Autoridad {autoridad.descripcion} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminada autoridad {autoridad.clave}: {autoridad.descripcion}"),
+            url=url_for("autoridades.detail", autoridad_id=autoridad.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     return redirect(url_for("autoridades.detail", autoridad_id=autoridad_id))
 
 
@@ -153,5 +169,13 @@ def recover(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad.estatus == "B":
         autoridad.recover()
-        flash(f"Autoridad {autoridad.descripcion} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperada autoridad {autoridad.clave}: {autoridad.descripcion}"),
+            url=url_for("autoridades.detail", autoridad_id=autoridad.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     return redirect(url_for("autoridades.detail", autoridad_id=autoridad_id))

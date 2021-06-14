@@ -13,6 +13,7 @@ from plataforma_web.blueprints.peritos.models import Perito
 from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
 
 peritos = Blueprint("peritos", __name__, template_folder="templates")
+MODULO = "PERITOS"
 
 
 @peritos.before_request
@@ -68,13 +69,10 @@ def new():
     """Nuevo Perito"""
     form = PeritoForm()
     if form.validate_on_submit():
-        distrito = form.distrito.data
-        tipo = form.tipo.data
-        nombre = safe_string(form.nombre.data)
         perito = Perito(
-            distrito=distrito,
-            tipo=tipo,
-            nombre=nombre,
+            distrito=form.distrito.data,
+            tipo=form.tipo.data,
+            nombre=safe_string(form.nombre.data),
             domicilio=safe_string(form.domicilio.data),
             telefono_fijo=safe_string(form.telefono_fijo.data),
             telefono_celular=safe_string(form.telefono_celular.data),
@@ -84,9 +82,9 @@ def new():
         )
         perito.save()
         bitacora = Bitacora(
-            modulo="PERITOS",
+            modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nueva Perito {perito.nombre}, tipo {tipo} en {distrito.nombre}"),
+            descripcion=safe_message(f"Nuevo perito {perito.nombre}, tipo {perito.tipo} en {perito.distrito.nombre}"),
             url=url_for("peritos.detail", perito_id=perito.id),
         )
         bitacora.save()
@@ -112,8 +110,15 @@ def edit(perito_id):
         perito.renovacion = form.renovacion.data
         perito.notas = safe_string(form.notas.data)
         perito.save()
-        flash(f"Perito {perito.nombre} guardado.", "success")
-        return redirect(url_for("peritos.detail", perito_id=perito.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Editado perito {perito.nombre} de {perito.distrito.nombre}"),
+            url=url_for("peritos.detail", perito_id=perito.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     form.distrito.data = perito.distrito
     form.tipo.data = perito.tipo
     form.nombre.data = perito.nombre
@@ -133,7 +138,14 @@ def delete(perito_id):
     perito = Perito.query.get_or_404(perito_id)
     if perito.estatus == "A":
         perito.delete()
-        flash(f"Perito {perito.nombre} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Eliminado perito {perito.nombre} de {perito.distrito.nombre}'),
+            url=url_for('peritos.detail', perito_id=perito.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
     return redirect(url_for("peritos.detail", perito_id=perito_id))
 
 
@@ -144,5 +156,12 @@ def recover(perito_id):
     perito = Perito.query.get_or_404(perito_id)
     if perito.estatus == "B":
         perito.recover()
-        flash(f"Perito {perito.nombre} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f'Recuperado perito {perito.nombre} de {perito.distrito.nombre}'),
+            url=url_for('peritos.detail', perito_id=perito.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
     return redirect(url_for("peritos.detail", perito_id=perito_id))

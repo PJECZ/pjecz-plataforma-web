@@ -23,6 +23,7 @@ from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
+MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
 LIMITE_JUSTICIABLES_DIAS = 1
 LIMITE_ADMINISTRADORES_DIAS = 90
@@ -162,6 +163,23 @@ def search():
     return render_template("listas_de_acuerdos/search.jinja2", form=form_search)
 
 
+def new_success(lista_de_acuerdo, anterior_borrada):
+    """Mensaje de éxito en nueva lista de acuerdos"""
+    if anterior_borrada:
+        mensaje = "Reemplazada "
+    else:
+        mensaje = "Nueva "
+    mensaje = mensaje + f"lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(mensaje),
+        url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+    )
+    bitacora.save()
+    return bitacora
+
+
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
@@ -250,17 +268,7 @@ def new():
         lista_de_acuerdo.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        if anterior_borrada:
-            mensaje = safe_message(f"Nueva Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
-        else:
-            mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
-        bitacora = Bitacora(
-            modulo="LISTAS DE ACUERDOS",
-            usuario=current_user,
-            descripcion=mensaje,
-            url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
-        )
-        bitacora.save()
+        bitacora = new_success(lista_de_acuerdo, anterior_borrada)
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
@@ -363,17 +371,7 @@ def new_for_autoridad(autoridad_id):
         lista_de_acuerdo.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        if anterior_borrada:
-            mensaje = safe_message(f"Nueva Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
-        else:
-            mensaje = safe_message(f"Reemplazada Lista de Acuerdos del {fecha_str} de {autoridad.clave}")
-        bitacora = Bitacora(
-            modulo="LISTAS DE ACUERDOS",
-            usuario=current_user,
-            descripcion=mensaje,
-            url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
-        )
-        bitacora.save()
+        bitacora = new_success(lista_de_acuerdo, anterior_borrada)
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
@@ -383,6 +381,18 @@ def new_for_autoridad(autoridad_id):
     form.descripcion.data = "LISTA DE ACUERDOS"
     form.fecha.data = hoy
     return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+
+def edit_success(lista_de_acuerdo):
+    """Mensaje de éxito al editar una lista de acuerdos"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Editada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
+        url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
@@ -395,11 +405,24 @@ def edit(lista_de_acuerdo_id):
         lista_de_acuerdo.fecha = form.fecha.data
         lista_de_acuerdo.descripcion = safe_string(form.descripcion.data)
         lista_de_acuerdo.save()
-        flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} guardado.", "success")
-        return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id))
+        bitacora = edit_success(lista_de_acuerdo)
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     form.fecha.data = lista_de_acuerdo.fecha
     form.descripcion.data = lista_de_acuerdo.descripcion
     return render_template("listas_de_acuerdos/edit.jinja2", form=form, lista_de_acuerdo=lista_de_acuerdo)
+
+
+def delete_success(lista_de_acuerdo):
+    """Mensaje de éxito al eliminar una lista de acuerdos"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Eliminada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
+        url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/eliminar/<int:lista_de_acuerdo_id>")
@@ -413,15 +436,29 @@ def delete(lista_de_acuerdo_id):
             hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:
                 lista_de_acuerdo.delete()
-                flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
+                bitacora = delete_success(lista_de_acuerdo)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == lista_de_acuerdo.autoridad_id and lista_de_acuerdo.fecha == datetime.date.today():
             lista_de_acuerdo.delete()
-            flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} eliminado.", "success")
+            bitacora = delete_success(lista_de_acuerdo)
+            flash(bitacora.descripcion, "success")
         else:
             flash("No tiene permiso para eliminar o sólo puede eliminar de hoy.", "warning")
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))
+
+
+def recover_success(lista_de_acuerdo):
+    """Mensaje de éxito al recuperar una lista de acuerdos"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Recuperada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
+        url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/recuperar/<int:lista_de_acuerdo_id>")
@@ -438,12 +475,14 @@ def recover(lista_de_acuerdo_id):
                 hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
                 if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:
                     lista_de_acuerdo.recover()
-                    flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
+                    bitacora = recover_success(lista_de_acuerdo)
+                    flash(bitacora.descripcion, "success")
                 else:
                     flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
             elif current_user.autoridad_id == lista_de_acuerdo.autoridad_id and lista_de_acuerdo.fecha == datetime.date.today():
                 lista_de_acuerdo.recover()
-                flash(f"Lista de Acuerdos {lista_de_acuerdo.archivo} recuperado.", "success")
+                bitacora = recover_success(lista_de_acuerdo)
+                flash(bitacora.descripcion, "success")
             else:
                 flash("No tiene permiso para recuperar o sólo puede recuperar de hoy.", "warning")
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))

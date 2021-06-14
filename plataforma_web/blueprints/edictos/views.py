@@ -23,6 +23,7 @@ from plataforma_web.blueprints.edictos.models import Edicto
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
+MODULO = "EDICTOS"
 SUBDIRECTORIO = "Edictos"
 LIMITE_NOTARIALES_DIAS = 30
 LIMITE_ADMINISTRADORES_DIAS = 90
@@ -187,6 +188,24 @@ def search():
     return render_template("edictos/search.jinja2", form=form_search)
 
 
+def new_success(edicto):
+    """Mensaje de éxito en nuevo edicto"""
+    piezas = ["Nuevo edicto"]
+    if edicto.expediente != "":
+        piezas.append(f"expediente {edicto.expediente},")
+    if edicto.numero_publicacion != "":
+        piezas.append(f"número {edicto.numero_publicacion},")
+    piezas.append(f"fecha {edicto.fecha.strftime('%Y-%m-%d')} de {edicto.autoridad.clave}")
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(" ".join(piezas)),
+        url=url_for("edictos.detail", edicto_id=edicto.id),
+    )
+    bitacora.save()
+    return bitacora
+
+
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_NOTARIALES)
 def new():
@@ -290,19 +309,7 @@ def new():
         edicto.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        piezas = ["Nuevo Edicto"]
-        if expediente != "":
-            piezas.append(f"expediente {expediente},")
-        if numero_publicacion != "":
-            piezas.append(f"No. {numero_publicacion},")
-        piezas.append(f"fecha {fecha_str} de {autoridad.clave}")
-        bitacora = Bitacora(
-            modulo="EDICTOS",
-            usuario=current_user,
-            descripcion=safe_message(" ".join(piezas)),
-            url=url_for("edictos.detail", edicto_id=edicto.id),
-        )
-        bitacora.save()
+        bitacora = new_success(edicto)
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
@@ -419,19 +426,7 @@ def new_for_autoridad(autoridad_id):
         edicto.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        piezas = ["Nuevo Edicto"]
-        if expediente != "":
-            piezas.append(f"expediente {expediente},")
-        if numero_publicacion != "":
-            piezas.append(f"No. {numero_publicacion},")
-        piezas.append(f"fecha {fecha_str} de {autoridad.clave}")
-        bitacora = Bitacora(
-            modulo="EDICTOS",
-            usuario=current_user,
-            descripcion=safe_message(" ".join(piezas)),
-            url=url_for("edictos.detail", edicto_id=edicto.id),
-        )
-        bitacora.save()
+        bitacora = new_success(edicto)
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
@@ -440,6 +435,24 @@ def new_for_autoridad(autoridad_id):
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
     return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+
+def edit_success(edicto):
+    """Mensaje de éxito al editar un edicto"""
+    piezas = ["Editado edicto"]
+    if edicto.expediente != "":
+        piezas.append(f"expediente {edicto.expediente},")
+    if edicto.numero_publicacion != "":
+        piezas.append(f"número {edicto.numero_publicacion},")
+    piezas.append(f"fecha {edicto.fecha.strftime('%Y-%m-%d')} de {edicto.autoridad.clave}")
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(" ".join(piezas)),
+        url=url_for("edictos.detail", edicto_id=edicto.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @edictos.route("/edictos/edicion/<int:edicto_id>", methods=["GET", "POST"])
@@ -451,26 +464,50 @@ def edit(edicto_id):
     if form.validate_on_submit():
         es_valido = True
         edicto.fecha = form.fecha.data
+
+        # Validar descripción
         edicto.descripcion = safe_string(form.descripcion.data)
+        if edicto.descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            es_valido = False
+
+        # Validar expediente
         try:
             edicto.expediente = safe_expediente(form.expediente.data)
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             es_valido = False
+
+        # Validar número de publicación
         try:
             edicto.numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
         except (IndexError, ValueError):
             flash("El número de publicación es incorrecto.", "warning")
             es_valido = False
+
         if es_valido:
             edicto.save()
-            flash(f"Edicto {edicto.descripcion} guardado.", "success")
-            return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+            bitacora = edit_success(edicto)
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+
     form.fecha.data = edicto.fecha
     form.descripcion.data = edicto.descripcion
     form.expediente.data = edicto.expediente
     form.numero_publicacion.data = edicto.numero_publicacion
     return render_template("edictos/edit.jinja2", form=form, edicto=edicto)
+
+
+def delete_success(edicto):
+    """Mensaje de éxito al eliminar un edicto"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Eliminado edicto de {edicto.autoridad.clave}"),
+        url=url_for("edictos.detail", edicto_id=edicto.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @edictos.route("/edictos/eliminar/<int:edicto_id>")
@@ -484,18 +521,32 @@ def delete(edicto_id):
         if current_user.can_admin("edictos"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.delete()
-                flash(f"Edicto {edicto.descripcion} eliminado.", "success")
+                bitacora = delete_success(edicto)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == edicto.autoridad_id:
             if hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS) <= edicto.creado:
                 edicto.delete()
-                flash(f"Edicto {edicto.descripcion} eliminado.", "success")
+                bitacora = delete_success(edicto)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_NOTARIALES_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
+
+
+def recover_success(edicto):
+    """Mensaje de éxito al recuperar un edicto"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Recuperado edicto de {edicto.autoridad.clave}"),
+        url=url_for("edictos.detail", edicto_id=edicto.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @edictos.route("/edictos/recuperar/<int:edicto_id>")
@@ -509,13 +560,15 @@ def recover(edicto_id):
         if current_user.can_admin("edictos"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.recover()
-                flash(f"Edicto {edicto.descripcion} recuperado.", "success")
+                bitacora = recover_success(edicto)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == edicto.autoridad_id:
             if hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS) <= edicto.creado:
                 edicto.recover()
-                flash(f"Edicto {edicto.descripcion} recuperado.", "success")
+                bitacora = recover_success(edicto)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_NOTARIALES_DIAS} días o más.", "warning")
         else:

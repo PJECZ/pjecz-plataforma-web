@@ -12,6 +12,7 @@
                     <tr>
                         <th>Tiempos</th>
                         <th>Usuarios e-mail</th>
+                        <th>Módulos</th>
                         <th>Descripciones</th>
                     </tr>
                 </thead>
@@ -20,6 +21,7 @@
                     <tr>
                         <td>{{ bitacora.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td><a href="{{ url_for('usuarios.detail', usuario_id=bitacora.usuario_id) }}" target="_blank">{{ bitacora.usuario.email }} <i class="fas fa-external-link-alt"></a></td>
+                        <td>{{ bitacora.modulo }}</td>
                         <td><a href="{{ bitacora.url }}" target="_blank">{{ bitacora.descripcion }} <i class="fas fa-external-link-alt"></a></td>
                     </tr>
                     {% endfor %}

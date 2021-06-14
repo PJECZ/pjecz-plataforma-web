@@ -15,6 +15,7 @@ from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionEx
 from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm
 
 ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, template_folder="templates")
+MODULO = "UBICACIONES DE EXPEDIENTES"
 
 
 @ubicaciones_expedientes.before_request
@@ -129,6 +130,18 @@ def search():
     return render_template("ubicaciones_expedientes/search.jinja2", form=form_search)
 
 
+def new_success(ubicacion_expediente):
+    """Mensaje de éxito en nueva ubicación de expediente"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Nueva ubicación del expediente {ubicacion_expediente.expediente} en {ubicacion_expediente.ubicacion} de {ubicacion_expediente.autoridad.clave}"),
+        url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
+    )
+    bitacora.save()
+    return bitacora
+
+
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
@@ -169,13 +182,7 @@ def new():
         ubicacion_expediente.save()
 
         # Mostrar mensaje de éxito e ir al detalle
-        bitacora = Bitacora(
-            modulo="UBICACIONES DE EXPEDIENTES",
-            usuario=current_user,
-            descripcion=safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}"),
-            url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
-        )
-        bitacora.save()
+        bitacora = new_success(ubicacion_expediente)
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
@@ -227,14 +234,8 @@ def new_for_autoridad(autoridad_id):
         )
         ubicacion_expediente.save()
 
-        # Mostrar mensaje de éxito e ir al detalle
-        bitacora = Bitacora(
-            modulo="UBICACIONES DE EXPEDIENTES",
-            usuario=current_user,
-            descripcion=safe_message(f"Nueva Ubicación del expediente {expediente} en {ubicacion} de {autoridad.clave}"),
-            url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
-        )
-        bitacora.save()
+        # Registrar en bitácoras e ir al detalle
+        bitacora = new_success(ubicacion_expediente)
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
@@ -242,6 +243,18 @@ def new_for_autoridad(autoridad_id):
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     return render_template("ubicaciones_expedientes/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+
+def edit_success(ubicacion_expediente):
+    """Mensaje de éxito al editar una ubicación de expediente"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Editada la ubicación del expediente {ubicacion_expediente.expediente} en {ubicacion_expediente.ubicacion} de {ubicacion_expediente.autoridad.clave}"),
+        url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])
@@ -263,13 +276,28 @@ def edit(ubicacion_expediente_id):
         ubicacion_expediente.expediente = expediente
         ubicacion_expediente.ubicacion = form.ubicacion.data
         ubicacion_expediente.save()
-        flash(f"Ubicación de Expedientes {ubicacion_expediente.expediente} guardado.", "success")
-        return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id))
+
+        # Registrar en bitácora e ir al detalle
+        bitacora = edit_success(ubicacion_expediente)
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado del formulario
     form.expediente.data = ubicacion_expediente.expediente
     form.ubicacion.data = ubicacion_expediente.ubicacion
     return render_template("ubicaciones_expedientes/edit.jinja2", form=form, ubicacion_expediente=ubicacion_expediente)
+
+
+def delete_success(ubicacion_expediente):
+    """Mensaje de éxito al eliminar una ubicacion de expediente"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Eliminada la ubicación del expediente {ubicacion_expediente.expediente} de {ubicacion_expediente.autoridad.clave}"),
+        url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/eliminar/<int:ubicacion_expediente_id>")
@@ -278,17 +306,39 @@ def delete(ubicacion_expediente_id):
     """Eliminar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "A":
-        ubicacion_expediente.delete()
-        flash(f"Ubicacion de Expediente {ubicacion_expediente.expediente} eliminado.", "success")
+        if current_user.can_admin("sentencias") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
+            ubicacion_expediente.delete()
+            bitacora = delete_success(ubicacion_expediente)
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+        else:
+            flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente_id))
+
+
+def recover_success(ubicacion_expediente):
+    """Mensaje de éxito al recuperar una ubicacion de expediente"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Recuperada la ubicación del expediente {ubicacion_expediente.expediente} de {ubicacion_expediente.autoridad.clave}"),
+        url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/recuperar/<int:ubicacion_expediente_id>")
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def recover(ubicacion_expediente_id):
-    """Recuperar Lista de Acuerdos"""
+    """Recuperar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "B":
-        ubicacion_expediente.recover()
-        flash(f"Ubicacion de Expediente {ubicacion_expediente.expediente} recuperado.", "success")
+        if current_user.can_admin("sentencias") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
+            ubicacion_expediente.recover()
+            bitacora = recover_success(ubicacion_expediente)
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+        else:
+            flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente_id))
