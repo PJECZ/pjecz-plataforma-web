@@ -10,7 +10,7 @@
             {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
             {% call f.form_tag('cid_procedimientos.edit', fid='cid_procedimiento_form', **form_kwargs) %}
                 {% call f.form_group(form.descripcion) %}{% endcall %}
-                {{ form.guardar() }}
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
         {% endcall %}
     </div>

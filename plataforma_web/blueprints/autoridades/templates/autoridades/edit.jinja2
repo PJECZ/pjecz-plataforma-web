@@ -20,7 +20,7 @@
                 {% call f.form_group(form.directorio_glosas) %}{% endcall %}
                 {% call f.form_group(form.directorio_listas_de_acuerdos) %}{% endcall %}
                 {% call f.form_group(form.directorio_sentencias) %}{% endcall %}
-                {{ form.guardar() }}
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
         {% endcall %}
     </div>
