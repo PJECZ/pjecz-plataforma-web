@@ -39,8 +39,8 @@
 {%- endmacro -%}
 
 {# botón submit #}
-{%- macro submit_button(f, etiqueta) -%}
-    <button type="submit" class="btn btn-primary">{{ etiqueta }}</button>
+{%- macro submit_button(f) -%}
+    {{ f(class="btn btn-success text-white", **kwargs) }}
 {%- endmacro -%}
 
 {# etiqueta con texto de ayuda #}
@@ -75,6 +75,8 @@
             {{ f(class=css_class, type='date', **kwargs) }}
         {% elif f.type == 'DateTimeField'  %}
             {{ f(class=css_class, type='datetime', **kwargs) }}
+        {% elif f.type == 'SubmitField'  %}
+            {{ submit_button(f) }}
         {% else %}
             {{ f(class=css_class, **kwargs) }}
         {% endif %}
@@ -108,6 +110,9 @@
     {% elif f.type == 'RadioField' %}
         <div class="form-group {{ css_class }}">
         {{ radios_fields(f, **kwargs) }}
+    {% elif f.type == 'SubmitField' %}
+        <div class="form-group {{ css_class }}">
+        {{ field(f, **kwargs) }}
     {% else %}
         <div class="form-group {{ css_class }}">
         {{ field_label(f) }}
@@ -207,14 +212,16 @@
 
 {# Drop Zone wrapper #}}
 {%- macro drop_zone_wrapper() -%}
-    <div class="dropzone-wrapper mb-3">
-        <div class="dropzone-desc">
-            <p id="name_file_upload">
-                Adjunta el documento ó arrastralo. <br>
-                <i class="fas fa-upload"></i>
-            </p>
+    <div class="form-group">
+        <div class="dropzone-wrapper">
+            <div class="dropzone-desc">
+                <p id="name_file_upload">
+                    Adjunta el documento ó arrastralo. <br>
+                    <i class="fas fa-upload"></i>
+                </p>
+            </div>
+            {{ caller () }}
         </div>
-        {{ caller () }}
     </div>
 {%- endmacro -%}
 

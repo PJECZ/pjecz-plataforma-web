@@ -12,7 +12,7 @@
                 {% call f.form_group(form.numero) %}{% endcall %}
                 {% call f.form_group(form.libro) %}{% endcall %}
                 {% call f.form_group(form.nombre) %}{% endcall %}
-                {{ form.guardar() }}
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
         {% endcall %}
     </div>

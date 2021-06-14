@@ -21,7 +21,7 @@
                 {% call f.drop_zone_wrapper() %}
                     {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
                 {% endcall %}
-                {{ form.guardar() }}
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
         {% endcall %}
     </div>
