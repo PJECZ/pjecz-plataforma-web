@@ -1,12 +1,23 @@
 """
 Autoridades, modelos
 """
+from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class Autoridad(db.Model, UniversalMixin):
     """Autoridad"""
+
+    ORGANOS_JURISDICCIONALES = OrderedDict(
+        [
+            ("NO DEFINIDO", "No Definido"),
+            ("JUZGADO DE PRIMERA INSTANCIA", "Juzgado de Primera Instancia"),
+            ("PLENO O SALA DEL TSJ", "Pleno o Sala del TSJ"),
+            ("TRIBUNAL DISTRITAL", "Tribunal Distrital"),
+            ("TRIBUNAL DE CONCILIACION Y ARBITRAJE", "Tribunal de Conciliación y Arbitraje"),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "autoridades"
@@ -24,9 +35,16 @@ class Autoridad(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
     clave = db.Column(db.String(16), nullable=False, unique=True)
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
-    es_juzgado_primera_instancia = db.Column(db.Boolean, nullable=False, default=False)
-    es_pleno_sala = db.Column(db.Boolean, nullable=False, default=False)
     es_notaria = db.Column(db.Boolean, nullable=False, default=False)
+    organo_jurisdiccional = db.Column(
+        db.Enum(*ORGANOS_JURISDICCIONALES, name="tipos_organos_jurisdiccionales", native_enum=False),
+        index=True,
+        nullable=False,
+    )
+    #es_juzgado_primera_instancia = db.Column(db.Boolean, nullable=False, default=False)
+    #es_pleno_sala = db.Column(db.Boolean, nullable=False, default=False)
+    #es_tribunal_distrital = db.Column(db.Boolean, nullable=False, default=False)
+    #es_tribunal_conciliacion_arbitraje = db.Column(db.Boolean, nullable=False, default=False)
     directorio_edictos = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_glosas = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_listas_de_acuerdos = db.Column(db.String(256), nullable=False, default="", server_default="")
