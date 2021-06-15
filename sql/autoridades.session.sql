@@ -44,6 +44,11 @@ WHERE autoridades.estatus = 'A'
     AND autoridades.es_notaria = FALSE
 ORDER BY organo_jurisdiccional,
     clave;
+-- @block updates
+UPDATE autoridades
+SET organo_jurisdiccional = 'NO DEFINIDO';
+UPDATE autoridades
+SET materia_id = 1;
 -- @block organos_jurisdiccionales, materias y autoridades
 SELECT autoridades.organo_jurisdiccional,
     materias.nombre AS materia,
