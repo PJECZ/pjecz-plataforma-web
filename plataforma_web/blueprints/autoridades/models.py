@@ -41,10 +41,6 @@ class Autoridad(db.Model, UniversalMixin):
         index=True,
         nullable=False,
     )
-    #es_juzgado_primera_instancia = db.Column(db.Boolean, nullable=False, default=False)
-    #es_pleno_sala = db.Column(db.Boolean, nullable=False, default=False)
-    #es_tribunal_distrital = db.Column(db.Boolean, nullable=False, default=False)
-    #es_tribunal_conciliacion_arbitraje = db.Column(db.Boolean, nullable=False, default=False)
     directorio_edictos = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_glosas = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_listas_de_acuerdos = db.Column(db.String(256), nullable=False, default="", server_default="")
