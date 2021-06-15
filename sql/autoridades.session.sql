@@ -53,9 +53,11 @@ SET materia_id = 1;
 SELECT autoridades.organo_jurisdiccional,
     materias.nombre AS materia,
     autoridades.clave,
+    distritos.nombre AS distrito,
     autoridades.descripcion
 FROM autoridades
     INNER JOIN materias ON autoridades.materia_id = materias.id
+    INNER JOIN distritos ON autoridades.distrito_id = distritos.id
 WHERE autoridades.estatus = 'A'
     AND autoridades.es_jurisdiccional = TRUE
     AND autoridades.es_notaria = FALSE

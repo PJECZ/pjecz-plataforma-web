@@ -173,7 +173,6 @@ def delete(autoridad_id):
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
     return redirect(url_for("autoridades.detail", autoridad_id=autoridad_id))
 
 
@@ -192,5 +191,4 @@ def recover(autoridad_id):
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
     return redirect(url_for("autoridades.detail", autoridad_id=autoridad_id))

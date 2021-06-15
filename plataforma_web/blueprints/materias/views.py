@@ -2,14 +2,19 @@
 Materias, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
+from lib.safe_string import safe_message, safe_string
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias.models import Materia
+from plataforma_web.blueprints.materias.forms import MateriaForm
 
 materias = Blueprint("materias", __name__, template_folder="templates")
+MODULO = "MATERIAS"
 
 
 @materias.before_request
@@ -42,6 +47,48 @@ def detail(materia_id):
     return render_template("materias/detail.jinja2", materia=materia, autoridades=autoridades)
 
 
+@materias.route("/materias/nuevo", methods=["GET", "POST"])
+@permission_required(Permiso.CREAR_CATALOGOS)
+def new():
+    """Nueva Materia"""
+    form = MateriaForm()
+    if form.validate_on_submit():
+        materia = Materia(nombre=safe_string(form.nombre.data))
+        materia.save()
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva materia {materia.nombre}"),
+            url=url_for("materias.detail", materia_id=materia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    return render_template("materias/new.jinja2", form=form)
+
+
+@materias.route("/materias/edicion/<int:materia_id>", methods=["GET", "POST"])
+@permission_required(Permiso.MODIFICAR_CATALOGOS)
+def edit(materia_id):
+    """Editar Materia"""
+    materia = Materia.query.get_or_404(materia_id)
+    form = MateriaForm()
+    if form.validate_on_submit():
+        materia.nombre = safe_string(form.nombre.data)
+        materia.save()
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Editada materia {materia.nombre}"),
+            url=url_for("materias.detail", materia_id=materia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.nombre.data = materia.nombre
+    return render_template("materias/edit.jinja2", form=form, materia=materia)
+
+
 @materias.route("/materias/eliminar/<int:materia_id>")
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def delete(materia_id):
@@ -49,7 +96,14 @@ def delete(materia_id):
     materia = Materia.query.get_or_404(materia_id)
     if materia.estatus == "A":
         materia.delete()
-        flash(f"Materia {materia.nombre} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminada materia {materia.nombre}"),
+            url=url_for("materias.detail", materia_id=materia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("materias.detail", materia_id=materia.id))
 
 
@@ -60,5 +114,12 @@ def recover(materia_id):
     materia = Materia.query.get_or_404(materia_id)
     if materia.estatus == "B":
         materia.recover()
-        flash(f"Materia {materia.nombre} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperada materia {materia.nombre}"),
+            url=url_for("materias.detail", materia_id=materia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("materias.detail", materia_id=materia.id))

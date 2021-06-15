@@ -31,8 +31,6 @@ class AutoridadNewForm(FlaskForm):
     es_notaria = BooleanField("Es Notaría (habilita edictos)", validators=[Optional()])
     organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[DataRequired()])
     materia = QuerySelectField("Materia (si es Juzgado de Primera Instancia)", query_factory=materias_opciones, get_label="nombre")
-    # es_juzgado_primera_instancia = BooleanField("Es Juzgado de Primera Instancia (aparece en consultas por materia)", validators=[Optional()])
-    # es_pleno_sala = BooleanField("Es Pleno o Sala (aparece en consultas al respecto)", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
@@ -46,8 +44,6 @@ class AutoridadEditForm(FlaskForm):
     es_notaria = BooleanField("Es Notaría (habilita edictos)", validators=[Optional()])
     organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[DataRequired()])
     materia = QuerySelectField("Materia (si es Juzgado de Primera Instancia)", query_factory=materias_opciones, get_label="nombre")
-    # es_juzgado_primera_instancia = BooleanField("Es Juzgado de Primera Instancia (aparece en consultas por materia)", validators=[Optional()])
-    # es_pleno_sala = BooleanField("Es Pleno o Sala (aparece en consultas al respecto)", validators=[Optional()])
     directorio_edictos = StringField("Directorio para edictos", validators=[Optional(), Length(max=256)])
     directorio_glosas = StringField("Directorio para glosas", validators=[Optional(), Length(max=256)])
     directorio_listas_de_acuerdos = StringField("Directorio para listas de acuerdos", validators=[Optional(), Length(max=256)])

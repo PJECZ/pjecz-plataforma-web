@@ -1,0 +1,17 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Editar Materia{% endblock %}
+
+{% block content %}
+    {{ f.page('Editar ' + materia.nombre) }}
+    <div class="container-fluid">
+        {% call f.card() %}
+            {% set form_kwargs = {'materia_id': materia.id} %}
+            {% call f.form_tag('materias.edit', fid='materia_form', **form_kwargs) %}
+                {% call f.form_group(form.nombre) %}{% endcall %}
+                {% call f.form_group(form.guardar) %}{% endcall %}
+            {% endcall %}
+        {% endcall %}
+    </div>
+{% endblock %}

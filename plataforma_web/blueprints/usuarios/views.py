@@ -255,7 +255,6 @@ def delete(usuario_id):
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))
 
 
@@ -274,5 +273,4 @@ def recover(usuario_id):
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))

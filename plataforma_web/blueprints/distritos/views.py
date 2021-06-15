@@ -109,7 +109,6 @@ def delete(distrito_id):
         )
         bitacora.save()
         flash(bitacora.descripcion, 'success')
-        return redirect(bitacora.url)
     return redirect(url_for("distritos.detail", distrito_id=distrito_id))
 
 
@@ -128,5 +127,4 @@ def recover(distrito_id):
         )
         bitacora.save()
         flash(bitacora.descripcion, 'success')
-        return redirect(bitacora.url)
     return redirect(url_for("distritos.detail", distrito_id=distrito_id))

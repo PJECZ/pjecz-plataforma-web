@@ -8,6 +8,9 @@
         {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('materias.list_inactive')) }}{% endif %}
         {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('materias.list_active')) }}{% endif %}
     {% endif %}
+    {% if current_user.can_insert('materias') %}
+        {{ list.topbar_option_new('Nueva Materia', url_for('materias.new')) }}
+    {% endif %}
 {% endblock %}
 
 {% block content %}
