@@ -125,7 +125,7 @@ def change_password():
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """Listado de Usuarios activos"""
-    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").limit(200).all()
+    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").all()
     return render_template("usuarios/list.jinja2", usuarios=usuarios_activos, estatus="A")
 
 
@@ -133,7 +133,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Usuarios inactivos"""
-    usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").limit(200).all()
+    usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").all()
     return render_template("usuarios/list.jinja2", usuarios=usuarios_inactivos, estatus="B")
 
 
@@ -225,11 +225,11 @@ def edit(usuario_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Editado usuario {usuario.email}: {usuario.nombre} con rol {usuario.rol.nombre}'),
-            url=url_for('usuarios.detail', usuario_id=usuario.id),
+            descripcion=safe_message(f"Editado usuario {usuario.email}: {usuario.nombre} con rol {usuario.rol.nombre}"),
+            url=url_for("usuarios.detail", usuario_id=usuario.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
@@ -250,12 +250,11 @@ def delete(usuario_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Eliminado usuario {usuario.email}: {usuario.nombre}'),
-            url=url_for('usuarios.detail', usuario_id=usuario.id),
+            descripcion=safe_message(f"Eliminado usuario {usuario.email}: {usuario.nombre}"),
+            url=url_for("usuarios.detail", usuario_id=usuario.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
-        return redirect(bitacora.url)
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))
 
 
@@ -269,10 +268,9 @@ def recover(usuario_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Recuperado usuario {usuario.email}: {usuario.nombre}'),
-            url=url_for('usuarios.detail', usuario_id=usuario.id),
+            descripcion=safe_message(f"Recuperado usuario {usuario.email}: {usuario.nombre}"),
+            url=url_for("usuarios.detail", usuario_id=usuario.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
-        return redirect(bitacora.url)
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))
