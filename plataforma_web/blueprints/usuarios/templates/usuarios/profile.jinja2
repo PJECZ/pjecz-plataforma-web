@@ -6,7 +6,7 @@
 {% block content %}
     {{ detail.page('Mi Perfil') }}
     <div class="container-fluid">
-        {% call f.card() %}
+        {% call detail.card() %}
             {% call detail.card() %}
                 {{ detail.label_value_big('Nombre', current_user.nombre) }}
                 {{ detail.label_value('Departamento', current_user.autoridad.distrito.nombre) }}

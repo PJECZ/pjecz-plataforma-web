@@ -18,7 +18,9 @@ class Perito(db.Model, UniversalMixin):
             ("AUDITORIA INTERNA", "Auditoría Interna"),
             ("BALISTICA", "Balística"),
             ("CALIGRAFIA", "Caligrafía"),
+            ("CATASTRO", "Catastro"),
             ("CONTABILIDAD", "Contabilidad"),
+            ("CONSTRUCCION", "Construcción"),
             ("CRIMINALISTICA", "Criminalística"),
             ("DACTILOSCOPIA", "Dactiloscopía"),
             ("DEPOSITARIO", "Depositario"),
@@ -37,6 +39,7 @@ class Perito(db.Model, UniversalMixin):
             ("MEDICINA", "Medicina"),
             ("MEDICINA FORENSE", "Medicina Forense"),
             ("ODONTOLOGIA LEGAL Y FORENSE", "Odontología Legal y Forense"),
+            ("PARTIDOR", "Partidor"),
             ("POLIGRAFIA", "Poligrafía"),
             ("PSICOLOGIA", "Psicología"),
             ("PSICOANALISIS", "Psicoanálisis"),
@@ -60,8 +63,8 @@ class Perito(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    distrito_id = db.Column(db.Integer, db.ForeignKey('distritos.id'), index=True, nullable=False)
-    distrito = db.relationship('Distrito', back_populates='peritos')
+    distrito_id = db.Column(db.Integer, db.ForeignKey("distritos.id"), index=True, nullable=False)
+    distrito = db.relationship("Distrito", back_populates="peritos")
 
     # Columnas
     tipo = db.Column(
