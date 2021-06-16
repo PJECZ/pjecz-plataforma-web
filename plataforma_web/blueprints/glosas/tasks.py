@@ -71,10 +71,10 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     bitacora.info("Inicia")
 
     # Para validar la fecha
-    anos_limite = 20
-    hoy = date.today()
-    hoy_dt = datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = datetime(year=hoy.year - anos_limite, month=1, day=1)
+    # anos_limite = 20
+    # hoy = date.today()
+    # hoy_dt = datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    # limite_dt = datetime(year=hoy.year - anos_limite, month=1, day=1)
 
     # Validad usuario
     usuario = None
@@ -147,8 +147,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
                 "tipo_juicio": tipo_juicio_str,
             }
             contador_metadatos += 1
-            if contador_metadatos % 100:
-                bitacora.info("  Van %d metadatos", contador_metadatos)
+    bitacora.info("- Tiene %d metadatos", contador_metadatos)
 
     # Iniciar la tarea y contadores
     set_task_progress(0)
@@ -185,8 +184,8 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
                 expediente=metadatos[ruta.name]["expediente"],
                 archivo=ruta.name,
                 url=blob.public_url,
-            )  # .save()
-            bitacora.info("- %s", repr(glosa))
+            ).save()
+            # bitacora.info("- %s", repr(glosa))
             contador_insertados += 1
         else:
             bitacora.warning("! SIN METADATOS %s", ruta.name)

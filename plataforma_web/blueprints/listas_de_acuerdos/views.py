@@ -46,7 +46,7 @@ def before_request():
 
 @listas_de_acuerdos.route("/listas_de_acuerdos")
 def list_active():
-    """Listado de Listas de Acuerdos activas más recientes"""
+    """Listado de Listas de Acuerdos activas"""
     # Si es administrador, ve las listas de acuerdos de todas las autoridades
     if current_user.can_admin("listas_de_acuerdos"):
         listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
@@ -349,7 +349,7 @@ def new_for_autoridad(autoridad_id):
         )
         lista_de_acuerdo.save()
 
-        # Elaborar nombre del archivo y ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
+        # Elaborar nombre del archivo
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
         fecha_str = fecha.strftime("%Y-%m-%d")

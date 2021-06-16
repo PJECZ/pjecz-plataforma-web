@@ -50,4 +50,4 @@ class Glosa(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Glosa {self.autoridad.clave}, {self.fecha}, {self.tipo_juicio}, {self.descripcion}, {self.expediente}, {self.archivo}>"
+        return f"<Glosa fecha {self.fecha}, tipo {self.tipo_juicio}, expediente {self.expediente}>"
