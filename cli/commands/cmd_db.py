@@ -10,6 +10,7 @@ import click
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 from cli.commands.alimentar_roles import alimentar_roles
+from cli.commands.alimentar_materias import alimentar_materias
 from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_distritos import alimentar_distritos
 from cli.commands.alimentar_autoridades import alimentar_autoridades
@@ -39,6 +40,7 @@ def inicializar():
 def alimentar():
     """Alimentar"""
     alimentar_roles()
+    alimentar_materias()
     alimentar_distritos()
     alimentar_autoridades()
     alimentar_usuarios()

@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Buscar Ubicación de Expediente{% endblock %}
+
+{% block content %}
+    {{ f.page('Buscar Ubicación de Expediente') }}
+    <div class="container-fluid">
+        {% call f.card() %}
+            {% call f.form_tag('ubicaciones_expedientes.search', fid='ubicacion_expediente_search_form') %}
+                {% call f.form_group(form.distrito) %}{% endcall %}
+                {% call f.form_group(form.autoridad) %}{% endcall %}
+                {% call f.form_group(form.expediente) %}{% endcall %}
+                {{ form.buscar() }}
+            {% endcall %}
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_distrito_autoridad(distritos, autoridades) }}
+{% endblock %}

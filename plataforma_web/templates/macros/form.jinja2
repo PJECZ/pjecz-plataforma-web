@@ -29,8 +29,9 @@
 {%- endmacro -%}
 
 {# card sirve para contener algo; es necesario para que las tablas sean usables en pantallas chicas #}}
-{%- macro card() -%}
+{%- macro card(title='') -%}
     <div class="card">
+        {% if title %}<h5>{{ title }}{% endif %}</h5>
         <div class="card-body">
             {{ caller () }}
         </div>
@@ -38,8 +39,8 @@
 {%- endmacro -%}
 
 {# botón submit #}
-{%- macro submit_button(f, etiqueta) -%}
-    <button type="submit" class="btn btn-primary">{{ etiqueta }}</button>
+{%- macro submit_button(f) -%}
+    {{ f(class="btn btn-success text-white", **kwargs) }}
 {%- endmacro -%}
 
 {# etiqueta con texto de ayuda #}
@@ -66,16 +67,20 @@
 
 {# un campo del formulario #}
 {%- macro field(f, css_class='form-control') -%}
-    {% if f.type == 'HiddenField' %}
-        {{ f.description }}
-        {{ f(class=css_class, **kwargs) }}
-    {% elif f.type == 'DateField'  %}
-        {{ f(class=css_class, type='date', **kwargs) }}
-    {% elif f.type == 'DateTimeField'  %}
-        {{ f(class=css_class, type='datetime', **kwargs) }}
-    {% else %}
-        {{ f(class=css_class, **kwargs) }}
-    {% endif %}
+    <div>
+        {% if f.type == 'HiddenField' %}
+            {{ f.description }}
+            {{ f(class=css_class, **kwargs) }}
+        {% elif f.type == 'DateField'  %}
+            {{ f(class=css_class, type='date', **kwargs) }}
+        {% elif f.type == 'DateTimeField'  %}
+            {{ f(class=css_class, type='datetime', **kwargs) }}
+        {% elif f.type == 'SubmitField'  %}
+            {{ submit_button(f) }}
+        {% else %}
+            {{ f(class=css_class, **kwargs) }}
+        {% endif %}
+    </div>
 {%- endmacro -%}
 
 {# un campo de opción múltiple #}
@@ -83,23 +88,53 @@
     {{ f(type='checkbox', **kwargs) }} {{ f.label }}
 {%- endmacro -%}
 
+{# un campo de radio #}
+{%- macro radios_fields(f) -%}
+    {{ field_label(f) }}
+    {% for subfield in f %}
+        <div class="form-check">
+            {{ subfield }}
+            <label class="form-check-label mb-0" for="{{ subfield.id }}">{{ subfield.label }}</label>
+        </div>
+    {% endfor %}
+{%- endmacro -%}
+
 {# un grupo de un formulario, con errores si los hay #}
 {%- macro form_group(f, css_class='') -%}
     {% if f.errors %}
         {% set css_class = css_class + ' has-error ' + kwargs.pop('class', '') %}
     {% endif %}
-    {% if f.type == 'BooleanField' %}
+    {% if f.type == 'FileField' %}
+        {{ field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+    {% elif f.type == 'BooleanField' %}
         <div class="checkbox {{ css_class }}">
         {{ checkbox_field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+        </div>
+    {% elif f.type == 'RadioField' %}
+        <div class="form-group {{ css_class }}">
+        {{ radios_fields(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+        </div>
+    {% elif f.type == 'SubmitField' %}
+        <div class="form-group {{ css_class }}">
+        {{ field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+        </div>
     {% else %}
         <div class="form-group {{ css_class }}">
         {{ field_label(f) }}
         {{ field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+        </div>
     {% endif %}
-    {{ field_errors(f) }}
-    {{ caller () }}
-    </div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {# un formulario, que contiene un token CSRF y campos ocultos #}
 {%- macro form_tag(endpoint, fid='', css_class='', method='post') -%}
@@ -190,14 +225,16 @@
 
 {# Drop Zone wrapper #}}
 {%- macro drop_zone_wrapper() -%}
-    <div class="dropzone-wrapper mb-3">
-        <div class="dropzone-desc">
-            <p id="name_file_upload">
-                Adjunta el documento ó arrastralo. <br>
-                <i class="fas fa-upload"></i>
-            </p>
+    <div class="form-group">
+        <div class="dropzone-wrapper">
+            <div class="dropzone-desc">
+                <p id="name_file_upload">
+                    Adjunta el documento ó arrastralo. <br>
+                    <i class="fas fa-upload"></i>
+                </p>
+            </div>
+            {{ caller () }}
         </div>
-        {{ caller () }}
     </div>
 {%- endmacro -%}
 

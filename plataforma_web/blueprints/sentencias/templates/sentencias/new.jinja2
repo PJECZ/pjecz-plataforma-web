@@ -10,17 +10,19 @@
 {% block content %}
     {{ f.page('Subir Versión Pública de Sentencia') }}
     <div class="container-fluid">
-        {% call f.form_tag_multipart('sentencias.new', fid='sentencia_form') %}
-            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.sentencia) %}{% endcall %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
-            {% call f.form_group(form.es_paridad_genero) %}{% endcall %}
-            {% call f.drop_zone_wrapper() %}
-                {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
+        {% call f.card() %}
+            {% call f.form_tag_multipart('sentencias.new', fid='sentencia_form') %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.fecha) %}{% endcall %}
+                {% call f.form_group(form.sentencia) %}{% endcall %}
+                {% call f.form_group(form.expediente) %}{% endcall %}
+                {% call f.form_group(form.es_paridad_genero) %}{% endcall %}
+                {% call f.drop_zone_wrapper() %}
+                    {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
+                {% endcall %}
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
-            {{ form.guardar() }}
         {% endcall %}
     </div>
 {% endblock %}

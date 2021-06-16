@@ -4,7 +4,7 @@
 {% block title %}Ubicación de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('ubicaciones_expedientes') %}
+    {% if current_user.can_admin('ubicaciones_expedientes') or (current_user.can_edit('ubicaciones_expedientes') and ubicacion_expediente.autoridad_id == current_user.autoridad_id) %}
         {{ detail.topbar_option_edit('Editar', url_for('ubicaciones_expedientes.edit', ubicacion_expediente_id=ubicacion_expediente.id)) }}
         {% if ubicacion_expediente.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
         {% if ubicacion_expediente.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
@@ -12,13 +12,18 @@
 {% endblock %}
 
 {% block content %}
-    {{ detail.page('Ubicación de Expedientes') }}
+    {% call detail.page_breadcrumb(ubicacion_expediente.expediente) %}
+        {{ detail.page_breadcrumb_item('Ubicaciones de Expedientes', link=url_for('ubicaciones_expedientes.list_active')) }}
+        {{ detail.page_breadcrumb_item('Distritos', link=url_for('ubicaciones_expedientes.list_distritos')) }}
+        {{ detail.page_breadcrumb_item(ubicacion_expediente.autoridad.distrito.nombre, link=url_for('ubicaciones_expedientes.list_autoridades', distrito_id=ubicacion_expediente.autoridad.distrito_id)) }}
+        {{ detail.page_breadcrumb_item(ubicacion_expediente.autoridad.descripcion, link=url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes', autoridad_id=ubicacion_expediente.autoridad_id)) }}
+    {% endcall %}
     <div class="container-fluid">
         {% call detail.card(estatus=ubicacion_expediente.estatus) %}
             {{ detail.label_value_big('Expediente', ubicacion_expediente.expediente) }}
-            {{ detail.label_value('Ubicación', ubicacion_expediente.ubicacion) }}
             {{ detail.label_value('Distrito', ubicacion_expediente.autoridad.distrito.nombre) }}
-            {{ detail.label_value('Autoridad', ubicacion_expediente.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=ubicacion_expediente.autoridad_id)) }}
+            {{ detail.label_value('Autoridad', ubicacion_expediente.autoridad.descripcion) }}
+            {{ detail.label_value('Ubicación', ubicacion_expediente.ubicacion) }}
         {% endcall %}
     </div>
     {% if current_user.can_edit('ubicaciones_expedientes') %}

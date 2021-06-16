@@ -20,7 +20,7 @@
 			"\tid = db.Column(db.Integer, primary_key=True)",
 			"",
 			"\t# Clave foránea",
-			"\t${5:clave_foranea}_id = db.Column(db.Integer, db.ForeignKey('${6:Tabla_clave_foranea}.id'), index=True, nullable=False)",
+			"\t${5:clave_foranea}_id = db.Column(db.Integer, db.ForeignKey('${6:tabla_clave_foranea}.id'), index=True, nullable=False)",
 			"\t${5:clave_foranea} = db.relationship('${7:Clase_clave_foranea}', back_populates='${8:plural_esta_clase}')",
 			"",
 			"\t# Columnas",
@@ -42,7 +42,7 @@
 		"prefix": "fmodels_clave_foranea",
 		"body": [
 			"# Clave foránea",
-			"${1:clave_foranea}_id = db.Column(db.Integer, db.ForeignKey('${2:Tabla_clave_foranea}.id'), index=True, nullable=False)",
+			"${1:clave_foranea}_id = db.Column(db.Integer, db.ForeignKey('${2:tabla_clave_foranea}.id'), index=True, nullable=False)",
 			"${1:clave_foranea} = db.relationship('${3:Clase_clave_foranea}', back_populates='${4:plural_esta_clase}')",
 			""
 		],

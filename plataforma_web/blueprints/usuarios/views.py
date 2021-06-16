@@ -8,11 +8,14 @@ from flask_login import current_user, login_required, login_user, logout_user
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
+from lib.safe_string import safe_message
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
 from plataforma_web.extensions import pwd_context
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew, UsuarioFormEdit, CambiarContrasenaForm, UsuarioSearchForm
@@ -21,6 +24,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 HTTP_REQUEST = google.auth.transport.requests.Request()
 
 usuarios = Blueprint("usuarios", __name__, template_folder="templates")
+MODULO = "USUARIOS"
 
 
 @usuarios.route("/login", methods=["GET", "POST"])
@@ -121,7 +125,7 @@ def change_password():
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """Listado de Usuarios activos"""
-    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").limit(200).all()
+    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").all()
     return render_template("usuarios/list.jinja2", usuarios=usuarios_activos, estatus="A")
 
 
@@ -129,7 +133,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Usuarios inactivos"""
-    usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").limit(200).all()
+    usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").all()
     return render_template("usuarios/list.jinja2", usuarios=usuarios_inactivos, estatus="B")
 
 
@@ -187,8 +191,15 @@ def new():
             contrasena=contrasena,
         )
         usuario.save()
-        flash(f"Usuario {usuario.nombre} guardado.", "success")
-        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo usuario {usuario.email}: {usuario.nombre} con rol {usuario.rol.nombre}"),
+            url=url_for("usuarios.detail", usuario_id=usuario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("usuarios/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)
@@ -211,8 +222,15 @@ def edit(usuario_id):
             usuario.contrasena = pwd_context.hash(form.contrasena.data)
         usuario.rol = form.rol.data
         usuario.save()
-        flash(f"Usuario {usuario.nombre} guardado.", "success")
-        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Editado usuario {usuario.email}: {usuario.nombre} con rol {usuario.rol.nombre}"),
+            url=url_for("usuarios.detail", usuario_id=usuario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno
@@ -229,7 +247,14 @@ def delete(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus == "A":
         usuario.delete()
-        flash(f"Usuario {usuario.nombre} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado usuario {usuario.email}: {usuario.nombre}"),
+            url=url_for("usuarios.detail", usuario_id=usuario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))
 
 
@@ -240,5 +265,12 @@ def recover(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus == "B":
         usuario.recover()
-        flash(f"Usuario {usuario.nombre} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado usuario {usuario.email}: {usuario.nombre}"),
+            url=url_for("usuarios.detail", usuario_id=usuario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))

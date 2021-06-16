@@ -9,20 +9,21 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
-from lib.safe_string import safe_string, safe_expediente, safe_numero_publicacion
+from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm
 from plataforma_web.blueprints.edictos.models import Edicto
 
-from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.distritos.models import Distrito
-
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
+MODULO = "EDICTOS"
 SUBDIRECTORIO = "Edictos"
 LIMITE_NOTARIALES_DIAS = 30
 LIMITE_ADMINISTRADORES_DIAS = 90
@@ -137,15 +138,26 @@ def search():
     form_search = EdictoSearchForm()
     if form_search.validate_on_submit():
         mostrar_resultados = True
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
+
+        # Los administradores pueden buscar en todas las autoridades
+        if current_user.can_admin("edictos"):
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+        else:
+            autoridad = Autoridad.query.get(current_user.autoridad)
         consulta = Edicto.query.filter(Edicto.autoridad == autoridad)
+
+        # Fecha
         if form_search.fecha_desde.data:
             consulta = consulta.filter(Edicto.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Edicto.fecha <= form_search.fecha_hasta.data)
+
+        # Descripción
         descripcion = safe_string(form_search.descripcion.data)
         if descripcion != "":
             consulta = consulta.filter(Edicto.descripcion.like(f"%{descripcion}%"))
+
+        # Expediente
         try:
             expediente = safe_expediente(form_search.expediente.data)
             if expediente != "":
@@ -153,6 +165,8 @@ def search():
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Número de publicación
         try:
             numero_publicacion = safe_numero_publicacion(form_search.numero_publicacion.data)
             if numero_publicacion != "":
@@ -160,12 +174,36 @@ def search():
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             mostrar_resultados = False
+
+        # Mostrar resultados
         if mostrar_resultados:
             consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
             return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("edictos/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+
+    # Los administradores pueden buscar en todas las autoridades
+    if current_user.can_admin("edictos"):
+        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+        return render_template("edictos/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
+    return render_template("edictos/search.jinja2", form=form_search)
+
+
+def new_success(edicto):
+    """Mensaje de éxito en nuevo edicto"""
+    piezas = ["Nuevo edicto"]
+    if edicto.expediente != "":
+        piezas.append(f"expediente {edicto.expediente},")
+    if edicto.numero_publicacion != "":
+        piezas.append(f"número {edicto.numero_publicacion},")
+    piezas.append(f"fecha {edicto.fecha.strftime('%Y-%m-%d')} de {edicto.autoridad.clave}")
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(" ".join(piezas)),
+        url=url_for("edictos.detail", edicto_id=edicto.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])
@@ -242,8 +280,8 @@ def new():
         edicto.save()
 
         # Elaborar nombre del archivo
-        elementos = []
-        elementos.append(fecha.strftime("%Y-%m-%d"))
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        elementos = [fecha_str]
         if expediente != "":
             elementos.append(expediente.replace("/", "-"))
         if numero_publicacion != "":
@@ -270,9 +308,10 @@ def new():
         edicto.url = url
         edicto.save()
 
-        # Mostrar mensaje de éxito y detalle
-        flash(f"Edicto {edicto.archivo} guardado.", "success")
-        return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+        # Mostrar mensaje de éxito e ir al detalle
+        bitacora = new_success(edicto)
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -358,8 +397,8 @@ def new_for_autoridad(autoridad_id):
         edicto.save()
 
         # Elaborar nombre del archivo
-        elementos = []
-        elementos.append(fecha.strftime("%Y-%m-%d"))
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        elementos = [fecha_str]
         if expediente != "":
             elementos.append(expediente.replace("/", "-"))
         if numero_publicacion != "":
@@ -386,15 +425,34 @@ def new_for_autoridad(autoridad_id):
         edicto.url = url
         edicto.save()
 
-        # Mostrar mensaje de éxito y detalle
-        flash(f"Edicto {edicto.archivo} guardado.", "success")
-        return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+        # Mostrar mensaje de éxito e ir al detalle
+        bitacora = new_success(edicto)
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
     return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+
+
+def edit_success(edicto):
+    """Mensaje de éxito al editar un edicto"""
+    piezas = ["Editado edicto"]
+    if edicto.expediente != "":
+        piezas.append(f"expediente {edicto.expediente},")
+    if edicto.numero_publicacion != "":
+        piezas.append(f"número {edicto.numero_publicacion},")
+    piezas.append(f"fecha {edicto.fecha.strftime('%Y-%m-%d')} de {edicto.autoridad.clave}")
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(" ".join(piezas)),
+        url=url_for("edictos.detail", edicto_id=edicto.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @edictos.route("/edictos/edicion/<int:edicto_id>", methods=["GET", "POST"])
@@ -406,26 +464,50 @@ def edit(edicto_id):
     if form.validate_on_submit():
         es_valido = True
         edicto.fecha = form.fecha.data
+
+        # Validar descripción
         edicto.descripcion = safe_string(form.descripcion.data)
+        if edicto.descripcion == "":
+            flash("La descripción es incorrecta.", "warning")
+            es_valido = False
+
+        # Validar expediente
         try:
             edicto.expediente = safe_expediente(form.expediente.data)
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             es_valido = False
+
+        # Validar número de publicación
         try:
             edicto.numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
         except (IndexError, ValueError):
             flash("El número de publicación es incorrecto.", "warning")
             es_valido = False
+
         if es_valido:
             edicto.save()
-            flash(f"Edicto {edicto.descripcion} guardado.", "success")
-            return redirect(url_for("edictos.detail", edicto_id=edicto.id))
+            bitacora = edit_success(edicto)
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+
     form.fecha.data = edicto.fecha
     form.descripcion.data = edicto.descripcion
     form.expediente.data = edicto.expediente
     form.numero_publicacion.data = edicto.numero_publicacion
     return render_template("edictos/edit.jinja2", form=form, edicto=edicto)
+
+
+def delete_success(edicto):
+    """Mensaje de éxito al eliminar un edicto"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Eliminado edicto de {edicto.autoridad.clave}"),
+        url=url_for("edictos.detail", edicto_id=edicto.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @edictos.route("/edictos/eliminar/<int:edicto_id>")
@@ -439,18 +521,32 @@ def delete(edicto_id):
         if current_user.can_admin("edictos"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.delete()
-                flash(f"Edicto {edicto.descripcion} eliminado.", "success")
+                bitacora = delete_success(edicto)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == edicto.autoridad_id:
             if hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS) <= edicto.creado:
                 edicto.delete()
-                flash(f"Edicto {edicto.descripcion} eliminado.", "success")
+                bitacora = delete_success(edicto)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_NOTARIALES_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
+
+
+def recover_success(edicto):
+    """Mensaje de éxito al recuperar un edicto"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f"Recuperado edicto de {edicto.autoridad.clave}"),
+        url=url_for("edictos.detail", edicto_id=edicto.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @edictos.route("/edictos/recuperar/<int:edicto_id>")
@@ -464,13 +560,15 @@ def recover(edicto_id):
         if current_user.can_admin("edictos"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.recover()
-                flash(f"Edicto {edicto.descripcion} recuperado.", "success")
+                bitacora = recover_success(edicto)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == edicto.autoridad_id:
             if hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS) <= edicto.creado:
                 edicto.recover()
-                flash(f"Edicto {edicto.descripcion} recuperado.", "success")
+                bitacora = recover_success(edicto)
+                flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_NOTARIALES_DIAS} días o más.", "warning")
         else:

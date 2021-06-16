@@ -1,0 +1,53 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+
+{% block title %}Todas las Ubicaciones de Expedientes{% endblock %}
+
+{% block topbar_actions %}
+    {{ list.topbar_option_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
+    {{ list.topbar_option('Distritos', url_for('ubicaciones_expedientes.list_distritos'), 'fas fa-sitemap') }}
+    {% if autoridad %}
+        {% if current_user.can_edit('ubicaciones_expedientes') %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('ubicaciones_expedientes.list_autoridad_sentencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('ubicaciones_expedientes.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}{% endif %}
+        {% endif %}
+    {% else %}
+        {% if current_user.can_edit('ubicaciones_expedientes') %}
+            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if estatus == 'A' %}{{ list.page('Todas las Ubicaciones de Expedientes') }}{% endif %}
+    {% if estatus == 'B' %}{{ list.page('Todas las Ubicaciones de Expedientes inactivas') }}{% endif %}
+    <div class="container-fluid">
+        {% call list.card() %}
+            <table id="ubicaciones_expedientes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+                <thead>
+                    <tr>
+                        <th>Creados</th>
+                        <th>Autoridades</th>
+                        <th>Expedientes</th>
+                        <th>Ubicaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ubicacion_expediente in ubicaciones_expedientes %}
+                    <tr>
+                        <td>{{ ubicacion_expediente.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ ubicacion_expediente.autoridad.clave }}</td>
+                        <td><a href="{{ url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id) }}">{{ ubicacion_expediente.expediente }}</a></td>
+                        <td>{{ ubicacion_expediente.ubicacion }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('ubicaciones_expedientes_datatable', order='desc') }}
+{% endblock %}

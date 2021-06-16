@@ -7,7 +7,7 @@ from lib.universal_mixin import UniversalMixin
 
 
 class UbicacionExpediente(db.Model, UniversalMixin):
-    """ Ubicacion de Expediente """
+    """Ubicacion de Expediente"""
 
     UBICACIONES = OrderedDict(
         [
@@ -23,8 +23,8 @@ class UbicacionExpediente(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    autoridad_id = db.Column(db.Integer, db.ForeignKey('autoridades.id'), index=True, nullable=False)
-    autoridad = db.relationship('Autoridad', back_populates='ubicaciones_expedientes')
+    autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad = db.relationship("Autoridad", back_populates="ubicaciones_expedientes")
 
     # Columnas
     expediente = db.Column(db.String(16), index=True, nullable=False)
@@ -35,5 +35,5 @@ class UbicacionExpediente(db.Model, UniversalMixin):
     )
 
     def __repr__(self):
-        """ Representación """
-        return f"<UbicacionExpediente {self.autoridad.clave} {self.expediente}>"
+        """Representación"""
+        return f"<UbicacionExpediente {self.expediente}>"

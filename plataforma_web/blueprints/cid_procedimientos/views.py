@@ -3,9 +3,11 @@ CID Procedimientos, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 

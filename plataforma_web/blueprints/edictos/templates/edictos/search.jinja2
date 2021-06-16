@@ -10,19 +10,17 @@
 {% block content %}
     {{ f.page('Buscar Edictos') }}
     <div class="container-fluid">
-        {% call f.form_tag('edictos.search', fid='edicto_search_form') %}
-            {% call f.form_group(form.distrito) %}{% endcall %}
-            {% call f.form_group(form.autoridad) %}{% endcall %}
-            {% call f.form_group(form.fecha_desde) %}{% endcall %}
-            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
-            {% call f.form_group(form.numero_publicacion) %}{% endcall %}
-            {{ form.buscar() }}
+        {% call f.card() %}
+            {% call f.form_tag('edictos.search', fid='edicto_search_form') %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.fecha_desde) %}{% endcall %}
+                {% call f.form_group(form.fecha_hasta) %}{% endcall %}
+                {% call f.form_group(form.descripcion) %}{% endcall %}
+                {% call f.form_group(form.expediente) %}{% endcall %}
+                {% call f.form_group(form.numero_publicacion) %}{% endcall %}
+                {{ form.buscar() }}
+            {% endcall %}
         {% endcall %}
     </div>
-{% endblock %}
-
-{% block custom_javascript %}
-    {{ f.js_select_distrito_autoridad(distritos, autoridades) }}
 {% endblock %}

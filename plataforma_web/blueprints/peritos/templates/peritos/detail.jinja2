@@ -25,8 +25,8 @@
             {{ detail.label_value('Teléfono fijo', perito.telefono_fijo) }}
             {{ detail.label_value('Teléfono celular', perito.telefono_celular) }}
             {{ detail.label_value('e-mail', perito.email) }}
-            {{ detail.label_value('Renovación', perito.renovacion) }}
             {{ detail.label_value('Notas', perito.notas) }}
+            {{ detail.label_value('Renovación', perito.renovacion) }}
         {% endcall %}
     </div>
     {% if current_user.can_edit('peritos') %}

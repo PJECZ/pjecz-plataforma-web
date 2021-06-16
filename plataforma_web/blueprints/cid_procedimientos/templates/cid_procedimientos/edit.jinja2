@@ -5,11 +5,13 @@
 
 {% block content %}
     {{ f.page('Editar ' + cid_procedimiento.descripcion) }}
-        <div class="container-fluid">
-        {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
-        {% call f.form_tag('cid_procedimientos.edit', fid='cid_procedimiento_form', **form_kwargs) %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {{ form.guardar() }}
+    <div class="container-fluid">
+        {% call f.card() %}
+            {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
+            {% call f.form_tag('cid_procedimientos.edit', fid='cid_procedimiento_form', **form_kwargs) %}
+                {% call f.form_group(form.descripcion) %}{% endcall %}
+                {% call f.form_group(form.guardar) %}{% endcall %}
+            {% endcall %}
         {% endcall %}
     </div>
 {% endblock %}

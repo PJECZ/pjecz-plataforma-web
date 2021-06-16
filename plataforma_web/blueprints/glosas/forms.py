@@ -19,7 +19,7 @@ class GlosaNewForm(FlaskForm):
     fecha = DateField("Fecha", validators=[DataRequired()])
     tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=64)])
-    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Expediente (número/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
@@ -30,7 +30,7 @@ class GlosaEditForm(FlaskForm):
     fecha = DateField("Fecha", validators=[DataRequired()])
     tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=64)])
-    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Expediente (número/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     guardar = SubmitField("Guardar")
 
 
@@ -43,5 +43,5 @@ class GlosaSearchForm(FlaskForm):
     fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=64)])
-    expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     buscar = SubmitField("Buscar")

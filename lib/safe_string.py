@@ -15,6 +15,14 @@ def safe_string(input_str):
     return removed_multiple_spaces.strip().upper()
 
 
+def safe_message(input_str):
+    """Safe message"""
+    message = str(input_str)
+    if message == '':
+        message = "Sin descripción"
+    return (message[:250] + '...') if len(message) > 250 else message
+
+
 def safe_expediente(input_str):
     """Safe expediente"""
     if not isinstance(input_str, str) or input_str.strip() == "":
