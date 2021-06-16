@@ -25,8 +25,9 @@ sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
 MODULO = "SENTENCIAS"
 SUBDIRECTORIO = "Sentencias"
-LIMITE_JUSTICIABLES_DIAS = 365
+LIMITE_DIAS = 365
 LIMITE_ADMINISTRADORES_DIAS = 365
+CONSULTAS_LIMITE = 100
 
 
 @sentencias.route("/sentencias/acuses/<id_hashed>")
@@ -49,11 +50,11 @@ def list_active():
     """Listado de Sentencias activas más recientes"""
     # Si es administrador, ve las sentencias de todas las autoridades
     if current_user.can_admin("sentencias"):
-        sentencias_activas = Sentencia.query.filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
+        sentencias_activas = Sentencia.query.filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("sentencias/list_admin.jinja2", autoridad=None, sentencias=sentencias_activas, estatus="A")
     # Si su autoridad es jurisdiccional, ve sus propias sentencias
     if current_user.autoridad.es_jurisdiccional:
-        sus_sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == current_user.autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
+        sus_sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == current_user.autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("sentencias/list.jinja2", autoridad=current_user.autoridad, sentencias=sus_sentencias_activas, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("sentencias.list_distritos"))
@@ -65,11 +66,11 @@ def list_inactive():
     """Listado de Sentencias inactivas"""
     # Si es administrador, ve las sentencias de todas las autoridades
     if current_user.can_admin("sentencias"):
-        sentencias_inactivas = Sentencia.query.filter(Sentencia.estatus == "B").order_by(Sentencia.creado.desc()).limit(100).all()
+        sentencias_inactivas = Sentencia.query.filter(Sentencia.estatus == "B").order_by(Sentencia.creado.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("sentencias/list_admin.jinja2", autoridad=None, sentencias=sentencias_inactivas, estatus="B")
     # Si es jurisdiccional, ve sus propias sentencias
     if current_user.autoridad.es_jurisdiccional:
-        sus_sentencias_inactivas = Sentencia.query.filter(Sentencia.autoridad == current_user.autoridad).filter(Sentencia.estatus == "B").order_by(Sentencia.fecha.desc()).limit(100).all()
+        sus_sentencias_inactivas = Sentencia.query.filter(Sentencia.autoridad == current_user.autoridad).filter(Sentencia.estatus == "B").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("sentencias/list.jinja2", autoridad=current_user.autoridad, sentencias=sus_sentencias_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("sentencias.list_distritos"))
@@ -94,7 +95,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_sentencias(autoridad_id):
     """Listado de Sentencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(100).all()
+    sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sentencias_activas, estatus="A")
 
 
@@ -103,7 +104,7 @@ def list_autoridad_sentencias(autoridad_id):
 def list_autoridad_sentencias_inactive(autoridad_id):
     """Listado de Sentencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    sentencias_inactivos = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "B").order_by(Sentencia.creado.desc()).limit(100).all()
+    sentencias_inactivos = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "B").order_by(Sentencia.creado.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sentencias_inactivos, estatus="B")
 
 
@@ -172,7 +173,7 @@ def search():
 
         # Mostrar resultados
         if mostrar_resultados:
-            consulta = consulta.order_by(Sentencia.fecha.desc()).limit(100).all()
+            consulta = consulta.order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
             return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=consulta)
 
     # Los administradores pueden buscar en todas las autoridades
@@ -486,12 +487,12 @@ def delete(sentencia_id):
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == sentencia.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_JUSTICIABLES_DIAS) <= sentencia.creado:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= sentencia.creado:
                 sentencia.delete()
                 bitacora = delete_success(sentencia)
                 flash(bitacora.descripcion, "success")
             else:
-                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_JUSTICIABLES_DIAS} días o más.", "warning")
+                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))
@@ -525,12 +526,12 @@ def recover(sentencia_id):
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == sentencia.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_JUSTICIABLES_DIAS) <= sentencia.creado:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= sentencia.creado:
                 sentencia.recover()
                 bitacora = recover_success(sentencia)
                 flash(bitacora.descripcion, "success")
             else:
-                flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_JUSTICIABLES_DIAS} días o más.", "warning")
+                flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))

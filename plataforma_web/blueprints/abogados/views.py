@@ -13,7 +13,10 @@ from plataforma_web.blueprints.abogados.forms import AbogadoForm, AbogadoSearchF
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 
 abogados = Blueprint("abogados", __name__, template_folder="templates")
+
 MODULO = "ABOGADOS"
+CONSULTAS_LIMITE = 400
+
 
 @abogados.before_request
 @login_required
@@ -25,7 +28,7 @@ def before_request():
 @abogados.route("/abogados")
 def list_active():
     """Listado de Abogados activos"""
-    abogados_activos = Abogado.query.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(100).all()
+    abogados_activos = Abogado.query.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("abogados/list.jinja2", abogados=abogados_activos, estatus="A")
 
 
@@ -33,7 +36,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """Listado de Abogados inactivos"""
-    abogados_inactivos = Abogado.query.filter(Abogado.estatus == "B").order_by(Abogado.fecha.desc()).limit(100).all()
+    abogados_inactivos = Abogado.query.filter(Abogado.estatus == "B").order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("abogados/list.jinja2", abogados=abogados_inactivos, estatus="B")
 
 
@@ -63,7 +66,7 @@ def search():
         if form_search.nombre.data:
             nombre = safe_string(form_search.nombre.data)
             consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
-        consulta = consulta.order_by(Abogado.fecha.desc()).limit(100).all()
+        consulta = consulta.order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("abogados/list.jinja2", abogados=consulta)
     return render_template("abogados/search.jinja2", form=form_search)
 

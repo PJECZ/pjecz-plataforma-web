@@ -25,8 +25,9 @@ edictos = Blueprint("edictos", __name__, template_folder="templates")
 
 MODULO = "EDICTOS"
 SUBDIRECTORIO = "Edictos"
-LIMITE_NOTARIALES_DIAS = 30
+LIMITE_DIAS = 30
 LIMITE_ADMINISTRADORES_DIAS = 90
+CONSULTAS_LIMITE = 100
 
 
 @edictos.route("/edictos/acuses/<id_hashed>")
@@ -49,11 +50,11 @@ def list_active():
     """Listado de Edictos activos"""
     # Si es administrador, ve los edictos de todas las autoridades
     if current_user.can_admin("edictos"):
-        edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
+        edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("edictos/list_admin.jinja2", autoridad=None, edictos=edictos_activos, estatus="A")
     # Si su autoridad es jurisdiccional, ve sus propios edictos
     if current_user.autoridad.es_jurisdiccional:
-        sus_edictos_activos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
+        sus_edictos_activos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, edictos=sus_edictos_activos, estatus="A")
     # No es jurisdiccional, se redirige al listado de edictos
     return redirect(url_for("edictos.list_distritos"))
@@ -65,11 +66,11 @@ def list_inactive():
     """Listado de Edictos inactivos"""
     # Si es administrador, ve los edictos de todas las autoridades
     if current_user.can_admin("edictos"):
-        edictos_inactivos = Edicto.query.filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(100).all()
+        edictos_inactivos = Edicto.query.filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("edictos/list_admin.jinja2", autoridad=None, edictos=edictos_inactivos, estatus="B")
     # Si es jurisdiccional, ve sus propios edictos
     if current_user.autoridad.es_jurisdiccional:
-        sus_edictos_inactivos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "B").order_by(Edicto.fecha.desc()).limit(100).all()
+        sus_edictos_inactivos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "B").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, edictos=sus_edictos_inactivos, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("edictos.list_distritos"))
@@ -94,7 +95,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_edictos(autoridad_id):
     """Listado de Edictos activos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    edictos_activos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(100).all()
+    edictos_activos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=edictos_activos, estatus="A")
 
 
@@ -103,7 +104,7 @@ def list_autoridad_edictos(autoridad_id):
 def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    edictos_inactivos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(100).all()
+    edictos_inactivos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=edictos_inactivos, estatus="B")
 
 
@@ -177,7 +178,7 @@ def search():
 
         # Mostrar resultados
         if mostrar_resultados:
-            consulta = consulta.order_by(Edicto.fecha.desc()).limit(100).all()
+            consulta = consulta.order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
             return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
 
     # Los administradores pueden buscar en todas las autoridades
@@ -214,7 +215,7 @@ def new():
     # Para validar la fecha
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -238,7 +239,7 @@ def new():
         # Validar fecha
         fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_NOTARIALES_DIAS} días.", "warning")
+            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_DIAS} días.", "warning")
             form.fecha.data = hoy
             return render_template("edictos/new.jinja2", form=form)
 
@@ -526,12 +527,12 @@ def delete(edicto_id):
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == edicto.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS) <= edicto.creado:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= edicto.creado:
                 edicto.delete()
                 bitacora = delete_success(edicto)
                 flash(bitacora.descripcion, "success")
             else:
-                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_NOTARIALES_DIAS} días o más.", "warning")
+                flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
@@ -565,12 +566,12 @@ def recover(edicto_id):
             else:
                 flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == edicto.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_NOTARIALES_DIAS) <= edicto.creado:
+            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= edicto.creado:
                 edicto.recover()
                 bitacora = recover_success(edicto)
                 flash(bitacora.descripcion, "success")
             else:
-                flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_NOTARIALES_DIAS} días o más.", "warning")
+                flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_DIAS} días o más.", "warning")
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("edictos.detail", edicto_id=edicto_id))
