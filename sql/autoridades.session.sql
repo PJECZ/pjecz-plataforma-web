@@ -44,17 +44,12 @@ WHERE autoridades.estatus = 'A'
     AND autoridades.es_notaria = FALSE
 ORDER BY organo_jurisdiccional,
     clave;
--- @block updates
-UPDATE autoridades
-SET organo_jurisdiccional = 'NO DEFINIDO';
-UPDATE autoridades
-SET materia_id = 1;
 -- @block organos_jurisdiccionales, materias y autoridades
 SELECT autoridades.organo_jurisdiccional,
     materias.nombre AS materia,
     autoridades.clave,
     distritos.nombre AS distrito,
-    autoridades.descripcion
+    autoridades.descripcion AS juzgado
 FROM autoridades
     INNER JOIN materias ON autoridades.materia_id = materias.id
     INNER JOIN distritos ON autoridades.distrito_id = distritos.id
