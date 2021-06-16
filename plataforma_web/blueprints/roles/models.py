@@ -60,7 +60,7 @@ class Rol(db.Model, UniversalMixin):
     por_defecto = db.Column(db.Boolean, default=False, index=True)
 
     # Hijos
-    usuarios = db.relationship('Usuario', back_populates='rol')
+    usuarios = db.relationship("Usuario", back_populates="rol")
 
     def add_permission(self, perm):
         """Agregar permiso"""
@@ -115,8 +115,6 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_NOTARIALES,
             ],
             "JUZGADO": [
-                Permiso.VER_CUENTAS,
-                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.MODIFICAR_JUSTICIABLES,
@@ -126,8 +124,6 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.CREAR_NOTARIALES,
             ],
             "NOTARIA": [
-                Permiso.VER_CUENTAS,
-                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
@@ -148,15 +144,11 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.CREAR_NOTARIALES,
             ],
             "USUARIO": [
-                Permiso.VER_CUENTAS,
-                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
             ],
             "OBSERVADOR": [
-                Permiso.VER_CUENTAS,
-                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
