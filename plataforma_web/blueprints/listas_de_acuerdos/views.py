@@ -25,8 +25,9 @@ listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="
 
 MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
-LIMITE_JUSTICIABLES_DIAS = 1
+LIMITE_DIAS = 1
 LIMITE_ADMINISTRADORES_DIAS = 90
+CONSULTAS_LIMITE = 100
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/acuses/<id_hashed>")
@@ -49,11 +50,11 @@ def list_active():
     """Listado de Listas de Acuerdos activas más recientes"""
     # Si es administrador, ve las listas de acuerdos de todas las autoridades
     if current_user.can_admin("listas_de_acuerdos"):
-        listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=listas_activas, estatus="A")
     # Si es jurisdiccional, ve sus propias listas de acuerdos
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        sus_listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_listas_activas, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
@@ -65,11 +66,11 @@ def list_inactive():
     """Listado de Listas de Acuerdos inactivas"""
     # Si es administrador, ve las listas de acuerdos de todas las autoridades
     if current_user.can_admin("listas_de_acuerdos"):
-        inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.creado.desc()).limit(100).all()
+        inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.creado.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=inactivas, estatus="B")
     # Si es jurisdiccional, ve sus propias listas de acuerdos
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        sus_listas_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_listas_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
@@ -94,7 +95,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_listas_de_acuerdos(autoridad_id):
     """Listado de Listas de Acuerdos activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+    listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_activas, estatus="A")
 
 
@@ -103,7 +104,7 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
     """Listado de Listas de Acuerdos inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    listas_de_acuerdos_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.creado.desc()).limit(100).all()
+    listas_de_acuerdos_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.creado.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_inactivas, estatus="B")
 
 
@@ -152,7 +153,7 @@ def search():
             consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
 
         # Mostrar resultados
-        consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(100).all()
+        consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=consulta)
 
     # Los administradores pueden buscar en todas las autoridades
@@ -188,7 +189,7 @@ def new():
     # Para validar la fecha
     hoy = datetime.date.today()
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_JUSTICIABLES_DIAS)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -216,7 +217,7 @@ def new():
 
         # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_JUSTICIABLES_DIAS} días.", "warning")
+            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_DIAS} días.", "warning")
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new.jinja2", form=form)
 

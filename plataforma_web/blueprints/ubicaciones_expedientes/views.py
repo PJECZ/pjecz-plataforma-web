@@ -15,7 +15,9 @@ from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionEx
 from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm
 
 ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, template_folder="templates")
+
 MODULO = "UBICACIONES DE EXPEDIENTES"
+LIMITE_CONSULTAS = 400
 
 
 @ubicaciones_expedientes.before_request
@@ -30,11 +32,11 @@ def list_active():
     """Listado de Ubicaciones de Expedientes"""
     # Si es administrador, ve las ubicaciones de expedientes de todas las autoridades
     if current_user.can_admin("ubicaciones_expedientes"):
-        ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
+        ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=None, ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        sus_ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
+        sus_ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("ubicaciones_expedientes/list.jinja2", autoridad=current_user.autoridad, ubicaciones_expedientes=sus_ubicaciones_expedientes_activos, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
@@ -46,11 +48,11 @@ def list_inactive():
     """Listado de Ubicaciones de Expedientes inactivos"""
     # Si es administrador, ve las ubicaciones de expedientes de todas las autoridades
     if current_user.can_admin("ubicaciones_expedientes"):
-        ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
+        ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=None, ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        sus_ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
+        sus_ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("ubicaciones_expedientes/list.jinja2", autoridad=current_user.autoridad, ubicaciones_expedientes=sus_ubicaciones_expedientes_inactivos, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
@@ -75,7 +77,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_ubicaciones_expedientes(autoridad_id):
     """Listado de Ubicaciones de Expedientes activasode una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
+    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
     return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
 
 
@@ -84,7 +86,7 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
 def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
     """Listado de Ubicaciones de Expedientes inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(100).all()
+    ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
     return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
 
 
@@ -119,7 +121,7 @@ def search():
 
         # Mostrar resultados
         if mostrar_resultados:
-            consulta = consulta.order_by(UbicacionExpediente.creado.desc()).limit(100).all()
+            consulta = consulta.order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
             return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=consulta)
 
     # Los administradores pueden buscar en todas las autoridades

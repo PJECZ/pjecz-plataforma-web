@@ -13,7 +13,9 @@ from plataforma_web.blueprints.peritos.models import Perito
 from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
 
 peritos = Blueprint("peritos", __name__, template_folder="templates")
+
 MODULO = "PERITOS"
+CONSULTAS_LIMITE = 400
 
 
 @peritos.before_request
@@ -26,7 +28,7 @@ def before_request():
 @peritos.route("/peritos")
 def list_active():
     """Listado de Peritos"""
-    peritos_activos = Perito.query.filter(Perito.estatus == "A").order_by(Perito.nombre).limit(100).all()
+    peritos_activos = Perito.query.filter(Perito.estatus == "A").order_by(Perito.nombre).limit(CONSULTAS_LIMITE).all()
     return render_template("peritos/list.jinja2", peritos=peritos_activos, estatus="A")
 
 
@@ -34,7 +36,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """Listado de Peritos inactivos"""
-    peritos_inactivos = Perito.query.filter(Perito.estatus == "B").order_by(Perito.nombre).limit(100).all()
+    peritos_inactivos = Perito.query.filter(Perito.estatus == "B").order_by(Perito.nombre).limit(CONSULTAS_LIMITE).all()
     return render_template("peritos/list.jinja2", peritos=peritos_inactivos, estatus="B")
 
 
@@ -58,7 +60,7 @@ def search():
             consulta = consulta.filter(Perito.nombre.like(f"%{nombre}%"))
         if form_search.tipo.data:
             consulta = consulta.filter(Perito.tipo == form_search.tipo.data)
-        consulta = consulta.order_by(Perito.creado.desc()).limit(100).all()
+        consulta = consulta.order_by(Perito.creado.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("peritos/list.jinja2", peritos=consulta)
     return render_template("peritos/search.jinja2", form=form_search)
 

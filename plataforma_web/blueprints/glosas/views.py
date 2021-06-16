@@ -24,6 +24,7 @@ from plataforma_web.blueprints.glosas.models import Glosa
 glosas = Blueprint("glosas", __name__, template_folder="templates")
 
 SUBDIRECTORIO = "Glosas"
+CONSULTAS_LIMITE = 100
 
 
 @glosas.route("/glosas/acuses/<id_hashed>")
@@ -46,13 +47,13 @@ def list_active():
     """Listado de Glosas activos"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
-        glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
+        glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_activas, estatus="A")
     # No es administrador, consultar su autoridad
     autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
     # Si su autoridad es jurisdiccional, ve sus propias glosas
     if current_user.autoridad.es_jurisdiccional:
-        sus_glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
+        sus_glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=sus_glosas_activas, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("glosas.list_distritos"))
@@ -64,11 +65,11 @@ def list_inactive():
     """Listado de Glosas inactivas"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
-        glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(100).all()
+        glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_inactivas, estatus="B")
     # Si es jurisdiccional, ve sus propios glosas
     if current_user.autoridad.es_jurisdiccional:
-        sus_glosas_inactivas = Glosa.query.filter(Glosa.autoridad == current_user.autoridad).filter(Glosa.estatus == "B").order_by(Glosa.fecha.desc()).limit(100).all()
+        sus_glosas_inactivas = Glosa.query.filter(Glosa.autoridad == current_user.autoridad).filter(Glosa.estatus == "B").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list.jinja2", autoridad=current_user.autoridad, glosas=sus_glosas_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("glosas.list_distritos"))
@@ -93,7 +94,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_glosas(autoridad_id):
     """Listado de Glosas activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(100).all()
+    glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=glosas_activas, estatus="A")
 
 
@@ -102,7 +103,7 @@ def list_autoridad_glosas(autoridad_id):
 def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    glosas_inactivas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(100).all()
+    glosas_inactivas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=glosas_inactivas, estatus="B")
 
 
@@ -145,7 +146,7 @@ def search():
         # tipo_juicio
         # expediente
         # descripcion
-        consulta = consulta.order_by(Glosa.creado.desc()).limit(100).all()
+        consulta = consulta.order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list.jinja2", glosas=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()

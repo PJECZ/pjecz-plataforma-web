@@ -11,11 +11,13 @@ from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 
 entradas_salidas = Blueprint("entradas_salidas", __name__, template_folder="templates")
 
+CONSULTAS_LIMITE = 800
+
 
 @entradas_salidas.route("/entradas_salidas")
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """ Listado de entradas y salidas """
-    entradas_salidas_activas = EntradaSalida.query.order_by(EntradaSalida.creado.desc()).limit(100).all()
+    entradas_salidas_activas = EntradaSalida.query.order_by(EntradaSalida.creado.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("entradas_salidas/list.jinja2", entradas_salidas=entradas_salidas_activas)
