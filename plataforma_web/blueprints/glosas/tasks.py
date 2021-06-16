@@ -3,17 +3,13 @@ Glosas, tareas para ejecutar en el fondo
 """
 import logging
 import os
-import re
-from datetime import datetime, date
+from datetime import datetime
 from pathlib import Path
 import csv
 
-#
-from dateutil.tz import tzlocal
 from google.cloud import storage
-from hashids import Hashids
 from rq import get_current_job
-from lib.safe_string import safe_string, safe_expediente
+from lib.safe_string import safe_expediente
 
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -137,9 +133,9 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
                 expediente_str = safe_expediente(row["expediente"].strip())
             except (IndexError, ValueError):
                 expediente_str = ""
-            if row["tipo_juicio"].strip() in Glosa.TIPOS_JUICIOS:
-                tipo_juicio_str = row["tipo_juicio"].strip()
-            else:
+            tipo_juicio_str = row["tipo_juicio"].strip()
+            if tipo_juicio_str not in Glosa.TIPOS_JUICIOS.keys():
+                bitacora.warning("! No se conoce el tipo de juicio %s", tipo_juicio_str)
                 tipo_juicio_str = "ND"
             metadatos[archivo_str] = {
                 "fecha": fecha,
@@ -176,12 +172,13 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
 
         # Insertar
         if ruta.name in metadatos:
+            encontrado = metadatos[ruta.name]
             glosa = Glosa(
                 autoridad=autoridad,
-                fecha=metadatos[ruta.name]["fecha"],
-                tipo_juicio=metadatos[ruta.name]["tipo_juicio"],
+                fecha=encontrado["fecha"],
+                tipo_juicio=encontrado["tipo_juicio"],
                 descripcion="SIN DESCRIPCION",
-                expediente=metadatos[ruta.name]["expediente"],
+                expediente=encontrado["expediente"],
                 archivo=ruta.name,
                 url=blob.public_url,
             ).save()
@@ -209,7 +206,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
         mensajes.append(f"Están presentes {contador_presentes}")
     if contador_incorrectos > 0:
         mensajes.append(f"Hay {contador_incorrectos} archivos con nombres incorrectos")
-    mensaje_final = "- " + ". ".join(mensajes) + "."
+    mensaje_final = "- " + ". ".join(mensajes)
 
     # Terminar tarea
     set_task_progress(100)

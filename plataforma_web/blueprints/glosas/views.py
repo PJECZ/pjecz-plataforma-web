@@ -40,7 +40,7 @@ def checkout(id_hashed):
 
 @glosas.before_request
 @login_required
-@permission_required(Permiso.VER_PLENOS_SALAS)
+@permission_required(Permiso.VER_SEGUNDAS)
 def before_request():
     """Permiso por defecto"""
 
@@ -63,7 +63,7 @@ def list_active():
 
 
 @glosas.route("/glosas/inactivos")
-@permission_required(Permiso.MODIFICAR_PLENOS_SALAS)
+@permission_required(Permiso.MODIFICAR_SEGUNDAS)
 def list_inactive():
     """Listado de Glosas inactivas"""
     # Si es administrador, ve las glosas de todas las autoridades
@@ -102,7 +102,7 @@ def list_autoridad_glosas(autoridad_id):
 
 
 @glosas.route("/glosas/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_PLENOS_SALAS)
+@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
 def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -111,7 +111,7 @@ def list_autoridad_glosas_inactive(autoridad_id):
 
 
 @glosas.route("/glosas/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_PLENOS_SALAS)
+@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
 def refresh(autoridad_id):
     """Refrescar Glosas"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -166,7 +166,7 @@ def new_success(glosa):
 
 
 @glosas.route("/glosas/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_PLENOS_SALAS)
+@permission_required(Permiso.CREAR_SEGUNDAS)
 def new():
     """Subir Glosa como juzgado"""
 
@@ -269,7 +269,7 @@ def new():
 
 
 @glosas.route("/glosas/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_PLENOS_SALAS)
+@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
 def new_for_autoridad(autoridad_id):
     """Subir Glosa para una autoridad dada"""
 
@@ -387,7 +387,7 @@ def edit_success(glosa):
 
 
 @glosas.route("/glosas/edicion/<int:glosa_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_PLENOS_SALAS)
+@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
 def edit(glosa_id):
     """Editar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
@@ -427,7 +427,7 @@ def delete_success(glosa):
 
 
 @glosas.route("/glosas/eliminar/<int:glosa_id>")
-@permission_required(Permiso.MODIFICAR_PLENOS_SALAS)
+@permission_required(Permiso.MODIFICAR_SEGUNDAS)
 def delete(glosa_id):
     """Eliminar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
@@ -466,7 +466,7 @@ def recover_success(glosa):
 
 
 @glosas.route("/glosas/recuperar/<int:glosa_id>")
-@permission_required(Permiso.MODIFICAR_PLENOS_SALAS)
+@permission_required(Permiso.MODIFICAR_SEGUNDAS)
 def recover(glosa_id):
     """Recuperar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
