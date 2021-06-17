@@ -26,6 +26,7 @@ class AutoridadNewForm(FlaskForm):
 
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    descripcion_corta = StringField("Descripción corta", validators=[Optional(), Length(max=64)])
     clave = StringField("Clave (única)", validators=[DataRequired(), Length(max=16)])
     es_jurisdiccional = BooleanField("Es Jurisdiccional (habilita edictos, listas de acuerdos, sentencias, ubicaciones de expedientes)", validators=[Optional()])
     es_notaria = BooleanField("Es Notaría (habilita edictos)", validators=[Optional()])
@@ -39,6 +40,7 @@ class AutoridadEditForm(FlaskForm):
 
     distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    descripcion_corta = StringField("Descripción corta", validators=[Optional(), Length(max=64)])
     clave = StringField("Clave (única)", validators=[DataRequired(), Length(max=16)])
     es_jurisdiccional = BooleanField("Es Jurisdiccional (habilita edictos, listas de acuerdos, sentencias, ubicaciones de expedientes)", validators=[Optional()])
     es_notaria = BooleanField("Es Notaría (habilita edictos)", validators=[Optional()])

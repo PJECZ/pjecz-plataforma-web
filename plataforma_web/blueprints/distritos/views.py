@@ -14,6 +14,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.forms import DistritoForm
 
 distritos = Blueprint("distritos", __name__, template_folder="templates")
+
 MODULO = "DISTRITOS"
 
 
@@ -55,6 +56,7 @@ def new():
     if form.validate_on_submit():
         distrito = Distrito(
             nombre=form.nombre.data.strip(),
+            nombre_corto=form.nombre_corto.data.strip(),
             es_distrito_judicial=form.es_distrito_judicial.data,
         )
         distrito.save()
@@ -78,6 +80,7 @@ def edit(distrito_id):
     form = DistritoForm()
     if form.validate_on_submit():
         distrito.nombre = form.nombre.data.strip()
+        distrito.nombre_corto = form.nombre_corto.data.strip()
         distrito.es_distrito_judicial = form.es_distrito_judicial.data
         distrito.save()
         bitacora = Bitacora(
@@ -90,6 +93,7 @@ def edit(distrito_id):
         flash(bitacora.descripcion, 'success')
         return redirect(bitacora.url)
     form.nombre.data = distrito.nombre
+    form.nombre_corto.data = distrito.nombre_corto
     form.es_distrito_judicial.data = distrito.es_distrito_judicial
     return render_template("distritos/edit.jinja2", form=form, distrito=distrito)
 

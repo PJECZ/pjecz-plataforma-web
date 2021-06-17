@@ -14,6 +14,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 autoridades = Blueprint("autoridades", __name__, template_folder="templates")
+
 MODULO = "AUTORIDADES"
 
 
@@ -90,6 +91,7 @@ def new():
         autoridad = Autoridad(
             distrito=distrito,
             descripcion=descripcion,
+            descripcion_corta=form.descripcion_corta.data.strip(),
             clave=form.clave.data.strip().upper(),
             es_jurisdiccional=es_jurisdiccional,
             es_notaria=es_notaria,
@@ -125,6 +127,7 @@ def edit(autoridad_id):
     if form.validate_on_submit():
         autoridad.distrito = form.distrito.data
         autoridad.descripcion = form.descripcion.data.strip()
+        autoridad.descripcion_corta = form.descripcion_corta.data.strip()
         autoridad.clave = form.clave.data.strip().upper()
         autoridad.es_jurisdiccional = form.es_jurisdiccional.data
         autoridad.es_notaria = form.es_notaria.data
@@ -146,6 +149,7 @@ def edit(autoridad_id):
         return redirect(bitacora.url)
     form.distrito.data = autoridad.distrito
     form.descripcion.data = autoridad.descripcion
+    form.descripcion_corta.data = autoridad.descripcion_corta
     form.clave.data = autoridad.clave
     form.es_jurisdiccional.data = autoridad.es_jurisdiccional
     form.es_notaria.data = autoridad.es_notaria

@@ -1,27 +1,5 @@
 """
 Edictos, modelos
-
-- La tabla edictos tiene los campos expediente y numero_publicacion como varchar
-- SOLUCIONADO: Estas columnas (permitían) valores NULOS
-- Una columna string con valor nulo ¡¡¡truena con FastAPI!!!
-- En MariaDB se arregla ingresando con mysql y ejecutando...
-
-    DESCRIBE edictos;
-
-    | expediente         | varchar(16)  | YES  |     | NULL
-    | numero_publicacion | varchar(16)  | YES  |     | NULL
-
-    UPDATE edictos SET expediente='' WHERE expediente IS NULL;
-    ALTER TABLE edictos MODIFY expediente varchar(16) NOT NULL DEFAULT "";
-
-    UPDATE edictos SET numero_publicacion='' WHERE numero_publicacion IS NULL;
-    ALTER TABLE edictos MODIFY numero_publicacion varchar(16) NOT NULL DEFAULT "";
-
-    DESCRIBE edictos;
-
-    | expediente         | varchar(16)  | NO   |     |
-    | numero_publicacion | varchar(16)  | NO   |     |
-
 """
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
