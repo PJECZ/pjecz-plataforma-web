@@ -33,6 +33,7 @@ class Autoridad(db.Model, UniversalMixin):
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
+    descripcion_corta = db.Column(db.String(64), nullable=False, default="", server_default="")
     clave = db.Column(db.String(16), nullable=False, unique=True)
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
     es_notaria = db.Column(db.Boolean, nullable=False, default=False)

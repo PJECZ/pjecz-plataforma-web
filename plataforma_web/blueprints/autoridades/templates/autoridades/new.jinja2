@@ -10,6 +10,7 @@
             {% call f.form_tag('autoridades.new', fid='autoridad_form') %}
                 {% call f.form_group(form.distrito) %}{% endcall %}
                 {% call f.form_group(form.descripcion) %}{% endcall %}
+                {% call f.form_group(form.descripcion_corta) %}{% endcall %}
                 {% call f.form_group(form.clave) %}{% endcall %}
                 {% call f.form_group(form.es_jurisdiccional) %}{% endcall %}
                 {% call f.form_group(form.es_notaria) %}{% endcall %}
