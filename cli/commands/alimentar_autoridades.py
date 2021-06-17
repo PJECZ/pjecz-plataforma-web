@@ -12,7 +12,7 @@ AUTORIDADES_CSV = "seed/distritos_autoridades_usuarios.csv"
 
 
 def alimentar_autoridades():
-    """ Alimentar autoridades """
+    """Alimentar autoridades"""
     autoridades_csv = Path(AUTORIDADES_CSV)
     if not autoridades_csv.exists():
         click.echo(f"  NO se alimentaron autoridades porque no se encontró {AUTORIDADES_CSV}")
@@ -50,6 +50,8 @@ def alimentar_autoridades():
                 "descripcion": descripcion,
                 "distrito": distrito,
                 "clave": clave,
+                "organo_jurisdiccional": "NO DEFINIDO",
+                "materia_id": 1,
                 "directorio_listas_de_acuerdos": row["directorio_listas_de_acuerdos"].strip(),
                 "directorio_sentencias": row["directorio_sentencias"].strip(),
                 "es_jurisdiccional": es_jurisdiccional,
