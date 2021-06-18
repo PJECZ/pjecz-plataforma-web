@@ -26,16 +26,11 @@
     <a href="{{ link }}">{{ label }}</a> /
 {%- endmacro -%}
 
-{%- macro topbar_actions() -%}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="d-none d-md-block">Acciones <i class="fa fa-angle-down"></i></span>
-            <span class="d-block d-md-none"><i class="fa fa-plus"></i></span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            {{ caller () }}
-        </div>
-    </li>
+{%- macro topbar_actions(title='') -%}
+    {% if title %}<h1 class="h2">{{ title }}</h1>{% endif %}
+    <div class="btn-toolbar mb-2 mb-md-0">
+        {{ caller () }}
+    </div>
 {%- endmacro -%}
 
 {%- macro topbar_actions_option(label, url) -%}
@@ -43,27 +38,27 @@
 {%- endmacro -%}
 
 {%- macro topbar_option(label, url, icon) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
-    </li>
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" onclick="location.href={{ url }}">
+        <i class="{{ icon }}"></i> {{ label }}
+    </button>
 {%- endmacro -%}
 
 {%- macro topbar_option_edit(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-edit"></i> {{ label }}</a>
-    </li>
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" onclick="location.href={{ url }}">
+        <i class="fa fa-edit"></i> {{ label }}
+    </button>
 {%- endmacro -%}
 
 {%- macro topbar_option_delete(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-trash"></i> {{ label }}</a>
-    </li>
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" onclick="location.href={{ url }}">
+        <i class="fa fa-trash"></i> {{ label }}
+    </button>
 {%- endmacro -%}
 
 {%- macro topbar_option_recover(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-recycle"></i> {{ label }}</a>
-    </li>
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" onclick="location.href={{ url }}">
+        <i class="fa fa-recycle"></i> {{ label }}
+    </button>
 {%- endmacro -%}
 
 {%- macro card(title='', estatus='') -%}

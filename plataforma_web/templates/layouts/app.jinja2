@@ -28,7 +28,7 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 {{ flash.render() }}
                 {# include 'layouts/tasks_progress.jinja2' #}
-                {# block topbar_actions #}{# endblock #}
+                {% block topbar_actions %}{% endblock %}
                 {% block content %}{% endblock %}
             </main>
         </div>

@@ -23,7 +23,7 @@
             {{ detail.label_value_boolean('Es distrito judicial', distrito.es_distrito_judicial) }}
         {% endcall %}
         {% if autoridades %}
-            {% call detail.card() %}
+            {% call detail.card(title='Autoridades') %}
                 <table id="autoridades_datatable" class="table">
                     <thead>
                         <tr>

@@ -21,7 +21,8 @@
             <table id="distritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
                 <thead>
                     <tr>
-                        <th>Departamentos</th>
+                        <th>Nombres</th>
+                        <th>Nombres cortos</th>
                         <th>Es judicial</th>
                     </tr>
                 </thead>
@@ -29,6 +30,7 @@
                     {% for distrito in distritos %}
                     <tr>
                         <td><a href="{{ url_for('distritos.detail', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
+                        <td>{{ distrito.nombre_corto }}</td>
                         <td>{% if distrito.es_distrito_judicial %}Judicial{% endif %}</td>
                     </tr>
                     {% endfor %}
