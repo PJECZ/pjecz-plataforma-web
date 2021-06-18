@@ -85,11 +85,11 @@ def alimentar_notarias(entrada_csv):
         for row in rows:
             distrito = Distrito.query.filter(Distrito.nombre == row["distrito"].strip()).first()
             if distrito is None:
-                click.echo("  No existe el distrito " + row["distrito"])
+                click.echo("! No existe el distrito " + row["distrito"])
                 continue
             descripcion = row["autoridad"].strip()
             if descripcion == "":
-                click.echo("  Falta una descripción")
+                click.echo("! Falta una descripción")
                 continue
             clave = row["clave"].strip()  # Única
             if Autoridad.query.filter(Autoridad.clave == clave).first() is not None:
@@ -100,6 +100,8 @@ def alimentar_notarias(entrada_csv):
                 "distrito": distrito,
                 "descripcion": descripcion,
                 "clave": clave,
+                "organo_jurisdiccional": "NO DEFINIDO",
+                "materia_id": 1,
                 "es_jurisdiccional": True,
                 "es_notaria": True,
                 "directorio_edictos": directorio_edictos,
