@@ -1,18 +1,22 @@
 {%- macro page(label) -%}
-    <div class="page-breadcrumb">
-        <div class="row">
-            <div class="col-12 d-flex no-block align-items-center">
-                <h4 class="page-title">{{ label }}</h4>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ label }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
             </div>
         </div>
     </div>
 {%- endmacro -%}
 
 {%- macro page_breadcrumb(label) -%}
-    <div class="page-breadcrumb">
-        <div class="row">
-            <div class="col-12 d-flex no-block align-items-center">
-                <h4 class="page-title">{{ caller () }}{{ label }}</h4>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ caller () }}{{ label }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
             </div>
         </div>
     </div>
@@ -64,9 +68,9 @@
 
 {%- macro card(title='', estatus='') -%}
     {% if estatus == 'B' %}
-    <div class="card text-white bg-dark">
+    <div class="card text-white bg-dark mb-3">
     {% else %}
-    <div class="card">
+    <div class="card mb-3">
     {% endif %}
         <div class="card-body">
             {% if title %}<h5 class="card-title">{{ title }}</h5>{% endif %}

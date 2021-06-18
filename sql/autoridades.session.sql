@@ -59,3 +59,5 @@ WHERE autoridades.estatus = 'A'
 ORDER BY organo_jurisdiccional,
     materia,
     clave
+-- @block juzgados whatsapp
+
