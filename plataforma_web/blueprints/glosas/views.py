@@ -52,14 +52,14 @@ def list_active():
     if current_user.can_admin("glosas"):
         glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_activas, estatus="A")
-    # No es administrador, consultar su autoridad
-    autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
-    # Si su autoridad es jurisdiccional, ve sus propias glosas
-    if current_user.autoridad.es_jurisdiccional:
+    # Si puede editar o crear glosas
+    if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+        autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
         sus_glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=sus_glosas_activas, estatus="A")
-    # No es jurisdiccional, se redirige al listado de distritos
-    return redirect(url_for("glosas.list_distritos"))
+    # No es ninguno de los anteriores
+    glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+    return render_template("glosas/list.jinja2", autoridad=None, glosas=glosas_activas, estatus="A")
 
 
 @glosas.route("/glosas/inactivos")
