@@ -8,37 +8,43 @@ from lib.universal_mixin import UniversalMixin
 class Permiso:
     """Permiso tiene como constantes enteros de potencia dos"""
 
-    # Usuarios, Bitácoras, Entradas-Salidas, Roles, Tareas, Transcripciones
+    # CUENTAS: Usuarios, Bitácoras, Entradas-Salidas, Roles, Tareas, Transcripciones
     VER_CUENTAS = 0b1
     MODIFICAR_CUENTAS = 0b10
-    CREAR_CUENTAS = 0b100
+    CREAR_CUENTAS = MODIFICAR_CUENTAS
 
-    # Distritos, Autoridades
-    VER_CATALOGOS = 0b1000
-    MODIFICAR_CATALOGOS = 0b10000
-    CREAR_CATALOGOS = 0b100000
+    # CATALOGOS: Distritos, Autoridades
+    VER_CATALOGOS = 0b100
+    MODIFICAR_CATALOGOS = 0b1000
+    CREAR_CATALOGOS = MODIFICAR_CATALOGOS
 
-    # CID
-    VER_DOCUMENTACIONES = 0b1000000
-    MODIFICAR_DOCUMENTACIONES = 0b10000000
-    CREAR_DOCUMENTACIONES = 0b100000000
+    # DOCUMENTACIONES
+    VER_DOCUMENTACIONES = 0b10000
+    MODIFICAR_DOCUMENTACIONES = 0b100000
+    CREAR_DOCUMENTACIONES = MODIFICAR_DOCUMENTACIONES
 
-    # Abogados, Peritos
-    VER_CONSULTAS = 0b1000000000
-    MODIFICAR_CONSULTAS = 0b10000000000
-    CREAR_CONSULTAS = 0b100000000000
+    # CONSULTAS: Abogados, Peritos
+    VER_CONSULTAS = 0b1000000
+    MODIFICAR_CONSULTAS = 0b10000000
+    CREAR_CONSULTAS = MODIFICAR_CONSULTAS
 
-    # Glosas, Listas de Acuerdos, Sentencias, Ubicación de expedientes
-    VER_JUSTICIABLES = 0b1000000000000
-    MODIFICAR_JUSTICIABLES = 0b10000000000000
-    CREAR_JUSTICIABLES = 0b100000000000000
-    ADMINISTRAR_JUSTICIABLES = 0b1000000000000000
+    # JUSTICIABLES: Listas de Acuerdos, Sentencias, Ubicación de expedientes
+    VER_JUSTICIABLES = 0b100000000
+    MODIFICAR_JUSTICIABLES = 0b1000000000
+    CREAR_JUSTICIABLES = MODIFICAR_JUSTICIABLES
+    ADMINISTRAR_JUSTICIABLES = 0b10000000000
 
-    # Edictos
-    VER_NOTARIALES = 0b10000000000000000
-    MODIFICAR_NOTARIALES = 0b100000000000000000
-    CREAR_NOTARIALES = 0b1000000000000000000
-    ADMINISTRAR_NOTARIALES = 0b10000000000000000000
+    # NOTARIALES: Edictos
+    VER_NOTARIALES = 0b100000000000
+    MODIFICAR_NOTARIALES = 0b1000000000000
+    CREAR_NOTARIALES = MODIFICAR_NOTARIALES
+    ADMINISTRAR_NOTARIALES = 0b10000000000000
+
+    # PLENOS SALAS TRIBUNALES TCA: Glosas
+    VER_SEGUNDAS = 0b100000000000000
+    MODIFICAR_SEGUNDAS = 0b1000000000000000
+    CREAR_SEGUNDAS = MODIFICAR_SEGUNDAS
+    ADMINISTRAR_SEGUNDAS = 0b10000000000000000
 
     def __repr__(self):
         """Representación"""
@@ -105,6 +111,10 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.MODIFICAR_NOTARIALES,
                 Permiso.CREAR_NOTARIALES,
                 Permiso.ADMINISTRAR_NOTARIALES,
+                Permiso.VER_SEGUNDAS,
+                Permiso.MODIFICAR_SEGUNDAS,
+                Permiso.CREAR_SEGUNDAS,
+                Permiso.ADMINISTRAR_SEGUNDAS,
             ],
             "SOPORTE TECNICO": [
                 Permiso.VER_CUENTAS,
@@ -113,8 +123,10 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
+                Permiso.VER_SEGUNDAS,
             ],
             "JUZGADO": [
+                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.MODIFICAR_JUSTICIABLES,
@@ -122,16 +134,44 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_NOTARIALES,
                 Permiso.MODIFICAR_NOTARIALES,
                 Permiso.CREAR_NOTARIALES,
+                Permiso.VER_SEGUNDAS,
             ],
             "NOTARIA": [
+                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
                 Permiso.MODIFICAR_NOTARIALES,
                 Permiso.CREAR_NOTARIALES,
+                Permiso.VER_SEGUNDAS,
             ],
             "SECRETARIA TECNICA": [
-                Permiso.VER_CUENTAS,
+                Permiso.VER_CATALOGOS,
+                Permiso.VER_CONSULTAS,
+                Permiso.MODIFICAR_CONSULTAS,
+                Permiso.CREAR_CONSULTAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.MODIFICAR_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
+                Permiso.MODIFICAR_NOTARIALES,
+                Permiso.VER_SEGUNDAS,
+                Permiso.MODIFICAR_SEGUNDAS,
+            ],
+            "USUARIO": [
+                Permiso.VER_CATALOGOS,
+                Permiso.VER_CONSULTAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
+                Permiso.VER_SEGUNDAS,
+            ],
+            "OBSERVADOR": [
+                Permiso.VER_CATALOGOS,
+                Permiso.VER_CONSULTAS,
+                Permiso.VER_JUSTICIABLES,
+                Permiso.VER_NOTARIALES,
+                Permiso.VER_SEGUNDAS,
+            ],
+            "PLENOS SALAS TRIBUNALES TCA": [
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.MODIFICAR_CONSULTAS,
@@ -142,16 +182,9 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_NOTARIALES,
                 Permiso.MODIFICAR_NOTARIALES,
                 Permiso.CREAR_NOTARIALES,
-            ],
-            "USUARIO": [
-                Permiso.VER_CONSULTAS,
-                Permiso.VER_JUSTICIABLES,
-                Permiso.VER_NOTARIALES,
-            ],
-            "OBSERVADOR": [
-                Permiso.VER_CONSULTAS,
-                Permiso.VER_JUSTICIABLES,
-                Permiso.VER_NOTARIALES,
+                Permiso.VER_SEGUNDAS,
+                Permiso.MODIFICAR_SEGUNDAS,
+                Permiso.CREAR_SEGUNDAS,
             ],
         }
         rol_por_defecto = "OBSERVADOR"
@@ -180,6 +213,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.VER_NOTARIALES)
+        if module == "glosas":
+            return self.has_permission(Permiso.VER_SEGUNDAS)
         return False
 
     def can_insert(self, module):
@@ -196,6 +231,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.MODIFICAR_NOTARIALES)
+        if module == "glosas":
+            return self.has_permission(Permiso.MODIFICAR_SEGUNDAS)
         return False
 
     def can_edit(self, module):
@@ -212,6 +249,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.CREAR_NOTARIALES)
+        if module == "glosas":
+            return self.has_permission(Permiso.CREAR_SEGUNDAS)
         return False
 
     def can_admin(self, module):
@@ -220,6 +259,8 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.ADMINISTRAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.ADMINISTRAR_NOTARIALES)
+        if module == "glosas":
+            return self.has_permission(Permiso.ADMINISTRAR_SEGUNDAS)
         return False
 
     def __repr__(self):
