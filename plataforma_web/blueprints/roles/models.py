@@ -151,8 +151,11 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.MODIFICAR_CONSULTAS,
                 Permiso.CREAR_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
+                Permiso.MODIFICAR_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
+                Permiso.MODIFICAR_NOTARIALES,
                 Permiso.VER_SEGUNDAS,
+                Permiso.MODIFICAR_SEGUNDAS,
             ],
             "USUARIO": [
                 Permiso.VER_CATALOGOS,
