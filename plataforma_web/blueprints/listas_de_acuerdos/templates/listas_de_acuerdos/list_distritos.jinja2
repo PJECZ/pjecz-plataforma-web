@@ -1,16 +1,19 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Listas de Acuerdos - Distritos{% endblock %}
 
 {% block topbar_actions %}
+    {% call list.page_breadcrumb('Distritos') %}
+        {{ list.page_breadcrumb_item('Listas de Acuerdos', link=url_for('listas_de_acuerdos.list_active')) }}
+    {% endcall %}
+    {% call topbar.page_buttons(title) %}
+    {% endcall %}
     {{ list.topbar_option_search('Buscar', url_for('listas_de_acuerdos.search')) }}
 {% endblock %}
 
 {% block content %}
-    {% call list.page_breadcrumb('Distritos') %}
-        {{ list.page_breadcrumb_item('Listas de Acuerdos', link=url_for('listas_de_acuerdos.list_active')) }}
-    {% endcall %}
     <div class="container-fluid">
         {% call list.card() %}
             <table class="table">

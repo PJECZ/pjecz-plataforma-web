@@ -1,69 +1,66 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Edictos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('edictos.search')) }}
-    {{ list.topbar_option('Distritos', url_for('edictos.list_distritos'), 'fas fa-sitemap') }}
     {% if autoridad %}
-        {% if current_user.can_admin('edictos') %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('edictos.list_autoridad_edictos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}{% endif %}
-        {% elif current_user.can_edit('edictos') and current_user.autoridad_id == autoridad.id %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('edictos.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_admin('edictos') %}
-            {{ list.topbar_option_upload('Subir', url_for('edictos.new_for_autoridad', autoridad_id=autoridad.id)) }}
-        {% elif current_user.can_insert('edictos') and current_user.autoridad_id == autoridad.id %}
-            {{ list.topbar_option_upload('Subir', url_for('edictos.new')) }}
-        {% endif %}
-        {% if current_user.can_admin('edictos') and current_user.can_insert('tareas') %}
-            {{ list.topbar_option_refresh('Refrescar', url_for('edictos.refresh', autoridad_id=autoridad.id)) }}
-        {% endif %}
+        {% set title=autoridad.descripcion %}
+    {% else %}
+        {% if estatus == 'A'%}{% set title='Edictos' %}{% endif %}
+        {% if estatus == 'B'%}{% set title='Edictos inactivos' %}{% endif %}
     {% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
+        {{ topbar.button_districts('Distritos', url_for('edictos.list_distritos')) }}
+        {% if autoridad %}
+            {% if current_user.can_admin('edictos') %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('edictos.list_autoridad_edictos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}{% endif %}
+            {% elif current_user.can_edit('edictos') and current_user.autoridad_id == autoridad.id %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('edictos.list_inactive')) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
+            {% endif %}
+            {% if current_user.can_admin('edictos') %}
+                {{ topbar.button_upload('Subir', url_for('edictos.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% elif current_user.can_insert('edictos') and current_user.autoridad_id == autoridad.id %}
+                {{ topbar.button_upload('Subir', url_for('edictos.new')) }}
+            {% endif %}
+            {% if current_user.can_admin('edictos') and current_user.can_insert('tareas') %}
+                {{ topbar.button_refresh('Refrescar', url_for('edictos.refresh', autoridad_id=autoridad.id)) }}
+            {% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if autoridad %}
-        {% call list.page_breadcrumb(autoridad.descripcion) %}
-            {{ list.page_breadcrumb_item('Edictos', link=url_for('edictos.list_active')) }}
-            {{ list.page_breadcrumb_item('Distritos', link=url_for('edictos.list_distritos')) }}
-            {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('edictos.list_autoridades', distrito_id=autoridad.distrito_id)) }}
-        {% endcall %}
-    {% else %}
-        {% if estatus == 'A'%}{{ list.page('Edictos') }}{% endif %}
-        {% if estatus == 'B'%}{{ list.page('Edictos inactivos') }}{% endif %}
-    {% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        {% if current_user.can_admin('edictos') %}<th>Creados</th>{% endif %}
-                        <th>Fechas</th>
-                        <th>Descripciones</th>
-                        <th>Expedientes</th>
-                        <th>No. Pub.</th>
-                        <th>Archivos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for edicto in edictos %}
-                    <tr>
-                        {% if current_user.can_admin('edictos') %}<td>{{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
-                        <td>{{ edicto.fecha }}</td>
-                        <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
-                        <td>{{ edicto.expediente }}</td>
-                        <td>{{ edicto.numero_publicacion }}</td>
-                        <td><a href="{{ edicto.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    {% if current_user.can_admin('edictos') %}<th>Creados</th>{% endif %}
+                    <th>Fechas</th>
+                    <th>Descripciones</th>
+                    <th>Expedientes</th>
+                    <th>No. Pub.</th>
+                    <th>Archivos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for edicto in edictos %}
+                <tr>
+                    {% if current_user.can_admin('edictos') %}<td>{{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
+                    <td>{{ edicto.fecha }}</td>
+                    <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
+                    <td>{{ edicto.expediente }}</td>
+                    <td>{{ edicto.numero_publicacion }}</td>
+                    <td><a href="{{ edicto.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

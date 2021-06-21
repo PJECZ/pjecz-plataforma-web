@@ -1,32 +1,31 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Edictos - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('edictos.search')) }}
+    {% call topbar.page_buttons('Edictos / Distritos') %}
+        {{ topbar.button_previous('Edictos', url_for('edictos.list_active')) }}
+        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call list.page_breadcrumb('Distritos') %}
-        {{ list.page_breadcrumb_item('Edictos', link=url_for('edictos.list_active')) }}
+    {% call list.card() %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Distritos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for distrito in distritos %}
+                <tr>
+                    <td><a href="{{ url_for('edictos.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endcall %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Distritos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for distrito in distritos %}
-                    <tr>
-                        <td><a href="{{ url_for('edictos.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
 {% endblock %}

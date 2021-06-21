@@ -53,7 +53,7 @@
 {%- endmacro -%}
 
 {%- macro button_refresh(label, url) -%}
-    {{ button(label, url, 'fa fa-redo') }}
+    {{ button(label, url, 'fa fa-refresh') }}
 {%- endmacro -%}
 
 {%- macro button_upload(label, url) -%}
@@ -70,4 +70,12 @@
 
 {%- macro button_recover(label, url) -%}
     {{ button(label, url, 'fa fa-recycle') }}
+{%- endmacro -%}
+
+{%- macro button_previous(label, url) -%}
+    {{ button(label, url, 'fa fa-fast-backward') }}
+{%- endmacro -%}
+
+{%- macro button_districts(label, url) -%}
+    {{ button(label, url, 'fa fa-sitemap') }}
 {%- endmacro -%}

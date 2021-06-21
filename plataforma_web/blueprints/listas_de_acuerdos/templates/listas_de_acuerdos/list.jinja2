@@ -1,9 +1,22 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Listas de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
+    {% if autoridad %}
+        {% call list.page_breadcrumb(autoridad.descripcion) %}
+            {{ list.page_breadcrumb_item('Listas de Acuerdos', link=url_for('listas_de_acuerdos.list_active')) }}
+            {{ list.page_breadcrumb_item('Distritos', link=url_for('listas_de_acuerdos.list_distritos')) }}
+            {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('listas_de_acuerdos.list_autoridades', distrito_id=autoridad.distrito_id)) }}
+        {% endcall %}
+    {% else %}
+        {% if estatus == 'A'%}{{ list.page('Listas de Acuerdos') }}{% endif %}
+        {% if estatus == 'B'%}{{ list.page('Listas de Acuerdos inactivas') }}{% endif %}
+    {% endif %}
+    {% call topbar.page_buttons(title) %}
+    {% endcall %}
     {{ list.topbar_option_search('Buscar', url_for('listas_de_acuerdos.search')) }}
     {{ list.topbar_option('Distritos', url_for('listas_de_acuerdos.list_distritos'), 'fas fa-sitemap') }}
     {% if autoridad %}
@@ -26,40 +39,28 @@
 {% endblock %}
 
 {% block content %}
-    {% if autoridad %}
-        {% call list.page_breadcrumb(autoridad.descripcion) %}
-            {{ list.page_breadcrumb_item('Listas de Acuerdos', link=url_for('listas_de_acuerdos.list_active')) }}
-            {{ list.page_breadcrumb_item('Distritos', link=url_for('listas_de_acuerdos.list_distritos')) }}
-            {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('listas_de_acuerdos.list_autoridades', distrito_id=autoridad.distrito_id)) }}
-        {% endcall %}
-    {% else %}
-        {% if estatus == 'A'%}{{ list.page('Listas de Acuerdos') }}{% endif %}
-        {% if estatus == 'B'%}{{ list.page('Listas de Acuerdos inactivas') }}{% endif %}
-    {% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        {% if current_user.can_admin('listas_de_acuerdos') %}<th>Creados</th>{% endif %}
-                        <th>Fechas</th>
-                        <th>Descripciones</th>
-                        <th>Archivos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for lista_de_acuerdo in listas_de_acuerdos %}
-                    <tr>
-                        {% if current_user.can_admin('listas_de_acuerdos') %}<td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
-                        <td>{{ lista_de_acuerdo.fecha }}</td>
-                        <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.descripcion }}</a></td>
-                        <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    {% if current_user.can_admin('listas_de_acuerdos') %}<th>Creados</th>{% endif %}
+                    <th>Fechas</th>
+                    <th>Descripciones</th>
+                    <th>Archivos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lista_de_acuerdo in listas_de_acuerdos %}
+                <tr>
+                    {% if current_user.can_admin('listas_de_acuerdos') %}<td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
+                    <td>{{ lista_de_acuerdo.fecha }}</td>
+                    <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.descripcion }}</a></td>
+                    <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

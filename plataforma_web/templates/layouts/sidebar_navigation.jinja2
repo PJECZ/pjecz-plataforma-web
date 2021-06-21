@@ -13,7 +13,7 @@
         {% if current_user.can_view('cid_formatos') %}{{ app.sidebar_nav_option('Procedimientos', '/cid_procedimientos', 'mdi mdi-file') }}{% endif %}
         {% if current_user.can_view('cid_formatos') %}{{ app.sidebar_nav_option('Formatos', '/cid_formatos', 'mdi mdi-file') }}{% endif %}
         {% if current_user.can_view('cid_registros') %}{{ app.sidebar_nav_option('Registros', '/cid_registros', 'mdi mdi-file') }}{% endif %}
-        {% if current_user.can_view('distritos') %}{{ app.sidebar_nav_option('Departamentos', '/distritos', 'mdi mdi-apps') }}{% endif %}
+        {% if current_user.can_view('distritos') %}{{ app.sidebar_nav_option('Departamentos', '/distritos', 'fa fa-sitemap') }}{% endif %}
         {% if current_user.can_view('autoridades') %}{{ app.sidebar_nav_option('Autoridades', '/autoridades', 'mdi mdi-scale-balance') }}{% endif %}
         {% if current_user.can_view('materias') %}{{ app.sidebar_nav_option('Materias', '/materias', 'mdi mdi-tag') }}{% endif %}
         {% if current_user.can_view('usuarios') %}{{ app.sidebar_nav_option('Usuarios', '/usuarios', 'mdi mdi-account-key') }}{% endif %}

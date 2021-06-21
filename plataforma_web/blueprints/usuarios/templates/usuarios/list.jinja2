@@ -1,48 +1,49 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Usuarios{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('usuarios.search')) }}
-    {% if current_user.can_edit('usuarios') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('usuarios.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('usuarios.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('usuarios') %}
-        {{ list.topbar_option_new('Nuevo Usuario', url_for('usuarios.new')) }}
-    {% endif %}
+    {% if estatus == 'A' %}{% set title='Usuarios' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Usuarios inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button_search('Buscar', url_for('usuarios.search')) }}
+        {% if current_user.can_edit('usuarios') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('usuarios.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('usuarios.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('usuarios') %}
+            {{ topbar.button_new('Nuevo Usuario', url_for('usuarios.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Usuarios') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Usuarios inactivos') }}{% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>e-mail</th>
-                        <th>Autoridad</th>
-                        {% if current_user.can_edit('usuarios') %}<th>Rol</th>
-                        <th>Workspace</th>{% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for usuario in usuarios %}
-                    <tr>
-                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
-                        <td>{{ usuario.email }}</td>
-                        <td>{{ usuario.autoridad.clave }}</td>
-                        {% if current_user.can_edit('usuarios') %}<td>{{ usuario.rol.nombre }}</td>
-                        <td>{{ usuario.workspace }}</td>{% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>e-mail</th>
+                    <th>Autoridad</th>
+                    {% if current_user.can_edit('usuarios') %}<th>Rol</th>
+                    <th>Workspace</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
+                    <td>{{ usuario.email }}</td>
+                    <td>{{ usuario.autoridad.clave }}</td>
+                    {% if current_user.can_edit('usuarios') %}<td>{{ usuario.rol.nombre }}</td>
+                    <td>{{ usuario.workspace }}</td>{% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

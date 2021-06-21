@@ -1,26 +1,28 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Roles{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Roles') }}
+{% endblock %}
+
 {% block content %}
-    {{ list.page('Roles') }}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Rol</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for rol in roles %}
-                    <tr>
-                        <td><a href="{{ url_for('roles.detail', rol_id=rol.id) }}">{{ rol.nombre }}</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rol in roles %}
+                <tr>
+                    <td><a href="{{ url_for('roles.detail', rol_id=rol.id) }}">{{ rol.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}

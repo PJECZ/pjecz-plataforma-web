@@ -1,38 +1,39 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Versiones Públicas de Sentencias - Autoridades{% endblock %}
 
 {% block topbar_actions %}
+    {% call list.page_breadcrumb(distrito.nombre) %}
+        {{ list.page_breadcrumb_item('V.P. Sentencias', link=url_for('sentencias.list_active')) }}
+        {{ list.page_breadcrumb_item('Distritos', link=url_for('sentencias.list_distritos')) }}
+    {% endcall %}
+    {% call topbar.page_buttons(title) %}
+    {% endcall %}
     {{ list.topbar_option_search('Buscar', url_for('sentencias.search')) }}
     {{ list.topbar_option('Distritos', url_for('sentencias.list_distritos'), 'fas fa-sitemap') }}
 {% endblock %}
 
 {% block content %}
-    {% call list.page_breadcrumb(distrito.nombre) %}
-        {{ list.page_breadcrumb_item('V.P. Sentencias', link=url_for('sentencias.list_active')) }}
-        {{ list.page_breadcrumb_item('Distritos', link=url_for('sentencias.list_distritos')) }}
+    {% call list.card() %}
+        <table id="autoridades_datatable" class="table">
+            <thead>
+                <tr>
+                    <th>Claves</th>
+                    <th>Autoridades</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for autoridad in autoridades %}
+                <tr>
+                    <td><a href="{{ url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
+                    <td>{{ autoridad.descripcion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endcall %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="autoridades_datatable" class="table">
-                <thead>
-                    <tr>
-                        <th>Claves</th>
-                        <th>Autoridades</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for autoridad in autoridades %}
-                    <tr>
-                        <td><a href="{{ url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
-                        <td>{{ autoridad.descripcion }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
 {% endblock %}
 
 {% block custom_javascript %}

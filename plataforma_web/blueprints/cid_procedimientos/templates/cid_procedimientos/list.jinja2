@@ -1,39 +1,40 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Procedimientos{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('cid_procedimientos') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('cid_procedimientos.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('cid_procedimientos.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('cid_procedimientos') %}
-        {{ list.topbar_option_new('Nuevo Procedimiento', url_for('cid_procedimientos.new')) }}
-    {% endif %}
+    {% if estatus == 'A' %}{% set title='Procedimientos' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Procedimientos inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {% if current_user.can_edit('cid_procedimientos') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_procedimientos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_procedimientos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('cid_procedimientos') %}
+            {{ topbar.button_new('Nuevo Procedimiento', url_for('cid_procedimientos.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Procedimientos') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Procedimientos inactivos') }}{% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="cid_procedimientos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        <th>Procedimientos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cid_procedimiento in cid_procedimientos %}
-                    <tr>
-                        <td><a href="{{ url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id) }}">{{ cid_procedimiento.descripcion }}</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="cid_procedimientos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    <th>Procedimientos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cid_procedimiento in cid_procedimientos %}
+                <tr>
+                    <td><a href="{{ url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id) }}">{{ cid_procedimiento.descripcion }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

@@ -1,44 +1,45 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Peritos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('peritos.search')) }}
-    {% if current_user.can_edit('peritos') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('peritos.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('peritos.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('peritos') %}
-        {{ list.topbar_option_new('Nuevo Perito', url_for('peritos.new')) }}
-    {% endif %}
+    {% if estatus == 'A' %}{% set title='Peritos' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Peritos inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button_search('Buscar', url_for('peritos.search')) }}
+        {% if current_user.can_edit('peritos') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('peritos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('peritos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('peritos') %}
+            {{ topbar.button_new('Nuevo Perito', url_for('peritos.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Peritos') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Peritos inactivos') }}{% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="peritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Tipos</th>
-                        <th>Distritos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for perito in peritos %}
-                    <tr>
-                        <td><a href="{{ url_for('peritos.detail', perito_id=perito.id) }}">{{ perito.nombre }}</a></td>
-                        <td>{{ perito.tipo }}</td>
-                        <td>{{ perito.distrito.nombre }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="peritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Tipos</th>
+                    <th>Distritos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for perito in peritos %}
+                <tr>
+                    <td><a href="{{ url_for('peritos.detail', perito_id=perito.id) }}">{{ perito.nombre }}</a></td>
+                    <td>{{ perito.tipo }}</td>
+                    <td>{{ perito.distrito.nombre }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
