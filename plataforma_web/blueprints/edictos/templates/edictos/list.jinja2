@@ -36,7 +36,7 @@
 
 {% block content %}
     {% call list.card() %}
-        <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+        <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
             <thead>
                 <tr>
                     {% if current_user.can_admin('edictos') %}<th>Creados</th>{% endif %}

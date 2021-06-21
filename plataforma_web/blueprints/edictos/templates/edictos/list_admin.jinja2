@@ -32,7 +32,7 @@
 
 {% block content %}
     {% call list.card() %}
-        <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+        <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
             <thead>
                 <tr>
                     <th>Creados</th>
@@ -62,5 +62,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('edictos_datatable', order='desc') }}
+    {{ list.datatable_times('edictos_datatable') }}
 {% endblock %}
