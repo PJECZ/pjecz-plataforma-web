@@ -1,33 +1,3 @@
-{%- macro page(label) -%}
-    <div class="page-breadcrumb">
-        <div class="row">
-            <div class="col-12 d-flex no-block align-items-center">
-                <h4 class="page-title">{{ label }}</h4>
-            </div>
-        </div>
-    </div>
-{%- endmacro -%}
-
-{%- macro page_breadcrumb(label) -%}
-    <div class="page-breadcrumb">
-        <div class="row">
-            <div class="col-12 d-flex no-block align-items-center">
-                <h4 class="page-title">{{ caller () }}{{ label }}</h4>
-            </div>
-        </div>
-    </div>
-{%- endmacro -%}
-
-{%- macro page_breadcrumb_item(label, link='') -%}
-    <a href="{{ link }}">{{ label }}</a> /
-{%- endmacro -%}
-
-{%- macro topbar_option(label, url, icon) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
-    </li>
-{%- endmacro -%}
-
 {# card sirve para contener algo; es necesario para que las tablas sean usables en pantallas chicas #}}
 {%- macro card(title='') -%}
     <div class="card">
@@ -67,20 +37,18 @@
 
 {# un campo del formulario #}
 {%- macro field(f, css_class='form-control') -%}
-    <div>
-        {% if f.type == 'HiddenField' %}
-            {{ f.description }}
-            {{ f(class=css_class, **kwargs) }}
-        {% elif f.type == 'DateField'  %}
-            {{ f(class=css_class, type='date', **kwargs) }}
-        {% elif f.type == 'DateTimeField'  %}
-            {{ f(class=css_class, type='datetime', **kwargs) }}
-        {% elif f.type == 'SubmitField'  %}
-            {{ submit_button(f) }}
-        {% else %}
-            {{ f(class=css_class, **kwargs) }}
-        {% endif %}
-    </div>
+    {% if f.type == 'HiddenField' %}
+        {{ f.description }}
+        {{ f(class=css_class, **kwargs) }}
+    {% elif f.type == 'DateField'  %}
+        {{ f(class=css_class, type='date', **kwargs) }}
+    {% elif f.type == 'DateTimeField'  %}
+        {{ f(class=css_class, type='datetime', **kwargs) }}
+    {% elif f.type == 'SubmitField'  %}
+        {{ submit_button(f) }}
+    {% else %}
+        {{ f(class=css_class, **kwargs) }}
+    {% endif %}
 {%- endmacro -%}
 
 {# un campo de opción múltiple #}
@@ -115,19 +83,19 @@
         {{ caller () }}
         </div>
     {% elif f.type == 'RadioField' %}
-        <div class="form-group {{ css_class }}">
+        <div class="form-group mb-2 {{ css_class }}">
         {{ radios_fields(f, **kwargs) }}
         {{ field_errors(f) }}
         {{ caller () }}
         </div>
     {% elif f.type == 'SubmitField' %}
-        <div class="form-group {{ css_class }}">
+        <div class="form-group mb-2 {{ css_class }}">
         {{ field(f, **kwargs) }}
         {{ field_errors(f) }}
         {{ caller () }}
         </div>
     {% else %}
-        <div class="form-group {{ css_class }}">
+        <div class="form-group mb-2 {{ css_class }}">
         {{ field_label(f) }}
         {{ field(f, **kwargs) }}
         {{ field_errors(f) }}

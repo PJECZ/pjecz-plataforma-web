@@ -1,46 +1,47 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Abogados registrados{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('abogados.search')) }}
-    {% if current_user.can_edit('abogados') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('abogados.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('abogados.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('abogados') %}
-        {{ list.topbar_option_new('Nuevo Abogado', url_for('abogados.new')) }}
-    {% endif %}
+    {% if estatus == 'A' %}{% set title='Abogados registrados' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Abogados registrados inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button_search('Buscar', url_for('abogados.search')) }}
+        {% if current_user.can_edit('abogados') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('abogados.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('abogados.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('abogados') %}
+            {{ topbar.button_new('Nuevo Abogado', url_for('abogados.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Abogados registrados') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Abogados registrados inactivos') }}{% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="abogados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Número</th>
-                        <th>Libro</th>
-                        <th>Nombre</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for abogado in abogados %}
-                    <tr>
-                        <td>{{ abogado.fecha }}</td>
-                        <td>{{ abogado.numero }}</td>
-                        <td>{{ abogado.libro }}</td>
-                        <td><a href="{{ url_for('abogados.detail', abogado_id=abogado.id) }}">{{ abogado.nombre }}</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="abogados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Número</th>
+                    <th>Libro</th>
+                    <th>Nombre</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for abogado in abogados %}
+                <tr>
+                    <td>{{ abogado.fecha }}</td>
+                    <td>{{ abogado.numero }}</td>
+                    <td>{{ abogado.libro }}</td>
+                    <td><a href="{{ url_for('abogados.detail', abogado_id=abogado.id) }}">{{ abogado.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

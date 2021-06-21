@@ -1,16 +1,18 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/start.jinja2' as start with context %}
+{% import 'macros/start.jinja2' as start %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Inicio{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Inicio') }}
+{% endblock %}
+
 {% block content %}
-    {{ start.page('Inicio') }}
-    <div class="card">
-        <div class="card-body">
-            <h1>Plataforma Web</h1>
-            <p class="lead">Sistema para administrar el contenido del sitio web <a href="https://www.pjecz.gob.mx" target="_blank">www.pjecz.gob.mx</a>.</p>
-            <hr class="my-4">
-            <p><strong>Poder Judicial del Estado de Coahuila de Zaragoza</strong></p>
-        </div>
-    </div>
+    {% call start.card() %}
+        <h1>Plataforma Web</h1>
+        <p class="lead">Sistema para administrar el contenido del sitio web <a href="https://www.pjecz.gob.mx" target="_blank">www.pjecz.gob.mx</a>.</p>
+        <hr class="my-4">
+        <p><strong>Poder Judicial del Estado de Coahuila de Zaragoza</strong></p>
+    {% endcall %}
 {% endblock %}

@@ -1,29 +1,29 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/detail.jinja2' as detail with context %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Abogado registrado{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('abogados') %}
-        {{ detail.topbar_option_edit('Editar', url_for('abogados.edit', abogado_id=abogado.id)) }}
-        {% if abogado.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-        {% if abogado.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-    {% endif %}
+    {% if abogado.estatus == 'A' %}{% set title='Abogados registrados' %}{% set url=url_for('abogados.list_active') %}{% endif %}
+    {% if abogado.estatus == 'B' %}{% set title='Abogados registrados inactivos' %}{% set url=url_for('abogados.list_inactive') %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {# abogado.nombre #}
+        {% if current_user.can_edit('abogados') %}
+            {{ topbar.button_edit('Editar', url_for('abogados.edit', abogado_id=abogado.id)) }}
+            {% if abogado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if abogado.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.page_breadcrumb(abogado.nombre) %}
-        {% if abogado.estatus == 'A' %}{{ detail.page_breadcrumb_item('Abogados registrados', link=url_for('abogados.list_active')) }}{% endif %}
-        {% if abogado.estatus == 'B' %}{{ detail.page_breadcrumb_item('Abogados registrados inactivos', link=url_for('abogados.list_inactive')) }}{% endif %}
+    {% call detail.card(estatus=abogado.estatus) %}
+        {{ detail.label_value_big('Nombre', abogado.nombre) }}
+        {{ detail.label_value('Fecha', abogado.fecha) }}
+        {{ detail.label_value('Número', abogado.numero) }}
+        {{ detail.label_value('Libro', abogado.libro) }}
     {% endcall %}
-    <div class="container-fluid">
-        {% call detail.card(estatus=abogado.estatus) %}
-            {{ detail.label_value_big('Nombre', abogado.nombre) }}
-            {{ detail.label_value('Fecha', abogado.fecha) }}
-            {{ detail.label_value('Número', abogado.numero) }}
-            {{ detail.label_value('Libro', abogado.libro) }}
-        {% endcall %}
-    </div>
     {% if current_user.can_edit('abogados') %}
         {{ detail.modal('Eliminar', '¿Eliminar a ' + abogado.nombre + '?', 'modalDelete', url_for('abogados.delete', abogado_id=abogado.id)) }}
         {{ detail.modal('Recuperar', '¿Recuperar a ' + abogado.nombre + '?', 'modalRecover', url_for('abogados.recover', abogado_id=abogado.id)) }}

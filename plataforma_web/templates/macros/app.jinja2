@@ -8,8 +8,8 @@
 
 {%- macro sidebar_nav_option_active(label, url, icon='mdi mdi-label-outline') -%}
     <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="#">
-            <span data-feather="home"></span> Dashboard
+        <a class="nav-link active" aria-current="page" href="{{ url }}">
+            <i class="{{ icon }}"></i> {{ label }}
         </a>
     </li>
 {%- endmacro -%}

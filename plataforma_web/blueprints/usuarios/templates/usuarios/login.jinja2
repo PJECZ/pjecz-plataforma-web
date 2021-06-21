@@ -4,9 +4,9 @@
 {% block title %}Plataforma Web{% endblock %}
 
 {% block welcome %}
-    <div id="welcome" class="text-center text-white">
+    <div id="welcome" class="text-center">
         <p><img class="img-fluid" src="{{ url_for('static', filename='images/poder-judicial.png') }}" alt="PJECZ"></p>
-        <h3>Plataforma Web</h3>
+        <h4 class="mb-3">Plataforma Web</h4>
     </div>
 {% endblock %}
 
@@ -20,68 +20,35 @@
 {% endblock %}
 
 {% block acceso_form_content %}
-            <div class="form-floating">
-                <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
-                <label for="floatingInput">Email address</label>
-            </div>
-            <div class="form-floating">
-                <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
-                <label for="floatingPassword">Password</label>
-            </div>
-            <div class="checkbox mb-3">
-                <label>
-                    <input type="checkbox" value="remember-me"> Remember me
-                </label>
-            </div>
-            <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
-
-
     <div id="acceso_form_content">
         {% call f.form_tag('usuarios.login', fid='acceso_form') %}
-        <div id="acceso_form_firebase_fields" style="display: none;">
-            <div class="row">
-                <div class="col-12">
-                    <div class="input-group mb-2">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-success text-white" id="basic-addon1"><i class="fas fa-envelope"></i></span>
-                        </div>
-                        {% call f.field(form.email, id='email', class='form-control form-control-lg', readonly='readonly') %}{% endcall %}
-                    </div>
-                    <div class="input-group mb-2">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-warning text-white" id="basic-addon1"><i class="fas fa-key"></i></span>
-                        </div>
-                        {% call f.field(form.token, id='token', class='form-control form-control-lg', readonly='readonly') %}{% endcall %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="acceso_form_password_fields">
+        <div id="acceso_form_firebase_fields" class="my-2" style="display: none;">
             <div class="py-2 text-center">
-                <p class="mb-0 text-white">Ingrese con correo electrónico y contraseña...</p>
+                <p class="mb-0">Ingrese sin contraseña.</p>
             </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="input-group mb-2">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-success text-white" id="basic-addon1"><i class="ti-user"></i></span>
-                        </div>
-                        {% call f.field(form.identidad, id='identidad', class='form-control form-control-lg', placeholder='correo electrónico', autofocus='autofocus') %}{% endcall %}
-                    </div>
-                    <div class="input-group mb-2">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-warning text-white" id="basic-addon2"><i class="ti-pencil"></i></span>
-                        </div>
-                        {% call f.field(form.contrasena, id='contrasena', class='form-control form-control-lg', placeholder='contraseña') %}{% endcall %}
-                    </div>
-                </div>
+            <div class="form-floating">
+                {% call f.field(form.email, id='email', class='form-control', readonly='readonly') %}{% endcall %}
+                <label for="email">Dirección de correo electrónico</label>
+            </div>
+            <div class="form-floating">
+                {% call f.field(form.token, id='token', class='form-control', readonly='readonly') %}{% endcall %}
+                <label for="token">Token de un uso</label>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12">
-                <button class="btn btn-success float-right" type="submit">Accesar</button>
+        <div id="acceso_form_password_fields" class="my-2">
+            <div class="py-2 text-center">
+                <p class="mb-0">Ingrese con...</p>
+            </div>
+            <div class="form-floating">
+                {% call f.field(form.identidad, id='identidad', class='form-control', autofocus='autofocus') %}{% endcall %}
+                <label for="identidad">Dirección de correo electrónico</label>
+            </div>
+            <div class="form-floating">
+                {% call f.field(form.contrasena, id='contrasena', class='form-control') %}{% endcall %}
+                <label for="contrasena">Contraseña</label>
             </div>
         </div>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Ingresar</button>
         {% endcall %}
     </div>
 {% endblock %}

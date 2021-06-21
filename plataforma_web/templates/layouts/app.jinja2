@@ -11,7 +11,10 @@
 
 {% block main %}
     <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">Plataforma Web</a>
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">
+            <img class="mx-2" src="{{ url_for('static', filename='images/logo.png') }}" alt="PJECZ" width="30px">
+            Plataforma Web
+        </a>
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -28,9 +31,9 @@
                 {% include 'layouts/sidebar_navigation.jinja2' %}
             </nav>
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                {% block topbar_actions %}{% endblock %}
                 {{ flash.render() }}
                 {# include 'layouts/tasks_progress.jinja2' #}
-                {% block topbar_actions %}{% endblock %}
                 {% block content %}{% endblock %}
             </main>
         </div>
@@ -38,6 +41,4 @@
 {% endblock %}
 
 {% block template_javascript %}
-    <!-- Menu sidebar -->
-    <!-- script src="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/js/sidebarmenu.js') }}"></script -->
 {% endblock %}
