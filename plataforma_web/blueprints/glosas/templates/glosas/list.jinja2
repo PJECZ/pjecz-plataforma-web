@@ -6,35 +6,32 @@
 
 {% block topbar_actions %}
     {% if autoridad %}
-        {% call list.page_breadcrumb(autoridad.descripcion) %}
-            {{ list.page_breadcrumb_item('Glosas', link=url_for('glosas.list_active')) }}
-            {{ list.page_breadcrumb_item('Distritos', link=url_for('glosas.list_distritos')) }}
-            {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('glosas.list_autoridades', distrito_id=autoridad.distrito_id)) }}
-        {% endcall %}
+        {% set title='Glosas del ' + autoridad.descripcion %}
     {% else %}
-        {% if estatus == 'A'%}{{ list.page('Glosas') }}{% endif %}
-        {% if estatus == 'B'%}{{ list.page('Glosas inactivas') }}{% endif %}
+        {% if estatus == 'A'%}{% set title='Glosas' %}{% endif %}
+        {% if estatus == 'B'%}{% set title='Glosas inactivas' %}{% endif %}
     {% endif %}
-
     {% call topbar.page_buttons(title) %}
+        {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
+        {{ topbar.button_districts('Distritos', url_for('glosas.list_distritos')) }}
+        {% if autoridad %}
+            {% if current_user.can_admin('glosas') %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_autoridad_glosas_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}{% endif %}
+            {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_active')) }}{% endif %}
+            {% endif %}
+            {% if current_user.can_admin('glosas') %}
+                {{ topbar.button_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
+                {{ topbar.button_upload('Subir', url_for('glosas.new')) }}
+            {% endif %}
+            {% if current_user.can_admin('glosas') and current_user.can_insert('tareas') %}
+                {{ topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
+            {% endif %}
+        {% endif %}
     {% endcall %}
-
-    {{ list.topbar_option_search('Buscar', url_for('glosas.search')) }}
-    {{ list.topbar_option('Distritos', url_for('glosas.list_distritos'), 'fas fa-sitemap') }}
-    {% if autoridad %}
-        {% if current_user.can_admin('glosas') %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('glosas.list_autoridad_glosas_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}{% endif %}
-            {{ list.topbar_option_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
-        {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('glosas.list_active')) }}{% endif %}
-            {{ list.topbar_option_upload('Subir', url_for('glosas.new')) }}
-        {% endif %}
-        {% if current_user.can_admin('glosas') and current_user.can_insert('tareas') %}
-            {{ list.topbar_option_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
-        {% endif %}
-    {% endif %}
 {% endblock %}
 
 {% block content %}

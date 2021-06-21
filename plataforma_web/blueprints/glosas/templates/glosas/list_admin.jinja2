@@ -5,22 +5,20 @@
 {% block title %}Todas las Glosas{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A'%}{{ list.page('Todas las Glosas') }}{% endif %}
-    {% if estatus == 'B'%}{{ list.page('Todas las Glosas inactivas') }}{% endif %}
-
+    {% if estatus == 'A'%}{% set title='Todas las Glosas' %}{% endif %}
+    {% if estatus == 'B'%}{% set title='Todas las Glosas inactivas' %}{% endif %}
     {% call topbar.page_buttons(title) %}
+        {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
+        {{ topbar.button_districts('Distritos', url_for('glosas.list_distritos')) }}
+        {% if autoridad %}
+            {% if current_user.can_admin('glosas') %}
+                {{ topbar.button_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% endif %}
+            {% if current_user.can_insert('tareas') %}
+                {{ topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
+            {% endif %}
+        {% endif %}
     {% endcall %}
-
-    {{ list.topbar_option_search('Buscar', url_for('glosas.search')) }}
-    {{ list.topbar_option('Distritos', url_for('glosas.list_distritos'), 'fas fa-sitemap') }}
-    {% if autoridad %}
-        {% if current_user.can_admin('glosas') %}
-            {{ list.topbar_option_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
-        {% endif %}
-        {% if current_user.can_insert('tareas') %}
-            {{ list.topbar_option_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
-        {% endif %}
-    {% endif %}
 {% endblock %}
 
 {% block content %}

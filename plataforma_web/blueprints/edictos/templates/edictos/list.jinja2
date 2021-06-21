@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% if autoridad %}
-        {% set title=autoridad.descripcion %}
+        {% set title='Edictos del ' + autoridad.descripcion %}
     {% else %}
         {% if estatus == 'A'%}{% set title='Edictos' %}{% endif %}
         {% if estatus == 'B'%}{% set title='Edictos inactivos' %}{% endif %}

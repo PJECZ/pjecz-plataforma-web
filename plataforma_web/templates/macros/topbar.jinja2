@@ -7,7 +7,7 @@
     </div>
 {%- endmacro -%}
 
-{# Página es un título #}
+{# Página con botones #}
 {%- macro page_buttons(title) -%}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h3">{{ title }}</h1>
@@ -17,18 +17,6 @@
             </div>
         </div>
     </div>
-{%- endmacro -%}
-
-{# Breadcrumb es para una ramificación #}
-{%- macro breadcrumb(title, buttons='') -%}
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h3">{{ caller () }}{{ title }}</h1>
-        {{ buttons }}
-    </div>
-{%- endmacro -%}
-
-{%- macro breadcrumb_item(label, link) -%}
-    <a href="{{ link }}">{{ label }}</a> /
 {%- endmacro -%}
 
 {# Botones #}

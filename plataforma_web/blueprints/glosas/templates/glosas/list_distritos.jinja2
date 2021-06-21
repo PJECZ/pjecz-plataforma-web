@@ -5,12 +5,10 @@
 {% block title %}Glosas - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% call list.page_breadcrumb('Distritos') %}
-        {{ list.page_breadcrumb_item('Glosas', link=url_for('glosas.list_active')) }}
+    {% call topbar.page_buttons('Glosas / Distritos') %}
+        {{ topbar.button_previous('Glosas', url_for('glosas.list_active')) }}
+        {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
     {% endcall %}
-    {% call topbar.page_buttons(title) %}
-    {% endcall %}
-    {{ list.topbar_option_search('Buscar', url_for('glosas.search')) }}
 {% endblock %}
 
 {% block content %}

@@ -5,16 +5,10 @@
 {% block title %}Glosas - Autoridades{% endblock %}
 
 {% block topbar_actions %}
-    {% call list.page_breadcrumb(distrito.nombre) %}
-        {{ list.page_breadcrumb_item('Glosas', link=url_for('glosas.list_active')) }}
-        {{ list.page_breadcrumb_item('Distritos', link=url_for('glosas.list_distritos')) }}
+    {% call topbar.page_buttons('Glosas / Autoridades') %}
+        {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
+        {{ topbar.button_districts('Distritos', url_for('glosas.list_distritos')) }}
     {% endcall %}
-
-    {% call topbar.page_buttons(title) %}
-    {% endcall %}
-
-    {{ list.topbar_option_search('Buscar', url_for('glosas.search')) }}
-    {{ list.topbar_option('Distritos', url_for('glosas.list_distritos'), 'fas fa-sitemap') }}
 {% endblock %}
 
 {% block content %}
