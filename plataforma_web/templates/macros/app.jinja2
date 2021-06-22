@@ -1,7 +1,11 @@
+{# To use Material Design icons with Iconify add Iconify #}
+{# https://dev.materialdesignicons.com/guide/iconify #}
+{# https://iconify.design/ #}
+
 {%- macro sidebar_nav_option(label, url, icon='mdi mdi-label-outline') -%}
     <li class="nav-item">
         <a class="nav-link text-white" href="{{ url }}">
-            <i class="{{ icon }}"></i> {{ label }}
+            <span class="iconify" data-icon="{{ icon }}" style="font-size: 24px; margin-right: 4px;"></span> {{ label }}
         </a>
     </li>
 {%- endmacro -%}
@@ -9,18 +13,7 @@
 {%- macro sidebar_nav_option_active(label, url, icon='mdi mdi-label-outline') -%}
     <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="{{ url }}">
-            <i class="{{ icon }}"></i> {{ label }}
+            <span class="iconify" data-icon="{{ icon }}" style="font-size: 24px; margin-right: 4px;"></span> {{ label }}
         </a>
-    </li>
-{%- endmacro -%}
-
-{%- macro sidebar_nav_submenu(label, icon='mdi mdi-label-outline') -%}
-    <li class="sidebar-item">
-        <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
-            <i class="{{ icon }}"></i><span class="hide-menu"> {{ label }}</span>
-        </a>
-        <ul aria-expanded="false" class="collapse  first-level">
-            {{ caller () }}
-        </ul>
     </li>
 {%- endmacro -%}
