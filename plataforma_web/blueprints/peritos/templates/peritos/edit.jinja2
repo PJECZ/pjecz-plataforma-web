@@ -1,25 +1,27 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Editar Perito{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + perito.nombre) }}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Editar ' + perito.nombre) }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% set form_kwargs = {'perito_id': perito.id} %}
-            {% call f.form_tag('peritos.edit', fid='perito_form', **form_kwargs) %}
-                {% call f.form_group(form.nombre) %}{% endcall %}
-                {% call f.form_group(form.distrito) %}{% endcall %}
-                {% call f.form_group(form.tipo) %}{% endcall %}
-                {% call f.form_group(form.domicilio) %}{% endcall %}
-                {% call f.form_group(form.telefono_fijo) %}{% endcall %}
-                {% call f.form_group(form.telefono_celular) %}{% endcall %}
-                {% call f.form_group(form.email) %}{% endcall %}
-                {% call f.form_group(form.notas) %}{% endcall %}
-                {% call f.form_group(form.renovacion) %}{% endcall %}
-                {% call f.form_group(form.guardar) %}{% endcall %}
-            {% endcall %}
+    {% call f.card() %}
+        {% set form_kwargs = {'perito_id': perito.id} %}
+        {% call f.form_tag('peritos.edit', fid='perito_form', **form_kwargs) %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.tipo) %}{% endcall %}
+            {% call f.form_group(form.domicilio) %}{% endcall %}
+            {% call f.form_group(form.telefono_fijo) %}{% endcall %}
+            {% call f.form_group(form.telefono_celular) %}{% endcall %}
+            {% call f.form_group(form.email) %}{% endcall %}
+            {% call f.form_group(form.notas) %}{% endcall %}
+            {% call f.form_group(form.renovacion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}
