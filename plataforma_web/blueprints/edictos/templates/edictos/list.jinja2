@@ -6,19 +6,15 @@
 
 {% block topbar_actions %}
     {% if autoridad %}
-        {% set title='Edictos del ' + autoridad.descripcion %}
+        {% set title='Edictos de ' + autoridad.clave %}
     {% else %}
         {% if estatus == 'A'%}{% set title='Edictos' %}{% endif %}
         {% if estatus == 'B'%}{% set title='Edictos inactivos' %}{% endif %}
     {% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
         {{ topbar.button_districts('Distritos', url_for('edictos.list_distritos')) }}
         {% if autoridad %}
-            {% if current_user.can_admin('edictos') %}
-                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('edictos.list_autoridad_edictos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-                {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}{% endif %}
-            {% elif current_user.can_edit('edictos') and current_user.autoridad_id == autoridad.id %}
+            {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('edictos.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
             {% endif %}
@@ -31,6 +27,7 @@
                 {{ topbar.button_refresh('Refrescar', url_for('edictos.refresh', autoridad_id=autoridad.id)) }}
             {% endif %}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
     {% endcall %}
 {% endblock %}
 

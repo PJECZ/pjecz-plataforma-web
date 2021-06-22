@@ -5,23 +5,23 @@
 {% block title %}Todas las Ubicaciones de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{{ list.page('Todas las Ubicaciones de Expedientes') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Todas las Ubicaciones de Expedientes inactivas') }}{% endif %}
+    {% if estatus == 'A' %}{% set title='Todas las Ubicaciones de Expedientes' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Todas las Ubicaciones de Expedientes inactivas' %}{% endif %}
     {% call topbar.page_buttons(title) %}
+        {{ topbar.button_districts('Distritos', url_for('ubicaciones_expedientes.list_distritos')) }}
+        {% if autoridad %}
+            {% if current_user.can_edit('ubicaciones_expedientes') %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes', autoridad_id=autoridad.id)) }}{% endif %}
+            {% endif %}
+        {% else %}
+            {% if current_user.can_edit('ubicaciones_expedientes') %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
+            {% endif %}
+        {% endif %}
+        {{ topbar.button_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
     {% endcall %}
-    {{ list.topbar_option_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
-    {{ list.topbar_option('Distritos', url_for('ubicaciones_expedientes.list_distritos'), 'fas fa-sitemap') }}
-    {% if autoridad %}
-        {% if current_user.can_edit('ubicaciones_expedientes') %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('ubicaciones_expedientes.list_autoridad_sentencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('ubicaciones_expedientes.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}{% endif %}
-        {% endif %}
-    {% else %}
-        {% if current_user.can_edit('ubicaciones_expedientes') %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('ubicaciones_expedientes.list_active')) }}{% endif %}
-        {% endif %}
-    {% endif %}
 {% endblock %}
 
 {% block content %}

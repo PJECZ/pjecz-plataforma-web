@@ -5,35 +5,30 @@
 {% block title %}Listas de Acuerdos - Autoridades{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('listas_de_acuerdos.search')) }}
-    {{ list.topbar_option('Distritos', url_for('listas_de_acuerdos.list_distritos'), 'fas fa-sitemap') }}
+    {% call topbar.page_buttons('Listas de Acuerdos / Autoridades') %}
+        {{ topbar.button_previous('Distritos', url_for('listas_de_acuerdos.list_distritos')) }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call list.page_breadcrumb(distrito.nombre) %}
-        {{ list.page_breadcrumb_item('Listas de Acuerdos', link=url_for('listas_de_acuerdos.list_active')) }}
-        {{ list.page_breadcrumb_item('Distritos', link=url_for('listas_de_acuerdos.list_distritos')) }}
+    {% call list.card() %}
+        <table id="autoridades_datatable" class="table">
+            <thead>
+                <tr>
+                    <th>Claves</th>
+                    <th>Autoridades</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for autoridad in autoridades %}
+                <tr>
+                    <td><a href="{{ url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
+                    <td>{{ autoridad.descripcion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endcall %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="autoridades_datatable" class="table">
-                <thead>
-                    <tr>
-                        <th>Claves</th>
-                        <th>Autoridades</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for autoridad in autoridades %}
-                    <tr>
-                        <td><a href="{{ url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
-                        <td>{{ autoridad.descripcion }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
 {% endblock %}
 
 {% block custom_javascript %}

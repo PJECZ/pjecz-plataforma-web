@@ -7,7 +7,6 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Edictos / Distritos') %}
         {{ topbar.button_previous('Edictos', url_for('edictos.list_active')) }}
-        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
     {% endcall %}
 {% endblock %}
 

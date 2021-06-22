@@ -1,27 +1,29 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Nuevo Usuario{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Usuario') }}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Nuevo Usuario') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag('usuarios.new', fid='usuario_form') %}
-                {% call f.form_group(form.distrito) %}{% endcall %}
-                {% call f.form_group(form.autoridad) %}{% endcall %}
-                {% call f.form_group(form.nombres) %}{% endcall %}
-                {% call f.form_group(form.apellido_paterno) %}{% endcall %}
-                {% call f.form_group(form.apellido_materno) %}{% endcall %}
-                {% call f.form_group(form.email) %}{% endcall %}
-                {% call f.form_group(form.workspace) %}{% endcall %}
-                {% call f.form_group(form.rol) %}{% endcall %}
-                {% call f.form_group(form.contrasena) %}{% endcall %}
-                {% call f.form_group(form.contrasena_repetir) %}{% endcall %}
-                {% call f.form_group(form.guardar) %}{% endcall %}
-            {% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag('usuarios.new', fid='usuario_form') %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.nombres) %}{% endcall %}
+            {% call f.form_group(form.apellido_paterno) %}{% endcall %}
+            {% call f.form_group(form.apellido_materno) %}{% endcall %}
+            {% call f.form_group(form.email) %}{% endcall %}
+            {% call f.form_group(form.workspace) %}{% endcall %}
+            {% call f.form_group(form.rol) %}{% endcall %}
+            {% call f.form_group(form.contrasena) %}{% endcall %}
+            {% call f.form_group(form.contrasena_repetir) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

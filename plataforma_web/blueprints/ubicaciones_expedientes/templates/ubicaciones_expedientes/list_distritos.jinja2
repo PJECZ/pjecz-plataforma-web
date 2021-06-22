@@ -5,12 +5,9 @@
 {% block title %}Ubicaciones de Expedientes - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% call list.page_breadcrumb('Distritos') %}
-        {{ list.page_breadcrumb_item('Ubicaciones de Expedientes', link=url_for('ubicaciones_expedientes.list_active')) }}
+    {% call topbar.page_buttons('Ubicaciones de Expedientes / Distritos') %}
+        {{ topbar.button_previous('Ubicaciones de Expedientes', url_for('ubicaciones_expedientes.list_active')) }}
     {% endcall %}
-    {% call topbar.page_buttons(title) %}
-    {% endcall %}
-    {{ list.topbar_option_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
 {% endblock %}
 
 {% block content %}

@@ -5,14 +5,9 @@
 {% block title %}Versiones Públicas de Sentencias - Autoridades{% endblock %}
 
 {% block topbar_actions %}
-    {% call list.page_breadcrumb(distrito.nombre) %}
-        {{ list.page_breadcrumb_item('V.P. Sentencias', link=url_for('sentencias.list_active')) }}
-        {{ list.page_breadcrumb_item('Distritos', link=url_for('sentencias.list_distritos')) }}
+    {% call topbar.page_buttons('V.P. Sentencias / Autoridades') %}
+        {{ topbar.button_previous('Distritos', url_for('sentencias.list_distritos')) }}
     {% endcall %}
-    {% call topbar.page_buttons(title) %}
-    {% endcall %}
-    {{ list.topbar_option_search('Buscar', url_for('sentencias.search')) }}
-    {{ list.topbar_option('Distritos', url_for('sentencias.list_distritos'), 'fas fa-sitemap') }}
 {% endblock %}
 
 {% block content %}

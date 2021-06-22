@@ -1,6 +1,6 @@
 <!-- Sidebar navigation -->
-<div class="position-sticky pt-3">
-    <ul class="nav flex-column">
+<div class="d-flex flex-column flex-shrink-0 p-3 text-white">
+    <ul class="nav nav-pills flex-column mb-auto">
         {{ app.sidebar_nav_option('Inicio', '/', 'mdi mdi-view-dashboard') }}
         {% if current_user.can_view('abogados') %}{{ app.sidebar_nav_option('Abogados registrados', '/abogados', 'mdi mdi-tie') }}{% endif %}
         {% if current_user.can_view('edictos') %}{{ app.sidebar_nav_option('Edictos', '/edictos', 'mdi mdi-file-check') }}{% endif %}
@@ -10,16 +10,20 @@
         {% if current_user.can_view('sentencias') %}{{ app.sidebar_nav_option('Sentencias', '/sentencias', 'mdi mdi-book') }}{% endif %}
         {% if current_user.can_view('transcripciones') %} {{ app.sidebar_nav_option('Transcripciones', '/transcripciones', 'mdi mdi-voicemail') }} {% endif %}
         {% if current_user.can_view('ubicaciones_expedientes') %}{{ app.sidebar_nav_option('Ubicación de Expedientes', '/ubicaciones_expedientes', 'mdi mdi-file-find') }}{% endif %}
-        {% if current_user.can_view('cid_formatos') %}{{ app.sidebar_nav_option('Procedimientos', '/cid_procedimientos', 'mdi mdi-file') }}{% endif %}
-        {% if current_user.can_view('cid_formatos') %}{{ app.sidebar_nav_option('Formatos', '/cid_formatos', 'mdi mdi-file') }}{% endif %}
-        {% if current_user.can_view('cid_registros') %}{{ app.sidebar_nav_option('Registros', '/cid_registros', 'mdi mdi-file') }}{% endif %}
-        {% if current_user.can_view('distritos') %}{{ app.sidebar_nav_option('Departamentos', '/distritos', 'fa fa-sitemap') }}{% endif %}
+        {% if current_user.can_view('cid_procedimientos') %}{{ app.sidebar_nav_option('Procedimientos', '/cid_procedimientos', 'mdi mdi-file') }}{% endif %}
         {% if current_user.can_view('autoridades') %}{{ app.sidebar_nav_option('Autoridades', '/autoridades', 'mdi mdi-scale-balance') }}{% endif %}
-        {% if current_user.can_view('materias') %}{{ app.sidebar_nav_option('Materias', '/materias', 'mdi mdi-tag') }}{% endif %}
         {% if current_user.can_view('usuarios') %}{{ app.sidebar_nav_option('Usuarios', '/usuarios', 'mdi mdi-account-key') }}{% endif %}
         {% if current_user.can_edit('bitacoras') %} {{ app.sidebar_nav_option('Bitácoras', '/bitacoras', 'mdi mdi-calendar-clock') }} {% endif %}
-        {% if current_user.can_edit('entradas_salidas') %} {{ app.sidebar_nav_option('Entradas/Salidas', '/entradas_salidas', 'mdi mdi-calendar-clock') }} {% endif %}
-        {% if current_user.can_edit('roles') %} {{ app.sidebar_nav_option('Roles', '/roles', 'mdi mdi-gamepad') }} {% endif %}
         {% if current_user.can_edit('tareas') %} {{ app.sidebar_nav_option('Tareas', '/tareas', 'mdi mdi-washing-machine') }} {% endif %}
     </ul>
+    <hr>
+    <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+            <strong>{{ current_user.nombre[:24] }}</strong>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="{{ url_for('usuarios.profile') }}">Perfil</a></li>
+            <li><a class="dropdown-item" href="/logout">Salir</a></li>
+        </ul>
+    </div>
 </div>

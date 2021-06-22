@@ -6,19 +6,15 @@
 
 {% block topbar_actions %}
     {% if autoridad %}
-        {% set title='Glosas del ' + autoridad.descripcion %}
+        {% set title='Glosas de ' + autoridad.clave %}
     {% else %}
-        {% if estatus == 'A'%}{% set title='Glosas' %}{% endif %}
-        {% if estatus == 'B'%}{% set title='Glosas inactivas' %}{% endif %}
+        {% if estatus == 'A' %}{% set title='Glosas' %}{% endif %}
+        {% if estatus == 'B' %}{% set title='Glosas inactivas' %}{% endif %}
     {% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
         {{ topbar.button_districts('Distritos', url_for('glosas.list_distritos')) }}
         {% if autoridad %}
-            {% if current_user.can_admin('glosas') %}
-                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_autoridad_glosas_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-                {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}{% endif %}
-            {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
+            {% if current_user.can_admin('glosas') or (current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_active')) }}{% endif %}
             {% endif %}
@@ -31,6 +27,7 @@
                 {{ topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
             {% endif %}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
     {% endcall %}
 {% endblock %}
 

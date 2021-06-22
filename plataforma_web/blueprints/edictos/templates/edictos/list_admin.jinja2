@@ -5,10 +5,9 @@
 {% block title %}Todos los Edictos{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A'%}{% set title='Todos los Edictos' %}{% endif %}
-    {% if estatus == 'B'%}{% set title='Todos los Edictos inactivos' %}{% endif %}
+    {% if estatus == 'A' %}{% set title='Todos los Edictos' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Todos los Edictos inactivos' %}{% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
         {{ topbar.button_districts('Distritos', url_for('edictos.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('edictos') %}
@@ -27,6 +26,7 @@
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
             {% endif %}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
     {% endcall %}
 {% endblock %}
 

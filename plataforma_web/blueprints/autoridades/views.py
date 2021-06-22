@@ -48,20 +48,6 @@ def detail(autoridad_id):
     return render_template("autoridades/detail.jinja2", autoridad=autoridad, usuarios=usuarios)
 
 
-@autoridades.route("/autoridades/buscar", methods=["GET", "POST"])
-def search():
-    """Buscar Autoridades"""
-    form_search = AutoridadSearchForm()
-    if form_search.validate_on_submit():
-        consulta = Autoridad.query
-        if form_search.descripcion.data:
-            descripcion = form_search.descripcion.data.strip()
-            consulta = consulta.filter(Autoridad.descripcion.like(f"%{descripcion}%"))
-        consulta = consulta.limit(100).all()
-        return render_template("autoridades/list.jinja2", autoridades=consulta)
-    return render_template("autoridades/search.jinja2", form=form_search)
-
-
 @autoridades.route("/autoridades/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_CATALOGOS)
 def new():

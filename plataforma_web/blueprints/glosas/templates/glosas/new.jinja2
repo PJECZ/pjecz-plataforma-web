@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Subir Glosa{% endblock %}
 
@@ -7,24 +8,25 @@
     {{ f.drop_zone_css() }}
 {% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Subir Glosa') }}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Subir Glosa') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag_multipart('glosas.new', fid='glosa_form') %}
-                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.fecha) %}{% endcall %}
-                {% call f.form_group(form.tipo_juicio) %}{% endcall %}
-                {% call f.form_group(form.descripcion) %}{% endcall %}
-                {% call f.form_group(form.expediente) %}{% endcall %}
-                {% call f.drop_zone_wrapper() %}
-                    {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
-                {% endcall %}
-                {% call f.form_group(form.guardar) %}{% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag_multipart('glosas.new', fid='glosa_form') %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.drop_zone_wrapper() %}
+                {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
             {% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

@@ -1,20 +1,22 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Nuevo Ubicacion de Expediente{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Nueva Ubicacion de Expediente para ' + autoridad.clave) }}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Nueva Ubicacion de Expediente para ' + autoridad.clave) }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% set form_kwargs = {'autoridad_id': autoridad.id} %}
-            {% call f.form_tag('ubicaciones_expedientes.new', fid='ubicacion_expediente_form', **form_kwargs) %}
-                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.expediente) %}{% endcall %}
-                {% call f.form_group(form.ubicacion) %}{% endcall %}
-                {% call f.form_group(form.guardar) %}{% endcall %}
-            {% endcall %}
+    {% call f.card() %}
+        {% set form_kwargs = {'autoridad_id': autoridad.id} %}
+        {% call f.form_tag('ubicaciones_expedientes.new', fid='ubicacion_expediente_form', **form_kwargs) %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.ubicacion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}
