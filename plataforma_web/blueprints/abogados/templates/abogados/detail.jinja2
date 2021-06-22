@@ -5,10 +5,8 @@
 {% block title %}Abogado registrado{% endblock %}
 
 {% block topbar_actions %}
-    {% if abogado.estatus == 'A' %}{% set title='Abogados registrados' %}{% set url=url_for('abogados.list_active') %}{% endif %}
-    {% if abogado.estatus == 'B' %}{% set title='Abogados registrados inactivos' %}{% set url=url_for('abogados.list_inactive') %}{% endif %}
-    {% call topbar.page_buttons(title) %}
-        {# abogado.nombre #}
+    {% call topbar.page_buttons(abogado.nombre) %}
+        {{ topbar.button_previous('Abogados registrados', url_for('abogados.list_active')) }}
         {% if current_user.can_edit('abogados') %}
             {{ topbar.button_edit('Editar', url_for('abogados.edit', abogado_id=abogado.id)) }}
             {% if abogado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
@@ -19,7 +17,7 @@
 
 {% block content %}
     {% call detail.card(estatus=abogado.estatus) %}
-        {{ detail.label_value_big('Nombre', abogado.nombre) }}
+        {# detail.label_value_big('Nombre', abogado.nombre) #}
         {{ detail.label_value('Fecha', abogado.fecha) }}
         {{ detail.label_value('Número', abogado.numero) }}
         {{ detail.label_value('Libro', abogado.libro) }}

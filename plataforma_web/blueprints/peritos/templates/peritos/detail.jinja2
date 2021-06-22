@@ -1,34 +1,32 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/detail.jinja2' as detail with context %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Perito{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('peritos') %}
-        {{ detail.topbar_option_edit('Editar', url_for('peritos.edit', perito_id=perito.id)) }}
-        {% if perito.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-        {% if perito.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-    {% endif %}
+    {% call topbar.page_buttons('Perito ' + perito.nombre) %}
+        {{ topbar.button_previous('Peritos', url_for('peritos.list_active')) }}
+        {% if current_user.can_edit('peritos') %}
+            {{ topbar.button_edit('Editar', url_for('peritos.edit', perito_id=perito.id)) }}
+            {% if perito.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if perito.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.page_breadcrumb(perito.nombre) %}
-        {% if perito.estatus == 'A' %}{{ detail.page_breadcrumb_item('Peritos', link=url_for('peritos.list_active')) }}{% endif %}
-        {% if perito.estatus == 'B' %}{{ detail.page_breadcrumb_item('Peritos inactivos', link=url_for('peritos.list_inactive')) }}{% endif %}
+    {% call detail.card(estatus=perito.estatus) %}
+        {{ detail.label_value_big('Nombre', perito.nombre) }}
+        {{ detail.label_value('Distrito', perito.distrito.nombre) }}
+        {{ detail.label_value('Tipo', perito.tipo) }}
+        {{ detail.label_value('Domicilio', perito.domicilio) }}
+        {{ detail.label_value('Teléfono fijo', perito.telefono_fijo) }}
+        {{ detail.label_value('Teléfono celular', perito.telefono_celular) }}
+        {{ detail.label_value('e-mail', perito.email) }}
+        {{ detail.label_value('Notas', perito.notas) }}
+        {{ detail.label_value('Renovación', perito.renovacion) }}
     {% endcall %}
-    <div class="container-fluid">
-        {% call detail.card(estatus=perito.estatus) %}
-            {{ detail.label_value_big('Nombre', perito.nombre) }}
-            {{ detail.label_value('Distrito', perito.distrito.nombre) }}
-            {{ detail.label_value('Tipo', perito.tipo) }}
-            {{ detail.label_value('Domicilio', perito.domicilio) }}
-            {{ detail.label_value('Teléfono fijo', perito.telefono_fijo) }}
-            {{ detail.label_value('Teléfono celular', perito.telefono_celular) }}
-            {{ detail.label_value('e-mail', perito.email) }}
-            {{ detail.label_value('Notas', perito.notas) }}
-            {{ detail.label_value('Renovación', perito.renovacion) }}
-        {% endcall %}
-    </div>
     {% if current_user.can_edit('peritos') %}
         {{ detail.modal('Eliminar', '¿Eliminar a ' + perito.nombre + '?', 'modalDelete', url_for('peritos.delete', perito_id=perito.id)) }}
         {{ detail.modal('Recuperar', '¿Recuperar a ' + perito.nombre + '?', 'modalRecover', url_for('peritos.recover', perito_id=perito.id)) }}
