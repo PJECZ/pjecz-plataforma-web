@@ -20,7 +20,6 @@
 
 {% block content %}
     {% call detail.card(estatus=edicto.estatus) %}
-        {# detail.label_value_big('Edicto', edicto.descripcion) #}
         {{ detail.label_value('Distrito', edicto.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', edicto.autoridad.descripcion) }}
         {{ detail.label_value('Fecha', edicto.fecha) }}

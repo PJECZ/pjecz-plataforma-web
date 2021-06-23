@@ -18,7 +18,6 @@
 
 {% block content %}
     {% call detail.card(estatus=autoridad.estatus) %}
-        {# detail.label_value_big('Descripción', autoridad.descripcion) #}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
         {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
         {{ detail.label_value('Clave', autoridad.clave) }}

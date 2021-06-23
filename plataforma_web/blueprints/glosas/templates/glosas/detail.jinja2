@@ -20,7 +20,6 @@
 
 {% block content %}
     {% call detail.card(estatus=glosa.estatus) %}
-        {{ detail.label_value_big('Archivo', glosa.archivo) }}
         {{ detail.label_value('Distrito', glosa.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', glosa.autoridad.descripcion) }}
         {{ detail.label_value('Fecha', glosa.fecha) }}
