@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Abogado registrado{% endblock %}
@@ -9,8 +10,8 @@
         {{ topbar.button_previous('Abogados registrados', url_for('abogados.list_active')) }}
         {% if current_user.can_edit('abogados') %}
             {{ topbar.button_edit('Editar', url_for('abogados.edit', abogado_id=abogado.id)) }}
-            {% if abogado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if abogado.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {% if abogado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('abogados.delete', abogado_id=abogado.id)) }}{% endif %}
+            {% if abogado.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('abogados.recover', abogado_id=abogado.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -22,14 +23,11 @@
         {{ detail.label_value('Número', abogado.numero) }}
         {{ detail.label_value('Libro', abogado.libro) }}
     {% endcall %}
-    {% if current_user.can_edit('abogados') %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + abogado.nombre + '?', 'modalDelete', url_for('abogados.delete', abogado_id=abogado.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + abogado.nombre + '?', 'modalRecover', url_for('abogados.recover', abogado_id=abogado.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('abogados') %}
-        {{ detail.custom_javascript_delete_recover() }}
+        {% if abogado.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + abogado.nombre + '?') }}{% endif %}
+        {% if abogado.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + abogado.nombre + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

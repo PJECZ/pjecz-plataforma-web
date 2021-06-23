@@ -35,7 +35,7 @@
                 {{ label }}
             </div>
             <div class="col-md-9">
-                <strong><a href="{{ link }}" target="_blank">{{ value }} <i class="fas fa-external-link-alt"></i></a></strong>
+                <strong><a href="{{ link }}" target="_blank">{{ value }} <i class="fa fa-external-link"></i></a></strong>
             </div>
         </div>
     {% endif %}
@@ -67,41 +67,6 @@
             {% if value %}<strong>Sí</strong>{% else %}No{% endif %}
         </div>
     </div>
-{%- endmacro -%}
-
-{%- macro button_for_modal(label, id) -%}
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{ id }}">
-        {{ label }}
-    </button>
-{%- endmacro -%}
-
-{%- macro modal(title, message, id, url) -%}
-    <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ id }}Label" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="{{ id }}Label">{{ title }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    {{ message }}
-                </div>
-                <div class="modal-footer">
-                    <a class="btn btn-secondary" href="#" data-dismiss="modal">Cancelar</a>
-                    <a class="btn btn-primary" href="{{ url }}">{{ title }}</a>
-                </div>
-            </div>
-        </div>
-    </div>
-{%- endmacro -%}
-
-{%- macro custom_javascript_delete_recover() -%}
-    <script>
-        function showModalDelete() { $('#modalDelete').modal() }
-        function showModalRecover() { $('#modalRecover').modal() }
-    </script>
 {%- endmacro -%}
 
 {# JavaScript Datatable #}

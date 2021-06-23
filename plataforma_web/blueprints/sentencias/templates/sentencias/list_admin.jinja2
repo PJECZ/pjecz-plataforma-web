@@ -53,7 +53,7 @@
                     <td><a href="{{ url_for('sentencias.detail', sentencia_id=sentencia.id) }}">{{ sentencia.sentencia }}</a></td>
                     <td>{{ sentencia.expediente }}</td>
                     <td>{% if sentencia.es_paridad_genero %}SI{% endif %}</td>
-                    <td><a href="{{ sentencia.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
+                    <td><a href="{{ sentencia.url }}" target="_blank">PDF <i class="fa fa-external-link"></a></td>
                 </tr>
                 {% endfor %}
             </tbody>

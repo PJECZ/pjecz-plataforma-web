@@ -2,6 +2,7 @@
 {# https://dev.materialdesignicons.com/guide/iconify #}
 {# https://iconify.design/ #}
 
+{# Sidebar navigation option #}
 {%- macro sidebar_nav_option(label, url, icon='mdi mdi-label-outline') -%}
     <li class="nav-item">
         <a class="nav-link text-white" href="{{ url }}">
@@ -10,6 +11,7 @@
     </li>
 {%- endmacro -%}
 
+{# Sidebar navigation option active #}
 {%- macro sidebar_nav_option_active(label, url, icon='mdi mdi-label-outline') -%}
     <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="{{ url }}">

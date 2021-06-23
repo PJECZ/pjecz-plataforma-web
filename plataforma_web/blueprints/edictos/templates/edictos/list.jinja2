@@ -52,7 +52,7 @@
                     <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
                     <td>{{ edicto.expediente }}</td>
                     <td>{{ edicto.numero_publicacion }}</td>
-                    <td><a href="{{ edicto.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
+                    <td><a href="{{ edicto.url }}" target="_blank">PDF <i class="fa fa-external-link"></a></td>
                 </tr>
                 {% endfor %}
             </tbody>

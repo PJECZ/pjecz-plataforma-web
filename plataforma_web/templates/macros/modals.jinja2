@@ -1,0 +1,71 @@
+{# Bootstrap 5 modals #}
+{# https://getbootstrap.com/docs/5.0/components/modal/ #}
+
+{# Modal executes a javascript function #}
+{%- macro modal(title, message, onclick_js, id) -%}
+    <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ id }}Label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="{{ id }}Label">{{ title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ message }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="{{ onclick_js }}">{{ title }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro custom_javascript_delete(title, message) -%}
+    <!-- Modal Delete -->
+    {{ modal(title, message, onclick_js="proceedToDelete();", id="modalDelete") }}
+    <script>
+        var deleteURL;
+        function showModalDelete(url) {
+            var myModal = new bootstrap.Modal(document.getElementById('modalDelete'));
+            myModal.show();
+            deleteURL = url;
+        }
+        function proceedToDelete() {
+            location.href = deleteURL;
+        }
+    </script>
+{%- endmacro -%}
+
+{%- macro custom_javascript_recover(title, message) -%}
+    <!-- Modal Recover -->
+    {{ modal(title, message, onclick_js="proceedToRecover();", id="modalRecover") }}
+    <script>
+        var recoverURL;
+        function showModalRecover(url) {
+            var myModal = new bootstrap.Modal(document.getElementById('modalRecover'));
+            myModal.show();
+            recoverURL = url;
+        }
+        function proceedToRecover() {
+            location.href = recoverURL;
+        }
+    </script>
+{%- endmacro -%}
+
+{%- macro custom_javascript_refresh(title, message) -%}
+    <!-- Modal Refresh -->
+    {{ modal(title, message, onclick_js="proceedToRefresh();", id="modalRefresh") }}
+    <script>
+        var refreshURL;
+        function showModalRefresh(url) {
+            var myModal = new bootstrap.Modal(document.getElementById('modalRefresh'));
+            myModal.show();
+            refreshURL = url;
+        }
+        function proceedToRefresh() {
+            location.href = refreshURL;
+        }
+    </script>
+{%- endmacro -%}
