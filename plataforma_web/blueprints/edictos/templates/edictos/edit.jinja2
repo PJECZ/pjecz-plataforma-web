@@ -1,18 +1,20 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Editar Edicto{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + edicto.descripcion + ' del ' + edicto.autoridad.clave) }}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Editar ' + edicto.descripcion) }}
-    <div class="container-fluid">
-        {% set form_kwargs = {'edicto_id': edicto.id} %}
-        {% call f.form_tag('edictos.edit', fid='edicto_form', **form_kwargs) %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.expediente) %}{% endcall %}
-            {% call f.form_group(form.numero_publicacion) %}{% endcall %}
-            {% call f.form_group(form.guardar) %}{% endcall %}
-        {% endcall %}
-    </div>
+    {% set form_kwargs = {'edicto_id': edicto.id} %}
+    {% call f.form_tag('edictos.edit', fid='edicto_form', **form_kwargs) %}
+        {% call f.form_group(form.fecha) %}{% endcall %}
+        {% call f.form_group(form.descripcion) %}{% endcall %}
+        {% call f.form_group(form.expediente) %}{% endcall %}
+        {% call f.form_group(form.numero_publicacion) %}{% endcall %}
+        {% call f.form_group(form.guardar) %}{% endcall %}
+    {% endcall %}
 {% endblock %}

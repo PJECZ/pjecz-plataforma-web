@@ -1,17 +1,19 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Nuevo Formato{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Formato') }}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Nuevo Formato') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag('cid_formatos.new', fid='cid_formato_form') %}
-                {% call f.form_group(form.descripcion) %}{% endcall %}
-                {% call f.form_group(form.procedimiento) %}{% endcall %}
-                {% call f.form_group(form.guardar) %}{% endcall %}
-            {% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag('cid_formatos.new', fid='cid_formato_form') %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.procedimiento) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}

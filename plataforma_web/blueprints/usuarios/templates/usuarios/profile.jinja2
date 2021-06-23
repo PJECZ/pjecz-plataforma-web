@@ -1,21 +1,20 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Mi Perfil{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page(current_user.nombre) }}
+{% endblock %}
+
 {% block content %}
-    {{ detail.page('Mi Perfil') }}
-    <div class="container-fluid">
-        {% call detail.card() %}
-            {% call detail.card() %}
-                {{ detail.label_value_big('Nombre', current_user.nombre) }}
-                {{ detail.label_value('Departamento', current_user.autoridad.distrito.nombre) }}
-                {{ detail.label_value('Autoridad', current_user.autoridad.descripcion) }}
-                {{ detail.label_value('e-mail', current_user.email) }}
-                {{ detail.label_value('Teléfono celular', current_user.telefono_celular) }}
-                {{ detail.label_value('Rol', current_user.rol.nombre) }}
-                {{ detail.label_value('Workspace', current_user.workspace) }}
-            {% endcall %}
-        {% endcall %}
-    </div>
+    {% call detail.card() %}
+        {# detail.label_value_big('Nombre', current_user.nombre) #}
+        {{ detail.label_value('Departamento', current_user.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', current_user.autoridad.descripcion) }}
+        {{ detail.label_value('e-mail', current_user.email) }}
+        {{ detail.label_value('Teléfono celular', current_user.telefono_celular) }}
+        {{ detail.label_value('Rol', current_user.rol.nombre) }}
+    {% endcall %}
 {% endblock %}

@@ -1,41 +1,44 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Departamentos{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('distritos') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('distritos.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('distritos.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('distritos') %}
-        {{ list.topbar_option_new('Nuevo Departamento', url_for('distritos.new')) }}
-    {% endif %}
+    {% if estatus == 'A' %}{% set title='Departamentos' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Departamentos inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {% if current_user.can_edit('distritos') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('distritos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('distritos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('distritos') %}
+            {{ topbar.button_new('Nuevo Departamento', url_for('distritos.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Departamentos') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Departamentos inactivos') }}{% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="distritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        <th>Departamentos</th>
-                        <th>Es judicial</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for distrito in distritos %}
-                    <tr>
-                        <td><a href="{{ url_for('distritos.detail', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
-                        <td>{% if distrito.es_distrito_judicial %}Judicial{% endif %}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="distritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    <th>Nombres</th>
+                    <th>Nombres cortos</th>
+                    <th>Es judicial</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for distrito in distritos %}
+                <tr>
+                    <td><a href="{{ url_for('distritos.detail', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
+                    <td>{{ distrito.nombre_corto }}</td>
+                    <td>{% if distrito.es_distrito_judicial %}Judicial{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

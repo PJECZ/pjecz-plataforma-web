@@ -1,0 +1,74 @@
+{# Bootstrap 5 Dashboard #}
+
+{# Page #}
+{%- macro page(title) -%}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h3">{{ title }}</h1>
+    </div>
+{%- endmacro -%}
+
+{# Page with buttons #}
+{%- macro page_buttons(title) -%}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h3">{{ title }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                {{ caller () }}
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{# Button #}
+{%- macro button(label, url, icon) -%}
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
+{%- endmacro -%}
+
+{%- macro button_search(label, url) -%}
+    {{ button(label, url, 'fa fa-search') }}
+{%- endmacro -%}
+
+{%- macro button_new(label, url) -%}
+    {{ button(label, url, 'fa fa-plus') }}
+{%- endmacro -%}
+
+{%- macro button_list_active(label, url) -%}
+    {{ button(label, url, 'fa fa-eye') }}
+{%- endmacro -%}
+
+{%- macro button_list_inactive(label, url) -%}
+    {{ button(label, url, 'fa fa-eye-slash') }}
+{%- endmacro -%}
+
+{%- macro button_upload(label, url) -%}
+    {{ button(label, url, 'fa fa-upload') }}
+{%- endmacro -%}
+
+{%- macro button_edit(label, url) -%}
+    {{ button(label, url, 'fa fa-edit') }}
+{%- endmacro -%}
+
+{%- macro button_previous(label, url) -%}
+    {{ button(label, url, 'fa fa-fast-backward') }}
+{%- endmacro -%}
+
+{%- macro button_districts(label, url) -%}
+    {{ button(label, url, 'fa fa-th') }}
+{%- endmacro -%}
+
+{# Button modal executes a javascript function #}
+{%- macro button_modal(label, onclick_js, icon) -%}
+                <a class="btn btn-sm btn-outline-secondary" href="javascript:void(0)" onclick="{{ onclick_js }}"><i class="{{ icon }}"></i> {{ label }}</a>
+{%- endmacro -%}
+
+{%- macro button_delete(label, url) -%}
+    {{ button_modal(label, "showModalDelete('" + url + "');", 'fa fa-trash') }}
+{%- endmacro -%}
+
+{%- macro button_recover(label, url) -%}
+    {{ button_modal(label, "showModalRecover('" + url + "');", 'fa fa-recycle') }}
+{%- endmacro -%}
+
+{%- macro button_refresh(label, url) -%}
+    {{ button_modal(label, "showModalRefresh('" + url + "');", 'fa fa-refresh') }}
+{%- endmacro -%}

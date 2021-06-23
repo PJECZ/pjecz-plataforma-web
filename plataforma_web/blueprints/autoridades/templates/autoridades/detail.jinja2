@@ -1,36 +1,36 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/detail.jinja2' as detail with context %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Autoridad{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('autoridades') %}
-        {{ detail.topbar_option_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
-        {% if autoridad.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-        {% if autoridad.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-    {% endif %}
+    {% call topbar.page_buttons(autoridad.descripcion) %}
+        {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
+        {% if current_user.can_edit('autoridades') %}
+            {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
+            {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.page_breadcrumb(autoridad.descripcion) %}
-        {% if autoridad.estatus == 'A' %}{{ detail.page_breadcrumb_item('Autoridades', link=url_for('autoridades.list_active')) }}{% endif %}
-        {% if autoridad.estatus == 'B' %}{{ detail.page_breadcrumb_item('Autoridades inactivas', link=url_for('autoridades.list_inactive')) }}{% endif %}
+    {% call detail.card(estatus=autoridad.estatus) %}
+        {# detail.label_value_big('Descripción', autoridad.descripcion) #}
+        {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
+        {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
+        {{ detail.label_value('Clave', autoridad.clave) }}
+        {{ detail.label_value_boolean('Es Jurisdiccional', autoridad.es_jurisdiccional) }}
+        {{ detail.label_value_boolean('Es Notaría', autoridad.es_notaria) }}
+        {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
+        {{ detail.label_value('Materia', autoridad.materia.nombre, url_for('materias.detail', materia_id=autoridad.materia_id)) }}
+        {{ detail.label_value('Directorio para edictos', autoridad.directorio_edictos, link=url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}
+        {{ detail.label_value('Directorio para glosas', autoridad.directorio_glosas, link=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}
+        {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos, link=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
+        {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias, link=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
     {% endcall %}
-    <div class="container-fluid">
-        {% call detail.card(estatus=autoridad.estatus) %}
-            {{ detail.label_value_big('Descripción', autoridad.descripcion) }}
-            {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
-            {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
-            {{ detail.label_value('Clave', autoridad.clave) }}
-            {{ detail.label_value_boolean('Es Jurisdiccional', autoridad.es_jurisdiccional) }}
-            {{ detail.label_value_boolean('Es Notaría', autoridad.es_notaria) }}
-            {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
-            {{ detail.label_value('Materia', autoridad.materia.nombre, url_for('materias.detail', materia_id=autoridad.materia_id)) }}
-            {{ detail.label_value('Directorio para edictos', autoridad.directorio_edictos, link=url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}
-            {{ detail.label_value('Directorio para glosas', autoridad.directorio_glosas, link=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}
-            {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos, link=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
-            {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias, link=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
-        {% endcall %}
+    {% if usuarios %}
         {% call detail.card('Usuarios') %}
             <table id="usuarios_datatable" class="table">
                 <thead>
@@ -53,7 +53,7 @@
                 </tbody>
             </table>
         {% endcall %}
-    </div>
+    {% endif %}
     {% if current_user.can_edit('autoridades') %}
         {{ detail.modal('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?', 'modalDelete', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}
         {{ detail.modal('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?', 'modalRecover', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}

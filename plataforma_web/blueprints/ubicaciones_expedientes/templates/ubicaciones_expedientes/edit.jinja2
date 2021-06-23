@@ -1,18 +1,20 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Editar Ubicación de Expediente{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + ubicacion_expediente.expediente + ' del ' + ubicacion_expediente.autoridad.clave) }}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Editar ' + ubicacion_expediente.expediente) }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% set form_kwargs = {'ubicacion_expediente_id': ubicacion_expediente.id} %}
-            {% call f.form_tag('ubicaciones_expedientes.edit', fid='ubicacion_expediente_form', **form_kwargs) %}
-                {% call f.form_group(form.expediente) %}{% endcall %}
-                {% call f.form_group(form.ubicacion) %}{% endcall %}
-                {% call f.form_group(form.guardar) %}{% endcall %}
-            {% endcall %}
+    {% call f.card() %}
+        {% set form_kwargs = {'ubicacion_expediente_id': ubicacion_expediente.id} %}
+        {% call f.form_tag('ubicaciones_expedientes.edit', fid='ubicacion_expediente_form', **form_kwargs) %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.ubicacion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}

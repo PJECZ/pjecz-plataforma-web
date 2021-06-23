@@ -2,38 +2,17 @@
 {% import 'macros/flash.jinja2' as flash with context %}
 
 {% block template_head %}
+    <!-- Bootstrap 5 Login -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bs5-login.css') }}">
     <!-- CSRF token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 {% endblock %}
 
 {% block main %}
-    <!-- Preloader animation -->
-    <div class="preloader">
-        <div class="lds-ripple">
-            <div class="lds-pos"></div>
-            <div class="lds-pos"></div>
-        </div>
-    </div>
-    <!-- Login wrapper -->
-    <div class="auth-wrapper d-flex no-block justify-content-center align-items-center bg-dark">
-        <div class="auth-box bg-dark">
-            {{ flash.render() }}
-            <div class="py-3 text-center">
-                {% block welcome %}{% endblock %}
-            </div>
-            <div class="py-3">
-                {% block firebase_content %}{% endblock %}
-            </div>
-            <div class="py-3">
-                {% block acceso_form_content %}{% endblock %}
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block template_javascript %}
-    <!-- Preloader animation -->
-    <script>
-        $(".preloader").fadeOut();
-    </script>
+    <main class="form-signin">
+        {% block welcome %}{% endblock %}
+        {{ flash.render() }}
+        {% block firebase_content %}{% endblock %}
+        {% block acceso_form_content %}{% endblock %}
+    </main>
 {% endblock %}

@@ -6,29 +6,26 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
         <title>{% block title %}{% endblock %}</title>
-        <!-- Bootstrap 4, Datatables -->
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.bootstrap4.min.css">
-        <!-- Matrix Admin BT4 CSS -->
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/matrix-admin-bt4/dist/css/style.min.css') }}">
+        <!-- Datatables boundle -->
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.3.1/dt-1.10.25/b-1.7.1/b-html5-1.7.1/r-2.2.9/datatables.min.css">
         {% block template_head %}{% endblock %}
         {% block custom_head %}{% endblock %}
     </head>
     <body>
         {% block main %}{% endblock %}
-        <!-- JQuery -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
-        <!-- Bootstrap 4, Datatables -->
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-        <script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-        <script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
-        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
-        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.bootstrap4.min.js"></script>
-        <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
-        <!-- popper.js.org tooltip & popover positioning engine -->
+        <!-- Datatables boundle -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/js/bootstrap.bundle.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.3.1/dt-1.10.25/b-1.7.1/b-html5-1.7.1/r-2.2.9/datatables.min.js"></script>
+        <!-- Moment -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.0/js/dataTables.dateTime.min.js"></script>
+        <!-- Popper.js.org tooltip & popover positioning engine -->
         <script src="https://unpkg.com/@popperjs/core@2"></script>
+        <!-- Font Awesome -->
+        <script src="https://use.fontawesome.com/39489c2796.js"></script>
+        <!-- Material Design Icons -->
+        <script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
         {% block template_javascript %}{% endblock %}
         {% block custom_javascript %}{% endblock %}
     </body>

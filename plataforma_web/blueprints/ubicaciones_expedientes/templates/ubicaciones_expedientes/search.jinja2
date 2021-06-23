@@ -1,18 +1,22 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Buscar Ubicación de Expediente{% endblock %}
 
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Buscar Ubicación de Expediente') %}
+        {{ topbar.button_previous('Ubicaciones de Expedientes', url_for('ubicaciones_expedientes.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Buscar Ubicación de Expediente') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag('ubicaciones_expedientes.search', fid='ubicacion_expediente_search_form') %}
-                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.expediente) %}{% endcall %}
-                {{ form.buscar() }}
-            {% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag('ubicaciones_expedientes.search', fid='ubicacion_expediente_search_form') %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {{ form.buscar() }}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}

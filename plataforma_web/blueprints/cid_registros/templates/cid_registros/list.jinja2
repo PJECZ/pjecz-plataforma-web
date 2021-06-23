@@ -1,45 +1,48 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Registros{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('cid_registros') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivos', url_for('cid_registros.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activos', url_for('cid_registros.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('cid_registros') %}
-        {{ list.topbar_option_new('Nuevo Registro', url_for('cid_registros.new')) }}
-    {% endif %}
+    {% if estatus == 'A' %}{% set title='Registros' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Registros inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button('Procedimientos', url_for('cid_procedimientos.list_active'), 'fa fa-th-large') }}
+        {{ topbar.button('Formatos', url_for('cid_formatos.list_active'), 'fa fa-list-alt') }}
+        {% if current_user.can_edit('cid_registros') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_registros.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_registros.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('cid_registros') %}
+            {{ topbar.button_new('Nuevo Registro', url_for('cid_registros.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Registros') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Registros inactivos') }}{% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="cid_registros_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        <th>Fechas</th>
-                        <th>Procedimientos</th>
-                        <th>Formatos</th>
-                        <th>Registros</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cid_registro in cid_registros %}
-                    <tr>
-                        <td>{{ cid_registro.creado.strftime('%Y-%m-%d %H:%M') }}</td>
-                        <td>{{ cid_registro.formato.procedimiento.descripcion }}</td>
-                        <td>{{ cid_registro.formato.descripcion }}</td>
-                        <td><a href="{{ url_for('cid_registros.detail', cid_registro_id=cid_registro.id) }}">{{ cid_registro.descripcion }}</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="cid_registros_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    <th>Fechas</th>
+                    <th>Procedimientos</th>
+                    <th>Formatos</th>
+                    <th>Registros</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cid_registro in cid_registros %}
+                <tr>
+                    <td>{{ cid_registro.creado.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ cid_registro.formato.procedimiento.descripcion }}</td>
+                    <td>{{ cid_registro.formato.descripcion }}</td>
+                    <td><a href="{{ url_for('cid_registros.detail', cid_registro_id=cid_registro.id) }}">{{ cid_registro.descripcion }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

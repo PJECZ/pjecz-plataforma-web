@@ -1,5 +1,4 @@
 {% extends 'layouts/public.jinja2' %}
-{% import 'macros/detail.jinja2' as detail with context %}
 
 {% block title %}Constancia de Recepción de Documentos{% endblock %}
 
@@ -11,7 +10,7 @@
         </div>
         <div class="py-2">
             <p>
-                Fecha {{ edicto.creado }}<br>
+                Fecha {{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}<br>
                 ID VPE{{ edicto.id }}<br>
                 <strong>{{ edicto.autoridad.descripcion }}</strong><br>
                 <strong>{{ edicto.autoridad.distrito.nombre }}</strong>

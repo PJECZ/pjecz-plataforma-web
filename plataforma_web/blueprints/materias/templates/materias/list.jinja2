@@ -1,39 +1,40 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Materias{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('materias') %}
-        {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('materias.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('materias.list_active')) }}{% endif %}
-    {% endif %}
-    {% if current_user.can_insert('materias') %}
-        {{ list.topbar_option_new('Nueva Materia', url_for('materias.new')) }}
-    {% endif %}
+    {% if estatus == 'A' %}{% set title='Materias' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Materias inactivas' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {% if current_user.can_edit('materias') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('materias.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('materias.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('materias') %}
+            {{ topbar.button_new('Nueva Materia', url_for('materias.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A' %}{{ list.page('Materias') }}{% endif %}
-    {% if estatus == 'B' %}{{ list.page('Materias inactivas') }}{% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="materias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        <th>Materias</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for materia in materias %}
-                    <tr>
-                        <td><a href="{{ url_for('materias.detail', materia_id=materia.id) }}">{{ materia.nombre }}</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="materias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    <th>Materias</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for materia in materias %}
+                <tr>
+                    <td><a href="{{ url_for('materias.detail', materia_id=materia.id) }}">{{ materia.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

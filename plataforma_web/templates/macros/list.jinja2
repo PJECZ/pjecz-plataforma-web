@@ -1,85 +1,4 @@
-{%- macro page(label) -%}
-    <div class="page-breadcrumb">
-        <div class="row">
-            <div class="col-12 d-flex no-block align-items-center">
-                <h4 class="page-title">{{ label }}</h4>
-            </div>
-        </div>
-    </div>
-{%- endmacro -%}
-
-{%- macro page_breadcrumb(label) -%}
-    <div class="page-breadcrumb">
-        <div class="row">
-            <div class="col-12 d-flex no-block align-items-center">
-                <h4 class="page-title">{{ caller () }}{{ label }}</h4>
-            </div>
-        </div>
-    </div>
-{%- endmacro -%}
-
-{%- macro page_breadcrumb_item(label, link='') -%}
-    <a href="{{ link }}">{{ label }}</a> /
-{%- endmacro -%}
-
-{%- macro topbar_actions() -%}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="d-none d-md-block">Acciones <i class="fa fa-angle-down"></i></span>
-            <span class="d-block d-md-none"><i class="fa fa-plus"></i></span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            {{ caller () }}
-        </div>
-    </li>
-{%- endmacro -%}
-
-{%- macro topbar_actions_option(label, url) -%}
-            <a class="dropdown-item" href="{{ url }}">{{ label }}</a>
-{%- endmacro -%}
-
-{%- macro topbar_option(label, url, icon) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
-    </li>
-{%- endmacro -%}
-
-{%- macro topbar_option_search(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-search"></i> {{ label }}</a>
-    </li>
-{%- endmacro -%}
-
-{%- macro topbar_option_new(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-plus"></i> {{ label }}</a>
-    </li>
-{%- endmacro -%}
-
-{%- macro topbar_option_list_active(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-eye"></i> {{ label }}</a>
-    </li>
-{%- endmacro -%}
-
-{%- macro topbar_option_list_inactive(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-eye-slash"></i> {{ label }}</a>
-    </li>
-{%- endmacro -%}
-
-{%- macro topbar_option_refresh(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-redo"></i> {{ label }}</a>
-    </li>
-{%- endmacro -%}
-
-{%- macro topbar_option_upload(label, url) -%}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url }}"><i class="fas fa-upload"></i> {{ label }}</a>
-    </li>
-{%- endmacro -%}
-
+{# Card #}
 {%- macro card() -%}
     <div class="card">
         <div class="card-body">
@@ -107,7 +26,41 @@
                     sNext: "Siguiente",
                     sPrevious: "Anterior"
                 }
-            }
+            },
+            responsive: true
+        });
+    </script>
+{%- endmacro -%}
+
+{# JavaScript Datatable times in first column from UTC to local #}
+{%- macro datatable_times(table_id, order="desc") -%}
+    <script>
+        $('#{{ table_id }}').DataTable({
+            {% if order == "asc" %}order: [[ 0, "asc" ]],{% endif %}
+            {% if order == "desc" %}order: [[ 0, "desc" ]],{% endif %}
+            columnDefs: [ {
+                targets: 0,
+                type: "date",
+                render: function (data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            } ],
+            scrollX: true,
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            },
+            responsive: true
         });
     </script>
 {%- endmacro -%}

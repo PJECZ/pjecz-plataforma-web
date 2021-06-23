@@ -1,48 +1,46 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/detail.jinja2' as detail with context %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Materia{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_edit('materias') %}
-        {{ detail.topbar_option_edit('Editar', url_for('materias.edit', materia_id=materia.id)) }}
-        {% if materia.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-        {% if materia.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-    {% endif %}
+    {% call topbar.page_buttons('Materia ' + materia.nombre) %}
+        {{ topbar.button_previous('Materias', url_for('materias.list_active')) }}
+        {% if current_user.can_edit('materias') %}
+            {{ topbar.button_edit('Editar', url_for('materias.edit', materia_id=materia.id)) }}
+            {% if materia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if materia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.page_breadcrumb(materia.nombre) %}
-        {% if materia.estatus == 'A' %}{{ detail.page_breadcrumb_item('Materias', link=url_for('materias.list_active')) }}{% endif %}
-        {% if materia.estatus == 'B' %}{{ detail.page_breadcrumb_item('Materias inactivas', link=url_for('materias.list_inactive')) }}{% endif %}
+    {% call detail.card(estatus=materia.estatus) %}
+        {{ detail.label_value_big('Materia', materia.nombre) }}
     {% endcall %}
-    <div class="container-fluid">
-        {% call detail.card(estatus=materia.estatus) %}
-            {{ detail.label_value_big('Materia', materia.nombre) }}
+    {% if autoridades %}
+        {% call detail.card(title='Autoridades') %}
+            <table id="autoridades_datatable" class="table">
+                <thead>
+                    <tr>
+                        <th>Claves</th>
+                        <th>Distritos</th>
+                        <th>Descripciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for autoridad in autoridades %}
+                    <tr>
+                        <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
+                        <td>{{ autoridad.distrito.nombre_corto }}</td>
+                        <td>{{ autoridad.descripcion }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% endcall %}
-        {% if autoridades %}
-            {% call detail.card(title='Autoridades') %}
-                <table id="autoridades_datatable" class="table">
-                    <thead>
-                        <tr>
-                            <th>Claves</th>
-                            <th>Distritos</th>
-                            <th>Descripciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for autoridad in autoridades %}
-                        <tr>
-                            <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
-                            <td>{{ autoridad.distrito.nombre }}</td>
-                            <td>{{ autoridad.descripcion }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endcall %}
-        {% endif %}
-    </div>
+    {% endif %}
     {% if current_user.can_edit('materias') %}
         {{ detail.modal('Eliminar', '¿Eliminar a ' + materia.nombre + '?', 'modalDelete', url_for('materias.delete', materia_id=materia.id)) }}
         {{ detail.modal('Recuperar', '¿Recuperar a ' + materia.nombre + '?', 'modalRecover', url_for('materias.recover', materia_id=materia.id)) }}

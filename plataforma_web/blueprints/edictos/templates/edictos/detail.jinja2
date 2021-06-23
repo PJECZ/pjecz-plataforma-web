@@ -1,38 +1,34 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/detail.jinja2' as detail with context %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Edicto{% endblock %}
 
 {% block topbar_actions %}
-    {% if current_user.can_admin('edictos') %}
-        {{ detail.topbar_option_edit('Editar', url_for('edictos.edit', edicto_id=edicto.id)) }}
-    {% endif %}
-    {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
-        {% if edicto.estatus == 'A' %}{{ detail.topbar_option_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-        {% if edicto.estatus == 'B' %}{{ detail.topbar_option_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
-    {% endif %}
+    {% call topbar.page_buttons('Edicto ' + edicto.descripcion) %}
+        {{ topbar.button_previous('Edictos', url_for('edictos.list_active')) }}
+        {% if current_user.can_admin('edictos') %}
+            {{ topbar.button_edit('Editar', url_for('edictos.edit', edicto_id=edicto.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
+            {% if edicto.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
+            {% if edicto.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.page_breadcrumb(edicto.fecha) %}
-        {{ detail.page_breadcrumb_item('Edictos', link=url_for('edictos.list_active')) }}
-        {{ detail.page_breadcrumb_item('Distritos', link=url_for('edictos.list_distritos')) }}
-        {{ detail.page_breadcrumb_item(edicto.autoridad.distrito.nombre, link=url_for('edictos.list_autoridades', distrito_id=edicto.autoridad.distrito_id)) }}
-        {{ detail.page_breadcrumb_item(edicto.autoridad.descripcion, link=url_for('edictos.list_autoridad_edictos', autoridad_id=edicto.autoridad_id)) }}
+    {% call detail.card(estatus=edicto.estatus) %}
+        {# detail.label_value_big('Edicto', edicto.descripcion) #}
+        {{ detail.label_value('Distrito', edicto.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', edicto.autoridad.descripcion) }}
+        {{ detail.label_value('Fecha', edicto.fecha) }}
+        {{ detail.label_value('Descripción', edicto.descripcion) }}
+        {{ detail.label_value('Expediente', edicto.expediente) }}
+        {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
+        {{ detail.label_value_new_tab('Edicto PDF', edicto.archivo, edicto.url) }}
+        {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
     {% endcall %}
-    <div class="container-fluid">
-        {% call detail.card(estatus=edicto.estatus) %}
-            {{ detail.label_value_big('Edicto', edicto.descripcion) }}
-            {{ detail.label_value('Distrito', edicto.autoridad.distrito.nombre) }}
-            {{ detail.label_value('Autoridad', edicto.autoridad.descripcion) }}
-            {{ detail.label_value('Fecha', edicto.fecha) }}
-            {{ detail.label_value('Descripción', edicto.descripcion) }}
-            {{ detail.label_value('Expediente', edicto.expediente) }}
-            {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
-            {{ detail.label_value_new_tab('Edicto PDF', edicto.archivo, edicto.url) }}
-            {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
-        {% endcall %}
-    </div>
     {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
         {{ detail.modal('Eliminar', '¿Eliminar a ' + edicto.descripcion + '?', 'modalDelete', url_for('edictos.delete', edicto_id=edicto.id)) }}
         {{ detail.modal('Recuperar', '¿Recuperar a ' + edicto.descripcion + '?', 'modalRecover', url_for('edictos.recover', edicto_id=edicto.id)) }}

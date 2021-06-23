@@ -3,6 +3,7 @@ click
 cryptography
 email-validator
 Flask
+Flask-Moment
 Flask-Login
 Flask-SQLAlchemy
 Flask-SocketIO

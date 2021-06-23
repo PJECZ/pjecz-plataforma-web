@@ -1,66 +1,63 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Glosas{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('glosas.search')) }}
-    {{ list.topbar_option('Distritos', url_for('glosas.list_distritos'), 'fas fa-sitemap') }}
     {% if autoridad %}
-        {% if current_user.can_admin('glosas') %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('glosas.list_autoridad_glosas_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}{% endif %}
-            {{ list.topbar_option_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
-        {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('glosas.list_active')) }}{% endif %}
-            {{ list.topbar_option_upload('Subir', url_for('glosas.new')) }}
-        {% endif %}
-        {% if current_user.can_admin('glosas') and current_user.can_insert('tareas') %}
-            {{ list.topbar_option_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
-        {% endif %}
+        {% set title='Glosas de ' + autoridad.clave %}
+    {% else %}
+        {% if estatus == 'A' %}{% set title='Glosas' %}{% endif %}
+        {% if estatus == 'B' %}{% set title='Glosas inactivas' %}{% endif %}
     {% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button_districts('Distritos', url_for('glosas.list_distritos')) }}
+        {% if autoridad %}
+            {% if current_user.can_admin('glosas') or (current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id) %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_active')) }}{% endif %}
+            {% endif %}
+            {% if current_user.can_admin('glosas') %}
+                {{ topbar.button_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
+                {{ topbar.button_upload('Subir', url_for('glosas.new')) }}
+            {% endif %}
+            {% if current_user.can_admin('glosas') and current_user.can_insert('tareas') %}
+                {{ topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
+            {% endif %}
+        {% endif %}
+        {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if autoridad %}
-        {% call list.page_breadcrumb(autoridad.descripcion) %}
-            {{ list.page_breadcrumb_item('Glosas', link=url_for('glosas.list_active')) }}
-            {{ list.page_breadcrumb_item('Distritos', link=url_for('glosas.list_distritos')) }}
-            {{ list.page_breadcrumb_item(autoridad.distrito.nombre, link=url_for('glosas.list_autoridades', distrito_id=autoridad.distrito_id)) }}
-        {% endcall %}
-    {% else %}
-        {% if estatus == 'A'%}{{ list.page('Glosas') }}{% endif %}
-        {% if estatus == 'B'%}{{ list.page('Glosas inactivas') }}{% endif %}
-    {% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="blueprint_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        {% if current_user.can_admin('glosas') %}<th>Creados</th>{% endif %}
-                        <th>Fechas</th>
-                        <th>Descripciones</th>
-                        <th>Tipos de juicios</th>
-                        <th>Expedientes</th>
-                        <th>Archivos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for glosa in glosas %}
-                    <tr>
-                        {% if current_user.can_admin('glosas') %}<td>{{ glosa.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
-                        <td>{{ glosa.fecha }}</td>
-                        <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.descripcion }}</a></td>
-                        <td>{{ glosa.tipo_juicio }}</td>
-                        <td>{{ glosa.expediente }}</td>
-                        <td><a href="{{ glosa.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="blueprint_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    {% if current_user.can_admin('glosas') %}<th>Creados</th>{% endif %}
+                    <th>Fechas</th>
+                    <th>Descripciones</th>
+                    <th>Tipos de juicios</th>
+                    <th>Expedientes</th>
+                    <th>Archivos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for glosa in glosas %}
+                <tr>
+                    {% if current_user.can_admin('glosas') %}<td>{{ glosa.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
+                    <td>{{ glosa.fecha }}</td>
+                    <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.descripcion }}</a></td>
+                    <td>{{ glosa.tipo_juicio }}</td>
+                    <td>{{ glosa.expediente }}</td>
+                    <td><a href="{{ glosa.url }}" target="_blank">PDF <i class="fa fa-external-link"></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

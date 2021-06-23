@@ -1,59 +1,60 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Todas las Listas de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {{ list.topbar_option_search('Buscar', url_for('listas_de_acuerdos.search')) }}
-    {{ list.topbar_option('Distritos', url_for('listas_de_acuerdos.list_distritos'), 'fas fa-sitemap') }}
-    {% if autoridad %}
-        {% if current_user.can_admin('listas_de_acuerdos') %}
-            {{ list.topbar_option_upload('Subir', url_for('listas_de_acuerdos.new_for_autoridad', autoridad_id=autoridad.id)) }}
+    {% if estatus == 'A' %}{% set title='Todas las Listas de Acuerdos' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Todas las Listas de Acuerdos inactivas' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button_districts('Distritos', url_for('listas_de_acuerdos.list_distritos')) }}
+        {% if autoridad %}
+            {% if current_user.can_admin('listas_de_acuerdos') %}
+                {{ topbar.button_upload('Subir', url_for('listas_de_acuerdos.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% endif %}
+            {% if current_user.can_edit('listas_de_acuerdos') %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}{% endif %}
+            {% endif %}
+            {% if current_user.can_insert('tareas') %}
+                {{ topbar.button_refresh('Refrescar', url_for('listas_de_acuerdos.refresh', autoridad_id=autoridad.id)) }}
+            {% endif %}
+        {% else %}
+            {% if current_user.can_edit('listas_de_acuerdos') %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_inactive')) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('listas_de_acuerdos.list_active')) }}{% endif %}
+            {% endif %}
         {% endif %}
-        {% if current_user.can_edit('listas_de_acuerdos') %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('tareas') %}
-            {{ list.topbar_option_refresh('Refrescar', url_for('listas_de_acuerdos.refresh', autoridad_id=autoridad.id)) }}
-        {% endif %}
-    {% else %}
-        {% if current_user.can_edit('listas_de_acuerdos') %}
-            {% if estatus == 'A' %}{{ list.topbar_option_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ list.topbar_option_list_active('Activas', url_for('listas_de_acuerdos.list_active')) }}{% endif %}
-        {% endif %}
-    {% endif %}
+        {{ topbar.button_search('Buscar', url_for('listas_de_acuerdos.search')) }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if estatus == 'A'%}{{ list.page('Todas las Listas de Acuerdos') }}{% endif %}
-    {% if estatus == 'B'%}{{ list.page('Todas las Listas de Acuerdos inactivas') }}{% endif %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
-                <thead>
-                    <tr>
-                        <th>Creados</th>
-                        <th>Autoridades</th>
-                        <th>Fechas</th>
-                        <th>Descripciones</th>
-                        <th>Archivos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for lista_de_acuerdo in listas_de_acuerdos %}
-                    <tr>
-                        <td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td>{{ lista_de_acuerdo.autoridad.clave }}</td>
-                        <td>{{ lista_de_acuerdo.fecha }}</td>
-                        <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.descripcion }}</a></td>
-                        <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">PDF <i class="fas fa-external-link-alt"></a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Autoridades</th>
+                    <th>Fechas</th>
+                    <th>Descripciones</th>
+                    <th>Archivos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lista_de_acuerdo in listas_de_acuerdos %}
+                <tr>
+                    <td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ lista_de_acuerdo.autoridad.clave }}</td>
+                    <td>{{ lista_de_acuerdo.fecha }}</td>
+                    <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.descripcion }}</a></td>
+                    <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">PDF <i class="fa fa-external-link"></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

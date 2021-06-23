@@ -1,20 +1,24 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Buscar Peritos{% endblock %}
 
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Buscar Peritos') %}
+        {{ topbar.button_previous('Peritos', url_for('peritos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Buscar Peritos') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag('peritos.search', fid='perito_search_form') %}
-                {% call f.form_group(form.distrito) %}{% endcall %}
-                {% call f.form_group(form.nombre) %}{% endcall %}
-                {% call f.form_group(form.tipo) %}{% endcall %}
-                {{ form.buscar() }}
-            {% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag('peritos.search', fid='perito_search_form') %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.tipo) %}{% endcall %}
+            {{ form.buscar() }}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

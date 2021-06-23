@@ -1,19 +1,21 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Editar Departamento{% endblock %}
 
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + distrito.nombre) }}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Editar ' + distrito.nombre) }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% set form_kwargs = {'distrito_id': distrito.id} %}
-            {% call f.form_tag('distritos.edit', fid='distrito_form', **form_kwargs) %}
-                {% call f.form_group(form.nombre) %}{% endcall %}
-                {% call f.form_group(form.nombre_corto) %}{% endcall %}
-                {% call f.form_group(form.es_distrito_judicial) %}{% endcall %}
-                {% call f.form_group(form.guardar) %}{% endcall %}
-            {% endcall %}
+    {% call f.card() %}
+        {% set form_kwargs = {'distrito_id': distrito.id} %}
+        {% call f.form_tag('distritos.edit', fid='distrito_form', **form_kwargs) %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.nombre_corto) %}{% endcall %}
+            {% call f.form_group(form.es_distrito_judicial) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}

@@ -1,26 +1,26 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Buscar Edictos{% endblock %}
 
 {% block topbar_actions %}
-    {{ f.topbar_option('Distritos', url_for('edictos.list_distritos'), 'fas fa-sitemap') }}
+    {% call topbar.page_buttons('Buscar Edictos') %}
+        {{ topbar.button_previous('Edictos', url_for('edictos.list_active')) }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Buscar Edictos') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag('edictos.search', fid='edicto_search_form') %}
-                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.fecha_desde) %}{% endcall %}
-                {% call f.form_group(form.fecha_hasta) %}{% endcall %}
-                {% call f.form_group(form.descripcion) %}{% endcall %}
-                {% call f.form_group(form.expediente) %}{% endcall %}
-                {% call f.form_group(form.numero_publicacion) %}{% endcall %}
-                {{ form.buscar() }}
-            {% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag('edictos.search', fid='edicto_search_form') %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.fecha_desde) %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.numero_publicacion) %}{% endcall %}
+            {{ form.buscar() }}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}
