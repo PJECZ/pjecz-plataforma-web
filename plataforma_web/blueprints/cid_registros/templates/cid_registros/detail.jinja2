@@ -1,34 +1,32 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Registro{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(cid_registro.descripcion) %}
+    {% call topbar.page_buttons(registro.descripcion) %}
         {{ topbar.button_previous('Registros', url_for('cid_registros.list_active')) }}
         {% if current_user.can_edit('cid_registros') %}
-            {{ topbar.button_edit('Editar', url_for('cid_registros.edit', cid_registro_id=cid_registro.id)) }}
-            {% if cid_registro.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if cid_registro.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {{ topbar.button_edit('Editar', url_for('cid_registros.edit', registro_id=registro.id)) }}
+            {% if registro.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_registros.delete', registro_id=registro.id)) }}{% endif %}
+            {% if registro.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_registros.recover', registro_id=registro.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=cid_registro.estatus) %}
+    {% call detail.card(estatus=registro.estatus) %}
         {# detail.label_value_big('Registro', cid_registro.descripcion) #}
         {{ detail.label_value('Fecha', cid_registro.creado.strftime('%Y-%m-%d %H:%M')) }}
         {{ detail.label_value('Formato', cid_registro.formato.descripcion, url_for('cid_formatos.detail', cid_formato_id=cid_registro.formato_id)) }}
     {% endcall %}
-    {% if current_user.can_edit('cid_registros') %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + cid_registro.descripcion + '?', 'modalDelete', url_for('cid_registros.delete', cid_registro_id=cid_registro.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + cid_registro.descripcion + '?', 'modalRecover', url_for('cid_registros.recover', cid_registro_id=cid_registro.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('cid_registros') %}
-        {{ detail.custom_javascript_delete_recover() }}
+        {% if registro.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + registro.descripcion + '?') }}{% endif %}
+        {% if registro.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + registro.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

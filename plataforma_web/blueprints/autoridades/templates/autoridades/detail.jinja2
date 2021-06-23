@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Autoridad{% endblock %}
@@ -9,8 +10,8 @@
         {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
         {% if current_user.can_edit('autoridades') %}
             {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
-            {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
+            {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -54,15 +55,11 @@
             </table>
         {% endcall %}
     {% endif %}
-    {% if current_user.can_edit('autoridades') %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?', 'modalDelete', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?', 'modalRecover', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ detail.datatable('usuarios_datatable') }}
     {% if current_user.can_edit('autoridades') %}
-        {{ detail.custom_javascript_delete_recover() }}
+        {% if autoridad.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?') }}{% endif %}
+        {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

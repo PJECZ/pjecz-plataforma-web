@@ -1,18 +1,19 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Glosa{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Glosa ' + glosa.descripcion) %}
+    {% call topbar.page_buttons(glosa.descripcion) %}
         {{ topbar.button_previous('Glosas', url_for('glosas.list_active')) }}
         {% if current_user.can_admin('glosas') %}
             {{ topbar.button_edit('Editar', url_for('glosas.edit', glosa_id=glosa.id)) }}
         {% endif %}
         {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
-            {% if glosa.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if glosa.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {% if glosa.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('glosas.delete', glosa_id=glosa.id)) }}{% endif %}
+            {% if glosa.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('glosas.recover', glosa_id=glosa.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -29,14 +30,11 @@
         {{ detail.label_value_new_tab('Glosa PDF', glosa.archivo, glosa.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('glosas.checkout', id_hashed=glosa.encode_id())) }}
     {% endcall %}
-    {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + glosa.descripcion + '?', 'modalDelete', url_for('glosas.delete', glosa_id=glosa.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + glosa.descripcion + '?', 'modalRecover', url_for('glosas.recover', glosa_id=glosa.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
-        {{ detail.custom_javascript_delete_recover() }}
+        {% if glosa.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + glosa.descripcion + '?') }}{% endif %}
+        {% if glosa.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + glosa.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

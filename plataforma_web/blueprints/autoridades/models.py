@@ -18,14 +18,14 @@ class Autoridad(db.Model, UniversalMixin):
             ("TRIBUNAL DE CONCILIACION Y ARBITRAJE", "Tribunal de Conciliación y Arbitraje"),
         ]
     )
-    AUDIENCIAS_CATEGORIAS = OrderedDict(
-        [
-            ("NO DEFINIDO", "No Definido"),
-            ("MATERIAS C F M L DIST. (CYF) SALAS (CYF) TCYA", "Materias C F M L Dist. (CyF) Salas (CyF) TCyA"),
-            ("MATERIA ACUSATORIO PENAL ORAL", "Materia Acusatorio Penal Oral"),
-            ("DISTRITALES PENALES Y SALAS PENALES", "Distritales Penales y Salas Penales"),
-        ]
-    )
+    #AUDIENCIAS_CATEGORIAS = OrderedDict(
+    #    [
+    #        ("NO DEFINIDO", "No Definido"),
+    #        ("MATERIAS C F M L DIST. (CYF) SALAS (CYF) TCYA", "Materias C F M L Dist. (CyF) Salas (CyF) TCyA"),
+    #        ("MATERIA ACUSATORIO PENAL ORAL", "Materia Acusatorio Penal Oral"),
+    #        ("DISTRITALES PENALES Y SALAS PENALES", "Distritales Penales y Salas Penales"),
+    #    ]
+    #)
 
     # Nombre de la tabla
     __tablename__ = "autoridades"
@@ -54,14 +54,14 @@ class Autoridad(db.Model, UniversalMixin):
     directorio_glosas = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_listas_de_acuerdos = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_sentencias = db.Column(db.String(256), nullable=False, default="", server_default="")
-    audiencia_categoria = db.Column(
-        db.Enum(*AUDIENCIAS_CATEGORIAS, name="tipos_audiencias_categorias", native_enum=False),
-        index=True,
-        nullable=False,
-    )
+    #audiencia_categoria = db.Column(
+    #    db.Enum(*AUDIENCIAS_CATEGORIAS, name="tipos_audiencias_categorias", native_enum=False),
+    #    index=True,
+    #    nullable=False,
+    #)
 
     # Hijos
-    audiencias = db.relationship('Audiencia', back_populates='autoridad')
+    #audiencias = db.relationship('Audiencia', back_populates='autoridad')
     edictos = db.relationship("Edicto", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
