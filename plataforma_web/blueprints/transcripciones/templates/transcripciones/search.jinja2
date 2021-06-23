@@ -1,17 +1,21 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Buscar Transcripciones{% endblock %}
 
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Buscar Transcripciones') %}
+        {{ topbar.button_previous('Transcripciones', url_for('transcripciones.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
 {% block content %}
-    {{ f.page('Buscar Transcripciones') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag('transcripciones.search', fid='transcripciones_search_form') %}
-                {% call f.form_group(form.descripcion) %}{% endcall %}
-                {% call f.form_group(form.expediente) %}{% endcall %}
-                {{ form.buscar() }}
-            {% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag('transcripciones.search', fid='transcripciones_search_form') %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {{ form.buscar() }}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}

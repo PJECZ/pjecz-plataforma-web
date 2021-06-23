@@ -1,25 +1,25 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Buscar en todas las Listas de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {{ f.topbar_option('Distritos', url_for('listas_de_acuerdos.list_distritos'), 'fas fa-sitemap') }}
+    {% call topbar.page_buttons('Buscar en todas las Listas de Acuerdos') %}
+        {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Buscar en todas las Listas de Acuerdos') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag('listas_de_acuerdos.search', fid='listas_de_acuerdos_form') %}
-                {% call f.form_group(form.distrito) %}{% endcall %}
-                {% call f.form_group(form.autoridad) %}{% endcall %}
-                {% call f.form_group(form.fecha_desde) %}{% endcall %}
-                {% call f.form_group(form.fecha_hasta) %}{% endcall %}
-                {{ form.buscar() }}
-            {% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag('listas_de_acuerdos.search', fid='listas_de_acuerdos_form') %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.fecha_desde) %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
+            {{ form.buscar() }}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

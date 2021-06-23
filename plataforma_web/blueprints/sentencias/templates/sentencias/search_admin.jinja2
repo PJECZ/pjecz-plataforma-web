@@ -1,25 +1,25 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Buscar Versiones Públicas de Sentencias{% endblock %}
+{% block title %}Buscar en todas las V. P. de Sentencias{% endblock %}
 
 {% block topbar_actions %}
-    {{ f.topbar_option('Distritos', url_for('sentencias.list_distritos'), 'fas fa-sitemap') }}
+    {% call topbar.page_buttons('Buscar en todas las V. P. de Sentencias') %}
+        {{ topbar.button_previous('V.P. Sentencias', url_for('sentencias.list_active')) }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {{ f.page('Buscar Versiones Públicas de Sentencias') }}
-    <div class="container-fluid">
-        {% call f.card() %}
-            {% call f.form_tag('sentencias.search', fid='sentencia_search_form') %}
-                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.sentencia) %}{% endcall %}
-                {% call f.form_group(form.expediente) %}{% endcall %}
-                {% call f.form_group(form.fecha_desde) %}{% endcall %}
-                {% call f.form_group(form.fecha_hasta) %}{% endcall %}
-                {{ form.buscar() }}
-            {% endcall %}
+    {% call f.card() %}
+        {% call f.form_tag('sentencias.search', fid='sentencia_search_form') %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.sentencia) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.fecha_desde) %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
+            {{ form.buscar() }}
         {% endcall %}
-    </div>
+    {% endcall %}
 {% endblock %}
