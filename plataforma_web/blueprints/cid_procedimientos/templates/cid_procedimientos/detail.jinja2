@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Procedimiento{% endblock %}
@@ -9,8 +10,8 @@
         {{ topbar.button_previous('Procedimientos', url_for('cid_procedimientos.list_active')) }}
         {% if current_user.can_edit('cid_procedimientos') %}
             {{ topbar.button_edit('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id)) }}
-            {% if cid_procedimiento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if cid_procedimiento.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {% if cid_procedimiento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_procedimientos.delete', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
+            {% if cid_procedimiento.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_procedimientos.recover', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -19,14 +20,11 @@
     {% call detail.card(estatus=cid_procedimiento.estatus) %}
         {{ detail.label_value('Procedimiento', cid_procedimiento.descripcion) }}
     {% endcall %}
-    {% if current_user.can_edit('cid_procedimientos') %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + cid_procedimiento.descripcion + '?', 'modalDelete', url_for('cid_procedimientos.delete', cid_procedimiento_id=cid_procedimiento.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + cid_procedimiento.descripcion + '?', 'modalRecover', url_for('cid_procedimientos.recover', cid_procedimiento_id=cid_procedimiento.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('cid_procedimientos') %}
-        {{ detail.custom_javascript_delete_recover() }}
+        {% if cid_procedimiento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
+        {% if cid_procedimiento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

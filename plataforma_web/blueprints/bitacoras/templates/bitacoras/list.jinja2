@@ -10,29 +10,73 @@
 
 {% block content %}
     {% call list.card() %}
-        <table id="bitacoras_datatable" class="table">
+        <table id="bitacoras_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Tiempos</th>
                     <th>Usuarios e-mail</th>
                     <th>Módulos</th>
                     <th>Descripciones</th>
+                    <th>URL</th>
                 </tr>
             </thead>
             <tbody>
-                {% for bitacora in bitacoras %}
                 <tr>
-                    <td>{{ bitacora.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td><a href="{{ url_for('usuarios.detail', usuario_id=bitacora.usuario_id) }}" target="_blank">{{ bitacora.usuario.email }} <i class="fa fa-external-link"></a></td>
-                    <td>{{ bitacora.modulo }}</td>
-                    <td><a href="{{ bitacora.url }}" target="_blank">{{ bitacora.descripcion }} <i class="fa fa-external-link"></a></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
-                {% endfor %}
             </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('bitacoras_datatable') }}
+    <script>
+        $('#bitacoras_datatable').DataTable({
+            order: [[ 0, "desc" ]],
+            processing: true,
+            serverSide: true,
+            scrollX: true,
+            ordering: false,
+            searching: false,
+            ajax: {
+                url: "/bitacoras/ajax"
+            },
+            columns: [
+                { data: 'creado' },
+                { data: 'usuario_email' },
+                { data: 'modulo' },
+                { data: 'descripcion' },
+                {
+                    data: 'url',
+                    render: function(data, type, row) { return "<a href='" + data + "' target='_blank'> <i class='fa fa-external-link'></i></a>" }
+                }
+            ],
+            columnDefs: [ {
+                targets: 0,
+                type: "date",
+                render: function (data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            } ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            },
+            responsive: true
+        });
+    </script>
 {% endblock %}

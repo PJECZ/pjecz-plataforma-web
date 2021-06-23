@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Formato{% endblock %}
@@ -8,9 +9,9 @@
     {% call topbar.page_buttons(cid_formato.descripcion) %}
         {{ topbar.button_previous('Formatos', url_for('cid_formatos.list_active')) }}
         {% if current_user.can_edit('cid_formatos') %}
-            {{ topbar.button_edit('Editar', url_for('cid_formatos.edit', cid_formato_id=cid_formato.id)) }}
-            {% if cid_formato.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if cid_formato.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {{ topbar.button_edit('Editar', url_for('cid_formato.edit', cid_formato_id=cid_formato.id)) }}
+            {% if cid_formato.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_formatos.delete', cid_formato_id=cid_formato.id)) }}{% endif %}
+            {% if cid_formato.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_formatos.recover', cid_formato_id=cid_formato.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -20,14 +21,11 @@
         {# detail.label_value_big('Formato', cid_formato.descripcion) #}
         {{ detail.label_value('Procedimiento', cid_formato.procedimiento.descripcion, url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_formato.procedimiento_id)) }}
     {% endcall %}
-    {% if current_user.can_edit('cid_formatos') %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + cid_formato.descripcion + '?', 'modalDelete', url_for('cid_formatos.delete', cid_formato_id=cid_formato.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + cid_formato.descripcion + '?', 'modalRecover', url_for('cid_formatos.recover', cid_formato_id=cid_formato.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('cid_formatos') %}
-        {{ detail.custom_javascript_delete_recover() }}
+        {% if cid_formato.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_formato.descripcion + '?') }}{% endif %}
+        {% if cid_formato.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + cid_formato.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

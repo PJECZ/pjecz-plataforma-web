@@ -1,25 +1,25 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Edicto{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Edicto ' + edicto.descripcion) %}
+    {% call topbar.page_buttons(edicto.descripcion) %}
         {{ topbar.button_previous('Edictos', url_for('edictos.list_active')) }}
         {% if current_user.can_admin('edictos') %}
             {{ topbar.button_edit('Editar', url_for('edictos.edit', edicto_id=edicto.id)) }}
         {% endif %}
         {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
-            {% if edicto.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if edicto.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {% if edicto.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('edictos.delete', edicto_id=edicto.id)) }}{% endif %}
+            {% if edicto.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('edictos.recover', edicto_id=edicto.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call detail.card(estatus=edicto.estatus) %}
-        {# detail.label_value_big('Edicto', edicto.descripcion) #}
         {{ detail.label_value('Distrito', edicto.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', edicto.autoridad.descripcion) }}
         {{ detail.label_value('Fecha', edicto.fecha) }}
@@ -29,14 +29,11 @@
         {{ detail.label_value_new_tab('Edicto PDF', edicto.archivo, edicto.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
     {% endcall %}
-    {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + edicto.descripcion + '?', 'modalDelete', url_for('edictos.delete', edicto_id=edicto.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + edicto.descripcion + '?', 'modalRecover', url_for('edictos.recover', edicto_id=edicto.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
-        {{ detail.custom_javascript_delete_recover() }}
+        {% if edicto.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + edicto.descripcion + '?') }}{% endif %}
+        {% if edicto.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + edicto.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

@@ -18,7 +18,6 @@
 
 {% block content %}
     {% call detail.card(estatus=abogado.estatus) %}
-        {# detail.label_value_big('Nombre', abogado.nombre) #}
         {{ detail.label_value('Fecha', abogado.fecha) }}
         {{ detail.label_value('Número', abogado.numero) }}
         {{ detail.label_value('Libro', abogado.libro) }}

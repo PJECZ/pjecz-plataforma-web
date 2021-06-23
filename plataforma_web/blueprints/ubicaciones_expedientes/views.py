@@ -75,7 +75,7 @@ def list_autoridades(distrito_id):
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/autoridad/<int:autoridad_id>")
 def list_autoridad_ubicaciones_expedientes(autoridad_id):
-    """Listado de Ubicaciones de Expedientes activasode una autoridad"""
+    """Listado de Ubicaciones de Expedientes activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
     return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
