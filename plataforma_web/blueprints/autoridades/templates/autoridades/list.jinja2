@@ -8,8 +8,6 @@
     {% if estatus == 'A' %}{% set title='Autoridades' %}{% endif %}
     {% if estatus == 'B' %}{% set title='Autoridades inactivas' %}{% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_districts('Distritos', url_for('distritos.list_active')) }}
-        {{ topbar.button('Materias', url_for('materias.list_active'), 'fa fa-tag') }}
         {% if current_user.can_edit('autoridades') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('autoridades.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('autoridades.list_active')) }}{% endif %}
@@ -17,12 +15,14 @@
         {% if current_user.can_insert('autoridades') %}
             {{ topbar.button_new('Nueva Autoridad', url_for('autoridades.new')) }}
         {% endif %}
+        {{ topbar.button_districts('Distritos', url_for('distritos.list_active')) }}
+        {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="autoridades_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+        <table id="autoridades_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Claves</th>

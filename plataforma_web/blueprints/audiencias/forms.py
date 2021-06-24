@@ -11,6 +11,8 @@ from plataforma_web.blueprints.audiencias.models import Audiencia
 class AudienciaMCFMLDSTForm(FlaskForm):
     """Formulario Audiencia: Materias C F M L Dist. (CyF) Salas (CyF) TCyA"""
 
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
     tiempo = DateTimeField("Fecha y hora")
     tipo_audiencia = StringField("Tipo de audiencia")
     expediente = StringField("Expediente")
@@ -22,6 +24,8 @@ class AudienciaMCFMLDSTForm(FlaskForm):
 class AudienciaMAPOForm(FlaskForm):
     """Formulario Audiencia: Materia Acusatorio Penal Oral"""
 
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
     tiempo = DateTimeField("Fecha y hora")
     tipo_audiencia = StringField("Tipo de audiencia")
     sala = StringField("Sala")
@@ -34,6 +38,8 @@ class AudienciaMAPOForm(FlaskForm):
 class AudienciaDPYSPForm(FlaskForm):
     """Formulario Audiencia: Distritales Penales y Salas Penales"""
 
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
     tiempo = DateTimeField("Fecha y hora")
     tipo_audiencia = StringField("Tipo de audiencia")
     toca = StringField("Toca")

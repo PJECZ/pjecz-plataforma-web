@@ -4,6 +4,11 @@
 
 {% block title %}Editar Procedimiento{% endblock %}
 
+{% block custom_head %}
+    <!-- Quill theme -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.snow.css" rel="stylesheet">
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Editar ' + cid_procedimiento.descripcion) }}
 {% endblock %}
@@ -13,7 +18,44 @@
         {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
         {% call f.form_tag('cid_procedimientos.edit', fid='cid_procedimiento_form', **form_kwargs) %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.contenido) %}{% endcall %}
+            <div id="editor" class="mb-2" style="display:block; clear:both; break-after:page; height:55vh;"></div>
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Quill library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
+    <script>
+        // Quill editor
+        $( document ).ready(function() {
+            var quill = new Quill('#editor', {
+                modules: {
+                    table: true,
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block', 'image'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'script': 'sub' }, { 'script': 'super' }],     // superscript/subscript
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean']                                         // remove formatting
+                    ],
+                },
+                theme: 'snow'
+            });
+            quill.setContents({{ cid_procedimiento.contenido }});
+            // On submit form
+            document.getElementById("cid_procedimiento_form").onsubmit = function() {copyFromQuillToInputHidden()};
+            // Copy from Quill to input hidden
+            function copyFromQuillToInputHidden() {
+                document.getElementById('contenido').value = JSON.stringify(quill.getContents());
+            }
+        });
+    </script>
 {% endblock %}

@@ -2,11 +2,11 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Versiones Públicas de Sentencias - Distritos{% endblock %}
+{% block title %}Agenda de Audiencias - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('V.P. Sentencias / Distritos') %}
-        {{ topbar.button_previous('V.P. Sentencias', url_for('sentencias.list_active')) }}
+    {% call topbar.page_buttons('Agenda de Audiencias / Distritos') %}
+        {{ topbar.button_previous('Agenda de Audiencias', url_for('audiencias.list_active')) }}
     {% endcall %}
 {% endblock %}
 
@@ -21,7 +21,7 @@
             <tbody>
                 {% for distrito in distritos %}
                 <tr>
-                    <td><a href="{{ url_for('sentencias.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
+                    <td><a href="{{ url_for('audiencias.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
