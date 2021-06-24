@@ -18,7 +18,7 @@
         {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form') %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.contenido) %}{% endcall %}
-            <div id="editor" class="mb-2" style="display:block; clear:both; break-after:page; height:500px;"></div>
+            <div id="editor" class="mb-2" style="display:block; clear:both; break-after:page; height:55vh;"></div>
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
@@ -39,7 +39,6 @@
                         [{ 'list': 'ordered' }, { 'list': 'bullet' }],
                         [{ 'script': 'sub' }, { 'script': 'super' }],     // superscript/subscript
                         [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent
-                        [{ 'direction': 'rtl' }],                         // text direction
                         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                         [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
                         [{ 'font': [] }],
