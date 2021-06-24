@@ -1,16 +1,17 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Usuario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Usuario ' + usuario.nombre) %}
+    {% call topbar.page_buttons(usuario.nombre) %}
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
         {% if current_user.can_edit('usuarios') %}
             {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
-            {% if usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {% if usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('usuarios.delete', usuario_id=usuario.id)) }}{% endif %}
+            {% if usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('usuarios.recover', usuario_id=usuario.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -26,14 +27,11 @@
             {{ detail.label_value('Rol', usuario.rol.nombre) }}
         {% endif %}
     {% endcall %}
-    {% if current_user.can_edit('usuarios') %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + usuario.nombre + '?', 'modalDelete', url_for('usuarios.delete', usuario_id=usuario.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + usuario.nombre + '?', 'modalRecover', url_for('usuarios.recover', usuario_id=usuario.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('usuarios') %}
-        {{ detail.custom_javascript_delete_recover() }}
+        {% if usuario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + usuario.nombre + '?') }}{% endif %}
+        {% if usuario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + usuario.nombre + '?') }}{% endif %}
     {% endif %}
 {% endblock %}
