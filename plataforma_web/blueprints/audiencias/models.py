@@ -30,12 +30,12 @@ class Audiencia(db.Model, UniversalMixin):
     tiempo = db.Column(db.DateTime, nullable=False)
     tipo_audiencia = db.Column(db.String(256))
 
-    # Columnas para materias civil, ...
+    # Columnas para Materias C F M L D(CyF) Salas (CyF) TCyA
     expediente = db.Column(db.String(16))
     actores = db.Column(db.String(256))
     demandados = db.Column(db.String(256))
 
-    # Columnas para materia acusatorio penal oral
+    # Columnas para Materia Acusatorio Penal Oral
     sala = db.Column(db.String(256))
     caracter = db.Column(
         db.Enum(*CARACTERES, name="tipos_caracteres", native_enum=False),
@@ -45,7 +45,7 @@ class Audiencia(db.Model, UniversalMixin):
     causa_penal = db.Column(db.String(256))
     delitos = db.Column(db.String(256))
 
-    # Columnas para distritales penales y salas penales
+    # Columnas para Distritales Penales y Salas Penales
     toca = db.Column(db.String(256))
     expediente_origen = db.Column(db.String(256))
     # delitos

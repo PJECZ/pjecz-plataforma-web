@@ -33,7 +33,7 @@
 
 {% block content %}
     {% call list.card() %}
-        <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}">
+        <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     {% if current_user.can_admin('listas_de_acuerdos') %}<th>Creados</th>{% endif %}
