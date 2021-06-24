@@ -4,6 +4,12 @@
 
 {% block title %}Nuevo Procedimiento{% endblock %}
 
+{% block custom_head %}
+    <!-- Theme included stylesheets -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.snow.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.bubble.css" rel="stylesheet">
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Nuevo Procedimiento') }}
 {% endblock %}
@@ -12,7 +18,45 @@
     {% call f.card() %}
         {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form') %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.contendio) %}{% endcall %}
+            <!-- Create the editor container -->
+            <div id="editor" class="mb-2" style="display:block; clear:both; break-after:page; height:520px; background-color:#FFF;"></div>
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Main Quill library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
+    <script>
+        // Quill editor
+        var quill = new Quill('#editor', {
+            modules: {
+                table :true,
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                    ['blockquote', 'code-block', 'image'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'script': 'sub' }, { 'script': 'super' }],     // superscript/subscript
+                    [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent
+                    [{ 'direction': 'rtl' }],                         // text direction
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+                    [{ 'font': [] }],
+                    [{ 'align': [] }],
+                    ['clean']                                         // remove formatting button
+                ],
+            },
+            placeholder: 'Texto...',
+            theme: 'snow',  // or 'bubble',
+        });
+        // Populate hidden form on submit
+        var form = document.querySelector('form');
+        form.onsubmit = function() {
+            var contenido = document.querySelector('input[name=contendio]');
+            contenido.value = JSON.stringify(quill.getContents());
+            //console.log("Submitted", $(form).serialize(), $(form).serializeArray());
+        };
+    </script>
 {% endblock %}
