@@ -3,7 +3,7 @@
 {# https://iconify.design/ #}
 
 {# Sidebar navigation option #}
-{%- macro sidebar_nav_option(label, url, icon='mdi mdi-label-outline') -%}
+{%- macro sidebar_nav_option(label, url, icon='mdi:folder') -%}
     <li class="nav-item">
         <a class="nav-link text-white" href="{{ url }}">
             <span class="iconify" data-icon="{{ icon }}" style="font-size: 24px; margin-right: 4px;"></span> {{ label }}
@@ -12,7 +12,7 @@
 {%- endmacro -%}
 
 {# Sidebar navigation option active #}
-{%- macro sidebar_nav_option_active(label, url, icon='mdi mdi-label-outline') -%}
+{%- macro sidebar_nav_option_active(label, url, icon='mdi:folder') -%}
     <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="{{ url }}">
             <span class="iconify" data-icon="{{ icon }}" style="font-size: 24px; margin-right: 4px;"></span> {{ label }}

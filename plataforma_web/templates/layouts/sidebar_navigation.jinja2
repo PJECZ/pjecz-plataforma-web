@@ -14,7 +14,6 @@
         {% if current_user.can_view('autoridades') %}{{ app.sidebar_nav_option('Autoridades', '/autoridades', 'mdi:scale-balance') }}{% endif %}
         {% if current_user.can_view('usuarios') %}{{ app.sidebar_nav_option('Usuarios', '/usuarios', 'mdi:account-key') }}{% endif %}
         {% if current_user.can_edit('bitacoras') %} {{ app.sidebar_nav_option('Bitácoras', '/bitacoras', 'mdi:calendar-clock') }} {% endif %}
-        {% if current_user.can_edit('tareas') %} {{ app.sidebar_nav_option('Tareas', '/tareas', 'mdi:washing-machine') }} {% endif %}
     </ul>
     <hr>
     <div class="dropdown">

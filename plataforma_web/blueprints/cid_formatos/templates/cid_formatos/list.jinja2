@@ -8,8 +8,8 @@
     {% if estatus == 'A' %}{% set title='Formatos' %}{% endif %}
     {% if estatus == 'B' %}{% set title='Formatos inactivos' %}{% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button('Procedimientos', url_for('cid_procedimientos.list_active'), 'fa fa-th-large') }}
-        {{ topbar.button('Registros', url_for('cid_formatos.list_active'), 'fa fa-clipboard') }}
+        {{ topbar.button('Procedimientos', url_for('cid_procedimientos.list_active'), 'mdi:book-open-variant') }}
+        {{ topbar.button('Registros', url_for('cid_formatos.list_active'), 'mdi:clipboard-text') }}
         {% if current_user.can_edit('cid_formatos') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_formatos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_formatos.list_active')) }}{% endif %}

@@ -201,7 +201,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_view(self, module):
         """¿Tiene permiso para ver?"""
-        if module == "usuarios":
+        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ("distritos", "autoridades", "materias"):
             return self.has_permission(Permiso.VER_CATALOGOS)

@@ -21,54 +21,54 @@
 
 {# Button #}
 {%- macro button(label, url, icon) -%}
-                <a class="btn btn-sm btn-outline-secondary" href="{{ url }}"><i class="{{ icon }}"></i> {{ label }}</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url }}"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
 {%- endmacro -%}
 
 {%- macro button_search(label, url) -%}
-    {{ button(label, url, 'fa fa-search') }}
+    {{ button(label, url, 'mdi:magnify') }}
 {%- endmacro -%}
 
 {%- macro button_new(label, url) -%}
-    {{ button(label, url, 'fa fa-plus') }}
+    {{ button(label, url, 'mdi:plus') }}
 {%- endmacro -%}
 
 {%- macro button_list_active(label, url) -%}
-    {{ button(label, url, 'fa fa-eye') }}
+    {{ button(label, url, 'mdi:eye') }}
 {%- endmacro -%}
 
 {%- macro button_list_inactive(label, url) -%}
-    {{ button(label, url, 'fa fa-eye-slash') }}
+    {{ button(label, url, 'mdi:eye-off') }}
 {%- endmacro -%}
 
 {%- macro button_upload(label, url) -%}
-    {{ button(label, url, 'fa fa-upload') }}
+    {{ button(label, url, 'mdi:upload') }}
 {%- endmacro -%}
 
 {%- macro button_edit(label, url) -%}
-    {{ button(label, url, 'fa fa-edit') }}
+    {{ button(label, url, 'mdi:pencil') }}
 {%- endmacro -%}
 
 {%- macro button_previous(label, url) -%}
-    {{ button(label, url, 'fa fa-fast-backward') }}
+    {{ button(label, url, 'mdi:skip-backward') }}
 {%- endmacro -%}
 
 {%- macro button_districts(label, url) -%}
-    {{ button(label, url, 'fa fa-th') }}
+    {{ button(label, url, 'mdi:map-marker') }}
 {%- endmacro -%}
 
 {# Button modal executes a javascript function #}
 {%- macro button_modal(label, onclick_js, icon) -%}
-                <a class="btn btn-sm btn-outline-secondary" href="javascript:void(0)" onclick="{{ onclick_js }}"><i class="{{ icon }}"></i> {{ label }}</a>
+                <a class="btn btn-sm btn-outline-secondary" href="javascript:void(0)" onclick="{{ onclick_js }}"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
 {%- endmacro -%}
 
 {%- macro button_delete(label, url) -%}
-    {{ button_modal(label, "showModalDelete('" + url + "');", 'fa fa-trash') }}
+    {{ button_modal(label, "showModalDelete('" + url + "');", 'mdi:delete') }}
 {%- endmacro -%}
 
 {%- macro button_recover(label, url) -%}
-    {{ button_modal(label, "showModalRecover('" + url + "');", 'fa fa-recycle') }}
+    {{ button_modal(label, "showModalRecover('" + url + "');", 'mdi:file-check') }}
 {%- endmacro -%}
 
 {%- macro button_refresh(label, url) -%}
-    {{ button_modal(label, "showModalRefresh('" + url + "');", 'fa fa-refresh') }}
+    {{ button_modal(label, "showModalRefresh('" + url + "');", 'mdi:database-sync') }}
 {%- endmacro -%}
