@@ -5,7 +5,7 @@
 {% block title %}Nuevo Procedimiento{% endblock %}
 
 {% block custom_head %}
-    <!-- Theme included stylesheets -->
+    <!-- Quill theme -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.snow.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.bubble.css" rel="stylesheet">
 {% endblock %}
@@ -18,8 +18,7 @@
     {% call f.card() %}
         {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form') %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.contendio) %}{% endcall %}
-            <!-- Create the editor container -->
+            {% call f.form_group(form.contenido) %}{% endcall %}
             <div id="editor" class="mb-2" style="display:block; clear:both; break-after:page; height:520px; background-color:#FFF;"></div>
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
@@ -51,12 +50,13 @@
             placeholder: 'Texto...',
             theme: 'snow',  // or 'bubble',
         });
-        // Populate hidden form on submit
-        var form = document.querySelector('form');
-        form.onsubmit = function() {
-            var contenido = document.querySelector('input[name=contendio]');
-            contenido.value = JSON.stringify(quill.getContents());
-            //console.log("Submitted", $(form).serialize(), $(form).serializeArray());
-        };
+        // On submit form
+        document.getElementById("cid_procedimiento_form").onsubmit = function() {copyFromQuillToInputHidden()};
+        // Copy from Quill to input hidden
+        function copyFromQuillToInputHidden() {
+            document.getElementById('contenido').value = JSON.stringify(quill.getContents());
+            //alert("The form was submitted");
+            //return false;
+        }
     </script>
 {% endblock %}
