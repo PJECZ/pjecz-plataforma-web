@@ -1,0 +1,55 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Todas las Audiencias{% endblock %}
+
+{% block topbar_actions %}
+    {% if estatus == 'A' %}{% set title='Todas las Audiencias' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Todas las Audiencias inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button_districts('Distritos', url_for('audiencias.list_distritos')) }}
+        {% if autoridad %}
+            {% if current_user.can_admin('audiencias') %}
+                {{ topbar.button_upload('Nueva Audiencia', url_for('audiencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% endif %}
+            {% if current_user.can_edit('audiencias') %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('audiencias.list_autoridad_audiencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id)) }}{% endif %}
+            {% endif %}
+        {% else %}
+            {% if current_user.can_edit('audiencias') %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('audiencias.list_inactive')) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_active')) }}{% endif %}
+            {% endif %}
+        {% endif %}
+        {# topbar.button_search('Buscar', url_for('audiencias.search')) #}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="audiencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fechas y horas</th>
+                    <th>Autoridades</th>
+                    <th>Tipos de audiencias</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for audiencia in audiencias %}
+                <tr>
+                    <td>{{ audiencia.tiempo.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
+                    <td>{{ audiencia.tipo_audiencia }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('audiencias_datatable', order='desc') }}
+{% endblock %}

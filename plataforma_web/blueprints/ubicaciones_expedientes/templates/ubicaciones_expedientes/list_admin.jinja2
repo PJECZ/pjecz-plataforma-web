@@ -10,6 +10,9 @@
     {% call topbar.page_buttons(title) %}
         {{ topbar.button_districts('Distritos', url_for('ubicaciones_expedientes.list_distritos')) }}
         {% if autoridad %}
+            {% if current_user.can_admin('ubicaciones_expedientes') %}
+                {{ topbar.button_upload('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% endif %}
             {% if current_user.can_edit('ubicaciones_expedientes') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes_inactive', autoridad_id=autoridad.id)) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes', autoridad_id=autoridad.id)) }}{% endif %}

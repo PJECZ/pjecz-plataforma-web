@@ -3,6 +3,7 @@
     <ul class="nav nav-pills flex-column mb-auto">
         {{ app.sidebar_nav_option('Inicio', '/', 'mdi:view-dashboard') }}
         {% if current_user.can_view('abogados') %}{{ app.sidebar_nav_option('Abogados registrados', '/abogados', 'mdi:tie') }}{% endif %}
+        {% if current_user.can_view('audiencias') %}{{ app.sidebar_nav_option('Agenda de Audiencias', '/audiencias', 'mdi:calendar-month') }}{% endif %}
         {% if current_user.can_view('edictos') %}{{ app.sidebar_nav_option('Edictos', '/edictos', 'mdi:file-check') }}{% endif %}
         {% if current_user.can_view('glosas') %}{{ app.sidebar_nav_option('Glosas', '/glosas', 'mdi:book') }}{% endif %}
         {% if current_user.can_view('listas_de_acuerdos') %}{{ app.sidebar_nav_option('Listas de acuerdos', '/listas_de_acuerdos', 'mdi:file-document') }}{% endif %}

@@ -25,6 +25,7 @@
         {{ detail.label_value_boolean('Es Notaría', autoridad.es_notaria) }}
         {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
         {{ detail.label_value('Materia', autoridad.materia.nombre, url_for('materias.detail', materia_id=autoridad.materia_id)) }}
+        {{ detail.label_value('Categoría de audiencias', autoridad.audiencia_categoria) }}
         {{ detail.label_value('Directorio para edictos', autoridad.directorio_edictos, link=url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}
         {{ detail.label_value('Directorio para glosas', autoridad.directorio_glosas, link=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}
         {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos, link=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}

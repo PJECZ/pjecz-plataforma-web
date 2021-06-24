@@ -1,0 +1,36 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Agenda de Audiencias - Autoridades{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Agenda de Audiencias / Autoridades') %}
+        {{ topbar.button_previous('Distritos', url_for('audiencias.list_distritos')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Claves</th>
+                    <th>Autoridades</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for autoridad in autoridades %}
+                <tr>
+                    <td><a href="{{ url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
+                    <td>{{ autoridad.descripcion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('autoridades_datatable') }}
+{% endblock %}

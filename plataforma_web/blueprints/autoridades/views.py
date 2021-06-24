@@ -83,6 +83,7 @@ def new():
             es_notaria=es_notaria,
             organo_jurisdiccional=form.organo_jurisdiccional.data,
             materia=form.materia.data,
+            audiencia_categoria=form.audiencia_categoria.data,
             directorio_listas_de_acuerdos=directorio_listas_de_acuerdos,
             directorio_sentencias=directorio_sentencias,
             directorio_edictos=directorio_edictos,
@@ -119,6 +120,7 @@ def edit(autoridad_id):
         autoridad.es_notaria = form.es_notaria.data
         autoridad.organo_jurisdiccional = form.organo_jurisdiccional.data
         autoridad.materia = form.materia.data
+        autoridad.audiencia_categoria = form.audiencia_categoria.data
         autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data.strip()
         autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
         autoridad.directorio_edictos = form.directorio_edictos.data.strip()
@@ -141,6 +143,7 @@ def edit(autoridad_id):
     form.es_notaria.data = autoridad.es_notaria
     form.organo_jurisdiccional.data = autoridad.organo_jurisdiccional
     form.materia.data = autoridad.materia
+    form.audiencia_categoria.data = autoridad.audiencia_categoria
     form.directorio_listas_de_acuerdos.data = autoridad.directorio_listas_de_acuerdos
     form.directorio_sentencias.data = autoridad.directorio_sentencias
     form.directorio_edictos.data = autoridad.directorio_edictos
