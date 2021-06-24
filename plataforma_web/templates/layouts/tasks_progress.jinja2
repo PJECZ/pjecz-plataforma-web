@@ -5,10 +5,8 @@
         <div class="card-body">
             <h4 class="card-title">Tareas</h4>
             {% for tarea in tareas %}
-            <div class="mt-4">
-                <div class="d-flex no-block align-items-center mt-3">
-                    <span>{{ tarea.get_progress() }}% {{ tarea.descripcion }}</span>
-                </div>
+            <div class="my-2">
+                <p>{{ tarea.get_progress() }}% {{ tarea.descripcion }}</p>
                 <div class="progress">
                     <div class="progress-bar progress-bar-striped bg-success" role="progressbar"
                         style="width: {{ tarea.get_progress() }}%" aria-valuenow="{{ tarea.get_progress() }}" aria-valuemin="0" aria-valuemax="100">

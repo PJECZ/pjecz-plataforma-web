@@ -1,7 +1,7 @@
 {# card sirve para contener algo; es necesario para que las tablas sean usables en pantallas chicas #}}
 {%- macro card(title='') -%}
     <div class="card">
-        {% if title %}<h5>{{ title }}{% endif %}</h5>
+        {% if title %}<h5>{{ title }}</h5>{% endif %}
         <div class="card-body">
             {{ caller () }}
         </div>
@@ -197,8 +197,7 @@
         <div class="dropzone-wrapper">
             <div class="dropzone-desc">
                 <p id="name_file_upload">
-                    Adjunta el documento ó arrastralo. <br>
-                    <i class="fas fa-upload"></i>
+                    Adjunta el archivo ó arrastralo.
                 </p>
             </div>
             {{ caller () }}
@@ -218,7 +217,7 @@
                     var reader = new FileReader();
                     reader.onload = function(e) {
                         var htmlPreview = input.files[0].name;
-                        $("#name_file_upload").html('<i class="fa fa-file"></i>  ' + htmlPreview);
+                        $("#name_file_upload").html(htmlPreview);
                     };
                     reader.readAsDataURL(input.files[0]);
                 }

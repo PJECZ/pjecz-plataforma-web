@@ -16,6 +16,7 @@ class CIDProcedimiento(db.Model, UniversalMixin):
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
+    contenido = db.Column(db.Text(), nullable=False)
 
     # Hijos
     formatos = db.relationship('CIDFormato', back_populates='procedimiento')

@@ -3,18 +3,18 @@
     <ul class="nav nav-pills flex-column mb-auto">
         {{ app.sidebar_nav_option('Inicio', '/', 'mdi:view-dashboard') }}
         {% if current_user.can_view('abogados') %}{{ app.sidebar_nav_option('Abogados registrados', '/abogados', 'mdi:tie') }}{% endif %}
+        {% if current_user.can_view('audiencias') %}{{ app.sidebar_nav_option('Agenda de Audiencias', '/audiencias', 'mdi:calendar-month') }}{% endif %}
         {% if current_user.can_view('edictos') %}{{ app.sidebar_nav_option('Edictos', '/edictos', 'mdi:file-check') }}{% endif %}
         {% if current_user.can_view('glosas') %}{{ app.sidebar_nav_option('Glosas', '/glosas', 'mdi:book') }}{% endif %}
         {% if current_user.can_view('listas_de_acuerdos') %}{{ app.sidebar_nav_option('Listas de acuerdos', '/listas_de_acuerdos', 'mdi:file-document') }}{% endif %}
         {% if current_user.can_view('peritos') %}{{ app.sidebar_nav_option('Peritos', '/peritos', 'mdi:clipboard-account') }}{% endif %}
-        {% if current_user.can_view('sentencias') %}{{ app.sidebar_nav_option('Sentencias', '/sentencias', 'mdi:book') }}{% endif %}
+        {% if current_user.can_view('cid_procedimientos') %}{{ app.sidebar_nav_option('Procedimientos', '/cid_procedimientos', 'mdi:book-open-variant') }}{% endif %}
         {% if current_user.can_view('transcripciones') %} {{ app.sidebar_nav_option('Transcripciones', '/transcripciones', 'mdi:voicemail') }} {% endif %}
         {% if current_user.can_view('ubicaciones_expedientes') %}{{ app.sidebar_nav_option('Ubicación de Expedientes', '/ubicaciones_expedientes', 'mdi:file-find') }}{% endif %}
-        {% if current_user.can_view('cid_procedimientos') %}{{ app.sidebar_nav_option('Procedimientos', '/cid_procedimientos', 'mdi:file') }}{% endif %}
+        {% if current_user.can_view('sentencias') %}{{ app.sidebar_nav_option('V.P. Sentencias', '/sentencias', 'mdi:gavel') }}{% endif %}
         {% if current_user.can_view('autoridades') %}{{ app.sidebar_nav_option('Autoridades', '/autoridades', 'mdi:scale-balance') }}{% endif %}
-        {% if current_user.can_view('usuarios') %}{{ app.sidebar_nav_option('Usuarios', '/usuarios', 'mdi:account-key') }}{% endif %}
         {% if current_user.can_edit('bitacoras') %} {{ app.sidebar_nav_option('Bitácoras', '/bitacoras', 'mdi:calendar-clock') }} {% endif %}
-        {% if current_user.can_edit('tareas') %} {{ app.sidebar_nav_option('Tareas', '/tareas', 'mdi:washing-machine') }} {% endif %}
+        {% if current_user.can_view('usuarios') %}{{ app.sidebar_nav_option('Usuarios', '/usuarios', 'mdi:account-key') }}{% endif %}
     </ul>
     <hr>
     <div class="dropdown">

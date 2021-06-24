@@ -24,7 +24,7 @@ def materias_opciones():
 class AutoridadNewForm(FlaskForm):
     """Formulario nueva Autoridad"""
 
-    distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
+    distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     descripcion_corta = StringField("Descripción corta", validators=[Optional(), Length(max=64)])
     clave = StringField("Clave (única)", validators=[DataRequired(), Length(max=16)])
@@ -32,13 +32,14 @@ class AutoridadNewForm(FlaskForm):
     es_notaria = BooleanField("Es Notaría (habilita edictos)", validators=[Optional()])
     organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[DataRequired()])
     materia = QuerySelectField("Materia (si es Juzgado de Primera Instancia)", query_factory=materias_opciones, get_label="nombre")
+    audiencia_categoria = SelectField("Categoría de audiencias", choices=Autoridad.AUDIENCIAS_CATEGORIAS, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 
 class AutoridadEditForm(FlaskForm):
     """Formulario modificar Autoridad"""
 
-    distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre")
+    distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     descripcion_corta = StringField("Descripción corta", validators=[Optional(), Length(max=64)])
     clave = StringField("Clave (única)", validators=[DataRequired(), Length(max=16)])
@@ -46,6 +47,7 @@ class AutoridadEditForm(FlaskForm):
     es_notaria = BooleanField("Es Notaría (habilita edictos)", validators=[Optional()])
     organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[DataRequired()])
     materia = QuerySelectField("Materia (si es Juzgado de Primera Instancia)", query_factory=materias_opciones, get_label="nombre")
+    audiencia_categoria = SelectField("Categoría de audiencias", choices=Autoridad.AUDIENCIAS_CATEGORIAS, validators=[DataRequired()])
     directorio_edictos = StringField("Directorio para edictos", validators=[Optional(), Length(max=256)])
     directorio_glosas = StringField("Directorio para glosas", validators=[Optional(), Length(max=256)])
     directorio_listas_de_acuerdos = StringField("Directorio para listas de acuerdos", validators=[Optional(), Length(max=256)])

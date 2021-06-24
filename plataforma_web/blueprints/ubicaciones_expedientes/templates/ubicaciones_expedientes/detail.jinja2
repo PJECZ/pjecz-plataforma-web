@@ -1,16 +1,17 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Ubicación de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Ubicación del Expediente ' + ubicacion_expediente.expediente) %}
+    {% call topbar.page_buttons(ubicacion_expediente.expediente) %}
         {{ topbar.button_previous('Ubicaciones de Expedientes', url_for('ubicaciones_expedientes.list_active')) }}
         {% if current_user.can_admin('ubicaciones_expedientes') or (current_user.can_edit('ubicaciones_expedientes') and ubicacion_expediente.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('ubicaciones_expedientes.edit', ubicacion_expediente_id=ubicacion_expediente.id)) }}
-            {% if ubicacion_expediente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if ubicacion_expediente.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {% if ubicacion_expediente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('ubicaciones_expedientes.delete', ubicacion_expediente_id=ubicacion_expediente.id)) }}{% endif %}
+            {% if ubicacion_expediente.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('ubicaciones_expedientes.recover', ubicacion_expediente_id=ubicacion_expediente.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -22,14 +23,11 @@
         {{ detail.label_value('Autoridad', ubicacion_expediente.autoridad.descripcion) }}
         {{ detail.label_value('Ubicación', ubicacion_expediente.ubicacion) }}
     {% endcall %}
-    {% if current_user.can_edit('ubicaciones_expedientes') %}
-        {{ detail.modal('Eliminar', '¿Eliminar la ubicación del expediente ' + ubicacion_expediente.expediente + '?', 'modalDelete', url_for('ubicaciones_expedientes.delete', ubicacion_expediente_id=ubicacion_expediente.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar la ubicación del expediente ' + ubicacion_expediente.expediente + '?', 'modalRecover', url_for('ubicaciones_expedientes.recover', ubicacion_expediente_id=ubicacion_expediente.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('ubicaciones_expedientes') %}
-        {{ detail.custom_javascript_delete_recover() }}
+    {% if current_user.can_admin('ubicaciones_expedientes') or (current_user.can_edit('ubicaciones_expedientes') and ubicacion_expediente.autoridad_id == current_user.autoridad_id) %}
+        {% if ubicacion_expediente.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + ubicacion_expediente.expediente + '?') }}{% endif %}
+        {% if ubicacion_expediente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + ubicacion_expediente.expediente + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

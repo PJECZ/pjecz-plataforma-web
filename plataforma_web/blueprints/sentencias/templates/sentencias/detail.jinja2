@@ -1,18 +1,19 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Versión Pública de Sentencia{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Sentencia ' + sentencia.sentencia) %}
+    {% call topbar.page_buttons(sentencia.sentencia) %}
         {{ topbar.button_previous('V.P. Sentencias', url_for('sentencias.list_active')) }}
         {% if current_user.can_admin('sentencias') %}
             {{ topbar.button_edit('Editar', url_for('sentencias.edit', sentencia_id=sentencia.id)) }}
         {% endif %}
         {% if current_user.can_admin('sentencias') or (current_user.can_edit('sentencias') and sentencia.autoridad_id == current_user.autoridad_id) %}
-            {% if sentencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', 'javascript:showModalDelete()') }}{% endif %}
-            {% if sentencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', 'javascript:showModalRecover()') }}{% endif %}
+            {% if sentencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('sentencias.delete', sentencia_id=sentencia.id)) }}{% endif %}
+            {% if sentencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('sentencias.recover', sentencia_id=sentencia.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -29,14 +30,11 @@
         {{ detail.label_value_new_tab('Versión Pública PDF', sentencia.archivo, sentencia.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('sentencias.checkout', id_hashed=sentencia.encode_id())) }}
     {% endcall %}
-    {% if current_user.can_admin('sentencias') or (current_user.can_edit('sentencias') and sentencia.autoridad_id == current_user.autoridad_id) %}
-        {{ detail.modal('Eliminar', '¿Eliminar a ' + sentencia.archivo + '?', 'modalDelete', url_for('sentencias.delete', sentencia_id=sentencia.id)) }}
-        {{ detail.modal('Recuperar', '¿Recuperar a ' + sentencia.archivo + '?', 'modalRecover', url_for('sentencias.recover', sentencia_id=sentencia.id)) }}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('sentencias') %}
-        {{ detail.custom_javascript_delete_recover() }}
+    {% if current_user.can_admin('sentencias') or (current_user.can_edit('sentencias') and sentencia.autoridad_id == current_user.autoridad_id) %}
+        {% if sentencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + sentencia.sentencia + '?') }}{% endif %}
+        {% if sentencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + sentencia.sentencia + '?') }}{% endif %}
     {% endif %}
 {% endblock %}
