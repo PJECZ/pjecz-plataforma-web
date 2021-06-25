@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 import csv
 import click
-from unidecode import unidecode
+from lib.safe_string import safe_string
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -42,25 +42,17 @@ def alimentar(entrada_csv):
         rows = csv.DictReader(puntero)
         for row in rows:
             try:
-                ano = int(row["año"])
-                mes = int(row["mes"])
-                dia = int(row["dia"])
+                fecha = datetime.strptime(row["fecha"], "%Y-%m-%d")
                 numero = row["numero"]
                 nombre = row["nombre"]
                 libro = row["libro"]
             except (IndexError, ValueError):
-                click.echo("  Dato faltante: " + str(row))
-                continue
-            try:
-                fecha_str = "{}-{}-{}".format(ano, mes, dia)
-                fecha = datetime.strptime(fecha_str, "%Y-%m-%d")  # Probar que fecha sea correcta
-            except ValueError:
-                click.echo(f"  Fecha incorrecta: {fecha_str}")
+                click.echo("  Dato incorrecto: " + str(row))
                 continue
             datos = {
-                "numero": unidecode(numero.strip()).upper(),  # Hay números como 000-Bis, sin acentos y en mayúsculas
-                "nombre": unidecode(nombre.strip()).upper(),  # Sin acentos y en mayúsculas
-                "libro": unidecode(libro.strip()).upper(),  # Sin acentos y en mayúsculas
+                "numero": safe_string(numero),  # Hay números como 000-Bis, sin acentos y en mayúsculas
+                "nombre": safe_string(nombre),
+                "libro": safe_string(libro),
                 "fecha": fecha,
             }
             Abogado(**datos).save()
@@ -95,16 +87,14 @@ def respaldar(desde, salida_csv):
     abogados = abogados.order_by(Abogado.fecha).all()
     with open(ruta, "w") as puntero:
         escritor = csv.writer(puntero)
-        escritor.writerow(["numero", "nombre", "libro", "año", "mes", "dia"])
+        escritor.writerow(["numero", "nombre", "libro", "fecha"])
         for abogado in abogados:
             escritor.writerow(
                 [
                     abogado.numero,
                     abogado.nombre,
                     abogado.libro,
-                    abogado.fecha.strftime("%Y"),
-                    abogado.fecha.strftime("%m"),
-                    abogado.fecha.strftime("%d"),
+                    abogado.fecha.strftime("%Y-%m-%d"),
                 ]
             )
             contador += 1
