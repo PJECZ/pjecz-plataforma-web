@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Agenda de Audiencias / Autoridades') %}
-        {{ topbar.button_previous('Distritos', url_for('audiencias.list_distritos')) }}
+        {{ topbar.button_previous('Departamentos', url_for('audiencias.list_distritos')) }}
     {% endcall %}
 {% endblock %}
 
@@ -17,6 +17,7 @@
                 <tr>
                     <th>Claves</th>
                     <th>Autoridades</th>
+                    <th>Categoría de audiencias</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,6 +25,7 @@
                 <tr>
                     <td><a href="{{ url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
                     <td>{{ autoridad.descripcion }}</td>
+                    <td>{{ autoridad.audiencia_categoria }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

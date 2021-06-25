@@ -5,14 +5,16 @@
 {% block title %}Todas las Audiencias{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Todas las Audiencias' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Todas las Audiencias inactivos' %}{% endif %}
+    {% if autoridad %}
+        {% if estatus == 'A' %}{% set title='Audiencias de ' + autoridad.clave %}{% endif %}
+        {% if estatus == 'B' %}{% set title='Audiencias inactivos de ' + autoridad.clave %}{% endif %}
+    {% else %}
+        {% if estatus == 'A' %}{% set title='Todas las Audiencias' %}{% endif %}
+        {% if estatus == 'B' %}{% set title='Todas las Audiencias inactivos' %}{% endif %}
+    {% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_districts('Distritos', url_for('audiencias.list_distritos')) }}
+        {{ topbar.button_districts('Departamentos', url_for('audiencias.list_distritos')) }}
         {% if autoridad %}
-            {% if current_user.can_admin('audiencias') %}
-                {{ topbar.button_upload('Nueva Audiencia', url_for('audiencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
-            {% endif %}
             {% if current_user.can_edit('audiencias') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('audiencias.list_autoridad_audiencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id)) }}{% endif %}
@@ -23,7 +25,6 @@
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_active')) }}{% endif %}
             {% endif %}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('audiencias.search')) #}
     {% endcall %}
 {% endblock %}
 
@@ -40,8 +41,8 @@
             <tbody>
                 {% for audiencia in audiencias %}
                 <tr>
-                    <td>{{ audiencia.tiempo.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
+                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tiempo.strftime('%Y-%m-%d %H:%M:%S') }}</a></td>
+                    <td>{{ audiencia.autoridad.clave }}</td>
                     <td>{{ audiencia.tipo_audiencia }}</td>
                 </tr>
                 {% endfor %}

@@ -5,10 +5,15 @@
 {% block title %}Todas las Versiones Públicas de Sentencias{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Todas las Versiones Públicas de Sentencias' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Todas las Versiones Públicas de Sentencias inactivas' %}{% endif %}
+    {% if autoridad %}
+        {% if estatus == 'A' %}{% set title='V.P. de Sentencias de ' + autoridad.clave %}{% endif %}
+        {% if estatus == 'B' %}{% set title='V.P. de Sentencias inactivas de ' + autoridad.clave %}{% endif %}
+    {% else %}
+        {% if estatus == 'A' %}{% set title='Todas las Versiones Públicas de Sentencias' %}{% endif %}
+        {% if estatus == 'B' %}{% set title='Todas las Versiones Públicas de Sentencias inactivas' %}{% endif %}
+    {% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_districts('Distritos', url_for('sentencias.list_distritos')) }}
+        {{ topbar.button_districts('Departamentos', url_for('sentencias.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('sentencias') %}
                 {{ topbar.button_upload('Subir', url_for('sentencias.new_for_autoridad', autoridad_id=autoridad.id)) }}

@@ -3,7 +3,7 @@ Audiencias, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
-from lib.safe_string import safe_expediente, safe_message
+from lib.safe_string import safe_expediente, safe_message, safe_string
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -12,7 +12,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.audiencias.models import Audiencia
-from plataforma_web.blueprints.audiencias.forms import AudienciaMCFMLDSTForm, AudienciaMAPOForm, AudienciaDPYSPForm
+from plataforma_web.blueprints.audiencias.forms import AudienciaGenericaForm, AudienciaMapoForm, AudienciaDipesapeForm
 
 audiencias = Blueprint("audiencias", __name__, template_folder="templates")
 
@@ -69,7 +69,7 @@ def list_distritos():
 def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.audiencia_categoria != "NO DEFINIDO").filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("audiencias/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
 
 
@@ -78,6 +78,8 @@ def list_autoridad_audiencias(autoridad_id):
     """Listado de Audiencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter(Audiencia.estatus == "A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+    if current_user.can_admin("audiencias"):
+        return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_activas, estatus="A")
     return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_activas, estatus="A")
 
 
@@ -87,6 +89,8 @@ def list_autoridad_audiencias_inactive(autoridad_id):
     """Listado de Audiencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter(Audiencia.estatus == "B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+    if current_user.can_admin("audiencias"):
+        return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
     return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
 
 
@@ -101,25 +105,46 @@ def detail(audiencia_id):
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new():
     """Nueva Audiencia"""
+    autoridad = current_user.autoridad
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+    if autoridad.audiencia_categoria == "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
+        return redirect(url_for("audiencias.new_generica"))
+    if autoridad.audiencia_categoria == "MATERIA ACUSATORIO PENAL ORAL":
+        return redirect(url_for("audiencias.new_mapo"))
+    if autoridad.audiencia_categoria == "DISTRITALES PENALES Y SALAS PENALES":
+        return redirect(url_for("audiencias.new_dipesape"))
+    flash("El juzgado/autoridad no tiene una categoría de audiencias correcta.", "warning")
+    return redirect(url_for("audiencias.list_active"))
+
+
+@audiencias.route("/audiencias/nuevo/generica", methods=["GET", "POST"])
+@permission_required(Permiso.CREAR_JUSTICIABLES)
+def new_generica():
+    """Nueva Audiencia Materias Mat. CFML, Dist. CyF, Salas CyF y TCyA"""
 
     # Validar autoridad
     autoridad = current_user.autoridad
     if autoridad is None or autoridad.estatus != "A":
         flash("El juzgado/autoridad no existe o no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria != 'MATERIAS C F M L D(CYF) SALAS (CYF) TCYA':
-        flash("El juzgado/autoridad no tiena la categoría de audiencias correcta.", "warning")
+    if autoridad.audiencia_categoria != "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
+        flash("La categoría de audiencia no es MAT(CFML) DIST(CYF) SALAS(CYF) TCYA.", "warning")
         return redirect(url_for("audiencias.list_active"))
 
     # Si viene el formulario
-    form = AudienciaMCFMLDSTForm()
+    form = AudienciaGenericaForm()
     if form.validate_on_submit():
 
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
-            tipo_audiencia=form.tipo_audiencia.data,
             tiempo=form.tiempo.data,
+            tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            expediente=safe_string(form.expediente.data),
+            actores=safe_string(form.actores.data),
+            demandados=safe_string(form.demandados.data),
         )
         audiencia.save()
 
@@ -137,32 +162,36 @@ def new():
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    return render_template("audiencias/new.jinja2", form=form)
+    return render_template("audiencias/new_generica.jinja2", form=form)
 
 
-@audiencias.route("/audiencias/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
+@audiencias.route("/audiencias/nuevo/mapo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
-def new_for_autoridad(autoridad_id):
-    """Nueva Audiencia para una autoridad dada"""
+def new_mapo():
+    """Nueva Audiencia Materia Acusatorio Penal Oral"""
 
     # Validar autoridad
-    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    autoridad = current_user.autoridad
     if autoridad is None or autoridad.estatus != "A":
         flash("El juzgado/autoridad no existe o no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria != 'MATERIAS C F M L D(CYF) SALAS (CYF) TCYA':
-        flash("El juzgado/autoridad no tiena la categoría de audiencias correcta.", "warning")
+    if autoridad.audiencia_categoria != "MATERIA ACUSATORIO PENAL ORAL":
+        flash("La categoría de audiencia no es MATERIA ACUSATORIO PENAL ORAL.", "warning")
         return redirect(url_for("audiencias.list_active"))
 
     # Si viene el formulario
-    form = AudienciaMCFMLDSTForm()
+    form = AudienciaMapoForm()
     if form.validate_on_submit():
 
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
-            tipo_audiencia=form.tipo_audiencia.data,
             tiempo=form.tiempo.data,
+            tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            sala=safe_string(form.sala.data),
+            caracter=safe_string(form.caracter.data),
+            causa_penal=safe_string(form.causa_penal.data),
+            delitos=safe_string(form.delitos.data),
         )
         audiencia.save()
 
@@ -180,22 +209,254 @@ def new_for_autoridad(autoridad_id):
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    return render_template("audiencias/new.jinja2", form=form)
+    return render_template("audiencias/new_mapo.jinja2", form=form)
+
+
+@audiencias.route("/audiencias/nuevo/dipesape", methods=["GET", "POST"])
+@permission_required(Permiso.CREAR_JUSTICIABLES)
+def new_dipesape():
+    """Nueva Audiencia Distritales Penales y Salas Penales"""
+
+    # Validar autoridad
+    autoridad = current_user.autoridad
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+    if autoridad.audiencia_categoria != "DISTRITALES PENALES Y SALAS PENALES":
+        flash("La categoría de audiencia no es DISTRITALES PENALES Y SALAS PENALES.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+
+    # Si viene el formulario
+    form = AudienciaDipesapeForm()
+    if form.validate_on_submit():
+
+        # Insertar registro
+        audiencia = Audiencia(
+            autoridad=autoridad,
+            tiempo=form.tiempo.data,
+            tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            toca=safe_string(form.toca.data),
+            expediente_origen=safe_string(form.expediente_origen.data),
+            delitos=safe_string(form.delitos.data),
+            imputados=safe_string(form.imputados.data),
+        )
+        audiencia.save()
+
+        # Mostrar mensaje de éxito e ir al detalle
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message('Nueva audiencia registro con...'),
+            url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
+
+    # Prellenado del formulario
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    return render_template("audiencias/new_dipesape.jinja2", form=form)
+
+
+def edit_success(audiencia):
+    """Mensaje de éxito al editar una audiencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f'Editada la audiencia {audiencia.tipo_audiencia} de {audiencia.autoridad.clave}.'),
+        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @audiencias.route('/audiencias/edicion/<int:audiencia_id>', methods=['GET', 'POST'])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit(audiencia_id):
-    """ Editar Audiencia """
+    """Editar Audiencia"""
+
+    # Validad autoridad
+    if current_user.can_admin("audiencias"):
+        audiencia = Audiencia.query.get_or_404(audiencia_id)
+        autoridad = audiencia.autoridad  # Eres administrador, usa la autoridad de la audiencia
+    else:
+        autoridad = current_user.autoridad  # Autoridad del usuario
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+
+    # Redirigir
+    if autoridad.audiencia_categoria == "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
+        return redirect(url_for("audiencias.edit_generica", audiencia_id=audiencia_id))
+    if autoridad.audiencia_categoria == "MATERIA ACUSATORIO PENAL ORAL":
+        return redirect(url_for("audiencias.edit_mapo", audiencia_id=audiencia_id))
+    if autoridad.audiencia_categoria == "DISTRITALES PENALES Y SALAS PENALES":
+        return redirect(url_for("audiencias.edit_dipesape", audiencia_id=audiencia_id))
+
+    # Mensaje por no reconocer la categoría de audiencias
+    flash("El juzgado/autoridad no tiene una categoría de audiencias correcta.", "warning")
+    return redirect(url_for("audiencias.list_active"))
+
+
+@audiencias.route('/audiencias/edicion/generica/<int:audiencia_id>', methods=['GET', 'POST'])
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def edit_generica(audiencia_id):
+    """Editar Audiencia Materias Mat. CFML, Dist. CyF, Salas CyF y TCyA"""
+
+    # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    form = AudienciaMCFMLDSTForm()
+    if current_user.autoridad_id != audiencia.autoridad_id and not current_user.can_admin("audiencias"):
+        flash("No tiene permiso para editar esta audiencia.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+
+    # Validar autoridad
+    autoridad = audiencia.autoridad
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+    if autoridad.audiencia_categoria != "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
+        flash("La categoría de audiencia no es MAT(CFML) DIST(CYF) SALAS(CYF) TCYA.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+
+    # Si viene el formulario
+    form = AudienciaGenericaForm()
     if form.validate_on_submit():
+
+        # Actualizar registro
         audiencia.tiempo = form.tiempo.data
+        audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.expediente = safe_string(form.expediente.data)
+        audiencia.actores = safe_string(form.actores.data)
+        audiencia.demandados = safe_string(form.demandados.data)
         audiencia.save()
-        flash(f'Audiencia {audiencia.tiempo} guardado.', 'success')
-        return redirect(url_for('audiencias.detail', audiencia_id=audiencia.id))
+
+        # Registrar en bitácora e ir al detalle
+        bitacora = edit_success(audiencia)
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
+
+    # Prellenado del formulario
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
     form.tiempo.data = audiencia.tiempo
-    return render_template('audiencias/edit.jinja2', form=form, audiencia=audiencia)
+    form.tipo_audiencia.data = audiencia.tipo_audiencia
+    form.expediente.data = audiencia.expediente
+    form.actores.data = audiencia.actores
+    form.demandados.data = audiencia.demandados
+    return render_template('audiencias/edit_generica.jinja2', form=form, audiencia=audiencia)
+
+
+@audiencias.route('/audiencias/edicion/mapo/<int:audiencia_id>', methods=['GET', 'POST'])
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def edit_mapo(audiencia_id):
+    """Editar Audiencia Materia Acusatorio Penal Oral"""
+
+    # Validar audiencia
+    audiencia = Audiencia.query.get_or_404(audiencia_id)
+    if current_user.autoridad_id != audiencia.autoridad_id and not current_user.can_admin("audiencias"):
+        flash("No tiene permiso para editar esta audiencia.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+
+    # Validar autoridad
+    autoridad = audiencia.autoridad
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+    if autoridad.audiencia_categoria != "MATERIA ACUSATORIO PENAL ORAL":
+        flash("La categoría de audiencia no es MATERIA ACUSATORIO PENAL ORAL.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+
+    # Si viene el formulario
+    form = AudienciaMapoForm()
+    if form.validate_on_submit():
+
+        # Actualizar registro
+        audiencia.tiempo = form.tiempo.data
+        audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.sala = safe_string(form.sala.data)
+        audiencia.caracter = safe_string(form.caracter.data)
+        audiencia.causa_penal = safe_string(form.causa_penal.data)
+        audiencia.delitos = safe_string(form.delitos.data)
+        audiencia.save()
+
+        # Registrar en bitácora e ir al detalle
+        bitacora = edit_success(audiencia)
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
+
+    # Prellenado del formulario
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    form.tiempo.data = audiencia.tiempo
+    form.tipo_audiencia.data = audiencia.tipo_audiencia
+    form.sala.data = audiencia.sala
+    form.caracter.data = audiencia.caracter
+    form.causa_penal.data = audiencia.causa_penal
+    form.delitos.data = audiencia.delitos
+    return render_template('audiencias/edit_mapo.jinja2', form=form, audiencia=audiencia)
+
+
+@audiencias.route('/audiencias/edicion/<int:audiencia_id>', methods=['GET', 'POST'])
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+def edit_dipesape(audiencia_id):
+    """Editar Audiencia Distritales Penales y Salas Penales"""
+
+    # Validar audiencia
+    audiencia = Audiencia.query.get_or_404(audiencia_id)
+    if current_user.autoridad_id != audiencia.autoridad_id and not current_user.can_admin("audiencias"):
+        flash("No tiene permiso para editar esta audiencia.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+
+    # Validar autoridad
+    autoridad = audiencia.autoridad
+    if autoridad is None or autoridad.estatus != "A":
+        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+    if autoridad.audiencia_categoria != "DISTRITALES PENALES Y SALAS PENALES":
+        flash("La categoría de audiencia no es DISTRITALES PENALES Y SALAS PENALES.", "warning")
+        return redirect(url_for("audiencias.list_active"))
+
+    # Si viene el formulario
+    form = AudienciaDipesapeForm()
+    if form.validate_on_submit():
+
+        # Actualizar registro
+        audiencia.tiempo = form.tiempo.data
+        audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.toca = safe_string(form.toca.data)
+        audiencia.expediente_origen = safe_string(form.expediente_origen.data)
+        audiencia.delitos = safe_string(form.delitos.data)
+        audiencia.imputados = safe_string(form.imputados.data)
+        audiencia.save()
+
+        # Registrar en bitácora e ir al detalle
+        bitacora = edit_success(audiencia)
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
+
+    # Prellenado del formulario
+    form.distrito.data = autoridad.distrito.nombre
+    form.autoridad.data = autoridad.descripcion
+    form.tiempo.data = audiencia.tiempo
+    form.tipo_audiencia.data = audiencia.tipo_audiencia
+    form.toca.data = audiencia.toca
+    form.expediente_origen.data = audiencia.expediente_origen
+    form.delitos.data = audiencia.delitos
+    form.imputados.data = audiencia.imputados
+    return render_template('audiencias/edit_dipesape.jinja2', form=form, audiencia=audiencia)
+
+
+def delete_success(audiencia):
+    """Mensaje de éxito al eliminar una audiencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f'Eliminada la audiencia {audiencia.tipo_audiencia} de {audiencia.autoridad.clave}.'),
+        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @audiencias.route('/audiencias/eliminar/<int:audiencia_id>')
@@ -204,9 +465,25 @@ def delete(audiencia_id):
     """ Eliminar Audiencia """
     audiencia = Audiencia.query.get_or_404(audiencia_id)
     if audiencia.estatus == 'A':
-        audiencia.delete()
-        flash(f'Audiencia {audiencia.tipo_audiencia} eliminado.', 'success')
+        if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
+            audiencia.delete()
+            bitacora = delete_success(audiencia)
+            flash(bitacora.descripcion, 'success')
+        else:
+            flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for('audiencias.detail', audiencia_id=audiencia.id))
+
+
+def recover_success(audiencia):
+    """Mensaje de éxito al recuperar una audiencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f'Recuperada la audiencia {audiencia.tipo_audiencia} de {audiencia.autoridad.clave}.'),
+        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @audiencias.route('/audiencias/recuperar/<int:audiencia_id>')
@@ -215,6 +492,10 @@ def recover(audiencia_id):
     """ Recuperar Audiencia """
     audiencia = Audiencia.query.get_or_404(audiencia_id)
     if audiencia.estatus == 'B':
-        audiencia.recover()
-        flash(f'Audiencia {audiencia.tipo_audiencia} recuperado.', 'success')
+        if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
+            audiencia.recover()
+            bitacora = recover_success(audiencia)
+            flash(bitacora.descripcion, 'success')
+        else:
+            flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for('audiencias.detail', audiencia_id=audiencia.id))

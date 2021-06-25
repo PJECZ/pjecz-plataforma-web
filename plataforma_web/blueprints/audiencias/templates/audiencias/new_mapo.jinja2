@@ -2,19 +2,26 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Audiencia{% endblock %}
+{% block title %}Nueva Audiencia de la Materia Acusatorio Penal Oral{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nueva Audiencia') }}
+    {{ topbar.page('Nueva Audiencia de la Materia Acusatorio Penal Oral') }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('audiencias.new', fid='audiencia_form') %}
+        {% call f.form_tag('audiencias.new_mapo', fid='audiencia_form') %}
+            {# Comunes #}
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
             {% call f.form_group(form.tiempo) %}{% endcall %}
             {% call f.form_group(form.tipo_audiencia) %}{% endcall %}
+            {# Materia Acusatorio Penal Oral #}
+            {% call f.form_group(form.sala) %}{% endcall %}
+            {% call f.form_group(form.caracter) %}{% endcall %}
+            {% call f.form_group(form.causa_penal) %}{% endcall %}
+            {% call f.form_group(form.delitos) %}{% endcall %}
+            {# Botón guardar #}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

@@ -24,7 +24,7 @@ def materias_opciones():
 class AutoridadNewForm(FlaskForm):
     """Formulario nueva Autoridad"""
 
-    distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
+    distrito = QuerySelectField("Departamento", query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     descripcion_corta = StringField("Descripción corta", validators=[Optional(), Length(max=64)])
     clave = StringField("Clave (única)", validators=[DataRequired(), Length(max=16)])
@@ -39,7 +39,7 @@ class AutoridadNewForm(FlaskForm):
 class AutoridadEditForm(FlaskForm):
     """Formulario modificar Autoridad"""
 
-    distrito = QuerySelectField(query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
+    distrito = QuerySelectField("Departamento", query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     descripcion_corta = StringField("Descripción corta", validators=[Optional(), Length(max=64)])
     clave = StringField("Clave (única)", validators=[DataRequired(), Length(max=16)])

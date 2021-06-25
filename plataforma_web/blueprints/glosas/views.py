@@ -98,6 +98,8 @@ def list_autoridad_glosas(autoridad_id):
     """Listado de Glosas activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+    if current_user.can_admin("glosas"):
+        return render_template("glosas/list_admin.jinja2", autoridad=autoridad, glosas=glosas_activas, estatus="A")
     return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=glosas_activas, estatus="A")
 
 
@@ -107,6 +109,8 @@ def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     glosas_inactivas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
+    if current_user.can_admin("glosas"):
+        return render_template("glosas/list_admin.jinja2", autoridad=autoridad, glosas=glosas_inactivas, estatus="B")
     return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=glosas_inactivas, estatus="B")
 
 

@@ -5,10 +5,15 @@
 {% block title %}Todas las Ubicaciones de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Todas las Ubicaciones de Expedientes' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Todas las Ubicaciones de Expedientes inactivas' %}{% endif %}
+    {% if autoridad %}
+        {% if estatus == 'A' %}{% set title='Ubicaciones de Expedientes de ' + autoridad.clave %}{% endif %}
+        {% if estatus == 'B' %}{% set title='Ubicaciones de Expedientes inactivas de ' + autoridad.clave %}{% endif %}
+    {% else %}
+        {% if estatus == 'A' %}{% set title='Todas las Ubicaciones de Expedientes' %}{% endif %}
+        {% if estatus == 'B' %}{% set title='Todas las Ubicaciones de Expedientes inactivas' %}{% endif %}
+    {% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_districts('Distritos', url_for('ubicaciones_expedientes.list_distritos')) }}
+        {{ topbar.button_districts('Departamentos', url_for('ubicaciones_expedientes.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('ubicaciones_expedientes') %}
                 {{ topbar.button_upload('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new_for_autoridad', autoridad_id=autoridad.id)) }}

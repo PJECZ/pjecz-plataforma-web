@@ -20,9 +20,27 @@
 
 {% block content %}
     {% call detail.card(estatus=audiencia.estatus) %}
-        {{ detail.label_value_big('Nombre o Descripción', audiencia.tipo_audiencia) }}
-        {{ detail.label_value('Columna 1', audiencia.columna_1) }}
-        {{ detail.label_value('Columna 2', audiencia.columna_2) }}
+        {{ detail.label_value_big('Fecha y hora', audiencia.tiempo.strftime('%Y-%m-%d %H:%M')) }}
+        {{ detail.label_value('Departamento', audiencia.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', audiencia.autoridad.descripcion) }}
+        {{ detail.label_value('Tipo de audiencia', audiencia.tipo_audiencia) }}
+        {% if audiencia.autoridad.audiencia_categoria == 'MAT(CFML) DIST(CYF) SALAS(CYF) TCYA' %}
+            {{ detail.label_value('Expediente', audiencia.expediente) }}
+            {{ detail.label_value('Actores', audiencia.actores) }}
+            {{ detail.label_value('Demandados', audiencia.demandados) }}
+        {% endif %}
+        {% if audiencia.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
+            {{ detail.label_value('Sala', audiencia.sala) }}
+            {{ detail.label_value('Caracter', audiencia.caracter) }}
+            {{ detail.label_value('Causa penal', audiencia.causa_penal) }}
+            {{ detail.label_value('Delitos', audiencia.delitos) }}
+        {% endif %}
+        {% if audiencia.autoridad.audiencia_categoria == 'DISTRITALES PENALES Y SALAS PENALES' %}
+            {{ detail.label_value('Toca', audiencia.toca) }}
+            {{ detail.label_value('Expediente origen', audiencia.expediente_origen) }}
+            {{ detail.label_value('Delitos', audiencia.delitos) }}
+            {{ detail.label_value('Imputados', audiencia.imputados) }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
