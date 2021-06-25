@@ -22,7 +22,7 @@
             "{% endblock %}",
             ""
         ],
-        "description": "Detalle"
+        "description": "Detail"
     },
     "Jinja2 detail edit": {
         "scope": "jinja-html",
@@ -62,11 +62,11 @@
             "{% endblock %}",
             ""
         ],
-        "description": "Detalle con editar, eliminar y recuperar"
+        "description": "Detail edit delete recover"
     },
     "Jinja2 detail admin can edit": {
         "scope": "jinja-html",
-        "prefix": "j2_detail_edit_admin",
+        "prefix": "j2_detail_admin",
         "body": [
             "{% extends 'layouts/app.jinja2' %}",
             "{% import 'macros/detail.jinja2' as detail %}",
@@ -104,6 +104,6 @@
             "{% endblock %}",
             ""
         ],
-        "description": "Detalle solo admin puede editar"
+        "description": "Detail admin edit delete recover"
     }
 }

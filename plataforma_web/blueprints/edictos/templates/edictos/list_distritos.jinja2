@@ -2,10 +2,10 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Edictos - Distritos{% endblock %}
+{% block title %}Edictos - Departamentos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Edictos / Distritos') %}
+    {% call topbar.page_buttons('Edictos / Departamentos') %}
         {{ topbar.button_previous('Edictos', url_for('edictos.list_active')) }}
     {% endcall %}
 {% endblock %}
@@ -15,7 +15,7 @@
         <table class="table display nowrap">
             <thead>
                 <tr>
-                    <th>Distritos</th>
+                    <th>Departamentos</th>
                 </tr>
             </thead>
             <tbody>

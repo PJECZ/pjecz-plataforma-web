@@ -5,23 +5,25 @@
         "body": [
             "{% extends 'layouts/app.jinja2' %}",
             "{% import 'macros/form.jinja2' as f with context %}",
+            "{% import 'macros/topbar.jinja2' as topbar %}",
             "",
             "{% block title %}Editar ${1:Titulo}{% endblock %}",
             "",
+            "{% block topbar_actions %}",
+            "\t{{ topbar.page('Editar ' + ${2:instancia}.${3:nombre_o_descripcion}) }}",
+            "{% endblock %}",
+            "",
             "{% block content %}",
-            "\t{{ f.page('Editar ' + ${2:instancia}.${3:nombre_o_descripcion}) }}",
-            "\t<div class=\"container-fluid\">",
-            "\t\t{% call f.card() %}",
-            "\t\t\t{% set form_kwargs = {'${2:instancia}_id': ${2:instancia}.id} %}",
-            "\t\t\t{% call f.form_tag('${4:blueprint}.edit', fid='${2:instancia}_form', **form_kwargs) %}",
-            "\t\t\t\t{% call f.form_group(form.${3:nombre_o_descripcion}) %}{% endcall %}",
-            "\t\t\t\t{% call f.form_group(form.guardar) %}{% endcall %}",
-            "\t\t\t{% endcall %}",
+            "\t{% call f.card() %}",
+            "\t\t{% set form_kwargs = {'${2:instancia}_id': ${2:instancia}.id} %}",
+            "\t\t{% call f.form_tag('${4:blueprint}.edit', fid='${2:instancia}_form', **form_kwargs) %}",
+            "\t\t\t{% call f.form_group(form.${3:nombre_o_descripcion}) %}{% endcall %}",
+            "\t\t\t{% call f.form_group(form.guardar) %}{% endcall %}",
             "\t\t{% endcall %}",
-            "\t</div>",
+            "\t{% endcall %}",
             "{% endblock %}",
             ""
         ],
-        "description": "Editar"
+        "description": "Edit"
     }
 }

@@ -96,6 +96,8 @@ def list_autoridad_edictos(autoridad_id):
     """Listado de Edictos activos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     edictos_activos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+    if current_user.can_admin("edictos"):
+        return render_template("edictos/list_admin.jinja2", autoridad=autoridad, edictos=edictos_activos, estatus="A")
     return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=edictos_activos, estatus="A")
 
 
@@ -105,6 +107,8 @@ def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     edictos_inactivos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
+    if current_user.can_admin("edictos"):
+        return render_template("edictos/list_admin.jinja2", autoridad=autoridad, edictos=edictos_inactivos, estatus="B")
     return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=edictos_inactivos, estatus="B")
 
 

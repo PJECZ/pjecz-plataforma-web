@@ -78,6 +78,8 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
     """Listado de Ubicaciones de Expedientes activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
+    if current_user.can_admin("ubicaciones_expedientes"):
+        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
     return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
 
 
@@ -87,6 +89,8 @@ def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
     """Listado de Ubicaciones de Expedientes inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
+    if current_user.can_admin("ubicaciones_expedientes"):
+        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
     return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
 
 
@@ -105,7 +109,7 @@ def search():
         mostrar_resultados = True
 
         # Los administradores pueden buscar en todas las autoridades
-        if current_user.can_admin("sentencias"):
+        if current_user.can_admin("ubicaciones_expedientes"):
             autoridad = Autoridad.query.get(form_search.autoridad.data)
         else:
             autoridad = Autoridad.query.get(current_user.autoridad)
@@ -125,7 +129,7 @@ def search():
             return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=consulta)
 
     # Los administradores pueden buscar en todas las autoridades
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("ubicaciones_expedientes"):
         distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
         autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
         return render_template("ubicaciones_expedientes/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
@@ -308,7 +312,7 @@ def delete(ubicacion_expediente_id):
     """Eliminar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "A":
-        if current_user.can_admin("sentencias") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
+        if current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
             ubicacion_expediente.delete()
             bitacora = delete_success(ubicacion_expediente)
             flash(bitacora.descripcion, "success")
@@ -336,7 +340,7 @@ def recover(ubicacion_expediente_id):
     """Recuperar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "B":
-        if current_user.can_admin("sentencias") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
+        if current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
             ubicacion_expediente.recover()
             bitacora = recover_success(ubicacion_expediente)
             flash(bitacora.descripcion, "success")

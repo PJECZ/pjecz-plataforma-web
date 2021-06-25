@@ -96,6 +96,8 @@ def list_autoridad_sentencias(autoridad_id):
     """Listado de Sentencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+    if current_user.can_admin("sentencias"):
+        return render_template("sentencias/list_admin.jinja2", autoridad=autoridad, sentencias=sentencias_activas, estatus="A")
     return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sentencias_activas, estatus="A")
 
 
@@ -105,6 +107,8 @@ def list_autoridad_sentencias_inactive(autoridad_id):
     """Listado de Sentencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     sentencias_inactivos = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "B").order_by(Sentencia.creado.desc()).limit(CONSULTAS_LIMITE).all()
+    if current_user.can_admin("sentencias"):
+        return render_template("sentencias/list_admin.jinja2", autoridad=autoridad, sentencias=sentencias_inactivos, estatus="B")
     return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sentencias_inactivos, estatus="B")
 
 
