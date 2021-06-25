@@ -24,6 +24,7 @@ class Bitacora(db.Model, UniversalMixin):
     MODULOS = OrderedDict(
         [
             ("ABOGADOS", "Abogados"),
+            ("AUDIENCIAS", "Audiencias"),
             ("AUTORIDADES", "Autoridades"),
             ("DISTRITOS", "Distritos"),
             ("EDICTOS", "Edictos"),

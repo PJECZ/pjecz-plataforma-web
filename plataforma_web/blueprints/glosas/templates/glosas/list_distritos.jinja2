@@ -2,10 +2,10 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Glosas - Distritos{% endblock %}
+{% block title %}Glosas - Departamentos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Glosas / Distritos') %}
+    {% call topbar.page_buttons('Glosas / Departamentos') %}
         {{ topbar.button_previous('Glosas', url_for('glosas.list_active')) }}
     {% endcall %}
 {% endblock %}
@@ -15,7 +15,7 @@
         <table class="table display nowrap">
             <thead>
                 <tr>
-                    <th>Distritos</th>
+                    <th>Departamentos</th>
                 </tr>
             </thead>
             <tbody>

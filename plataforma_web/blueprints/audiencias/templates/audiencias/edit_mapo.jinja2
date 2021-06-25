@@ -2,7 +2,7 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Editar Audiencia{% endblock %}
+{% block title %}Editar Audiencia de la Materia Acusatorio Penal Oral{% endblock %}
 
 {% block topbar_actions %}
     {{ topbar.page('Editar Audiencia de la Materia Acusatorio Penal Oral') }}
@@ -11,7 +11,7 @@
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'audiencia_id': audiencia.id} %}
-        {% call f.form_tag('audiencias.edit', fid='audiencia_form', **form_kwargs) %}
+        {% call f.form_tag('audiencias.edit_mapo', fid='audiencia_form', **form_kwargs) %}
             {# Comunes #}
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
