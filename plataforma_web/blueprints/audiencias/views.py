@@ -183,6 +183,18 @@ def new_for_autoridad(autoridad_id):
     return render_template("audiencias/new.jinja2", form=form)
 
 
+def edit_success(audiencia):
+    """Mensaje de éxito al editar una audiencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f'Editada la audiencia {audiencia.tipo_audiencia} de {audiencia.autoridad.clave}.'),
+        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+    )
+    bitacora.save()
+    return bitacora
+
+
 @audiencias.route('/audiencias/edicion/<int:audiencia_id>', methods=['GET', 'POST'])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit(audiencia_id):
@@ -191,11 +203,30 @@ def edit(audiencia_id):
     form = AudienciaMCFMLDSTForm()
     if form.validate_on_submit():
         audiencia.tiempo = form.tiempo.data
+
+        # Actualizar registro
         audiencia.save()
-        flash(f'Audiencia {audiencia.tiempo} guardado.', 'success')
-        return redirect(url_for('audiencias.detail', audiencia_id=audiencia.id))
+
+        # Registrar en bitácora e ir al detalle
+        bitacora = edit_success(audiencia)
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
+
+    # Prellenado del formulario
     form.tiempo.data = audiencia.tiempo
     return render_template('audiencias/edit.jinja2', form=form, audiencia=audiencia)
+
+
+def delete_success(audiencia):
+    """Mensaje de éxito al eliminar una audiencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f'Eliminada la audiencia {audiencia.tipo_audiencia} de {audiencia.autoridad.clave}.'),
+        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @audiencias.route('/audiencias/eliminar/<int:audiencia_id>')
@@ -204,9 +235,25 @@ def delete(audiencia_id):
     """ Eliminar Audiencia """
     audiencia = Audiencia.query.get_or_404(audiencia_id)
     if audiencia.estatus == 'A':
-        audiencia.delete()
-        flash(f'Audiencia {audiencia.tipo_audiencia} eliminado.', 'success')
+        if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
+            audiencia.delete()
+            bitacora = delete_success(audiencia)
+            flash(bitacora.descripcion, 'success')
+        else:
+            flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for('audiencias.detail', audiencia_id=audiencia.id))
+
+
+def recover_success(audiencia):
+    """Mensaje de éxito al recuperar una audiencia"""
+    bitacora = Bitacora(
+        modulo=MODULO,
+        usuario=current_user,
+        descripcion=safe_message(f'Recuperada la audiencia {audiencia.tipo_audiencia} de {audiencia.autoridad.clave}.'),
+        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+    )
+    bitacora.save()
+    return bitacora
 
 
 @audiencias.route('/audiencias/recuperar/<int:audiencia_id>')
@@ -215,6 +262,10 @@ def recover(audiencia_id):
     """ Recuperar Audiencia """
     audiencia = Audiencia.query.get_or_404(audiencia_id)
     if audiencia.estatus == 'B':
-        audiencia.recover()
-        flash(f'Audiencia {audiencia.tipo_audiencia} recuperado.', 'success')
+        if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
+            audiencia.recover()
+            bitacora = recover_success(audiencia)
+            flash(bitacora.descripcion, 'success')
+        else:
+            flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for('audiencias.detail', audiencia_id=audiencia.id))

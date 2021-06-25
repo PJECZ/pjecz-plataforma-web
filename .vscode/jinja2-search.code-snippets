@@ -5,22 +5,24 @@
         "body": [
             "{% extends 'layouts/app.jinja2' %}",
             "{% import 'macros/form.jinja2' as f with context %}",
+            "{% import 'macros/topbar.jinja2' as topbar %}",
             "",
             "{% block title %}Buscar ${1:Titulo}{% endblock %}",
             "",
+            "{% block topbar_actions %}",
+            "\t{{ topbar.page('Buscar ${1:Titulo}') }}",
+            "{% endblock %}",
+            "",
             "{% block content %}",
-            "\t{{ f.page('Buscar ${1:Titulo}') }}",
-            "\t<div class=\"container-fluid\">",
-            "\t\t{% call f.card() %}",
-            "\t\t\t{% call f.form_tag('${2:blueprint}.search', fid='${3:registro}_search_form') %}",
-            "\t\t\t\t{% call f.form_group(form.${4:nombre_o_descripcion}) %}{% endcall %}",
-            "\t\t\t\t{{ form.buscar() }}",
-            "\t\t\t{% endcall %}",
+            "\t{% call f.card() %}",
+            "\t\t{% call f.form_tag('${2:blueprint}.search', fid='${3:registro}_search_form') %}",
+            "\t\t\t{% call f.form_group(form.${4:nombre_o_descripcion}) %}{% endcall %}",
+            "\t\t\t{{ form.buscar() }}",
             "\t\t{% endcall %}",
-            "\t</div>",
+            "\t{% endcall %}",
             "{% endblock %}",
             ""
         ],
-        "description": "Buscar"
+        "description": "Search"
     }
 }
