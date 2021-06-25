@@ -15,7 +15,7 @@
         {% if current_user.can_insert('autoridades') %}
             {{ topbar.button_new('Nueva Autoridad', url_for('autoridades.new')) }}
         {% endif %}
-        {{ topbar.button_districts('Distritos', url_for('distritos.list_active')) }}
+        {{ topbar.button_districts('Departamentos', url_for('distritos.list_active')) }}
         {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
     {% endcall %}
 {% endblock %}
@@ -26,7 +26,7 @@
             <thead>
                 <tr>
                     <th>Claves</th>
-                    <th>Distritos</th>
+                    <th>Departamentos</th>
                     <th>Descripciones</th>
                     <th>Desc. cortas</th>
                     <th>Es Jurisdiccional</th>

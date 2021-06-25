@@ -19,7 +19,7 @@
 {% block content %}
     {% call detail.card(estatus=autoridad.estatus) %}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
-        {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
+        {{ detail.label_value('Departamento', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
         {{ detail.label_value('Clave', autoridad.clave) }}
         {{ detail.label_value_boolean('Es Jurisdiccional', autoridad.es_jurisdiccional) }}
         {{ detail.label_value_boolean('Es Notaría', autoridad.es_notaria) }}
@@ -31,14 +31,14 @@
         {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos, link=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
         {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias, link=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
     {% endcall %}
-    {% if usuarios %}
+    {% if usuarios and current_user.can_view('usuarios') %}
         {% call detail.card('Usuarios') %}
             <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>e-mail</th>
-                        <th>Rol</th>
+                        {% if current_user.can_view('roles') %}<th>Rol</th>{% endif %}
                         <th>Workspace</th>
                     </tr>
                 </thead>
@@ -47,7 +47,7 @@
                     <tr>
                         <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
                         <td>{{ usuario.email }}</td>
-                        <td>{{ usuario.rol.nombre }}</td>
+                        {% if current_user.can_view('roles') %}<td>{{ usuario.rol.nombre }}</td>{% endif %}
                         <td>{{ usuario.workspace }}</td>
                     </tr>
                     {% endfor %}
@@ -62,4 +62,5 @@
         {% if autoridad.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?') }}{% endif %}
         {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
+    {{ detail.datatable('usuarios_datatable') }}
 {% endblock %}

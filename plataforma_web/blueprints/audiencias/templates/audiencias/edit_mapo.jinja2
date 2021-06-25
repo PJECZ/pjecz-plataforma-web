@@ -5,15 +5,24 @@
 {% block title %}Editar Audiencia{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar ' + audiencia.tipo_audiencia) }}
+    {{ topbar.page('Editar Audiencia de la Materia Acusatorio Penal Oral') }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'audiencia_id': audiencia.id} %}
         {% call f.form_tag('audiencias.edit', fid='audiencia_form', **form_kwargs) %}
+            {# Comunes #}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
             {% call f.form_group(form.tiempo) %}{% endcall %}
             {% call f.form_group(form.tipo_audiencia) %}{% endcall %}
+            {# Materia Acusatorio Penal Oral #}
+            {% call f.form_group(form.sala) %}{% endcall %}
+            {% call f.form_group(form.caracter) %}{% endcall %}
+            {% call f.form_group(form.causa_penal) %}{% endcall %}
+            {% call f.form_group(form.delitos) %}{% endcall %}
+            {# Botón guardar #}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

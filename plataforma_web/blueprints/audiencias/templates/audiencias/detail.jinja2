@@ -20,9 +20,12 @@
 
 {% block content %}
     {% call detail.card(estatus=audiencia.estatus) %}
-        {{ detail.label_value_big('Nombre o Descripción', audiencia.tipo_audiencia) }}
-        {{ detail.label_value('Columna 1', audiencia.columna_1) }}
-        {{ detail.label_value('Columna 2', audiencia.columna_2) }}
+        {{ detail.label_value_big('Fecha y hora', audiencia.tiempo.strftime('%Y-%m-%d %H:%M')) }}
+        {{ detail.label_value('Departamento', audiencia.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', audiencia.autoridad.descripcion) }}
+
+
+        
     {% endcall %}
 {% endblock %}
 

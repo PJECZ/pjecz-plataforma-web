@@ -1,0 +1,29 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Audiencia{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar Audiencia de Distritales Penales y Salas Penales') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'audiencia_id': audiencia.id} %}
+        {% call f.form_tag('audiencias.edit', fid='audiencia_form', **form_kwargs) %}
+            {# Comunes #}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tiempo) %}{% endcall %}
+            {% call f.form_group(form.tipo_audiencia) %}{% endcall %}
+            {# Distritales Penales y Salas Penales #}
+            {% call f.form_group(form.toca) %}{% endcall %}
+            {% call f.form_group(form.expediente_origen) %}{% endcall %}
+            {% call f.form_group(form.delitos) %}{% endcall %}
+            {% call f.form_group(form.imputados) %}{% endcall %}
+            {# Botón guardar #}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
