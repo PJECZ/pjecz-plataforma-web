@@ -63,7 +63,6 @@ function initApp() {
             $('#firebase_logged_out').hide();
             $('#firebase_logged_in').show();
             $('#acceso_form_firebase_fields').show();
-            $('#acceso_form_password_fields').hide();
         } else {
             // User is signed out
             $('#quickstart-sign-in').text('Abrir mi cuenta de Google') // Sign in with Google
@@ -72,7 +71,6 @@ function initApp() {
             $('#firebase_logged_out').show();
             $('#firebase_logged_in').hide();
             $('#acceso_form_firebase_fields').hide();
-            $('#acceso_form_password_fields').show();
         }
         document.getElementById('quickstart-sign-in').disabled = false;
     });
