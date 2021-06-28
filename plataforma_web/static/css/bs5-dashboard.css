@@ -2,6 +2,8 @@
  * Bootstrap 5 - Dashboard
  */
 
+.pjecz-bg-dark { background-color: #004360 !important; }
+
 body     { font-size: .875rem; background-color: #EEE; }
 .feather { width: 16px; height: 16px; vertical-align: text-bottom; }
 
