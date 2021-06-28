@@ -6,7 +6,7 @@
 {% block title %}Registro{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(registro.descripcion) %}
+    {% call topbar.page_buttons('Registro ' + registro.descripcion) %}
         {{ topbar.button_previous('Registros', url_for('cid_registros.list_active')) }}
         {% if current_user.can_edit('cid_registros') %}
             {{ topbar.button_edit('Editar', url_for('cid_registros.edit', registro_id=registro.id)) }}

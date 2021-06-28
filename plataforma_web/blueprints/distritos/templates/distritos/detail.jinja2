@@ -6,7 +6,7 @@
 {% block title %}Departamento{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(distrito.nombre) %}
+    {% call topbar.page_buttons('Departamento ' + distrito.nombre) %}
         {{ topbar.button_previous('Departamentos', url_for('distritos.list_active')) }}
         {% if current_user.can_edit('distritos') %}
             {{ topbar.button_edit('Editar', url_for('distritos.edit', distrito_id=distrito.id)) }}

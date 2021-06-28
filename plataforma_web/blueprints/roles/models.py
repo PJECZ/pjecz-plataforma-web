@@ -118,7 +118,6 @@ class Rol(db.Model, UniversalMixin):
             ],
             "SOPORTE TECNICO": [
                 Permiso.VER_CUENTAS,
-                Permiso.MODIFICAR_CUENTAS,
                 Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
@@ -126,7 +125,6 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_SEGUNDAS,
             ],
             "JUZGADO": [
-                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.MODIFICAR_JUSTICIABLES,
@@ -137,7 +135,6 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.VER_SEGUNDAS,
             ],
             "NOTARIA": [
-                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
@@ -158,21 +155,21 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.MODIFICAR_SEGUNDAS,
             ],
             "USUARIO": [
-                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
                 Permiso.VER_SEGUNDAS,
             ],
             "OBSERVADOR": [
+                Permiso.VER_CUENTAS,
                 Permiso.VER_CATALOGOS,
+                Permiso.VER_DOCUMENTACIONES,
                 Permiso.VER_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
                 Permiso.VER_SEGUNDAS,
             ],
             "PLENOS SALAS TRIBUNALES TCA": [
-                Permiso.VER_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.MODIFICAR_CONSULTAS,
                 Permiso.CREAR_CONSULTAS,

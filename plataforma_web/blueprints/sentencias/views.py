@@ -419,23 +419,17 @@ def new_for_autoridad(autoridad_id):
     return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
 
-def edit_success(sentencia):
-    """Mensaje de éxito al editar una sentencia"""
-    bitacora = Bitacora(
-        modulo=MODULO,
-        usuario=current_user,
-        descripcion=safe_message(f"Editada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
-        url=url_for("sentencias.detail", sentencia_id=sentencia.id),
-    )
-    bitacora.save()
-    return bitacora
-
-
 @sentencias.route("/sentencias/edicion/<int:sentencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit(sentencia_id):
     """Editar Sentencia"""
+
+    # Validar sentencia
     sentencia = Sentencia.query.get_or_404(sentencia_id)
+    if not (current_user.can_admin("sentencias") or current_user.autoridad_id == sentencia.autoridad_id):
+        flash("No tiene permiso para editar esta sentencia.", "warning")
+        return redirect(url_for("sentencias.list_active"))
+
     form = SentenciaEditForm()
     if form.validate_on_submit():
         es_valido = True
@@ -453,7 +447,13 @@ def edit(sentencia_id):
         sentencia.es_paridad_genero = form.es_paridad_genero.data
         if es_valido:
             sentencia.save()
-            bitacora = edit_success(sentencia)
+            bitacora = Bitacora(
+                modulo=MODULO,
+                usuario=current_user,
+                descripcion=safe_message(f"Editada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
+                url=url_for("sentencias.detail", sentencia_id=sentencia.id),
+            )
+            bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.fecha.data = sentencia.fecha

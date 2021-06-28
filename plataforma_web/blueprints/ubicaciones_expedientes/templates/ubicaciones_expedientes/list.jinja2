@@ -12,7 +12,7 @@
         {% if estatus == 'B' %}{% set title='Ubicaciones de Expedientes inactivas' %}{% endif %}
     {% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_districts('Distritos', url_for('ubicaciones_expedientes.list_distritos')) }}
+        {{ topbar.button_districts('Departamentos', url_for('ubicaciones_expedientes.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('ubicaciones_expedientes') or (current_user.can_insert('ubicaciones_expedientes') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('ubicaciones_expedientes.list_inactive')) }}{% endif %}

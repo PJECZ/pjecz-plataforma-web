@@ -6,12 +6,14 @@
 {% block title %}Glosa{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(glosa.descripcion) %}
-        {{ topbar.button_previous('Glosas', url_for('glosas.list_active')) }}
+    {% call topbar.page_buttons('Glosa ' + glosa.descripcion) %}
         {% if current_user.can_admin('glosas') %}
-            {{ topbar.button_edit('Editar', url_for('glosas.edit', glosa_id=glosa.id)) }}
+            {{ topbar.button_previous('Glosas de ' + glosa.autoridad.clave, url_for('glosas.list_autoridad_glosas', autoridad_id=glosa.autoridad_id)) }}
+        {% else %}
+            {{ topbar.button_previous('Glosas', url_for('glosas.list_active')) }}
         {% endif %}
         {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
+            {{ topbar.button_edit('Editar', url_for('glosas.edit', glosa_id=glosa.id)) }}
             {% if glosa.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('glosas.delete', glosa_id=glosa.id)) }}{% endif %}
             {% if glosa.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('glosas.recover', glosa_id=glosa.id)) }}{% endif %}
         {% endif %}

@@ -267,7 +267,13 @@ def edit_success(ubicacion_expediente):
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit(ubicacion_expediente_id):
     """Editar Ubicación de Expedientes"""
+
+    # Validar ubicación de expediente
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
+    if not (current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id):
+        flash("No tiene permiso para editar esta ubicación de expediente.", "warning")
+        return redirect(url_for("ubicaciones_expedientes.list_active"))
+
     form = UbicacionExpedienteEditForm()
     if form.validate_on_submit():
 
@@ -317,8 +323,7 @@ def delete(ubicacion_expediente_id):
             bitacora = delete_success(ubicacion_expediente)
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-        else:
-            flash("No tiene permiso para eliminar.", "warning")
+        flash("No tiene permiso para eliminar.", "warning")
     return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente_id))
 
 
@@ -345,6 +350,5 @@ def recover(ubicacion_expediente_id):
             bitacora = recover_success(ubicacion_expediente)
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-        else:
-            flash("No tiene permiso para recuperar.", "warning")
+        flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente_id))
