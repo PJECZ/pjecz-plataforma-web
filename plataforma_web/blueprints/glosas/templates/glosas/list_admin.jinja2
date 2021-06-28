@@ -23,7 +23,7 @@
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}{% endif %}
             {% endif %}
             {% if current_user.can_insert('tareas') %}
-                {{ topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
+                {# topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) #}
             {% endif %}
         {% else %}
             {% if current_user.can_edit('glosas') %}

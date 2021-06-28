@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(cid_procedimiento.descripcion) %}
+    {% call topbar.page_buttons('Procedimiento ' + cid_procedimiento.descripcion) %}
         {{ topbar.button_previous('Procedimientos', url_for('cid_procedimientos.list_active')) }}
         {% if current_user.can_edit('cid_procedimientos') %}
             {{ topbar.button_edit('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id)) }}

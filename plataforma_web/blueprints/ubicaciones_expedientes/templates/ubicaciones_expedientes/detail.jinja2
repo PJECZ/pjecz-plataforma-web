@@ -6,8 +6,12 @@
 {% block title %}Ubicación de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(ubicacion_expediente.expediente) %}
-        {{ topbar.button_previous('Ubicaciones de Expedientes', url_for('ubicaciones_expedientes.list_active')) }}
+    {% call topbar.page_buttons('Ubicación del Expediente ' + ubicacion_expediente.expediente) %}
+        {% if current_user.can_admin('ubicaciones_expedientes') %}
+            {{ topbar.button_previous('Ubicaciones de Expedientes de ' + ubicacion_expediente.autoridad.clave, url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes', autoridad_id=ubicacion_expediente.autoridad_id)) }}
+        {% else %}
+            {{ topbar.button_previous('Ubicaciones de Expedientes', url_for('ubicaciones_expedientes.list_active')) }}
+        {% endif %}
         {% if current_user.can_admin('ubicaciones_expedientes') or (current_user.can_edit('ubicaciones_expedientes') and ubicacion_expediente.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('ubicaciones_expedientes.edit', ubicacion_expediente_id=ubicacion_expediente.id)) }}
             {% if ubicacion_expediente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('ubicaciones_expedientes.delete', ubicacion_expediente_id=ubicacion_expediente.id)) }}{% endif %}

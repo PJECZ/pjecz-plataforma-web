@@ -12,7 +12,7 @@
         {% if estatus == 'B' %}{% set title='Glosas inactivas' %}{% endif %}
     {% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_districts('Distritos', url_for('glosas.list_distritos')) }}
+        {{ topbar.button_districts('Departamentos', url_for('glosas.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('glosas') or (current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
@@ -24,7 +24,7 @@
                 {{ topbar.button_upload('Subir', url_for('glosas.new')) }}
             {% endif %}
             {% if current_user.can_admin('glosas') and current_user.can_insert('tareas') %}
-                {{ topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) }}
+                {# topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) #}
             {% endif %}
         {% endif %}
         {{ topbar.button_search('Buscar', url_for('glosas.search')) }}

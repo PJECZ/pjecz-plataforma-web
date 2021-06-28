@@ -391,10 +391,16 @@ def edit_success(glosa):
 
 
 @glosas.route("/glosas/edicion/<int:glosa_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
+@permission_required(Permiso.MODIFICAR_SEGUNDAS)
 def edit(glosa_id):
     """Editar Glosa"""
+
+    # Validar glosa
     glosa = Glosa.query.get_or_404(glosa_id)
+    if not (current_user.can_admin("glosas") or current_user.autoridad_id == glosa.autoridad_id):
+        flash("No tiene permiso para editar esta glosa.", "warning")
+        return redirect(url_for("glosas.list_active"))
+
     form = GlosaEditForm()
     if form.validate_on_submit():
         es_valido = True

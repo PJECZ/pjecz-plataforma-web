@@ -6,7 +6,7 @@
 {% block title %}Materia{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(materia.nombre) %}
+    {% call topbar.page_buttons('Materia ' + materia.nombre) %}
         {{ topbar.button_previous('Materias', url_for('materias.list_active')) }}
         {% if current_user.can_edit('materias') %}
             {{ topbar.button_edit('Editar', url_for('materias.edit', materia_id=materia.id)) }}
@@ -26,7 +26,7 @@
                 <thead>
                     <tr>
                         <th>Claves</th>
-                        <th>Distritos</th>
+                        <th>Departamentos</th>
                         <th>Descripciones</th>
                     </tr>
                 </thead>
