@@ -43,11 +43,16 @@
                     <th>Causas penales</th>
                     <th>Delitos</th>
                     {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES PENALES Y SALAS PENALES' %}
+                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES PENALES' %}
+                    <th>Tocas</th>
+                    <th>Exp. origen</th>
+                    <th>Imputados</th>
+                    {% endif %}
+                    {% if current_user.autoridad.audiencia_categoria == 'SALAS PENALES' %}
                     <th>Tocas</th>
                     <th>Exp. origen</th>
                     <th>Delitos</th>
-                    <th>Imputados</th>
+                    <th>Origen</th>
                     {% endif %}
                 </tr>
             </thead>
@@ -67,11 +72,16 @@
                     <th>{{ audiencia.causa_penal }}</th>
                     <th>{{ audiencia.delitos }}</th>
                     {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES PENALES Y SALAS PENALES' %}
+                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES PENALES' %}
+                    <th>{{ audiencia.toca }}</th>
+                    <th>{{ audiencia.expediente_origen }}</th>
+                    <th>{{ audiencia.imputados }}</th>
+                    {% endif %}
+                    {% if current_user.autoridad.audiencia_categoria == 'SALAS PENALES' %}
                     <th>{{ audiencia.toca }}</th>
                     <th>{{ audiencia.expediente_origen }}</th>
                     <th>{{ audiencia.delitos }}</th>
-                    <th>{{ audiencia.imputados }}</th>
+                    <th>{{ audiencia.origen }}</th>
                     {% endif %}
                 </tr>
                 {% endfor %}

@@ -37,11 +37,16 @@
             {{ detail.label_value('Causa penal', audiencia.causa_penal) }}
             {{ detail.label_value('Delitos', audiencia.delitos) }}
         {% endif %}
-        {% if audiencia.autoridad.audiencia_categoria == 'DISTRITALES PENALES Y SALAS PENALES' %}
+        {% if audiencia.autoridad.audiencia_categoria == 'DISTRITALES PENALES' %}
+            {{ detail.label_value('Toca', audiencia.toca) }}
+            {{ detail.label_value('Expediente origen', audiencia.expediente_origen) }}
+            {{ detail.label_value('Imputados', audiencia.imputados) }}
+        {% endif %}
+        {% if audiencia.autoridad.audiencia_categoria == 'SALAS PENALES' %}
             {{ detail.label_value('Toca', audiencia.toca) }}
             {{ detail.label_value('Expediente origen', audiencia.expediente_origen) }}
             {{ detail.label_value('Delitos', audiencia.delitos) }}
-            {{ detail.label_value('Imputados', audiencia.imputados) }}
+            {{ detail.label_value('Origen', audiencia.origen) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
