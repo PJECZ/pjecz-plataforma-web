@@ -19,7 +19,7 @@
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_active')) }}{% endif %}
             {% endif %}
             {% if current_user.can_insert('audiencias') and current_user.autoridad_id == autoridad.id %}
-                {{ topbar.button_new('Nuevo Audiencia', url_for('audiencias.new')) }}
+                {{ topbar.button_new('Nueva Audiencia', url_for('audiencias.new')) }}
             {% endif %}
         {% endif %}
     {% endcall %}
@@ -32,7 +32,7 @@
                 <tr>
                     <th>Fechas y horas</th>
                     <th>Tipos de audiencias</th>
-                    {% if current_user.autoridad.audiencia_categoria == 'MAT(CFML) DIST(CYF) SALAS(CYF) TCYA' %}
+                    {% if current_user.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
                     <th>Expedientes</th>
                     <th>Actores</th>
                     <th>Demandados</th>
@@ -43,12 +43,18 @@
                     <th>Causas penales</th>
                     <th>Delitos</th>
                     {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES PENALES' %}
+                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
+                    <th>Expedientes</th>
+                    <th>Actores</th>
+                    <th>Demandados</th>
                     <th>Tocas</th>
                     <th>Exp. origen</th>
                     <th>Imputados</th>
                     {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'SALAS PENALES' %}
+                    {% if current_user.autoridad.audiencia_categoria == 'SALAS' %}
+                    <th>Expedientes</th>
+                    <th>Actores</th>
+                    <th>Demandados</th>
                     <th>Tocas</th>
                     <th>Exp. origen</th>
                     <th>Delitos</th>
@@ -61,27 +67,33 @@
                 <tr>
                     <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tiempo.strftime('%Y-%m-%d %H:%M:%S') }}</a></td>
                     <td>{{ audiencia.tipo_audiencia }}</td>
-                    {% if current_user.autoridad.audiencia_categoria == 'MAT(CFML) DIST(CYF) SALAS(CYF) TCYA' %}
-                    <th>{{ audiencia.expediente }}</th>
-                    <th>{{ audiencia.actores }}</th>
-                    <th>{{ audiencia.demandados }}</th>
+                    {% if current_user.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
+                    <th>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</th>
+                    <th>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</th>
+                    <th>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</th>
                     {% endif %}
                     {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
-                    <th>{{ audiencia.sala }}</th>
-                    <th>{{ audiencia.caracter }}</th>
-                    <th>{{ audiencia.causa_penal }}</th>
-                    <th>{{ audiencia.delitos }}</th>
+                    <th>{% if audiencia.sala %}{{ audiencia.sala }}{% endif %}</th>
+                    <th>{% if audiencia.caracter %}{{ audiencia.caracter }}{% endif %}</th>
+                    <th>{% if audiencia.penal %}{{ audiencia.causa_penal }}{% endif %}</th>
+                    <th>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</th>
                     {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES PENALES' %}
-                    <th>{{ audiencia.toca }}</th>
-                    <th>{{ audiencia.expediente_origen }}</th>
-                    <th>{{ audiencia.imputados }}</th>
+                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
+                    <th>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</th>
+                    <th>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</th>
+                    <th>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</th>
+                    <th>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</th>
+                    <th>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</th>
+                    <th>{% if audiencia.imputados %}{{ audiencia.imputados }}{% endif %}</th>
                     {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'SALAS PENALES' %}
-                    <th>{{ audiencia.toca }}</th>
-                    <th>{{ audiencia.expediente_origen }}</th>
-                    <th>{{ audiencia.delitos }}</th>
-                    <th>{{ audiencia.origen }}</th>
+                    {% if current_user.autoridad.audiencia_categoria == 'SALAS' %}
+                    <th>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</th>
+                    <th>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</th>
+                    <th>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</th>
+                    <th>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</th>
+                    <th>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</th>
+                    <th>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</th>
+                    <th>{% if audiencia.origen %}{{ audiencia.origen }}{% endif %}</th>
                     {% endif %}
                 </tr>
                 {% endfor %}

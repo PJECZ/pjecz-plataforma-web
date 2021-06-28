@@ -109,13 +109,13 @@ def new():
     if autoridad.estatus != "A":
         flash("Su juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria == "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
+    if autoridad.audiencia_categoria == "CIVIL FAMILIAR MERCANTIL LETRADO TCYA":
         return redirect(url_for("audiencias.new_generica"))
     if autoridad.audiencia_categoria == "MATERIA ACUSATORIO PENAL ORAL":
         return redirect(url_for("audiencias.new_mapo"))
-    if autoridad.audiencia_categoria == "DISTRITALES PENALES":
+    if autoridad.audiencia_categoria == "DISTRITALES":
         return redirect(url_for("audiencias.new_dipe"))
-    if autoridad.audiencia_categoria == "SALAS PENALES":
+    if autoridad.audiencia_categoria == "SALAS":
         return redirect(url_for("audiencias.new_sape"))
     flash("El juzgado/autoridad no tiene una categoría de audiencias correcta.", "warning")
     return redirect(url_for("audiencias.list_active"))
@@ -124,15 +124,15 @@ def new():
 @audiencias.route("/audiencias/nuevo/generica", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new_generica():
-    """Nueva Audiencia Materias Mat. CFML, Dist. CyF, Salas CyF y TCyA"""
+    """Nueva Audiencia Materias CIVIL FAMILIAR MERCANTIL LETRADO TCYA"""
 
     # Validar autoridad
     autoridad = current_user.autoridad
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria != "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
-        flash("La categoría de audiencia no es MAT(CFML) DIST(CYF) SALAS(CYF) TCYA.", "warning")
+    if autoridad.audiencia_categoria != "CIVIL FAMILIAR MERCANTIL LETRADO TCYA":
+        flash("La categoría de audiencia no es CIVIL FAMILIAR MERCANTIL LETRADO TCYA.", "warning")
         return redirect(url_for("audiencias.list_active"))
 
     # Si viene el formulario
@@ -170,7 +170,7 @@ def new_generica():
 @audiencias.route("/audiencias/nuevo/mapo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new_mapo():
-    """Nueva Audiencia Materia Acusatorio Penal Oral"""
+    """Nueva Audiencia MATERIA ACUSATORIO PENAL ORAL"""
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -217,15 +217,15 @@ def new_mapo():
 @audiencias.route("/audiencias/nuevo/dipe", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new_dipe():
-    """Nueva Audiencia Distritales Penales"""
+    """Nueva Audiencia DISTRITALES"""
 
     # Validar autoridad
     autoridad = current_user.autoridad
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria != "DISTRITALES PENALES":
-        flash("La categoría de audiencia no es DISTRITALES PENALES.", "warning")
+    if autoridad.audiencia_categoria != "DISTRITALES":
+        flash("La categoría de audiencia no es DISTRITALES.", "warning")
         return redirect(url_for("audiencias.list_active"))
 
     # Si viene el formulario
@@ -237,6 +237,9 @@ def new_dipe():
             autoridad=autoridad,
             tiempo=form.tiempo.data,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            expediente=safe_string(form.expediente.data),
+            actores=safe_string(form.actores.data),
+            demandados=safe_string(form.demandados.data),
             toca=safe_string(form.toca.data),
             expediente_origen=safe_string(form.expediente_origen.data),
             imputados=safe_string(form.imputados.data),
@@ -263,15 +266,15 @@ def new_dipe():
 @audiencias.route("/audiencias/nuevo/sape", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_JUSTICIABLES)
 def new_sape():
-    """Nueva Audiencia Salas Penales"""
+    """Nueva Audiencia SALAS"""
 
     # Validar autoridad
     autoridad = current_user.autoridad
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria != "SALAS PENALES":
-        flash("La categoría de audiencia no es SALAS PENALES.", "warning")
+    if autoridad.audiencia_categoria != "SALAS":
+        flash("La categoría de audiencia no es SALAS.", "warning")
         return redirect(url_for("audiencias.list_active"))
 
     # Si viene el formulario
@@ -283,6 +286,9 @@ def new_sape():
             autoridad=autoridad,
             tiempo=form.tiempo.data,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            expediente=safe_string(form.expediente.data),
+            actores=safe_string(form.actores.data),
+            demandados=safe_string(form.demandados.data),
             toca=safe_string(form.toca.data),
             expediente_origen=safe_string(form.expediente_origen.data),
             delitos=safe_string(form.delitos.data),
@@ -332,13 +338,13 @@ def edit(audiencia_id):
         return redirect(url_for("audiencias.list_active"))
 
     # Redirigir
-    if autoridad.audiencia_categoria == "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
+    if autoridad.audiencia_categoria == "CIVIL FAMILIAR MERCANTIL LETRADO TCYA":
         return redirect(url_for("audiencias.edit_generica", audiencia_id=audiencia_id))
     if autoridad.audiencia_categoria == "MATERIA ACUSATORIO PENAL ORAL":
         return redirect(url_for("audiencias.edit_mapo", audiencia_id=audiencia_id))
-    if autoridad.audiencia_categoria == "DISTRITALES PENALES":
+    if autoridad.audiencia_categoria == "DISTRITALES":
         return redirect(url_for("audiencias.edit_dipes", audiencia_id=audiencia_id))
-    if autoridad.audiencia_categoria == "SALAS PENALES":
+    if autoridad.audiencia_categoria == "SALAS":
         return redirect(url_for("audiencias.edit_sape", audiencia_id=audiencia_id))
 
     # Mensaje por no reconocer la categoría de audiencias
@@ -349,7 +355,7 @@ def edit(audiencia_id):
 @audiencias.route('/audiencias/edicion/generica/<int:audiencia_id>', methods=['GET', 'POST'])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit_generica(audiencia_id):
-    """Editar Audiencia Materias Mat. CFML, Dist. CyF, Salas CyF y TCyA"""
+    """Editar Audiencia CIVIL FAMILIAR MERCANTIL LETRADO TCYA"""
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
@@ -362,8 +368,8 @@ def edit_generica(audiencia_id):
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria != "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
-        flash("La categoría de audiencia no es MAT(CFML) DIST(CYF) SALAS(CYF) TCYA.", "warning")
+    if autoridad.audiencia_categoria != "CIVIL FAMILIAR MERCANTIL LETRADO TCYA":
+        flash("La categoría de audiencia no es CIVIL FAMILIAR MERCANTIL LETRADO TCYA.", "warning")
         return redirect(url_for("audiencias.list_active"))
 
     # Si viene el formulario
@@ -397,7 +403,7 @@ def edit_generica(audiencia_id):
 @audiencias.route('/audiencias/edicion/mapo/<int:audiencia_id>', methods=['GET', 'POST'])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit_mapo(audiencia_id):
-    """Editar Audiencia Materia Acusatorio Penal Oral"""
+    """Editar Audiencia MATERIA ACUSATORIO PENAL ORAL"""
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
@@ -447,7 +453,7 @@ def edit_mapo(audiencia_id):
 @audiencias.route('/audiencias/edicion/dipe/<int:audiencia_id>', methods=['GET', 'POST'])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit_dipe(audiencia_id):
-    """Editar Audiencia Distritales Penales"""
+    """Editar Audiencia DISTRITALES"""
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
@@ -460,8 +466,8 @@ def edit_dipe(audiencia_id):
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria != "DISTRITALES PENALES":
-        flash("La categoría de audiencia no es DISTRITALES PENALES.", "warning")
+    if autoridad.audiencia_categoria != "DISTRITALES":
+        flash("La categoría de audiencia no es DISTRITALES.", "warning")
         return redirect(url_for("audiencias.list_active"))
 
     # Si viene el formulario
@@ -471,6 +477,9 @@ def edit_dipe(audiencia_id):
         # Actualizar registro
         audiencia.tiempo = form.tiempo.data
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.expediente = safe_string(form.expediente.data)
+        audiencia.actores = safe_string(form.actores.data)
+        audiencia.demandados = safe_string(form.demandados.data)
         audiencia.toca = safe_string(form.toca.data)
         audiencia.expediente_origen = safe_string(form.expediente_origen.data)
         audiencia.imputados = safe_string(form.imputados.data)
@@ -486,6 +495,9 @@ def edit_dipe(audiencia_id):
     form.autoridad.data = autoridad.descripcion
     form.tiempo.data = audiencia.tiempo
     form.tipo_audiencia.data = audiencia.tipo_audiencia
+    form.expediente.data = audiencia.expediente
+    form.actores.data = audiencia.actores
+    form.demandados.data = audiencia.demandados
     form.toca.data = audiencia.toca
     form.expediente_origen.data = audiencia.expediente_origen
     form.imputados.data = audiencia.imputados
@@ -495,7 +507,7 @@ def edit_dipe(audiencia_id):
 @audiencias.route('/audiencias/edicion/sape/<int:audiencia_id>', methods=['GET', 'POST'])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit_sape(audiencia_id):
-    """Editar Audiencia Salas Penales"""
+    """Editar Audiencia SALAS"""
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
@@ -508,8 +520,8 @@ def edit_sape(audiencia_id):
     if autoridad.estatus != "A":
         flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
-    if autoridad.audiencia_categoria != "SALAS PENALES":
-        flash("La categoría de audiencia no es SALAS PENALES.", "warning")
+    if autoridad.audiencia_categoria != "SALAS":
+        flash("La categoría de audiencia no es SALAS.", "warning")
         return redirect(url_for("audiencias.list_active"))
 
     # Si viene el formulario
@@ -519,6 +531,9 @@ def edit_sape(audiencia_id):
         # Actualizar registro
         audiencia.tiempo = form.tiempo.data
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.expediente = safe_string(form.expediente.data)
+        audiencia.actores = safe_string(form.actores.data)
+        audiencia.demandados = safe_string(form.demandados.data)
         audiencia.toca = safe_string(form.toca.data)
         audiencia.expediente_origen = safe_string(form.expediente_origen.data)
         audiencia.delitos = safe_string(form.delitos.data)
@@ -535,6 +550,9 @@ def edit_sape(audiencia_id):
     form.autoridad.data = autoridad.descripcion
     form.tiempo.data = audiencia.tiempo
     form.tipo_audiencia.data = audiencia.tipo_audiencia
+    form.expediente.data = audiencia.expediente
+    form.actores.data = audiencia.actores
+    form.demandados.data = audiencia.demandados
     form.toca.data = audiencia.toca
     form.expediente_origen.data = audiencia.expediente_origen
     form.delitos.data = audiencia.delitos

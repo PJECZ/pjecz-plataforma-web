@@ -2,10 +2,10 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nueva Audiencia de Distritales Penales{% endblock %}
+{% block title %}Nueva Audiencia Distrital{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nueva Audiencia de Distritales Penales') }}
+    {{ topbar.page('Nueva Audiencia Distrital') }}
 {% endblock %}
 
 {% block content %}
@@ -16,7 +16,11 @@
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
             {% call f.form_group(form.tiempo) %}{% endcall %}
             {% call f.form_group(form.tipo_audiencia) %}{% endcall %}
-            {# Distritales Penales #}
+            <h2 class="h4">Civil, Familiar, Mercantil o Laboral</h2>
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.actores) %}{% endcall %}
+            {% call f.form_group(form.demandados) %}{% endcall %}
+            <h2 class="h4">Penal</h2>
             {% call f.form_group(form.toca) %}{% endcall %}
             {% call f.form_group(form.expediente_origen) %}{% endcall %}
             {% call f.form_group(form.imputados) %}{% endcall %}
