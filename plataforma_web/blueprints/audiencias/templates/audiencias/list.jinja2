@@ -75,7 +75,7 @@
                     {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
                     <th>{% if audiencia.sala %}{{ audiencia.sala }}{% endif %}</th>
                     <th>{% if audiencia.caracter %}{{ audiencia.caracter }}{% endif %}</th>
-                    <th>{% if audiencia.penal %}{{ audiencia.causa_penal }}{% endif %}</th>
+                    <th>{% if audiencia.causa_penal %}{{ audiencia.causa_penal }}{% endif %}</th>
                     <th>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</th>
                     {% endif %}
                     {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
