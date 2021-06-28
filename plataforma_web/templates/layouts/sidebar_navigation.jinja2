@@ -19,7 +19,7 @@
     <hr>
     <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-            <strong>{{ current_user.nombre[:24] }}</strong>
+            <strong>{{ current_user.email[:32] }}</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
             <li><a class="dropdown-item" href="{{ url_for('usuarios.profile') }}">Perfil</a></li>

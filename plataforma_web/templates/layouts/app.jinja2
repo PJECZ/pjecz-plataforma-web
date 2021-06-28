@@ -11,7 +11,7 @@
 
 {% block main %}
     <!-- Header -->
-    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <header class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow pjecz-bg-dark">
         <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">
             <img class="mx-2" src="{{ url_for('static', filename='images/logo.png') }}" alt="PJECZ"  width="30" height="30">
             Plataforma Web
@@ -24,7 +24,7 @@
     <!-- Container with navigation and main -->
     <div class="container-fluid">
         <div class="row">
-            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse pjecz-bg-dark">
                 {% include 'layouts/sidebar_navigation.jinja2' %}
             </nav>
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">

@@ -6,7 +6,7 @@
 {% block title %}Usuario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(usuario.nombre) %}
+    {% call topbar.page_buttons('Usuario ' + usuario.nombre) %}
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
         {% if current_user.can_edit('usuarios') %}
             {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}

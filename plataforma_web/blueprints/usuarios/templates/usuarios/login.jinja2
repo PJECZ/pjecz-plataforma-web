@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block firebase_content %}
-    <div id="firebase_content" class="text-center">
+    <div id="firebase_content" class="text-center" style="display:none;">
         <p id="firebase_logged_out" class="text-white">Ingrese con su cuenta de...</p>
         <p id="firebase_logged_in" class="text-white" style="display: none;"><strong>¡Hola <span id="user">____</span>!</strong></p>
         <button id="quickstart-sign-in" disabled class="btn btn-primary py-2">Cargando...</button>
@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block acceso_form_content %}
-    <div id="acceso_form_content">
+    <div id="acceso_form_content" style="display:none;">
         {% call f.form_tag('usuarios.login', fid='acceso_form') %}
         <div id="acceso_form_firebase_fields" class="my-2" style="display: none;">
             <div class="py-2 text-center">
@@ -77,6 +77,7 @@
                 firebase.initializeApp(firebaseConfig); // Inicializar Firebase
                 initApp(); // Cargar eventos de la interfaz
             } else {
+                $('#acceso_form_content').show(); // Mostrar el formulario correo electrónico / contraseña
                 $('#firebase_content').hide(); // No hay configuracion, se oculta
             }
         });

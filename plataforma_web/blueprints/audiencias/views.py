@@ -126,8 +126,8 @@ def new_generica():
 
     # Validar autoridad
     autoridad = current_user.autoridad
-    if autoridad is None or autoridad.estatus != "A":
-        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
     if autoridad.audiencia_categoria != "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
         flash("La categoría de audiencia no es MAT(CFML) DIST(CYF) SALAS(CYF) TCYA.", "warning")
@@ -172,8 +172,8 @@ def new_mapo():
 
     # Validar autoridad
     autoridad = current_user.autoridad
-    if autoridad is None or autoridad.estatus != "A":
-        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
     if autoridad.audiencia_categoria != "MATERIA ACUSATORIO PENAL ORAL":
         flash("La categoría de audiencia no es MATERIA ACUSATORIO PENAL ORAL.", "warning")
@@ -219,8 +219,8 @@ def new_dipesape():
 
     # Validar autoridad
     autoridad = current_user.autoridad
-    if autoridad is None or autoridad.estatus != "A":
-        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
     if autoridad.audiencia_categoria != "DISTRITALES PENALES Y SALAS PENALES":
         flash("La categoría de audiencia no es DISTRITALES PENALES Y SALAS PENALES.", "warning")
@@ -306,14 +306,14 @@ def edit_generica(audiencia_id):
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if current_user.autoridad_id != audiencia.autoridad_id and not current_user.can_admin("audiencias"):
+    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
-        return redirect(url_for("audiencias.list_active"))
+        return redirect(url_for("edictos.list_active"))
 
     # Validar autoridad
     autoridad = audiencia.autoridad
-    if autoridad is None or autoridad.estatus != "A":
-        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
     if autoridad.audiencia_categoria != "MAT(CFML) DIST(CYF) SALAS(CYF) TCYA":
         flash("La categoría de audiencia no es MAT(CFML) DIST(CYF) SALAS(CYF) TCYA.", "warning")
@@ -354,14 +354,14 @@ def edit_mapo(audiencia_id):
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if current_user.autoridad_id != audiencia.autoridad_id and not current_user.can_admin("audiencias"):
+    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
-        return redirect(url_for("audiencias.list_active"))
+        return redirect(url_for("edictos.list_active"))
 
     # Validar autoridad
     autoridad = audiencia.autoridad
-    if autoridad is None or autoridad.estatus != "A":
-        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
     if autoridad.audiencia_categoria != "MATERIA ACUSATORIO PENAL ORAL":
         flash("La categoría de audiencia no es MATERIA ACUSATORIO PENAL ORAL.", "warning")
@@ -404,14 +404,14 @@ def edit_dipesape(audiencia_id):
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if current_user.autoridad_id != audiencia.autoridad_id and not current_user.can_admin("audiencias"):
+    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
-        return redirect(url_for("audiencias.list_active"))
+        return redirect(url_for("edictos.list_active"))
 
     # Validar autoridad
     autoridad = audiencia.autoridad
-    if autoridad is None or autoridad.estatus != "A":
-        flash("El juzgado/autoridad no existe o no es activa.", "warning")
+    if autoridad.estatus != "A":
+        flash("El juzgado/autoridad no es activa.", "warning")
         return redirect(url_for("audiencias.list_active"))
     if autoridad.audiencia_categoria != "DISTRITALES PENALES Y SALAS PENALES":
         flash("La categoría de audiencia no es DISTRITALES PENALES Y SALAS PENALES.", "warning")

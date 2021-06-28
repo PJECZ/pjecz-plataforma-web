@@ -6,12 +6,14 @@
 {% block title %}Edicto{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(edicto.descripcion) %}
-        {{ topbar.button_previous('Edictos', url_for('edictos.list_active')) }}
+    {% call topbar.page_buttons('Edicto ' + edicto.descripcion) %}
         {% if current_user.can_admin('edictos') %}
-            {{ topbar.button_edit('Editar', url_for('edictos.edit', edicto_id=edicto.id)) }}
+            {{ topbar.button_previous('Edictos de ' + edicto.autoridad.clave, url_for('edictos.list_autoridad_edictos', autoridad_id=edicto.autoridad_id)) }}
+        {% else %}
+            {{ topbar.button_previous('Edictos', url_for('edictos.list_active')) }}
         {% endif %}
         {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
+            {{ topbar.button_edit('Editar', url_for('edictos.edit', edicto_id=edicto.id)) }}
             {% if edicto.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('edictos.delete', edicto_id=edicto.id)) }}{% endif %}
             {% if edicto.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('edictos.recover', edicto_id=edicto.id)) }}{% endif %}
         {% endif %}

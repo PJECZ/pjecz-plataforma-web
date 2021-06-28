@@ -388,18 +388,6 @@ def new_for_autoridad(autoridad_id):
     return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
 
-def edit_success(lista_de_acuerdo):
-    """Mensaje de éxito al editar una lista de acuerdos"""
-    bitacora = Bitacora(
-        modulo=MODULO,
-        usuario=current_user,
-        descripcion=safe_message(f"Editada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
-        url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
-    )
-    bitacora.save()
-    return bitacora
-
-
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def edit(lista_de_acuerdo_id):
@@ -410,7 +398,13 @@ def edit(lista_de_acuerdo_id):
         lista_de_acuerdo.fecha = form.fecha.data
         lista_de_acuerdo.descripcion = safe_string(form.descripcion.data)
         lista_de_acuerdo.save()
-        bitacora = edit_success(lista_de_acuerdo)
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Editada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
+            url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+        )
+        bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.fecha.data = lista_de_acuerdo.fecha

@@ -6,7 +6,7 @@
 {% block title %}Autoridad{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(autoridad.descripcion) %}
+    {% call topbar.page_buttons('Autoridad ' + autoridad.descripcion) %}
         {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
         {% if current_user.can_edit('autoridades') %}
             {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}

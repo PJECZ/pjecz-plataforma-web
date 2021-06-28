@@ -461,10 +461,16 @@ def edit_success(edicto):
 
 
 @edictos.route("/edictos/edicion/<int:edicto_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(Permiso.MODIFICAR_NOTARIALES)
 def edit(edicto_id):
     """Editar Edicto"""
+
+    # Validar edicto
     edicto = Edicto.query.get_or_404(edicto_id)
+    if not (current_user.can_admin("edictos") or current_user.autoridad_id == edicto.autoridad_id):
+        flash("No tiene permiso para editar este edicto.", "warning")
+        return redirect(url_for("edictos.list_active"))
+
     form = EdictoEditForm()
     if form.validate_on_submit():
         es_valido = True
