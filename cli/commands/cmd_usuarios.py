@@ -1,5 +1,9 @@
 """
 Usuarios
+
+- alimentar: Alimentar insertando registros desde un archivo CSV
+- respaldar: Respaldar a un archivo CSV
+- nueva_contrasena: Cambiar contraseña de un usuario
 """
 import click
 
@@ -19,9 +23,21 @@ def cli():
 
 
 @click.command()
+@click.argument("entrada_csv")
+def alimentar(entrada_csv):
+    """Alimentar la tabla autoridades insertando registros desde un archivo CSV"""
+
+
+@click.command()
+@click.argument("salida_csv")
+def respaldar(salida_csv):
+    """Respaldar la tabla autoridades a su archivo CSV"""
+
+
+@click.command()
 @click.argument("email", type=str)
 def nueva_contrasena(email):
-    """Cambiar contraseña"""
+    """Cambiar contraseña de un usuario"""
     usuario = Usuario.find_by_identity(email)
     if usuario is None:
         click.echo(f"No existe el e-mail {email} en usuarios")
@@ -36,4 +52,6 @@ def nueva_contrasena(email):
     click.echo(f"Se ha cambiado la contraseña de {email} en usuarios")
 
 
+cli.add_command(alimentar)
+cli.add_command(respaldar)
 cli.add_command(nueva_contrasena)

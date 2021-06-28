@@ -2,7 +2,6 @@
 Distritos
 
 - alimentar: Alimentar insertando registros desde un archivo CSV
-- borrar: Borrar todos los registros
 - respaldar: Respaldar a un archivo CSV
 """
 from pathlib import Path
@@ -27,6 +26,26 @@ def cli():
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
     """Alimentar la tabla distritos insertando registros desde un archivo CSV"""
+    ruta = Path(entrada_csv)
+    if not ruta.exists():
+        click.echo(f"AVISO: {ruta.name} no se encontró.")
+        return
+    if not ruta.is_file():
+        click.echo(f"AVISO: {ruta.name} no es un archivo.")
+        return
+    click.echo("Alimentando distritos...")
+    contador = 0
+    with open(ruta, encoding="utf8") as puntero:
+        rows = csv.DictReader(puntero)
+        for row in rows:
+            Distrito(
+                nombre=row["nombre"],
+                nombre_corto=row["nombre_corto"],
+                es_distrito_judicial=(row["es_distrito_judicial"] == "1"),
+                estatus=row["estatus"],
+            ).save()
+            contador += 1
+    click.echo(f"{contador} abogados alimentados.")
 
 
 @click.command()
@@ -39,10 +58,10 @@ def respaldar(salida_csv):
         return
     click.echo("Respaldando distritos...")
     contador = 0
-    distritos = Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    distritos = Distrito.query.order_by(Distrito.id).all()
     with open(ruta, "w") as puntero:
         escritor = csv.writer(puntero)
-        escritor.writerow(["id", "nombre", "nombre_corto", "es_distrito_judicial"])
+        escritor.writerow(["id", "nombre", "nombre_corto", "es_distrito_judicial", "estatus"])
         for distrito in distritos:
             escritor.writerow(
                 [
@@ -50,6 +69,7 @@ def respaldar(salida_csv):
                     distrito.nombre,
                     distrito.nombre_corto,
                     int(distrito.es_distrito_judicial),
+                    distrito.estatus,
                 ]
             )
             contador += 1
@@ -58,15 +78,5 @@ def respaldar(salida_csv):
     click.echo(f"Respaldados {contador} registros.")
 
 
-@click.command()
-def borrar():
-    """Borrar todos los registros"""
-    click.echo("Borrando los distritos en la base de datos...")
-    cantidad = db.session.query(Distrito).delete()
-    db.session.commit()
-    click.echo(f"Han sido borrados {str(cantidad)} registros.")
-
-
 cli.add_command(alimentar)
 cli.add_command(respaldar)
-cli.add_command(borrar)

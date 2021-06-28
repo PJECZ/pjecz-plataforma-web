@@ -44,7 +44,7 @@ def alimentar(entrada_csv):
         for row in rows:
 
             # Validar autoridad
-            autoridad_str = row["autoridad"].strip()
+            autoridad_str = row["autoridad_id"].strip()
             if autoridad_str == "":
                 click.echo("! Sin autoridad")
                 continue
@@ -71,7 +71,7 @@ def alimentar(entrada_csv):
             try:
                 expediente = safe_expediente(row["expediente"].strip())
             except (IndexError, ValueError):
-                click.echo("! Expediente no válido")
+                click.echo("! Expediente no válido " + row["expediente"].strip())
                 continue
 
             # Insertar
