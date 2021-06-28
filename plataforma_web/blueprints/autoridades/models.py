@@ -23,7 +23,8 @@ class Autoridad(db.Model, UniversalMixin):
             ("NO DEFINIDO", "No Definido"),
             ("MAT(CFML) DIST(CYF) SALAS(CYF) TCYA", "Mat. CFML, Dist. CyF, Salas CyF y TCyA"),
             ("MATERIA ACUSATORIO PENAL ORAL", "Materia Acusatorio Penal Oral"),
-            ("DISTRITALES PENALES Y SALAS PENALES", "Distritales Penales y Salas Penales"),
+            ("DISTRITALES PENALES", "Distritales Penales"),
+            ("SALAS PENALES", "Salas Penales"),
         ]
     )
 

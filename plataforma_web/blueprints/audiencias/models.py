@@ -45,11 +45,16 @@ class Audiencia(db.Model, UniversalMixin):
     causa_penal = db.Column(db.String(256))
     delitos = db.Column(db.String(256))
 
-    # Columnas para Distritales Penales y Salas Penales
+    # Columnas para Distritales Penales
     toca = db.Column(db.String(256))
     expediente_origen = db.Column(db.String(256))
-    # delitos
     imputados = db.Column(db.String(256))
+
+    # Columnas para Salas Penales
+    # toca
+    # expediente_origen
+    # delitos
+    origen = db.Column(db.String(256))
 
     def __repr__(self):
         """Representación"""

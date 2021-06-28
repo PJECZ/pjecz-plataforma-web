@@ -37,8 +37,21 @@ class AudienciaMapoForm(FlaskForm):
     guardar = SubmitField("Guardar")
 
 
-class AudienciaDipesapeForm(FlaskForm):
-    """Formulario Audiencia: Distritales Penales y Salas Penales"""
+class AudienciaDipeForm(FlaskForm):
+    """Formulario Audiencia: Distritales Penales"""
+
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
+    tiempo = DateTimeField("Fecha y hora", format="%Y-%m-%d %H:%M")
+    tipo_audiencia = StringField("Tipo de audiencia", validators=[DataRequired(), Length(max=64)])
+    toca = StringField("Toca", validators=[DataRequired(), Length(max=64)])
+    expediente_origen = StringField("Expediente origen (número/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    imputados = StringField("Imputados", validators=[DataRequired(), Length(max=256)])
+    guardar = SubmitField("Guardar")
+
+
+class AudienciaSapeForm(FlaskForm):
+    """Formulario Audiencia: Salas Penales"""
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
@@ -47,5 +60,5 @@ class AudienciaDipesapeForm(FlaskForm):
     toca = StringField("Toca", validators=[DataRequired(), Length(max=64)])
     expediente_origen = StringField("Expediente origen (número/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     delitos = StringField("Delitos", validators=[DataRequired(), Length(max=256)])
-    imputados = StringField("Imputados", validators=[DataRequired(), Length(max=256)])
+    origen = StringField("Origen", validators=[DataRequired(), Length(max=256)])
     guardar = SubmitField("Guardar")
