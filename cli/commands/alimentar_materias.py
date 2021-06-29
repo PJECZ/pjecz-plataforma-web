@@ -15,4 +15,4 @@ def alimentar_materias():
     Materia(nombre="LETRADO").save()
     Materia(nombre="FAMILIAR ORAL").save()
     Materia(nombre="PENAL").save()
-    click.echo("- Materias alimentadas.")
+    click.echo("  Materias alimentadas.")
