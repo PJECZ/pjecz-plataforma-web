@@ -81,16 +81,14 @@ def list_inactive():
 @glosas.route("/glosas/distritos")
 def list_distritos():
     """Listado de Distritos"""
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("glosas/list_distritos.jinja2", distritos=distritos)
+    return redirect(url_for('glosas.list_autoridades'))
 
 
-@glosas.route("/glosas/distrito/<int:distrito_id>")
-def list_autoridades(distrito_id):
-    """Listado de Autoridades de un distrito"""
-    distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("glosas/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
+@glosas.route("/glosas/autoridades")
+def list_autoridades():
+    """Listado de Autoridades"""
+    autoridades = Autoridad.query.filter(Autoridad.organo_jurisdiccional.in_(["PLENO O SALA DEL TSJ", "TRIBUNAL DE CONCILIACION Y ARBITRAJE"])).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    return render_template("glosas/list_autoridades.jinja2", autoridades=autoridades)
 
 
 @glosas.route("/glosas/autoridad/<int:autoridad_id>")
