@@ -39,15 +39,19 @@ def alimentar(entrada_csv):
         rows = csv.DictReader(puntero)
         for row in rows:
             Autoridad(
-                distrito_id=row[""],
-                distrito_id=row[""],
-                distrito_id=row[""],
-                distrito_id=row[""],
-                distrito_id=row[""],
-                distrito_id=row[""],
-                distrito_id=row[""],
-                distrito_id=row[""],
-                distrito_id=row[""],
+                distrito_id=int(row["distrito_id"]),
+                materia_id=int(row["materia_id"]),
+                descripcion=row["descripcion"],
+                descripcion_corta=row["descripcion_corta"],
+                clave=row["clave"],
+                es_jurisdiccional=(row["es_jurisdiccional"] == "1"),
+                es_notaria=(row["es_notaria"] == "1"),
+                organo_jurisdiccional=row["organo_jurisdiccional"],
+                directorio_edictos=row["directorio_edictos"],
+                directorio_glosas=row["directorio_glosas"],
+                directorio_listas_de_acuerdos=row["directorio_listas_de_acuerdos"],
+                directorio_sentencias=row["directorio_sentencias"],
+                audiencia_categoria=row["audiencia_categoria"],
             ).save()
             contador += 1
     click.echo(f"{contador} autoridades alimentadas.")
@@ -93,8 +97,8 @@ def respaldar(salida_csv):
                     autoridad.descripcion,
                     autoridad.descripcion_corta,
                     autoridad.clave,
-                    autoridad.es_jurisdiccional,
-                    autoridad.es_notaria,
+                    int(autoridad.es_jurisdiccional),
+                    int(autoridad.es_notaria),
                     autoridad.organo_jurisdiccional,
                     autoridad.directorio_edictos,
                     autoridad.directorio_glosas,

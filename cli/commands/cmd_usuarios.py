@@ -8,6 +8,7 @@ Usuarios
 from pathlib import Path
 import csv
 import click
+from lib.pwgen import generar_contrasena
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -41,10 +42,10 @@ def alimentar(entrada_csv):
         rows = csv.DictReader(puntero)
         for row in rows:
             Usuario(
-                rol_id=row["rol_id"],
-                autoridad_id=row["autoridad_id"],
+                rol_id=int(row["rol_id"]),
+                autoridad_id=int(row["autoridad_id"]),
                 email=row["email"],
-                contrasena=row["contrasena"],
+                contrasena=pwd_context.hash(generar_contrasena()),
                 nombres=row["nombres"],
                 apellido_paterno=row["apellido_paterno"],
                 apellido_materno=row["apellido_materno"],
@@ -74,7 +75,6 @@ def respaldar(salida_csv):
                 "rol_id",
                 "autoridad_id",
                 "email",
-                "contrasena",
                 "nombres",
                 "apellido_paterno",
                 "apellido_materno",
@@ -89,7 +89,6 @@ def respaldar(salida_csv):
                     usuario.rol_id,
                     usuario.autoridad_id,
                     usuario.email,
-                    usuario.contrasena,
                     usuario.nombres,
                     usuario.apellido_paterno,
                     usuario.apellido_materno,
