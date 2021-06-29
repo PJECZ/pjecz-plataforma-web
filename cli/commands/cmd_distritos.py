@@ -1,7 +1,7 @@
 """
 Distritos
 
-- alimentar: Alimentar insertando registros desde un archivo CSV
+- alimentar: Alimentar la tabla insertando registros desde un archivo CSV
 - respaldar: Respaldar a un archivo CSV
 """
 from pathlib import Path
@@ -25,7 +25,7 @@ def cli():
 @click.command()
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
-    """Alimentar la tabla distritos insertando registros desde un archivo CSV"""
+    """Alimentar la tabla insertando registros desde un archivo CSV"""
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -45,13 +45,13 @@ def alimentar(entrada_csv):
                 estatus=row["estatus"],
             ).save()
             contador += 1
-    click.echo(f"{contador} abogados alimentados.")
+    click.echo(f"{contador} distritos alimentados.")
 
 
 @click.command()
 @click.argument("salida_csv")
 def respaldar(salida_csv):
-    """Respaldar la tabla distritos a su archivo CSV"""
+    """Respaldar a un archivo CSV"""
     ruta = Path(salida_csv)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
@@ -73,9 +73,7 @@ def respaldar(salida_csv):
                 ]
             )
             contador += 1
-            if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
-    click.echo(f"Respaldados {contador} registros.")
+    click.echo(f"Respaldados {contador} distritos.")
 
 
 cli.add_command(alimentar)
