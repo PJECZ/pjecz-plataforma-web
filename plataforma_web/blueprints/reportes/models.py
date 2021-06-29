@@ -20,8 +20,8 @@ class Reportes(db.Model, UniversalMixin):
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
-    desde = db.Column(db.Date())
-    hasta = db.Column(db.Date())
+    desde = db.Column(db.DateTime(), nullable=False)
+    hasta = db.Column(db.DateTime(), nullable=False)
 
     # Hijos
     resultados = db.relationship("Resultado", back_populates="reporte")
