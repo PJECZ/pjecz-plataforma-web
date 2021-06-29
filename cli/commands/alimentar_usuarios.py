@@ -36,6 +36,7 @@ def alimentar_usuarios():
                 apellido_materno=row["apellido_materno"],
                 telefono_celular=row["telefono_celular"],
                 workspace=row["workspace"],
+                estatus=row["estatus"],
             ).save()
             contador += 1
-    click.echo(f"  {contador} usuarios alimentados.")
+    click.echo(f"{contador} usuarios alimentados.")

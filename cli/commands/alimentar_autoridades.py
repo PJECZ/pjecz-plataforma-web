@@ -38,6 +38,7 @@ def alimentar_autoridades():
                 directorio_listas_de_acuerdos=row["directorio_listas_de_acuerdos"],
                 directorio_sentencias=row["directorio_sentencias"],
                 audiencia_categoria=row["audiencia_categoria"],
+                estatus=row["estatus"],
             ).save()
             contador += 1
-    click.echo(f"  {contador} autoridades alimentadas.")
+    click.echo(f"{contador} autoridades alimentadas.")

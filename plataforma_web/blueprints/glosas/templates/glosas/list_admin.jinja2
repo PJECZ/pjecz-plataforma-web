@@ -13,7 +13,7 @@
         {% if estatus == 'B' %}{% set title='Todas las Glosas inactivas' %}{% endif %}
     {% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button_districts('Departamentos', url_for('glosas.list_distritos')) }}
+        {{ topbar.button_districts('Autoridades', url_for('glosas.list_autoridades')) }}
         {% if autoridad %}
             {% if current_user.can_admin('glosas') %}
                 {{ topbar.button_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
