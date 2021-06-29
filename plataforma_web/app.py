@@ -4,7 +4,7 @@ Flask App
 from flask import Flask
 from redis import Redis
 import rq
-from plataforma_web.extensions import csrf, db, login_manager
+from plataforma_web.extensions import csrf, db, login_manager, moment
 
 from plataforma_web.blueprints.roles.views import roles
 from plataforma_web.blueprints.usuarios.views import usuarios
@@ -78,6 +78,7 @@ def extensions(app):
     csrf.init_app(app)
     db.init_app(app)
     login_manager.init_app(app)
+    moment.init_app(app)
 
 
 def authentication(user_model):
