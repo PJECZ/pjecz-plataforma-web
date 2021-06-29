@@ -21,9 +21,10 @@ class Autoridad(db.Model, UniversalMixin):
     AUDIENCIAS_CATEGORIAS = OrderedDict(
         [
             ("NO DEFINIDO", "No Definido"),
-            ("MAT(CFML) DIST(CYF) SALAS(CYF) TCYA", "Mat. CFML, Dist. CyF, Salas CyF y TCyA"),
+            ("CIVIL FAMILIAR MERCANTIL LETRADO TCYA", "Civil Familiar Mercantil Letrado TCyA"),
             ("MATERIA ACUSATORIO PENAL ORAL", "Materia Acusatorio Penal Oral"),
-            ("DISTRITALES PENALES Y SALAS PENALES", "Distritales Penales y Salas Penales"),
+            ("DISTRITALES", "Distritales"),
+            ("SALAS", "Salas"),
         ]
     )
 

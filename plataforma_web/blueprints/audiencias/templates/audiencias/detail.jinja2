@@ -6,7 +6,7 @@
 {% block title %}Audiencia{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Audiencia ' + audiencia.tipo_audiencia) %}
+    {% call topbar.page_buttons('Audiencia ' + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')) %}
         {% if current_user.can_admin('audiencias') %}
             {{ topbar.button_previous('Agenda de Audiencias de ' + audiencia.autoridad.clave, url_for('audiencias.list_autoridad_audiencias', autoridad_id=audiencia.autoridad_id)) }}
         {% else %}
@@ -22,11 +22,11 @@
 
 {% block content %}
     {% call detail.card(estatus=audiencia.estatus) %}
-        {{ detail.label_value_big('Fecha y hora', audiencia.tiempo.strftime('%Y-%m-%d %H:%M')) }}
+        {# detail.label_value_big('Fecha y hora', audiencia.tiempo.strftime('%Y-%m-%d %H:%M')) #}
         {{ detail.label_value('Departamento', audiencia.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', audiencia.autoridad.descripcion) }}
         {{ detail.label_value('Tipo de audiencia', audiencia.tipo_audiencia) }}
-        {% if audiencia.autoridad.audiencia_categoria == 'MAT(CFML) DIST(CYF) SALAS(CYF) TCYA' %}
+        {% if audiencia.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
             {{ detail.label_value('Expediente', audiencia.expediente) }}
             {{ detail.label_value('Actores', audiencia.actores) }}
             {{ detail.label_value('Demandados', audiencia.demandados) }}
@@ -37,11 +37,38 @@
             {{ detail.label_value('Causa penal', audiencia.causa_penal) }}
             {{ detail.label_value('Delitos', audiencia.delitos) }}
         {% endif %}
-        {% if audiencia.autoridad.audiencia_categoria == 'DISTRITALES PENALES Y SALAS PENALES' %}
+        {% if audiencia.autoridad.audiencia_categoria == 'DISTRITALES' %}
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-9"><h2 class="h4 mt-2">Civil, Familiar, Mercantil o Laboral</h2></div>
+            </div>
+            {{ detail.label_value('Expediente', audiencia.expediente) }}
+            {{ detail.label_value('Actores', audiencia.actores) }}
+            {{ detail.label_value('Demandados', audiencia.demandados) }}
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-9"><h2 class="h4 mt-2">Penal</h2></div>
+            </div>
+            {{ detail.label_value('Toca', audiencia.toca) }}
+            {{ detail.label_value('Expediente origen', audiencia.expediente_origen) }}
+            {{ detail.label_value('Imputados', audiencia.imputados) }}
+        {% endif %}
+        {% if audiencia.autoridad.audiencia_categoria == 'SALAS' %}
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-9"><h2 class="h4 mt-2">Civil, Familiar, Mercantil o Laboral</h2></div>
+            </div>
+            {{ detail.label_value('Expediente', audiencia.expediente) }}
+            {{ detail.label_value('Actores', audiencia.actores) }}
+            {{ detail.label_value('Demandados', audiencia.demandados) }}
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-9"><h2 class="h4 mt-2">Penal</h2></div>
+            </div>
             {{ detail.label_value('Toca', audiencia.toca) }}
             {{ detail.label_value('Expediente origen', audiencia.expediente_origen) }}
             {{ detail.label_value('Delitos', audiencia.delitos) }}
-            {{ detail.label_value('Imputados', audiencia.imputados) }}
+            {{ detail.label_value('Origen', audiencia.origen) }}
         {% endif %}
     {% endcall %}
 {% endblock %}

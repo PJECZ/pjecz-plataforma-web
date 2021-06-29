@@ -16,7 +16,7 @@ def alimentar_abogados():
     """ Alimentar abogados """
     abogados_csv = Path(ABOGADOS_CSV)
     if not abogados_csv.exists():
-        click.echo(f"  NO se alimentaron abogados porque no se encontró {ABOGADOS_CSV}")
+        click.echo(f"NO se alimentaron abogados porque no se encontró {ABOGADOS_CSV}")
         return
     contador = 0
     with open(abogados_csv, encoding="utf8") as puntero:
