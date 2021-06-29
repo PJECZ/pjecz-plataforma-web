@@ -1,5 +1,5 @@
 <!-- Sidebar navigation -->
-<div class="d-flex flex-column flex-shrink-0 p-3 text-white">
+<div class="d-flex flex-column flex-shrink-0 text-white">
     <ul class="nav nav-pills flex-column mb-auto">
         {{ app.sidebar_nav_option('Inicio', '/', 'mdi:view-dashboard') }}
         {% if current_user.can_view('abogados') %}{{ app.sidebar_nav_option('Abogados registrados', '/abogados', 'mdi:tie') }}{% endif %}
