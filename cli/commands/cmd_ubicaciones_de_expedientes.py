@@ -2,7 +2,6 @@
 Ubicación de Expedientes
 
 - alimentar: Alimentar insertando registros desde un archivo CSV
-- borrar: Borrar todos los registros
 - respaldar: Respaldar a un archivo CSV
 """
 from pathlib import Path
@@ -15,7 +14,7 @@ from plataforma_web.extensions import db
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 
-from lib.safe_string import safe_expediente, safe_sentencia
+from lib.safe_string import safe_expediente
 
 app = create_app()
 db.app = app
@@ -116,15 +115,5 @@ def respaldar(salida_csv):
     click.echo(f"Respaldados {contador} registros.")
 
 
-@click.command()
-def borrar():
-    """Borrar todos los registros"""
-    click.echo("Borrando las ubicaciones de expedientes en la base de datos...")
-    cantidad = db.session.query(UbicacionExpediente).delete()
-    db.session.commit()
-    click.echo(f"Han sido borrados {cantidad} registros.")
-
-
 cli.add_command(alimentar)
 cli.add_command(respaldar)
-cli.add_command(borrar)
