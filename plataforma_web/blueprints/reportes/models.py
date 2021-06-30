@@ -5,8 +5,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class Reportes(db.Model, UniversalMixin):
-    """Reportes"""
+class Reporte(db.Model, UniversalMixin):
+    """Reporte"""
 
     # Nombre de la tabla
     __tablename__ = "reportes"
@@ -28,4 +28,4 @@ class Reportes(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<Reportes>"
+        return "<Reporte>"
