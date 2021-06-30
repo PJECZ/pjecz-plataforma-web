@@ -29,7 +29,6 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     codigo = db.Column(db.String(16), nullable=False)
     revision = db.Column(db.Integer(), nullable=False)
     fecha = db.Column(db.Date(), nullable=False)
-    contenido = db.Column(db.Text(), nullable=False)
     # elaboro
     # reviso
     # aprobo
@@ -38,6 +37,7 @@ class CIDProcedimiento(db.Model, UniversalMixin):
         index=True,
         nullable=False,
     )
+    contenido = db.Column(db.Text(), nullable=False)
 
     # Hijos
     formatos = db.relationship("CIDFormato", back_populates="procedimiento")

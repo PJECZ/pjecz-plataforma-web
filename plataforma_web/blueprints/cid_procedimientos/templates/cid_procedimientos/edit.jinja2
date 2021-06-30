@@ -18,6 +18,10 @@
         {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
         {% call f.form_tag('cid_procedimientos.edit', fid='cid_procedimiento_form', **form_kwargs) %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.codigo) %}{% endcall %}
+            {% call f.form_group(form.revision) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.etapa) %}{% endcall %}
             {% call f.form_group(form.contenido) %}{% endcall %}
             <div id="editor" class="mb-2" style="display:block; clear:both; break-after:page; height:55vh;"></div>
             {% call f.form_group(form.guardar) %}{% endcall %}

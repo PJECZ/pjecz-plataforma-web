@@ -23,6 +23,12 @@
 
 {% block content %}
     {% call detail.card(estatus=cid_procedimiento.estatus) %}
+        {{ detail.label_value('Código', cid_procedimiento.codigo) }}
+        {{ detail.label_value('Revisión', cid_procedimiento.revision) }}
+        {{ detail.label_value('Fecha', cid_procedimiento.fecha) }}
+        {{ detail.label_value('Etapa', cid_procedimiento.etapa) }}
+    {% endcall %}
+    {% call detail.card(estatus=cid_procedimiento.estatus) %}
         <div id="editor" style="display:block; clear:both; break-after:page; height:70vh;"></div>
     {% endcall %}
 {% endblock %}

@@ -51,6 +51,10 @@ def new():
     if form.validate_on_submit():
         cid_procedimiento = CIDProcedimiento(
             descripcion=form.descripcion.data,
+            codigo=form.codigo.data,
+            revision=form.revision.data,
+            fecha=form.fecha.data,
+            etapa=form.etapa.data,
             contenido=form.contenido.data,
         )
         cid_procedimiento.save()
@@ -67,11 +71,19 @@ def edit(cid_procedimiento_id):
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
         cid_procedimiento.descripcion = form.descripcion.data
+        cid_procedimiento.codigo = form.codigo.data
+        cid_procedimiento.revision = form.revision.data
+        cid_procedimiento.fecha = form.fecha.data
+        cid_procedimiento.etapa = form.etapa.data
         cid_procedimiento.contenido = form.contenido.data
         cid_procedimiento.save()
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} guardado.", "success")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
     form.descripcion.data = cid_procedimiento.descripcion
+    form.codigo.data = cid_procedimiento.codigo
+    form.revision.data = cid_procedimiento.revision
+    form.fecha.data = cid_procedimiento.fecha
+    form.etapa.data = cid_procedimiento.etapa
     form.contenido.data = cid_procedimiento.contenido
     return render_template("cid_procedimientos/edit.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
