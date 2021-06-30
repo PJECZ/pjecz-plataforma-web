@@ -1,7 +1,6 @@
 """
 Listas de Acuerdos
 
-- borrar: Borrar todos los registros
 - refrescar: Rastrear el depósito para agregar o dar de baja
 - refrescar_todos: Rastrear el depósito para agregar o dar de baja
 """
@@ -72,15 +71,5 @@ def refrescar_todos():
     click.echo(f"Se lanzaron {contador} tareas para ejecutar en el fondo.")
 
 
-@click.command()
-def borrar():
-    """Borrar todos los registros"""
-    click.echo("Borrando las listas de acuerdos en la base de datos...")
-    cantidad = db.session.query(ListaDeAcuerdo).delete()
-    db.session.commit()
-    click.echo(f"Han sido borrados {str(cantidad)} registros.")
-
-
 cli.add_command(refrescar)
 cli.add_command(refrescar_todos)
-cli.add_command(borrar)
