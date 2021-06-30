@@ -14,10 +14,6 @@ class Reporte(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
-    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
-    usuario = db.relationship("Usuario", back_populates="reportes")
-
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
     desde = db.Column(db.DateTime(), nullable=False)
@@ -28,4 +24,4 @@ class Reporte(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<Reporte>"
+        return f"<Reporte {self.descripcion}>"

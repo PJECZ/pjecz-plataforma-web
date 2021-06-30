@@ -26,6 +26,14 @@ def list_active():
     return render_template("reportes/list.jinja2", reportes=reportes_activos, estatus="A")
 
 
+@reportes.route('/reportes/inactivos')
+@permission_required(Permiso.MODIFICAR_CUENTAS)
+def list_inactive():
+    """ Listado de Reportes inactivos """
+    reportes_inactivos = Reporte.query.filter(Reporte.estatus == 'B').order_by(Reporte.creado.desc()).limit(100).all()
+    return render_template('reportes/list.jinja2', reportes=reportes_inactivos, estatus='B')
+
+
 @reportes.route("/reportes/<int:reporte_id>")
 def detail(reporte_id):
     """Detalle de un Reporte"""

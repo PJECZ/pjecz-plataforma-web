@@ -198,7 +198,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_view(self, module):
         """¿Tiene permiso para ver?"""
-        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
+        if module in ("bitacoras", "entradas_salidas", "modulos", "reportes", "resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ("distritos", "autoridades", "materias"):
             return self.has_permission(Permiso.VER_CATALOGOS)
@@ -216,7 +216,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_insert(self, module):
         """¿Tiene permiso para agregar?"""
-        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
+        if module in ("bitacoras", "entradas_salidas", "modulos", "reportes", "resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ("distritos", "autoridades", "materias"):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
@@ -234,7 +234,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_edit(self, module):
         """¿Tiene permiso para editar?"""
-        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
+        if module in ("bitacoras", "entradas_salidas", "modulos", "reportes", "resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ("distritos", "autoridades", "materias"):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
