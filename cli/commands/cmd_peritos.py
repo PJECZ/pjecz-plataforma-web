@@ -2,7 +2,6 @@
 Peritos
 
 - alimentar: Alimentar insertando registros desde un archivo CSV
-- borrar: Borrar todos los registros
 - respaldar: Respaldar a un archivo CSV
 """
 from datetime import datetime
@@ -116,15 +115,5 @@ def respaldar(salida_csv):
     click.echo(f"Respaldados {contador} registros.")
 
 
-@click.command()
-def borrar():
-    """Borrar todos los registros"""
-    click.echo("Borrando los peritos en la base de datos...")
-    cantidad = db.session.query(Perito).delete()
-    db.session.commit()
-    click.echo(f"Han sido borrados {str(cantidad)} registros.")
-
-
 cli.add_command(alimentar)
 cli.add_command(respaldar)
-cli.add_command(borrar)

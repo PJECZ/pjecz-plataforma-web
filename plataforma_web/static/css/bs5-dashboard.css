@@ -12,12 +12,12 @@ body     { font-size: .875rem; background-color: #EEE; }
  */
 
 .sidebar {
-    position: fixed;
+    height: 100vh; /* position: fixed; */
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 100; /* Behind the navbar */
-    padding: 48px 0 0; /* Height of navbar */
+    padding-right: 6px; /* padding: 48px 0 0; Height of navbar */
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 

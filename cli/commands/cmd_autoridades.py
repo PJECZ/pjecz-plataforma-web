@@ -52,6 +52,7 @@ def alimentar(entrada_csv):
                 directorio_listas_de_acuerdos=row["directorio_listas_de_acuerdos"],
                 directorio_sentencias=row["directorio_sentencias"],
                 audiencia_categoria=row["audiencia_categoria"],
+                estatus=row["estatus"],
             ).save()
             contador += 1
     click.echo(f"{contador} autoridades alimentadas.")
@@ -86,6 +87,7 @@ def respaldar(salida_csv):
                 "directorio_listas_de_acuerdos",
                 "directorio_sentencias",
                 "audiencia_categoria",
+                "estatus",
             ]
         )
         for autoridad in autoridades:
@@ -105,6 +107,7 @@ def respaldar(salida_csv):
                     autoridad.directorio_listas_de_acuerdos,
                     autoridad.directorio_sentencias,
                     autoridad.audiencia_categoria,
+                    autoridad.estatus,
                 ]
             )
             contador += 1
