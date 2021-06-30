@@ -23,9 +23,9 @@
             {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
                 {{ topbar.button_upload('Subir', url_for('glosas.new')) }}
             {% endif %}
-            {% if current_user.can_admin('glosas') and current_user.can_insert('tareas') %}
+            {# if current_user.can_admin('glosas') and current_user.can_insert('tareas') #}
                 {# topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) #}
-            {% endif %}
+            {# endif #}
         {% endif %}
         {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
     {% endcall %}
