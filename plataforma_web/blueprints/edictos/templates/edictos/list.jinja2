@@ -23,9 +23,9 @@
             {% elif current_user.can_insert('edictos') and current_user.autoridad_id == autoridad.id %}
                 {{ topbar.button_upload('Subir', url_for('edictos.new')) }}
             {% endif %}
-            {% if current_user.can_admin('edictos') and current_user.can_insert('tareas') %}
+            {# if current_user.can_admin('edictos') and current_user.can_insert('tareas') #}
                 {# topbar.button_refresh('Refrescar', url_for('edictos.refresh', autoridad_id=autoridad.id)) #}
-            {% endif %}
+            {# endif #}
         {% endif %}
         {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
     {% endcall %}
