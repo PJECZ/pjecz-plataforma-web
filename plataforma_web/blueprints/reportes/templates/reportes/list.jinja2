@@ -1,0 +1,49 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block topbar_actions %}
+    {% if estatus == 'A' %}{% set title='Reportes' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Reportes inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
+        {% if current_user.can_edit('reportes') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('reportes.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('reportes.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('reportes') %}
+            {{ topbar.button_new('Nuevo Reporte', url_for('reportes.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="reportes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Descripciones</th>
+                    <th>Desde</th>
+                    <th>Hasta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reporte in reportes %}
+                <tr>
+                    <td>{{ reporte.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td><a href="{{ url_for('reportes.detail', reporte_id=reporte.id) }}">{{ reporte.descripcion }}</a></td>
+                    <td>{{ reporte.desde }}</td>
+                    <td>{{ reporte.hasta }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('reportes_datatable', order='desc') }}
+{% endblock %}

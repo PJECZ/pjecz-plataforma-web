@@ -49,3 +49,14 @@ def delete(resultado_id):
         resultado.delete()
         flash(f'Resultado {resultado.descripcion} eliminado.', 'success')
     return redirect(url_for('resultados.detail', resultado_id=resultado.id))
+
+
+@resultados.route('/resultados/recuperar/<int:resultado_id>')
+@permission_required(Permiso.MODIFICAR_CUENTAS)
+def recover(resultado_id):
+    """ Recuperar Resultado """
+    resultado = Resultado.query.get_or_404(resultado_id)
+    if resultado.estatus == 'B':
+        resultado.recover()
+        flash(f'Resultado {resultado.descripcion} recuperado.', 'success')
+    return redirect(url_for('resultados.detail', resultado_id=resultado.id))

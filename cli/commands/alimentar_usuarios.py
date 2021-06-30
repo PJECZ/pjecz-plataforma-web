@@ -39,4 +39,4 @@ def alimentar_usuarios():
                 estatus=row["estatus"],
             ).save()
             contador += 1
-    click.echo(f"{contador} usuarios alimentados.")
+    click.echo(f"  {contador} usuarios alimentados.")

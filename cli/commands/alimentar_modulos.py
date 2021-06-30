@@ -20,4 +20,4 @@ def alimentar_modulos():
     Modulo(nombre="SENTENCIAS").save()
     Modulo(nombre="UBICACIONES DE EXPEDIENTES").save()
     Modulo(nombre="USUARIOS").save()
-    click.echo("  Modulos alimentados.")
+    click.echo("  12 módulos alimentados.")

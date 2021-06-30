@@ -1,0 +1,51 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Resultados{% endblock %}
+
+{% block topbar_actions %}
+    {% if estatus == 'A' %}{% set title='Resultados' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Resultados inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button('Reportes', url_for('reportes.list_active'), 'mdi:file-chart') }}
+        {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
+        {% if current_user.can_edit('resultados') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('resultados.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('resultados.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="resultados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Reportes</th>
+                    <th>Módulos</th>
+                    <th>Descripciones</th>
+                    <th>Tipos</th>
+                    <th>Cantidades</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for resultado in resultados %}
+                <tr>
+                    <td>{{ resultado.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ resultado.reporte.descripcion }}</td>
+                    <td>{{ resultado.modulo.nombre }}</td>
+                    <td><a href="{{ url_for('resultados.detail', resultado_id=resultado.id) }}">{{ resultado.descripcion }}</a></td>
+                    <td>{{ resultado.columna }}</td>
+                    <td>{{ resultado.cantidad }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('resultados_datatable', order='desc') }}
+{% endblock %}

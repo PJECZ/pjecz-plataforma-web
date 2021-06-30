@@ -195,6 +195,7 @@ class Rol(db.Model, UniversalMixin):
             rol.por_defecto = rol.nombre == rol_por_defecto
             db.session.add(rol)
         db.session.commit()
+        return len(roles)
 
     def can_view(self, module):
         """¿Tiene permiso para ver?"""

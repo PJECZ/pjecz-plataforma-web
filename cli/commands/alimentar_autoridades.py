@@ -41,4 +41,4 @@ def alimentar_autoridades():
                 estatus=row["estatus"],
             ).save()
             contador += 1
-    click.echo(f"{contador} autoridades alimentadas.")
+    click.echo(f"  {contador} autoridades alimentadas.")

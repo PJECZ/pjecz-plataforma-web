@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Reporte{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Reporte') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('reportes.new', fid='reporte_form') %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.desde) %}{% endcall %}
+            {% call f.form_group(form.hasta) %}{% endcall %}
+            {% call f.form_group(form.programado) %}{% endcall %}
+            {% call f.form_group(form.progreso) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

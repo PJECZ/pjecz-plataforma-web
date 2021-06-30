@@ -26,12 +26,12 @@ def list_active():
     return render_template("reportes/list.jinja2", reportes=reportes_activos, estatus="A")
 
 
-@reportes.route('/reportes/inactivos')
+@reportes.route("/reportes/inactivos")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
-    """ Listado de Reportes inactivos """
-    reportes_inactivos = Reporte.query.filter(Reporte.estatus == 'B').order_by(Reporte.creado.desc()).limit(100).all()
-    return render_template('reportes/list.jinja2', reportes=reportes_inactivos, estatus='B')
+    """Listado de Reportes inactivos"""
+    reportes_inactivos = Reporte.query.filter(Reporte.estatus == "B").order_by(Reporte.creado.desc()).limit(100).all()
+    return render_template("reportes/list.jinja2", reportes=reportes_inactivos, estatus="B")
 
 
 @reportes.route("/reportes/<int:reporte_id>")
@@ -47,7 +47,13 @@ def new():
     """Nuevo Reporte"""
     form = ReporteForm()
     if form.validate_on_submit():
-        reporte = Reporte(descripcion=form.descripcion.data)
+        reporte = Reporte(
+            descripcion=form.descripcion.data,
+            desde=form.desde.data,
+            hasta=form.hasta.data,
+            programado=form.programado.data,
+            progreso=form.progreso.data,
+        )
         reporte.save()
         flash(f"Reporte {reporte.descripcion} guardado.", "success")
         return redirect(url_for("reportes.detail", reporte_id=reporte.id))
@@ -62,10 +68,18 @@ def edit(reporte_id):
     form = ReporteForm()
     if form.validate_on_submit():
         reporte.descripcion = form.descripcion.data
+        reporte.desde = form.desde.data
+        reporte.hasta = form.hasta.data
+        reporte.programado = form.programado.data
+        reporte.progreso = form.progreso.data
         reporte.save()
         flash(f"Reporte {reporte.descripcion} guardado.", "success")
         return redirect(url_for("reportes.detail", reporte_id=reporte.id))
     form.descripcion.data = reporte.descripcion
+    form.desde.data = reporte.desde
+    form.hasta.data = reporte.hasta
+    form.programado.data = reporte.programado
+    form.progreso.data = reporte.progreso
     return render_template("reportes/edit.jinja2", form=form, reporte=reporte)
 
 
