@@ -22,9 +22,9 @@
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_autoridad_glosas_inactive', autoridad_id=autoridad.id)) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}{% endif %}
             {% endif %}
-            {% if current_user.can_insert('tareas') %}
+            {# if current_user.can_insert('tareas') #}
                 {# topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) #}
-            {% endif %}
+            {# endif #}
         {% else %}
             {% if current_user.can_edit('glosas') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('glosas.list_inactive')) }}{% endif %}

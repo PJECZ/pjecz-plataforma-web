@@ -25,8 +25,8 @@ glosas = Blueprint("glosas", __name__, template_folder="templates")
 
 MODULO = "GLOSAS"
 SUBDIRECTORIO = "Glosas"
-LIMITE_DIAS = 30
-LIMITE_ADMINISTRADORES_DIAS = 90
+LIMITE_DIAS = 365
+LIMITE_ADMINISTRADORES_DIAS = 365
 CONSULTAS_LIMITE = 100
 
 
