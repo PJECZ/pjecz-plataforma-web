@@ -10,7 +10,6 @@ from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 
 app = create_app()
 db.app = app
