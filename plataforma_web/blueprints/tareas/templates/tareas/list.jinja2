@@ -5,7 +5,10 @@
 {% block title %}Tareas{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Tareas') }}
+    {% call topbar.page_buttons('Tareas') %}
+        {{ topbar.button('Bitácoras', url_for('bitacoras.list_active'), 'mdi:calendar-clock') }}
+        {{ topbar.button('Entradas/Salidas', url_for('entradas_salidas.list_active'), 'mdi:calendar-clock') }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
