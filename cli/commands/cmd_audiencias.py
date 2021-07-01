@@ -48,64 +48,58 @@ def alimentar(entrada_csv):
         for row in rows:
             try:
                 tiempo = datetime.strptime(row["tiempo"], "%Y-%m-%d %H:%M")
-            except (IndexError, ValueError):
-                try:
-                    tiempo = datetime.strptime(row["tiempo"], "%Y-%m-%d")
-                except (IndexError, ValueError):
-                    try:
-                        tiempo = datetime.strptime(row["tiempo"], "%d/%m/%Y")
-                    except (IndexError, ValueError):
-                        click.echo("  Tiempo incorrecto, se omite " + row["tiempo"])
-                        continue
+            except (IndexError, ValueError, KeyError):
+                click.echo("  Tiempo incorrecto, se omite" + str(row))
+                continue
             try:
                 tipo_audiencia = safe_string(row["tipo_audiencia"])
-            except IndexError:
+            except KeyError:
                 tipo_audiencia = "NO DEFINIDO"
             try:
                 expediente = safe_string(row["expediente"], max_len=16)
-            except IndexError:
+            except KeyError:
                 expediente = ""
             try:
                 actores = safe_string(row["actores"])
-            except IndexError:
+            except KeyError:
                 actores = ""
             try:
                 demandados = safe_string(row["demandados"])
-            except IndexError:
+            except KeyError:
                 demandados = ""
             try:
                 sala = safe_string(row["sala"])
-            except IndexError:
+            except KeyError:
                 sala = ""
             try:
                 caracter = safe_string(row["caracter"])
                 if caracter not in ("PUBLICA", "PRIVADA"):
                     caracter = None
-            except IndexError:
+            except KeyError:
                 caracter = None
             try:
                 causa_penal = safe_string(row["causa_penal"])
-            except IndexError:
+            except KeyError:
                 causa_penal = ""
             try:
                 delitos = safe_string(row["delitos"])
-            except IndexError:
+            except KeyError:
                 delitos = ""
             try:
                 toca = safe_string(row["toca"])
-            except IndexError:
+            except KeyError:
                 toca = ""
             try:
                 expediente_origen = safe_string(row["expediente_origen"])
-            except IndexError:
+            except KeyError:
                 expediente_origen = ""
             try:
                 imputados = safe_string(row["imputados"])
-            except IndexError:
+            except KeyError:
                 imputados = ""
             try:
                 origen = safe_string(row["origen"])
-            except IndexError:
+            except KeyError:
                 origen = ""
             Audiencia(
                 autoridad=autoridad,
