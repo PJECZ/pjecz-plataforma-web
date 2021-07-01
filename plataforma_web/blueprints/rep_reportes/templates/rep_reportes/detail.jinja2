@@ -1,0 +1,61 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Reporte{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(reporte.descripcion) %}
+        {{ topbar.button_previous('Reportes', url_for('reportes.list_active')) }}
+        {% if current_user.can_edit('reportes') %}
+            {{ topbar.button_edit('Editar', url_for('reportes.edit', reporte_id=reporte.id)) }}
+            {% if reporte.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('reportes.delete', reporte_id=reporte.id)) }}{% endif %}
+            {% if reporte.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('reportes.recover', reporte_id=reporte.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=reporte.estatus) %}
+        {{ detail.label_value_big('Descripción', reporte.descripcion) }}
+        {{ detail.label_value('Desde', reporte.desde) }}
+        {{ detail.label_value('Hasta', reporte.hasta) }}
+        {{ detail.label_value('Programado', reporte.programado) }}
+        {{ detail.label_value('Progreso', reporte.progreso) }}
+    {% endcall %}
+    {% if resultados %}
+        {% call detail.card() %}
+            <table id="resultados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Módulos</th>
+                        <th>Descripciones</th>
+                        <th>Tipos</th>
+                        <th>Cantidades</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resultado in resultados %}
+                    <tr>
+                        <td>{{ resultado.modulo.nombre }}</td>
+                        <td><a href="{{ url_for('resultados.detail', resultado_id=resultado.id) }}">{{ resultado.descripcion }}</a></td>
+                        <td>{{ resultado.tipo }}</td>
+                        <td>{{ resultado.cantidad }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('reportes') %}
+        {% if reporte.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + reporte.descripcion + '?') }}{% endif %}
+        {% if reporte.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + reporte.descripcion + '?') }}{% endif %}
+    {% endif %}
+    {% if resultados %}
+        {{ detail.datatable('resultados_datatable', order='asc') }}
+    {% endif %}
+{% endblock %}
