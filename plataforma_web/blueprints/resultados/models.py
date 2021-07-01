@@ -11,6 +11,7 @@ class Resultado(db.Model, UniversalMixin):
 
     TIPOS = OrderedDict(
         [
+            ("TOTAL", "No definido"),
             ("EXITOSO", "Exitoso"),
             ("ADVERTENCIA", "Advertencia"),
             ("PROBLEMATICO", "Problemático"),
@@ -26,8 +27,8 @@ class Resultado(db.Model, UniversalMixin):
     # Claves foráneas
     reporte_id = db.Column(db.Integer, db.ForeignKey("reportes.id"), index=True, nullable=False)
     reporte = db.relationship("Reporte", back_populates="resultados")
-    modulo_id = db.Column(db.Integer, db.ForeignKey('modulos.id'), index=True, nullable=False)
-    modulo = db.relationship('Modulo', back_populates='resultados')
+    modulo_id = db.Column(db.Integer, db.ForeignKey("modulos.id"), index=True, nullable=False)
+    modulo = db.relationship("Modulo", back_populates="resultados")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)

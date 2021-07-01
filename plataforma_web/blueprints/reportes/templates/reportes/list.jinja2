@@ -28,6 +28,8 @@
                     <th>Descripciones</th>
                     <th>Desde</th>
                     <th>Hasta</th>
+                    <th>Programado</th>
+                    <th>Progreso</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,6 +39,8 @@
                     <td><a href="{{ url_for('reportes.detail', reporte_id=reporte.id) }}">{{ reporte.descripcion }}</a></td>
                     <td>{{ reporte.desde }}</td>
                     <td>{{ reporte.hasta }}</td>
+                    <td>{{ reporte.programado }}</td>
+                    <td>{{ reporte.progreso }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

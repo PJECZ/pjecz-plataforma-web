@@ -8,6 +8,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.reportes.models import Reporte
 from plataforma_web.blueprints.reportes.forms import ReporteForm
+from plataforma_web.blueprints.resultados.models import Resultado
 
 reportes = Blueprint("reportes", __name__, template_folder="templates")
 
@@ -38,7 +39,8 @@ def list_inactive():
 def detail(reporte_id):
     """Detalle de un Reporte"""
     reporte = Reporte.query.get_or_404(reporte_id)
-    return render_template("reportes/detail.jinja2", reporte=reporte)
+    resultados = Resultado.query.filter(Resultado.reporte == reporte).filter(Resultado.estatus == "A").all()
+    return render_template("reportes/detail.jinja2", reporte=reporte, resultados=resultados)
 
 
 @reportes.route("/reportes/nuevo", methods=["GET", "POST"])

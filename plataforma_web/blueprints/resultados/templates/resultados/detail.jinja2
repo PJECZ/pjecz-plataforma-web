@@ -6,28 +6,28 @@
 {% block title %}Resultado{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(resultados.descripcion) %}
+    {% call topbar.page_buttons(resultado.descripcion) %}
         {{ topbar.button_previous('Resultados', url_for('resultados.list_active')) }}
         {% if current_user.can_edit('resultados') %}
-            {% if resultados.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('resultados.delete', resultados_id=resultados.id)) }}{% endif %}
-            {% if resultados.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('resultados.recover', resultados_id=resultados.id)) }}{% endif %}
+            {% if resultado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('resultados.delete', resultado_id=resultado.id)) }}{% endif %}
+            {% if resultado.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('resultados.recover', resultado_id=resultado.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=resultados.estatus) %}
-        {{ detail.label_value_big('Descripción', resultados.descripcion) }}
-        {{ detail.label_value('Reporte', resultados.reporte.descripcion, url_for('reportes.detail', reporte_id=resultado.reporte_id)) }}
-        {{ detail.label_value('Módulo', resultados.modulo.nombre, url_for('modulos.detail', modulo_id=resultado.modulo_id)) }}
-        {{ detail.label_value('Tipo', resultados.tipo) }}
-        {{ detail.label_value_big('Cantidad', resultados.cantidad) }}
+    {% call detail.card(estatus=resultado.estatus) %}
+        {{ detail.label_value_big('Descripción y cantidad', resultado.descripcion) }}
+        {{ detail.label_value_big('Cantidad', resultado.cantidad) }}
+        {{ detail.label_value('Reporte', resultado.reporte.descripcion, url_for('reportes.detail', reporte_id=resultado.reporte_id)) }}
+        {{ detail.label_value('Módulo', resultado.modulo.nombre, url_for('modulos.detail', modulo_id=resultado.modulo_id)) }}
+        {{ detail.label_value('Tipo', resultado.tipo) }}
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('resultados') %}
-        {% if resultados.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + resultados.descripcion + '?') }}{% endif %}
-        {% if resultados.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + resultados.descripcion + '?') }}{% endif %}
+        {% if resultado.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + resultado.descripcion + '?') }}{% endif %}
+        {% if resultado.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + resultado.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

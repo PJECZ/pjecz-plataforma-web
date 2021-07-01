@@ -25,7 +25,7 @@
         {{ detail.label_value('Progreso', reporte.progreso) }}
     {% endcall %}
     {% if resultados %}
-        {% call list.card() %}
+        {% call detail.card() %}
             <table id="resultados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -40,7 +40,7 @@
                     <tr>
                         <td>{{ resultado.modulo.nombre }}</td>
                         <td><a href="{{ url_for('resultados.detail', resultado_id=resultado.id) }}">{{ resultado.descripcion }}</a></td>
-                        <td>{{ resultado.columna }}</td>
+                        <td>{{ resultado.tipo }}</td>
                         <td>{{ resultado.cantidad }}</td>
                     </tr>
                     {% endfor %}
@@ -56,6 +56,6 @@
         {% if reporte.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + reporte.descripcion + '?') }}{% endif %}
     {% endif %}
     {% if resultados %}
-        {{ list.datatable('resultados_datatable', order='desc') }}
+        {{ detail.datatable('resultados_datatable', order='asc') }}
     {% endif %}
 {% endblock %}
