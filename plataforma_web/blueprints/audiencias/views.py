@@ -1,6 +1,7 @@
 """
 Audiencias, vistas
 """
+from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_message, safe_string
@@ -139,10 +140,16 @@ def new_generica():
     form = AudienciaGenericaForm()
     if form.validate_on_submit():
 
+        # Juntar tiempo
+        try:
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_hora.data, "%Y-%m-%d %H:%M")
+        except ValueError:
+            pass
+
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
-            tiempo=form.tiempo.data,
+            tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
             expediente=safe_string(form.expediente.data),
             actores=safe_string(form.actores.data),
