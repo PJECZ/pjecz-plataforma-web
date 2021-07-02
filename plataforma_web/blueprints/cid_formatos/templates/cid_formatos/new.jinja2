@@ -13,7 +13,12 @@
         {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
         {% call f.form_tag('cid_formatos.new', fid='cid_formato_form', **form_kwargs) %}
             {% call f.form_group(form.procedimiento, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.numero) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.codigo) %}{% endcall %}
+            {% call f.form_group(form.responsable) %}{% endcall %}
+            {% call f.form_group(form.forma) %}{% endcall %}
+            {% call f.form_group(form.tiempo_retencion) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

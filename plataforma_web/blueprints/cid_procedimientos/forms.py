@@ -11,7 +11,7 @@ from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 class CIDProcedimientoForm(FlaskForm):
     """Formulario CID Procedimiento"""
 
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=128)])
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
     revision = IntegerField("Revisión", validators=[DataRequired()])
     fecha = DateField("Fecha", validators=[DataRequired()])

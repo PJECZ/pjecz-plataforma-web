@@ -44,4 +44,4 @@ class CIDProcedimiento(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<CIDProcedimiento {self.descripcion}>"
+        return "<CIDProcedimiento>"

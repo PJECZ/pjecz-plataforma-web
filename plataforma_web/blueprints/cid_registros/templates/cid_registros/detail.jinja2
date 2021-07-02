@@ -18,7 +18,6 @@
 
 {% block content %}
     {% call detail.card(estatus=registro.estatus) %}
-        {# detail.label_value_big('Registro', cid_registro.descripcion) #}
         {{ detail.label_value('Fecha', cid_registro.creado.strftime('%Y-%m-%d %H:%M')) }}
         {{ detail.label_value('Formato', cid_registro.formato.descripcion, url_for('cid_formatos.detail', cid_formato_id=cid_registro.formato_id)) }}
     {% endcall %}

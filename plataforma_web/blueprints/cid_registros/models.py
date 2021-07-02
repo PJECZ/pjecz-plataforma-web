@@ -1,5 +1,5 @@
 """
-Registros, modelos
+CID Registros, modelos
 """
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
@@ -23,4 +23,4 @@ class CIDRegistro(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<CIDRegistro {self.descripcion}>"
+        return "<CIDRegistro>"

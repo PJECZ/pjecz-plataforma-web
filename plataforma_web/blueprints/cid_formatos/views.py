@@ -60,7 +60,12 @@ def new(cid_procedimiento_id):
     if form.validate_on_submit():
         cid_formato = CIDFormato(
             procedimiento=cid_procedimiento,
+            numero=form.numero.data,
             descripcion=form.descripcion.data,
+            codigo=form.codigo.data,
+            responsable=form.responsable.data,
+            forma=form.forma.data,
+            tiempo_retencion=form.tiempo_retencion.data,
         )
         cid_formato.save()
         flash(f"CID Formato {cid_formato.descripcion} guardado.", "success")
@@ -78,12 +83,22 @@ def edit(cid_formato_id):
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
     form = CIDFormatoForm()
     if form.validate_on_submit():
+        cid_formato.numero = form.numero.data
         cid_formato.descripcion = form.descripcion.data
+        cid_formato.codigo = form.codigo.data
+        cid_formato.responsable = form.responsable.data
+        cid_formato.forma = form.forma.data
+        cid_formato.tiempo_retencion = form.tiempo_retencion.data
         cid_formato.save()
         flash(f"CID Formato {cid_formato.descripcion} guardado.", "success")
         return redirect(url_for("cid_formatos.detail", cid_formato_id=cid_formato.id))
+    form.procedimiento.data = cid_formato.procedimiento  # Read only
+    form.numero.data = cid_formato.numero
     form.descripcion.data = cid_formato.descripcion
-    form.procedimiento.data = cid_formato.procedimiento
+    form.codigo.data = cid_formato.codigo
+    form.responsable.data = cid_formato.responsable
+    form.forma.data = cid_formato.forma
+    form.tiempo_retencion.data = cid_formato.tiempo_retencion
     return render_template("cid_formatos/edit.jinja2", form=form, cid_formato=cid_formato)
 
 
