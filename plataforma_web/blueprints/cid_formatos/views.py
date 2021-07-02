@@ -51,9 +51,6 @@ def new(cid_procedimiento_id):
 
     # Validar procedimiento
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-    if cid_procedimiento is None:
-        flash("El procedimiento no existe.", "warning")
-        return redirect(url_for("cid_procedimientos.list_active"))
     if cid_procedimiento.estatus != "A":
         flash("El procedmiento no es activo.", "warning")
         return redirect(url_for("cid_procedimientos.list_active"))
@@ -68,6 +65,9 @@ def new(cid_procedimiento_id):
         cid_formato.save()
         flash(f"CID Formato {cid_formato.descripcion} guardado.", "success")
         return redirect(url_for("cid_formatos.detail", cid_formato_id=cid_formato.id))
+
+    # Mostrar formulario
+    form.procedim
     return render_template("cid_formatos/new.jinja2", form=form)
 
 
@@ -79,7 +79,6 @@ def edit(cid_formato_id):
     form = CIDFormatoForm()
     if form.validate_on_submit():
         cid_formato.descripcion = form.descripcion.data
-        cid_formato.procedimiento = form.procedimiento.data
         cid_formato.save()
         flash(f"CID Formato {cid_formato.descripcion} guardado.", "success")
         return redirect(url_for("cid_formatos.detail", cid_formato_id=cid_formato.id))
