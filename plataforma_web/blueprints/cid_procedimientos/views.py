@@ -10,6 +10,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
+from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 
 cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="templates")
 
@@ -40,7 +41,8 @@ def list_inactive():
 def detail(cid_procedimiento_id):
     """Detalle de un CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-    return render_template("cid_procedimientos/detail.jinja2", cid_procedimiento=cid_procedimiento)
+    cid_formatos = CIDFormato.query.filter(CIDFormato.procedimiento == cid_procedimiento).filter(CIDFormato.estatus == "A").order_by(CIDFormato.numero).all()
+    return render_template("cid_procedimientos/detail.jinja2", cid_procedimiento=cid_procedimiento, cid_formatos=cid_formatos)
 
 
 @cid_procedimientos.route("/cid_procedimientos/nuevo", methods=["GET", "POST"])

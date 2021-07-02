@@ -34,6 +34,10 @@
     {% call detail.card(estatus=cid_procedimiento.estatus) %}
         <div id="editor" style="display:block; clear:both; break-after:page; height:70vh;"></div>
     {% endcall %}
+    {% if cid_formatos %}
+        {% call detail.card(title='Formatos') %}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
