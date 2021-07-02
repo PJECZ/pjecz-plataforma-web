@@ -67,8 +67,8 @@ def new(cid_procedimiento_id):
         return redirect(url_for("cid_formatos.detail", cid_formato_id=cid_formato.id))
 
     # Mostrar formulario
-    form.procedim
-    return render_template("cid_formatos/new.jinja2", form=form)
+    form.procedimiento.data = cid_procedimiento.descripcion  # Read only
+    return render_template("cid_formatos/new.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 
 @cid_formatos.route("/cid_formatos/edicion/<int:cid_formato_id>", methods=["GET", "POST"])
