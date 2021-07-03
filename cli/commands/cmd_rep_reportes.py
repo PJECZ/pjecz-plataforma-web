@@ -10,7 +10,7 @@ import click
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
-from plataforma_web.blueprints.reportes.models import Reporte
+from plataforma_web.blueprints.rep_reportes.models import RepReporte
 
 app = create_app()
 db.app = app
@@ -25,7 +25,7 @@ def cli():
 def elaborar():
     """Elaborar reportes pendientes"""
     contador = 0
-    reportes = Reporte.query.filter(Reporte.progreso == "PENDIENTE").filter(Reporte.estatus == "A").all()
+    reportes = RepReporte.query.filter(RepReporte.progreso == "PENDIENTE").filter(RepReporte.estatus == "A").all()
     for reporte in reportes:
         app.task_queue.enqueue(
             "plataforma_web.blueprints.reportes.tasks.elaborar",
@@ -91,7 +91,7 @@ def preparar_diarios(desde, hasta):
             minute=0,
             second=0,
         )
-        Reporte(
+        RepReporte(
             descripcion="Reporte diario",
             desde=desde_tiempo,
             hasta=hasta_tiempo,

@@ -18,7 +18,7 @@ class Modulo(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
-    resultados = db.relationship("Resultado", back_populates="modulo")
+    resultados = db.relationship("RepResultado", back_populates="modulo")
 
     def __repr__(self):
         """Representación"""
