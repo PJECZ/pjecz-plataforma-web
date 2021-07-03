@@ -1,5 +1,5 @@
 """
-Reportes, tareas en el fondo
+Rep Reportes, tareas en el fondo
 """
 from datetime import datetime
 import logging
@@ -9,8 +9,8 @@ from plataforma_web.app import create_app
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.reportes.models import Reporte
-from plataforma_web.blueprints.resultados.models import Resultado
+from plataforma_web.blueprints.rep_reportes.models import RepReporte
+from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
 
 bitacora = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def elaborar(reporte_id: int):
     bitacora.info("Inicia")
 
     # Validar reporte
-    reporte = Reporte.query.get(reporte_id)
+    reporte = RepReporte.query.get(reporte_id)
     if reporte is None:
         mensaje = set_task_error("El reporte no exite.")
         bitacora.error(mensaje)
@@ -52,7 +52,7 @@ def elaborar(reporte_id: int):
     modulos = Modulo.query.filter(Modulo.estatus == "A").order_by(Modulo.nombre).all()
     for modulo in modulos:
         cantidad = Bitacora.query.filter(Bitacora.modulo == modulo.nombre).filter(Bitacora.creado >= reporte.desde).filter(Bitacora.creado <= reporte.hasta).count()
-        Resultado(
+        RepResultado(
             reporte=reporte,
             modulo=modulo,
             descripcion="Total de operaciones",

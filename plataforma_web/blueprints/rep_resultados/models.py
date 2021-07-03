@@ -1,13 +1,13 @@
 """
-Resultados, modelos
+Rep Resultados, modelos
 """
 from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class Resultado(db.Model, UniversalMixin):
-    """Resultado"""
+class RepResultado(db.Model, UniversalMixin):
+    """Rep Resultado"""
 
     TIPOS = OrderedDict(
         [
@@ -19,14 +19,14 @@ class Resultado(db.Model, UniversalMixin):
     )
 
     # Nombre de la tabla
-    __tablename__ = "resultados"
+    __tablename__ = "rep_resultados"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Claves foráneas
-    reporte_id = db.Column(db.Integer, db.ForeignKey("reportes.id"), index=True, nullable=False)
-    reporte = db.relationship("Reporte", back_populates="resultados")
+    reporte_id = db.Column(db.Integer, db.ForeignKey("rep_reportes.id"), index=True, nullable=False)
+    reporte = db.relationship("RepReporte", back_populates="resultados")
     modulo_id = db.Column(db.Integer, db.ForeignKey("modulos.id"), index=True, nullable=False)
     modulo = db.relationship("Modulo", back_populates="resultados")
 
@@ -41,4 +41,4 @@ class Resultado(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Resultado {self.descripcion}>"
+        return "<Resultado>"

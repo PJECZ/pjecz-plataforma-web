@@ -1,13 +1,13 @@
 """
-Reportes, modelos
+Rep Reportes, modelos
 """
 from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class Reporte(db.Model, UniversalMixin):
-    """Reporte"""
+class RepReporte(db.Model, UniversalMixin):
+    """Rep Reporte"""
 
     PROGRESOS = OrderedDict(
         [
@@ -19,7 +19,7 @@ class Reporte(db.Model, UniversalMixin):
     )
 
     # Nombre de la tabla
-    __tablename__ = "reportes"
+    __tablename__ = "rep_reportes"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -36,8 +36,8 @@ class Reporte(db.Model, UniversalMixin):
     )
 
     # Hijos
-    resultados = db.relationship("Resultado", back_populates="reporte")
+    resultados = db.relationship("RepResultado", back_populates="reporte")
 
     def __repr__(self):
         """Representación"""
-        return f"<Reporte {self.descripcion}>"
+        return "<Reporte>"

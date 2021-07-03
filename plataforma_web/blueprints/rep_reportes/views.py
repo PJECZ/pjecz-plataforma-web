@@ -1,55 +1,55 @@
 """
-Reportes, vistas
+Rep Reportes, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.reportes.models import Reporte
-from plataforma_web.blueprints.reportes.forms import ReporteForm
-from plataforma_web.blueprints.resultados.models import Resultado
+from plataforma_web.blueprints.rep_reportes.models import RepReporte
+from plataforma_web.blueprints.rep_reportes.forms import RepReporteForm
+from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
-reportes = Blueprint("reportes", __name__, template_folder="templates")
+rep_reportes = Blueprint("reportes", __name__, template_folder="templates")
 
 
-@reportes.before_request
+@rep_reportes.before_request
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def before_request():
     """Permiso por defecto"""
 
 
-@reportes.route("/reportes")
+@rep_reportes.route("/rep_reportes")
 def list_active():
     """Listado de Reportes activos"""
-    reportes_activos = Reporte.query.filter(Reporte.estatus == "A").order_by(Reporte.creado.desc()).limit(100).all()
-    return render_template("reportes/list.jinja2", reportes=reportes_activos, estatus="A")
+    reportes_activos = RepReporte.query.filter(RepReporte.estatus == "A").order_by(RepReporte.creado.desc()).limit(100).all()
+    return render_template("rep_reportes/list.jinja2", reportes=reportes_activos, estatus="A")
 
 
-@reportes.route("/reportes/inactivos")
+@rep_reportes.route("/rep_reportes/inactivos")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Reportes inactivos"""
-    reportes_inactivos = Reporte.query.filter(Reporte.estatus == "B").order_by(Reporte.creado.desc()).limit(100).all()
-    return render_template("reportes/list.jinja2", reportes=reportes_inactivos, estatus="B")
+    reportes_inactivos = RepReporte.query.filter(RepReporte.estatus == "B").order_by(RepReporte.creado.desc()).limit(100).all()
+    return render_template("rep_reportes/list.jinja2", reportes=reportes_inactivos, estatus="B")
 
 
-@reportes.route("/reportes/<int:reporte_id>")
+@rep_reportes.route("/rep_reportes/<int:reporte_id>")
 def detail(reporte_id):
     """Detalle de un Reporte"""
-    reporte = Reporte.query.get_or_404(reporte_id)
-    resultados = Resultado.query.filter(Resultado.reporte == reporte).filter(Resultado.estatus == "A").all()
-    return render_template("reportes/detail.jinja2", reporte=reporte, resultados=resultados)
+    reporte = RepReporte.query.get_or_404(reporte_id)
+    resultados = RepResultado.query.filter(RepResultado.reporte == reporte).filter(RepResultado.estatus == "A").all()
+    return render_template("rep_reportes/detail.jinja2", reporte=reporte, resultados=resultados)
 
 
-@reportes.route("/reportes/nuevo", methods=["GET", "POST"])
+@rep_reportes.route("/rep_reportes/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_CUENTAS)
 def new():
     """Nuevo Reporte"""
-    form = ReporteForm()
+    form = RepReporteForm()
     if form.validate_on_submit():
-        reporte = Reporte(
+        reporte = RepReporte(
             descripcion=form.descripcion.data,
             desde=form.desde.data,
             hasta=form.hasta.data,
@@ -59,15 +59,15 @@ def new():
         reporte.save()
         flash(f"Reporte {reporte.descripcion} guardado.", "success")
         return redirect(url_for("reportes.detail", reporte_id=reporte.id))
-    return render_template("reportes/new.jinja2", form=form)
+    return render_template("rep_reportes/new.jinja2", form=form)
 
 
-@reportes.route("/reportes/edicion/<int:reporte_id>", methods=["GET", "POST"])
+@rep_reportes.route("/rep_reportes/edicion/<int:reporte_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def edit(reporte_id):
     """Editar Reporte"""
-    reporte = Reporte.query.get_or_404(reporte_id)
-    form = ReporteForm()
+    reporte = RepReporte.query.get_or_404(reporte_id)
+    form = RepReporteForm()
     if form.validate_on_submit():
         reporte.descripcion = form.descripcion.data
         reporte.desde = form.desde.data
@@ -82,25 +82,25 @@ def edit(reporte_id):
     form.hasta.data = reporte.hasta
     form.programado.data = reporte.programado
     form.progreso.data = reporte.progreso
-    return render_template("reportes/edit.jinja2", form=form, reporte=reporte)
+    return render_template("rep_reportes/edit.jinja2", form=form, reporte=reporte)
 
 
-@reportes.route("/reportes/eliminar/<int:reporte_id>")
+@rep_reportes.route("/rep_reportes/eliminar/<int:reporte_id>")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def delete(reporte_id):
     """Eliminar Reporte"""
-    reporte = Reporte.query.get_or_404(reporte_id)
+    reporte = RepReporte.query.get_or_404(reporte_id)
     if reporte.estatus == "A":
         reporte.delete()
         flash(f"Reporte {reporte.descripcion} eliminado.", "success")
     return redirect(url_for("reportes.detail", reporte_id=reporte.id))
 
 
-@reportes.route("/reportes/recuperar/<int:reporte_id>")
+@rep_reportes.route("/rep_reportes/recuperar/<int:reporte_id>")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def recover(reporte_id):
     """Recuperar Reporte"""
-    reporte = Reporte.query.get_or_404(reporte_id)
+    reporte = RepReporte.query.get_or_404(reporte_id)
     if reporte.estatus == "B":
         reporte.recover()
         flash(f"Reporte {reporte.descripcion} recuperado.", "success")

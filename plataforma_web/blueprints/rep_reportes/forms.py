@@ -1,19 +1,19 @@
 """
-Reportes, formularios
+Rep Reportes, formularios
 """
 from flask_wtf import FlaskForm
 from wtforms import DateTimeField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length
 
-from plataforma_web.blueprints.reportes.models import Reporte
+from plataforma_web.blueprints.rep_reportes.models import RepReporte
 
 
-class ReporteForm(FlaskForm):
+class RepReporteForm(FlaskForm):
     """Formulario Reporte"""
 
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     desde = DateTimeField("Desde", validators=[DataRequired()])
     hasta = DateTimeField("Hasta", validators=[DataRequired()])
     programado = DateTimeField("Programado", validators=[DataRequired()])
-    progreso = SelectField("Progreso", choices=Reporte.PROGRESOS, validators=[DataRequired()])
+    progreso = SelectField("Progreso", choices=RepReporte.PROGRESOS, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
