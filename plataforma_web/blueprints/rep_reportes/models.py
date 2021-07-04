@@ -25,8 +25,8 @@ class RepReporte(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    grafica_id = db.Column(db.Integer, db.ForeignKey("rep_graficas.id"), index=True, nullable=False)
-    grafica = db.relationship("RepGrafica", back_populates="reportes")
+    rep_grafica_id = db.Column(db.Integer, db.ForeignKey("rep_graficas.id"), index=True, nullable=False)
+    rep_grafica = db.relationship("RepGrafica", back_populates="rep_reportes")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
@@ -40,7 +40,7 @@ class RepReporte(db.Model, UniversalMixin):
     )
 
     # Hijos
-    resultados = db.relationship("RepResultado", back_populates="reporte")
+    rep_resultados = db.relationship("RepResultado", back_populates="rep_reporte")
 
     def __repr__(self):
         """Representación"""

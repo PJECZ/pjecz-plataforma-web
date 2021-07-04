@@ -6,10 +6,10 @@ from lib.universal_mixin import UniversalMixin
 
 
 class RepGrafica(db.Model, UniversalMixin):
-    """ RepGrafica """
+    """RepGrafica"""
 
     # Nombre de la tabla
-    __tablename__ = 'rep_graficas'
+    __tablename__ = "rep_graficas"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -18,8 +18,8 @@ class RepGrafica(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
-    reportes = db.relationship('RepReporte', back_populates='grafica')
+    rep_reportes = db.relationship("RepReporte", back_populates="rep_grafica")
 
     def __repr__(self):
-        """ Representación """
-        return f'<RepGrafica>'
+        """Representación"""
+        return "<RepGrafica>"

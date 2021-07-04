@@ -9,19 +9,20 @@
     {% if estatus == 'B' %}{% set title='Reportes inactivos' %}{% endif %}
     {% call topbar.page_buttons(title) %}
         {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
-        {% if current_user.can_edit('reportes') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('reportes.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('reportes.list_active')) }}{% endif %}
+        {% if current_user.can_edit('rep_reportes') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('rep_reportes.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('rep_reportes.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('reportes') %}
-            {{ topbar.button_new('Nuevo Reporte', url_for('reportes.new')) }}
+        {% if current_user.can_insert('rep_reportes') %}
+            {{ topbar.button_new('Nuevo Reporte', url_for('rep_reportes.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('rep_reportes.search')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="reportes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="rep_reportes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Creados</th>
@@ -33,14 +34,14 @@
                 </tr>
             </thead>
             <tbody>
-                {% for reporte in reportes %}
+                {% for rep_reporte in rep_reportes %}
                 <tr>
-                    <td>{{ reporte.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td><a href="{{ url_for('reportes.detail', reporte_id=reporte.id) }}">{{ reporte.descripcion }}</a></td>
-                    <td>{{ reporte.desde }}</td>
-                    <td>{{ reporte.hasta }}</td>
-                    <td>{{ reporte.programado }}</td>
-                    <td>{{ reporte.progreso }}</td>
+                    <td>{{ rep_reporte.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td><a href="{{ url_for('rep_reportes.detail', rep_reporte_id=rep_reporte.id) }}">{{ rep_reporte.descripcion }}</a></td>
+                    <td>{{ rep_reporte.desde }}</td>
+                    <td>{{ rep_reporte.hasta }}</td>
+                    <td>{{ rep_reporte.programado }}</td>
+                    <td>{{ rep_reporte.progreso }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -49,5 +50,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('reportes_datatable', order='desc') }}
+    {{ list.datatable('rep_reportes_datatable', order='desc') }}
 {% endblock %}

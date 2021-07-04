@@ -1,0 +1,19 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Gráfica{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + rep_grafica.nombre) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'rep_grafica_id': rep_grafica.id} %}
+        {% call f.form_tag('rep_graficas.edit', fid='rep_grafica_form', **form_kwargs) %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

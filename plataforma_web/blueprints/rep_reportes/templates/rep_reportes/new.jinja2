@@ -10,7 +10,7 @@
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('reportes.new', fid='reporte_form') %}
+        {% call f.form_tag('rep_reportes.new', fid='rep_reporte_form') %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.desde) %}{% endcall %}
             {% call f.form_group(form.hasta) %}{% endcall %}

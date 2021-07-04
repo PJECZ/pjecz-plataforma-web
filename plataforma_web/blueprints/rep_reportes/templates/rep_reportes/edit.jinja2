@@ -5,13 +5,13 @@
 {% block title %}Editar Reporte{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar ' + reporte.descripcion) }}
+    {{ topbar.page('Editar ' + rep_reporte.descripcion) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'reporte_id': reporte.id} %}
-        {% call f.form_tag('reportes.edit', fid='reporte_form', **form_kwargs) %}
+        {% set form_kwargs = {'reporte_id': rep_reporte.id} %}
+        {% call f.form_tag('rep_reportes.edit', fid='rep_reporte_form', **form_kwargs) %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.desde) %}{% endcall %}
             {% call f.form_group(form.hasta) %}{% endcall %}

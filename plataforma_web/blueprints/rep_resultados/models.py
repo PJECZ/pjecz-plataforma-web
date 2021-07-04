@@ -25,8 +25,8 @@ class RepResultado(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Claves foráneas
-    reporte_id = db.Column(db.Integer, db.ForeignKey("rep_reportes.id"), index=True, nullable=False)
-    reporte = db.relationship("RepReporte", back_populates="resultados")
+    rep_reporte_id = db.Column(db.Integer, db.ForeignKey("rep_reportes.id"), index=True, nullable=False)
+    rep_reporte = db.relationship("RepReporte", back_populates="rep_resultados")
     modulo_id = db.Column(db.Integer, db.ForeignKey("modulos.id"), index=True, nullable=False)
     modulo = db.relationship("Modulo", back_populates="resultados")
 

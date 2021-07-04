@@ -6,27 +6,27 @@
 {% block title %}Reporte{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(reporte.descripcion) %}
-        {{ topbar.button_previous('Reportes', url_for('reportes.list_active')) }}
-        {% if current_user.can_edit('reportes') %}
-            {{ topbar.button_edit('Editar', url_for('reportes.edit', reporte_id=reporte.id)) }}
-            {% if reporte.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('reportes.delete', reporte_id=reporte.id)) }}{% endif %}
-            {% if reporte.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('reportes.recover', reporte_id=reporte.id)) }}{% endif %}
+    {% call topbar.page_buttons(rep_reporte.descripcion) %}
+        {{ topbar.button_previous('Reportes', url_for('rep_reportes.list_active')) }}
+        {% if current_user.can_edit('rep_reportes') %}
+            {{ topbar.button_edit('Editar', url_for('rep_reportes.edit', rep_reporte_id=rep_reporte.id)) }}
+            {% if rep_reporte.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('rep_reportes.delete', rep_reporte_id=rep_reporte.id)) }}{% endif %}
+            {% if rep_reporte.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('rep_reportes.recover', rep_reporte_id=rep_reporte.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=reporte.estatus) %}
-        {{ detail.label_value_big('Descripción', reporte.descripcion) }}
-        {{ detail.label_value('Desde', reporte.desde) }}
-        {{ detail.label_value('Hasta', reporte.hasta) }}
-        {{ detail.label_value('Programado', reporte.programado) }}
-        {{ detail.label_value('Progreso', reporte.progreso) }}
+    {% call detail.card(estatus=rep_reporte.estatus) %}
+        {{ detail.label_value_big('Descripción', rep_reporte.descripcion) }}
+        {{ detail.label_value('Desde', rep_reporte.desde) }}
+        {{ detail.label_value('Hasta', rep_reporte.hasta) }}
+        {{ detail.label_value('Programado', rep_reporte.programado) }}
+        {{ detail.label_value('Progreso', rep_reporte.progreso) }}
     {% endcall %}
     {% if resultados %}
         {% call detail.card() %}
-            <table id="resultados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <table id="rep_resultados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Módulos</th>
@@ -36,12 +36,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for resultado in resultados %}
+                    {% for rep_resultado in rep_resultados %}
                     <tr>
-                        <td>{{ resultado.modulo.nombre }}</td>
-                        <td><a href="{{ url_for('resultados.detail', resultado_id=resultado.id) }}">{{ resultado.descripcion }}</a></td>
-                        <td>{{ resultado.tipo }}</td>
-                        <td>{{ resultado.cantidad }}</td>
+                        <td>{{ rep_resultado.modulo.nombre }}</td>
+                        <td><a href="{{ url_for('rep_resultados.detail', rep_resultado_id=rep_resultado.id) }}">{{ rep_resultado.descripcion }}</a></td>
+                        <td>{{ rep_resultado.tipo }}</td>
+                        <td>{{ rep_resultado.cantidad }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -51,9 +51,9 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('reportes') %}
-        {% if reporte.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + reporte.descripcion + '?') }}{% endif %}
-        {% if reporte.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + reporte.descripcion + '?') }}{% endif %}
+    {% if current_user.can_edit('rep_reportes') %}
+        {% if rep_reporte.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rep_reporte.descripcion + '?') }}{% endif %}
+        {% if rep_reporte.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + rep_reporte.descripcion + '?') }}{% endif %}
     {% endif %}
     {% if resultados %}
         {{ detail.datatable('resultados_datatable', order='asc') }}

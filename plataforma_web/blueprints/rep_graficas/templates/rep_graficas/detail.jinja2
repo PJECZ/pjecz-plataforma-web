@@ -7,7 +7,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(rep_grafica.nombre) %}
-        {{ topbar.button_previous('Gráfica', url_for('rep_graficas.list_active')) }}
+        {{ topbar.button_previous('Gráficas', url_for('rep_graficas.list_active')) }}
         {% if current_user.can_edit('rep_graficas') %}
             {{ topbar.button_edit('Editar', url_for('rep_graficas.edit', rep_grafica_id=rep_grafica.id)) }}
             {% if rep_grafica.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('rep_graficas.delete', rep_grafica_id=rep_grafica.id)) }}{% endif %}
