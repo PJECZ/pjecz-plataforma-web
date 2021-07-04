@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Gráfica{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(rep_grafica.nombre) %}
+        {{ topbar.button_previous('Gráfica', url_for('rep_graficas.list_active')) }}
+        {% if current_user.can_edit('rep_graficas') %}
+            {{ topbar.button_edit('Editar', url_for('rep_graficas.edit', rep_grafica_id=rep_grafica.id)) }}
+            {% if rep_grafica.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('rep_graficas.delete', rep_grafica_id=rep_grafica.id)) }}{% endif %}
+            {% if rep_grafica.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('rep_graficas.recover', rep_grafica_id=rep_grafica.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=rep_grafica.estatus) %}
+        {{ detail.label_value_big('Nombre o Descripción', rep_grafica.nombre) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('rep_graficas') %}
+        {% if rep_grafica.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rep_grafica.nombre + '?') }}{% endif %}
+        {% if rep_grafica.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + rep_grafica.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

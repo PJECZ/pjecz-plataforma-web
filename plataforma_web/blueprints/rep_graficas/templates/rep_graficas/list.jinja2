@@ -1,0 +1,47 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Gráficas{% endblock %}
+
+{% block topbar_actions %}
+    {% if estatus == 'A' %}{% set title='Gráficas' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Gráficas inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {% if current_user.can_edit('rep_graficas') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('rep_graficas.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('rep_graficas.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('rep_graficas') %}
+            {{ topbar.button_new('Nuevo Gráfica', url_for('rep_graficas.new')) }}
+        {% endif %}
+        {{ topbar.button_search('Buscar', url_for('rep_graficas.search')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="rep_graficas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Nombre o descripción</th>
+                    <th>Columna</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rep_grafica in rep_graficas %}
+                <tr>
+                    <td>{{ rep_grafica.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td><a href="{{ url_for('rep_graficas.detail', rep_grafica_id=rep_grafica.id) }}">{{ rep_grafica.nombre }}</a></td>
+                    <td>{{ rep_grafica.columna }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('rep_graficas_datatable', order='desc') }}
+{% endblock %}

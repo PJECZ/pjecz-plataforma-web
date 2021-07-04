@@ -24,6 +24,10 @@ class RepReporte(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
+    # Clave foránea
+    grafica_id = db.Column(db.Integer, db.ForeignKey("rep_graficas.id"), index=True, nullable=False)
+    grafica = db.relationship("RepGrafica", back_populates="reportes")
+
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
     desde = db.Column(db.DateTime(), nullable=False)
