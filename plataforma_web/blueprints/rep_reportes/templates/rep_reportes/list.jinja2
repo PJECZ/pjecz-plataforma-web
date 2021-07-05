@@ -14,9 +14,6 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('rep_reportes.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('rep_reportes.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('rep_reportes') %}
-            {{ topbar.button_new('Nuevo Reporte', url_for('rep_reportes.new')) }}
-        {% endif %}
     {% endcall %}
 {% endblock %}
 

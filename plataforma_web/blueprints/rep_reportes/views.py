@@ -11,7 +11,7 @@ from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.rep_reportes.forms import RepReporteForm
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
-rep_reportes = Blueprint("reportes", __name__, template_folder="templates")
+rep_reportes = Blueprint("rep_reportes", __name__, template_folder="templates")
 
 
 @rep_reportes.before_request
@@ -40,7 +40,7 @@ def list_inactive():
 def detail(rep_reporte_id):
     """Detalle de un Reporte"""
     rep_reporte = RepReporte.query.get_or_404(rep_reporte_id)
-    rep_resultados = RepResultado.query.filter(RepResultado.reporte == rep_reporte).filter(RepResultado.estatus == "A").all()
+    rep_resultados = RepResultado.query.filter(RepResultado.rep_reporte == rep_reporte).filter(RepResultado.estatus == "A").all()
     return render_template("rep_reportes/detail.jinja2", rep_reporte=rep_reporte, rep_resultados=rep_resultados)
 
 
@@ -61,9 +61,9 @@ def new(rep_grafica_id):
         )
         rep_reporte.save()
         flash(f"Reporte {rep_reporte.descripcion} guardado.", "success")
-        return redirect(url_for("reportes.detail", rep_reporte_id=rep_reporte.id))
+        return redirect(url_for("rep_reportes.detail", rep_reporte_id=rep_reporte.id))
     form.rep_grafica.data = rep_grafica.nombre  # Read only
-    return render_template("rep_reportes/new.jinja2", form=form)
+    return render_template("rep_reportes/new.jinja2", form=form, rep_grafica=rep_grafica)
 
 
 @rep_reportes.route("/rep_reportes/edicion/<int:rep_reporte_id>", methods=["GET", "POST"])
@@ -80,7 +80,7 @@ def edit(rep_reporte_id):
         rep_reporte.progreso = form.progreso.data
         rep_reporte.save()
         flash(f"Reporte {rep_reporte.descripcion} guardado.", "success")
-        return redirect(url_for("reportes.detail", rep_reporte_id=rep_reporte.id))
+        return redirect(url_for("rep_reportes.detail", rep_reporte_id=rep_reporte.id))
     form.rep_grafica.data = rep_reporte.rep_grafica.nombre  # Read only
     form.descripcion.data = rep_reporte.descripcion
     form.desde.data = rep_reporte.desde

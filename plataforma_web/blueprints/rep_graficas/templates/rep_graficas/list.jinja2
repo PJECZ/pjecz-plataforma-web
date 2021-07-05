@@ -25,8 +25,7 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    <th>Nombre o descripción</th>
-                    <th>Columna</th>
+                    <th>Nombres</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,7 +33,6 @@
                 <tr>
                     <td>{{ rep_grafica.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                     <td><a href="{{ url_for('rep_graficas.detail', rep_grafica_id=rep_grafica.id) }}">{{ rep_grafica.nombre }}</a></td>
-                    <td>{{ rep_grafica.columna }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

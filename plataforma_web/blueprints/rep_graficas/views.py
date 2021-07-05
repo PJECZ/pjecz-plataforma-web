@@ -8,6 +8,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_graficas.forms import RepGraficaForm
+from plataforma_web.blueprints.rep_reportes.models import RepReporte
 
 rep_graficas = Blueprint("rep_graficas", __name__, template_folder="templates")
 
@@ -38,7 +39,8 @@ def list_inactive():
 def detail(rep_grafica_id):
     """Detalle de una Gráfica"""
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
-    return render_template("rep_graficas/detail.jinja2", rep_grafica=rep_grafica)
+    rep_reportes = RepReporte.query.filter(RepReporte.rep_grafica == rep_grafica).filter(RepReporte.estatus == 'A').all()
+    return render_template("rep_graficas/detail.jinja2", rep_grafica=rep_grafica, rep_reportes=rep_reportes)
 
 
 @rep_graficas.route("/rep_graficas/nuevo", methods=["GET", "POST"])

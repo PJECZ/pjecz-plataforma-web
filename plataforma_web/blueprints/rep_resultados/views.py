@@ -8,7 +8,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
-rep_resultados = Blueprint("resultados", __name__, template_folder="templates")
+rep_resultados = Blueprint("rep_resultados", __name__, template_folder="templates")
 
 
 @rep_resultados.before_request
