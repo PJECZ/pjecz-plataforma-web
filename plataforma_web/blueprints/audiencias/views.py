@@ -142,7 +142,7 @@ def new_generica():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -195,7 +195,7 @@ def new_mapo():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -249,7 +249,7 @@ def new_dipe():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -305,7 +305,7 @@ def new_sape():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -407,7 +407,7 @@ def edit_generica(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -463,7 +463,7 @@ def edit_mapo(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -521,7 +521,7 @@ def edit_dipe(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -583,7 +583,7 @@ def edit_sape(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
