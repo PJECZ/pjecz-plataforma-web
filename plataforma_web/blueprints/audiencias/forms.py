@@ -16,7 +16,7 @@ class AudienciaGenericaForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     tiempo_fecha = DateField("Fecha", format="%Y-%m-%d", validators=[DataRequired()])
-    tiempo_hora = TimeField("Hora", format="%H:%M", validators=[DataRequired()])
+    tiempo_horas_minutos = TimeField("Hora:Minuto", format="%H:%M", validators=[DataRequired()])
     tipo_audiencia = StringField("Tipo de audiencia", validators=[DataRequired(), Length(max=64)])
     expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     actores = StringField("Actores", validators=[Optional(), Length(max=256)])
@@ -30,7 +30,7 @@ class AudienciaMapoForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     tiempo_fecha = DateField("Fecha", format="%Y-%m-%d", validators=[DataRequired()])
-    tiempo_hora = TimeField("Hora", format="%H:%M", validators=[DataRequired()])
+    tiempo_horas_minutos = TimeField("Hora:Minuto", format="%H:%M", validators=[DataRequired()])
     tipo_audiencia = StringField("Tipo de audiencia", validators=[DataRequired(), Length(max=64)])
     sala = StringField("Sala", validators=[Optional(), Length(max=16)])
     caracter = SelectField("Caracter", choices=Audiencia.CARACTERES, validators=[Optional()])
@@ -45,7 +45,7 @@ class AudienciaDipeForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     tiempo_fecha = DateField("Fecha", format="%Y-%m-%d", validators=[DataRequired()])
-    tiempo_hora = TimeField("Hora", format="%H:%M", validators=[DataRequired()])
+    tiempo_horas_minutos = TimeField("Hora:Minuto", format="%H:%M", validators=[DataRequired()])
     tipo_audiencia = StringField("Tipo de audiencia", validators=[DataRequired(), Length(max=64)])
     # Civil, Familiar, Mercantil o Laboral
     expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
@@ -64,7 +64,7 @@ class AudienciaSapeForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     tiempo_fecha = DateField("Fecha", format="%Y-%m-%d", validators=[DataRequired()])
-    tiempo_hora = TimeField("Hora", format="%H:%M", validators=[DataRequired()])
+    tiempo_horas_minutos = TimeField("Hora:Minuto", format="%H:%M", validators=[DataRequired()])
     tipo_audiencia = StringField("Tipo de audiencia", validators=[DataRequired(), Length(max=64)])
     # Civil, Familiar, Mercantil o Laboral
     expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])

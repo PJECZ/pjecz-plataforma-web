@@ -140,11 +140,12 @@ def new_generica():
     form = AudienciaGenericaForm()
     if form.validate_on_submit():
 
-        # Juntar tiempo
+        # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_hora.data, "%Y-%m-%d %H:%M")
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
         except ValueError:
-            pass
+            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
+            return redirect(url_for("audiencias.list_active"))
 
         # Insertar registro
         audiencia = Audiencia(
@@ -192,10 +193,17 @@ def new_mapo():
     form = AudienciaMapoForm()
     if form.validate_on_submit():
 
+        # Definir tiempo con la fecha y horas:minutos
+        try:
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+        except ValueError:
+            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
+            return redirect(url_for("audiencias.list_active"))
+
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
-            tiempo=form.tiempo.data,
+            tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
             sala=safe_string(form.sala.data),
             caracter=safe_string(form.caracter.data),
@@ -239,10 +247,17 @@ def new_dipe():
     form = AudienciaDipeForm()
     if form.validate_on_submit():
 
+        # Definir tiempo con la fecha y horas:minutos
+        try:
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+        except ValueError:
+            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
+            return redirect(url_for("audiencias.list_active"))
+
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
-            tiempo=form.tiempo.data,
+            tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
             expediente=safe_string(form.expediente.data),
             actores=safe_string(form.actores.data),
@@ -288,10 +303,17 @@ def new_sape():
     form = AudienciaSapeForm()
     if form.validate_on_submit():
 
+        # Definir tiempo con la fecha y horas:minutos
+        try:
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+        except ValueError:
+            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
+            return redirect(url_for("audiencias.list_active"))
+
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
-            tiempo=form.tiempo.data,
+            tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
             expediente=safe_string(form.expediente.data),
             actores=safe_string(form.actores.data),
@@ -383,8 +405,15 @@ def edit_generica(audiencia_id):
     form = AudienciaGenericaForm()
     if form.validate_on_submit():
 
+        # Definir tiempo con la fecha y horas:minutos
+        try:
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+        except ValueError:
+            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
+            return redirect(url_for("audiencias.list_active"))
+
         # Actualizar registro
-        audiencia.tiempo = form.tiempo.data
+        audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
         audiencia.expediente = safe_string(form.expediente.data)
         audiencia.actores = safe_string(form.actores.data)
@@ -399,7 +428,8 @@ def edit_generica(audiencia_id):
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.tiempo.data = audiencia.tiempo
+    form.tiempo_fecha.data = autoridad.tiempo.date()
+    form.tiempo_horas_minutos.data = autoridad.tiempo.time()
     form.tipo_audiencia.data = audiencia.tipo_audiencia
     form.expediente.data = audiencia.expediente
     form.actores.data = audiencia.actores
@@ -431,8 +461,15 @@ def edit_mapo(audiencia_id):
     form = AudienciaMapoForm()
     if form.validate_on_submit():
 
+        # Definir tiempo con la fecha y horas:minutos
+        try:
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+        except ValueError:
+            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
+            return redirect(url_for("audiencias.list_active"))
+
         # Actualizar registro
-        audiencia.tiempo = form.tiempo.data
+        audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
         audiencia.sala = safe_string(form.sala.data)
         audiencia.caracter = safe_string(form.caracter.data)
@@ -448,7 +485,8 @@ def edit_mapo(audiencia_id):
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.tiempo.data = audiencia.tiempo
+    form.tiempo_fecha.data = autoridad.tiempo.date()
+    form.tiempo_horas_minutos.data = autoridad.tiempo.time()
     form.tipo_audiencia.data = audiencia.tipo_audiencia
     form.sala.data = audiencia.sala
     form.caracter.data = audiencia.caracter
@@ -481,8 +519,15 @@ def edit_dipe(audiencia_id):
     form = AudienciaDipeForm()
     if form.validate_on_submit():
 
+        # Definir tiempo con la fecha y horas:minutos
+        try:
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+        except ValueError:
+            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
+            return redirect(url_for("audiencias.list_active"))
+
         # Actualizar registro
-        audiencia.tiempo = form.tiempo.data
+        audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
         audiencia.expediente = safe_string(form.expediente.data)
         audiencia.actores = safe_string(form.actores.data)
@@ -500,7 +545,8 @@ def edit_dipe(audiencia_id):
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.tiempo.data = audiencia.tiempo
+    form.tiempo_fecha.data = autoridad.tiempo.date()
+    form.tiempo_horas_minutos.data = autoridad.tiempo.time()
     form.tipo_audiencia.data = audiencia.tipo_audiencia
     form.expediente.data = audiencia.expediente
     form.actores.data = audiencia.actores
@@ -535,8 +581,15 @@ def edit_sape(audiencia_id):
     form = AudienciaSapeForm()
     if form.validate_on_submit():
 
+        # Definir tiempo con la fecha y horas:minutos
+        try:
+            tiempo = datetime.strptime(form.tiempo_fecha.data + ' ' + form.tiempo_horas_minutos.data, "%Y-%m-%d %H:%M")
+        except ValueError:
+            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
+            return redirect(url_for("audiencias.list_active"))
+
         # Actualizar registro
-        audiencia.tiempo = form.tiempo.data
+        audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
         audiencia.expediente = safe_string(form.expediente.data)
         audiencia.actores = safe_string(form.actores.data)
@@ -555,7 +608,8 @@ def edit_sape(audiencia_id):
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.tiempo.data = audiencia.tiempo
+    form.tiempo_fecha.data = autoridad.tiempo.date()
+    form.tiempo_horas_minutos.data = autoridad.tiempo.time()
     form.tipo_audiencia.data = audiencia.tipo_audiencia
     form.expediente.data = audiencia.expediente
     form.actores.data = audiencia.actores

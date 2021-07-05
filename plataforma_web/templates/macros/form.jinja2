@@ -42,6 +42,8 @@
         {{ f(class=css_class, **kwargs) }}
     {% elif f.type == 'DateField'  %}
         {{ f(class=css_class, type='date', **kwargs) }}
+    {% elif f.type == 'TimeField'  %}
+        {{ f(class=css_class, type='time', **kwargs) }}
     {% elif f.type == 'DateTimeField'  %}
         {{ f(class=css_class, type='datetime', **kwargs) }}
     {% elif f.type == 'SubmitField'  %}
