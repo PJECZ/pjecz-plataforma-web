@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% if estatus == 'A' %}{% set title='Gráficas' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Gráficas inactivos' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Gráficas inactivas' %}{% endif %}
     {% call topbar.page_buttons(title) %}
         {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
         {% if current_user.can_edit('rep_graficas') %}
@@ -14,9 +14,8 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('rep_graficas.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('rep_graficas') %}
-            {{ topbar.button_new('Nuevo Gráfica', url_for('rep_graficas.new')) }}
+            {{ topbar.button_new('Nueva Gráfica', url_for('rep_graficas.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('rep_graficas.search')) }}
     {% endcall %}
 {% endblock %}
 

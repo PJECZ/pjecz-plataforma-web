@@ -8,6 +8,7 @@
     {% if estatus == 'A' %}{% set title='Reportes' %}{% endif %}
     {% if estatus == 'B' %}{% set title='Reportes inactivos' %}{% endif %}
     {% call topbar.page_buttons(title) %}
+        {{ topbar.button('Gráficas', url_for('rep_graficas.list_active'), 'mdi:puzzle') }}
         {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
         {% if current_user.can_edit('rep_reportes') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('rep_reportes.list_inactive')) }}{% endif %}
@@ -16,7 +17,6 @@
         {% if current_user.can_insert('rep_reportes') %}
             {{ topbar.button_new('Nuevo Reporte', url_for('rep_reportes.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('rep_reportes.search')) }}
     {% endcall %}
 {% endblock %}
 

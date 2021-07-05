@@ -6,6 +6,7 @@ from flask_login import login_required
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.rep_reportes.forms import RepReporteForm
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
@@ -43,13 +44,15 @@ def detail(rep_reporte_id):
     return render_template("rep_reportes/detail.jinja2", rep_reporte=rep_reporte, rep_resultados=rep_resultados)
 
 
-@rep_reportes.route("/rep_reportes/nuevo", methods=["GET", "POST"])
+@rep_reportes.route("/rep_reportes/nuevo/<int:rep_grafica_id>", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_CUENTAS)
-def new():
+def new(rep_grafica_id):
     """Nuevo Reporte"""
+    rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
     form = RepReporteForm()
     if form.validate_on_submit():
         rep_reporte = RepReporte(
+            rep_grafica=rep_grafica,
             descripcion=form.descripcion.data,
             desde=form.desde.data,
             hasta=form.hasta.data,
@@ -59,6 +62,7 @@ def new():
         rep_reporte.save()
         flash(f"Reporte {rep_reporte.descripcion} guardado.", "success")
         return redirect(url_for("reportes.detail", rep_reporte_id=rep_reporte.id))
+    form.rep_grafica.data = rep_grafica.nombre  # Read only
     return render_template("rep_reportes/new.jinja2", form=form)
 
 
@@ -77,6 +81,7 @@ def edit(rep_reporte_id):
         rep_reporte.save()
         flash(f"Reporte {rep_reporte.descripcion} guardado.", "success")
         return redirect(url_for("reportes.detail", rep_reporte_id=rep_reporte.id))
+    form.rep_grafica.data = rep_reporte.rep_grafica.nombre  # Read only
     form.descripcion.data = rep_reporte.descripcion
     form.desde.data = rep_reporte.desde
     form.hasta.data = rep_reporte.hasta

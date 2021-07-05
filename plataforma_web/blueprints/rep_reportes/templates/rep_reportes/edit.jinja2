@@ -10,8 +10,9 @@
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'reporte_id': rep_reporte.id} %}
+        {% set form_kwargs = {'rep_reporte_id': rep_reporte.id} %}
         {% call f.form_tag('rep_reportes.edit', fid='rep_reporte_form', **form_kwargs) %}
+            {% call f.form_group(form.rep_grafica, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.desde) %}{% endcall %}
             {% call f.form_group(form.hasta) %}{% endcall %}
