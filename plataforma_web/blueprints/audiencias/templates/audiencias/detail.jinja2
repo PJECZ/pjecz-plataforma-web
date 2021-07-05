@@ -5,8 +5,12 @@
 
 {% block title %}Audiencia{% endblock %}
 
+{% block custom_head %}
+    {{ moment.include_moment() }}
+{% endblock %}
+
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Audiencia ' + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')) %}
+    {% call topbar.page_buttons('Audiencia') %}
         {% if current_user.can_admin('audiencias') %}
             {{ topbar.button_previous('Agenda de Audiencias de ' + audiencia.autoridad.clave, url_for('audiencias.list_autoridad_audiencias', autoridad_id=audiencia.autoridad_id)) }}
         {% else %}
@@ -22,7 +26,7 @@
 
 {% block content %}
     {% call detail.card(estatus=audiencia.estatus) %}
-        {# detail.label_value_big('Fecha y hora', audiencia.tiempo.strftime('%Y-%m-%d %H:%M')) #}
+        {{ detail.label_value('Fecha y hora', moment(audiencia.tiempo)).format('llll') }}
         {{ detail.label_value('Departamento', audiencia.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', audiencia.autoridad.descripcion) }}
         {{ detail.label_value('Tipo de audiencia', audiencia.tipo_audiencia) }}
@@ -78,4 +82,5 @@
         {% if audiencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + audiencia.tipo_audiencia + '?') }}{% endif %}
         {% if audiencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + audiencia.tipo_audiencia + '?') }}{% endif %}
     {% endif %}
+    {{ moment.locale("es") }}
 {% endblock %}

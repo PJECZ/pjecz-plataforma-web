@@ -7,7 +7,6 @@
 
 {% block custom_head %}
     {{ moment.include_moment() }}
-    {{ moment.locale("es") }}
 {% endblock %}
 
 {% block topbar_actions %}
@@ -42,4 +41,5 @@
         {% if lista_de_acuerdo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
         {% if lista_de_acuerdo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
     {% endif %}
+    {{ moment.locale("es") }}
 {% endblock %}
