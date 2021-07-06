@@ -30,6 +30,7 @@
         {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
         {{ detail.label_value_new_tab('Edicto PDF', edicto.archivo, edicto.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
+        {{ detail.label_value('Subido', moment(edicto.creado).format('llll')) }}
     {% endcall %}
 {% endblock %}
 
@@ -38,4 +39,5 @@
         {% if edicto.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + edicto.descripcion + '?') }}{% endif %}
         {% if edicto.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + edicto.descripcion + '?') }}{% endif %}
     {% endif %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}
