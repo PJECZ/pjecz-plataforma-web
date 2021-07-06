@@ -36,6 +36,19 @@ class EdictoEditForm(FlaskForm):
 class EdictoSearchForm(FlaskForm):
     """Formulario para buscar Edictos"""
 
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
+    fecha_desde = DateField("Fecha desde", validators=[Optional()])
+    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
+    descripcion = StringField("Descripcion", validators=[Optional(), Length(max=256)])
+    expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    numero_publicacion = StringField("No. de publicación (número/año)", validators=[Optional(), Length(max=16), Regexp(NUMERO_PUBLICACION_REGEXP)])
+    buscar = SubmitField("Buscar")
+
+
+class EdictoSearchAdminForm(FlaskForm):
+    """Formulario para buscar Edictos"""
+
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     fecha_desde = DateField("Fecha desde", validators=[Optional()])

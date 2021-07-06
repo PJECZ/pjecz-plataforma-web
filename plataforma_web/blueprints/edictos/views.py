@@ -18,7 +18,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
-from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm
+from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm, EdictoSearchAdminForm
 from plataforma_web.blueprints.edictos.models import Edicto
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
@@ -140,7 +140,12 @@ def detail(edicto_id):
 @edictos.route("/edictos/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Edictos"""
-    form_search = EdictoSearchForm()
+
+    if current_user.can_admin("edictos"):
+        form_search = EdictoSearchAdminForm()
+    else:
+        form_search = EdictoSearchForm()
+
     if form_search.validate_on_submit():
         mostrar_resultados = True
 
@@ -190,7 +195,10 @@ def search():
         distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
         autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
         return render_template("edictos/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
-    return render_template("edictos/search.jinja2", form=form_search)
+    else:
+        form_search.distrito.data = current_user.autoridad.distrito.nombre  # Read only
+        form_search.autoridad.data = current_user.autoridad.descripcion  # Read only
+        return render_template("edictos/search.jinja2", form=form_search)
 
 
 def new_success(edicto):
