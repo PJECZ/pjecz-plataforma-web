@@ -1,6 +1,7 @@
 """
 Audiencias, vistas
 """
+import pytz
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
@@ -19,6 +20,13 @@ audiencias = Blueprint("audiencias", __name__, template_folder="templates")
 
 MODULO = "AUDIENCIAS"
 LIMITE_CONSULTAS = 400
+
+
+def combine_to_utc(tiempo_fecha, tiempo_horas_minutos):
+    """ Combinar y cambiar tiempo local a UTC """
+    timezone = pytz.timezone("America/Mexico_City")
+    combinado = datetime.combine(tiempo_fecha, tiempo_horas_minutos)
+    return timezone.normalize(timezone.localize(combinado)).astimezone(pytz.utc)
 
 
 @audiencias.before_request
@@ -142,7 +150,7 @@ def new_generica():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -162,11 +170,11 @@ def new_generica():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')),
-            url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+            url=url_for("audiencias.detail", audiencia_id=audiencia.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
     # Prellenado del formulario
@@ -195,7 +203,7 @@ def new_mapo():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -216,11 +224,11 @@ def new_mapo():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')),
-            url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+            url=url_for("audiencias.detail", audiencia_id=audiencia.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
     # Prellenado del formulario
@@ -249,7 +257,7 @@ def new_dipe():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -272,11 +280,11 @@ def new_dipe():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')),
-            url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+            url=url_for("audiencias.detail", audiencia_id=audiencia.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
     # Prellenado del formulario
@@ -305,7 +313,7 @@ def new_sape():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -329,11 +337,11 @@ def new_sape():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')),
-            url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+            url=url_for("audiencias.detail", audiencia_id=audiencia.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
     # Prellenado del formulario
@@ -347,14 +355,14 @@ def edit_success(audiencia):
     bitacora = Bitacora(
         modulo=MODULO,
         usuario=current_user,
-        descripcion=safe_message("Editada la audiencia del " + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')),
-        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+        descripcion=safe_message("Editada la audiencia del " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+        url=url_for("audiencias.detail", audiencia_id=audiencia.id),
     )
     bitacora.save()
     return bitacora
 
 
-@audiencias.route('/audiencias/edicion/<int:audiencia_id>', methods=['GET', 'POST'])
+@audiencias.route("/audiencias/edicion/<int:audiencia_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit(audiencia_id):
     """Editar Audiencia"""
@@ -381,7 +389,7 @@ def edit(audiencia_id):
     return redirect(url_for("audiencias.list_active"))
 
 
-@audiencias.route('/audiencias/edicion/generica/<int:audiencia_id>', methods=['GET', 'POST'])
+@audiencias.route("/audiencias/edicion/generica/<int:audiencia_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit_generica(audiencia_id):
     """Editar Audiencia CIVIL FAMILIAR MERCANTIL LETRADO TCYA"""
@@ -407,7 +415,7 @@ def edit_generica(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -422,7 +430,7 @@ def edit_generica(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = edit_success(audiencia)
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
     # Prellenado del formulario
@@ -434,10 +442,10 @@ def edit_generica(audiencia_id):
     form.expediente.data = audiencia.expediente
     form.actores.data = audiencia.actores
     form.demandados.data = audiencia.demandados
-    return render_template('audiencias/edit_generica.jinja2', form=form, audiencia=audiencia)
+    return render_template("audiencias/edit_generica.jinja2", form=form, audiencia=audiencia)
 
 
-@audiencias.route('/audiencias/edicion/mapo/<int:audiencia_id>', methods=['GET', 'POST'])
+@audiencias.route("/audiencias/edicion/mapo/<int:audiencia_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit_mapo(audiencia_id):
     """Editar Audiencia MATERIA ACUSATORIO PENAL ORAL"""
@@ -463,7 +471,7 @@ def edit_mapo(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -479,7 +487,7 @@ def edit_mapo(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = edit_success(audiencia)
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
     # Prellenado del formulario
@@ -492,10 +500,10 @@ def edit_mapo(audiencia_id):
     form.caracter.data = audiencia.caracter
     form.causa_penal.data = audiencia.causa_penal
     form.delitos.data = audiencia.delitos
-    return render_template('audiencias/edit_mapo.jinja2', form=form, audiencia=audiencia)
+    return render_template("audiencias/edit_mapo.jinja2", form=form, audiencia=audiencia)
 
 
-@audiencias.route('/audiencias/edicion/dipe/<int:audiencia_id>', methods=['GET', 'POST'])
+@audiencias.route("/audiencias/edicion/dipe/<int:audiencia_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit_dipe(audiencia_id):
     """Editar Audiencia DISTRITALES"""
@@ -521,7 +529,7 @@ def edit_dipe(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -539,7 +547,7 @@ def edit_dipe(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = edit_success(audiencia)
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
     # Prellenado del formulario
@@ -554,10 +562,10 @@ def edit_dipe(audiencia_id):
     form.toca.data = audiencia.toca
     form.expediente_origen.data = audiencia.expediente_origen
     form.imputados.data = audiencia.imputados
-    return render_template('audiencias/edit_dipe.jinja2', form=form, audiencia=audiencia)
+    return render_template("audiencias/edit_dipe.jinja2", form=form, audiencia=audiencia)
 
 
-@audiencias.route('/audiencias/edicion/sape/<int:audiencia_id>', methods=['GET', 'POST'])
+@audiencias.route("/audiencias/edicion/sape/<int:audiencia_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def edit_sape(audiencia_id):
     """Editar Audiencia SALAS"""
@@ -583,7 +591,7 @@ def edit_sape(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = datetime.combine(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError:
             flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
             return redirect(url_for("audiencias.list_active"))
@@ -602,7 +610,7 @@ def edit_sape(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = edit_success(audiencia)
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
 
     # Prellenado del formulario
@@ -618,7 +626,7 @@ def edit_sape(audiencia_id):
     form.expediente_origen.data = audiencia.expediente_origen
     form.delitos.data = audiencia.delitos
     form.origen.data = audiencia.origen
-    return render_template('audiencias/edit_sape.jinja2', form=form, audiencia=audiencia)
+    return render_template("audiencias/edit_sape.jinja2", form=form, audiencia=audiencia)
 
 
 def delete_success(audiencia):
@@ -626,26 +634,26 @@ def delete_success(audiencia):
     bitacora = Bitacora(
         modulo=MODULO,
         usuario=current_user,
-        descripcion=safe_message("Eliminada la audiencia del " + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')),
-        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+        descripcion=safe_message("Eliminada la audiencia del " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+        url=url_for("audiencias.detail", audiencia_id=audiencia.id),
     )
     bitacora.save()
     return bitacora
 
 
-@audiencias.route('/audiencias/eliminar/<int:audiencia_id>')
+@audiencias.route("/audiencias/eliminar/<int:audiencia_id>")
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def delete(audiencia_id):
-    """ Eliminar Audiencia """
+    """Eliminar Audiencia"""
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if audiencia.estatus == 'A':
+    if audiencia.estatus == "A":
         if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
             audiencia.delete()
             bitacora = delete_success(audiencia)
-            flash(bitacora.descripcion, 'success')
+            flash(bitacora.descripcion, "success")
         else:
             flash("No tiene permiso para eliminar.", "warning")
-    return redirect(url_for('audiencias.detail', audiencia_id=audiencia.id))
+    return redirect(url_for("audiencias.detail", audiencia_id=audiencia.id))
 
 
 def recover_success(audiencia):
@@ -653,23 +661,23 @@ def recover_success(audiencia):
     bitacora = Bitacora(
         modulo=MODULO,
         usuario=current_user,
-        descripcion=safe_message("Recuperada la audiencia del " + audiencia.tiempo.strftime('%Y-%m-%d %H:%M')),
-        url=url_for('audiencias.detail', audiencia_id=audiencia.id),
+        descripcion=safe_message("Recuperada la audiencia del " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+        url=url_for("audiencias.detail", audiencia_id=audiencia.id),
     )
     bitacora.save()
     return bitacora
 
 
-@audiencias.route('/audiencias/recuperar/<int:audiencia_id>')
+@audiencias.route("/audiencias/recuperar/<int:audiencia_id>")
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def recover(audiencia_id):
-    """ Recuperar Audiencia """
+    """Recuperar Audiencia"""
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if audiencia.estatus == 'B':
+    if audiencia.estatus == "B":
         if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
             audiencia.recover()
             bitacora = recover_success(audiencia)
-            flash(bitacora.descripcion, 'success')
+            flash(bitacora.descripcion, "success")
         else:
             flash("No tiene permiso para eliminar.", "warning")
-    return redirect(url_for('audiencias.detail', audiencia_id=audiencia.id))
+    return redirect(url_for("audiencias.detail", audiencia_id=audiencia.id))

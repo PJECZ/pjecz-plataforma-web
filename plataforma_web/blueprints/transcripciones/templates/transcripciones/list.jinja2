@@ -15,7 +15,7 @@
         {% if current_user.can_insert('transcripciones') %}
             {{ topbar.button_new('Nueva Transcripción', url_for('transcripciones.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('transcripciones.search')) }}
+        {# topbar.button_search('Buscar', url_for('transcripciones.search')) #}
     {% endcall %}
 {% endblock %}
 

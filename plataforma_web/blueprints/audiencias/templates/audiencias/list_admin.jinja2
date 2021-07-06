@@ -48,9 +48,9 @@
             <tbody>
                 {% for audiencia in audiencias %}
                 <tr>
-                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tiempo }}</a></td>
+                    <td>{{ audiencia.tiempo }}</td>
                     {% if not autoridad %}<td>{{ audiencia.autoridad.clave }}</td>{% endif %}
-                    <td>{{ audiencia.tipo_audiencia }}</td>
+                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
                     <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
                     <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
                     <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>

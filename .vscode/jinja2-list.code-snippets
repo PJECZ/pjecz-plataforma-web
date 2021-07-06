@@ -62,7 +62,6 @@
             "\t\t{% if current_user.can_insert('${2:blueprint}') %}",
             "\t\t\t{{ topbar.button_new('Nuevo ${3:Singular}', url_for('${2:blueprint}.new')) }}",
             "\t\t{% endif %}",
-            "\t\t{{ topbar.button_search('Buscar', url_for('${2:blueprint}.search')) }}",
             "\t{% endcall %}",
             "{% endblock %}",
             "",

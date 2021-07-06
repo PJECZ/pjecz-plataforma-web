@@ -43,7 +43,7 @@
             columnDefs: [ {
                 targets: 0,
                 type: "date",
-                render: function (data, type, row, meta) {
+                render: function (data, type, row) {
                     return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
                 }
             } ],
@@ -67,6 +67,7 @@
         });
     </script>
 {%- endmacro -%}
+{#  #}
 
 {# Material Design Icons #}
 {%- macro icon_open_in_new() -%}
