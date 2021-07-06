@@ -5,7 +5,10 @@
 {% block title %}Tareas{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Tareas') }}
+    {% call topbar.page_buttons('Tareas') %}
+        {{ topbar.button('Bitácoras', url_for('bitacoras.list_active'), 'mdi:calendar-clock') }}
+        {{ topbar.button('Entradas/Salidas', url_for('entradas_salidas.list_active'), 'mdi:calendar-clock') }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
@@ -22,7 +25,7 @@
             <tbody>
                 {% for tarea in tareas %}
                 <tr>
-                    <td>{{ tarea.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ tarea.creado }}</td>
                     <td>{{ tarea.nombre }}</td>
                     <td>{{ tarea.descripcion }}</td>
                     <td>{% if tarea.ha_terminado %}Terminado{% else %}Continua{% endif %}</td>
@@ -34,5 +37,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('tareas_datatable', order='desc') }}
+    {{ list.datatable_times('tareas_datatable') }}
 {% endblock %}

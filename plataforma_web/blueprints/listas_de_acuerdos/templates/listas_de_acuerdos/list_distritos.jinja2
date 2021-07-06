@@ -11,22 +11,20 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid">
-        {% call list.card() %}
-            <table class="table display nowrap">
-                <thead>
-                    <tr>
-                        <th>Departamentos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for distrito in distritos %}
-                    <tr>
-                        <td><a href="{{ url_for('listas_de_acuerdos.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    </div>
+    {% call list.card() %}
+        <table class="table display nowrap">
+            <thead>
+                <tr>
+                    <th>Departamentos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for distrito in distritos %}
+                <tr>
+                    <td><a href="{{ url_for('listas_de_acuerdos.list_autoridades', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}

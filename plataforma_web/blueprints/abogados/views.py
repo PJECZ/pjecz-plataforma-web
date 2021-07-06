@@ -66,8 +66,8 @@ def search():
         if form_search.nombre.data:
             nombre = safe_string(form_search.nombre.data)
             consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
-        consulta = consulta.order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("abogados/list.jinja2", abogados=consulta)
+        consulta = consulta.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("abogados/list.jinja2", abogados=consulta, estatus="A")
     return render_template("abogados/search.jinja2", form=form_search)
 
 

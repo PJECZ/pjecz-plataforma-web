@@ -27,6 +27,7 @@
         {{ detail.label_value('e-mail', perito.email) }}
         {{ detail.label_value('Notas', perito.notas) }}
         {{ detail.label_value('Renovación', perito.renovacion) }}
+        {{ detail.label_value('Creado', moment(perito.creado).format('llll')) }}
     {% endcall %}
 {% endblock %}
 
@@ -35,4 +36,5 @@
         {% if perito.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + perito.nombre + '?') }}{% endif %}
         {% if perito.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + perito.nombre + '?') }}{% endif %}
     {% endif %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

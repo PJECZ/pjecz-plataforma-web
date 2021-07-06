@@ -3,10 +3,10 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Ubicación de Expedientes{% endblock %}
+{% block title %}Ubicación del Expediente{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Ubicación del Expediente ' + ubicacion_expediente.expediente) %}
+    {% call topbar.page_buttons('Ubicación del Expediente') %}
         {% if current_user.can_admin('ubicaciones_expedientes') %}
             {{ topbar.button_previous('Ubicaciones de Expedientes de ' + ubicacion_expediente.autoridad.clave, url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes', autoridad_id=ubicacion_expediente.autoridad_id)) }}
         {% else %}
@@ -26,6 +26,7 @@
         {{ detail.label_value('Distrito', ubicacion_expediente.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', ubicacion_expediente.autoridad.descripcion) }}
         {{ detail.label_value('Ubicación', ubicacion_expediente.ubicacion) }}
+        {{ detail.label_value('Creado', moment(ubicacion_expediente.creado).format('llll')) }}
     {% endcall %}
 {% endblock %}
 
@@ -34,4 +35,5 @@
         {% if ubicacion_expediente.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + ubicacion_expediente.expediente + '?') }}{% endif %}
         {% if ubicacion_expediente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + ubicacion_expediente.expediente + '?') }}{% endif %}
     {% endif %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

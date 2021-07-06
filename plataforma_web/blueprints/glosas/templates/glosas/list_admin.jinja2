@@ -22,16 +22,16 @@
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_autoridad_glosas_inactive', autoridad_id=autoridad.id)) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}{% endif %}
             {% endif %}
-            {% if current_user.can_insert('tareas') %}
+            {# if current_user.can_insert('tareas') #}
                 {# topbar.button_refresh('Refrescar', url_for('glosas.refresh', autoridad_id=autoridad.id)) #}
-            {% endif %}
+            {# endif #}
         {% else %}
             {% if current_user.can_edit('glosas') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('glosas.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('glosas.list_active')) }}{% endif %}
             {% endif %}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('glosas.search')) }}
+        {# topbar.button_search('Buscar', url_for('glosas.search')) #}
     {% endcall %}
 {% endblock %}
 
@@ -41,7 +41,7 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    <th>Autoridades</th>
+                    {% if not autoridad %}<th>Autoridades</th>{% endif %}
                     <th>Fechas</th>
                     <th>Descripciones</th>
                     <th>Tipos de juicios</th>
@@ -52,8 +52,8 @@
             <tbody>
                 {% for glosa in glosas %}
                 <tr>
-                    <td>{{ glosa.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td>{{ glosa.autoridad.clave }}</td>
+                    <td>{{ glosa.creado }}</td>
+                    {% if not autoridad %}<td>{{ glosa.autoridad.clave }}</td>{% endif %}
                     <td>{{ glosa.fecha }}</td>
                     <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.descripcion }}</a></td>
                     <td>{{ glosa.tipo_juicio }}</td>

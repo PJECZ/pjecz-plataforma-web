@@ -5,6 +5,7 @@ Base de datos
 - alimentar
 - reiniciar
 """
+import os
 import click
 
 from plataforma_web.app import create_app
@@ -18,9 +19,10 @@ from cli.commands.alimentar_abogados import alimentar_abogados
 from cli.commands.alimentar_ubicacion_expedientes import alimentar_ubicacion_expedientes
 from cli.commands.alimentar_peritos import alimentar_peritos
 
-
 app = create_app()
 db.app = app
+
+entorno_implementacion = os.environ.get("DEPLOYMENT_ENVIRONMENT", "develop").upper()
 
 
 @click.group()
@@ -31,6 +33,9 @@ def cli():
 @click.command()
 def inicializar():
     """Inicializar"""
+    if entorno_implementacion == "PRODUCTION":
+        click.echo("PROHIBIDO: No se inicializa porque este es el servidor de producción.")
+        return
     db.drop_all()
     db.create_all()
     click.echo("Inicializado.")
@@ -39,6 +44,9 @@ def inicializar():
 @click.command()
 def alimentar():
     """Alimentar"""
+    if entorno_implementacion == "PRODUCTION":
+        click.echo("PROHIBIDO: No se alimenta porque este es el servidor de producción.")
+        return
     alimentar_roles()
     alimentar_materias()
     alimentar_distritos()

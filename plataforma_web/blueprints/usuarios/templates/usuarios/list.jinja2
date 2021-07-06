@@ -8,6 +8,7 @@
     {% if estatus == 'A' %}{% set title='Usuarios' %}{% endif %}
     {% if estatus == 'B' %}{% set title='Usuarios inactivos' %}{% endif %}
     {% call topbar.page_buttons(title) %}
+        {% if current_user.can_view('roles') %}{{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}{% endif %}
         {% if current_user.can_edit('usuarios') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('usuarios.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('usuarios.list_active')) }}{% endif %}
@@ -15,10 +16,7 @@
         {% if current_user.can_insert('usuarios') %}
             {{ topbar.button_new('Nuevo Usuario', url_for('usuarios.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('usuarios.search')) }}
-        {% if current_user.can_view('entradas_salidas') %}{{ topbar.button('Entradas/Salidas', url_for('entradas_salidas.list_active'), 'mdi:calendar-clock') }}{% endif %}
-        {% if current_user.can_view('roles') %}{{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}{% endif %}
-        {% if current_user.can_view('tareas') %}{{ topbar.button('Tareas', url_for('tareas.list_active'), 'mdi:washing-machine') }}{% endif %}
+        {# topbar.button_search('Buscar', url_for('usuarios.search')) #}
     {% endcall %}
 {% endblock %}
 

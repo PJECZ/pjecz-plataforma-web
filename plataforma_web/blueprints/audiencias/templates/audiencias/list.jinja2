@@ -65,8 +65,8 @@
             <tbody>
                 {% for audiencia in audiencias %}
                 <tr>
-                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tiempo.strftime('%Y-%m-%d %H:%M:%S') }}</a></td>
-                    <td>{{ audiencia.tipo_audiencia }}</td>
+                    <td>{{ audiencia.tiempo }}</td>
+                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
                     {% if current_user.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
                     <th>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</th>
                     <th>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</th>
@@ -103,5 +103,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('audiencias_datatable', order='desc') }}
+    {{ list.datatable_times('audiencias_datatable') }}
 {% endblock %}

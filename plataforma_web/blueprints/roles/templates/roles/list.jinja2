@@ -5,7 +5,9 @@
 {% block title %}Roles{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Roles') }}
+    {% call topbar.page_buttons('Roles') %}
+        {{ topbar.button('Usuarios', url_for('usuarios.list_active'), 'mdi:account-key') }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}

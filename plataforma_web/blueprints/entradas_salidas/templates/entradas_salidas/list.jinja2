@@ -5,7 +5,10 @@
 {% block title %}Entradas/Salidas{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Entradas/Salidas') }}
+    {% call topbar.page_buttons('Entradas/Salidas') %}
+        {{ topbar.button('Bitácoras', url_for('bitacoras.list_active'), 'mdi:calendar-clock') }}
+        {{ topbar.button('Tareas', url_for('tareas.list_active'), 'mdi:washing-machine') }}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
@@ -22,7 +25,7 @@
             <tbody>
                 {% for entrada_salida in entradas_salidas %}
                 <tr>
-                    <td>{{ entrada_salida.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ entrada_salida.creado }}</td>
                     <td>{{ entrada_salida.tipo }}</td>
                     <td><a href="{{ url_for('usuarios.detail', usuario_id=entrada_salida.usuario.id) }}">{{ entrada_salida.usuario.nombre }}</a></td>
                     <td><a href="{{ url_for('autoridades.detail', autoridad_id=entrada_salida.usuario.autoridad.id) }}">{{ entrada_salida.usuario.autoridad.clave }}</a></td>
@@ -34,5 +37,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('entradas_salidas_datatable', order='desc') }}
+    {{ list.datatable_times('entradas_salidas_datatable') }}
 {% endblock %}

@@ -23,11 +23,11 @@
             {% elif current_user.can_insert('edictos') and current_user.autoridad_id == autoridad.id %}
                 {{ topbar.button_upload('Subir', url_for('edictos.new')) }}
             {% endif %}
-            {% if current_user.can_admin('edictos') and current_user.can_insert('tareas') %}
+            {# if current_user.can_admin('edictos') and current_user.can_insert('tareas') #}
                 {# topbar.button_refresh('Refrescar', url_for('edictos.refresh', autoridad_id=autoridad.id)) #}
-            {% endif %}
+            {# endif #}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
+        {# topbar.button_search('Buscar', url_for('edictos.search')) #}
     {% endcall %}
 {% endblock %}
 
@@ -36,7 +36,6 @@
         <table id="edictos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    {% if current_user.can_admin('edictos') %}<th>Creados</th>{% endif %}
                     <th>Fechas</th>
                     <th>Descripciones</th>
                     <th>Expedientes</th>
@@ -47,7 +46,6 @@
             <tbody>
                 {% for edicto in edictos %}
                 <tr>
-                    {% if current_user.can_admin('edictos') %}<td>{{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
                     <td>{{ edicto.fecha }}</td>
                     <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
                     <td>{{ edicto.expediente }}</td>
