@@ -41,7 +41,7 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    <th>Autoridades</th>
+                    {% if not autoridad %}<th>Autoridades</th>{% endif %}
                     <th>Fechas</th>
                     <th>Descripciones</th>
                     <th>Expedientes</th>
@@ -52,8 +52,8 @@
             <tbody>
                 {% for edicto in edictos %}
                 <tr>
-                    <td>{{ edicto.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td>{{ edicto.autoridad.clave }}</td>
+                    <td>{{ edicto.creado }}</td>
+                    {% if not autoridad %}<td>{{ edicto.autoridad.clave }}</td>{% endif %}
                     <td>{{ edicto.fecha }}</td>
                     <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
                     <td>{{ edicto.expediente }}</td>

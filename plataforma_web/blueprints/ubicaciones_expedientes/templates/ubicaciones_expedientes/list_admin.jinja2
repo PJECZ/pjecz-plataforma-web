@@ -16,7 +16,7 @@
         {{ topbar.button_districts('Departamentos', url_for('ubicaciones_expedientes.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('ubicaciones_expedientes') %}
-                {{ topbar.button_upload('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new_for_autoridad', autoridad_id=autoridad.id)) }}
+                {{ topbar.button_new('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new_for_autoridad', autoridad_id=autoridad.id)) }}
             {% endif %}
             {% if current_user.can_edit('ubicaciones_expedientes') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('ubicaciones_expedientes.list_autoridad_ubicaciones_expedientes_inactive', autoridad_id=autoridad.id)) }}{% endif %}
@@ -38,7 +38,7 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    <th>Autoridades</th>
+                    {% if not autoridad %}<th>Autoridades</th>{% endif %}
                     <th>Expedientes</th>
                     <th>Ubicaciones</th>
                 </tr>
@@ -46,8 +46,8 @@
             <tbody>
                 {% for ubicacion_expediente in ubicaciones_expedientes %}
                 <tr>
-                    <td>{{ ubicacion_expediente.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td>{{ ubicacion_expediente.autoridad.clave }}</td>
+                    <td>{{ ubicacion_expediente.creado }}</td>
+                    {% if not autoridad %}<td>{{ ubicacion_expediente.autoridad.clave }}</td>{% endif %}
                     <td><a href="{{ url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id) }}">{{ ubicacion_expediente.expediente }}</a></td>
                     <td>{{ ubicacion_expediente.ubicacion }}</td>
                 </tr>
@@ -58,5 +58,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('ubicaciones_expedientes_datatable', order='desc') }}
+    {{ list.datatable_times('ubicaciones_expedientes_datatable') }}
 {% endblock %}

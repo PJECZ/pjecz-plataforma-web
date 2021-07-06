@@ -36,7 +36,6 @@
         <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    {% if current_user.can_admin('listas_de_acuerdos') %}<th>Creados</th>{% endif %}
                     <th>Fechas</th>
                     <th>Descripciones</th>
                     <th>Archivos</th>
@@ -45,7 +44,6 @@
             <tbody>
                 {% for lista_de_acuerdo in listas_de_acuerdos %}
                 <tr>
-                    {% if current_user.can_admin('listas_de_acuerdos') %}<td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
                     <td>{{ lista_de_acuerdo.fecha }}</td>
                     <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.descripcion }}</a></td>
                     <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">PDF {{ list.icon_open_in_new() }}</a></td>

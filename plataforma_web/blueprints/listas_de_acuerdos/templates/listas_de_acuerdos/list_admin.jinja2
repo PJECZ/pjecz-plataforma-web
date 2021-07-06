@@ -41,7 +41,7 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    <th>Autoridades</th>
+                    {% if not autoridad %}<th>Autoridades</th>{% endif %}
                     <th>Fechas</th>
                     <th>Descripciones</th>
                     <th>Archivos</th>
@@ -50,8 +50,8 @@
             <tbody>
                 {% for lista_de_acuerdo in listas_de_acuerdos %}
                 <tr>
-                    <td>{{ lista_de_acuerdo.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td>{{ lista_de_acuerdo.autoridad.clave }}</td>
+                    <td>{{ lista_de_acuerdo.creado }}</td>
+                    {% if not autoridad %}<td>{{ lista_de_acuerdo.autoridad.clave }}</td>{% endif %}
                     <td>{{ lista_de_acuerdo.fecha }}</td>
                     <td><a href="{{ url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=lista_de_acuerdo.id) }}">{{ lista_de_acuerdo.descripcion }}</a></td>
                     <td><a href="{{ lista_de_acuerdo.url }}" target="_blank">PDF {{ list.icon_open_in_new() }}</a></td>
