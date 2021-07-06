@@ -6,7 +6,7 @@
 {% block title %}Autoridad{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Autoridad ' + autoridad.descripcion) %}
+    {% call topbar.page_buttons('Autoridad') %}
         {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
         {% if current_user.can_edit('autoridades') %}
             {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
@@ -18,6 +18,7 @@
 
 {% block content %}
     {% call detail.card(estatus=autoridad.estatus) %}
+        {{ detail.label_value_big('Descripción', autoridad.descripcion) }}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
         {{ detail.label_value('Departamento', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
         {{ detail.label_value('Clave', autoridad.clave) }}
@@ -30,6 +31,7 @@
         {{ detail.label_value('Directorio para glosas', autoridad.directorio_glosas, link=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}
         {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos, link=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
         {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias, link=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
+        {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
     {% if usuarios and current_user.can_view('usuarios') %}
         {% call detail.card('Usuarios') %}
@@ -63,4 +65,5 @@
         {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ detail.datatable('usuarios_datatable') }}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

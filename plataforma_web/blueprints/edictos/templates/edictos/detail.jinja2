@@ -6,7 +6,7 @@
 {% block title %}Edicto{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Edicto ' + edicto.descripcion) %}
+    {% call topbar.page_buttons('Edicto') %}
         {% if current_user.can_admin('edictos') %}
             {{ topbar.button_previous('Edictos de ' + edicto.autoridad.clave, url_for('edictos.list_autoridad_edictos', autoridad_id=edicto.autoridad_id)) }}
         {% else %}
@@ -22,15 +22,15 @@
 
 {% block content %}
     {% call detail.card(estatus=edicto.estatus) %}
+        {{ detail.label_value_big('Descripción', edicto.descripcion) }}
         {{ detail.label_value('Distrito', edicto.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', edicto.autoridad.descripcion) }}
         {{ detail.label_value('Fecha', edicto.fecha) }}
-        {{ detail.label_value('Descripción', edicto.descripcion) }}
         {{ detail.label_value('Expediente', edicto.expediente) }}
         {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
         {{ detail.label_value_new_tab('Edicto PDF', edicto.archivo, edicto.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
-        {{ detail.label_value('Subido', moment(edicto.creado).format('llll')) }}
+        {{ detail.label_value('Creado', moment(edicto.creado).format('llll')) }}
     {% endcall %}
 {% endblock %}
 
