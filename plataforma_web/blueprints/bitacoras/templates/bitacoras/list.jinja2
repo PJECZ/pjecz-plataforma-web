@@ -20,12 +20,10 @@
                     <th>Usuarios e-mail</th>
                     <th>Módulos</th>
                     <th>Descripciones</th>
-                    <th>URL</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -52,19 +50,24 @@
                 { data: 'creado' },
                 { data: 'usuario_email' },
                 { data: 'modulo' },
-                { data: 'descripcion' },
+                { data: 'vinculo' }
+            ],
+            columnDefs: [
                 {
-                    data: 'url',
-                    render: function(data, type, row) { return "<a href='" + data + "' target='_blank'> <span class='iconify' data-icon='mdi:open-in-new'></span></a>" }
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '" target="_blank">' + data.descripcion + ' <span class="iconify" data-icon="mdi:open-in-new"></span></a>';
+                    }
                 }
             ],
-            columnDefs: [ {
-                targets: 0,
-                type: "date",
-                render: function (data, type, row, meta) {
-                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
-                }
-            } ],
             language: {
                 lengthMenu: "Mostrar _MENU_",
                 search: "Filtrar:",
