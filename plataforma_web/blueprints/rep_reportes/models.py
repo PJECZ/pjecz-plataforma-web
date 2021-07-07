@@ -11,6 +11,7 @@ class RepReporte(db.Model, UniversalMixin):
 
     PROGRESOS = OrderedDict(
         [
+            ("NO DEFINIDO", "No Definido"),
             ("PENDIENTE", "Pendiente"),
             ("ELABORANDO", "Elaborando"),
             ("TERMINADO", "Terminado"),

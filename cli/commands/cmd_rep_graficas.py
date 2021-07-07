@@ -26,6 +26,14 @@ def elaborar():
     if len(rep_graficas) == 0:
         click.echo("No hay gráficas activas.")
         return
+
+    # RepGrafica
+    # - descripcion
+    # - desde
+    # - hasta
+    # - corte
+    # - rep_reportes
+
     cantidad = 0
     for rep_grafica in rep_graficas:
         app.task_queue.enqueue(

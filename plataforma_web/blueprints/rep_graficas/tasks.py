@@ -48,6 +48,12 @@ def elaborar(rep_grafica_id: int):
             )
             cantidad += 1
 
+    # descripcion
+    # desde
+    # hasta
+    # programado
+    # progreso
+
     # Terminar tarea
     mensaje = f"Se lanzaron {cantidad} reportes por elaborar."
     set_task_progress(100)

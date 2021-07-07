@@ -2,9 +2,9 @@
 
 Administrador de contenidos del sitio web del PJECZ.
 
-## Crear Entorno Virtual
+## Entorno Virtual con Python 3.6 o superior
 
-Crear el enorno virtual dentro de la copia local del repositorio, con
+Crear el entorno virtual dentro de la copia local del repositorio, con
 
     python -m venv venv
 
@@ -38,14 +38,7 @@ Verifique con
 
 ## Configurar
 
-Crear archivo .env con las variables de entorno, por ejemplo:
-
-    # Flask
-    FLASK_APP=plataforma_web.app
-    FLASK_DEBUG=1
-    SECRET_KEY=****************
-
-O crear archivo instance/settings.py que defina...
+Debe crear un archivo instance/settings.py que defina su configuración para desarrollo...
 
     # Flask
     SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxx'
@@ -53,7 +46,17 @@ O crear archivo instance/settings.py que defina...
     # Base de datos en SQLLite
     SQLALCHEMY_DATABASE_URI = 'sqlite:///pjecz_tres_de_tres.sqlite3'
 
-Ejemplo para PostgreSQL, agregue en .env los datos de conexión
+    # Base de datos MariaDB
+    # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://wronguser:badpassword@127.0.0.1/pjecz_plataforma_web'
+
+Opcionalmente puede guardar valores en un archivo .env como variables de entorno...
+
+    # Flask
+    FLASK_APP=plataforma_web.app
+    FLASK_DEBUG=1
+    SECRET_KEY=****************
+
+Por ejemplo, para PostgreSQL agregue en .env los datos de conexión...
 
     # Base de datos local
     DB_USER=pjeczadmin
@@ -61,7 +64,7 @@ Ejemplo para PostgreSQL, agregue en .env los datos de conexión
     DB_NAME=pjecz_plataforma_web
     DB_HOST=127.0.0.1
 
-Y los obtiene por variables de entorno en instace/settings.py
+Y los obtiene en instance/settings.py con...
 
     import os
     DB_USER = os.environ.get("DB_USER", "wronguser")
@@ -70,17 +73,13 @@ Y los obtiene por variables de entorno en instace/settings.py
     DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
     SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 
-Ejemplo para MariaDB en Justicia (172.30.37.233)
-
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://wronguser:badpassword@172.30.37.233/pjecz_plataforma_web'
-
 ## Cargar registros iniciales
 
 Crear directorio seed
 
     mkdir seed
 
-Copiar archivos CSV desde Archivista y ponerlos en seed. Ejecutar...
+Copiar archivos CSV y ponerlos en seed. Ejecutar...
 
     pip install --editable .
     plataforma_web db inicializar
@@ -113,6 +112,16 @@ Y ejecute Flask
 
     flask run
 
+## Arrancar RQ worker
+
+Las tareas en el fondo requieren un servicio Redis
+
+Abra una terminal, cargue el entorno virtual y deje en ejecución el worker
+
+    rq worker pjecz_plataforma_web
+
+Estará vigilante de Redis
+
 ## Configurar VSCode
 
 Aparte de su configuració particular, agregue el archivo .vscode/settings.json con
@@ -124,18 +133,8 @@ Aparte de su configuració particular, agregue el archivo .vscode/settings.json 
         "python.linting.pylintArgs": ["--max-line-length", "256", "--load-plugins", "pylint_flask_sqlalchemy"]
     }
 
-Esto habilita
+Esto habilita...
 
 - El formateo del código con [Black](https://black.readthedocs.io/en/stable/)
 - Líneas más largas de hasta 256 caracteres
 - Reconocimiento de sintaxis de Flask SQLAlchemy
-
-## Arrancar RQ worker
-
-Las tareas en el fondo requieren un servicio Redis
-
-Abra una terminal, cargue el entorno virtual y deje en ejecución el worker
-
-    rq worker pjecz_plataforma_web
-
-Estará vigilante de Redis
