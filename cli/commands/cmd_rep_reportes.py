@@ -1,5 +1,5 @@
 """
-Reportes
+Rep Reportes
 
 - elaborar: Elaborar reportes pendientes
 - preparar_diarios: Preparar reportes diarios
@@ -18,7 +18,7 @@ db.app = app
 
 @click.group()
 def cli():
-    """Reportes"""
+    """Rep Reportes"""
 
 
 @click.command()

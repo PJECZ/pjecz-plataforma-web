@@ -49,9 +49,9 @@ def new():
     """Nuevo Gráfica"""
     form = RepGraficaForm()
     if form.validate_on_submit():
-        rep_grafica = RepGrafica(nombre=form.nombre.data)
+        rep_grafica = RepGrafica(descripcion=form.descripcion.data)
         rep_grafica.save()
-        flash(f"Gráfica {rep_grafica.nombre} guardado.", "success")
+        flash(f"Gráfica {rep_grafica.descripcion} guardado.", "success")
         return redirect(url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id))
     return render_template("rep_graficas/new.jinja2", form=form)
 
@@ -63,11 +63,11 @@ def edit(rep_grafica_id):
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
     form = RepGraficaForm()
     if form.validate_on_submit():
-        rep_grafica.nombre = form.nombre.data
+        rep_grafica.descripcion = form.descripcion.data
         rep_grafica.save()
-        flash(f"Gráfica {rep_grafica.nombre} guardado.", "success")
+        flash(f"Gráfica {rep_grafica.descripcion} guardado.", "success")
         return redirect(url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id))
-    form.nombre.data = rep_grafica.nombre
+    form.descripcion.data = rep_grafica.descripcion
     return render_template("rep_graficas/edit.jinja2", form=form, rep_grafica=rep_grafica)
 
 
@@ -78,7 +78,7 @@ def delete(rep_grafica_id):
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
     if rep_grafica.estatus == "A":
         rep_grafica.delete()
-        flash(f"Gráfica {rep_grafica.nombre} eliminado.", "success")
+        flash(f"Gráfica {rep_grafica.descripcion} eliminado.", "success")
     return redirect(url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id))
 
 
@@ -89,5 +89,5 @@ def recover(rep_grafica_id):
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
     if rep_grafica.estatus == "B":
         rep_grafica.recover()
-        flash(f"Gráfica {rep_grafica.nombre} recuperado.", "success")
+        flash(f"Gráfica {rep_grafica.descripcion} recuperado.", "success")
     return redirect(url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id))

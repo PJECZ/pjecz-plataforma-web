@@ -25,14 +25,14 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    <th>Nombres</th>
+                    <th>Descripciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for rep_grafica in rep_graficas %}
                 <tr>
-                    <td>{{ rep_grafica.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td><a href="{{ url_for('rep_graficas.detail', rep_grafica_id=rep_grafica.id) }}">{{ rep_grafica.nombre }}</a></td>
+                    <td>{{ rep_grafica.creado }}</td>
+                    <td><a href="{{ url_for('rep_graficas.detail', rep_grafica_id=rep_grafica.id) }}">{{ rep_grafica.descripcion }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -41,5 +41,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('rep_graficas_datatable', order='desc') }}
+    {{ list.datatable_times('rep_graficas_datatable') }}
 {% endblock %}

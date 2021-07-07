@@ -11,7 +11,7 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('rep_graficas.new', fid='rep_grafica_form') %}
-            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

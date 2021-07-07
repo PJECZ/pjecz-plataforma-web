@@ -8,5 +8,5 @@ from wtforms.validators import DataRequired, Length
 
 class RepGraficaForm(FlaskForm):
     """ Formulario RepGrafica """
-    nombre = StringField('Nombre', validators=[DataRequired(), Length(max=256)])
+    descripcion = StringField('Descripción', validators=[DataRequired(), Length(max=256)])
     guardar = SubmitField('Guardar')

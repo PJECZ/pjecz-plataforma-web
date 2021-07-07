@@ -33,7 +33,7 @@
             <tbody>
                 {% for rep_reporte in rep_reportes %}
                 <tr>
-                    <td>{{ rep_reporte.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ rep_reporte.creado }}</td>
                     <td><a href="{{ url_for('rep_reportes.detail', rep_reporte_id=rep_reporte.id) }}">{{ rep_reporte.descripcion }}</a></td>
                     <td>{{ rep_reporte.desde }}</td>
                     <td>{{ rep_reporte.hasta }}</td>
@@ -47,5 +47,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('rep_reportes_datatable', order='desc') }}
+    {{ list.datatable_times('rep_reportes_datatable') }}
 {% endblock %}

@@ -6,7 +6,7 @@
 {% block title %}Gráfica{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(rep_grafica.nombre) %}
+    {% call topbar.page_buttons('Gráfica') %}
         {{ topbar.button_previous('Gráficas', url_for('rep_graficas.list_active')) }}
         {% if current_user.can_edit('rep_graficas') %}
             {{ topbar.button_edit('Editar', url_for('rep_graficas.edit', rep_grafica_id=rep_grafica.id)) }}
@@ -21,7 +21,7 @@
 
 {% block content %}
     {% call detail.card(estatus=rep_grafica.estatus) %}
-        {{ detail.label_value_big('Nombre o Descripción', rep_grafica.nombre) }}
+        {{ detail.label_value_big('Descripción', rep_grafica.descripcion) }}
     {% endcall %}
     {% if rep_reportes %}
         {% call detail.card() %}
@@ -53,8 +53,8 @@
 
 {% block custom_javascript %}
     {% if current_user.can_edit('rep_graficas') %}
-        {% if rep_grafica.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rep_grafica.nombre + '?') }}{% endif %}
-        {% if rep_grafica.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + rep_grafica.nombre + '?') }}{% endif %}
+        {% if rep_grafica.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rep_grafica.descripcion + '?') }}{% endif %}
+        {% if rep_grafica.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + rep_grafica.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ detail.datatable('rep_reportes_datatable') }}
 {% endblock %}

@@ -15,7 +15,7 @@ class RepGrafica(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Columnas
-    nombre = db.Column(db.String(256), unique=True, nullable=False)
+    descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
     rep_reportes = db.relationship("RepReporte", back_populates="rep_grafica")
