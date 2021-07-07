@@ -42,6 +42,8 @@
         {{ f(class=css_class, **kwargs) }}
     {% elif f.type == 'DateField'  %}
         {{ f(class=css_class, type='date', **kwargs) }}
+    {% elif f.type == 'TimeField'  %}
+        {{ f(class=css_class, type='time', **kwargs) }}
     {% elif f.type == 'DateTimeField'  %}
         {{ f(class=css_class, type='datetime', **kwargs) }}
     {% elif f.type == 'SubmitField'  %}
@@ -158,30 +160,6 @@
                 $('#autoridad').empty();
                 cambiarAutoridadesSelect($('#distrito').val());
             });
-        });
-    </script>
-{%- endmacro -%}
-
-{# JavaScript Datatable #}
-{%- macro datatable(table_id, order="asc") -%}
-    <script>
-        $('#{{ table_id }}').DataTable({
-            {% if order == "asc" %}order: [[ 0, "asc" ]],{% endif %}
-            {% if order == "desc" %}order: [[ 0, "desc" ]],{% endif %}
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Página _PAGE_ de _PAGES_",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
         });
     </script>
 {%- endmacro -%}

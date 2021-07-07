@@ -15,7 +15,7 @@
         {% if current_user.can_insert('peritos') %}
             {{ topbar.button_new('Nuevo Perito', url_for('peritos.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('peritos.search')) }}
+        {# topbar.button_search('Buscar', url_for('peritos.search')) #}
     {% endcall %}
 {% endblock %}
 

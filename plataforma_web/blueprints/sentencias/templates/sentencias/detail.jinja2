@@ -6,7 +6,7 @@
 {% block title %}Versión Pública de Sentencia{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('V.P. Sentencia ' + sentencia.sentencia) %}
+    {% call topbar.page_buttons('V.P. Sentencia') %}
         {% if current_user.can_admin('sentencias') %}
             {{ topbar.button_previous('V.P. Sentencias de ' + sentencia.autoridad.clave, url_for('sentencias.list_autoridad_sentencias', autoridad_id=sentencia.autoridad_id)) }}
         {% else %}
@@ -22,15 +22,16 @@
 
 {% block content %}
     {% call detail.card(estatus=sentencia.estatus) %}
-        {{ detail.label_value_big('Archivo', sentencia.archivo) }}
+        {{ detail.label_value_big('Sentencia', sentencia.sentencia) }}
         {{ detail.label_value('Distrito', sentencia.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', sentencia.autoridad.descripcion) }}
         {{ detail.label_value('Fecha', sentencia.fecha) }}
-        {{ detail.label_value('Sentencia', sentencia.sentencia) }}
         {{ detail.label_value('Expediente', sentencia.expediente) }}
         {{ detail.label_value_boolean('Es Perspectiva de Género', sentencia.es_paridad_genero) }}
+        {{ detail.label_value('Archivo', sentencia.archivo) }}
         {{ detail.label_value_new_tab('Versión Pública PDF', sentencia.archivo, sentencia.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('sentencias.checkout', id_hashed=sentencia.encode_id())) }}
+        {{ detail.label_value('Creado', moment(sentencia.creado).format('llll')) }}
     {% endcall %}
 {% endblock %}
 
@@ -39,4 +40,5 @@
         {% if sentencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + sentencia.sentencia + '?') }}{% endif %}
         {% if sentencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + sentencia.sentencia + '?') }}{% endif %}
     {% endif %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

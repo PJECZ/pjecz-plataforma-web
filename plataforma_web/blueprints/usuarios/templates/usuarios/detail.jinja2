@@ -6,7 +6,7 @@
 {% block title %}Usuario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Usuario ' + usuario.nombre) %}
+    {% call topbar.page_buttons('Usuario') %}
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
         {% if current_user.can_edit('usuarios') %}
             {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
@@ -26,6 +26,7 @@
             {{ detail.label_value('Workspace', usuario.workspace) }}
             {{ detail.label_value('Rol', usuario.rol.nombre) }}
         {% endif %}
+        {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
     {% endcall %}
 {% endblock %}
 
@@ -34,4 +35,5 @@
         {% if usuario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + usuario.nombre + '?') }}{% endif %}
         {% if usuario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + usuario.nombre + '?') }}{% endif %}
     {% endif %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

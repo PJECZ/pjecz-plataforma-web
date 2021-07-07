@@ -149,10 +149,13 @@ class Rol(db.Model, UniversalMixin):
                 Permiso.CREAR_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.MODIFICAR_JUSTICIABLES,
+                Permiso.ADMINISTRAR_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
                 Permiso.MODIFICAR_NOTARIALES,
+                Permiso.ADMINISTRAR_NOTARIALES,
                 Permiso.VER_SEGUNDAS,
                 Permiso.MODIFICAR_SEGUNDAS,
+                Permiso.ADMINISTRAR_SEGUNDAS,
             ],
             "USUARIO": [
                 Permiso.VER_CONSULTAS,

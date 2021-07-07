@@ -25,7 +25,7 @@
             <tbody>
                 {% for tarea in tareas %}
                 <tr>
-                    <td>{{ tarea.creado.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ tarea.creado }}</td>
                     <td>{{ tarea.nombre }}</td>
                     <td>{{ tarea.descripcion }}</td>
                     <td>{% if tarea.ha_terminado %}Terminado{% else %}Continua{% endif %}</td>
@@ -37,5 +37,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('tareas_datatable', order='desc') }}
+    {{ list.datatable_times('tareas_datatable') }}
 {% endblock %}

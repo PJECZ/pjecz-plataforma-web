@@ -148,39 +148,43 @@ def respaldar(desde, salida_csv):
     audiencias = audiencias.order_by(Audiencia.fecha).all()
     with open(ruta, "w") as puntero:
         escritor = csv.writer(puntero)
-        escritor.writerow([
-            "autoridad_id",
-            "tiempo",
-            "tipo_audiencia",
-            "expediente",
-            "actores",
-            "demandados",
-            "sala",
-            "caracter",
-            "causa_penal",
-            "delitos",
-            "toca",
-            "expediente_origen",
-            "imputados",
-            "origen",
-        ])
+        escritor.writerow(
+            [
+                "autoridad_id",
+                "tiempo",
+                "tipo_audiencia",
+                "expediente",
+                "actores",
+                "demandados",
+                "sala",
+                "caracter",
+                "causa_penal",
+                "delitos",
+                "toca",
+                "expediente_origen",
+                "imputados",
+                "origen",
+            ]
+        )
         for audiencia in audiencias:
-            escritor.writerow([
-                audiencia.autoridad_id,
-                audiencia.tiempo,
-                audiencia.tipo_audiencia,
-                audiencia.expediente,
-                audiencia.actores,
-                audiencia.demandados,
-                audiencia.sala,
-                audiencia.caracter,
-                audiencia.causa_penal,
-                audiencia.delitos,
-                audiencia.toca,
-                audiencia.expediente_origen,
-                audiencia.imputados,
-                audiencia.origen,
-            ])
+            escritor.writerow(
+                [
+                    audiencia.autoridad_id,
+                    audiencia.tiempo,
+                    audiencia.tipo_audiencia,
+                    audiencia.expediente,
+                    audiencia.actores,
+                    audiencia.demandados,
+                    audiencia.sala,
+                    audiencia.caracter,
+                    audiencia.causa_penal,
+                    audiencia.delitos,
+                    audiencia.toca,
+                    audiencia.expediente_origen,
+                    audiencia.imputados,
+                    audiencia.origen,
+                ]
+            )
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
