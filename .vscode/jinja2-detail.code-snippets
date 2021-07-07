@@ -57,7 +57,7 @@
             "{% block custom_javascript %}",
             "\t{% if current_user.can_edit('${5:blueprint}') %}",
             "\t\t{% if ${2:instancia}.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + ${2:instancia}.${3:nombre_o_descripcion} + '?') }}{% endif %}",
-            "\t\t{% if ${2:instancia}.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + ${2:instancia}.${3:nombre_o_descripcion} + '?') }}{% endif %}",
+            "\t\t{% if ${2:instancia}.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + ${2:instancia}.${3:nombre_o_descripcion} + '?') }}{% endif %}",
             "\t{% endif %}",
             "{% endblock %}",
             ""
@@ -99,7 +99,7 @@
             "{% block custom_javascript %}",
             "\t{% if current_user.can_admin('${5:blueprint}') or (current_user.can_edit('${5:blueprint}') and ${2:instancia}.autoridad_id == current_user.autoridad_id) %}",
             "\t\t{% if ${2:instancia}.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + ${2:instancia}.${3:nombre_o_descripcion} + '?') }}{% endif %}",
-            "\t\t{% if ${2:instancia}.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + ${2:instancia}.${3:nombre_o_descripcion} + '?') }}{% endif %}",
+            "\t\t{% if ${2:instancia}.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + ${2:instancia}.${3:nombre_o_descripcion} + '?') }}{% endif %}",
             "\t{% endif %}",
             "{% endblock %}",
             ""

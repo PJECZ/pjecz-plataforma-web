@@ -37,7 +37,7 @@
 {% block custom_javascript %}
     {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
         {% if glosa.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + glosa.descripcion + '?') }}{% endif %}
-        {% if glosa.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + glosa.descripcion + '?') }}{% endif %}
+        {% if glosa.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + glosa.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

@@ -62,7 +62,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('autoridades') %}
         {% if autoridad.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?') }}{% endif %}
-        {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
+        {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ detail.datatable('usuarios_datatable') }}
     {{ detail.moment_js(moment) }}

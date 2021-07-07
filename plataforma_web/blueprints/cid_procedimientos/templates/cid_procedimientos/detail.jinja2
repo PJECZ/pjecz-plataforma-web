@@ -30,7 +30,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('cid_procedimientos') %}
         {% if cid_procedimiento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
-        {% if cid_procedimiento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
+        {% if cid_procedimiento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
     {% endif %}
     <!-- Quill library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
