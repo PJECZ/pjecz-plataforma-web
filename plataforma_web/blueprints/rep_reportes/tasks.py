@@ -24,8 +24,8 @@ app = create_app()
 app.app_context().push()
 
 
-def preparar_diarios(rep_grafica: RepGrafica, desde: date, hasta: date):
-    """Preparar los reportes diarios de una gráfica"""
+def crear_diarios(rep_grafica: RepGrafica, desde: date, hasta: date):
+    """Crear los reportes diarios de una gráfica"""
     contador = 0
     puntero = desde
     while puntero <= hasta:

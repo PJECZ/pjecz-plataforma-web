@@ -1,7 +1,6 @@
 """
 Rep Reportes
 
-- elaborar: Elaborar reportes pendientes
 - preparar_diarios: Preparar reportes diarios
 """
 from datetime import datetime, timedelta, date
@@ -9,8 +8,8 @@ import click
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
-
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
+
 
 app = create_app()
 db.app = app
@@ -19,24 +18,6 @@ db.app = app
 @click.group()
 def cli():
     """Rep Reportes"""
-
-
-@click.command()
-def elaborar():
-    """Elaborar reportes pendientes"""
-    contador = 0
-    reportes = RepReporte.query.filter(RepReporte.progreso == "PENDIENTE").filter(RepReporte.estatus == "A").all()
-    for reporte in reportes:
-        app.task_queue.enqueue(
-            "plataforma_web.blueprints.reportes.tasks.elaborar",
-            reporte_id=reporte.id,
-        )
-        click.echo(f"- Elaborar reporte {reporte.descripcion}")
-        contador += 1
-    if contador > 0:
-        click.echo(f"Se lanzaron {contador} tareas para ejecutar en el fondo.")
-    else:
-        click.echo("No hay reportes pendientes.")
 
 
 @click.command()
@@ -103,5 +84,4 @@ def preparar_diarios(desde, hasta):
     click.echo(f"Se prepararon {contador} reportes. Ahora puede elaborarlos.")
 
 
-cli.add_command(elaborar)
 cli.add_command(preparar_diarios)
