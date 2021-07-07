@@ -26,7 +26,7 @@ def elaborar():
     rep_graficas = RepGrafica.query.filter(RepGrafica.estatus == "A").order_by(RepGrafica.id).all()
     for rep_grafica in rep_graficas:
         click.echo(f"  Gráfica: {rep_grafica.descripcion}")
-        for rep_reporte in rep_graficas.rep_reportes:
+        for rep_reporte in rep_grafica.rep_reportes:
             click.echo(f"    Reporte: {rep_reporte.descripcion}")
 
 

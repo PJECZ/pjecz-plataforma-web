@@ -62,7 +62,7 @@ def new(rep_grafica_id):
         rep_reporte.save()
         flash(f"Reporte {rep_reporte.descripcion} guardado.", "success")
         return redirect(url_for("rep_reportes.detail", rep_reporte_id=rep_reporte.id))
-    form.rep_grafica.data = rep_grafica.nombre  # Read only
+    form.rep_grafica.data = rep_grafica.descripcion  # Read only
     return render_template("rep_reportes/new.jinja2", form=form, rep_grafica=rep_grafica)
 
 
@@ -81,7 +81,7 @@ def edit(rep_reporte_id):
         rep_reporte.save()
         flash(f"Reporte {rep_reporte.descripcion} guardado.", "success")
         return redirect(url_for("rep_reportes.detail", rep_reporte_id=rep_reporte.id))
-    form.rep_grafica.data = rep_reporte.rep_grafica.nombre  # Read only
+    form.rep_grafica.data = rep_reporte.rep_grafica.descripcion  # Read only
     form.descripcion.data = rep_reporte.descripcion
     form.desde.data = rep_reporte.desde
     form.hasta.data = rep_reporte.hasta
