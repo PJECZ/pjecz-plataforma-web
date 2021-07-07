@@ -38,8 +38,8 @@
             <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
                         <th>e-mail</th>
+                        <th>Nombres</th>
                         {% if current_user.can_view('roles') %}<th>Rol</th>{% endif %}
                         <th>Workspace</th>
                     </tr>
@@ -47,8 +47,8 @@
                 <tbody>
                     {% for usuario in usuarios %}
                     <tr>
-                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
-                        <td>{{ usuario.email }}</td>
+                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
+                        <td>{{ usuario.nombre }}</td>
                         {% if current_user.can_view('roles') %}<td>{{ usuario.rol.nombre }}</td>{% endif %}
                         <td>{{ usuario.workspace }}</td>
                     </tr>
@@ -62,7 +62,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('autoridades') %}
         {% if autoridad.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?') }}{% endif %}
-        {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
+        {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ detail.datatable('usuarios_datatable') }}
     {{ detail.moment_js(moment) }}

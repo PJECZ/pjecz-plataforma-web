@@ -68,32 +68,32 @@
                     <td>{{ audiencia.tiempo }}</td>
                     <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
                     {% if current_user.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
-                    <th>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</th>
-                    <th>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</th>
-                    <th>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</th>
+                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
+                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
+                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
                     {% endif %}
                     {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
-                    <th>{% if audiencia.sala %}{{ audiencia.sala }}{% endif %}</th>
-                    <th>{% if audiencia.caracter %}{{ audiencia.caracter }}{% endif %}</th>
-                    <th>{% if audiencia.causa_penal %}{{ audiencia.causa_penal }}{% endif %}</th>
-                    <th>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</th>
+                    <td>{% if audiencia.sala %}{{ audiencia.sala }}{% endif %}</td>
+                    <td>{% if audiencia.caracter %}{{ audiencia.caracter }}{% endif %}</td>
+                    <td>{% if audiencia.causa_penal %}{{ audiencia.causa_penal }}{% endif %}</td>
+                    <td>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</td>
                     {% endif %}
                     {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
-                    <th>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</th>
-                    <th>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</th>
-                    <th>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</th>
-                    <th>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</th>
-                    <th>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</th>
-                    <th>{% if audiencia.imputados %}{{ audiencia.imputados }}{% endif %}</th>
+                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
+                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
+                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
+                    <td>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</td>
+                    <td>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</td>
+                    <td>{% if audiencia.imputados %}{{ audiencia.imputados }}{% endif %}</td>
                     {% endif %}
                     {% if current_user.autoridad.audiencia_categoria == 'SALAS' %}
-                    <th>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</th>
-                    <th>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</th>
-                    <th>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</th>
-                    <th>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</th>
-                    <th>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</th>
-                    <th>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</th>
-                    <th>{% if audiencia.origen %}{{ audiencia.origen }}{% endif %}</th>
+                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
+                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
+                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
+                    <td>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</td>
+                    <td>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</td>
+                    <td>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</td>
+                    <td>{% if audiencia.origen %}{{ audiencia.origen }}{% endif %}</td>
                     {% endif %}
                 </tr>
                 {% endfor %}

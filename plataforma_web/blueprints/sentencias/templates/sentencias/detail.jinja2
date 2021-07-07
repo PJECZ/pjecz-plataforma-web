@@ -38,7 +38,7 @@
 {% block custom_javascript %}
     {% if current_user.can_admin('sentencias') or (current_user.can_edit('sentencias') and sentencia.autoridad_id == current_user.autoridad_id) %}
         {% if sentencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + sentencia.sentencia + '?') }}{% endif %}
-        {% if sentencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + sentencia.sentencia + '?') }}{% endif %}
+        {% if sentencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + sentencia.sentencia + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

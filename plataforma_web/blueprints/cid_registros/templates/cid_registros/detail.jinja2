@@ -27,6 +27,6 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('cid_registros') %}
         {% if registro.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + registro.descripcion + '?') }}{% endif %}
-        {% if registro.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + registro.descripcion + '?') }}{% endif %}
+        {% if registro.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + registro.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

@@ -36,13 +36,6 @@
                     <th>Fechas y horas</th>
                     {% if not autoridad %}<th>Autoridades</th>{% endif %}
                     <th>Tipos de audiencias</th>
-                    <th>Expedientes</th>
-                    <th>Actores</th>
-                    <th>Demandados</th>
-                    <th>Sala</th>
-                    <th>Caracteres</th>
-                    <th>Toca</th>
-                    <th>Delitos</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,13 +44,6 @@
                     <td>{{ audiencia.tiempo }}</td>
                     {% if not autoridad %}<td>{{ audiencia.autoridad.clave }}</td>{% endif %}
                     <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
-                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
-                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
-                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
-                    <td>{% if audiencia.sala %}{{ audiencia.sala }}{% endif %}</td>
-                    <td>{% if audiencia.caracter %}{{ audiencia.caracter }}{% endif %}</td>
-                    <td>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</td>
-                    <td>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

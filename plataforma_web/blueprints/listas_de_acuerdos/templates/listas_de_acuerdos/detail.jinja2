@@ -6,7 +6,7 @@
 {% block title %}Lista de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Lista de Acuerdos ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d')) %}
+    {% call topbar.page_buttons('Lista de Acuerdos') %}
         {% if current_user.can_admin('listas_de_acuerdos') %}
             {{ topbar.button_previous('Listas de Acuerdos de ' + lista_de_acuerdo.autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=lista_de_acuerdo.autoridad_id)) }}
             {{ topbar.button_edit('Editar', url_for('listas_de_acuerdos.edit', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
@@ -35,7 +35,7 @@
 {% block custom_javascript %}
     {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}
         {% if lista_de_acuerdo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
-        {% if lista_de_acuerdo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
+        {% if lista_de_acuerdo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}
