@@ -28,7 +28,7 @@ class Audiencia(db.Model, UniversalMixin):
 
     # Columnas comunes
     tiempo = db.Column(db.DateTime, nullable=False)
-    tipo_audiencia = db.Column(db.String(256))
+    tipo_audiencia = db.Column(db.String(256), nullable=False)
 
     # Columnas para Materias C F M L D(CyF) Salas (CyF) TCyA
     expediente = db.Column(db.String(16))

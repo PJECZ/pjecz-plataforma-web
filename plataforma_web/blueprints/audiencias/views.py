@@ -1,7 +1,7 @@
 """
 Audiencias, vistas
 """
-from datetime import datetime
+from datetime import datetime, date, time, timedelta
 import pytz
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
@@ -20,12 +20,31 @@ audiencias = Blueprint("audiencias", __name__, template_folder="templates")
 
 MODULO = "AUDIENCIAS"
 LIMITE_CONSULTAS = 400
+LIMITE_DIAS = 30  # Cantidad de días al pasado y al futuro que se permiten
+TIEMPO_DESDE = time(hour=8, minute=0)
+TIEMPO_HASTA = time(hour=17, minute=0)
 
 
-def combine_to_utc(tiempo_fecha, tiempo_horas_minutos):
-    """ Combinar y cambiar tiempo local a UTC """
+def combine_to_utc(tiempo_fecha: date, tiempo_horas_minutos: time):
+    """Combinar y cambiar tiempo local a UTC"""
+
+    # Validar tiempo_horas_minutos
+    if not TIEMPO_DESDE <= tiempo_horas_minutos <= TIEMPO_HASTA:
+        raise ValueError("La hora está fuera de rango.")
+
+    # Combinar
     timezone = pytz.timezone("America/Mexico_City")
     combinado = datetime.combine(tiempo_fecha, tiempo_horas_minutos)
+
+    # Validar tiempo_fecha
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    desde_dt = hoy_dt + timedelta(days=LIMITE_DIAS)
+    hasta_dt = hoy_dt + timedelta(days=-LIMITE_DIAS)
+    if not desde_dt <= combinado <= hasta_dt:
+        raise ValueError("La fecha está fuera de rango.")
+
+    # Entregar datetime en UTC
     return timezone.normalize(timezone.localize(combinado)).astimezone(pytz.utc)
 
 
@@ -151,16 +170,23 @@ def new_generica():
         # Definir tiempo con la fecha y horas:minutos
         try:
             tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
-        except ValueError:
-            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
-            return redirect(url_for("audiencias.list_active"))
+        except ValueError as error:
+            flash(str(error), "warning")
+            return render_template("audiencias/new_generica.jinja2", form=form)
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("audiencias/new_generica.jinja2", form=form)
 
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
             tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
-            expediente=safe_expediente(form.expediente.data),
+            expediente=expediente,
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
         )
@@ -170,7 +196,7 @@ def new_generica():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+            descripcion=safe_message("Nueva audiencia de tipo " + audiencia.tipo_audiencia),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
         )
         bitacora.save()
@@ -204,9 +230,9 @@ def new_mapo():
         # Definir tiempo con la fecha y horas:minutos
         try:
             tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
-        except ValueError:
-            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
-            return redirect(url_for("audiencias.list_active"))
+        except ValueError as error:
+            flash(str(error), "warning")
+            return render_template("audiencias/new_mapo.jinja2", form=form)
 
         # Insertar registro
         audiencia = Audiencia(
@@ -224,7 +250,7 @@ def new_mapo():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+            descripcion=safe_message("Nueva audiencia de tipo " + audiencia.tipo_audiencia),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
         )
         bitacora.save()
@@ -258,16 +284,23 @@ def new_dipe():
         # Definir tiempo con la fecha y horas:minutos
         try:
             tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
-        except ValueError:
-            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
-            return redirect(url_for("audiencias.list_active"))
+        except ValueError as error:
+            flash(str(error), "warning")
+            return render_template("audiencias/new_dipe.jinja2", form=form)
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("audiencias/new_dipe.jinja2", form=form)
 
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
             tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
-            expediente=safe_expediente(form.expediente.data),
+            expediente=expediente,
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
             toca=safe_string(form.toca.data),
@@ -280,7 +313,7 @@ def new_dipe():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+            descripcion=safe_message("Nueva audiencia de tipo " + audiencia.tipo_audiencia),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
         )
         bitacora.save()
@@ -314,16 +347,23 @@ def new_sape():
         # Definir tiempo con la fecha y horas:minutos
         try:
             tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
-        except ValueError:
-            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
-            return redirect(url_for("audiencias.list_active"))
+        except ValueError as error:
+            flash(str(error), "warning")
+            return render_template("audiencias/new_sape.jinja2", form=form)
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("audiencias/new_sape.jinja2", form=form)
 
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
             tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
-            expediente=safe_expediente(form.expediente.data),
+            expediente=expediente,
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
             toca=safe_string(form.toca.data),
@@ -337,7 +377,7 @@ def new_sape():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message("Nueva audiencia para " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+            descripcion=safe_message("Nueva audiencia de tipo " + audiencia.tipo_audiencia),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
         )
         bitacora.save()
@@ -355,7 +395,7 @@ def edit_success(audiencia):
     bitacora = Bitacora(
         modulo=MODULO,
         usuario=current_user,
-        descripcion=safe_message("Editada la audiencia del " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+        descripcion=safe_message("Editada la audiencia"),
         url=url_for("audiencias.detail", audiencia_id=audiencia.id),
     )
     bitacora.save()
@@ -416,14 +456,21 @@ def edit_generica(audiencia_id):
         # Definir tiempo con la fecha y horas:minutos
         try:
             tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
-        except ValueError:
-            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
-            return redirect(url_for("audiencias.list_active"))
+        except ValueError as error:
+            flash(str(error), "warning")
+            return render_template("audiencias/edit_generica.jinja2", form=form, audiencia=audiencia)
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("audiencias/edit_generica.jinja2", form=form, audiencia=audiencia)
 
         # Actualizar registro
         audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
-        audiencia.expediente = safe_expediente(form.expediente.data)
+        audiencia.expediente = expediente
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
         audiencia.save()
@@ -472,9 +519,9 @@ def edit_mapo(audiencia_id):
         # Definir tiempo con la fecha y horas:minutos
         try:
             tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
-        except ValueError:
-            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
-            return redirect(url_for("audiencias.list_active"))
+        except ValueError as error:
+            flash(str(error), "warning")
+            return render_template("audiencias/edit_mapo.jinja2", form=form, audiencia=audiencia)
 
         # Actualizar registro
         audiencia.tiempo = tiempo
@@ -530,14 +577,21 @@ def edit_dipe(audiencia_id):
         # Definir tiempo con la fecha y horas:minutos
         try:
             tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
-        except ValueError:
-            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
-            return redirect(url_for("audiencias.list_active"))
+        except ValueError as error:
+            flash(str(error), "warning")
+            return render_template("audiencias/edit_dipe.jinja2", form=form, audiencia=audiencia)
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("audiencias/edit_dipe.jinja2", form=form, audiencia=audiencia)
 
         # Actualizar registro
         audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
-        audiencia.expediente = safe_expediente(form.expediente.data)
+        audiencia.expediente = expediente
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
         audiencia.toca = safe_string(form.toca.data)
@@ -592,14 +646,21 @@ def edit_sape(audiencia_id):
         # Definir tiempo con la fecha y horas:minutos
         try:
             tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
-        except ValueError:
-            flash("Error al definir el tiempo con la fecha y horas:minutos.", "warning")
-            return redirect(url_for("audiencias.list_active"))
+        except ValueError as error:
+            flash(str(error), "warning")
+            return render_template("audiencias/edit_sape.jinja2", form=form, audiencia=audiencia)
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("El expediente es incorrecto.", "warning")
+            return render_template("audiencias/edit_sape.jinja2", form=form, audiencia=audiencia)
 
         # Actualizar registro
         audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
-        audiencia.expediente = safe_expediente(form.expediente.data)
+        audiencia.expediente = expediente
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
         audiencia.toca = safe_string(form.toca.data)
@@ -634,7 +695,7 @@ def delete_success(audiencia):
     bitacora = Bitacora(
         modulo=MODULO,
         usuario=current_user,
-        descripcion=safe_message("Eliminada la audiencia del " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+        descripcion=safe_message("Eliminada la audiencia"),
         url=url_for("audiencias.detail", audiencia_id=audiencia.id),
     )
     bitacora.save()
@@ -661,7 +722,7 @@ def recover_success(audiencia):
     bitacora = Bitacora(
         modulo=MODULO,
         usuario=current_user,
-        descripcion=safe_message("Recuperada la audiencia del " + audiencia.tiempo.strftime("%Y-%m-%d %H:%M")),
+        descripcion=safe_message("Recuperada la audiencia"),
         url=url_for("audiencias.detail", audiencia_id=audiencia.id),
     )
     bitacora.save()
