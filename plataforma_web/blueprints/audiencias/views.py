@@ -1,11 +1,11 @@
 """
 Audiencias, vistas
 """
-import pytz
 from datetime import datetime
+import pytz
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_expediente, safe_message, safe_string
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -160,7 +160,7 @@ def new_generica():
             autoridad=autoridad,
             tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
-            expediente=safe_string(form.expediente.data),
+            expediente=safe_expediente(form.expediente.data),
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
         )
@@ -267,7 +267,7 @@ def new_dipe():
             autoridad=autoridad,
             tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
-            expediente=safe_string(form.expediente.data),
+            expediente=safe_expediente(form.expediente.data),
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
             toca=safe_string(form.toca.data),
@@ -323,7 +323,7 @@ def new_sape():
             autoridad=autoridad,
             tiempo=tiempo,
             tipo_audiencia=safe_string(form.tipo_audiencia.data),
-            expediente=safe_string(form.expediente.data),
+            expediente=safe_expediente(form.expediente.data),
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
             toca=safe_string(form.toca.data),
@@ -423,7 +423,7 @@ def edit_generica(audiencia_id):
         # Actualizar registro
         audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
-        audiencia.expediente = safe_string(form.expediente.data)
+        audiencia.expediente = safe_expediente(form.expediente.data)
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
         audiencia.save()
@@ -537,7 +537,7 @@ def edit_dipe(audiencia_id):
         # Actualizar registro
         audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
-        audiencia.expediente = safe_string(form.expediente.data)
+        audiencia.expediente = safe_expediente(form.expediente.data)
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
         audiencia.toca = safe_string(form.toca.data)
@@ -599,7 +599,7 @@ def edit_sape(audiencia_id):
         # Actualizar registro
         audiencia.tiempo = tiempo
         audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
-        audiencia.expediente = safe_string(form.expediente.data)
+        audiencia.expediente = safe_expediente(form.expediente.data)
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
         audiencia.toca = safe_string(form.toca.data)
