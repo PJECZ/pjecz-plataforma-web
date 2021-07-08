@@ -24,6 +24,9 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     archivo = db.Column(db.String(256))
     url = db.Column(db.String(512))
 
+    # Hijos
+    listas_de_acuerdos_acuerdos = db.relationship('ListaDeAcuerdoAcuerdo', back_populates='lista_de_acuerdo')
+
     def __repr__(self):
         """Representación"""
         return f"<ListaDeAcuerdo {self.archivo}>"

@@ -1,0 +1,38 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Acuerdo{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Acuerdo') %}
+        {{ topbar.button_previous('Acuerdos', url_for('listas_de_acuerdos_acuerdos.list_active')) }}
+        {% if current_user.can_admin('listas_de_acuerdos_acuerdos') %}
+            {{ topbar.button_edit('Editar', url_for('listas_de_acuerdos_acuerdos.edit', lista_de_acuerdo_acuerdo_id=acuerdo.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('listas_de_acuerdos_acuerdos') or (current_user.can_edit('listas_de_acuerdos_acuerdos') and acuerdo.autoridad_id == current_user.autoridad_id) %}
+            {% if acuerdo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('listas_de_acuerdos_acuerdos.delete', lista_de_acuerdo_acuerdo_id=acuerdo.id)) }}{% endif %}
+            {% if acuerdo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('listas_de_acuerdos_acuerdos.recover', lista_de_acuerdo_acuerdo_id=acuerdo.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=acuerdo.estatus) %}
+        {{ detail.label_value_big('Folio', acuerdo.folio) }}
+        {{ detail.label_value('Expediente', acuerdo.expediente) }}
+        {{ detail.label_value('Actor', acuerdo.actor) }}
+        {{ detail.label_value('Demandado', acuerdo.demandado) }}
+        {{ detail.label_value('Tipo de acuerdo', acuerdo.tipo_acuerdo) }}
+        {{ detail.label_value('Tipo de juicio', acuerdo.tipo_juicio) }}
+        {{ detail.label_value('Referencia', acuerdo.referencia) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('listas_de_acuerdos_acuerdos') or (current_user.can_edit('listas_de_acuerdos_acuerdos') and acuerdo.autoridad_id == current_user.autoridad_id) %}
+        {% if acuerdo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar el acuerdo con folio ' + acuerdo.folio + '?') }}{% endif %}
+        {% if acuerdo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar el acuerdo con folio ' + acuerdo.folio + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
