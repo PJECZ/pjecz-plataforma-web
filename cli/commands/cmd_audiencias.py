@@ -49,16 +49,20 @@ def alimentar(entrada_csv):
             try:
                 tiempo = datetime.strptime(row["tiempo"], "%Y-%m-%d %H:%M")
             except (IndexError, ValueError, KeyError):
-                click.echo("  Tiempo incorrecto, se omite" + str(row))
-                continue
+                try:
+                    tiempo = datetime.strptime(row["tiempo"], "%Y-%m-%d %H:%M:%S")
+                except (IndexError, ValueError, KeyError):
+                    click.echo("  Tiempo incorrecto, se omite" + str(row))
+                    continue
             try:
                 tipo_audiencia = safe_string(row["tipo_audiencia"])
             except KeyError:
                 tipo_audiencia = "NO DEFINIDO"
-            try:
-                expediente = safe_string(row["expediente"], max_len=16)
-            except KeyError:
-                expediente = ""
+            exp = row["expediente"].strip()
+            if len(exp) > 60:
+                expediente = exp[:60] + '...'
+            else:
+                expediente = exp
             try:
                 actores = safe_string(row["actores"])
             except KeyError:
