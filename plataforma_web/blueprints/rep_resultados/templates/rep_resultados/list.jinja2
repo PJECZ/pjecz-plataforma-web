@@ -8,6 +8,8 @@
     {% if estatus == 'A' %}{% set title='Resultados' %}{% endif %}
     {% if estatus == 'B' %}{% set title='Resultados inactivos' %}{% endif %}
     {% call topbar.page_buttons(title) %}
+        {{ topbar.button('Gráficas', url_for('rep_graficas.list_active'), 'mdi:puzzle') }}
+        {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
         {% if current_user.can_edit('rep_resultados') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('rep_resultados.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('rep_resultados.list_active')) }}{% endif %}

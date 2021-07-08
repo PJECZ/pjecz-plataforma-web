@@ -9,7 +9,6 @@
     {% if estatus == 'B' %}{% set title='Modulos inactivos' %}{% endif %}
     {% call topbar.page_buttons(title) %}
         {{ topbar.button('Gráficas', url_for('rep_graficas.list_active'), 'mdi:puzzle') }}
-        {{ topbar.button('Reportes', url_for('rep_reportes.list_active'), 'mdi:file-chart') }}
         {% if current_user.can_edit('modulos') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('modulos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('modulos.list_active')) }}{% endif %}
