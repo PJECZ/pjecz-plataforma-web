@@ -7,7 +7,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Acuerdo') %}
-        {{ topbar.button_previous('Acuerdos', url_for('listas_de_acuerdos_acuerdos.list_active')) }}
+        {{ topbar.button_previous('Lista de Acuerdos', url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=acuerdo.lista_de_acuerdo_id)) }}
         {% if current_user.can_admin('listas_de_acuerdos_acuerdos') %}
             {{ topbar.button_edit('Editar', url_for('listas_de_acuerdos_acuerdos.edit', lista_de_acuerdo_acuerdo_id=acuerdo.id)) }}
         {% endif %}
@@ -20,14 +20,16 @@
 
 {% block content %}
     {% call detail.card(estatus=acuerdo.estatus) %}
-        {{ detail.label_value_big('Folio', acuerdo.folio) }}
-        {{ detail.label_value('Autoridad', acuerdo.lista_de_acuerdo.autoridad.clave) }}
+        {{ detail.label_value_big('Referencia', acuerdo.referencia) }}
+        {{ detail.label_value('Distrito', acuerdo.lista_de_acuerdo.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', acuerdo.lista_de_acuerdo.autoridad.descripcion) }}
+        {{ detail.label_value('Fecha', acuerdo.lista_de_acuerdo.fecha.strftime("%Y-%m-%d")) }}
+        {{ detail.label_value('Folio', acuerdo.folio) }}
         {{ detail.label_value('Expediente', acuerdo.expediente) }}
         {{ detail.label_value('Actor', acuerdo.actor) }}
         {{ detail.label_value('Demandado', acuerdo.demandado) }}
         {{ detail.label_value('Tipo de acuerdo', acuerdo.tipo_acuerdo) }}
         {{ detail.label_value('Tipo de juicio', acuerdo.tipo_juicio) }}
-        {{ detail.label_value('Referencia', acuerdo.referencia) }}
     {% endcall %}
 {% endblock %}
 

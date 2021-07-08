@@ -19,8 +19,8 @@ class ListaDeAcuerdoAcuerdo(db.Model, UniversalMixin):
     lista_de_acuerdo = db.relationship("ListaDeAcuerdo", back_populates="listas_de_acuerdos_acuerdos")
 
     # Columnas
-    folio = db.Column(db.String(16), nullable=False)
-    expediente = db.Column(db.String(16), nullable=False)
+    folio = db.Column(db.String(16))
+    expediente = db.Column(db.String(16))
     actor = db.Column(db.String(256), nullable=False)
     demandado = db.Column(db.String(256), nullable=False)
     tipo_acuerdo = db.Column(db.String(256), nullable=False)

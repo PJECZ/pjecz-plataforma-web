@@ -5,14 +5,13 @@
 {% block title %}Nuevo Acuerdo{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Acuerdo') }}
+    {{ topbar.page('Nuevo Acuerdo del ' + lista_de_acuerdo.autoridad.clave + ' para ' + lista_de_acuerdo.fecha.strftime("%Y-%m-%d")) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'lista_de_acuerdo_id': lista_de_acuerdo.id} %}
         {% call f.form_tag('listas_de_acuerdos_acuerdos.new', fid='acuerdo_form', **form_kwargs) %}
-            {% call f.form_group(form.autoridad_clave, readonly=true) %}{% endcall %}
             {% call f.form_group(form.folio) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.actor) %}{% endcall %}

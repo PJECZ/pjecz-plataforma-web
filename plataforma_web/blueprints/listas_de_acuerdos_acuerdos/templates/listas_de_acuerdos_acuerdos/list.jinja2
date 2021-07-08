@@ -25,8 +25,11 @@
                 <tr>
                     <th>Creados</th>
                     <th>Autoridades</th>
+                    <th>Referencias</th>
                     <th>Folios</th>
                     <th>Expedientes</th>
+                    <th>Actores</th>
+                    <th>Demandados</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,9 +37,11 @@
                 <tr>
                     <td>{{ acuerdo.creado }}</td>
                     <td>{{ acuerdo.lista_de_acuerdo.autoridad.clave }}</td>
-                    <td><a href="{{ url_for('listas_de_acuerdos_acuerdos.detail', acuerdo_id=acuerdo.id) }}">{{ acuerdo.folio }}</a></td>
+                    <td><a href="{{ url_for('listas_de_acuerdos_acuerdos.detail', lista_de_acuerdo_acuerdo_id=acuerdo.id) }}">{{ acuerdo.referencia }}</a></td>
                     <td>{{ acuerdo.folio }}</td>
                     <td>{{ acuerdo.expediente }}</td>
+                    <td>{{ acuerdo.actor }}</td>
+                    <td>{{ acuerdo.demandado }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

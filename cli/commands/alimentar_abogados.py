@@ -46,4 +46,4 @@ def alimentar_abogados():
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} abogados...")
-    click.echo(f"- {contador} abogados alimentados.")
+    click.echo(f"  {contador} abogados alimentados.")
