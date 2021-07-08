@@ -33,7 +33,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('usuarios') %}
         {% if usuario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + usuario.nombre + '?') }}{% endif %}
-        {% if usuario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + usuario.nombre + '?') }}{% endif %}
+        {% if usuario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + usuario.nombre + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

@@ -76,7 +76,7 @@
 {% block custom_javascript %}
     {% if current_user.can_admin('audiencias') or (current_user.can_edit('audiencias') and audiencia.autoridad_id == current_user.autoridad_id) %}
         {% if audiencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + audiencia.tipo_audiencia + '?') }}{% endif %}
-        {% if audiencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + audiencia.tipo_audiencia + '?') }}{% endif %}
+        {% if audiencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + audiencia.tipo_audiencia + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

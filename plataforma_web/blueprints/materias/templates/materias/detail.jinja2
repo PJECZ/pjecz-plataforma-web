@@ -47,7 +47,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('materias') %}
         {% if materia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + materia.nombre + '?') }}{% endif %}
-        {% if materia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + materia.nombre + '?') }}{% endif %}
+        {% if materia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + materia.nombre + '?') }}{% endif %}
     {% endif %}
     {% if autoridades %}
         {{ detail.datatable('autoridades_datatable') }}

@@ -22,6 +22,7 @@ class Perito(db.Model, UniversalMixin):
             ("CONTABILIDAD", "Contabilidad"),
             ("CONSTRUCCION", "Construcción"),
             ("CRIMINALISTICA", "Criminalística"),
+            ("CRIMINOLOGIA", "Criminología"),
             ("DACTILOSCOPIA", "Dactiloscopía"),
             ("DEPOSITARIO", "Depositario"),
             ("DOCUMENTOSCOPIA", "Documentoscopía"),

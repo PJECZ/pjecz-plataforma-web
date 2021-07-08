@@ -33,7 +33,7 @@
 {% block custom_javascript %}
     {% if current_user.can_admin('ubicaciones_expedientes') or (current_user.can_edit('ubicaciones_expedientes') and ubicacion_expediente.autoridad_id == current_user.autoridad_id) %}
         {% if ubicacion_expediente.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + ubicacion_expediente.expediente + '?') }}{% endif %}
-        {% if ubicacion_expediente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + ubicacion_expediente.expediente + '?') }}{% endif %}
+        {% if ubicacion_expediente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + ubicacion_expediente.expediente + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

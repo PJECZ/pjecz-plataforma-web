@@ -29,7 +29,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('abogados') %}
         {% if abogado.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + abogado.nombre + '?') }}{% endif %}
-        {% if abogado.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + abogado.nombre + '?') }}{% endif %}
+        {% if abogado.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + abogado.nombre + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

@@ -34,7 +34,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('peritos') %}
         {% if perito.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + perito.nombre + '?') }}{% endif %}
-        {% if perito.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + perito.nombre + '?') }}{% endif %}
+        {% if perito.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + perito.nombre + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

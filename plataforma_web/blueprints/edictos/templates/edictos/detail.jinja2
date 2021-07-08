@@ -37,7 +37,7 @@
 {% block custom_javascript %}
     {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and edicto.autoridad_id == current_user.autoridad_id) %}
         {% if edicto.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + edicto.descripcion + '?') }}{% endif %}
-        {% if edicto.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + edicto.descripcion + '?') }}{% endif %}
+        {% if edicto.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + edicto.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}
