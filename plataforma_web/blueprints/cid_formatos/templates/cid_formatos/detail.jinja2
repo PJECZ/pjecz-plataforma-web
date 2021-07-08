@@ -30,6 +30,6 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('cid_formatos') %}
         {% if cid_formato.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_formato.descripcion + '?') }}{% endif %}
-        {% if cid_formato.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + cid_formato.descripcion + '?') }}{% endif %}
+        {% if cid_formato.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_formato.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

@@ -52,7 +52,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('distritos') %}
         {% if distrito.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + distrito.nombre + '?') }}{% endif %}
-        {% if distrito.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + distrito.nombre + '?') }}{% endif %}
+        {% if distrito.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + distrito.nombre + '?') }}{% endif %}
     {% endif %}
     {{ detail.datatable('autoridades_datatable') }}
 {% endblock %}

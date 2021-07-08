@@ -27,7 +27,7 @@
                 {# topbar.button_refresh('Refrescar', url_for('sentencias.refresh', autoridad_id=autoridad.id)) #}
             {# endif #}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('sentencias.search')) }}
+        {# topbar.button_search('Buscar', url_for('sentencias.search')) #}
     {% endcall %}
 {% endblock %}
 
@@ -36,7 +36,6 @@
         <table id="sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    {% if current_user.can_admin('sentencias') %}<th>Creados</th>{% endif %}
                     <th>Fechas</th>
                     <th>Sentencias</th>
                     <th>Expedientes</th>
@@ -47,7 +46,6 @@
             <tbody>
                 {% for sentencia in sentencias %}
                 <tr>
-                    {% if current_user.can_admin('sentencias') %}<td>{{ sentencia.creado.strftime('%Y-%m-%d %H:%M') }}</td>{% endif %}
                     <td>{{ sentencia.fecha }}</td>
                     <td><a href="{{ url_for('sentencias.detail', sentencia_id=sentencia.id) }}">{{ sentencia.sentencia }}</a></td>
                     <td>{{ sentencia.expediente }}</td>

@@ -5,13 +5,8 @@
 
 {% block title %}Lista de Acuerdos{% endblock %}
 
-{% block custom_head %}
-    {{ moment.include_moment() }}
-    {{ moment.locale("es") }}
-{% endblock %}
-
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Lista de Acuerdos ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d')) %}
+    {% call topbar.page_buttons('Lista de Acuerdos') %}
         {% if current_user.can_admin('listas_de_acuerdos') %}
             {{ topbar.button_previous('Listas de Acuerdos de ' + lista_de_acuerdo.autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=lista_de_acuerdo.autoridad_id)) }}
             {{ topbar.button_edit('Editar', url_for('listas_de_acuerdos.edit', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
@@ -27,9 +22,9 @@
 
 {% block content %}
     {% call detail.card(estatus=lista_de_acuerdo.estatus) %}
+        {{ detail.label_value_big('Fecha', lista_de_acuerdo.fecha) }}
         {{ detail.label_value('Distrito', lista_de_acuerdo.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', lista_de_acuerdo.autoridad.descripcion) }}
-        {{ detail.label_value('Fecha', lista_de_acuerdo.fecha) }}
         {{ detail.label_value('Descripción', lista_de_acuerdo.descripcion) }}
         {{ detail.label_value_new_tab('Lista de Acuerdos PDF', lista_de_acuerdo.archivo, lista_de_acuerdo.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('listas_de_acuerdos.checkout', id_hashed=lista_de_acuerdo.encode_id())) }}
@@ -40,6 +35,7 @@
 {% block custom_javascript %}
     {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}
         {% if lista_de_acuerdo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
-        {% if lista_de_acuerdo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
+        {% if lista_de_acuerdo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
     {% endif %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}
