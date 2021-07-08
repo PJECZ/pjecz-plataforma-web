@@ -49,7 +49,12 @@ def new():
     """Nuevo Gráfica"""
     form = RepGraficaForm()
     if form.validate_on_submit():
-        rep_grafica = RepGrafica(descripcion=form.descripcion.data)
+        rep_grafica = RepGrafica(
+            descripcion=form.descripcion.data,
+            desde=form.desde.data,
+            hasta=form.hasta.data,
+            corte=form.corte.data,
+        )
         rep_grafica.save()
         flash(f"Gráfica {rep_grafica.descripcion} guardado.", "success")
         return redirect(url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id))
@@ -64,10 +69,16 @@ def edit(rep_grafica_id):
     form = RepGraficaForm()
     if form.validate_on_submit():
         rep_grafica.descripcion = form.descripcion.data
+        rep_grafica.desde = form.desde.data
+        rep_grafica.hasta = form.hasta.data
+        rep_grafica.corte = form.corte.data
         rep_grafica.save()
         flash(f"Gráfica {rep_grafica.descripcion} guardado.", "success")
         return redirect(url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id))
     form.descripcion.data = rep_grafica.descripcion
+    form.desde.data = rep_grafica.desde
+    form.hasta.data = rep_grafica.hasta
+    form.corte.data = rep_grafica.corte
     return render_template("rep_graficas/edit.jinja2", form=form, rep_grafica=rep_grafica)
 
 

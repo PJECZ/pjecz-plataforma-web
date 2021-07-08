@@ -12,6 +12,9 @@
     {% call f.card() %}
         {% call f.form_tag('rep_graficas.new', fid='rep_grafica_form') %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.desde) %}{% endcall %}
+            {% call f.form_group(form.hasta) %}{% endcall %}
+            {% call f.form_group(form.corte) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

@@ -22,6 +22,9 @@
 {% block content %}
     {% call detail.card(estatus=rep_grafica.estatus) %}
         {{ detail.label_value_big('Descripción', rep_grafica.descripcion) }}
+        {{ detail.label_value('Desde', rep_grafica.desde) }}
+        {{ detail.label_value('Hasta', rep_grafica.hasta) }}
+        {{ detail.label_value('Corte', rep_grafica.corte) }}
     {% endcall %}
     {% if rep_reportes %}
         {% call detail.card() %}

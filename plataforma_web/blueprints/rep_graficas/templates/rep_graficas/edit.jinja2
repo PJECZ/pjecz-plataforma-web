@@ -13,6 +13,9 @@
         {% set form_kwargs = {'rep_grafica_id': rep_grafica.id} %}
         {% call f.form_tag('rep_graficas.edit', fid='rep_grafica_form', **form_kwargs) %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.desde) %}{% endcall %}
+            {% call f.form_group(form.hasta) %}{% endcall %}
+            {% call f.form_group(form.corte) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
