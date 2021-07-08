@@ -1,0 +1,49 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Acuerdos{% endblock %}
+
+{% block topbar_actions %}
+    {% if estatus == 'A' %}{% set title='Acuerdos' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Acuerdos inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {% if current_user.can_edit('listas_de_acuerdos_acuerdos') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('listas_de_acuerdos_acuerdos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('listas_de_acuerdos_acuerdos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('listas_de_acuerdos_acuerdos') %}
+            {{ topbar.button_new('Nuevo Acuerdo', url_for('listas_de_acuerdos_acuerdos.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="listas_de_acuerdos_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Autoridades</th>
+                    <th>Folios</th>
+                    <th>Expedientes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for acuerdo in acuerdos %}
+                <tr>
+                    <td>{{ acuerdo.creado }}</td>
+                    <td>{{ acuerdo.lista_de_acuerdo.autoridad.clave }}</td>
+                    <td><a href="{{ url_for('listas_de_acuerdos_acuerdos.detail', acuerdo_id=acuerdo.id) }}">{{ acuerdo.folio }}</a></td>
+                    <td>{{ acuerdo.folio }}</td>
+                    <td>{{ acuerdo.expediente }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable_times('listas_de_acuerdos_acuerdos_datatable') }}
+{% endblock %}

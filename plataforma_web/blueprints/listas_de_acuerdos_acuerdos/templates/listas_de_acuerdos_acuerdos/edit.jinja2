@@ -1,0 +1,26 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Acuerdo{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar Acuerdo') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'acuerdo_id': acuerdo.id} %}
+        {% call f.form_tag('listas_de_acuerdos_acuerdos.edit', fid='acuerdo_form', **form_kwargs) %}
+            {% call f.form_group(form.autoridad_clave, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.folio) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.actor) %}{% endcall %}
+            {% call f.form_group(form.demandado) %}{% endcall %}
+            {% call f.form_group(form.tipo_acuerdo) %}{% endcall %}
+            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+            {% call f.form_group(form.referencia) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

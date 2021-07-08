@@ -12,6 +12,7 @@ EXPEDIENTE_REGEXP = r"^\d+/[12]\d\d\d$"
 class ListaDeAcuerdoAcuerdoForm(FlaskForm):
     """Formulario ListaDeAcuerdoAcuerdo"""
 
+    autoridad = StringField("Autoridad")  # Read only
     folio = StringField("Folio (consecutivo/año)", validators=[DataRequired(), Length(max=16), Regexp(FOLIO_REGEXP)])
     expediente = StringField("Expediente (consecutivo/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     actor = StringField("Actor", validators=[DataRequired(), Length(max=256)])
@@ -20,11 +21,3 @@ class ListaDeAcuerdoAcuerdoForm(FlaskForm):
     tipo_juicio = StringField("Tipo de juicio", validators=[DataRequired(), Length(max=256)])
     referencia = IntegerField("Referencia", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
-
-    # folio = db.Column(db.String(16), nullable=False)
-    # expediente = db.Column(db.String(16), nullable=False)
-    # actor = db.Column(db.String(256), nullable=False)
-    # demandado = db.Column(db.String(256), nullable=False)
-    # tipo_acuerdo = db.Column(db.String(256), nullable=False)
-    # tipo_juicio = db.Column(db.String(256), nullable=False)
-    # referencia = db.Column(db.Integer(), nullable=False)

@@ -21,6 +21,7 @@
 {% block content %}
     {% call detail.card(estatus=acuerdo.estatus) %}
         {{ detail.label_value_big('Folio', acuerdo.folio) }}
+        {{ detail.label_value('Autoridad', acuerdo.lista_de_acuerdo.autoridad.clave) }}
         {{ detail.label_value('Expediente', acuerdo.expediente) }}
         {{ detail.label_value('Actor', acuerdo.actor) }}
         {{ detail.label_value('Demandado', acuerdo.demandado) }}
