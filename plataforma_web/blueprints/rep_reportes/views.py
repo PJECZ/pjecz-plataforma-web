@@ -54,8 +54,8 @@ def new(rep_grafica_id):
         rep_reporte = RepReporte(
             rep_grafica=rep_grafica,
             descripcion=form.descripcion.data,
-            desde=form.desde.data,
-            hasta=form.hasta.data,
+            inicio=form.inicio.data,
+            termino=form.termino.data,
             programado=form.programado.data,
             progreso=form.progreso.data,
         )
@@ -74,8 +74,8 @@ def edit(rep_reporte_id):
     form = RepReporteForm()
     if form.validate_on_submit():
         rep_reporte.descripcion = form.descripcion.data
-        rep_reporte.desde = form.desde.data
-        rep_reporte.hasta = form.hasta.data
+        rep_reporte.inicio = form.inicio.data
+        rep_reporte.termino = form.termino.data
         rep_reporte.programado = form.programado.data
         rep_reporte.progreso = form.progreso.data
         rep_reporte.save()
@@ -83,8 +83,8 @@ def edit(rep_reporte_id):
         return redirect(url_for("rep_reportes.detail", rep_reporte_id=rep_reporte.id))
     form.rep_grafica.data = rep_reporte.rep_grafica.descripcion  # Read only
     form.descripcion.data = rep_reporte.descripcion
-    form.desde.data = rep_reporte.desde
-    form.hasta.data = rep_reporte.hasta
+    form.inicio.data = rep_reporte.inicio
+    form.termino.data = rep_reporte.termino
     form.programado.data = rep_reporte.programado
     form.progreso.data = rep_reporte.progreso
     return render_template("rep_reportes/edit.jinja2", form=form, rep_reporte=rep_reporte)

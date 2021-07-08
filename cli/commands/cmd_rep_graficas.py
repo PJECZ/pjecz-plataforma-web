@@ -1,7 +1,7 @@
 """
 Rep Graficas
 
-- elaborar: Elaborar reportes pendientes de todas las gráficas
+- elaborar: Elaborar todas las gráficas activas
 """
 import click
 
@@ -21,27 +21,32 @@ def cli():
 
 @click.command()
 def elaborar():
-    """Elaborar reportes pendientes de todas las gráficas"""
+    """Elaborar todas las gráficas activas"""
     rep_graficas = RepGrafica.query.filter(RepGrafica.estatus == "A").order_by(RepGrafica.id).all()
     if len(rep_graficas) == 0:
         click.echo("No hay gráficas activas.")
         return
-
-    # RepGrafica
-    # - descripcion
-    # - desde
-    # - hasta
-    # - corte
-    # - rep_reportes
-
     cantidad = 0
     for rep_grafica in rep_graficas:
-        app.task_queue.enqueue(
-            "plataforma_web.blueprints.rep_graficas.tasks.elaborar",
-            rep_grafica_id=rep_grafica.id,
-        )
+        # Si la gráfica no tiene reportes
+        if len(rep_grafica.rep_reportes) == 0 and rep_grafica.corte == 'DIARIO':
+            # Crear reportes diarios
+            app.task_queue.enqueue(
+                "plataforma_web.blueprints.rep_graficas.tasks.crear_reportes",
+                rep_grafica_id=rep_grafica.id,
+            )
+        else:
+            # Elaborar reportes
+            app.task_queue.enqueue(
+                "plataforma_web.blueprints.rep_graficas.tasks.elaborar",
+                rep_grafica_id=rep_grafica.id,
+            )
         cantidad += 1
-    click.echo(f"Se lanzaron {cantidad} gráficas por elaborar.")
+        click.echo(f"- {rep_grafica.descripcion}")
+    if cantidad > 0:
+        click.echo(f"Se lanzaron {cantidad} gráficas por elaborar.")
+    else:
+        click.echo("No hay gráficas por elaborar.")
 
 
 cli.add_command(elaborar)

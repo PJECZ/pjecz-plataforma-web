@@ -24,8 +24,8 @@
                 <tr>
                     <th>Creados</th>
                     <th>Descripciones</th>
-                    <th>Desde</th>
-                    <th>Hasta</th>
+                    <th>Inicios</th>
+                    <th>Términos</th>
                     <th>Programado</th>
                     <th>Progreso</th>
                 </tr>
@@ -35,8 +35,8 @@
                 <tr>
                     <td>{{ rep_reporte.creado }}</td>
                     <td><a href="{{ url_for('rep_reportes.detail', rep_reporte_id=rep_reporte.id) }}">{{ rep_reporte.descripcion }}</a></td>
-                    <td>{{ rep_reporte.desde }}</td>
-                    <td>{{ rep_reporte.hasta }}</td>
+                    <td>{{ rep_reporte.inicio }}</td>
+                    <td>{{ rep_reporte.termino }}</td>
                     <td>{{ rep_reporte.programado }}</td>
                     <td>{{ rep_reporte.progreso }}</td>
                 </tr>

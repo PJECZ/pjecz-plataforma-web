@@ -20,8 +20,8 @@
     {% call detail.card(estatus=rep_reporte.estatus) %}
         {{ detail.label_value_big('Descripción', rep_reporte.descripcion) }}
         {{ detail.label_value('Gráfica', rep_reporte.rep_grafica.descripcion, url_for('rep_graficas.detail', rep_grafica_id=rep_reporte.rep_grafica_id)) }}
-        {{ detail.label_value('Desde', rep_reporte.desde) }}
-        {{ detail.label_value('Hasta', rep_reporte.hasta) }}
+        {{ detail.label_value('Inicio', rep_reporte.inicio) }}
+        {{ detail.label_value('Término', rep_reporte.termino) }}
         {{ detail.label_value('Programado', rep_reporte.programado) }}
         {{ detail.label_value('Progreso', rep_reporte.progreso) }}
     {% endcall %}
