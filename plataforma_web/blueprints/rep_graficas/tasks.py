@@ -54,7 +54,7 @@ def crear_reportes(rep_grafica_id: int):
             rep_grafica=rep_grafica,
             descripcion="Reporte diario del " + puntero.strftime("%Y-%m-%d"),
             inicio=inicio,
-            terminado=termino,
+            termino=termino,
             programado=programado,
             progreso="PENDIENTE",
         ).save()
@@ -85,7 +85,7 @@ def elaborar(rep_grafica_id: int):
         bitacora.error(mensaje)
         return mensaje
     if len(rep_grafica.rep_reportes) == 0:
-        mensaje = set_task_error(f"La gráfica {rep_grafica.descripcion} no tiene reportes.")
+        mensaje = set_task_error(f"La gráfica {rep_grafica.descripcion} no tiene reportes; se omite.")
         bitacora.warning(mensaje)
         return mensaje
 
@@ -93,7 +93,7 @@ def elaborar(rep_grafica_id: int):
     hoy = datetime.now()
     cantidad = 0
     for rep_reporte in rep_grafica.rep_reportes:
-        if rep_reporte.estatus == "A" and rep_reporte.progreso == "PENDIENTE" and rep_reporte.programado >= hoy:
+        if rep_reporte.estatus == "A" and rep_reporte.progreso == "PENDIENTE" and rep_reporte.programado <= hoy:
             app.task_queue.enqueue(
                 "plataforma_web.blueprints.rep_reportes.tasks.elaborar",
                 rep_reporte_id=rep_reporte.id,

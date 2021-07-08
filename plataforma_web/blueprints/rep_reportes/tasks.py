@@ -25,11 +25,11 @@ app = create_app()
 app.app_context().push()
 
 
-def elaborar(reporte_id: int):
+def elaborar(rep_reporte_id: int):
     """Elaborar reporte"""
 
     # Validar reporte
-    rep_reporte = RepReporte.query.get(reporte_id)
+    rep_reporte = RepReporte.query.get(rep_reporte_id)
     if rep_reporte is None:
         mensaje = set_task_error("El reporte no exite.")
         bitacora.error(mensaje)

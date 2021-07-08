@@ -8,9 +8,6 @@
     {% if estatus == 'A' %}{% set title='Resultados' %}{% endif %}
     {% if estatus == 'B' %}{% set title='Resultados inactivos' %}{% endif %}
     {% call topbar.page_buttons(title) %}
-        {{ topbar.button('Gráficas', url_for('rep_graficas.list_active'), 'mdi:puzzle') }}
-        {{ topbar.button('Reportes', url_for('rep_reportes.list_active'), 'mdi:file-chart') }}
-        {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
         {% if current_user.can_edit('rep_resultados') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('rep_resultados.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('rep_resultados.list_active')) }}{% endif %}
@@ -35,10 +32,10 @@
                 {% for rep_resultado in rep_resultados %}
                 <tr>
                     <td>{{ rep_resultado.creado }}</td>
-                    <td>{{ rep_resultado.reporte.descripcion }}</td>
+                    <td>{{ rep_resultado.rep_reporte.descripcion }}</td>
                     <td>{{ rep_resultado.modulo.nombre }}</td>
                     <td><a href="{{ url_for('rep_resultados.detail', rep_resultado_id=rep_resultado.id) }}">{{ rep_resultado.descripcion }}</a></td>
-                    <td>{{ rep_resultado.columna }}</td>
+                    <td>{{ rep_resultado.tipo }}</td>
                     <td>{{ rep_resultado.cantidad }}</td>
                 </tr>
                 {% endfor %}
