@@ -2,10 +2,13 @@
 Listas de Acuerdos Acuerdos, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
+from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.models import ListaDeAcuerdoAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.forms import ListaDeAcuerdoAcuerdoForm
@@ -14,6 +17,7 @@ listas_de_acuerdos_acuerdos = Blueprint("listas_de_acuerdos_acuerdos", __name__,
 
 MODULO = "LISTAS DE ACUERDOS"
 CONSULTAS_LIMITE = 100
+
 
 @listas_de_acuerdos_acuerdos.before_request
 @login_required
@@ -51,19 +55,46 @@ def new(lista_de_acuerdo_id):
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     form = ListaDeAcuerdoAcuerdoForm()
     if form.validate_on_submit():
+
+        # Validar folio
+        try:
+            folio = safe_numero_publicacion(form.folio.data)
+        except (IndexError, ValueError):
+            flash("Folio incorrecto.", "warning")
+            return render_template("listas_de_acuerdos_acuerdos/new.jinja2", form=form, lista_de_acuerdo=lista_de_acuerdo)
+
+        # Validar expediente
+        try:
+            expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("Expediente incorrecto.", "warning")
+            return render_template("listas_de_acuerdos_acuerdos/new.jinja2", form=form, lista_de_acuerdo=lista_de_acuerdo)
+
+        # Insertar
         acuerdo = ListaDeAcuerdoAcuerdo(
             lista_de_acuerdo=lista_de_acuerdo,
-            folio=form.folio.data,
-            expediente=form.expediente.data,
-            actor=form.actor.data,
-            demandado=form.demandado.data,
-            tipo_acuerdo=form.tipo_acuerdo.data,
-            tipo_juicio=form.tipo_juicio.data,
+            folio=folio,
+            expediente=expediente,
+            actor=safe_string(form.actor.data),
+            demandado=safe_string(form.demandado.data),
+            tipo_acuerdo=safe_string(form.tipo_acuerdo.data),
+            tipo_juicio=safe_string(form.tipo_juicio.data),
             referencia=form.referencia.data,
         )
         acuerdo.save()
-        flash(f"Acuerdo {acuerdo.referencia} de {acuerdo.lista_de_acuerdo.autoridad.clave} del {acuerdo.lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} guardado.", "success")
-        return redirect(url_for("listas_de_acuerdos_acuerdos.detail", lista_de_acuerdo_acuerdo_id=acuerdo.id))
+
+        # Agregar evento a la bitácora e ir al detalle
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo acuerdo {acuerdo.referencia} de {acuerdo.lista_de_acuerdo.autoridad.clave} del {acuerdo.lista_de_acuerdo.fecha.strftime('%Y-%m-%d')}."),
+            url=url_for("listas_de_acuerdos_acuerdos.detail", lista_de_acuerdo_acuerdo_id=acuerdo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+
+    # Mostrar formulario
     return render_template("listas_de_acuerdos_acuerdos/new.jinja2", form=form, lista_de_acuerdo=lista_de_acuerdo)
 
 
@@ -74,16 +105,41 @@ def edit(lista_de_acuerdo_acuerdo_id):
     acuerdo = ListaDeAcuerdoAcuerdo.query.get_or_404(lista_de_acuerdo_acuerdo_id)
     form = ListaDeAcuerdoAcuerdoForm()
     if form.validate_on_submit():
-        acuerdo.folio = form.folio.data
-        acuerdo.expediente = form.expediente.data
-        acuerdo.actor = form.actor.data
-        acuerdo.demandado = form.demandado.data
-        acuerdo.tipo_acuerdo = form.tipo_acuerdo.data
-        acuerdo.tipo_juicio = form.tipo_juicio.data
+
+        # Validar folio
+        try:
+            acuerdo.folio = safe_numero_publicacion(form.folio.data)
+        except (IndexError, ValueError):
+            flash("Folio incorrecto.", "warning")
+            return render_template("listas_de_acuerdos_acuerdos/edit.jinja2", form=form, acuerdo=acuerdo)
+
+        # Validar expediente
+        try:
+            acuerdo.expediente = safe_expediente(form.expediente.data)
+        except (IndexError, ValueError):
+            flash("Expediente incorrecto.", "warning")
+            return render_template("listas_de_acuerdos_acuerdos/edit.jinja2", form=form, acuerdo=acuerdo)
+
+        # Insertar
+        acuerdo.actor = safe_string(form.actor.data)
+        acuerdo.demandado = safe_string(form.demandado.data)
+        acuerdo.tipo_acuerdo = safe_string(form.tipo_acuerdo.data)
+        acuerdo.tipo_juicio = safe_string(form.tipo_juicio.data)
         acuerdo.referencia = form.referencia.data
         acuerdo.save()
-        flash(f"Acuerdo {acuerdo.referencia} de {acuerdo.lista_de_acuerdo.autoridad.clave} del {acuerdo.lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} guardado.", "success")
-        return redirect(url_for("listas_de_acuerdos_acuerdos.detail", lista_de_acuerdo_acuerdo_id=acuerdo.id))
+
+        # Agregar evento a la bitácora e ir al detalle
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Editado acuerdo {acuerdo.referencia} de {acuerdo.lista_de_acuerdo.autoridad.clave} del {acuerdo.lista_de_acuerdo.fecha.strftime('%Y-%m-%d')}."),
+            url=url_for("listas_de_acuerdos_acuerdos.detail", lista_de_acuerdo_acuerdo_id=acuerdo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+
+    # Mostrar formulario
     form.folio.data = acuerdo.folio
     form.expediente.data = acuerdo.expediente
     form.actor.data = acuerdo.actor
