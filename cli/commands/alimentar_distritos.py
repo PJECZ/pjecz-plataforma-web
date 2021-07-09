@@ -31,4 +31,4 @@ def alimentar_distritos():
                 estatus=row["estatus"],
             ).save()
             contador += 1
-    click.echo(f"{contador} distritos alimentados.")
+    click.echo(f"  {contador} distritos alimentados.")
