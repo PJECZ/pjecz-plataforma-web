@@ -29,6 +29,14 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     codigo = db.Column(db.String(16), nullable=False)
     revision = db.Column(db.Integer(), nullable=False)
     fecha = db.Column(db.Date(), nullable=False)
+    # OBJETIVO
+    # ALCANCE
+    # DOCUMENTOS DE REFERENCIA
+    # DEFINICIONES
+    # RESPONSABILIDADES
+    # DESARROLLO
+    # CONTROL DE LOS REGISTROS
+    # CONTROL DE CAMBIOS
     # elaboro
     # reviso
     # aprobo

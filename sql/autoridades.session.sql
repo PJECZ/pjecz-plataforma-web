@@ -25,7 +25,7 @@ FROM autoridades
 WHERE autoridades.es_jurisdiccional = FALSE
     AND autoridades.estatus = 'A'
 ORDER BY autoridades.clave;
--- @block autoridades no jusrisdiccionales inactivas
+-- @block autoridades no jurisdiccionales inactivas
 SELECT autoridades.clave,
     distritos.nombre AS distrito,
     autoridades.descripcion
@@ -58,6 +58,12 @@ WHERE autoridades.estatus = 'A'
     AND autoridades.es_notaria = FALSE
 ORDER BY organo_jurisdiccional,
     materia,
-    clave
--- @block juzgados whatsapp
-
+    clave;
+-- @block autoridades que pueden subir glosas
+SELECT distritos.nombre,
+    autoridades.descripcion,
+    autoridades.directorio_glosas
+FROM autoridades
+    INNER JOIN distritos ON autoridades.distrito_id = distritos.id
+WHERE autoridades.directorio_glosas != ""
+ORDER BY clave;
