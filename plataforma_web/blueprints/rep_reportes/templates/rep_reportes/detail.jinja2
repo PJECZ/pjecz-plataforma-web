@@ -7,7 +7,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Reporte') %}
-        {{ topbar.button_previous('Reportes', url_for('rep_reportes.list_active')) }}
+        {{ topbar.button_previous('Gráfica', url_for('rep_graficas.detail', rep_grafica_id=rep_reporte.rep_grafica_id)) }}
         {% if current_user.can_edit('rep_reportes') %}
             {{ topbar.button_edit('Editar', url_for('rep_reportes.edit', rep_reporte_id=rep_reporte.id)) }}
             {% if rep_reporte.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('rep_reportes.delete', rep_reporte_id=rep_reporte.id)) }}{% endif %}

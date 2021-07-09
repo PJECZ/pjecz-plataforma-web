@@ -15,6 +15,7 @@
         {% endif %}
         {% if current_user.can_insert('rep_reportes') %}
             {{ topbar.button_new('Nuevo Reporte', url_for('rep_reportes.new', rep_grafica_id=rep_grafica.id)) }}
+            {{ topbar.button_make('Elaborar Gráfica', url_for('rep_graficas.make', rep_grafica_id=rep_grafica.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -56,8 +57,11 @@
 
 {% block custom_javascript %}
     {% if current_user.can_edit('rep_graficas') %}
-        {% if rep_grafica.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rep_grafica.descripcion + '?') }}{% endif %}
-        {% if rep_grafica.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + rep_grafica.descripcion + '?') }}{% endif %}
+        {% if rep_grafica.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar ' + rep_grafica.descripcion + '?') }}{% endif %}
+        {% if rep_grafica.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar ' + rep_grafica.descripcion + '?') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_insert('rep_reportes') %}
+        {{ modals.custom_javascript_make('Elaborar', '¿Elaborar ' + rep_grafica.descripcion + '?') }}
     {% endif %}
     {{ detail.datatable('rep_reportes_datatable') }}
 {% endblock %}

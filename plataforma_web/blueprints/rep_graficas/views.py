@@ -2,7 +2,7 @@
 Rep Graficas, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -39,7 +39,7 @@ def list_inactive():
 def detail(rep_grafica_id):
     """Detalle de una Gráfica"""
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
-    rep_reportes = RepReporte.query.filter(RepReporte.rep_grafica == rep_grafica).filter(RepReporte.estatus == 'A').all()
+    rep_reportes = RepReporte.query.filter(RepReporte.rep_grafica == rep_grafica).filter(RepReporte.estatus == "A").all()
     return render_template("rep_graficas/detail.jinja2", rep_grafica=rep_grafica, rep_reportes=rep_reportes)
 
 
@@ -101,4 +101,21 @@ def recover(rep_grafica_id):
     if rep_grafica.estatus == "B":
         rep_grafica.recover()
         flash(f"Gráfica {rep_grafica.descripcion} recuperado.", "success")
+    return redirect(url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id))
+
+
+@rep_graficas.route("/rep_graficas/elaborar/<int:rep_grafica_id>")
+@permission_required(Permiso.MODIFICAR_CUENTAS)
+def make(rep_grafica_id):
+    """Elaborar Gráfica"""
+    rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
+    if current_user.get_task_in_progress("rep_graficas.tasks.elaborar"):
+        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
+    else:
+        current_user.launch_task(
+            nombre="rep_graficas.tasks.elaborar",
+            descripcion=f"Elaborar gráfica {rep_grafica.descripcion}",
+            rep_grafica_id=rep_grafica.id,
+        )
+        flash("Se está elaborando esta gráfica... <a href='" + url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id) + "'>Refresque después de unos segundos.</a>", "info")
     return redirect(url_for("rep_graficas.detail", rep_grafica_id=rep_grafica.id))
