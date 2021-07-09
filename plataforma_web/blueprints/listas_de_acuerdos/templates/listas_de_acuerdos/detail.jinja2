@@ -10,6 +10,7 @@
         {% if current_user.can_admin('listas_de_acuerdos') %}
             {{ topbar.button_previous('Listas de Acuerdos de ' + lista_de_acuerdo.autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=lista_de_acuerdo.autoridad_id)) }}
             {{ topbar.button_edit('Editar', url_for('listas_de_acuerdos.edit', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
+            {{ topbar.button_new('Nuevo acuerdo', url_for('listas_de_acuerdos_acuerdos.new', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
         {% else %}
             {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
         {% endif %}
@@ -30,12 +31,45 @@
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('listas_de_acuerdos.checkout', id_hashed=lista_de_acuerdo.encode_id())) }}
         {{ detail.label_value('Creado', moment(lista_de_acuerdo.creado).format('llll')) }}
     {% endcall %}
+    {% if acuerdos %}
+        {% call detail.card() %}
+            <table id="listas_de_acuerdos_acuerdos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Referencias</th>
+                        <th>Folios</th>
+                        <th>Expedientes</th>
+                        <th>Actor</th>
+                        <th>Demandado</th>
+                        <th>Tipos de acuerdos</th>
+                        <th>Tipos de juicios</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for acuerdo in acuerdos %}
+                    <tr>
+                        <td><a href="{{ url_for('listas_de_acuerdos_acuerdos.detail', lista_de_acuerdo_acuerdo_id=acuerdo.id) }}">{{ acuerdo.referencia }}</a></td>
+                        <td>{{ acuerdo.folio }}</td>
+                        <td>{{ acuerdo.expediente }}</td>
+                        <td>{{ acuerdo.actor }}</td>
+                        <td>{{ acuerdo.demandado }}</td>
+                        <td>{{ acuerdo.tipo_acuerdo }}</td>
+                        <td>{{ acuerdo.tipo_juicio }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}
         {% if lista_de_acuerdo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
         {% if lista_de_acuerdo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + lista_de_acuerdo.fecha.strftime('%Y-%m-%d') + '?') }}{% endif %}
+    {% endif %}
+    {% if acuerdos %}
+        {{ detail.datatable('listas_de_acuerdos_acuerdos_datatable') }}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

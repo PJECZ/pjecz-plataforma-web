@@ -8,6 +8,7 @@ from plataforma_web.blueprints.materias.models import Materia
 
 def alimentar_materias():
     """Alimentar materias"""
+    click.echo("Alimentando materias...")
     Materia(nombre="NO DEFINIDO").save()
     Materia(nombre="CIVIL").save()
     Materia(nombre="FAMILIAR").save()
