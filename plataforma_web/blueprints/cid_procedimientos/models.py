@@ -25,17 +25,18 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Columnas
-    descripcion = db.Column(db.String(256), nullable=False)
+    descripcion = db.Column(db.String(256), nullable=False)  # Título del Procedimiento
     codigo = db.Column(db.String(16), nullable=False)
     revision = db.Column(db.Integer(), nullable=False)
-    fecha = db.Column(db.Date(), nullable=False)
-    # OBJETIVO
-    # ALCANCE
-    # DOCUMENTOS DE REFERENCIA
-    # DEFINICIONES
-    # RESPONSABILIDADES
-    # DESARROLLO
-    # CONTROL DE LOS REGISTROS
+    fecha = db.Column(db.Date(), nullable=False)  # Fecha Elaboración
+    objetivo = db.Column(db.Text(), nullable=False)  # OBJETIVO
+    alcance = db.Column(db.Text(), nullable=False)  # ALCANCE
+    documentos = db.Column(db.Text(), nullable=False)  # DOCUMENTOS DE REFERENCIA
+    definiciones = db.Column(db.Text(), nullable=False)  # DEFINICIONES
+    responsabilidades = db.Column(db.Text(), nullable=False)  # RESPONSABILIDADES
+    desarrollo = db.Column(db.Text(), nullable=False)  # DESARROLLO
+    gestion_riesgos = db.Column(db.Text(), nullable=False)  # GESTIÓN DE RIESGOS
+    # REGISTROS
     # CONTROL DE CAMBIOS
     # elaboro
     # reviso
