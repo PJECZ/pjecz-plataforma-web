@@ -1,16 +1,20 @@
 """
 Rep Graficas, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.extensions import db
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_graficas.forms import RepGraficaForm
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
+from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
 rep_graficas = Blueprint("rep_graficas", __name__, template_folder="templates")
+
+CONSULTAS_LIMITE = 100
 
 
 @rep_graficas.before_request
@@ -23,7 +27,7 @@ def before_request():
 @rep_graficas.route("/rep_graficas")
 def list_active():
     """Listado de Gráficas activos"""
-    rep_graficas_activos = RepGrafica.query.filter(RepGrafica.estatus == "A").order_by(RepGrafica.creado.desc()).limit(100).all()
+    rep_graficas_activos = RepGrafica.query.filter(RepGrafica.estatus == "A").limit(CONSULTAS_LIMITE).all()
     return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_activos, estatus="A")
 
 
@@ -31,16 +35,33 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Gráficas inactivos"""
-    rep_graficas_inactivos = RepGrafica.query.filter(RepGrafica.estatus == "B").order_by(RepGrafica.creado.desc()).limit(100).all()
+    rep_graficas_inactivos = RepGrafica.query.filter(RepGrafica.estatus == "B").limit(CONSULTAS_LIMITE).all()
     return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_inactivos, estatus="B")
 
 
 @rep_graficas.route("/rep_graficas/<int:rep_grafica_id>")
 def detail(rep_grafica_id):
     """Detalle de una Gráfica"""
-    rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
-    rep_reportes = RepReporte.query.filter(RepReporte.rep_grafica == rep_grafica).filter(RepReporte.estatus == "A").all()
-    return render_template("rep_graficas/detail.jinja2", rep_grafica=rep_grafica, rep_reportes=rep_reportes)
+    grafica = RepGrafica.query.get_or_404(rep_grafica_id)
+    reportes = RepReporte.query.filter(RepReporte.rep_grafica == grafica).filter(RepReporte.estatus == "A").all()
+    return render_template("rep_graficas/detail.jinja2", rep_grafica=grafica, rep_reportes=reportes)
+
+
+@rep_graficas.route("/rep_graficas/datos/<int:rep_grafica_id>")
+def data_json(rep_grafica_id):
+    """Datos para graficar"""
+    grafica = db.session.query(RepGrafica).get_or_404(rep_grafica_id)
+    edictos = []
+    listas_de_acuerdos = []
+    sentencias = []
+    for reporte, resultado in db.session.query(RepReporte, RepResultado).join(RepReporte).filter(RepReporte.rep_grafica == grafica).order_by(RepReporte.inicio).all():
+        if resultado.modulo.nombre == "EDICTOS":
+            edictos.append({"fecha": reporte.inicio.strftime("%Y-%m-%d"), "cantidad": resultado.cantidad})
+        if resultado.modulo.nombre == "LISTAS DE ACUERDOS":
+            listas_de_acuerdos.append({"fecha": reporte.inicio.strftime("%Y-%m-%d"), "cantidad": resultado.cantidad})
+        if resultado.modulo.nombre == "SENTENCIAS":
+            sentencias.append({"fecha": reporte.inicio.strftime("%Y-%m-%d"), "cantidad": resultado.cantidad})
+    return {"edictos": edictos, "listas_de_acuerdos": listas_de_acuerdos, "sentencias": sentencias}
 
 
 @rep_graficas.route("/rep_graficas/nuevo", methods=["GET", "POST"])

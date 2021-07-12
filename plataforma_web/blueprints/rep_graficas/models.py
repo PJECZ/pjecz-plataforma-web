@@ -42,4 +42,4 @@ class RepGrafica(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<RepGrafica>"
+        return f"<RepGrafica {self.descripcion}>"

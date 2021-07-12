@@ -41,4 +41,4 @@ class RepResultado(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<RepResultado>"
+        return f"<RepResultado {self.modulo.nombre}={self.cantidad}>"

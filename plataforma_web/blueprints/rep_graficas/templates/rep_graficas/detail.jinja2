@@ -5,6 +5,8 @@
 
 {% block title %}Gráfica{% endblock %}
 
+{% block custom_head %}{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons('Gráfica') %}
         {{ topbar.button_previous('Gráficas', url_for('rep_graficas.list_active')) }}
@@ -27,8 +29,11 @@
         {{ detail.label_value('Hasta', rep_grafica.hasta) }}
         {{ detail.label_value('Corte', rep_grafica.corte) }}
     {% endcall %}
+    {% call detail.card(title='Chartjs.org') %}
+        <canvas id="myChart" height="70hiv"></canvas>
+    {% endcall %}
     {% if rep_reportes %}
-        {% call detail.card() %}
+        {% call detail.card(title='Reportes') %}
             <table id="rep_reportes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -63,5 +68,51 @@
     {% if current_user.can_insert('rep_reportes') %}
         {{ modals.custom_javascript_make('Elaborar', '¿Elaborar ' + rep_grafica.descripcion + '?') }}
     {% endif %}
-    {{ detail.datatable('rep_reportes_datatable') }}
+    {% if rep_reportes %}
+        {{ detail.datatable('rep_reportes_datatable') }}
+    {% endif %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.4.1/chart.min.js" integrity="sha512-5vwN8yor2fFT9pgPS9p9R7AszYaNn0LkQElTXIsZFCL7ucT8zDCAqlQXDdaqgA1mZP47hdvztBMsIoFxq/FyyQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        $.getJSON("/rep_graficas/datos/1", function(response) {
+            var ctx = document.getElementById('myChart');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    datasets: [
+                        {
+                            label: 'EDICTOS',
+                            data: response.edictos,
+                            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                            borderColor: 'rgb(255, 159, 64)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'LISTAS DE ACUERDOS',
+                            data: response.listas_de_acuerdos,
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            borderColor: 'rgb(153, 102, 255)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'SENTENCIAS',
+                            data: response.sentencias,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    parsing: {
+                        xAxisKey: 'fecha',
+                        yAxisKey: 'cantidad'
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock %}

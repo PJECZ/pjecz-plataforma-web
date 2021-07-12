@@ -45,4 +45,4 @@ class RepReporte(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<Reporte>"
+        return f"<Reporte {self.inicio.strftime('%Y-%m-%d')}>"
