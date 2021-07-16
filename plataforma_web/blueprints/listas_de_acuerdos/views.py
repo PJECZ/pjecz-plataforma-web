@@ -135,7 +135,9 @@ def refresh(autoridad_id):
 def detail(lista_de_acuerdo_id):
     """Detalle de una Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
-    acuerdos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.lista_de_acuerdo == lista_de_acuerdo).filter(ListaDeAcuerdoAcuerdo.estatus == "A").all()
+    acuerdos = None  # Por lo pronto sólo los administradores ven los acuerdos
+    if current_user.can_admin("listas_de_acuerdos"):
+        acuerdos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.lista_de_acuerdo == lista_de_acuerdo).filter(ListaDeAcuerdoAcuerdo.estatus == "A").all()
     return render_template("listas_de_acuerdos/detail.jinja2", lista_de_acuerdo=lista_de_acuerdo, acuerdos=acuerdos)
 
 
