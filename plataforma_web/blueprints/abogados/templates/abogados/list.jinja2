@@ -30,20 +30,56 @@
                     <th>Nombre</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for abogado in abogados %}
-                <tr>
-                    <td>{{ abogado.fecha }}</td>
-                    <td>{{ abogado.numero }}</td>
-                    <td>{{ abogado.libro }}</td>
-                    <td><a href="{{ url_for('abogados.detail', abogado_id=abogado.id) }}">{{ abogado.nombre }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('abogados_datatable', order='desc') }}
+    <script>
+        $('#abogados_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            scrollX: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            ajax: {
+                url: "/abogados/ajax",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {'estatus': "{{ estatus }}"}
+            },
+            columns: [
+                { data: "fecha" },
+                { data: "numero" },
+                { data: "libro" },
+                { data: "vinculo" }
+            ],
+            columnDefs: [
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="/abogados/' + data.id + '">' + data.nombre + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
