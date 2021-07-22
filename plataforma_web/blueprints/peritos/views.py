@@ -1,7 +1,7 @@
 """
 Peritos, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_message, safe_string
 
@@ -28,16 +28,56 @@ def before_request():
 @peritos.route("/peritos")
 def list_active():
     """Listado de Peritos"""
-    peritos_activos = Perito.query.filter(Perito.estatus == "A").order_by(Perito.nombre).limit(CONSULTAS_LIMITE).all()
-    return render_template("peritos/list.jinja2", peritos=peritos_activos, estatus="A")
+    return render_template("peritos/list.jinja2", estatus="A")
 
 
 @peritos.route("/peritos/inactivos")
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """Listado de Peritos inactivos"""
-    peritos_inactivos = Perito.query.filter(Perito.estatus == "B").order_by(Perito.nombre).limit(CONSULTAS_LIMITE).all()
-    return render_template("peritos/list.jinja2", peritos=peritos_inactivos, estatus="B")
+    return render_template("peritos/list.jinja2", estatus="B")
+
+
+@peritos.route("/peritos/ajax", methods=["GET", "POST"])
+def ajax():
+    """AJAX para peritos"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = Perito.query.filter(Perito.estatus == request.form["estatus"])
+    registros = consulta.order_by(Perito.nombre).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for perito in registros:
+        data.append(
+            {
+                "vinculo": {
+                    "id": perito.id,
+                    "nombre": perito.nombre,
+                },
+                "tipo": perito.tipo,
+                "departamento": perito.distrito.nombre,
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @peritos.route("/peritos/<int:perito_id>")

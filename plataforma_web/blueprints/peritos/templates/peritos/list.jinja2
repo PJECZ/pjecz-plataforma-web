@@ -25,23 +25,59 @@
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>Tipos</th>
-                    <th>Departamentos</th>
+                    <th>Tipo</th>
+                    <th>Departamento</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for perito in peritos %}
-                <tr>
-                    <td><a href="{{ url_for('peritos.detail', perito_id=perito.id) }}">{{ perito.nombre }}</a></td>
-                    <td>{{ perito.tipo }}</td>
-                    <td>{{ perito.distrito.nombre }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('peritos_datatable') }}
+    <script>
+        $('#peritos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/peritos/ajax",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {'estatus': "{{ estatus }}"}
+            },
+            columns: [
+                { data: "vinculo" },
+                { data: "tipo" },
+                { data: "departamento" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="/peritos/' + data.id + '">' + data.nombre + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

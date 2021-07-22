@@ -54,13 +54,13 @@ def ajax():
 
     # Consultar
     consulta = Abogado.query.filter(Abogado.estatus == request.form["estatus"])
-    abogados_activos = consulta.order_by(Abogado.creado.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Abogado.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
-    # Elaborar un listado de diccionarios
-    abogados_data = []
-    for abogado in abogados_activos:
-        abogados_data.append(
+    # Elaborar datos para DataTable
+    data = []
+    for abogado in registros:
+        data.append(
             {
                 "fecha": abogado.fecha.strftime("%Y-%m-%d"),
                 "numero": abogado.numero,
@@ -77,7 +77,7 @@ def ajax():
         "draw": draw,
         "iTotalRecords": total,
         "iTotalDisplayRecords": total,
-        "aaData": abogados_data,
+        "aaData": data,
     }
 
 

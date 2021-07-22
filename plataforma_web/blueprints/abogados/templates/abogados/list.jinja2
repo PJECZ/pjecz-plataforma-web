@@ -15,7 +15,7 @@
         {% if current_user.can_insert('abogados') %}
             {{ topbar.button_new('Nuevo Abogado', url_for('abogados.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('abogados.search')) }}
+        {# topbar.button_search('Buscar', url_for('abogados.search')) #}
     {% endcall %}
 {% endblock %}
 
@@ -39,10 +39,10 @@
         $('#abogados_datatable').DataTable({
             processing: true,
             serverSide: true,
-            scrollX: true,
             ordering: false,
             searching: false,
             responsive: true,
+            scrollX: true,
             ajax: {
                 url: "/abogados/ajax",
                 type: "POST",
