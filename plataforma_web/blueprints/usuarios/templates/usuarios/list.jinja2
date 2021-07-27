@@ -25,28 +25,64 @@
         <table id="usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Nombre</th>
                     <th>e-mail</th>
+                    <th>Nombre</th>
                     <th>Autoridad</th>
-                    {% if current_user.can_edit('usuarios') %}<th>Rol</th>
-                    <th>Workspace</th>{% endif %}
+                    <th>Rol</th>
+                    <th>Workspace</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr>
-                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.nombre }}</a></td>
-                    <td>{{ usuario.email }}</td>
-                    <td>{{ usuario.autoridad.clave }}</td>
-                    {% if current_user.can_edit('usuarios') %}<td>{{ usuario.rol.nombre }}</td>
-                    <td>{{ usuario.workspace }}</td>{% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('usuarios_datatable') }}
+    <script>
+        $('#usuarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/usuarios/ajax",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {'estatus': "{{ estatus }}"}
+            },
+            columns: [
+                { data: "vinculo" },
+                { data: "nombre" },
+                { data: "autoridad_clave" },
+                { data: "rol" },
+                { data: "workspace" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="/usuarios/' + data.id + '">' + data.email + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

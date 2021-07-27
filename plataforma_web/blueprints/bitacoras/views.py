@@ -20,7 +20,7 @@ def list_active():
     return render_template("bitacoras/list.jinja2")
 
 
-@bitacoras.route("/bitacoras/ajax")
+@bitacoras.route("/bitacoras/ajax", methods=["GET", "POST"])
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
 def ajax():
@@ -28,35 +28,38 @@ def ajax():
 
     # Tomar parámetros de Datatables
     try:
-        draw = int(request.args.get("draw"))  # Número de Página
-        start = int(request.args.get("start"))  # Registro inicial
-        rows_per_page = int(request.args.get("length"))  # Renglones por página
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
     except (TypeError, ValueError):
         draw = 1
         start = 1
         rows_per_page = 10
 
     # Consultar
-    bitacoras_activas = Bitacora.query.order_by(Bitacora.creado.desc()).offset(start).limit(rows_per_page).all()
-    total = Bitacora.query.count()
+    consulta = Bitacora.query
+    registros = consulta.order_by(Bitacora.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
 
     # Elaborar un listado de diccionarios
-    bitacoras_data = []
-    for bitacora in bitacoras_activas:
-        bitacoras_data.append({
-            "creado": bitacora.creado.strftime("%Y-%m-%d %H:%M:%S"),
-            "usuario_email": bitacora.usuario.email,
-            "modulo": bitacora.modulo,
-            "vinculo": {
-                "descripcion": bitacora.descripcion,
-                "url": bitacora.url,
+    data = []
+    for bitacora in registros:
+        data.append(
+            {
+                "creado": bitacora.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "usuario_email": bitacora.usuario.email,
+                "modulo": bitacora.modulo,
+                "vinculo": {
+                    "descripcion": bitacora.descripcion,
+                    "url": bitacora.url,
+                },
             }
-        })
+        )
 
     # Entregar (desde Flask 1.1.0 un diccionario se convierte en JSON automáticamente)
     return {
         "draw": draw,
         "iTotalRecords": total,
         "iTotalDisplayRecords": total,
-        "aaData": bitacoras_data,
+        "aaData": data,
     }

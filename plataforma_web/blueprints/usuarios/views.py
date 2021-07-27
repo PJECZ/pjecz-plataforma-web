@@ -125,16 +125,61 @@ def change_password():
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """Listado de Usuarios activos"""
-    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").all()
-    return render_template("usuarios/list.jinja2", usuarios=usuarios_activos, estatus="A")
+    # usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").all()
+    return render_template("usuarios/list.jinja2", estatus="A")
 
 
 @usuarios.route("/usuarios/inactivos")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Usuarios inactivos"""
-    usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").all()
-    return render_template("usuarios/list.jinja2", usuarios=usuarios_inactivos, estatus="B")
+    # usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").all()
+    return render_template("usuarios/list.jinja2", estatus="B")
+
+
+@usuarios.route("/usuarios/ajax", methods=["GET", "POST"])
+@permission_required(Permiso.VER_CUENTAS)
+def ajax():
+    """AJAX para usuarios"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = Usuario.query.filter(Usuario.estatus == request.form["estatus"])
+    registros = consulta.order_by(Usuario.email).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for usuario in registros:
+        data.append(
+            {
+                "vinculo": {
+                    "id": usuario.id,
+                    "email": usuario.email,
+                },
+                "nombre": usuario.nombre,
+                "autoridad_clave": usuario.autoridad.clave,
+                "rol": usuario.rol.nombre,
+                "workspace": usuario.workspace,
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @usuarios.route("/usuarios/<int:usuario_id>")

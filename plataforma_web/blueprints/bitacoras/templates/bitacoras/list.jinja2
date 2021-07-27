@@ -22,14 +22,6 @@
                     <th>Descripciones</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
@@ -37,14 +29,19 @@
 {% block custom_javascript %}
     <script>
         $('#bitacoras_datatable').DataTable({
-            order: [[ 0, "desc" ]],
             processing: true,
             serverSide: true,
-            scrollX: true,
             ordering: false,
             searching: false,
+            responsive: true,
+            scrollX: true,
             ajax: {
-                url: "/bitacoras/ajax"
+                url: "/bitacoras/ajax",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {}
             },
             columns: [
                 { data: 'creado' },
@@ -81,8 +78,7 @@
                     sNext: "Siguiente",
                     sPrevious: "Anterior"
                 }
-            },
-            responsive: true
+            }
         });
     </script>
 {% endblock %}
