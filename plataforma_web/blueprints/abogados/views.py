@@ -53,7 +53,11 @@ def ajax():
         rows_per_page = 10
 
     # Consultar
-    consulta = Abogado.query.filter(Abogado.estatus == request.form["estatus"])
+    consulta = Abogado.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Abogado.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Abogado.estatus == "A")
     registros = consulta.order_by(Abogado.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 

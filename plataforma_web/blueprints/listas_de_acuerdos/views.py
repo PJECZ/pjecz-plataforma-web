@@ -128,8 +128,12 @@ def ajax():
         rows_per_page = 10
 
     # Consultar
-    consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == request.form["estatus"])
-    if request.form["autoridad_id"]:
+    consulta = ListaDeAcuerdo.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(ListaDeAcuerdo.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(ListaDeAcuerdo.estatus == "A")
+    if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
         consulta = consulta.filter(ListaDeAcuerdo.autoridad == autoridad)
     registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
@@ -175,9 +179,13 @@ def ajax_admin():
         rows_per_page = 10
 
     # Consultar
-    consulta = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == request.form["estatus"])
-    if request.form["autoridad_id"]:
-        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+    consulta = ListaDeAcuerdo.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(ListaDeAcuerdo.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(ListaDeAcuerdo.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(int(request.form["autoridad_id"]))
         consulta = consulta.filter(ListaDeAcuerdo.autoridad == autoridad)
     registros = consulta.order_by(ListaDeAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
