@@ -196,7 +196,7 @@ def ajax_admin():
         data.append(
             {
                 "creado": lista_de_acuerdo.creado.strftime("%Y-%m-%d %H:%M"),
-                "autoridad": lista_de_acuerdo.autoridad.clave,
+                "autoridad_clave": lista_de_acuerdo.autoridad.clave,
                 "fecha": lista_de_acuerdo.creado.strftime("%Y-%m-%d"),
                 "vinculo": {
                     "id": lista_de_acuerdo.id,

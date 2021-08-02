@@ -112,6 +112,115 @@ def list_autoridad_edictos_inactive(autoridad_id):
     return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=edictos_inactivos, estatus="B")
 
 
+@edictos.route("/edictos/ajax", methods=["GET", "POST"])
+def ajax():
+    """AJAX para edictos"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = Edicto.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Edicto.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Edicto.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(Edicto.autoridad == autoridad)
+    registros = consulta.order_by(Edicto.fecha.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for edicto in registros:
+        data.append(
+            {
+                "fecha": edicto.fecha.strftime("%Y-%m-%d"),
+                "vinculo": {
+                    "id": edicto.id,
+                    "descripcion": edicto.descripcion,
+                },
+                "expediente": edicto.expediente,
+                "numero_publicacion": edicto.numero_publicacion,
+                "archivo": {
+                    "url": edicto.url,
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+@edictos.route("/edictos/ajax_admin", methods=["GET", "POST"])
+def ajax_admin():
+    """AJAX para edictos administradores"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = Edicto.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Edicto.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Edicto.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(Edicto.autoridad == autoridad)
+    registros = consulta.order_by(Edicto.fecha.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for edicto in registros:
+        data.append(
+            {
+                "creado": edicto.creado.strftime("%Y-%m-%d %H:%M"),
+                "autoridad_clave": edicto.autoridad.clave,
+                "fecha": edicto.fecha.strftime("%Y-%m-%d"),
+                "vinculo": {
+                    "id": edicto.id,
+                    "descripcion": edicto.descripcion,
+                },
+                "expediente": edicto.expediente,
+                "numero_publicacion": edicto.numero_publicacion,
+                "archivo": {
+                    "url": edicto.url,
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+
 @edictos.route("/edictos/refrescar/<int:autoridad_id>")
 @permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def refresh(autoridad_id):
