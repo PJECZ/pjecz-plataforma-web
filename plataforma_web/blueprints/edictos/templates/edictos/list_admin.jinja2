@@ -49,19 +49,6 @@
                     <th>Archivos</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for edicto in edictos %}
-                <tr>
-                    <td>{{ edicto.creado }}</td>
-                    <td>{{ edicto.autoridad.clave }}</td>
-                    <td>{{ edicto.fecha }}</td>
-                    <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
-                    <td>{{ edicto.expediente }}</td>
-                    <td>{{ edicto.numero_publicacion }}</td>
-                    <td><a href="{{ edicto.url }}" target="_blank">PDF {{ list.icon_open_in_new() }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}

@@ -50,12 +50,12 @@ def list_active():
     """Listado de Edictos activos"""
     # Si es administrador, ve los edictos de todas las autoridades
     if current_user.can_admin("edictos"):
-        edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("edictos/list_admin.jinja2", autoridad=None, edictos=edictos_activos, estatus="A")
+        # edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("edictos/list_admin.jinja2", autoridad=None, estatus="A")
     # Si su autoridad es jurisdiccional, ve sus propios edictos
     if current_user.autoridad.es_jurisdiccional:
-        sus_edictos_activos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, edictos=sus_edictos_activos, estatus="A")
+        # sus_edictos_activos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, estatus="A")
     # No es jurisdiccional, se redirige al listado de edictos
     return redirect(url_for("edictos.list_distritos"))
 
@@ -66,12 +66,12 @@ def list_inactive():
     """Listado de Edictos inactivos"""
     # Si es administrador, ve los edictos de todas las autoridades
     if current_user.can_admin("edictos"):
-        edictos_inactivos = Edicto.query.filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("edictos/list_admin.jinja2", autoridad=None, edictos=edictos_inactivos, estatus="B")
+        # edictos_inactivos = Edicto.query.filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("edictos/list_admin.jinja2", autoridad=None, estatus="B")
     # Si es jurisdiccional, ve sus propios edictos
     if current_user.autoridad.es_jurisdiccional:
-        sus_edictos_inactivos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "B").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, edictos=sus_edictos_inactivos, estatus="B")
+        # sus_edictos_inactivos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "B").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("edictos.list_distritos"))
 
@@ -95,10 +95,10 @@ def list_autoridades(distrito_id):
 def list_autoridad_edictos(autoridad_id):
     """Listado de Edictos activos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    edictos_activos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+    # edictos_activos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("edictos"):
-        return render_template("edictos/list_admin.jinja2", autoridad=autoridad, edictos=edictos_activos, estatus="A")
-    return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=edictos_activos, estatus="A")
+        return render_template("edictos/list_admin.jinja2", autoridad=autoridad, estatus="A")
+    return render_template("edictos/list.jinja2", autoridad=autoridad, estatus="A")
 
 
 @edictos.route("/edictos/inactivos/autoridad/<int:autoridad_id>")
@@ -106,10 +106,10 @@ def list_autoridad_edictos(autoridad_id):
 def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    edictos_inactivos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
+    # edictos_inactivos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("edictos"):
-        return render_template("edictos/list_admin.jinja2", autoridad=autoridad, edictos=edictos_inactivos, estatus="B")
-    return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=edictos_inactivos, estatus="B")
+        return render_template("edictos/list_admin.jinja2", autoridad=autoridad, estatus="B")
+    return render_template("edictos/list.jinja2", autoridad=autoridad, estatus="B")
 
 
 @edictos.route("/edictos/ajax", methods=["GET", "POST"])

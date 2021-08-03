@@ -50,16 +50,16 @@ def list_active():
     """Listado de Glosas activos"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
-        glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_activas, estatus="A")
+        # glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("glosas/list_admin.jinja2", autoridad=None, estatus="A")
     # Si puede editar o crear glosas
     if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
         autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
-        sus_glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=sus_glosas_activas, estatus="A")
+        # sus_glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="A")
     # No es ninguno de los anteriores
-    glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-    return render_template("glosas/list.jinja2", autoridad=None, glosas=glosas_activas, estatus="A")
+    # glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+    return render_template("glosas/list.jinja2", autoridad=None, estatus="A")
 
 
 @glosas.route("/glosas/inactivos")
@@ -68,12 +68,12 @@ def list_inactive():
     """Listado de Glosas inactivas"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
-        glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("glosas/list_admin.jinja2", autoridad=None, glosas=glosas_inactivas, estatus="B")
+        # glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("glosas/list_admin.jinja2", autoridad=None, estatus="B")
     # Si es jurisdiccional, ve sus propios glosas
     if current_user.autoridad.es_jurisdiccional:
-        sus_glosas_inactivas = Glosa.query.filter(Glosa.autoridad == current_user.autoridad).filter(Glosa.estatus == "B").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("glosas/list.jinja2", autoridad=current_user.autoridad, glosas=sus_glosas_inactivas, estatus="B")
+        # sus_glosas_inactivas = Glosa.query.filter(Glosa.autoridad == current_user.autoridad).filter(Glosa.estatus == "B").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        return render_template("glosas/list.jinja2", autoridad=current_user.autoridad, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("glosas.list_distritos"))
 
@@ -95,10 +95,10 @@ def list_autoridades():
 def list_autoridad_glosas(autoridad_id):
     """Listado de Glosas activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+    # glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("glosas"):
-        return render_template("glosas/list_admin.jinja2", autoridad=autoridad, glosas=glosas_activas, estatus="A")
-    return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=glosas_activas, estatus="A")
+        return render_template("glosas/list_admin.jinja2", autoridad=autoridad, estatus="A")
+    return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="A")
 
 
 @glosas.route("/glosas/inactivos/autoridad/<int:autoridad_id>")
@@ -106,10 +106,40 @@ def list_autoridad_glosas(autoridad_id):
 def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    glosas_inactivas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
+    # glosas_inactivas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("glosas"):
-        return render_template("glosas/list_admin.jinja2", autoridad=autoridad, glosas=glosas_inactivas, estatus="B")
-    return render_template("glosas/list.jinja2", autoridad=autoridad, glosas=glosas_inactivas, estatus="B")
+        return render_template("glosas/list_admin.jinja2", autoridad=autoridad, estatus="B")
+    return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="B")
+
+
+@glosas.route("/glosas/ajax", methods=["GET", "POST"])
+def ajax():
+    """AJAX para glosas"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+
+@glosas.route("/glosas/ajax_admin", methods=["GET", "POST"])
+def ajax_admin():
+    """AJAX para glosas admin"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
 
 
 @glosas.route("/glosas/refrescar/<int:autoridad_id>")
