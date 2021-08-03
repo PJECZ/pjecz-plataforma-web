@@ -44,7 +44,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/abogados/ajax",
+                url: "/abogados/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",

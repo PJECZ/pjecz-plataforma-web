@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% if autoridad %}
-        {% set title='Listas de Acuerdos de ' + autoridad.clave %}
+        {% set title='Listas de Acuerdos de ' + autoridad.descripcion_corta + ', ' + autoridad.distrito.nombre_corto %}
     {% else %}
         {% if estatus == 'A' %}{% set title='Listas de Acuerdos' %}{% endif %}
         {% if estatus == 'B' %}{% set title='Listas de Acuerdos inactivas' %}{% endif %}
@@ -52,7 +52,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/listas_de_acuerdos/ajax",
+                url: "/listas_de_acuerdos/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",

@@ -107,9 +107,9 @@ def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
     return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, estatus="B")
 
 
-@listas_de_acuerdos.route("/listas_de_acuerdos/ajax", methods=["GET", "POST"])
-def ajax():
-    """AJAX para listas de acuerdos"""
+@listas_de_acuerdos.route("/listas_de_acuerdos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de listas de acuerdos"""
 
     # Tomar parámetros de Datatables
     try:
@@ -158,9 +158,9 @@ def ajax():
     }
 
 
-@listas_de_acuerdos.route("/listas_de_acuerdos/ajax_admin", methods=["GET", "POST"])
-def ajax_admin():
-    """AJAX para listas de acuerdos admin"""
+@listas_de_acuerdos.route("/listas_de_acuerdos/datatable_json_admin", methods=["GET", "POST"])
+def datatable_json_admin():
+    """DataTable JSON para listado de listas de acuerdos admin"""
 
     # Tomar parámetros de Datatables
     try:
@@ -189,9 +189,9 @@ def ajax_admin():
     for lista_de_acuerdo in registros:
         data.append(
             {
-                "creado": lista_de_acuerdo.creado.strftime("%Y-%m-%d %H:%M"),
+                "creado": lista_de_acuerdo.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad_clave": lista_de_acuerdo.autoridad.clave,
-                "fecha": lista_de_acuerdo.creado.strftime("%Y-%m-%d"),
+                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
                 "vinculo": {
                     "id": lista_de_acuerdo.id,
                     "descripcion": lista_de_acuerdo.descripcion,

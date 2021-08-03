@@ -20,11 +20,11 @@ def list_active():
     return render_template("bitacoras/list.jinja2")
 
 
-@bitacoras.route("/bitacoras/ajax", methods=["GET", "POST"])
+@bitacoras.route("/bitacoras/datatable_json", methods=["GET", "POST"])
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
-def ajax():
-    """AJAX para listado de bitácoras"""
+def datatable_json():
+    """DataTable JSON para listado de listado de bitácoras"""
 
     # Tomar parámetros de Datatables
     try:

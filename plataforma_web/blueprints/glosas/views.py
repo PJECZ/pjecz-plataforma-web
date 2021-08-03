@@ -50,15 +50,12 @@ def list_active():
     """Listado de Glosas activos"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
-        # glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list_admin.jinja2", autoridad=None, estatus="A")
     # Si puede editar o crear glosas
     if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
         autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
-        # sus_glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="A")
     # No es ninguno de los anteriores
-    # glosas_activas = Glosa.query.filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     return render_template("glosas/list.jinja2", autoridad=None, estatus="A")
 
 
@@ -68,11 +65,9 @@ def list_inactive():
     """Listado de Glosas inactivas"""
     # Si es administrador, ve las glosas de todas las autoridades
     if current_user.can_admin("glosas"):
-        # glosas_inactivas = Glosa.query.filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list_admin.jinja2", autoridad=None, estatus="B")
     # Si es jurisdiccional, ve sus propios glosas
     if current_user.autoridad.es_jurisdiccional:
-        # sus_glosas_inactivas = Glosa.query.filter(Glosa.autoridad == current_user.autoridad).filter(Glosa.estatus == "B").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("glosas/list.jinja2", autoridad=current_user.autoridad, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("glosas.list_distritos"))
@@ -81,7 +76,7 @@ def list_inactive():
 @glosas.route("/glosas/distritos")
 def list_distritos():
     """Listado de Distritos"""
-    return redirect(url_for('glosas.list_autoridades'))
+    return redirect(url_for("glosas.list_autoridades"))
 
 
 @glosas.route("/glosas/autoridades")
@@ -95,7 +90,6 @@ def list_autoridades():
 def list_autoridad_glosas(autoridad_id):
     """Listado de Glosas activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    # glosas_activas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "A").order_by(Glosa.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("glosas"):
         return render_template("glosas/list_admin.jinja2", autoridad=autoridad, estatus="A")
     return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="A")
@@ -106,15 +100,14 @@ def list_autoridad_glosas(autoridad_id):
 def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    # glosas_inactivas = Glosa.query.filter(Glosa.autoridad == autoridad).filter(Glosa.estatus == "B").order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("glosas"):
         return render_template("glosas/list_admin.jinja2", autoridad=autoridad, estatus="B")
     return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="B")
 
 
-@glosas.route("/glosas/ajax", methods=["GET", "POST"])
-def ajax():
-    """AJAX para glosas"""
+@glosas.route("/glosas/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de glosas"""
 
     # Tomar parámetros de Datatables
     try:
@@ -126,10 +119,48 @@ def ajax():
         start = 1
         rows_per_page = 10
 
+    # Consultar
+    consulta = Glosa.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Glosa.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Glosa.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(Glosa.autoridad == autoridad)
+    registros = consulta.order_by(Glosa.fecha.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
 
-@glosas.route("/glosas/ajax_admin", methods=["GET", "POST"])
-def ajax_admin():
-    """AJAX para glosas admin"""
+    # Elaborar datos para DataTable
+    data = []
+    for glosa in registros:
+        data.append(
+            {
+                "fecha": glosa.fecha.strftime("%Y-%m-%d"),
+                "vinculo": {
+                    "id": glosa.id,
+                    "descripcion": glosa.descripcion,
+                },
+                "tipo_juicio": glosa.tipo_juicio,
+                "expediente": glosa.expediente,
+                "archivo": {
+                    "url": glosa.url,
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+@glosas.route("/glosas/datatable_json_admin", methods=["GET", "POST"])
+def datatable_json_admin():
+    """DataTable JSON para listado de glosas admin"""
 
     # Tomar parámetros de Datatables
     try:
@@ -140,6 +171,46 @@ def ajax_admin():
         draw = 1
         start = 1
         rows_per_page = 10
+
+    # Consultar
+    consulta = Glosa.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Glosa.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Glosa.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(Glosa.autoridad == autoridad)
+    registros = consulta.order_by(Glosa.fecha.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for glosa in registros:
+        data.append(
+            {
+                "creado": glosa.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "autoridad_clave": glosa.autoridad.clave,
+                "fecha": glosa.fecha.strftime("%Y-%m-%d"),
+                "vinculo": {
+                    "id": glosa.id,
+                    "descripcion": glosa.descripcion,
+                },
+                "tipo_juicio": glosa.tipo_juicio,
+                "expediente": glosa.expediente,
+                "archivo": {
+                    "url": glosa.url,
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @glosas.route("/glosas/refrescar/<int:autoridad_id>")

@@ -43,7 +43,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/peritos/ajax",
+                url: "/peritos/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",

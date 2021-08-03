@@ -38,9 +38,9 @@ def list_inactive():
     return render_template("abogados/list.jinja2", estatus="B")
 
 
-@abogados.route("/abogados/ajax", methods=["GET", "POST"])
-def ajax():
-    """AJAX para abogados"""
+@abogados.route("/abogados/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de abogados"""
 
     # Tomar parámetros de Datatables
     try:

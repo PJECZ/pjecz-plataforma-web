@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% if autoridad %}
-        {% set title='Edictos de ' + autoridad.clave %}
+        {% set title='Edictos de ' + autoridad.descripcion_corta + ', ' + autoridad.distrito.nombre_corto %}
     {% else %}
         {% if estatus == 'A'%}{% set title='Edictos' %}{% endif %}
         {% if estatus == 'B'%}{% set title='Edictos inactivos' %}{% endif %}
@@ -54,7 +54,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/edictos/ajax",
+                url: "/edictos/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",

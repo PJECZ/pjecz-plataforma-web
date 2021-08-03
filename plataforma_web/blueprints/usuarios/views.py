@@ -137,10 +137,10 @@ def list_inactive():
     return render_template("usuarios/list.jinja2", estatus="B")
 
 
-@usuarios.route("/usuarios/ajax", methods=["GET", "POST"])
+@usuarios.route("/usuarios/datatable_json", methods=["GET", "POST"])
 @permission_required(Permiso.VER_CUENTAS)
-def ajax():
-    """AJAX para usuarios"""
+def datatable_json():
+    """DataTable JSON para listado de usuarios"""
 
     # Tomar parámetros de Datatables
     try:
@@ -153,7 +153,11 @@ def ajax():
         rows_per_page = 10
 
     # Consultar
-    consulta = Usuario.query.filter(Usuario.estatus == request.form["estatus"])
+    consulta = Usuario.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Usuario.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Usuario.estatus == "A")
     registros = consulta.order_by(Usuario.email).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 

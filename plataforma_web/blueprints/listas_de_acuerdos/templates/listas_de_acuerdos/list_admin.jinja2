@@ -61,7 +61,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/listas_de_acuerdos/ajax_admin",
+                url: "/listas_de_acuerdos/datatable_json_admin",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",

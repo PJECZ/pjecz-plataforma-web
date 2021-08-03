@@ -38,9 +38,9 @@ def list_inactive():
     return render_template("peritos/list.jinja2", estatus="B")
 
 
-@peritos.route("/peritos/ajax", methods=["GET", "POST"])
-def ajax():
-    """AJAX para peritos"""
+@peritos.route("/peritos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de peritos"""
 
     # Tomar parámetros de Datatables
     try:
@@ -55,9 +55,9 @@ def ajax():
     # Consultar
     consulta = Perito.query
     if "estatus" in request.form:
-        consulta = consulta.filter(Abogado.estatus == request.form["estatus"])
+        consulta = consulta.filter(Perito.estatus == request.form["estatus"])
     else:
-        consulta = consulta.filter(Abogado.estatus == "A")
+        consulta = consulta.filter(Perito.estatus == "A")
     registros = consulta.order_by(Perito.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -187,11 +187,11 @@ def delete(perito_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Eliminado perito {perito.nombre} de {perito.distrito.nombre}'),
-            url=url_for('peritos.detail', perito_id=perito.id),
+            descripcion=safe_message(f"Eliminado perito {perito.nombre} de {perito.distrito.nombre}"),
+            url=url_for("peritos.detail", perito_id=perito.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("peritos.detail", perito_id=perito_id))
 
 
@@ -205,9 +205,9 @@ def recover(perito_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Recuperado perito {perito.nombre} de {perito.distrito.nombre}'),
-            url=url_for('peritos.detail', perito_id=perito.id),
+            descripcion=safe_message(f"Recuperado perito {perito.nombre} de {perito.distrito.nombre}"),
+            url=url_for("peritos.detail", perito_id=perito.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("peritos.detail", perito_id=perito_id))

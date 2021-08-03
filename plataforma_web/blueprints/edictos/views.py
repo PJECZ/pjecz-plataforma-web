@@ -112,9 +112,9 @@ def list_autoridad_edictos_inactive(autoridad_id):
     return render_template("edictos/list.jinja2", autoridad=autoridad, estatus="B")
 
 
-@edictos.route("/edictos/ajax", methods=["GET", "POST"])
-def ajax():
-    """AJAX para edictos"""
+@edictos.route("/edictos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de edictos"""
 
     # Tomar parámetros de Datatables
     try:
@@ -165,9 +165,9 @@ def ajax():
     }
 
 
-@edictos.route("/edictos/ajax_admin", methods=["GET", "POST"])
-def ajax_admin():
-    """AJAX para edictos administradores"""
+@edictos.route("/edictos/datatable_json_admin", methods=["GET", "POST"])
+def datatable_json_admin():
+    """DataTable JSON para listado de edictos administradores"""
 
     # Tomar parámetros de Datatables
     try:
@@ -196,7 +196,7 @@ def ajax_admin():
     for edicto in registros:
         data.append(
             {
-                "creado": edicto.creado.strftime("%Y-%m-%d %H:%M"),
+                "creado": edicto.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad_clave": edicto.autoridad.clave,
                 "fecha": edicto.fecha.strftime("%Y-%m-%d"),
                 "vinculo": {
@@ -218,7 +218,6 @@ def ajax_admin():
         "iTotalDisplayRecords": total,
         "aaData": data,
     }
-
 
 
 @edictos.route("/edictos/refrescar/<int:autoridad_id>")
