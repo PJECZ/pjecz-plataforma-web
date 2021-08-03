@@ -67,8 +67,8 @@
                 dataType: "json",
                 dataSrc: "data",
                 data: {
-                    {% if autoridad %}'autoridad_id': {{ autoridad.id }},{% endif %}
-                    'estatus': "{{ estatus }}"
+                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
+                    estatus: "{{ estatus }}"
                 }
             },
             columns: [

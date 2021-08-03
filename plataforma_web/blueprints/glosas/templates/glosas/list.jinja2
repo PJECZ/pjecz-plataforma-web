@@ -38,8 +38,8 @@
                 <tr>
                     <th>Fechas</th>
                     <th>Descripciones</th>
-                    <th>Tipos de juicios</th>
                     <th>Expedientes</th>
+                    <th>Tipos de juicios</th>
                     <th>Archivos</th>
                 </tr>
             </thead>
@@ -63,15 +63,15 @@
                 dataType: "json",
                 dataSrc: "data",
                 data: {
-                    {% if autoridad %}'autoridad_id': "{{ autoridad.id }}",{% endif %}
-                    'estatus': "{{ estatus }}"
+                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
+                    estatus: "{{ estatus }}"
                 }
             },
             columns: [
                 { data: "fecha" },
                 { data: "vinculo" },
-                { data: "tipo_juicio" },
                 { data: "expediente" },
+                { data: "tipo_juicio" },
                 { data: "archivo" }
             ],
             columnDefs: [

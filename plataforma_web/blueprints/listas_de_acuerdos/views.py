@@ -179,7 +179,7 @@ def datatable_json_admin():
     else:
         consulta = consulta.filter(ListaDeAcuerdo.estatus == "A")
     if "autoridad_id" in request.form:
-        autoridad = Autoridad.query.get(int(request.form["autoridad_id"]))
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
         consulta = consulta.filter(ListaDeAcuerdo.autoridad == autoridad)
     registros = consulta.order_by(ListaDeAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()

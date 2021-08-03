@@ -141,8 +141,8 @@ def datatable_json():
                     "id": glosa.id,
                     "descripcion": glosa.descripcion,
                 },
-                "tipo_juicio": glosa.tipo_juicio,
                 "expediente": glosa.expediente,
+                "tipo_juicio": glosa.tipo_juicio,
                 "archivo": {
                     "url": glosa.url,
                 },
@@ -196,8 +196,8 @@ def datatable_json_admin():
                     "id": glosa.id,
                     "descripcion": glosa.descripcion,
                 },
-                "tipo_juicio": glosa.tipo_juicio,
                 "expediente": glosa.expediente,
+                "tipo_juicio": glosa.tipo_juicio,
                 "archivo": {
                     "url": glosa.url,
                 },
