@@ -38,19 +38,65 @@
                     <th>Ubicaciones</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for ubicacion_expediente in ubicaciones_expedientes %}
-                <tr>
-                    <td>{{ ubicacion_expediente.creado }}</td>
-                    <td><a href="{{ url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id) }}">{{ ubicacion_expediente.expediente }}</a></td>
-                    <td>{{ ubicacion_expediente.ubicacion }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('ubicaciones_expedientes_datatable') }}
+    <script>
+        $('#ubicaciones_expedientes_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/ubicaciones_expedientes/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {
+                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
+                    estatus: "{{ estatus }}"
+                }
+            },
+            columns: [
+                { data: "creado" },
+                { data: "detalle" },
+                { data: "ubicacion" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.expediente + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

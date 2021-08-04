@@ -43,9 +43,9 @@ def datatable_json():
 
     # Tomar parámetros de Datatables
     try:
-        draw = int(request.form["draw"])  # Número de Página
-        start = int(request.form["start"])  # Registro inicial
-        rows_per_page = int(request.form["length"])  # Renglones por página
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1

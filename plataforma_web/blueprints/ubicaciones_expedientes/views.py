@@ -31,11 +31,9 @@ def list_active():
     """Listado de Ubicaciones de Expedientes"""
     # Si es administrador, ve las ubicaciones de expedientes de todas las autoridades
     if current_user.can_admin("ubicaciones_expedientes"):
-        # ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=None, estatus="A")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        # sus_ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("ubicaciones_expedientes/list.jinja2", autoridad=current_user.autoridad, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
@@ -47,11 +45,9 @@ def list_inactive():
     """Listado de Ubicaciones de Expedientes inactivos"""
     # Si es administrador, ve las ubicaciones de expedientes de todas las autoridades
     if current_user.can_admin("ubicaciones_expedientes"):
-        # ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=None, estatus="B")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        # sus_ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("ubicaciones_expedientes/list.jinja2", autoridad=current_user.autoridad, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
@@ -76,7 +72,6 @@ def list_autoridades(distrito_id):
 def list_autoridad_ubicaciones_expedientes(autoridad_id):
     """Listado de Ubicaciones de Expedientes activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    # ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("ubicaciones_expedientes"):
         return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=autoridad, estatus="A")
     return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, estatus="A")
@@ -87,7 +82,6 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
 def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
     """Listado de Ubicaciones de Expedientes inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    # ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("ubicaciones_expedientes"):
         return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=autoridad, estatus="B")
     return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, estatus="B")
@@ -99,9 +93,9 @@ def datatable_json():
 
     # Tomar parámetros de Datatables
     try:
-        draw = int(request.form["draw"])  # Número de Página
-        start = int(request.form["start"])  # Registro inicial
-        rows_per_page = int(request.form["length"])  # Renglones por página
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
@@ -149,9 +143,9 @@ def datatable_json_admin():
 
     # Tomar parámetros de Datatables
     try:
-        draw = int(request.form["draw"])  # Número de Página
-        start = int(request.form["start"])  # Registro inicial
-        rows_per_page = int(request.form["length"])  # Renglones por página
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
