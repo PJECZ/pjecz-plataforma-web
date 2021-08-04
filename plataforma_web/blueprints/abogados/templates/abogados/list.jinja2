@@ -55,14 +55,14 @@
                 { data: "fecha" },
                 { data: "numero" },
                 { data: "libro" },
-                { data: "vinculo" }
+                { data: "detalle" }
             ],
             columnDefs: [
                 {
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="/abogados/' + data.id + '">' + data.nombre + '</a>';
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 }
             ],

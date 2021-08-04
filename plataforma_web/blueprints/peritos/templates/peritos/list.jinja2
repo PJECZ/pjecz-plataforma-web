@@ -51,7 +51,7 @@
                 data: { estatus: "{{ estatus }}" }
             },
             columns: [
-                { data: "vinculo" },
+                { data: "detalle" },
                 { data: "tipo" },
                 { data: "departamento" }
             ],
@@ -60,7 +60,7 @@
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="/peritos/' + data.id + '">' + data.nombre + '</a>';
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 }
             ],

@@ -15,7 +15,6 @@ from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
 peritos = Blueprint("peritos", __name__, template_folder="templates")
 
 MODULO = "PERITOS"
-CONSULTAS_LIMITE = 400
 
 
 @peritos.before_request
@@ -66,9 +65,9 @@ def datatable_json():
     for perito in registros:
         data.append(
             {
-                "vinculo": {
-                    "id": perito.id,
+                "detalle": {
                     "nombre": perito.nombre,
+                    "url": url_for("peritos.detail", perito_id=perito.id),
                 },
                 "tipo": perito.tipo,
                 "departamento": perito.distrito.nombre,
@@ -104,7 +103,7 @@ def search():
             consulta = consulta.filter(Perito.nombre.like(f"%{nombre}%"))
         if form_search.tipo.data:
             consulta = consulta.filter(Perito.tipo == form_search.tipo.data)
-        consulta = consulta.order_by(Perito.creado.desc()).limit(CONSULTAS_LIMITE).all()
+        consulta = consulta.order_by(Perito.creado.desc()).all()
         return render_template("peritos/list.jinja2", peritos=consulta)
     return render_template("peritos/search.jinja2", form=form_search)
 

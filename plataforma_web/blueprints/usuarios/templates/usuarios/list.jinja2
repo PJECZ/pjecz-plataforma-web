@@ -54,9 +54,9 @@
                 data: { estatus: "{{ estatus }}" }
             },
             columns: [
-                { data: "vinculo" },
+                { data: "detalle" },
                 { data: "nombre" },
-                { data: "autoridad_clave" },
+                { data: "autoridad" },
                 { data: "rol" },
                 { data: "workspace" }
             ],
@@ -65,7 +65,7 @@
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="/usuarios/' + data.id + '">' + data.email + '</a>';
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
                     }
                 }
             ],

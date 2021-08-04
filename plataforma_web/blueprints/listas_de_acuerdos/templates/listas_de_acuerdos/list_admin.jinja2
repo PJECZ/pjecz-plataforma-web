@@ -73,17 +73,24 @@
             },
             columns: [
                 { data: "creado" },
-                { data: "autoridad_clave" },
+                { data: "autoridad" },
                 { data: "fecha" },
-                { data: "vinculo" },
+                { data: "detalle" },
                 { data: "archivo" }
             ],
             columnDefs: [
                 {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="/listas_de_acuerdos/' + data.id + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
                 },
                 {

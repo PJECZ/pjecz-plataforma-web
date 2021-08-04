@@ -27,7 +27,6 @@ MODULO = "GLOSAS"
 SUBDIRECTORIO = "Glosas"
 LIMITE_DIAS = 365
 LIMITE_ADMINISTRADORES_DIAS = 365
-CONSULTAS_LIMITE = 100
 
 
 @glosas.route("/glosas/acuses/<id_hashed>")
@@ -137,9 +136,9 @@ def datatable_json():
         data.append(
             {
                 "fecha": glosa.fecha.strftime("%Y-%m-%d"),
-                "vinculo": {
-                    "id": glosa.id,
+                "detalle": {
                     "descripcion": glosa.descripcion,
+                    "url": url_for("glosas.detail", glosa_id=glosa.id),
                 },
                 "expediente": glosa.expediente,
                 "tipo_juicio": glosa.tipo_juicio,
@@ -159,6 +158,7 @@ def datatable_json():
 
 
 @glosas.route("/glosas/datatable_json_admin", methods=["GET", "POST"])
+@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def datatable_json_admin():
     """DataTable JSON para listado de glosas admin"""
 
@@ -190,11 +190,11 @@ def datatable_json_admin():
         data.append(
             {
                 "creado": glosa.creado.strftime("%Y-%m-%d %H:%M:%S"),
-                "autoridad_clave": glosa.autoridad.clave,
+                "autoridad": glosa.autoridad.clave,
                 "fecha": glosa.fecha.strftime("%Y-%m-%d"),
-                "vinculo": {
-                    "id": glosa.id,
+                "detalle": {
                     "descripcion": glosa.descripcion,
+                    "url": url_for("glosas.detail", glosa_id=glosa.id),
                 },
                 "expediente": glosa.expediente,
                 "tipo_juicio": glosa.tipo_juicio,
@@ -249,7 +249,7 @@ def search():
             consulta = consulta.filter(Glosa.fecha >= form_search.fecha_desde.data)
         if form_search.fecha_hasta.data:
             consulta = consulta.filter(Glosa.fecha <= form_search.fecha_hasta.data)
-        consulta = consulta.order_by(Glosa.creado.desc()).limit(CONSULTAS_LIMITE).all()
+        consulta = consulta.order_by(Glosa.creado.desc()).all()
         return render_template("glosas/list.jinja2", glosas=consulta)
     distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()

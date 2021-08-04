@@ -1,7 +1,7 @@
 """
 Listas de Acuerdos Acuerdos, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
 
@@ -16,7 +16,6 @@ from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.forms import ListaDeA
 listas_de_acuerdos_acuerdos = Blueprint("listas_de_acuerdos_acuerdos", __name__, template_folder="templates")
 
 MODULO = "LISTAS DE ACUERDOS"
-CONSULTAS_LIMITE = 100
 
 
 @listas_de_acuerdos_acuerdos.before_request
@@ -26,29 +25,125 @@ def before_request():
     """Permiso por defecto"""
 
 
-@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos_acuerdos")
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos")
 def list_active():
     """Listado de Acuerdos activos"""
-    acuerdos_activos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.estatus == "A").order_by(ListaDeAcuerdoAcuerdo.creado.desc()).limit(CONSULTAS_LIMITE).all()
-    return render_template("listas_de_acuerdos_acuerdos/list.jinja2", acuerdos=acuerdos_activos, estatus="A")
+    return render_template("listas_de_acuerdos_acuerdos/list.jinja2", estatus="A")
 
 
-@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos_acuerdos/inactivos")
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/inactivos")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def list_inactive():
     """Listado de Acuerdos inactivos"""
-    acuerdos_inactivos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.estatus == "B").order_by(ListaDeAcuerdoAcuerdo.creado.desc()).limit(CONSULTAS_LIMITE).all()
-    return render_template("listas_de_acuerdos_acuerdos/list.jinja2", acuerdos=acuerdos_inactivos, estatus="B")
+    return render_template("listas_de_acuerdos_acuerdos/list.jinja2", estatus="B")
 
 
-@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos_acuerdos/<int:lista_de_acuerdo_acuerdo_id>")
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para Acuerdos"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = ListaDeAcuerdoAcuerdo.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == "A")
+    registros = consulta.order_by(ListaDeAcuerdoAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for acuerdo in registros:
+        data.append(
+            {
+                "detalle": {
+                    "referencia": acuerdo.referencia,
+                    "url": url_for("listas_de_acuerdos_acuerdos.detail", lista_de_acuerdo_acuerdo_id=acuerdo.id),
+                },
+                "folio": acuerdo.folio,
+                "expediente": acuerdo.expediente,
+                "actor": acuerdo.actor,
+                "demandado": acuerdo.demandado,
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/datatable_json_admin", methods=["GET", "POST"])
+@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+def datatable_json_admin():
+    """DataTable JSON para Acuerdos admin"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])  # Número de Página
+        start = int(request.form["start"])  # Registro inicial
+        rows_per_page = int(request.form["length"])  # Renglones por página
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = ListaDeAcuerdoAcuerdo.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == "A")
+    registros = consulta.order_by(ListaDeAcuerdoAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for acuerdo in registros:
+        data.append(
+            {
+                "creado": acuerdo.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "detalle": {
+                    "referencia": acuerdo.referencia,
+                    "url": url_for("listas_de_acuerdos_acuerdos.detail", lista_de_acuerdo_acuerdo_id=acuerdo.id),
+                },
+                "folio": acuerdo.folio,
+                "expediente": acuerdo.expediente,
+                "actor": acuerdo.actor,
+                "demandado": acuerdo.demandado,
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/<int:lista_de_acuerdo_acuerdo_id>")
 def detail(lista_de_acuerdo_acuerdo_id):
     """Detalle de un Acuerdo"""
     acuerdo = ListaDeAcuerdoAcuerdo.query.get_or_404(lista_de_acuerdo_acuerdo_id)
     return render_template("listas_de_acuerdos_acuerdos/detail.jinja2", acuerdo=acuerdo)
 
 
-@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos_acuerdos/nuevo/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/nuevo/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new(lista_de_acuerdo_id):
     """Nuevo Acuerdo"""
@@ -98,7 +193,7 @@ def new(lista_de_acuerdo_id):
     return render_template("listas_de_acuerdos_acuerdos/new.jinja2", form=form, lista_de_acuerdo=lista_de_acuerdo)
 
 
-@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos_acuerdos/edicion/<int:lista_de_acuerdo_acuerdo_id>", methods=["GET", "POST"])
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/edicion/<int:lista_de_acuerdo_acuerdo_id>", methods=["GET", "POST"])
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def edit(lista_de_acuerdo_acuerdo_id):
     """Editar Acuerdo"""
@@ -150,7 +245,7 @@ def edit(lista_de_acuerdo_acuerdo_id):
     return render_template("listas_de_acuerdos_acuerdos/edit.jinja2", form=form, acuerdo=acuerdo)
 
 
-@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos_acuerdos/eliminar/<int:lista_de_acuerdo_acuerdo_id>")
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/eliminar/<int:lista_de_acuerdo_acuerdo_id>")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def delete(lista_de_acuerdo_acuerdo_id):
     """Eliminar Acuerdo"""
@@ -161,7 +256,7 @@ def delete(lista_de_acuerdo_acuerdo_id):
     return redirect(url_for("listas_de_acuerdos_acuerdos.detail", lista_de_acuerdo_acuerdo_id=acuerdo.id))
 
 
-@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos_acuerdos/recuperar/<int:lista_de_acuerdo_acuerdo_id>")
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/recuperar/<int:lista_de_acuerdo_acuerdo_id>")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def recover(lista_de_acuerdo_acuerdo_id):
     """Recuperar Acuerdo"""

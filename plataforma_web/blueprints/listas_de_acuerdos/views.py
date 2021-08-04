@@ -28,7 +28,6 @@ MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
 LIMITE_DIAS = 1
 LIMITE_ADMINISTRADORES_DIAS = 90
-CONSULTAS_LIMITE = 100
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/acuses/<id_hashed>")
@@ -139,9 +138,9 @@ def datatable_json():
         data.append(
             {
                 "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
-                "vinculo": {
-                    "id": lista_de_acuerdo.id,
+                "detalle": {
                     "descripcion": lista_de_acuerdo.descripcion,
+                    "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
                 },
                 "archivo": {
                     "url": lista_de_acuerdo.url,
@@ -190,11 +189,11 @@ def datatable_json_admin():
         data.append(
             {
                 "creado": lista_de_acuerdo.creado.strftime("%Y-%m-%d %H:%M:%S"),
-                "autoridad_clave": lista_de_acuerdo.autoridad.clave,
+                "autoridad": lista_de_acuerdo.autoridad.clave,
                 "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
-                "vinculo": {
-                    "id": lista_de_acuerdo.id,
+                "detalle": {
                     "descripcion": lista_de_acuerdo.descripcion,
+                    "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
                 },
                 "archivo": {
                     "url": lista_de_acuerdo.url,
@@ -257,7 +256,7 @@ def search():
             consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
 
         # Mostrar resultados
-        consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=consulta)
 
     # Los administradores pueden buscar en todas las autoridades

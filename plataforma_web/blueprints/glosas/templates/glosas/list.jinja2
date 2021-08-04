@@ -69,7 +69,7 @@
             },
             columns: [
                 { data: "fecha" },
-                { data: "vinculo" },
+                { data: "detalle" },
                 { data: "expediente" },
                 { data: "tipo_juicio" },
                 { data: "archivo" }
@@ -79,7 +79,7 @@
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="/glosas/' + data.id + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
                 },
                 {

@@ -166,12 +166,12 @@ def datatable_json():
     for usuario in registros:
         data.append(
             {
-                "vinculo": {
-                    "id": usuario.id,
+                "detalle": {
                     "email": usuario.email,
+                    "url": url_for("usuarios.detail", usuario_id=usuario.id),
                 },
                 "nombre": usuario.nombre,
-                "autoridad_clave": usuario.autoridad.clave,
+                "autoridad": usuario.autoridad.clave,
                 "rol": usuario.rol.nombre,
                 "workspace": usuario.workspace,
             }

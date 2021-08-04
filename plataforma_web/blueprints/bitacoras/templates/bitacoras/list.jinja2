@@ -17,7 +17,7 @@
             <thead>
                 <tr>
                     <th>Tiempos</th>
-                    <th>Usuarios e-mail</th>
+                    <th>Usuarios</th>
                     <th>Módulos</th>
                     <th>Descripciones</th>
                 </tr>
@@ -44,10 +44,10 @@
                 data: {}
             },
             columns: [
-                { data: 'creado' },
-                { data: 'usuario_email' },
-                { data: 'modulo' },
-                { data: 'vinculo' }
+                { data: "creado" },
+                { data: "usuario" },
+                { data: "modulo" },
+                { data: "vinculo" }
             ],
             columnDefs: [
                 {
@@ -55,6 +55,13 @@
                     type: "date",
                     render: function (data, type, row) {
                         return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
                     }
                 },
                 {

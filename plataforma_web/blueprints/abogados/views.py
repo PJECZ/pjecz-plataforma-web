@@ -15,7 +15,6 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 abogados = Blueprint("abogados", __name__, template_folder="templates")
 
 MODULO = "ABOGADOS"
-CONSULTAS_LIMITE = 400
 
 
 @abogados.before_request
@@ -69,9 +68,9 @@ def datatable_json():
                 "fecha": abogado.fecha.strftime("%Y-%m-%d"),
                 "numero": abogado.numero,
                 "libro": abogado.libro,
-                "vinculo": {
-                    "id": abogado.id,
+                "detalle": {
                     "nombre": abogado.nombre,
+                    "url": url_for("abogados.detail", abogado_id=abogado.id),
                 },
             }
         )
@@ -111,7 +110,7 @@ def search():
         if form_search.nombre.data:
             nombre = safe_string(form_search.nombre.data)
             consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
-        consulta = consulta.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        consulta = consulta.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).all()
         return render_template("abogados/list.jinja2", abogados=consulta, estatus="A")
     return render_template("abogados/search.jinja2", form=form_search)
 

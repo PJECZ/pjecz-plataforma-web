@@ -1,7 +1,7 @@
 """
 Bitácoras, vistas
 """
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, url_for
 from flask_login import login_required
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -47,7 +47,10 @@ def datatable_json():
         data.append(
             {
                 "creado": bitacora.creado.strftime("%Y-%m-%d %H:%M:%S"),
-                "usuario_email": bitacora.usuario.email,
+                "usuario": {
+                    "email": bitacora.usuario.email,
+                    "url": url_for("usuarios.detail", usuario_id=bitacora.usuario_id),
+                },
                 "modulo": bitacora.modulo,
                 "vinculo": {
                     "descripcion": bitacora.descripcion,

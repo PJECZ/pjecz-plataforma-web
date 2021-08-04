@@ -27,7 +27,6 @@ MODULO = "EDICTOS"
 SUBDIRECTORIO = "Edictos"
 LIMITE_DIAS = 30
 LIMITE_ADMINISTRADORES_DIAS = 90
-CONSULTAS_LIMITE = 100
 
 
 @edictos.route("/edictos/acuses/<id_hashed>")
@@ -50,11 +49,9 @@ def list_active():
     """Listado de Edictos activos"""
     # Si es administrador, ve los edictos de todas las autoridades
     if current_user.can_admin("edictos"):
-        # edictos_activos = Edicto.query.filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("edictos/list_admin.jinja2", autoridad=None, estatus="A")
     # Si su autoridad es jurisdiccional, ve sus propios edictos
     if current_user.autoridad.es_jurisdiccional:
-        # sus_edictos_activos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, estatus="A")
     # No es jurisdiccional, se redirige al listado de edictos
     return redirect(url_for("edictos.list_distritos"))
@@ -66,11 +63,9 @@ def list_inactive():
     """Listado de Edictos inactivos"""
     # Si es administrador, ve los edictos de todas las autoridades
     if current_user.can_admin("edictos"):
-        # edictos_inactivos = Edicto.query.filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("edictos/list_admin.jinja2", autoridad=None, estatus="B")
     # Si es jurisdiccional, ve sus propios edictos
     if current_user.autoridad.es_jurisdiccional:
-        # sus_edictos_inactivos = Edicto.query.filter(Edicto.autoridad == current_user.autoridad).filter(Edicto.estatus == "B").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
         return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("edictos.list_distritos"))
@@ -95,7 +90,6 @@ def list_autoridades(distrito_id):
 def list_autoridad_edictos(autoridad_id):
     """Listado de Edictos activos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    # edictos_activos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "A").order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("edictos"):
         return render_template("edictos/list_admin.jinja2", autoridad=autoridad, estatus="A")
     return render_template("edictos/list.jinja2", autoridad=autoridad, estatus="A")
@@ -106,7 +100,6 @@ def list_autoridad_edictos(autoridad_id):
 def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    # edictos_inactivos = Edicto.query.filter(Edicto.autoridad == autoridad).filter(Edicto.estatus == "B").order_by(Edicto.creado.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("edictos"):
         return render_template("edictos/list_admin.jinja2", autoridad=autoridad, estatus="B")
     return render_template("edictos/list.jinja2", autoridad=autoridad, estatus="B")
@@ -144,9 +137,9 @@ def datatable_json():
         data.append(
             {
                 "fecha": edicto.fecha.strftime("%Y-%m-%d"),
-                "vinculo": {
-                    "id": edicto.id,
+                "detalle": {
                     "descripcion": edicto.descripcion,
+                    "url": url_for("edictos.detail", edicto_id=edicto.id),
                 },
                 "expediente": edicto.expediente,
                 "numero_publicacion": edicto.numero_publicacion,
@@ -166,6 +159,7 @@ def datatable_json():
 
 
 @edictos.route("/edictos/datatable_json_admin", methods=["GET", "POST"])
+@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def datatable_json_admin():
     """DataTable JSON para listado de edictos administradores"""
 
@@ -197,11 +191,11 @@ def datatable_json_admin():
         data.append(
             {
                 "creado": edicto.creado.strftime("%Y-%m-%d %H:%M:%S"),
-                "autoridad_clave": edicto.autoridad.clave,
+                "autoridad": edicto.autoridad.clave,
                 "fecha": edicto.fecha.strftime("%Y-%m-%d"),
-                "vinculo": {
-                    "id": edicto.id,
+                "detalle": {
                     "descripcion": edicto.descripcion,
+                    "url": url_for("edictos.detail", edicto_id=edicto.id),
                 },
                 "expediente": edicto.expediente,
                 "numero_publicacion": edicto.numero_publicacion,
@@ -295,7 +289,7 @@ def search():
 
         # Mostrar resultados
         if mostrar_resultados:
-            consulta = consulta.order_by(Edicto.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+            consulta = consulta.order_by(Edicto.fecha.desc()).all()
             return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
 
     # Los administradores pueden buscar en todas las autoridades

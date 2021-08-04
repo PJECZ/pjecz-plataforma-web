@@ -14,8 +14,6 @@ from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
 rep_graficas = Blueprint("rep_graficas", __name__, template_folder="templates")
 
-CONSULTAS_LIMITE = 100
-
 
 @rep_graficas.before_request
 @login_required
@@ -27,7 +25,7 @@ def before_request():
 @rep_graficas.route("/rep_graficas")
 def list_active():
     """Listado de Gráficas activos"""
-    rep_graficas_activos = RepGrafica.query.filter(RepGrafica.estatus == "A").limit(CONSULTAS_LIMITE).all()
+    rep_graficas_activos = RepGrafica.query.filter(RepGrafica.estatus == "A").all()
     return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_activos, estatus="A")
 
 
@@ -35,7 +33,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Gráficas inactivos"""
-    rep_graficas_inactivos = RepGrafica.query.filter(RepGrafica.estatus == "B").limit(CONSULTAS_LIMITE).all()
+    rep_graficas_inactivos = RepGrafica.query.filter(RepGrafica.estatus == "B").all()
     return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_inactivos, estatus="B")
 
 
