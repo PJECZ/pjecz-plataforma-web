@@ -41,7 +41,7 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    {% if not autoridad %}<th>Autoridades</th>{% endif %}
+                    <th>Autoridades</th>
                     <th>Fechas</th>
                     <th>Descripciones</th>
                     <th>Expedientes</th>
@@ -49,23 +49,76 @@
                     <th>Archivos</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for edicto in edictos %}
-                <tr>
-                    <td>{{ edicto.creado }}</td>
-                    {% if not autoridad %}<td>{{ edicto.autoridad.clave }}</td>{% endif %}
-                    <td>{{ edicto.fecha }}</td>
-                    <td><a href="{{ url_for('edictos.detail', edicto_id=edicto.id) }}">{{ edicto.descripcion }}</a></td>
-                    <td>{{ edicto.expediente }}</td>
-                    <td>{{ edicto.numero_publicacion }}</td>
-                    <td><a href="{{ edicto.url }}" target="_blank">PDF {{ list.icon_open_in_new() }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('edictos_datatable') }}
+    <script>
+        $('#edictos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/edictos/datatable_json_admin",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {
+                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
+                    estatus: "{{ estatus }}"
+                }
+            },
+            columns: [
+                { data: "creado" },
+                { data: "autoridad" },
+                { data: "fecha" },
+                { data: "detalle" },
+                { data: "expediente" },
+                { data: "numero_publicacion" },
+                { data: "archivo" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                },
+                {
+                    targets: 6,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">PDF</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

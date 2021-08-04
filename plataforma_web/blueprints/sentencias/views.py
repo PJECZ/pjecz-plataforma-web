@@ -27,7 +27,6 @@ MODULO = "SENTENCIAS"
 SUBDIRECTORIO = "Sentencias"
 LIMITE_DIAS = 365
 LIMITE_ADMINISTRADORES_DIAS = 365
-CONSULTAS_LIMITE = 100
 
 
 @sentencias.route("/sentencias/acuses/<id_hashed>")
@@ -50,12 +49,10 @@ def list_active():
     """Listado de Sentencias activas más recientes"""
     # Si es administrador, ve las sentencias de todas las autoridades
     if current_user.can_admin("sentencias"):
-        sentencias_activas = Sentencia.query.filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("sentencias/list_admin.jinja2", autoridad=None, sentencias=sentencias_activas, estatus="A")
+        return render_template("sentencias/list_admin.jinja2", autoridad=None, estatus="A")
     # Si su autoridad es jurisdiccional, ve sus propias sentencias
     if current_user.autoridad.es_jurisdiccional:
-        sus_sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == current_user.autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("sentencias/list.jinja2", autoridad=current_user.autoridad, sentencias=sus_sentencias_activas, estatus="A")
+        return render_template("sentencias/list.jinja2", autoridad=current_user.autoridad, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("sentencias.list_distritos"))
 
@@ -66,12 +63,10 @@ def list_inactive():
     """Listado de Sentencias inactivas"""
     # Si es administrador, ve las sentencias de todas las autoridades
     if current_user.can_admin("sentencias"):
-        sentencias_inactivas = Sentencia.query.filter(Sentencia.estatus == "B").order_by(Sentencia.creado.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("sentencias/list_admin.jinja2", autoridad=None, sentencias=sentencias_inactivas, estatus="B")
+        return render_template("sentencias/list_admin.jinja2", autoridad=None, estatus="B")
     # Si es jurisdiccional, ve sus propias sentencias
     if current_user.autoridad.es_jurisdiccional:
-        sus_sentencias_inactivas = Sentencia.query.filter(Sentencia.autoridad == current_user.autoridad).filter(Sentencia.estatus == "B").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("sentencias/list.jinja2", autoridad=current_user.autoridad, sentencias=sus_sentencias_inactivas, estatus="B")
+        return render_template("sentencias/list.jinja2", autoridad=current_user.autoridad, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("sentencias.list_distritos"))
 
@@ -95,10 +90,9 @@ def list_autoridades(distrito_id):
 def list_autoridad_sentencias(autoridad_id):
     """Listado de Sentencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    sentencias_activas = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "A").order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("sentencias"):
-        return render_template("sentencias/list_admin.jinja2", autoridad=autoridad, sentencias=sentencias_activas, estatus="A")
-    return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sentencias_activas, estatus="A")
+        return render_template("sentencias/list_admin.jinja2", autoridad=autoridad, estatus="A")
+    return render_template("sentencias/list.jinja2", autoridad=autoridad, estatus="A")
 
 
 @sentencias.route("/sentencias/inactivos/autoridad/<int:autoridad_id>")
@@ -106,10 +100,118 @@ def list_autoridad_sentencias(autoridad_id):
 def list_autoridad_sentencias_inactive(autoridad_id):
     """Listado de Sentencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    sentencias_inactivos = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter(Sentencia.estatus == "B").order_by(Sentencia.creado.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("sentencias"):
-        return render_template("sentencias/list_admin.jinja2", autoridad=autoridad, sentencias=sentencias_inactivos, estatus="B")
-    return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=sentencias_inactivos, estatus="B")
+        return render_template("sentencias/list_admin.jinja2", autoridad=autoridad, estatus="B")
+    return render_template("sentencias/list.jinja2", autoridad=autoridad, estatus="B")
+
+
+@sentencias.route("/sentencias/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para sentencias"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = Sentencia.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Sentencia.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Sentencia.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(Sentencia.autoridad == autoridad)
+    registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for sentencia in registros:
+        data.append(
+            {
+                "fecha": sentencia.fecha.strftime("%Y-%m-%d"),
+                "detalle": {
+                    "sentencia": sentencia.sentencia,
+                    "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
+                },
+                "expediente": sentencia.expediente,
+                "es_paridad_genero": "Sí" if sentencia.es_paridad_genero else "",
+                "archivo": {
+                    "url": sentencia.url,
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+@sentencias.route("/sentencias/datatable_json_admin", methods=["GET", "POST"])
+@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+def datatable_json_admin():
+    """DataTable JSON para sentencias admin"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])  
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = Sentencia.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Sentencia.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Sentencia.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(Sentencia.autoridad == autoridad)
+    registros = consulta.order_by(Sentencia.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for sentencia in registros:
+        data.append(
+            {
+                "creado": sentencia.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "autoridad": sentencia.autoridad.clave,
+                "fecha": sentencia.fecha.strftime("%Y-%m-%d"),
+                "detalle": {
+                    "sentencia": sentencia.sentencia,
+                    "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
+                },
+                "expediente": sentencia.expediente,
+                "es_paridad_genero": "Sí" if sentencia.es_paridad_genero else "",
+                "archivo": {
+                    "url": sentencia.url,
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @sentencias.route("/sentencias/refrescar/<int:autoridad_id>")
@@ -177,7 +279,7 @@ def search():
 
         # Mostrar resultados
         if mostrar_resultados:
-            consulta = consulta.order_by(Sentencia.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+            consulta = consulta.order_by(Sentencia.fecha.desc()).all()
             return render_template("sentencias/list.jinja2", autoridad=autoridad, sentencias=consulta)
 
     # Los administradores pueden buscar en todas las autoridades
