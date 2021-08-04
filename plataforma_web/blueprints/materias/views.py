@@ -14,6 +14,7 @@ from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias.forms import MateriaForm
 
 materias = Blueprint("materias", __name__, template_folder="templates")
+
 MODULO = "MATERIAS"
 
 

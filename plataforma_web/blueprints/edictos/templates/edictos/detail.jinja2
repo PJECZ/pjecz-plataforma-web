@@ -28,7 +28,7 @@
         {{ detail.label_value('Fecha', edicto.fecha) }}
         {{ detail.label_value('Expediente', edicto.expediente) }}
         {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
-        {{ detail.label_value_new_tab('Edicto PDF', edicto.archivo, edicto.url) }}
+        {{ detail.label_value_new_tab('Archivo PDF', edicto.archivo, edicto.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
         {{ detail.label_value('Creado', moment(edicto.creado).format('llll')) }}
     {% endcall %}

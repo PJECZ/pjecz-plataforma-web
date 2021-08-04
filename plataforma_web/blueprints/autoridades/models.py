@@ -41,9 +41,9 @@ class Autoridad(db.Model, UniversalMixin):
     materia = db.relationship("Materia", back_populates="autoridades")
 
     # Columnas
+    clave = db.Column(db.String(16), nullable=False, unique=True)
     descripcion = db.Column(db.String(256), nullable=False)
     descripcion_corta = db.Column(db.String(64), nullable=False, default="", server_default="")
-    clave = db.Column(db.String(16), nullable=False, unique=True)
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
     es_notaria = db.Column(db.Boolean, nullable=False, default=False)
     organo_jurisdiccional = db.Column(
@@ -62,15 +62,15 @@ class Autoridad(db.Model, UniversalMixin):
     )
 
     # Hijos
-    audiencias = db.relationship("Audiencia", back_populates="autoridad")
+    audiencias = db.relationship("Audiencia", back_populates="autoridad", lazy="noload")
     edictos = db.relationship("Edicto", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
     sentencias = db.relationship("Sentencia", back_populates="autoridad", lazy="noload")
     transcripciones = db.relationship("Transcripcion", back_populates="autoridad", lazy="noload")
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", back_populates="autoridad", lazy="noload")
-    usuarios = db.relationship("Usuario", back_populates="autoridad")
+    usuarios = db.relationship("Usuario", back_populates="autoridad", lazy="noload")
 
     def __repr__(self):
         """Representación"""
-        return f"<Autoridad {self.descripcion}>"
+        return f"<Autoridad {self.clave}>"

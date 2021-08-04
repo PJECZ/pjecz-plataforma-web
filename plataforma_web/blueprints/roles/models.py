@@ -198,10 +198,11 @@ class Rol(db.Model, UniversalMixin):
             rol.por_defecto = rol.nombre == rol_por_defecto
             db.session.add(rol)
         db.session.commit()
+        return len(roles)
 
     def can_view(self, module):
         """¿Tiene permiso para ver?"""
-        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
+        if module in ("bitacoras", "entradas_salidas", "modulos", "rep_graficas", "rep_reportes", "rep_resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.VER_CUENTAS)
         if module in ("distritos", "autoridades", "materias"):
             return self.has_permission(Permiso.VER_CATALOGOS)
@@ -209,7 +210,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.VER_DOCUMENTACIONES)
         if module in ("abogados", "peritos"):
             return self.has_permission(Permiso.VER_CONSULTAS)
-        if module in ("audiencias", "listas_de_acuerdos", "sentencias", "ubicaciones_expedientes"):
+        if module in ("audiencias", "listas_de_acuerdos", "listas_de_acuerdos_acuerdos", "sentencias", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.VER_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.VER_NOTARIALES)
@@ -219,7 +220,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_insert(self, module):
         """¿Tiene permiso para agregar?"""
-        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
+        if module in ("bitacoras", "entradas_salidas", "modulos", "rep_graficas", "rep_reportes", "rep_resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
         if module in ("distritos", "autoridades", "materias"):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
@@ -227,7 +228,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.MODIFICAR_DOCUMENTACIONES)
         if module in ("abogados", "peritos"):
             return self.has_permission(Permiso.MODIFICAR_CONSULTAS)
-        if module in ("audiencias", "listas_de_acuerdos", "sentencias", "ubicaciones_expedientes"):
+        if module in ("audiencias", "listas_de_acuerdos", "listas_de_acuerdos_acuerdos", "sentencias", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.MODIFICAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.MODIFICAR_NOTARIALES)
@@ -237,7 +238,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_edit(self, module):
         """¿Tiene permiso para editar?"""
-        if module in ("bitacoras", "entradas_salidas", "roles", "tareas", "usuarios"):
+        if module in ("bitacoras", "entradas_salidas", "modulos", "rep_graficas", "rep_reportes", "rep_resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.CREAR_CUENTAS)
         if module in ("distritos", "autoridades", "materias"):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
@@ -245,7 +246,7 @@ class Rol(db.Model, UniversalMixin):
             return self.has_permission(Permiso.CREAR_DOCUMENTACIONES)
         if module in ("abogados", "peritos"):
             return self.has_permission(Permiso.CREAR_CONSULTAS)
-        if module in ("audiencias", "listas_de_acuerdos", "sentencias", "ubicaciones_expedientes"):
+        if module in ("audiencias", "listas_de_acuerdos", "listas_de_acuerdos_acuerdos", "sentencias", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.CREAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.CREAR_NOTARIALES)
@@ -255,7 +256,7 @@ class Rol(db.Model, UniversalMixin):
 
     def can_admin(self, module):
         """¿Tiene permiso para administrar?"""
-        if module in ("audiencias", "listas_de_acuerdos", "sentencias", "ubicaciones_expedientes"):
+        if module in ("audiencias", "listas_de_acuerdos", "listas_de_acuerdos_acuerdos", "sentencias", "ubicaciones_expedientes"):
             return self.has_permission(Permiso.ADMINISTRAR_JUSTICIABLES)
         if module == "edictos":
             return self.has_permission(Permiso.ADMINISTRAR_NOTARIALES)
