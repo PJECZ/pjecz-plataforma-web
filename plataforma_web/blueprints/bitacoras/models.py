@@ -1,17 +1,5 @@
 """
 Bitácoras, modelos
-
-En MariaDB para agregar las nuevas columnas modulo y url
-
-    ALTER TABLE bitacoras ADD COLUMN modulo varchar(64) NOT NULL;
-    ALTER TABLE bitacoras ADD COLUMN url varchar(512) NOT NULL DEFAULT '';
-    CREATE INDEX ix_bitacoras_modulo ON bitacoras(modulo);
-
-Verifique con
-
-    SHOW INDEX FROM bitacoras;
-    DESCRIBE bitacoras;
-
 """
 from collections import OrderedDict
 from plataforma_web.extensions import db

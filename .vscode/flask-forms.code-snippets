@@ -38,7 +38,7 @@
 			"\t\"\"\" Formulario ${2:Clase} \"\"\"",
 			"\tnombre = StringField('Nombre', validators=[DataRequired(), Length(max=256)])",
 			"\tdescripcion = StringField('Descripción', validators=[DataRequired(), Length(max=256)])",
-			"\tarchivo = FileField('Lista de Acuerdos PDF', validators=[FileRequired()])",
+			"\tarchivo = FileField('Archivo PDF', validators=[FileRequired()])",
 			"\tguardar = SubmitField('Guardar')",
 			""
 		],

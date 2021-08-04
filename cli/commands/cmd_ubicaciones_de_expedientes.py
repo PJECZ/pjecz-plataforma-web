@@ -4,6 +4,8 @@ Ubicación de Expedientes
 - alimentar: Alimentar insertando registros desde un archivo CSV
 - respaldar: Respaldar a un archivo CSV
 """
+import re
+from datetime import date
 from pathlib import Path
 import csv
 import click
@@ -68,7 +70,24 @@ def alimentar(entrada_csv):
 
             # Validar expediente
             try:
-                expediente = safe_expediente(row["expediente"].strip())
+                if not row["expediente"] or row["expediente"].strip() == "":
+                    return ""
+                elementos = re.sub(r"[^0-9]+", "-", row["expediente"]).split("-")
+                complemento = (row["expediente"]).split(elementos[0] + "/" + elementos[1])
+                try:
+                    numero = int(elementos[0])
+                    ano = int(elementos[1])
+                    texto = str(complemento[1])
+                except (IndexError, ValueError) as error:
+                    click.echo(error)
+                    raise error
+                if numero < 0:
+                    raise ValueError
+                if ano < 1950 or ano > date.today().year:
+                    raise ValueError
+
+                expediente = f"{str(numero)}/{str(ano)}{str(texto)}"
+
             except (IndexError, ValueError):
                 click.echo("! Expediente no válido " + row["expediente"].strip())
                 continue

@@ -28,7 +28,6 @@ MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
 LIMITE_DIAS = 1
 LIMITE_ADMINISTRADORES_DIAS = 90
-CONSULTAS_LIMITE = 100
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/acuses/<id_hashed>")
@@ -51,12 +50,10 @@ def list_active():
     """Listado de Listas de Acuerdos activas"""
     # Si es administrador, ve las listas de acuerdos de todas las autoridades
     if current_user.can_admin("listas_de_acuerdos"):
-        listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=listas_activas, estatus="A")
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, estatus="A")
     # Si es jurisdiccional, ve sus propias listas de acuerdos
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_listas_activas, estatus="A")
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
 
@@ -67,12 +64,10 @@ def list_inactive():
     """Listado de Listas de Acuerdos inactivas"""
     # Si es administrador, ve las listas de acuerdos de todas las autoridades
     if current_user.can_admin("listas_de_acuerdos"):
-        inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.creado.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, listas_de_acuerdos=inactivas, estatus="B")
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=None, estatus="B")
     # Si es jurisdiccional, ve sus propias listas de acuerdos
     if current_user.autoridad.es_jurisdiccional:
-        sus_listas_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, listas_de_acuerdos=sus_listas_inactivas, estatus="B")
+        return render_template("listas_de_acuerdos/list.jinja2", autoridad=current_user.autoridad, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
 
@@ -96,10 +91,9 @@ def list_autoridades(distrito_id):
 def list_autoridad_listas_de_acuerdos(autoridad_id):
     """Listado de Listas de Acuerdos activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    listas_de_acuerdos_activas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "A").order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("listas_de_acuerdos"):
-        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_activas, estatus="A")
-    return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_activas, estatus="A")
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=autoridad, estatus="A")
+    return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, estatus="A")
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/inactivos/autoridad/<int:autoridad_id>")
@@ -107,10 +101,113 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
     """Listado de Listas de Acuerdos inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    listas_de_acuerdos_inactivas = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.estatus == "B").order_by(ListaDeAcuerdo.creado.desc()).limit(CONSULTAS_LIMITE).all()
     if current_user.can_admin("listas_de_acuerdos"):
-        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_inactivas, estatus="B")
-    return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=listas_de_acuerdos_inactivas, estatus="B")
+        return render_template("listas_de_acuerdos/list_admin.jinja2", autoridad=autoridad, estatus="B")
+    return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, estatus="B")
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de listas de acuerdos"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = ListaDeAcuerdo.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(ListaDeAcuerdo.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(ListaDeAcuerdo.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(ListaDeAcuerdo.autoridad == autoridad)
+    registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for lista_de_acuerdo in registros:
+        data.append(
+            {
+                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
+                "detalle": {
+                    "descripcion": lista_de_acuerdo.descripcion,
+                    "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+                },
+                "archivo": {
+                    "url": lista_de_acuerdo.url,
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/datatable_json_admin", methods=["GET", "POST"])
+def datatable_json_admin():
+    """DataTable JSON para listado de listas de acuerdos admin"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])  
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = ListaDeAcuerdo.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(ListaDeAcuerdo.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(ListaDeAcuerdo.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(ListaDeAcuerdo.autoridad == autoridad)
+    registros = consulta.order_by(ListaDeAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for lista_de_acuerdo in registros:
+        data.append(
+            {
+                "creado": lista_de_acuerdo.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "autoridad": lista_de_acuerdo.autoridad.clave,
+                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
+                "detalle": {
+                    "descripcion": lista_de_acuerdo.descripcion,
+                    "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+                },
+                "archivo": {
+                    "url": lista_de_acuerdo.url,
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
@@ -135,7 +232,9 @@ def refresh(autoridad_id):
 def detail(lista_de_acuerdo_id):
     """Detalle de una Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
-    acuerdos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.lista_de_acuerdo == lista_de_acuerdo).filter(ListaDeAcuerdoAcuerdo.estatus == "A").all()
+    acuerdos = None  # Por lo pronto sólo los administradores ven los acuerdos
+    if current_user.can_admin("listas_de_acuerdos"):
+        acuerdos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.lista_de_acuerdo == lista_de_acuerdo).filter(ListaDeAcuerdoAcuerdo.estatus == "A").all()
     return render_template("listas_de_acuerdos/detail.jinja2", lista_de_acuerdo=lista_de_acuerdo, acuerdos=acuerdos)
 
 
@@ -159,7 +258,7 @@ def search():
             consulta = consulta.filter(ListaDeAcuerdo.fecha <= form_search.fecha_hasta.data)
 
         # Mostrar resultados
-        consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        consulta = consulta.order_by(ListaDeAcuerdo.fecha.desc()).all()
         return render_template("listas_de_acuerdos/list.jinja2", autoridad=autoridad, listas_de_acuerdos=consulta)
 
     # Los administradores pueden buscar en todas las autoridades

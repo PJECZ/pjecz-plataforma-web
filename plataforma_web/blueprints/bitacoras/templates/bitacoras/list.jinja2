@@ -17,19 +17,11 @@
             <thead>
                 <tr>
                     <th>Tiempos</th>
-                    <th>Usuarios e-mail</th>
+                    <th>Usuarios</th>
                     <th>Módulos</th>
                     <th>Descripciones</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
@@ -37,20 +29,25 @@
 {% block custom_javascript %}
     <script>
         $('#bitacoras_datatable').DataTable({
-            order: [[ 0, "desc" ]],
             processing: true,
             serverSide: true,
-            scrollX: true,
             ordering: false,
             searching: false,
+            responsive: true,
+            scrollX: true,
             ajax: {
-                url: "/bitacoras/ajax"
+                url: "/bitacoras/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {}
             },
             columns: [
-                { data: 'creado' },
-                { data: 'usuario_email' },
-                { data: 'modulo' },
-                { data: 'vinculo' }
+                { data: "creado" },
+                { data: "usuario" },
+                { data: "modulo" },
+                { data: "vinculo" }
             ],
             columnDefs: [
                 {
@@ -58,6 +55,13 @@
                     type: "date",
                     render: function (data, type, row) {
                         return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
                     }
                 },
                 {
@@ -81,8 +85,7 @@
                     sNext: "Siguiente",
                     sPrevious: "Anterior"
                 }
-            },
-            responsive: true
+            }
         });
     </script>
 {% endblock %}

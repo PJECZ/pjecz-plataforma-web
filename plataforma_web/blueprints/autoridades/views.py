@@ -9,7 +9,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm, AutoridadSearchForm
+from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -95,7 +95,7 @@ def new():
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Nueva autoridad {autoridad.clave}: {autoridad.descripcion}"),
+            descripcion=safe_message(f"Nueva autoridad {autoridad.clave}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
         )
         bitacora.save()
@@ -129,7 +129,7 @@ def edit(autoridad_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Editada autoridad {autoridad.clave}: {autoridad.descripcion}"),
+            descripcion=safe_message(f"Editada autoridad {autoridad.clave}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
         )
         bitacora.save()
@@ -161,7 +161,7 @@ def delete(autoridad_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Eliminada autoridad {autoridad.clave}: {autoridad.descripcion}"),
+            descripcion=safe_message(f"Eliminada autoridad {autoridad.clave}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
         )
         bitacora.save()
@@ -179,7 +179,7 @@ def recover(autoridad_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f"Recuperada autoridad {autoridad.clave}: {autoridad.descripcion}"),
+            descripcion=safe_message(f"Recuperada autoridad {autoridad.clave}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
         )
         bitacora.save()

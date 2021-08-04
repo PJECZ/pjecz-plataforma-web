@@ -1,7 +1,7 @@
 """
 Abogados, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_string, safe_message
 
@@ -15,7 +15,6 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 abogados = Blueprint("abogados", __name__, template_folder="templates")
 
 MODULO = "ABOGADOS"
-CONSULTAS_LIMITE = 400
 
 
 @abogados.before_request
@@ -28,16 +27,61 @@ def before_request():
 @abogados.route("/abogados")
 def list_active():
     """Listado de Abogados activos"""
-    abogados_activos = Abogado.query.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-    return render_template("abogados/list.jinja2", abogados=abogados_activos, estatus="A")
+    return render_template("abogados/list.jinja2", estatus="A")
 
 
 @abogados.route("/abogados/inactivos")
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """Listado de Abogados inactivos"""
-    abogados_inactivos = Abogado.query.filter(Abogado.estatus == "B").order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
-    return render_template("abogados/list.jinja2", abogados=abogados_inactivos, estatus="B")
+    return render_template("abogados/list.jinja2", estatus="B")
+
+
+@abogados.route("/abogados/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de abogados"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])  
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = Abogado.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Abogado.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Abogado.estatus == "A")
+    registros = consulta.order_by(Abogado.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for abogado in registros:
+        data.append(
+            {
+                "fecha": abogado.fecha.strftime("%Y-%m-%d"),
+                "numero": abogado.numero,
+                "libro": abogado.libro,
+                "detalle": {
+                    "nombre": abogado.nombre,
+                    "url": url_for("abogados.detail", abogado_id=abogado.id),
+                },
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @abogados.route("/abogados/<int:abogado_id>")
@@ -66,7 +110,7 @@ def search():
         if form_search.nombre.data:
             nombre = safe_string(form_search.nombre.data)
             consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
-        consulta = consulta.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).limit(CONSULTAS_LIMITE).all()
+        consulta = consulta.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).all()
         return render_template("abogados/list.jinja2", abogados=consulta, estatus="A")
     return render_template("abogados/search.jinja2", form=form_search)
 
@@ -111,11 +155,11 @@ def edit(abogado_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Editado abogado registrado {abogado.nombre}'),
-            url=url_for('abogados.detail', abogado_id=abogado.id),
+            descripcion=safe_message(f"Editado abogado registrado {abogado.nombre}"),
+            url=url_for("abogados.detail", abogado_id=abogado.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.numero.data = abogado.numero
     form.nombre.data = abogado.nombre
@@ -134,11 +178,11 @@ def delete(abogado_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Eliminado abogado registrado {abogado.nombre}'),
-            url=url_for('abogados.detail', abogado_id=abogado.id),
+            descripcion=safe_message(f"Eliminado abogado registrado {abogado.nombre}"),
+            url=url_for("abogados.detail", abogado_id=abogado.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("abogados.detail", abogado_id=abogado_id))
 
 
@@ -152,9 +196,9 @@ def recover(abogado_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Recuperado abogado registrado {abogado.nombre}'),
-            url=url_for('abogados.detail', abogado_id=abogado.id),
+            descripcion=safe_message(f"Recuperado abogado registrado {abogado.nombre}"),
+            url=url_for("abogados.detail", abogado_id=abogado.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("abogados.detail", abogado_id=abogado_id))

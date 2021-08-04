@@ -32,23 +32,66 @@
                     <th>Demandados</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for acuerdo in acuerdos %}
-                <tr>
-                    <td>{{ acuerdo.creado }}</td>
-                    <td>{{ acuerdo.lista_de_acuerdo.autoridad.clave }}</td>
-                    <td><a href="{{ url_for('listas_de_acuerdos_acuerdos.detail', lista_de_acuerdo_acuerdo_id=acuerdo.id) }}">{{ acuerdo.referencia }}</a></td>
-                    <td>{{ acuerdo.folio }}</td>
-                    <td>{{ acuerdo.expediente }}</td>
-                    <td>{{ acuerdo.actor }}</td>
-                    <td>{{ acuerdo.demandado }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('listas_de_acuerdos_acuerdos_datatable') }}
+    <script>
+        $('#listas_de_acuerdos_acuerdos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/listas_de_acuerdos/acuerdos/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {estatus: "{{ estatus }}"}
+            },
+            columns: [
+                { data: "creado" },
+                { data: "autoridad" },
+                { data: "detalle" },
+                { data: "folio" },
+                { data: "expediente" },
+                { data: "actor" },
+                { data: "demandado" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.referencia + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

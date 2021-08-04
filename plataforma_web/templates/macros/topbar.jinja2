@@ -77,6 +77,6 @@
     <a class="btn btn-sm btn-outline-primary" href="javascript:void(0)" onclick="showModalRecover('{{ url }}');"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
 {%- endmacro -%}
 
-{%- macro button_refresh(label, url, icon="mdi:database-sync") -%}
-    <a class="btn btn-sm btn-outline-secondary" href="javascript:void(0)" onclick="showModalRefresh('{{ url }}');"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
+{%- macro button_make(label, url, icon="mdi:database-plus") -%}
+    <a class="btn btn-sm btn-outline-success" href="javascript:void(0)" onclick="showModalMake('{{ url }}');"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
 {%- endmacro -%}
