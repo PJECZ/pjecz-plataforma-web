@@ -38,7 +38,7 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    {% if not autoridad %}<th>Autoridades</th>{% endif %}
+                    <th>Autoridades</th>
                     <th>Expedientes</th>
                     <th>Ubicaciones</th>
                 </tr>
@@ -47,7 +47,7 @@
                 {% for ubicacion_expediente in ubicaciones_expedientes %}
                 <tr>
                     <td>{{ ubicacion_expediente.creado }}</td>
-                    {% if not autoridad %}<td>{{ ubicacion_expediente.autoridad.clave }}</td>{% endif %}
+                    <td>{{ ubicacion_expediente.autoridad.clave }}</td>
                     <td><a href="{{ url_for('ubicaciones_expedientes.detail', ubicacion_expediente_id=ubicacion_expediente.id) }}">{{ ubicacion_expediente.expediente }}</a></td>
                     <td>{{ ubicacion_expediente.ubicacion }}</td>
                 </tr>
