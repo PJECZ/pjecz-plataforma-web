@@ -1,0 +1,29 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Módulo{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(modulo.nombre) %}
+        {{ topbar.button_previous('Módulos', url_for('modulos.list_active')) }}
+        {% if current_user.can_edit('modulos') %}
+            {% if modulo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('modulos.delete', modulo_id=modulo.id)) }}{% endif %}
+            {% if modulo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('modulos.recover', modulo_id=modulo.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=modulo.estatus) %}
+        {{ detail.label_value_big('Nombre', modulo.nombre) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('modulos') %}
+        {% if modulo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + modulo.nombre + '?') }}{% endif %}
+        {% if modulo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + modulo.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

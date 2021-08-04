@@ -1,7 +1,7 @@
 """
 Peritos, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_message, safe_string
 
@@ -15,7 +15,6 @@ from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
 peritos = Blueprint("peritos", __name__, template_folder="templates")
 
 MODULO = "PERITOS"
-CONSULTAS_LIMITE = 400
 
 
 @peritos.before_request
@@ -28,16 +27,60 @@ def before_request():
 @peritos.route("/peritos")
 def list_active():
     """Listado de Peritos"""
-    peritos_activos = Perito.query.filter(Perito.estatus == "A").order_by(Perito.nombre).limit(CONSULTAS_LIMITE).all()
-    return render_template("peritos/list.jinja2", peritos=peritos_activos, estatus="A")
+    return render_template("peritos/list.jinja2", estatus="A")
 
 
 @peritos.route("/peritos/inactivos")
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """Listado de Peritos inactivos"""
-    peritos_inactivos = Perito.query.filter(Perito.estatus == "B").order_by(Perito.nombre).limit(CONSULTAS_LIMITE).all()
-    return render_template("peritos/list.jinja2", peritos=peritos_inactivos, estatus="B")
+    return render_template("peritos/list.jinja2", estatus="B")
+
+
+@peritos.route("/peritos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de peritos"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = Perito.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(Perito.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(Perito.estatus == "A")
+    registros = consulta.order_by(Perito.nombre).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for perito in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": perito.nombre,
+                    "url": url_for("peritos.detail", perito_id=perito.id),
+                },
+                "tipo": perito.tipo,
+                "departamento": perito.distrito.nombre,
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @peritos.route("/peritos/<int:perito_id>")
@@ -60,7 +103,7 @@ def search():
             consulta = consulta.filter(Perito.nombre.like(f"%{nombre}%"))
         if form_search.tipo.data:
             consulta = consulta.filter(Perito.tipo == form_search.tipo.data)
-        consulta = consulta.order_by(Perito.creado.desc()).limit(CONSULTAS_LIMITE).all()
+        consulta = consulta.order_by(Perito.creado.desc()).all()
         return render_template("peritos/list.jinja2", peritos=consulta)
     return render_template("peritos/search.jinja2", form=form_search)
 
@@ -143,11 +186,11 @@ def delete(perito_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Eliminado perito {perito.nombre} de {perito.distrito.nombre}'),
-            url=url_for('peritos.detail', perito_id=perito.id),
+            descripcion=safe_message(f"Eliminado perito {perito.nombre} de {perito.distrito.nombre}"),
+            url=url_for("peritos.detail", perito_id=perito.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("peritos.detail", perito_id=perito_id))
 
 
@@ -161,9 +204,9 @@ def recover(perito_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Recuperado perito {perito.nombre} de {perito.distrito.nombre}'),
-            url=url_for('peritos.detail', perito_id=perito.id),
+            descripcion=safe_message(f"Recuperado perito {perito.nombre} de {perito.distrito.nombre}"),
+            url=url_for("peritos.detail", perito_id=perito.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("peritos.detail", perito_id=perito_id))

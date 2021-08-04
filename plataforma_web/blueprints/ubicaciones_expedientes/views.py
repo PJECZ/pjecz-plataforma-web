@@ -1,7 +1,7 @@
 """
 Ubicacion de Expedientes, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_expediente, safe_message
 
@@ -17,7 +17,6 @@ from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExp
 ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, template_folder="templates")
 
 MODULO = "UBICACIONES DE EXPEDIENTES"
-LIMITE_CONSULTAS = 400
 
 
 @ubicaciones_expedientes.before_request
@@ -32,12 +31,10 @@ def list_active():
     """Listado de Ubicaciones de Expedientes"""
     # Si es administrador, ve las ubicaciones de expedientes de todas las autoridades
     if current_user.can_admin("ubicaciones_expedientes"):
-        ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
-        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=None, ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
+        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=None, estatus="A")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        sus_ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
-        return render_template("ubicaciones_expedientes/list.jinja2", autoridad=current_user.autoridad, ubicaciones_expedientes=sus_ubicaciones_expedientes_activos, estatus="A")
+        return render_template("ubicaciones_expedientes/list.jinja2", autoridad=current_user.autoridad, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
 
@@ -48,12 +45,10 @@ def list_inactive():
     """Listado de Ubicaciones de Expedientes inactivos"""
     # Si es administrador, ve las ubicaciones de expedientes de todas las autoridades
     if current_user.can_admin("ubicaciones_expedientes"):
-        ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
-        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=None, ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
+        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=None, estatus="B")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        sus_ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == current_user.autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
-        return render_template("ubicaciones_expedientes/list.jinja2", autoridad=current_user.autoridad, ubicaciones_expedientes=sus_ubicaciones_expedientes_inactivos, estatus="B")
+        return render_template("ubicaciones_expedientes/list.jinja2", autoridad=current_user.autoridad, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
 
@@ -77,10 +72,9 @@ def list_autoridades(distrito_id):
 def list_autoridad_ubicaciones_expedientes(autoridad_id):
     """Listado de Ubicaciones de Expedientes activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    ubicaciones_expedientes_activos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "A").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("ubicaciones_expedientes"):
-        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
-    return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_activos, estatus="A")
+        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=autoridad, estatus="A")
+    return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, estatus="A")
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/inactivos/autoridad/<int:autoridad_id>")
@@ -88,10 +82,109 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
 def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
     """Listado de Ubicaciones de Expedientes inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    ubicaciones_expedientes_inactivos = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad).filter(UbicacionExpediente.estatus == "B").order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("ubicaciones_expedientes"):
-        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
-    return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, ubicaciones_expedientes=ubicaciones_expedientes_inactivos, estatus="B")
+        return render_template("ubicaciones_expedientes/list_admin.jinja2", autoridad=autoridad, estatus="B")
+    return render_template("ubicaciones_expedientes/list.jinja2", autoridad=autoridad, estatus="B")
+
+
+@ubicaciones_expedientes.route("/ubicaciones_expedientes/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de ubicaciones de expedientes"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = UbicacionExpediente.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(UbicacionExpediente.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(UbicacionExpediente.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(UbicacionExpediente.autoridad == autoridad)
+    registros = consulta.order_by(UbicacionExpediente.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for ubicacion_expediente in registros:
+        data.append(
+            {
+                "creado": ubicacion_expediente.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "detalle": {
+                    "expediente": ubicacion_expediente.expediente,
+                    "url": url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
+                },
+                "ubicacion": ubicacion_expediente.ubicacion,
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+@ubicaciones_expedientes.route("/ubicaciones_expedientes/datatable_json_admin", methods=["GET", "POST"])
+@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+def datatable_json_admin():
+    """DataTable JSON para listado de ubicaciones de expedientes admin"""
+
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+
+    # Consultar
+    consulta = UbicacionExpediente.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(UbicacionExpediente.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(UbicacionExpediente.estatus == "A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        consulta = consulta.filter(UbicacionExpediente.autoridad == autoridad)
+    registros = consulta.order_by(UbicacionExpediente.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for ubicacion_expediente in registros:
+        data.append(
+            {
+                "creado": ubicacion_expediente.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "autoridad": ubicacion_expediente.autoridad.clave,
+                "detalle": {
+                    "expediente": ubicacion_expediente.expediente,
+                    "url": url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
+                },
+                "ubicacion": ubicacion_expediente.ubicacion,
+            }
+        )
+
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/<int:ubicacion_expediente_id>")
@@ -125,7 +218,7 @@ def search():
 
         # Mostrar resultados
         if mostrar_resultados:
-            consulta = consulta.order_by(UbicacionExpediente.creado.desc()).limit(LIMITE_CONSULTAS).all()
+            consulta = consulta.order_by(UbicacionExpediente.creado.desc()).all()
             return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=consulta)
 
     # Los administradores pueden buscar en todas las autoridades

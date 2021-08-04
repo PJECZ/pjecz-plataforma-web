@@ -19,23 +19,64 @@
                     <th>Tiempos</th>
                     <th>Tipos</th>
                     <th>Usuarios</th>
-                    <th>Autoridades</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for entrada_salida in entradas_salidas %}
-                <tr>
-                    <td>{{ entrada_salida.creado }}</td>
-                    <td>{{ entrada_salida.tipo }}</td>
-                    <td><a href="{{ url_for('usuarios.detail', usuario_id=entrada_salida.usuario.id) }}">{{ entrada_salida.usuario.nombre }}</a></td>
-                    <td><a href="{{ url_for('autoridades.detail', autoridad_id=entrada_salida.usuario.autoridad.id) }}">{{ entrada_salida.usuario.autoridad.clave }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('entradas_salidas_datatable') }}
+    <script>
+        $('#entradas_salidas_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/entradas_salidas/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {}
+            },
+            columns: [
+                { data: "creado" },
+                { data: "tipo" },
+                { data: "usuario" },
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
