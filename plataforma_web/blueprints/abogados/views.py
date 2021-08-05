@@ -1,6 +1,7 @@
 """
 Abogados, vistas
 """
+import json
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_string, safe_message
@@ -27,14 +28,52 @@ def before_request():
 @abogados.route("/abogados")
 def list_active():
     """Listado de Abogados activos"""
-    return render_template("abogados/list.jinja2", estatus="A")
+    return render_template(
+        "abogados/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Abogados registrados",
+    )
 
 
 @abogados.route("/abogados/inactivos")
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """Listado de Abogados inactivos"""
-    return render_template("abogados/list.jinja2", estatus="B")
+    return render_template(
+        "abogados/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Abogados registrados inactivos",
+    )
+
+
+@abogados.route("/abogados/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Abogados"""
+    form_search = AbogadoSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.fecha_desde.data:
+            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
+            titulos.append("fecha desde " + busqueda["fecha_desde"])
+        if form_search.fecha_hasta.data:
+            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
+            titulos.append("fecha hasta " + busqueda["fecha_hasta"])
+        if form_search.numero.data:
+            busqueda["numero"] = safe_string(form_search.numero.data)
+            titulos.append("número " + busqueda["numero"])
+        if form_search.libro.data:
+            busqueda["libro"] = safe_string(form_search.libro.data)
+            titulos.append("libro " + busqueda["libro"])
+        if form_search.nombre.data:
+            busqueda["nombre"] = safe_string(form_search.nombre.data)
+            titulos.append("nombre " + busqueda["nombre"])
+        return render_template(
+            "abogados/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Abogados registrados con " + ", ".join(titulos),
+        )
+    return render_template("abogados/search.jinja2", form=form_search)
 
 
 @abogados.route("/abogados/datatable_json", methods=["GET", "POST"])
@@ -45,7 +84,7 @@ def datatable_json():
     try:
         draw = int(request.form["draw"])
         start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])  
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
@@ -57,6 +96,16 @@ def datatable_json():
         consulta = consulta.filter(Abogado.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(Abogado.estatus == "A")
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(Abogado.fecha >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(Abogado.fecha <= request.form["fecha_hasta"])
+    if "numero" in request.form:
+        consulta = consulta.filter(Abogado.numero == safe_string(request.form["numero"]))
+    if "libro" in request.form:
+        consulta = consulta.filter(Abogado.libro == safe_string(request.form["libro"]))
+    if "nombre" in request.form:
+        consulta = consulta.filter(Abogado.nombre.like("%" + safe_string(request.form["nombre"]) + "%"))
     registros = consulta.order_by(Abogado.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -89,30 +138,6 @@ def detail(abogado_id):
     """Detalle de un Abogado"""
     abogado = Abogado.query.get_or_404(abogado_id)
     return render_template("abogados/detail.jinja2", abogado=abogado)
-
-
-@abogados.route("/abogados/buscar", methods=["GET", "POST"])
-def search():
-    """Buscar Abogados"""
-    form_search = AbogadoSearchForm()
-    if form_search.validate_on_submit():
-        consulta = Abogado.query
-        if form_search.fecha_desde.data:
-            consulta = consulta.filter(Abogado.fecha >= form_search.fecha_desde.data)
-        if form_search.fecha_hasta.data:
-            consulta = consulta.filter(Abogado.fecha <= form_search.fecha_hasta.data)
-        if form_search.numero.data:
-            numero = safe_string(form_search.numero.data)
-            consulta = consulta.filter(Abogado.numero == numero)
-        if form_search.libro.data:
-            libro = safe_string(form_search.libro.data)
-            consulta = consulta.filter(Abogado.libro == libro)
-        if form_search.nombre.data:
-            nombre = safe_string(form_search.nombre.data)
-            consulta = consulta.filter(Abogado.nombre.like(f"%{nombre}%"))
-        consulta = consulta.filter(Abogado.estatus == "A").order_by(Abogado.fecha.desc()).all()
-        return render_template("abogados/list.jinja2", abogados=consulta, estatus="A")
-    return render_template("abogados/search.jinja2", form=form_search)
 
 
 @abogados.route("/abogados/nuevo", methods=["GET", "POST"])
