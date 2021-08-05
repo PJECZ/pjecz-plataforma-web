@@ -31,6 +31,15 @@ class UbicacionExpedienteEditForm(FlaskForm):
 class UbicacionExpedienteSearchForm(FlaskForm):
     """Formulario para buscar Ubicación de Expediente"""
 
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
+    expediente = StringField("Expediente (número/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    buscar = SubmitField("Buscar")
+
+
+class UbicacionExpedienteSearchAdminForm(FlaskForm):
+    """Formulario para buscar Ubicación de Expediente"""
+
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     expediente = StringField("Expediente (número/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])

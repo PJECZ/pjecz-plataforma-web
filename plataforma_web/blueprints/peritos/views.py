@@ -93,7 +93,7 @@ def datatable_json():
     else:
         consulta = consulta.filter(Perito.estatus == "A")
     if "distrito_id" in request.form:
-        distrito = Distrito.query.get_or_404(request.form["distrito_id"])
+        distrito = Distrito.query.get(request.form["distrito_id"])
         if distrito:
             consulta = consulta.filter(Perito.distrito == distrito)
     if "nombre" in request.form:

@@ -13,7 +13,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
-from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm
+from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm, UbicacionExpedienteSearchAdminForm
 
 ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, template_folder="templates")
 
@@ -40,11 +40,12 @@ def list_active():
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
+        autoridad = current_user.autoridad
         return render_template(
             "ubicaciones_expedientes/list.jinja2",
-            autoridad=current_user.autoridad,
-            filtros=json.dumps({"estatus": "A"}),
-            titulo="Ubicaciones de Expedientes de " + current_user.autoridad.descripcion_corta,
+            autoridad=autoridad,
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+            titulo=f"Ubicaciones de Expedientes de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         )
     # Ninguno de los anteriores, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
@@ -60,15 +61,16 @@ def list_inactive():
             "ubicaciones_expedientes/list_admin.jinja2",
             autoridad=None,
             filtros=json.dumps({"estatus": "B"}),
-            titulo="Todas las Ubicaciones de Expedientes inactivas",
+            titulo="Todas las Ubicaciones de Expedientes inactivos",
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
+        autoridad = current_user.autoridad
         return render_template(
             "ubicaciones_expedientes/list.jinja2",
-            autoridad=current_user.autoridad,
-            filtros=json.dumps({"estatus": "B"}),
-            titulo="Ubicaciones de Expedientes inactivas de " + current_user.autoridad.descripcion_corta,
+            autoridad=autoridad,
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
+            titulo=f"Ubicaciones de Expedientes inactivos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         )
     # Ninguno de los anteriores, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
@@ -77,16 +79,21 @@ def list_inactive():
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/distritos")
 def list_distritos():
     """Listado de Distritos"""
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("ubicaciones_expedientes/list_distritos.jinja2", distritos=distritos)
+    return render_template(
+        "ubicaciones_expedientes/list_distritos.jinja2",
+        distritos=Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all(),
+    )
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/distrito/<int:distrito_id>")
 def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("ubicaciones_expedientes/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
+    return render_template(
+        "ubicaciones_expedientes/list_autoridades.jinja2",
+        distrito=distrito,
+        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+    )
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/autoridad/<int:autoridad_id>")
@@ -100,8 +107,8 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
     return render_template(
         plantilla,
         autoridad=autoridad,
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Ubicaciones de Expedientes de " + autoridad.descripcion_corta,
+        filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+        titulo=f"Ubicaciones de Expedientes de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
     )
 
 
@@ -117,64 +124,57 @@ def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
     return render_template(
         plantilla,
         autoridad=autoridad,
-        filtros=json.dumps({"estatus": "B"}),
-        titulo="Ubicaciones de Expedientes inactivas de " + autoridad.descripcion_corta,
+        filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
+        titulo=f"Ubicaciones de Expedientes inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
     )
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Ubicacion de Expediente"""
-    form_search = UbicacionExpedienteSearchForm()
+    if current_user.can_admin("ubicaciones_expedientes"):
+        puede_elegir_autoridad = True
+    elif current_user.autoridad.es_jurisdiccional:
+        puede_elegir_autoridad = False
+    else:
+        puede_elegir_autoridad = True
+    if puede_elegir_autoridad:
+        form_search = UbicacionExpedienteSearchAdminForm()  # Puede elegir la autoridad
+    else:
+        form_search = UbicacionExpedienteSearchForm()  # Sólo puede buscar en su autoridad
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
-        # Los administradores elegir la autoridad y el distrito
-        if current_user.can_admin("ubicaciones_expedientes"):
+        # Autoridad es un campo obligatorio
+        if puede_elegir_autoridad:
             autoridad = Autoridad.query.get(form_search.autoridad.data)
+            plantilla = "ubicaciones_expedientes/list_admin.jinja2"
         else:
-            autoridad = Autoridad.query.get(current_user.autoridad)
+            autoridad = current_user.autoridad
+            plantilla = "ubicaciones_expedientes/list.jinja2"
         busqueda["autoridad_id"] = autoridad.id
         titulos.append(autoridad.distrito.nombre_corto + ", " + autoridad.descripcion_corta)
         # Expediente es un campo obligatorio
         busqueda["expediente"] = safe_expediente(form_search.expediente.data)
         titulos.append("expediente " + busqueda["expediente"])
+        # Mostrar resultados
         return render_template(
-            "ubicaciones_expedientes/list.jinja2",
+            plantilla,
             filtros=json.dumps(busqueda),
             titulo="Ubicaciones de Expedientes con " + ", ".join(titulos),
         )
+    # Mostrar buscador donde puede elegir la autoridad
+    if puede_elegir_autoridad:
+        return render_template(
+            "ubicaciones_expedientes/search_admin.jinja2",
+            form=form_search,
+            distritos=Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all(),
+            autoridades=Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+        )
+    # Mostrar buscador con la autoridad fija
+    form_search.distrito.data = current_user.autoridad.distrito.nombre
+    form_search.autoridad.data = current_user.autoridad.descripcion
     return render_template("ubicaciones_expedientes/search.jinja2", form=form_search)
-
-
-"""
-    form_search = UbicacionExpedienteSearchForm()
-    if form_search.validate_on_submit():
-        mostrar_resultados = True
-        # Los administradores pueden buscar en todas las autoridades
-        if current_user.can_admin("ubicaciones_expedientes"):
-            autoridad = Autoridad.query.get(form_search.autoridad.data)
-        else:
-            autoridad = Autoridad.query.get(current_user.autoridad)
-        consulta = UbicacionExpediente.query.filter(UbicacionExpediente.autoridad == autoridad)
-        # Expediente
-        try:
-            expediente = safe_expediente(form_search.expediente.data)
-            consulta = consulta.filter(UbicacionExpediente.expediente == expediente)
-        except (IndexError, ValueError):
-            flash("El expediente es incorrecto.", "warning")
-            mostrar_resultados = False
-        # Mostrar resultados
-        if mostrar_resultados:
-            consulta = consulta.order_by(UbicacionExpediente.creado.desc()).all()
-            return render_template("ubicaciones_expedientes/list.jinja2", ubicaciones_expedientes=consulta)
-    # Los administradores pueden buscar en todas las autoridades
-    if current_user.can_admin("ubicaciones_expedientes"):
-        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-        return render_template("ubicaciones_expedientes/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
-    return render_template("ubicaciones_expedientes/search.jinja2", form=form_search)
-"""
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/datatable_json", methods=["GET", "POST"])
@@ -203,8 +203,7 @@ def datatable_json():
             consulta = consulta.filter(UbicacionExpediente.autoridad == autoridad)
     if "expediente" in request.form:
         try:
-            expediente = safe_expediente(request.form["expediente"])
-            consulta = consulta.filter(UbicacionExpediente.expediente == expediente)
+            consulta = consulta.filter(UbicacionExpediente.expediente == safe_expediente(request.form["expediente"]))
         except (IndexError, ValueError):
             pass
     registros = consulta.order_by(UbicacionExpediente.creado.desc()).offset(start).limit(rows_per_page).all()
@@ -260,8 +259,7 @@ def datatable_json_admin():
             consulta = consulta.filter(UbicacionExpediente.autoridad == autoridad)
     if "expediente" in request.form:
         try:
-            expediente = safe_expediente(request.form["expediente"])
-            consulta = consulta.filter(UbicacionExpediente.expediente == expediente)
+            consulta = consulta.filter(UbicacionExpediente.expediente == safe_expediente(request.form["expediente"]))
         except (IndexError, ValueError):
             pass
     registros = consulta.order_by(UbicacionExpediente.creado.desc()).offset(start).limit(rows_per_page).all()
