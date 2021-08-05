@@ -52,7 +52,6 @@ def search():
     """Buscar Peritos"""
     form_search = PeritoSearchForm()
     if form_search.validate_on_submit():
-        # consulta = Perito.query
         busqueda = {"estatus": "A"}
         titulos = []
         if form_search.distrito.data:
@@ -95,7 +94,8 @@ def datatable_json():
         consulta = consulta.filter(Perito.estatus == "A")
     if "distrito_id" in request.form:
         distrito = Distrito.query.get_or_404(request.form["distrito_id"])
-        consulta = consulta.filter(Perito.distrito == distrito)
+        if distrito:
+            consulta = consulta.filter(Perito.distrito == distrito)
     if "nombre" in request.form:
         consulta = consulta.filter(Perito.nombre.like("%" + safe_string(request.form["nombre"]) + "%"))
     if "tipo" in request.form:
