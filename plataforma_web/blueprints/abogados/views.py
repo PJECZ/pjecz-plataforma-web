@@ -41,7 +41,7 @@ def list_inactive():
     """Listado de Abogados inactivos"""
     return render_template(
         "abogados/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Abogados registrados inactivos",
     )
 

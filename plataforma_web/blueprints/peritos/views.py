@@ -1,6 +1,7 @@
 """
 Peritos, vistas
 """
+import json
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_message, safe_string
@@ -9,6 +10,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.peritos.models import Perito
 from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
 
@@ -27,14 +29,48 @@ def before_request():
 @peritos.route("/peritos")
 def list_active():
     """Listado de Peritos"""
-    return render_template("peritos/list.jinja2", estatus="A")
+    return render_template(
+        "peritos/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Peritos",
+    )
 
 
 @peritos.route("/peritos/inactivos")
 @permission_required(Permiso.MODIFICAR_CONSULTAS)
 def list_inactive():
     """Listado de Peritos inactivos"""
-    return render_template("peritos/list.jinja2", estatus="B")
+    return render_template(
+        "peritos/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Peritos inactivos",
+    )
+
+
+@peritos.route("/peritos/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Peritos"""
+    form_search = PeritoSearchForm()
+    if form_search.validate_on_submit():
+        # consulta = Perito.query
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.distrito.data:
+            distrito = form_search.distrito.data
+            busqueda["distrito_id"] = distrito.id
+            titulos.append(distrito.nombre)
+        if form_search.nombre.data:
+            busqueda["nombre"] = safe_string(form_search.nombre.data)
+            titulos.append("nombre " + busqueda["nombre"])
+        if form_search.tipo.data:
+            busqueda["tipo"] = safe_string(form_search.tipo.data)
+            titulos.append("tipo " + busqueda["tipo"])
+        return render_template(
+            "peritos/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Peritos con " + ", ".join(titulos),
+        )
+    return render_template("peritos/search.jinja2", form=form_search)
 
 
 @peritos.route("/peritos/datatable_json", methods=["GET", "POST"])
@@ -57,6 +93,13 @@ def datatable_json():
         consulta = consulta.filter(Perito.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(Perito.estatus == "A")
+    if "distrito_id" in request.form:
+        distrito = Distrito.query.get_or_404(request.form["distrito_id"])
+        consulta = consulta.filter(Perito.distrito == distrito)
+    if "nombre" in request.form:
+        consulta = consulta.filter(Perito.nombre.like("%" + safe_string(request.form["nombre"]) + "%"))
+    if "tipo" in request.form:
+        consulta = consulta.filter(Perito.tipo == safe_string(request.form["tipo"]))
     registros = consulta.order_by(Perito.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -88,24 +131,6 @@ def detail(perito_id):
     """Detalle de un Perito"""
     perito = Perito.query.get_or_404(perito_id)
     return render_template("peritos/detail.jinja2", perito=perito)
-
-
-@peritos.route("/peritos/buscar", methods=["GET", "POST"])
-def search():
-    """Buscar Peritos"""
-    form_search = PeritoSearchForm()
-    if form_search.validate_on_submit():
-        consulta = Perito.query
-        if form_search.distrito.data:
-            consulta = consulta.filter(Perito.distrito == form_search.distrito.data)
-        if form_search.nombre.data:
-            nombre = safe_string(form_search.nombre.data)
-            consulta = consulta.filter(Perito.nombre.like(f"%{nombre}%"))
-        if form_search.tipo.data:
-            consulta = consulta.filter(Perito.tipo == form_search.tipo.data)
-        consulta = consulta.order_by(Perito.creado.desc()).all()
-        return render_template("peritos/list.jinja2", peritos=consulta)
-    return render_template("peritos/search.jinja2", form=form_search)
 
 
 @peritos.route("/peritos/nuevo", methods=["GET", "POST"])
