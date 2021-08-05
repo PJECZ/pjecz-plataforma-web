@@ -70,8 +70,10 @@ def alimentar(entrada_csv):
 
             # Validar expediente
             try:
+
                 if not row["expediente"] or row["expediente"].strip() == "":
-                    return ""
+                    click.echo("! Expediente vacio ")
+                    continue
                 elementos = re.sub(r"[^0-9]+", "-", row["expediente"]).split("-")
                 complemento = (row["expediente"]).split(elementos[0] + "/" + elementos[1])
                 try:
