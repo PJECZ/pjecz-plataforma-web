@@ -58,11 +58,14 @@ def alimentar(entrada_csv):
                 tipo_audiencia = safe_string(row["tipo_audiencia"])
             except KeyError:
                 tipo_audiencia = "NO DEFINIDO"
-            exp = row["expediente"].strip()
-            if len(exp) > 60:
-                expediente = exp[:60] + '...'
-            else:
-                expediente = exp
+            try:
+                exp = row["expediente"].strip()
+                if len(exp) > 60:
+                    expediente = exp[:60] + '...'
+                else:
+                    expediente = exp
+            except KeyError:
+                expediente = ""
             try:
                 actores = safe_string(row["actores"])
             except KeyError:

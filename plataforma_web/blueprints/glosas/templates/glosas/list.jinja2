@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% if autoridad %}
-        {% set title='Glosas de ' + autoridad.clave %}
+        {% set title='Glosas de ' + autoridad.descripcion_corta + ', ' + autoridad.distrito.nombre_corto %}
     {% else %}
         {% if estatus == 'A' %}{% set title='Glosas' %}{% endif %}
         {% if estatus == 'B' %}{% set title='Glosas inactivas' %}{% endif %}
@@ -38,26 +38,72 @@
                 <tr>
                     <th>Fechas</th>
                     <th>Descripciones</th>
-                    <th>Tipos de juicios</th>
                     <th>Expedientes</th>
+                    <th>Tipos de juicios</th>
                     <th>Archivos</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for glosa in glosas %}
-                <tr>
-                    <td>{{ glosa.fecha }}</td>
-                    <td><a href="{{ url_for('glosas.detail', glosa_id=glosa.id) }}">{{ glosa.descripcion }}</a></td>
-                    <td>{{ glosa.tipo_juicio }}</td>
-                    <td>{{ glosa.expediente }}</td>
-                    <td><a href="{{ glosa.url }}" target="_blank">PDF {{ list.icon_open_in_new() }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('glosas_datatable', order='desc') }}
+    <script>
+        $('#glosas_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/glosas/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {
+                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
+                    estatus: "{{ estatus }}"
+                }
+            },
+            columns: [
+                { data: "fecha" },
+                { data: "detalle" },
+                { data: "expediente" },
+                { data: "tipo_juicio" },
+                { data: "archivo" }
+            ],
+            columnDefs: [
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                },
+                {
+                    targets: 4,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">PDF</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

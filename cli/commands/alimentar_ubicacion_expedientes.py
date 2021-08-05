@@ -46,4 +46,4 @@ def alimentar_ubicacion_expedientes():
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} ubicaciones de expedientes...")
-    click.echo(f"- {contador} ubicaciones de expedientes alimentadas.")
+    click.echo(f"  {contador} ubicaciones de expedientes alimentadas.")

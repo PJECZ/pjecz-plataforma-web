@@ -54,17 +54,17 @@
     </script>
 {%- endmacro -%}
 
-{%- macro custom_javascript_refresh(title, message) -%}
-    <!-- Modal Refresh -->
-    {{ modal(title, message, onclick_js="proceedToRefresh();", id="modalRefresh") }}
+{%- macro custom_javascript_make(title, message) -%}
+    <!-- Modal Make -->
+    {{ modal(title, message, onclick_js="proceedToMake();", id="modalMake") }}
     <script>
         var refreshURL;
-        function showModalRefresh(url) {
-            var myModal = new bootstrap.Modal(document.getElementById('modalRefresh'));
+        function showModalMake(url) {
+            var myModal = new bootstrap.Modal(document.getElementById('modalMake'));
             myModal.show();
             refreshURL = url;
         }
-        function proceedToRefresh() {
+        function proceedToMake() {
             location.href = refreshURL;
         }
     </script>

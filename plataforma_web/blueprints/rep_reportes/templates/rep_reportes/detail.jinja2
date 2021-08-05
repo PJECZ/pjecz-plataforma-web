@@ -1,0 +1,62 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Reporte{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Reporte') %}
+        {{ topbar.button_previous('Gráfica', url_for('rep_graficas.detail', rep_grafica_id=rep_reporte.rep_grafica_id)) }}
+        {% if current_user.can_edit('rep_reportes') %}
+            {{ topbar.button_edit('Editar', url_for('rep_reportes.edit', rep_reporte_id=rep_reporte.id)) }}
+            {% if rep_reporte.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('rep_reportes.delete', rep_reporte_id=rep_reporte.id)) }}{% endif %}
+            {% if rep_reporte.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('rep_reportes.recover', rep_reporte_id=rep_reporte.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=rep_reporte.estatus) %}
+        {{ detail.label_value_big('Descripción', rep_reporte.descripcion) }}
+        {{ detail.label_value('Gráfica', rep_reporte.rep_grafica.descripcion, url_for('rep_graficas.detail', rep_grafica_id=rep_reporte.rep_grafica_id)) }}
+        {{ detail.label_value('Inicio', rep_reporte.inicio) }}
+        {{ detail.label_value('Término', rep_reporte.termino) }}
+        {{ detail.label_value('Programado', rep_reporte.programado) }}
+        {{ detail.label_value('Progreso', rep_reporte.progreso) }}
+    {% endcall %}
+    {% if rep_resultados %}
+        {% call detail.card() %}
+            <table id="rep_resultados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Módulos</th>
+                        <th>Descripciones</th>
+                        <th>Tipos</th>
+                        <th>Cantidades</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rep_resultado in rep_resultados %}
+                    <tr>
+                        <td>{{ rep_resultado.modulo.nombre }}</td>
+                        <td><a href="{{ url_for('rep_resultados.detail', rep_resultado_id=rep_resultado.id) }}">{{ rep_resultado.descripcion }}</a></td>
+                        <td>{{ rep_resultado.tipo }}</td>
+                        <td>{{ rep_resultado.cantidad }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('rep_reportes') %}
+        {% if rep_reporte.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rep_reporte.descripcion + '?') }}{% endif %}
+        {% if rep_reporte.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + rep_reporte.descripcion + '?') }}{% endif %}
+    {% endif %}
+    {% if rep_resultados %}
+        {{ detail.datatable('rep_resultados_datatable', order='asc') }}
+    {% endif %}
+{% endblock %}
