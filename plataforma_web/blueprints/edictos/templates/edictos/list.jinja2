@@ -5,13 +5,7 @@
 {% block title %}Edictos{% endblock %}
 
 {% block topbar_actions %}
-    {% if autoridad %}
-        {% set title='Edictos de ' + autoridad.descripcion_corta + ', ' + autoridad.distrito.nombre_corto %}
-    {% else %}
-        {% if estatus == 'A'%}{% set title='Edictos' %}{% endif %}
-        {% if estatus == 'B'%}{% set title='Edictos inactivos' %}{% endif %}
-    {% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('edictos.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and current_user.autoridad_id == autoridad.id) %}
@@ -24,7 +18,7 @@
                 {{ topbar.button_upload('Subir', url_for('edictos.new')) }}
             {% endif %}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('edictos.search')) #}
+        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -59,10 +53,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {
-                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
-                    estatus: "{{ estatus }}"
-                }
+                data: {{ filtros }}
             },
             columns: [
                 { data: "fecha" },

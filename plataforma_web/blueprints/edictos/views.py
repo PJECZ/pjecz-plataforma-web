@@ -2,6 +2,7 @@
 Edictos, vistas
 """
 import datetime
+import json
 from pathlib import Path
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -47,13 +48,24 @@ def before_request():
 @edictos.route("/edictos")
 def list_active():
     """Listado de Edictos activos"""
-    # Si es administrador, ve los edictos de todas las autoridades
+    # Si es administrador ve todo
     if current_user.can_admin("edictos"):
-        return render_template("edictos/list_admin.jinja2", autoridad=None, estatus="A")
-    # Si su autoridad es jurisdiccional, ve sus propios edictos
+        return render_template(
+            "edictos/list_admin.jinja2",
+            autoridad=None,
+            filtros=json.dumps({"estatus": "A"}),
+            titulo="Todos los Edictos",
+        )
+    # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, estatus="A")
-    # No es jurisdiccional, se redirige al listado de edictos
+        autoridad = current_user.autoridad
+        return render_template(
+            "edictos/list.jinja2",
+            autoridad=autoridad,
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+            titulo=f"Edictos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        )
+    # Ninguno de los anteriores
     return redirect(url_for("edictos.list_distritos"))
 
 
@@ -61,29 +73,44 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def list_inactive():
     """Listado de Edictos inactivos"""
-    # Si es administrador, ve los edictos de todas las autoridades
+    # Si es administrador ve todo
     if current_user.can_admin("edictos"):
-        return render_template("edictos/list_admin.jinja2", autoridad=None, estatus="B")
-    # Si es jurisdiccional, ve sus propios edictos
+        return render_template(
+            "edictos/list_admin.jinja2",
+            autoridad=None,
+            filtros=json.dumps({"estatus": "B"}),
+            titulo="Todos los Edictos inactivos",
+        )
+    # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        return render_template("edictos/list.jinja2", autoridad=current_user.autoridad, estatus="B")
-    # No es jurisdiccional, se redirige al listado de distritos
+        autoridad = current_user.autoridad
+        return render_template(
+            "edictos/list.jinja2",
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
+            titulo=f"Edictos inactivos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        )
+    # Ninguno de los anteriores
     return redirect(url_for("edictos.list_distritos"))
 
 
 @edictos.route("/edictos/distritos")
 def list_distritos():
     """Listado de Distritos"""
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    return render_template("edictos/list_distritos.jinja2", distritos=distritos)
+    return render_template(
+        "edictos/list_distritos.jinja2",
+        distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
+    )
 
 
 @edictos.route("/edictos/distrito/<int:distrito_id>")
 def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("edictos/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
+    return render_template(
+        "edictos/list_autoridades.jinja2",
+        distrito=distrito,
+        autoridades=Autoridad.query.filter_by(distrito=distrito).filter_by(es_jurisdiccional=True).filter_by(estatus="A").order_by(Autoridad.clave).all(),
+    )
 
 
 @edictos.route("/edictos/autoridad/<int:autoridad_id>")
@@ -91,8 +118,15 @@ def list_autoridad_edictos(autoridad_id):
     """Listado de Edictos activos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if current_user.can_admin("edictos"):
-        return render_template("edictos/list_admin.jinja2", autoridad=autoridad, estatus="A")
-    return render_template("edictos/list.jinja2", autoridad=autoridad, estatus="A")
+        plantilla = "edictos/list_admin.jinja2"
+    else:
+        plantilla = "edictos/list.jinja2"
+    return render_template(
+        plantilla,
+        autoridad=autoridad,
+        filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+        titulo=f"Edictos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+    )
 
 
 @edictos.route("/edictos/inactivos/autoridad/<int:autoridad_id>")
@@ -101,8 +135,91 @@ def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if current_user.can_admin("edictos"):
-        return render_template("edictos/list_admin.jinja2", autoridad=autoridad, estatus="B")
-    return render_template("edictos/list.jinja2", autoridad=autoridad, estatus="B")
+        plantilla = "edictos/list_admin.jinja2"
+    else:
+        plantilla = "edictos/list.jinja2"
+    return render_template(
+        plantilla,
+        autoridad=autoridad,
+        filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
+        titulo=f"Edictos inactivos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+    )
+
+
+@edictos.route("/edictos/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Edictos"""
+    if current_user.can_admin("edictos"):
+        puede_elegir_autoridad = True
+    elif current_user.autoridad.es_jurisdiccional:
+        puede_elegir_autoridad = False
+    else:
+        puede_elegir_autoridad = True
+    if puede_elegir_autoridad:
+        form_search = EdictoSearchAdminForm()
+    else:
+        form_search = EdictoSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        fallo_validacion = False
+        # Autoridad es un campo obligatorio
+        if puede_elegir_autoridad:
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+            plantilla = "edictos/list_admin.jinja2"
+        else:
+            autoridad = current_user.autoridad
+            plantilla = "edictos/list.jinja2"
+        busqueda["autoridad_id"] = autoridad.id
+        titulos.append(autoridad.distrito.nombre_corto + ", " + autoridad.descripcion_corta)
+        # Fecha
+        if form_search.fecha_desde.data:
+            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
+            titulos.append("desde " + busqueda["fecha_desde"])
+        if form_search.fecha_hasta.data:
+            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
+            titulos.append("hasta " + busqueda["fecha_hasta"])
+        # Descripción
+        if form_search.descripcion.data:
+            busqueda["descripcion"] = safe_string(form_search.descripcion.data)
+            titulos.append("descripción " + busqueda["descripcion"])
+        # Expediente
+        try:
+            expediente = safe_expediente(form_search.expediente.data)
+            if expediente != "":
+                busqueda["expediente"] = expediente
+                titulos.append("expediente " + expediente)
+        except (IndexError, ValueError):
+            flash("Expediente incorrecto.", "warning")
+            fallo_validacion = True
+        # Número de publicación
+        try:
+            numero_publicacion = safe_numero_publicacion(form_search.numero_publicacion.data)
+            if numero_publicacion != "":
+                busqueda["numero_publicacion"] = numero_publicacion
+                titulos.append("numero_publicacion " + numero_publicacion)
+        except (IndexError, ValueError):
+            flash("Número de Publicación incorrecto.", "warning")
+            fallo_validacion = True
+        # Mostrar resultados
+        if not fallo_validacion:
+            return render_template(
+                plantilla,
+                filtros=json.dumps(busqueda),
+                titulo="Edictos con " + ", ".join(titulos),
+            )
+    # Mostrar buscador donde puede elegir la autoridad
+    if puede_elegir_autoridad:
+        return render_template(
+            "edictos/search_admin.jinja2",
+            form=form_search,
+            distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
+            autoridades=Autoridad.query.filter_by(es_jurisdiccional=True).filter_by(estatus="A").order_by(Autoridad.clave).all(),
+        )
+    # Mostrar buscador con la autoridad fija
+    form_search.distrito.data = current_user.autoridad.distrito.nombre
+    form_search.autoridad.data = current_user.autoridad.descripcion
+    return render_template("edictos/search.jinja2", form=form_search)
 
 
 @edictos.route("/edictos/datatable_json", methods=["GET", "POST"])
@@ -122,12 +239,29 @@ def datatable_json():
     # Consultar
     consulta = Edicto.query
     if "estatus" in request.form:
-        consulta = consulta.filter(Edicto.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(Edicto.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
-        consulta = consulta.filter(Edicto.autoridad == autoridad)
+        if autoridad:
+            consulta = consulta.filter_by(autoridad=autoridad)
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(Edicto.fecha >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(Edicto.fecha <= request.form["fecha_hasta"])
+    if "descripcion" in request.form:
+        consulta = consulta.filter(Edicto.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
+    if "expediente" in request.form:
+        try:
+            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+        except (IndexError, ValueError):
+            pass
+    if "numero_publicacion" in request.form:
+        try:
+            consulta = consulta.filter_by(numero_publicacion=safe_numero_publicacion(request.form["numero_publicacion"]))
+        except (IndexError, ValueError):
+            pass
     registros = consulta.order_by(Edicto.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -167,7 +301,7 @@ def datatable_json_admin():
     try:
         draw = int(request.form["draw"])
         start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])  
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
@@ -176,12 +310,29 @@ def datatable_json_admin():
     # Consultar
     consulta = Edicto.query
     if "estatus" in request.form:
-        consulta = consulta.filter(Edicto.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(Edicto.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
-        consulta = consulta.filter(Edicto.autoridad == autoridad)
+        if autoridad:
+            consulta = consulta.filter_by(autoridad=autoridad)
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(Edicto.fecha >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(Edicto.fecha <= request.form["fecha_hasta"])
+    if "descripcion" in request.form:
+        consulta = consulta.filter(Edicto.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
+    if "expediente" in request.form:
+        try:
+            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+        except (IndexError, ValueError):
+            pass
+    if "numero_publicacion" in request.form:
+        try:
+            consulta = consulta.filter_by(numero_publicacion=safe_numero_publicacion(request.form["numero_publicacion"]))
+        except (IndexError, ValueError):
+            pass
     registros = consulta.order_by(Edicto.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -237,70 +388,6 @@ def detail(edicto_id):
     """Detalle de un Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
     return render_template("edictos/detail.jinja2", edicto=edicto)
-
-
-@edictos.route("/edictos/buscar", methods=["GET", "POST"])
-def search():
-    """Buscar Edictos"""
-
-    if current_user.can_admin("edictos"):
-        form_search = EdictoSearchAdminForm()
-    else:
-        form_search = EdictoSearchForm()
-
-    if form_search.validate_on_submit():
-        mostrar_resultados = True
-
-        # Los administradores pueden buscar en todas las autoridades
-        if current_user.can_admin("edictos"):
-            autoridad = Autoridad.query.get(form_search.autoridad.data)
-        else:
-            autoridad = Autoridad.query.get(current_user.autoridad)
-        consulta = Edicto.query.filter(Edicto.autoridad == autoridad)
-
-        # Fecha
-        if form_search.fecha_desde.data:
-            consulta = consulta.filter(Edicto.fecha >= form_search.fecha_desde.data)
-        if form_search.fecha_hasta.data:
-            consulta = consulta.filter(Edicto.fecha <= form_search.fecha_hasta.data)
-
-        # Descripción
-        descripcion = safe_string(form_search.descripcion.data)
-        if descripcion != "":
-            consulta = consulta.filter(Edicto.descripcion.like(f"%{descripcion}%"))
-
-        # Expediente
-        try:
-            expediente = safe_expediente(form_search.expediente.data)
-            if expediente != "":
-                consulta = consulta.filter(Edicto.expediente == expediente)
-        except (IndexError, ValueError):
-            flash("El expediente es incorrecto.", "warning")
-            mostrar_resultados = False
-
-        # Número de publicación
-        try:
-            numero_publicacion = safe_numero_publicacion(form_search.numero_publicacion.data)
-            if numero_publicacion != "":
-                consulta = consulta.filter(Edicto.numero_publicacion == numero_publicacion)
-        except (IndexError, ValueError):
-            flash("El expediente es incorrecto.", "warning")
-            mostrar_resultados = False
-
-        # Mostrar resultados
-        if mostrar_resultados:
-            consulta = consulta.order_by(Edicto.fecha.desc()).all()
-            return render_template("edictos/list.jinja2", autoridad=autoridad, edictos=consulta)
-
-    # Los administradores pueden buscar en todas las autoridades
-    if current_user.can_admin("edictos"):
-        distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-        autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-        return render_template("edictos/search_admin.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
-    else:
-        form_search.distrito.data = current_user.autoridad.distrito.nombre  # Read only
-        form_search.autoridad.data = current_user.autoridad.descripcion  # Read only
-        return render_template("edictos/search.jinja2", form=form_search)
 
 
 def new_success(edicto):

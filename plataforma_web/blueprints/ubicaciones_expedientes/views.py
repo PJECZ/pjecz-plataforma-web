@@ -47,7 +47,7 @@ def list_active():
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
             titulo=f"Ubicaciones de Expedientes de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         )
-    # Ninguno de los anteriores, se redirige al listado de distritos
+    # Ninguno de los anteriores
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
 
 
