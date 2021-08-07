@@ -32,6 +32,7 @@ def list_active():
         "abogados/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
         titulo="Abogados registrados",
+        estatus="A",
     )
 
 
@@ -43,6 +44,7 @@ def list_inactive():
         "abogados/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
         titulo="Abogados registrados inactivos",
+        estatus="B",
     )
 
 

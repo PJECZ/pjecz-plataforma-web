@@ -56,6 +56,7 @@ def list_active():
             autoridad=None,
             filtros=json.dumps({"estatus": "A"}),
             titulo="Todos las Glosas",
+            estatus="A",
         )
     # Si puede editar o crear glosas ve lo de su autoridad
     if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
@@ -65,6 +66,7 @@ def list_active():
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
             titulo=f"Glosas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            estatus="A",
         )
     # Ninguno de los anteriores
     return render_template(
@@ -72,6 +74,7 @@ def list_active():
         autoridad=None,
         filtros=json.dumps({"estatus": "A"}),
         titulo="Todos las Glosas",
+        estatus="A",
     )
 
 
@@ -86,6 +89,7 @@ def list_inactive():
             autoridad=None,
             filtros=json.dumps({"estatus": "B"}),
             titulo="Todos las Glosas inactivas",
+            estatus="B",
         )
     # Si puede editar o crear glosas ve lo de su autoridad
     if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
@@ -95,6 +99,7 @@ def list_inactive():
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
             titulo=f"Glosas inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            estatus="B",
         )
     # Ninguno de los anteriores
     return render_template(
@@ -102,6 +107,7 @@ def list_inactive():
         autoridad=None,
         filtros=json.dumps({"estatus": "B"}),
         titulo="Todos las Glosas inactivas",
+        estatus="B",
     )
 
 
@@ -125,6 +131,7 @@ def list_autoridad_glosas(autoridad_id):
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
         titulo=f"Glosas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        estatus="A",
     )
 
 
@@ -142,6 +149,7 @@ def list_autoridad_glosas_inactive(autoridad_id):
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
         titulo=f"Glosas inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        estatus="B",
     )
 
 

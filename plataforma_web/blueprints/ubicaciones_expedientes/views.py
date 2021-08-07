@@ -37,6 +37,7 @@ def list_active():
             autoridad=None,
             filtros=json.dumps({"estatus": "A"}),
             titulo="Todas las Ubicaciones de Expedientes",
+            estatus="A",
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
@@ -46,6 +47,7 @@ def list_active():
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
             titulo=f"Ubicaciones de Expedientes de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            estatus="A",
         )
     # Ninguno de los anteriores
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
@@ -62,6 +64,7 @@ def list_inactive():
             autoridad=None,
             filtros=json.dumps({"estatus": "B"}),
             titulo="Todas las Ubicaciones de Expedientes inactivos",
+            estatus="B",
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
@@ -71,6 +74,7 @@ def list_inactive():
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
             titulo=f"Ubicaciones de Expedientes inactivos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            estatus="B",
         )
     # Ninguno de los anteriores, se redirige al listado de distritos
     return redirect(url_for("ubicaciones_expedientes.list_distritos"))
@@ -109,6 +113,7 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
         titulo=f"Ubicaciones de Expedientes de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        estatus="A",
     )
 
 
@@ -126,6 +131,7 @@ def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
         titulo=f"Ubicaciones de Expedientes inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        estatus="B",
     )
 
 

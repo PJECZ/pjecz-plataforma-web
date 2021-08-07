@@ -33,6 +33,7 @@ def list_active():
         "peritos/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
         titulo="Peritos",
+        estatus="A",
     )
 
 
@@ -44,6 +45,7 @@ def list_inactive():
         "peritos/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
         titulo="Peritos inactivos",
+        estatus="B",
     )
 
 
