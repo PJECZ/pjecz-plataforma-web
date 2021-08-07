@@ -2,6 +2,7 @@
 Glosas, vistas
 """
 import datetime
+import json
 from pathlib import Path
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -18,13 +19,14 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
-from plataforma_web.blueprints.glosas.forms import GlosaEditForm, GlosaNewForm, GlosaSearchForm
+from plataforma_web.blueprints.glosas.forms import GlosaEditForm, GlosaNewForm, GlosaSearchForm, GlosaSearchAdminForm
 from plataforma_web.blueprints.glosas.models import Glosa
 
 glosas = Blueprint("glosas", __name__, template_folder="templates")
 
 MODULO = "GLOSAS"
 SUBDIRECTORIO = "Glosas"
+ORGANOS_JURISDICCIONALES = ["PLENO O SALA DEL TSJ", "TRIBUNAL DE CONCILIACION Y ARBITRAJE"]
 LIMITE_DIAS = 365
 LIMITE_ADMINISTRADORES_DIAS = 365
 
@@ -47,41 +49,66 @@ def before_request():
 @glosas.route("/glosas")
 def list_active():
     """Listado de Glosas activos"""
-    # Si es administrador, ve las glosas de todas las autoridades
+    # Si es administrador ve todo
     if current_user.can_admin("glosas"):
-        return render_template("glosas/list_admin.jinja2", autoridad=None, estatus="A")
-    # Si puede editar o crear glosas
+        return render_template(
+            "glosas/list_admin.jinja2",
+            autoridad=None,
+            filtros=json.dumps({"estatus": "A"}),
+            titulo="Todos las Glosas",
+        )
+    # Si puede editar o crear glosas ve lo de su autoridad
     if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
-        autoridad = Autoridad.query.get_or_404(current_user.autoridad_id)
-        return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="A")
-    # No es ninguno de los anteriores
-    return render_template("glosas/list.jinja2", autoridad=None, estatus="A")
+        autoridad = current_user.autoridad
+        return render_template(
+            "glosas/list.jinja2",
+            autoridad=autoridad,
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+            titulo=f"Glosas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        )
+    # Ninguno de los anteriores
+    return render_template(
+        "glosas/list.jinja2",
+        autoridad=None,
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Todos las Glosas",
+    )
 
 
 @glosas.route("/glosas/inactivos")
 @permission_required(Permiso.MODIFICAR_SEGUNDAS)
 def list_inactive():
     """Listado de Glosas inactivas"""
-    # Si es administrador, ve las glosas de todas las autoridades
+    # Si es administrador ve todo
     if current_user.can_admin("glosas"):
-        return render_template("glosas/list_admin.jinja2", autoridad=None, estatus="B")
-    # Si es jurisdiccional, ve sus propios glosas
-    if current_user.autoridad.es_jurisdiccional:
-        return render_template("glosas/list.jinja2", autoridad=current_user.autoridad, estatus="B")
-    # No es jurisdiccional, se redirige al listado de distritos
-    return redirect(url_for("glosas.list_distritos"))
-
-
-@glosas.route("/glosas/distritos")
-def list_distritos():
-    """Listado de Distritos"""
-    return redirect(url_for("glosas.list_autoridades"))
+        return render_template(
+            "glosas/list_admin.jinja2",
+            autoridad=None,
+            filtros=json.dumps({"estatus": "B"}),
+            titulo="Todos las Glosas inactivas",
+        )
+    # Si puede editar o crear glosas ve lo de su autoridad
+    if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+        autoridad = current_user.autoridad
+        return render_template(
+            "glosas/list.jinja2",
+            autoridad=autoridad,
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
+            titulo=f"Glosas inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        )
+    # Ninguno de los anteriores
+    return render_template(
+        "glosas/list.jinja2",
+        autoridad=None,
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Todos las Glosas inactivas",
+    )
 
 
 @glosas.route("/glosas/autoridades")
 def list_autoridades():
     """Listado de Autoridades"""
-    autoridades = Autoridad.query.filter(Autoridad.organo_jurisdiccional.in_(["PLENO O SALA DEL TSJ", "TRIBUNAL DE CONCILIACION Y ARBITRAJE"])).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter(Autoridad.organo_jurisdiccional.in_(ORGANOS_JURISDICCIONALES)).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
     return render_template("glosas/list_autoridades.jinja2", autoridades=autoridades)
 
 
@@ -90,8 +117,15 @@ def list_autoridad_glosas(autoridad_id):
     """Listado de Glosas activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if current_user.can_admin("glosas"):
-        return render_template("glosas/list_admin.jinja2", autoridad=autoridad, estatus="A")
-    return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="A")
+        plantilla = "glosas/list_admin.jinja2"
+    else:
+        plantilla = "glosas/list.jinja2"
+    return render_template(
+        plantilla,
+        autoridad=autoridad,
+        filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+        titulo=f"Glosas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+    )
 
 
 @glosas.route("/glosas/inactivos/autoridad/<int:autoridad_id>")
@@ -100,8 +134,86 @@ def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if current_user.can_admin("glosas"):
-        return render_template("glosas/list_admin.jinja2", autoridad=autoridad, estatus="B")
-    return render_template("glosas/list.jinja2", autoridad=autoridad, estatus="B")
+        plantilla = "glosas/list_admin.jinja2"
+    else:
+        plantilla = "glosas/list.jinja2"
+    return render_template(
+        plantilla,
+        autoridad=autoridad,
+        filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
+        titulo=f"Glosas inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+    )
+
+
+@glosas.route("/glosas/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Glosas"""
+    if current_user.can_admin("glosas"):
+        puede_elegir_autoridad = True
+    elif current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+        puede_elegir_autoridad = False
+    else:
+        puede_elegir_autoridad = True
+    if puede_elegir_autoridad:
+        form_search = GlosaSearchAdminForm()
+    else:
+        form_search = GlosaSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        fallo_validacion = False
+        # Autoridad es un campo obligatorio
+        if puede_elegir_autoridad:
+            autoridad = Autoridad.query.get(form_search.autoridad.data)
+            plantilla = "glosas/list_admin.jinja2"
+        else:
+            autoridad = current_user.autoridad
+            plantilla = "glosas/list.jinja2"
+        busqueda["autoridad_id"] = autoridad.id
+        titulos.append(autoridad.distrito.nombre_corto + ", " + autoridad.descripcion_corta)
+        # Fecha
+        if form_search.fecha_desde.data:
+            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
+            titulos.append("desde " + busqueda["fecha_desde"])
+        if form_search.fecha_hasta.data:
+            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
+            titulos.append("hasta " + busqueda["fecha_hasta"])
+        # Tipo de juicio
+        if form_search.tipo_juicio.data:
+            busqueda["tipo_juicio"] = safe_string(form_search.tipo_juicio.data)
+            titulos.append("tipo de juicio " + busqueda["tipo_juicio"])
+        # Descripción
+        if form_search.descripcion.data:
+            busqueda["descripcion"] = safe_string(form_search.descripcion.data)
+            titulos.append("descripción " + busqueda["descripcion"])
+        # Expediente
+        try:
+            expediente = safe_expediente(form_search.expediente.data)
+            if expediente != "":
+                busqueda["expediente"] = expediente
+                titulos.append("expediente " + expediente)
+        except (IndexError, ValueError):
+            flash("Expediente incorrecto.", "warning")
+            fallo_validacion = True
+        # Mostrar resultados
+        if not fallo_validacion:
+            return render_template(
+                plantilla,
+                filtros=json.dumps(busqueda),
+                titulo="Glosas con " + ", ".join(titulos),
+            )
+    # Mostrar buscador donde puede elegir la autoridad
+    if puede_elegir_autoridad:
+        return render_template(
+            "glosas/search_admin.jinja2",
+            form=form_search,
+            distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
+            autoridades=Autoridad.query.filter(Autoridad.organo_jurisdiccional.in_(ORGANOS_JURISDICCIONALES)).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+        )
+    # Mostrar buscador con la autoridad fija
+    form_search.distrito.data = current_user.autoridad.distrito.nombre
+    form_search.autoridad.data = current_user.autoridad.descripcion
+    return render_template("glosas/search.jinja2", form=form_search)
 
 
 @glosas.route("/glosas/datatable_json", methods=["GET", "POST"])
@@ -121,12 +233,26 @@ def datatable_json():
     # Consultar
     consulta = Glosa.query
     if "estatus" in request.form:
-        consulta = consulta.filter(Glosa.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(Glosa.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
-        consulta = consulta.filter(Glosa.autoridad == autoridad)
+        if autoridad:
+            consulta = consulta.filter_by(autoridad=autoridad)
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(Glosa.fecha >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(Glosa.fecha <= request.form["fecha_hasta"])
+    if "tipo_juicio" in request.form:
+        consulta = consulta.filter_by(tipo_juicio=request.form["tipo_juicio"])
+    if "descripcion" in request.form:
+        consulta = consulta.filter(Glosa.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
+    if "expediente" in request.form:
+        try:
+            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+        except (IndexError, ValueError):
+            pass
     registros = consulta.order_by(Glosa.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -166,7 +292,7 @@ def datatable_json_admin():
     try:
         draw = int(request.form["draw"])
         start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])  
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
@@ -175,12 +301,26 @@ def datatable_json_admin():
     # Consultar
     consulta = Glosa.query
     if "estatus" in request.form:
-        consulta = consulta.filter(Glosa.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(Glosa.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
-        consulta = consulta.filter(Glosa.autoridad == autoridad)
+        if autoridad:
+            consulta = consulta.filter_by(autoridad=autoridad)
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(Glosa.fecha >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(Glosa.fecha <= request.form["fecha_hasta"])
+    if "tipo_juicio" in request.form:
+        consulta = consulta.filter_by(tipo_juicio=request.form["tipo_juicio"])
+    if "descripcion" in request.form:
+        consulta = consulta.filter(Glosa.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
+    if "expediente" in request.form:
+        try:
+            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+        except (IndexError, ValueError):
+            pass
     registros = consulta.order_by(Glosa.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -236,24 +376,6 @@ def detail(glosa_id):
     """Detalle de una Lista de Acuerdos"""
     glosa = Glosa.query.get_or_404(glosa_id)
     return render_template("glosas/detail.jinja2", glosa=glosa)
-
-
-@glosas.route("/glosas/buscar", methods=["GET", "POST"])
-def search():
-    """Buscar Glosas"""
-    form_search = GlosaSearchForm()
-    if form_search.validate_on_submit():
-        autoridad = Autoridad.query.get(form_search.autoridad.data)
-        consulta = Glosa.query.filter(Glosa.autoridad == autoridad)
-        if form_search.fecha_desde.data:
-            consulta = consulta.filter(Glosa.fecha >= form_search.fecha_desde.data)
-        if form_search.fecha_hasta.data:
-            consulta = consulta.filter(Glosa.fecha <= form_search.fecha_hasta.data)
-        consulta = consulta.order_by(Glosa.creado.desc()).all()
-        return render_template("glosas/list.jinja2", glosas=consulta)
-    distritos = Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
-    return render_template("glosas/search.jinja2", form=form_search, distritos=distritos, autoridades=autoridades)
 
 
 def new_success(glosa):
