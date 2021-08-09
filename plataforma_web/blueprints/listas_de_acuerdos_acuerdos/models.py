@@ -25,7 +25,7 @@ class ListaDeAcuerdoAcuerdo(db.Model, UniversalMixin):
     demandado = db.Column(db.String(256), nullable=False, default="", server_default="")
     tipo_acuerdo = db.Column(db.String(256), nullable=False, default="", server_default="")
     tipo_juicio = db.Column(db.String(256), nullable=False, default="", server_default="")
-    referencia = db.Column(db.Integer(), nullable=False)
+    referencia = db.Column(db.Integer(), nullable=False, unique=True)
 
     def __repr__(self):
         """Representación"""
