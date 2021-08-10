@@ -31,8 +31,8 @@ class ListaDeAcuerdoSearchForm(FlaskForm):
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
-    fecha_desde = DateField("Fecha desde", validators=[Optional()])
-    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
+    fecha_desde = DateField("Fecha desde", validators=[DataRequired()])
+    fecha_hasta = DateField("Fecha hasta", validators=[DataRequired()])
     buscar = SubmitField("Buscar")
 
 
@@ -41,6 +41,6 @@ class ListaDeAcuerdoSearchAdminForm(FlaskForm):
 
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
-    fecha_desde = DateField("Fecha desde", validators=[Optional()])
-    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
+    fecha_desde = DateField("Fecha desde", validators=[DataRequired()])
+    fecha_hasta = DateField("Fecha hasta", validators=[DataRequired()])
     buscar = SubmitField("Buscar")

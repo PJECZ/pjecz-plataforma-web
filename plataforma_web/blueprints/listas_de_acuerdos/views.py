@@ -200,7 +200,7 @@ def search():
             "listas_de_acuerdos/search_admin.jinja2",
             form=form_search,
             distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
-            autoridades=Autoridad.query.filter_by(es_jurisdiccional=True).filter_by(estatus="A").order_by(Autoridad.clave).all(),
+            autoridades=Autoridad.query.filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
         )
     # Mostrar buscador con la autoridad fija
     form_search.distrito.data = current_user.autoridad.distrito.nombre
