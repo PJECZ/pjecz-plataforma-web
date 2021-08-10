@@ -5,14 +5,7 @@
 {% block title %}Todos los Edictos{% endblock %}
 
 {% block topbar_actions %}
-    {% if autoridad %}
-        {% if estatus == 'A' %}{% set title='Edictos de ' + autoridad.clave %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Edictos inactivos de ' + autoridad.clave %}{% endif %}
-    {% else %}
-        {% if estatus == 'A' %}{% set title='Todos los Edictos' %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Todos los Edictos inactivos' %}{% endif %}
-    {% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('edictos.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('edictos') %}
@@ -31,7 +24,7 @@
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
             {% endif %}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('edictos.search')) #}
+        {{ topbar.button_search('Buscar', url_for('edictos.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -68,10 +61,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {
-                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
-                    estatus: "{{ estatus }}"
-                }
+                data: {{ filtros }}
             },
             columns: [
                 { data: "creado" },
@@ -109,7 +99,7 @@
                 lengthMenu: "Mostrar _MENU_",
                 search: "Filtrar:",
                 zeroRecords: "No se encontraron registros",
-                info: "Página _PAGE_ de _PAGES_",
+                info: "Total de registros _TOTAL_ ",
                 infoEmpty: "No hay registros",
                 infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
                 oPaginate: {
