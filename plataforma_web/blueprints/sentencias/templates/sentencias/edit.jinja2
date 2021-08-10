@@ -12,10 +12,16 @@
     {% call f.card() %}
         {% set form_kwargs = {'sentencia_id': sentencia.id} %}
         {% call f.form_tag('sentencias.edit', fid='sentencia_form', **form_kwargs) %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
+            <h2>Información básica</h2>
             {% call f.form_group(form.sentencia) %}{% endcall %}
+            {% call f.form_group(form.sentencia_fecha) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.es_paridad_genero) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            <h2>Información complementaria</h2>
+            {% call f.form_group(form.materia) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

@@ -15,12 +15,19 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag_multipart('sentencias.new', fid='sentencia_form') %}
+            <h2>Información básica</h2>
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
             {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.sentencia) %}{% endcall %}
+            {% call f.form_group(form.sentencia_fecha) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.es_paridad_genero) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            <h2>Información complementaria</h2>
+            {% call f.form_group(form.materia) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+            <h2>Archivo</h2>
             {% call f.drop_zone_wrapper() %}
                 {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
             {% endcall %}
