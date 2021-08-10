@@ -1,6 +1,7 @@
 """
 Sentencias, modelos
 """
+from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -8,15 +9,25 @@ from lib.universal_mixin import UniversalMixin
 class Sentencia(db.Model, UniversalMixin):
     """Sentencia"""
 
+    TIPOS_JUICIOS = OrderedDict(
+        [
+            ("ND", "No definido"),
+            ("ORAL", "Oral"),
+            ("TRADICIONAL", "Tradicional"),
+        ]
+    )
+
     # Nombre de la tabla
     __tablename__ = "sentencias"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
-    autoridad_id = db.Column(db.Integer, db.ForeignKey('autoridades.id'), index=True, nullable=False)
-    autoridad = db.relationship('Autoridad', back_populates='sentencias')
+    # Claves foráneas
+    autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad = db.relationship("Autoridad", back_populates="sentencias")
+    materia_id = db.Column(db.Integer, db.ForeignKey("materias.id"), index=True, nullable=False)
+    materia = db.relationship("Materia", back_populates="sentencias")
 
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
@@ -25,6 +36,14 @@ class Sentencia(db.Model, UniversalMixin):
     es_paridad_genero = db.Column(db.Boolean, nullable=False, default=False)
     archivo = db.Column(db.String(256))
     url = db.Column(db.String(512))
+    descripcion = db.Column(db.String(256), nullable=False, default="", server_default="")
+    fecha_sentencia = db.Column(db.Date, index=True, nullable=True)
+    tipo_juicio = db.Column(
+        db.Enum(*TIPOS_JUICIOS, name="tipos_juicios", native_enum=False),
+        index=True,
+        nullable=False,
+        server_default="ND",
+    )
 
     def __repr__(self):
         """Representación"""
