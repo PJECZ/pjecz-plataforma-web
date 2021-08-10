@@ -5,9 +5,7 @@
 {% block title %}Peritos{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Peritos' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Peritos inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('peritos') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('peritos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('peritos.list_active')) }}{% endif %}
@@ -15,7 +13,7 @@
         {% if current_user.can_insert('peritos') %}
             {{ topbar.button_new('Nuevo Perito', url_for('peritos.new')) }}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('peritos.search')) #}
+        {{ topbar.button_search('Buscar', url_for('peritos.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -48,7 +46,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: { estatus: "{{ estatus }}" }
+                data: {{ filtros }}
             },
             columns: [
                 { data: "detalle" },
@@ -68,7 +66,7 @@
                 lengthMenu: "Mostrar _MENU_",
                 search: "Filtrar:",
                 zeroRecords: "No se encontraron registros",
-                info: "Página _PAGE_ de _PAGES_",
+                info: "Total de registros _TOTAL_ ",
                 infoEmpty: "No hay registros",
                 infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
                 oPaginate: {

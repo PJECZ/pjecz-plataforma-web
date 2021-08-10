@@ -5,13 +5,7 @@
 {% block title %}Ubicaciones de Expedientes{% endblock %}
 
 {% block topbar_actions %}
-    {% if autoridad %}
-        {% set title='Ubicaciones de Expedientes de ' + autoridad.clave %}
-    {% else %}
-        {% if estatus == 'A' %}{% set title='Ubicaciones de Expedientes' %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Ubicaciones de Expedientes inactivas' %}{% endif %}
-    {% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('ubicaciones_expedientes.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('ubicaciones_expedientes') or (current_user.can_insert('ubicaciones_expedientes') and current_user.autoridad_id == autoridad.id) %}
@@ -24,7 +18,7 @@
                 {{ topbar.button_new('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new')) }}
             {% endif %}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('ubicaciones_expedientes.search')) #}
+        {{ topbar.button_search('Buscar', url_for('ubicaciones_expedientes.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -57,10 +51,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {
-                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
-                    estatus: "{{ estatus }}"
-                }
+                data: {{ filtros }}
             },
             columns: [
                 { data: "creado" },
@@ -87,7 +78,7 @@
                 lengthMenu: "Mostrar _MENU_",
                 search: "Filtrar:",
                 zeroRecords: "No se encontraron registros",
-                info: "Página _PAGE_ de _PAGES_",
+                info: "Total de registros _TOTAL_ ",
                 infoEmpty: "No hay registros",
                 infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
                 oPaginate: {

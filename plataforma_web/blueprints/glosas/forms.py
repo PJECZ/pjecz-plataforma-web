@@ -37,6 +37,19 @@ class GlosaEditForm(FlaskForm):
 class GlosaSearchForm(FlaskForm):
     """Formulario para buscar Glosas"""
 
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
+    fecha_desde = DateField("Fecha desde", validators=[Optional()])
+    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
+    tipo_juicio = SelectField("Tipo de juicio", choices=Glosa.TIPOS_JUICIOS)
+    descripcion = StringField("Descripción", validators=[Optional(), Length(max=64)])
+    expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    buscar = SubmitField("Buscar")
+
+
+class GlosaSearchAdminForm(FlaskForm):
+    """Formulario para buscar Glosas"""
+
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     fecha_desde = DateField("Fecha desde", validators=[Optional()])
