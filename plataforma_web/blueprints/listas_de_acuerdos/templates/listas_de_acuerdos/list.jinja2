@@ -5,13 +5,7 @@
 {% block title %}Listas de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {% if autoridad %}
-        {% set title='Listas de Acuerdos de ' + autoridad.descripcion_corta + ', ' + autoridad.distrito.nombre_corto %}
-    {% else %}
-        {% if estatus == 'A' %}{% set title='Listas de Acuerdos' %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Listas de Acuerdos inactivas' %}{% endif %}
-    {% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('listas_de_acuerdos.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and current_user.autoridad_id == autoridad.id) %}
@@ -24,7 +18,7 @@
                 {{ topbar.button_upload('Subir', url_for('listas_de_acuerdos.new')) }}
             {% endif %}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('listas_de_acuerdos.search')) #}
+        {{ topbar.button_search('Buscar', url_for('listas_de_acuerdos.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -57,10 +51,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {
-                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
-                    estatus: "{{ estatus }}"
-                }
+                data: {{ filtros }}
             },
             columns: [
                 { data: "fecha" },

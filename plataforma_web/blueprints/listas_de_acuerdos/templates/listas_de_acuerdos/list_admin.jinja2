@@ -5,14 +5,7 @@
 {% block title %}Todas las Listas de Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {% if autoridad %}
-        {% if estatus == 'A' %}{% set title='Listas de Acuerdos de ' + autoridad.clave %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Listas de Acuerdos inactivas de ' + autoridad.clave %}{% endif %}
-    {% else %}
-        {% if estatus == 'A' %}{% set title='Todas las Listas de Acuerdos' %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Todas las Listas de Acuerdos inactivas' %}{% endif %}
-    {% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('listas_de_acuerdos.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('listas_de_acuerdos') %}
@@ -31,7 +24,7 @@
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('listas_de_acuerdos.list_active')) }}{% endif %}
             {% endif %}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('listas_de_acuerdos.search')) #}
+        {{ topbar.button_search('Buscar', url_for('listas_de_acuerdos.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -66,10 +59,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {
-                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
-                    estatus: "{{ estatus }}"
-                }
+                data: {{ filtros }}
             },
             columns: [
                 { data: "creado" },

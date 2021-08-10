@@ -89,6 +89,7 @@ def list_inactive():
         autoridad = current_user.autoridad
         return render_template(
             "edictos/list.jinja2",
+            autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
             titulo=f"Edictos inactivos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="B",
