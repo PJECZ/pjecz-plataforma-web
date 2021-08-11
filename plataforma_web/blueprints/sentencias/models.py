@@ -33,9 +33,9 @@ class Sentencia(db.Model, UniversalMixin):
     sentencia = db.Column(db.String(16), index=True, nullable=False)
     sentencia_fecha = db.Column(db.Date, index=True, nullable=True)
     expediente = db.Column(db.String(16), index=True, nullable=False)
-    es_paridad_genero = db.Column(db.Boolean, nullable=False, default=False)
     fecha = db.Column(db.Date, index=True, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False, default="", server_default="")
+    es_paridad_genero = db.Column(db.Boolean, nullable=False, default=False)
     tipo_juicio = db.Column(
         db.Enum(*TIPOS_JUICIOS, name="tipos_juicios", native_enum=False),
         index=True,
