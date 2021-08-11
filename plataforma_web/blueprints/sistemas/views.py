@@ -1,7 +1,7 @@
 """
 Sistemas, vistas
 """
-from flask import Blueprint, redirect, render_template
+from flask import Blueprint, redirect, render_template, url_for
 from flask_login import current_user
 
 sistemas = Blueprint("sistemas", __name__, template_folder="templates")
@@ -11,7 +11,8 @@ sistemas = Blueprint("sistemas", __name__, template_folder="templates")
 def start():
     """Página inicial"""
     if current_user.is_authenticated:
-        return render_template("sistemas/start.jinja2")
+        versiones = url_for("static", filename="json/versiones.json")
+        return render_template("sistemas/start.jinja2", versiones=versiones)
     return redirect("/login")
 
 

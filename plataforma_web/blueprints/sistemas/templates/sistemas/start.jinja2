@@ -15,4 +15,9 @@
         <hr class="my-4">
         <p><strong>Poder Judicial del Estado de Coahuila de Zaragoza</strong></p>
     {% endcall %}
+    {% if versiones %}
+        {% call start.card('Versiones') %}
+            {{ versiones }}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
