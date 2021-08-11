@@ -149,7 +149,7 @@ def respaldar(desde, salida_csv):
         desde_fecha = None
     click.echo("Respaldando audiencias...")
     contador = 0
-    audiencias = Audiencia.query.filter(Audiencia.estatus == "A")
+    audiencias = Audiencia.query.filter_by(estatus="A")
     if desde_fecha is not None:
         audiencias = audiencias.filter(Audiencia.fecha >= desde_fecha)
     audiencias = audiencias.order_by(Audiencia.fecha).all()

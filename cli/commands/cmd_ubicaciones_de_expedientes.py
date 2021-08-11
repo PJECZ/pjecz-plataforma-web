@@ -118,7 +118,7 @@ def respaldar(salida_csv):
         return
     click.echo("Respaldando ubicaciones de expedientes...")
     contador = 0
-    ubicaciones_expedientes = UbicacionExpediente.query.filter(UbicacionExpediente.estatus == "A").all()
+    ubicaciones_expedientes = UbicacionExpediente.query.filter_by(estatus="A").all()
     with open(ruta, "w") as puntero:
         escritor = csv.writer(puntero)
         escritor.writerow(["autoridad", "expediente", "ubicacion"])

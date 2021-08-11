@@ -53,7 +53,7 @@ def elaborar(rep_reporte_id: int):
 
     # Elaborar reporte de totales por cada módulo
     # TODO: Cuando rep_grafica tenga el listado de módulos se deberá filtrar esta consulta
-    modulos = Modulo.query.filter(Modulo.estatus == "A").order_by(Modulo.nombre).all()
+    modulos = Modulo.query.filter_by(estatus="A").order_by(Modulo.nombre).all()
     cantidad = 0
     for modulo in modulos:
         cantidad = Bitacora.query.filter(Bitacora.modulo == modulo.nombre).filter(Bitacora.creado >= rep_reporte.inicio).filter(Bitacora.creado <= rep_reporte.termino).count()

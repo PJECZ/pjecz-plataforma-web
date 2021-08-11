@@ -80,7 +80,7 @@ def respaldar(desde, salida_csv):
         desde_fecha = None
     click.echo("Respaldando abogados...")
     contador = 0
-    abogados = Abogado.query.filter(Abogado.estatus == "A")
+    abogados = Abogado.query.filter_by(estatus="A")
     if desde_fecha is not None:
         abogados = abogados.filter(Abogado.fecha >= desde_fecha)
     abogados = abogados.order_by(Abogado.fecha).all()

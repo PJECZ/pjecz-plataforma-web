@@ -72,11 +72,11 @@ def list_active():
     """Listado de Audiencias activos"""
     # Si es administrador, ve las audiencias de todas las autoridades
     if current_user.can_admin("audiencias"):
-        audiencias_activas = Audiencia.query.filter(Audiencia.estatus == "A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+        audiencias_activas = Audiencia.query.filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("audiencias/list_admin.jinja2", audiencias=audiencias_activas, estatus="A")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        sus_audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter(Audiencia.estatus == "A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+        sus_audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("audiencias/list.jinja2", autoridad=current_user.autoridad, audiencias=sus_audiencias_activas, estatus="A")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("audiencias.list_distritos"))
@@ -88,11 +88,11 @@ def list_inactive():
     """Listado de Audiencias inactivos"""
     # Si es administrador, ve las audiencias de todas las autoridades
     if current_user.can_admin("audiencias"):
-        audiencias_inactivas = Audiencia.query.filter(Audiencia.estatus == "B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+        audiencias_inactivas = Audiencia.query.filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("audiencias/list_admin.jinja2", audiencias=audiencias_inactivas, estatus="B")
     # No es administrador, consultar su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        sus_audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter(Audiencia.estatus == "B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+        sus_audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template("audiencias/list.jinja2", autoridad=current_user.autoridad, audiencias=sus_audiencias_inactivas, estatus="B")
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("audiencias.list_distritos"))
@@ -128,7 +128,7 @@ def list_autoridad_audiencias(autoridad_id):
 def list_autoridad_audiencias_inactive(autoridad_id):
     """Listado de Audiencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter(Audiencia.estatus == "B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+    audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("audiencias"):
         return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
     return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")

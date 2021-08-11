@@ -180,7 +180,23 @@ def search():
         busqueda["autoridad_id"] = autoridad.id
         titulos.append(autoridad.distrito.nombre_corto + ", " + autoridad.descripcion_corta)
         # Sentencia
+        try:
+            sentencia = safe_sentencia(form_search.sentencia.data)
+            if sentencia != "":
+                busqueda["sentencia"] = sentencia
+                titulos.append("sentencia " + sentencia)
+        except (IndexError, ValueError):
+            flash("Sentencia incorrecta.", "warning")
+            fallo_validacion = True
         # Expediente
+        try:
+            expediente = safe_expediente(form_search.expediente.data)
+            if expediente != "":
+                busqueda["expediente"] = expediente
+                titulos.append("expediente " + expediente)
+        except (IndexError, ValueError):
+            flash("Expediente incorrecto.", "warning")
+            fallo_validacion = True
         # Es paridad de genero
         # Fecha de publicacion
         if form_search.fecha_desde.data:
@@ -213,7 +229,6 @@ def search():
 @sentencias.route("/sentencias/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para sentencias"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -223,7 +238,6 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Sentencia.query
     if "estatus" in request.form:
@@ -234,13 +248,24 @@ def datatable_json():
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
         if autoridad:
             consulta = consulta.filter_by(autoridad=autoridad)
+    if "sentencia" in request.form:
+        try:
+            sentencia = safe_sentencia(request.form["sentencia"])
+            consulta = consulta.filter_by(sentencia=sentencia)
+        except (IndexError, ValueError):
+            pass
+    if "expediente" in request.form:
+        try:
+            expediente = safe_expediente(request.form["expediente"])
+            consulta = consulta.filter_by(expediente=expediente)
+        except (IndexError, ValueError):
+            pass
     if "fecha_desde" in request.form:
         consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for sentencia in registros:
@@ -258,7 +283,6 @@ def datatable_json():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -272,7 +296,6 @@ def datatable_json():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def datatable_json_admin():
     """DataTable JSON para sentencias admin"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -282,7 +305,6 @@ def datatable_json_admin():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Sentencia.query
     if "estatus" in request.form:
@@ -293,13 +315,24 @@ def datatable_json_admin():
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
         if autoridad:
             consulta = consulta.filter_by(autoridad=autoridad)
+    if "sentencia" in request.form:
+        try:
+            sentencia = safe_sentencia(request.form["sentencia"])
+            consulta = consulta.filter_by(sentencia=sentencia)
+        except (IndexError, ValueError):
+            pass
+    if "expediente" in request.form:
+        try:
+            expediente = safe_expediente(request.form["expediente"])
+            consulta = consulta.filter_by(expediente=expediente)
+        except (IndexError, ValueError):
+            pass
     if "fecha_desde" in request.form:
         consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for sentencia in registros:
@@ -319,7 +352,6 @@ def datatable_json_admin():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,

@@ -44,7 +44,7 @@ def list_inactive():
 def detail(autoridad_id):
     """Detalle de una Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    usuarios = Usuario.query.filter(Usuario.autoridad == autoridad).filter(Usuario.estatus == "A").all()
+    usuarios = Usuario.query.filter(Usuario.autoridad == autoridad).filter_by(estatus="A").all()
     return render_template("autoridades/detail.jinja2", autoridad=autoridad, usuarios=usuarios)
 
 

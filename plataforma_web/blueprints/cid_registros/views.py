@@ -24,7 +24,7 @@ def before_request():
 @cid_registros.route("/cid_registros")
 def list_active():
     """ Listado de CID Registros activos """
-    cid_registros_activos = CIDRegistro.query.filter(CIDRegistro.estatus == "A").order_by(CIDRegistro.creado.desc()).limit(100).all()
+    cid_registros_activos = CIDRegistro.query.filter_by(estatus="A").order_by(CIDRegistro.creado.desc()).limit(100).all()
     return render_template("cid_registros/list.jinja2", cid_registros=cid_registros_activos, estatus="A")
 
 
@@ -32,7 +32,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
     """ Listado de CID Registros inactivos """
-    cid_registros_inactivos = CIDRegistro.query.filter(CIDRegistro.estatus == "B").order_by(CIDRegistro.creado.desc()).limit(100).all()
+    cid_registros_inactivos = CIDRegistro.query.filter_by(estatus="B").order_by(CIDRegistro.creado.desc()).limit(100).all()
     return render_template("cid_registros/list.jinja2", cid_registros=cid_registros_inactivos, estatus="B")
 
 

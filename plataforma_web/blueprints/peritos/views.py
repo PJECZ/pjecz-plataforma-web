@@ -77,7 +77,6 @@ def search():
 @peritos.route("/peritos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de peritos"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -87,13 +86,12 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Perito.query
     if "estatus" in request.form:
-        consulta = consulta.filter(Perito.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(Perito.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     if "distrito_id" in request.form:
         distrito = Distrito.query.get(request.form["distrito_id"])
         if distrito:
@@ -101,10 +99,9 @@ def datatable_json():
     if "nombre" in request.form:
         consulta = consulta.filter(Perito.nombre.like("%" + safe_string(request.form["nombre"]) + "%"))
     if "tipo" in request.form:
-        consulta = consulta.filter(Perito.tipo == safe_string(request.form["tipo"]))
+        consulta = consulta.filter_by(tipo=safe_string(request.form["tipo"]))
     registros = consulta.order_by(Perito.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for perito in registros:
@@ -118,7 +115,6 @@ def datatable_json():
                 "departamento": perito.distrito.nombre,
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
