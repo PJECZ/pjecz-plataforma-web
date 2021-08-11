@@ -49,7 +49,7 @@ def refrescar(autoridad_clave):
 def refrescar_todos():
     """Rastrear el depósito para agregar o dar de baja"""
     contador = 0
-    autoridades = Autoridad.query.filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()
     for autoridad in autoridades:
         if not autoridad.distrito.es_distrito_judicial:
             continue

@@ -85,7 +85,7 @@ def list_distritos():
     """Listado de Distritos"""
     return render_template(
         "ubicaciones_expedientes/list_distritos.jinja2",
-        distritos=Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all(),
+        distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
     )
 
 
@@ -96,7 +96,7 @@ def list_autoridades(distrito_id):
     return render_template(
         "ubicaciones_expedientes/list_autoridades.jinja2",
         distrito=distrito,
-        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
     )
 
 
@@ -174,8 +174,8 @@ def search():
         return render_template(
             "ubicaciones_expedientes/search_admin.jinja2",
             form=form_search,
-            distritos=Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all(),
-            autoridades=Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+            distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
+            autoridades=Autoridad.query.filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
         )
     # Mostrar buscador con la autoridad fija
     form_search.distrito.data = current_user.autoridad.distrito.nombre

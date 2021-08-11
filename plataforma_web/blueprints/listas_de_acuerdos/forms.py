@@ -4,7 +4,7 @@ Listas de Acuerdos, formularios
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import DateField, SelectField, StringField, SubmitField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length
 
 
 class ListaDeAcuerdoNewForm(FlaskForm):

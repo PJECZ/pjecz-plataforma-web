@@ -28,7 +28,7 @@ def before_request():
 @materias.route("/materias")
 def list_active():
     """Listado de Materias activas"""
-    materias_activas = Materia.query.filter(Materia.estatus == "A").order_by(Materia.creado.desc()).all()
+    materias_activas = Materia.query.filter_by(estatus="A").order_by(Materia.creado.desc()).all()
     return render_template("materias/list.jinja2", materias=materias_activas, estatus="A")
 
 
@@ -36,7 +36,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def list_inactive():
     """Listado de Materias inactivas"""
-    materias_inactivas = Materia.query.filter(Materia.estatus == "B").order_by(Materia.creado.desc()).all()
+    materias_inactivas = Materia.query.filter_by(estatus="B").order_by(Materia.creado.desc()).all()
     return render_template("materias/list.jinja2", materias=materias_inactivas, estatus="B")
 
 
@@ -44,7 +44,7 @@ def list_inactive():
 def detail(materia_id):
     """Detalle de una Materia"""
     materia = Materia.query.get_or_404(materia_id)
-    autoridades = Autoridad.query.filter(Autoridad.materia == materia).filter(Autoridad.estatus == "A").all()
+    autoridades = Autoridad.query.filter(Autoridad.materia == materia).filter_by(estatus="A").all()
     return render_template("materias/detail.jinja2", materia=materia, autoridades=autoridades)
 
 

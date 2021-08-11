@@ -104,7 +104,7 @@ def list_distritos():
     """Listado de Distritos"""
     return render_template(
         "listas_de_acuerdos/list_distritos.jinja2",
-        distritos=Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all(),
+        distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
     )
 
 
@@ -115,7 +115,7 @@ def list_autoridades(distrito_id):
     return render_template(
         "listas_de_acuerdos/list_autoridades.jinja2",
         distrito=distrito,
-        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
     )
 
 
@@ -130,9 +130,9 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
     return render_template(
         plantilla,
         autoridad=autoridad,
-        estatus="A",
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
         titulo=f"Listas de Acuerdos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        estatus="A",
     )
 
 
