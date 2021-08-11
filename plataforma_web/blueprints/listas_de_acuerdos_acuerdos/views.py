@@ -41,7 +41,6 @@ def list_inactive():
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para Acuerdos"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -51,16 +50,14 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = ListaDeAcuerdoAcuerdo.query
     if "estatus" in request.form:
-        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     registros = consulta.order_by(ListaDeAcuerdoAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for acuerdo in registros:
@@ -76,7 +73,6 @@ def datatable_json():
                 "demandado": acuerdo.demandado,
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -90,26 +86,23 @@ def datatable_json():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def datatable_json_admin():
     """DataTable JSON para Acuerdos admin"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
         start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])  
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = ListaDeAcuerdoAcuerdo.query
     if "estatus" in request.form:
-        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     registros = consulta.order_by(ListaDeAcuerdoAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for acuerdo in registros:
@@ -126,7 +119,6 @@ def datatable_json_admin():
                 "demandado": acuerdo.demandado,
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,

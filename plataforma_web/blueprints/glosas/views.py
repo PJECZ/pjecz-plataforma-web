@@ -114,7 +114,7 @@ def list_inactive():
 @glosas.route("/glosas/autoridades")
 def list_autoridades():
     """Listado de Autoridades"""
-    autoridades = Autoridad.query.filter(Autoridad.organo_jurisdiccional.in_(ORGANOS_JURISDICCIONALES)).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all()
+    autoridades = Autoridad.query.filter(Autoridad.organo_jurisdiccional.in_(ORGANOS_JURISDICCIONALES)).filter_by(estatus="A").order_by(Autoridad.clave).all()
     return render_template("glosas/list_autoridades.jinja2", autoridades=autoridades)
 
 
@@ -216,7 +216,7 @@ def search():
             "glosas/search_admin.jinja2",
             form=form_search,
             distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
-            autoridades=Autoridad.query.filter(Autoridad.organo_jurisdiccional.in_(ORGANOS_JURISDICCIONALES)).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+            autoridades=Autoridad.query.filter(Autoridad.organo_jurisdiccional.in_(ORGANOS_JURISDICCIONALES)).filter_by(estatus="A").order_by(Autoridad.clave).all(),
         )
     # Mostrar buscador con la autoridad fija
     form_search.distrito.data = current_user.autoridad.distrito.nombre
@@ -227,7 +227,6 @@ def search():
 @glosas.route("/glosas/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de glosas"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -237,7 +236,6 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Glosa.query
     if "estatus" in request.form:
@@ -258,12 +256,12 @@ def datatable_json():
         consulta = consulta.filter(Glosa.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
     if "expediente" in request.form:
         try:
-            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+            expediente = safe_expediente(request.form["expediente"])
+            consulta = consulta.filter_by(expediente=expediente)
         except (IndexError, ValueError):
             pass
     registros = consulta.order_by(Glosa.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for glosa in registros:
@@ -281,7 +279,6 @@ def datatable_json():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -295,7 +292,6 @@ def datatable_json():
 @permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def datatable_json_admin():
     """DataTable JSON para listado de glosas admin"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -305,7 +301,6 @@ def datatable_json_admin():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Glosa.query
     if "estatus" in request.form:
@@ -326,12 +321,12 @@ def datatable_json_admin():
         consulta = consulta.filter(Glosa.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
     if "expediente" in request.form:
         try:
-            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+            expediente = safe_expediente(request.form["expediente"])
+            consulta = consulta.filter_by(expediente=expediente)
         except (IndexError, ValueError):
             pass
     registros = consulta.order_by(Glosa.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for glosa in registros:
@@ -351,7 +346,6 @@ def datatable_json_admin():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -623,13 +617,10 @@ def edit_success(glosa):
 @permission_required(Permiso.MODIFICAR_SEGUNDAS)
 def edit(glosa_id):
     """Editar Glosa"""
-
-    # Validar glosa
     glosa = Glosa.query.get_or_404(glosa_id)
     if not (current_user.can_admin("glosas") or current_user.autoridad_id == glosa.autoridad_id):
         flash("No tiene permiso para editar esta glosa.", "warning")
         return redirect(url_for("glosas.list_active"))
-
     form = GlosaEditForm()
     if form.validate_on_submit():
         es_valido = True

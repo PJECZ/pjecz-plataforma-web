@@ -232,7 +232,6 @@ def search():
 @edictos.route("/edictos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de edictos"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -242,7 +241,6 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Edicto.query
     if "estatus" in request.form:
@@ -261,17 +259,18 @@ def datatable_json():
         consulta = consulta.filter(Edicto.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
     if "expediente" in request.form:
         try:
-            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+            expediente = safe_expediente(request.form["expediente"])
+            consulta = consulta.filter_by(expediente=expediente)
         except (IndexError, ValueError):
             pass
     if "numero_publicacion" in request.form:
         try:
-            consulta = consulta.filter_by(numero_publicacion=safe_numero_publicacion(request.form["numero_publicacion"]))
+            numero_publicacion = safe_numero_publicacion(request.form["numero_publicacion"])
+            consulta = consulta.filter_by(numero_publicacion=numero_publicacion)
         except (IndexError, ValueError):
             pass
     registros = consulta.order_by(Edicto.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for edicto in registros:
@@ -289,7 +288,6 @@ def datatable_json():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -303,7 +301,6 @@ def datatable_json():
 @permission_required(Permiso.ADMINISTRAR_NOTARIALES)
 def datatable_json_admin():
     """DataTable JSON para listado de edictos administradores"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -313,7 +310,6 @@ def datatable_json_admin():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Edicto.query
     if "estatus" in request.form:
@@ -332,17 +328,18 @@ def datatable_json_admin():
         consulta = consulta.filter(Edicto.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
     if "expediente" in request.form:
         try:
-            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+            expediente = safe_expediente(request.form["expediente"])
+            consulta = consulta.filter_by(expediente=expediente)
         except (IndexError, ValueError):
             pass
     if "numero_publicacion" in request.form:
         try:
-            consulta = consulta.filter_by(numero_publicacion=safe_numero_publicacion(request.form["numero_publicacion"]))
+            numero_publicacion = safe_numero_publicacion(request.form["numero_publicacion"])
+            consulta = consulta.filter_by(numero_publicacion=numero_publicacion)
         except (IndexError, ValueError):
             pass
     registros = consulta.order_by(Edicto.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for edicto in registros:
@@ -362,7 +359,6 @@ def datatable_json_admin():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,

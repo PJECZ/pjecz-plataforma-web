@@ -25,7 +25,7 @@ def before_request():
 @rep_graficas.route("/rep_graficas")
 def list_active():
     """Listado de Gráficas activos"""
-    rep_graficas_activos = RepGrafica.query.filter(RepGrafica.estatus == "A").all()
+    rep_graficas_activos = RepGrafica.query.filter_by(estatus="A").all()
     return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_activos, estatus="A")
 
 
@@ -33,7 +33,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Gráficas inactivos"""
-    rep_graficas_inactivos = RepGrafica.query.filter(RepGrafica.estatus == "B").all()
+    rep_graficas_inactivos = RepGrafica.query.filter_by(estatus="B").all()
     return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_inactivos, estatus="B")
 
 
@@ -41,7 +41,7 @@ def list_inactive():
 def detail(rep_grafica_id):
     """Detalle de una Gráfica"""
     grafica = RepGrafica.query.get_or_404(rep_grafica_id)
-    reportes = RepReporte.query.filter(RepReporte.rep_grafica == grafica).filter(RepReporte.estatus == "A").all()
+    reportes = RepReporte.query.filter(RepReporte.rep_grafica == grafica).filter_by(estatus="A").all()
     return render_template("rep_graficas/detail.jinja2", rep_grafica=grafica, rep_reportes=reportes)
 
 

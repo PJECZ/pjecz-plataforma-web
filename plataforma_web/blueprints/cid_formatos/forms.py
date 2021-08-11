@@ -11,7 +11,7 @@ from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 
 def procedimientos_opciones():
     """ Procedimientos: opciones para select """
-    return CIDProcedimiento.query.filter(CIDProcedimiento.estatus == "A").order_by(CIDProcedimiento.descripcion).limit(100).all()
+    return CIDProcedimiento.query.filter_by(estatus="A").order_by(CIDProcedimiento.descripcion).limit(100).all()
 
 
 class CIDFormatoForm(FlaskForm):

@@ -25,22 +25,19 @@ def list_active():
 @permission_required(Permiso.VER_CUENTAS)
 def datatable_json():
     """DataTable JSON para listado de listado de bitácoras"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
         start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])  
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Bitacora.query
     registros = consulta.order_by(Bitacora.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar un listado de diccionarios
     data = []
     for bitacora in registros:
@@ -58,7 +55,6 @@ def datatable_json():
                 },
             }
         )
-
     # Entregar (desde Flask 1.1.0 un diccionario se convierte en JSON automáticamente)
     return {
         "draw": draw,

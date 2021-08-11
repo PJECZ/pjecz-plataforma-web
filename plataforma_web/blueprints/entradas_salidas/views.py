@@ -26,22 +26,19 @@ def list_active():
 @permission_required(Permiso.VER_CUENTAS)
 def json():
     """DataTable JSON para listado de entradas y salidas"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
         start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])  
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = EntradaSalida.query
     registros = consulta.order_by(EntradaSalida.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for entrada_salida in registros:
@@ -55,7 +52,6 @@ def json():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,

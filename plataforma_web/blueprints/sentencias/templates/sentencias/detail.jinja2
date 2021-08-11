@@ -25,10 +25,13 @@
         {{ detail.label_value_big('Sentencia', sentencia.sentencia) }}
         {{ detail.label_value('Distrito', sentencia.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', sentencia.autoridad.descripcion) }}
-        {{ detail.label_value('Fecha', sentencia.fecha) }}
+        {{ detail.label_value('Fecha de la sentencia', sentencia.sentencia_fecha) }}
         {{ detail.label_value('Expediente', sentencia.expediente) }}
+        {{ detail.label_value('Fecha de publicación', sentencia.fecha) }}
+        {{ detail.label_value('Materia', sentencia.materia.nombre) }}
+        {{ detail.label_value('Descripción', sentencia.descripcion) }}
         {{ detail.label_value_boolean('Es Perspectiva de Género', sentencia.es_paridad_genero) }}
-        {{ detail.label_value('Archivo', sentencia.archivo) }}
+        {{ detail.label_value('Tipo de juicio', sentencia.tipo_juicio) }}
         {{ detail.label_value_new_tab('Archivo PDF', sentencia.archivo, sentencia.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('sentencias.checkout', id_hashed=sentencia.encode_id())) }}
         {{ detail.label_value('Creado', moment(sentencia.creado).format('llll')) }}

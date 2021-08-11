@@ -74,7 +74,16 @@
                     targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.referencia + '</a>';
+                        return '<a href="' + data.url + '">' +
+                            (data.descripcion.length > 40 ? data.descripcion.substr(0, 20) + '…' : data.descripcion) +
+                            '</a>';
+                    }
+                },
+                {
+                    targets: [5, 6],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.length > 20 ? data.substr(0, 20) + '…' : data;
                     }
                 }
             ],

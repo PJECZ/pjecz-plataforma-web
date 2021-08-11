@@ -11,7 +11,7 @@ from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 
 def formatos_opciones():
     """ Formatos: opciones para select """
-    return CIDFormato.query.filter(CIDFormato.estatus == "A").order_by(CIDFormato.descripcion).limit(100).all()
+    return CIDFormato.query.filter_by(estatus="A").order_by(CIDFormato.descripcion).limit(100).all()
 
 
 class CIDRegistroForm(FlaskForm):

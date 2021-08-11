@@ -28,7 +28,7 @@ def before_request():
 @autoridades.route("/autoridades")
 def list_active():
     """Listado de Autoridades"""
-    autoridades_activas = Autoridad.query.filter(Autoridad.estatus == "A").all()
+    autoridades_activas = Autoridad.query.filter_by(estatus="A").all()
     return render_template("autoridades/list.jinja2", autoridades=autoridades_activas, estatus="A")
 
 
@@ -36,7 +36,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def list_inactive():
     """Listado de Autoridades inactivas"""
-    autoridades_inactivas = Autoridad.query.filter(Autoridad.estatus == "B").all()
+    autoridades_inactivas = Autoridad.query.filter_by(estatus="B").all()
     return render_template("autoridades/list.jinja2", autoridades=autoridades_inactivas, estatus="B")
 
 
@@ -44,7 +44,7 @@ def list_inactive():
 def detail(autoridad_id):
     """Detalle de una Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    usuarios = Usuario.query.filter(Usuario.autoridad == autoridad).filter(Usuario.estatus == "A").all()
+    usuarios = Usuario.query.filter(Usuario.autoridad == autoridad).filter_by(estatus="A").all()
     return render_template("autoridades/detail.jinja2", autoridad=autoridad, usuarios=usuarios)
 
 
