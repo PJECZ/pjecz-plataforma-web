@@ -6,15 +6,15 @@
             "novedades": [
                 {
                     "titulo": "Agenda de audiencias",
-                    "descripcion": "."
+                    "descripcion": "Se mejora la administración de las agendas gracias a los sencillos formularios en Plataforma. Hay tres opciones de formatos de agenda programados."
                 },
                 {
-                    "titulo": "Listados sin límite de páginas",
-                    "descripcion": "."
+                    "titulo": "Listados sin límites",
+                    "descripcion": "Ahora la paginación permite navegar por todos los registros; antes los listados estaban limitados a cien resultados. Se aprovechan más capacidades de DataTables y los datos viajan por AJAX."
                 },
                 {
                     "titulo": "Nuevos buscadores",
-                    "descripcion": "."
+                    "descripcion": "Presione el botón Buscar en la parte superior derecha para mostrar un formulario propio de módulo para que encuentre la información que necesite."
                 }
             ]
         },
