@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Buscar Acuerdos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Buscar Acuerdos') %}
+        {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('listas_de_acuerdos_acuerdos.search', fid='acuerdo_search_form') %}
+            {% call f.form_group(form.folio) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {% call f.form_group(form.actor) %}{% endcall %}
+            {% call f.form_group(form.demandado) %}{% endcall %}
+            {% call f.form_group(form.tipo_acuerdo) %}{% endcall %}
+            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
