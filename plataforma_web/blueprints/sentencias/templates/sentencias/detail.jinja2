@@ -28,7 +28,8 @@
         {{ detail.label_value('Fecha de la sentencia', sentencia.sentencia_fecha) }}
         {{ detail.label_value('Expediente', sentencia.expediente) }}
         {{ detail.label_value('Fecha de publicación', sentencia.fecha) }}
-        {{ detail.label_value('Materia', sentencia.materia.nombre) }}
+        {{ detail.label_value('Materia', sentencia.materia_tipo_juicio.materia.nombre) }}
+        {{ detail.label_value('Tipo de Juicio', sentencia.materia_tipo_juicio.descripcion) }}
         {{ detail.label_value('Descripción', sentencia.descripcion) }}
         {{ detail.label_value_boolean('Es Perspectiva de Género', sentencia.es_paridad_genero) }}
         {{ detail.label_value('Tipo de juicio', sentencia.tipo_juicio) }}
