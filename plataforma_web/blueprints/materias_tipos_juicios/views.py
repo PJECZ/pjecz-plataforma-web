@@ -8,6 +8,7 @@ from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.materias_tipos_juicios.forms import MateriaTipoJuicioForm
@@ -29,7 +30,7 @@ def list_active():
     """Listado de Materias Tipos de Juicios activos"""
     return render_template(
         "materias_tipos_juicios/list.jinja2",
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.creado.desc()).limit(100).all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.descripcion).limit(100).all(),
         estatus="A",
     )
 
@@ -40,7 +41,7 @@ def list_inactive():
     """Listado de Materias Tipos de Juicios inactivos"""
     return render_template(
         "materias_tipos_juicios/list.jinja2",
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="B").order_by(MateriaTipoJuicio.creado.desc()).limit(100).all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="B").order_by(MateriaTipoJuicio.descripcion).limit(100).all(),
         estatus="B",
     )
 
@@ -63,8 +64,15 @@ def new():
     if form.validate_on_submit():
         materia_tipo_juicio = MateriaTipoJuicio(descripcion=form.descripcion.data)
         materia_tipo_juicio.save()
-        flash(f"Materia Tipo de Juicio {materia_tipo_juicio.descripcion} guardado.", "success")
-        return redirect(url_for("materias_tipos_juicios.detail", materia_tipo_juicio=materia_tipo_juicio.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo Tipo de Juicio {materia_tipo_juicio.descripcion}"),
+            url=url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     return render_template("materias_tipos_juicios/new.jinja2", form=form)
 
 
@@ -77,8 +85,15 @@ def edit(materia_tipo_juicio_id):
     if form.validate_on_submit():
         materia_tipo_juicio.descripcion = form.descripcion.data
         materia_tipo_juicio.save()
-        flash(f"Materia Tipo de Juicio {materia_tipo_juicio.descripcion} guardado.", "success")
-        return redirect(url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id))
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Editado el tipo de juicio {materia_tipo_juicio.descripcion}"),
+            url=url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     form.descripcion.data = materia_tipo_juicio.descripcion
     return render_template("materias_tipos_juicios/edit.jinja2", form=form, materia_tipo_juicio=materia_tipo_juicio)
 
@@ -90,7 +105,14 @@ def delete(materia_tipo_juicio_id):
     materia_tipo_juicio = MateriaTipoJuicio.query.get_or_404(materia_tipo_juicio_id)
     if materia_tipo_juicio.estatus == "A":
         materia_tipo_juicio.delete()
-        flash(f"Materia Tipo de Juicio {materia_tipo_juicio.descripcion} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado el tipo de juicio {materia_tipo_juicio.descripcion}"),
+            url=url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id))
 
 
@@ -101,5 +123,12 @@ def recover(materia_tipo_juicio_id):
     materia_tipo_juicio = MateriaTipoJuicio.query.get_or_404(materia_tipo_juicio_id)
     if materia_tipo_juicio.estatus == "B":
         materia_tipo_juicio.recover()
-        flash(f"Materia Tipo de Juicio {materia_tipo_juicio.descripcion} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=MODULO,
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado el tipo de juicio {materia_tipo_juicio.descripcion}"),
+            url=url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id))
