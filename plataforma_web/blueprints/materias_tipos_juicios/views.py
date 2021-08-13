@@ -9,7 +9,6 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.materias_tipos_juicios.forms import MateriaTipoJuicioForm
 
@@ -64,7 +63,7 @@ def new():
     if form.validate_on_submit():
         materia_tipo_juicio = MateriaTipoJuicio(
             materia=form.materia.data,
-            descripcion=form.descripcion.data,
+            descripcion=safe_string(form.descripcion.data),
         )
         materia_tipo_juicio.save()
         bitacora = Bitacora(
@@ -87,7 +86,7 @@ def edit(materia_tipo_juicio_id):
     form = MateriaTipoJuicioForm()
     if form.validate_on_submit():
         materia_tipo_juicio.materia = form.materia.data
-        materia_tipo_juicio.descripcion = form.descripcion.data
+        materia_tipo_juicio.descripcion = safe_string(form.descripcion.data)
         materia_tipo_juicio.save()
         bitacora = Bitacora(
             modulo=MODULO,

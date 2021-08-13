@@ -2,11 +2,15 @@
     "versiones": [
         {
             "numero": "1.2",
-            "fecha": "2021-08-12",
+            "fecha": "2021-08-13",
             "novedades": [
                 {
-                    "titulo": "Agenda de audiencias",
+                    "titulo": "Nueva Agenda de Audiencias",
                     "descripcion": "Se mejora la administración de las agendas gracias a los sencillos formularios en Plataforma. Hay tres opciones de formatos de agenda programados."
+                },
+                {
+                    "titulo": "Más campos en Versión Pública de las Sentencias",
+                    "descripcion": "Las sentencias pueden recibir información adicional: fecha de la sentencia, tipo de juicio y descripción."
                 },
                 {
                     "titulo": "Listados sin límites",
@@ -23,12 +27,8 @@
             "fecha": "2021-06-28",
             "novedades": [
                 {
-                    "titulo": "Nueva plantilla basada en Bootstrap 5",
-                    "descripcion": "Moderno diseño con los colores institucionales. Mejor visulización en pantallas pequeñas."
-                },
-                {
-                    "titulo": "Módulos edictos, glosas, ubicación de expedientes y versión pública de sentencias",
-                    "descripcion": "Listos para recibir estas publicaciones."
+                    "titulo": "Moderno diseño con los colores institucionales",
+                    "descripcion": "Nueva plantilla basada en Bootstrap 5 que funciona en pantallas pequeñas."
                 }
             ]
         },
@@ -37,11 +37,11 @@
             "fecha": "2021-06-01",
             "novedades": [
                 {
-                    "titulo": "Puesta en línea",
-                    "descripcion": "Usa la autentificación de Google (en vez de usuario y contraseña) y tecnología de contenedores en la nube."
+                    "titulo": "Autentificación segura",
+                    "descripcion": "Usa la autentificación de Google (en vez de usuario y contraseña)."
                 },
                 {
-                    "titulo": "Carga de archivos PDF",
+                    "titulo": "Publicación inmediata",
                     "descripcion": "Ahora los documentos que se publican pueden visualizarse inmediatamente en el sitio web. Antes se tenían que esperar algunas horas por las rutinas que usaban el correo electrónico."
                 }
             ]

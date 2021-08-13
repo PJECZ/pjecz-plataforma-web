@@ -31,7 +31,7 @@ def list_active():
     """Listado de Materias activas"""
     return render_template(
         "materias/list.jinja2",
-        materias=Materia.query.filter_by(estatus="A").order_by(Materia.creado.desc()).all(),
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
         estatus="A",
     )
 
@@ -42,7 +42,7 @@ def list_inactive():
     """Listado de Materias inactivas"""
     return render_template(
         "materias/list.jinja2",
-        materias=Materia.query.filter_by(estatus="B").order_by(Materia.creado.desc()).all(),
+        materias=Materia.query.filter_by(estatus="B").order_by(Materia.nombre).all(),
         estatus="B",
     )
 
