@@ -22,6 +22,7 @@ from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_de_acuerdos_acuerdos
 from plataforma_web.blueprints.materias.views import materias
+from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.modulos.views import modulos
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.rep_graficas.views import rep_graficas
@@ -65,6 +66,7 @@ def create_app():
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(listas_de_acuerdos_acuerdos)
     app.register_blueprint(materias)
+    app.register_blueprint(materias_tipos_juicios)
     app.register_blueprint(modulos)
     app.register_blueprint(peritos)
     app.register_blueprint(rep_graficas)

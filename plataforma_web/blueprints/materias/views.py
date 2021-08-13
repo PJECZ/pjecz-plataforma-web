@@ -12,6 +12,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias.forms import MateriaForm
+from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 
 materias = Blueprint("materias", __name__, template_folder="templates")
 
@@ -54,6 +55,7 @@ def detail(materia_id):
         "materias/detail.jinja2",
         materia=materia,
         autoridades=Autoridad.query.filter(Autoridad.materia == materia).filter_by(estatus="A").all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter(MateriaTipoJuicio.materia == materia).filter_by(estatus="A").all(),
     )
 
 

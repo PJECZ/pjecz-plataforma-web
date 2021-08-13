@@ -42,6 +42,24 @@
             </table>
         {% endcall %}
     {% endif %}
+    {% if materias_tipos_juicios %}
+        {% call detail.card(title='Tipos de Juicios') %}
+            <table id="materias_tipos_juicios_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Tipos de Juicios</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for materia_tipo_juicio in materias_tipos_juicios %}
+                    <tr>
+                        <td><a href="{{ url_for('materias_tipos_juicios.detail', materia_tipo_juicio_id=materia_tipo_juicio.id) }}">{{ materia_tipo_juicio.descripcion }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -51,5 +69,8 @@
     {% endif %}
     {% if autoridades %}
         {{ detail.datatable('autoridades_datatable') }}
+    {% endif %}
+    {% if materias_tipos_juicios %}
+        {{ detail.datatable('materias_tipos_juicios_datatable') }}
     {% endif %}
 {% endblock %}

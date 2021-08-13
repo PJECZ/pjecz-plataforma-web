@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipo de Juicio{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Tipo de Juicio ' + materia_tipo_juicio.descripcion) %}
+        {{ topbar.button_previous('Tipos de Juicios', url_for('materias_tipos_juicios.list_active')) }}
+        {% if current_user.can_edit('materias_tipos_juicios') %}
+            {{ topbar.button_edit('Editar', url_for('materias_tipos_juicios.edit', materia_tipo_juicio_id=materia_tipo_juicio.id)) }}
+            {% if materia_tipo_juicio.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('materias_tipos_juicios.delete', materia_tipo_juicio_id=materia_tipo_juicio.id)) }}{% endif %}
+            {% if materia_tipo_juicio.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('materias_tipos_juicios.recover', materia_tipo_juicio_id=materia_tipo_juicio.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=materia_tipo_juicio.estatus) %}
+        {{ detail.label_value_big('Descripción', materia_tipo_juicio.descripcion) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('materias_tipos_juicios') %}
+        {% if materia_tipo_juicio.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + materia_tipo_juicio.descripcion + '?') }}{% endif %}
+        {% if materia_tipo_juicio.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + materia_tipo_juicio.descripcion + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

@@ -19,6 +19,8 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.materias.models import Materia
+from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.sentencias.forms import SentenciaNewForm, SentenciaEditForm, SentenciaSearchForm, SentenciaSearchAdminForm
 from plataforma_web.blueprints.sentencias.models import Sentencia
 
@@ -503,7 +505,12 @@ def new():
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
-    return render_template("sentencias/new.jinja2", form=form)
+    return render_template(
+        "sentencias/new.jinja2",
+        form=form,
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
+    )
 
 
 @sentencias.route("/sentencias/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
@@ -614,7 +621,13 @@ def new_for_autoridad(autoridad_id):
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
-    return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+    return render_template(
+        "sentencias/new_for_autoridad.jinja2",
+        form=form,
+        autoridad=autoridad,
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
+    )
 
 
 @sentencias.route("/sentencias/edicion/<int:sentencia_id>", methods=["GET", "POST"])

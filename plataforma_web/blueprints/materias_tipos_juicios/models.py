@@ -16,7 +16,7 @@ class MateriaTipoJuicio(db.Model, UniversalMixin):
 
     # Clave foránea
     materia_id = db.Column(db.Integer, db.ForeignKey("materias.id"), index=True, nullable=False)
-    materia = db.relationship("Materia", back_populates="tipos_juicios")
+    materia = db.relationship("Materia", back_populates="materias_tipos_juicios")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)

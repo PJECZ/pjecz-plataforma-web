@@ -1,0 +1,47 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipos de Juicios{% endblock %}
+
+{% block topbar_actions %}
+    {% if estatus == 'A' %}{% set title='Tipos de Juicios' %}{% endif %}
+    {% if estatus == 'B' %}{% set title='Tipos de Juicios inactivos' %}{% endif %}
+    {% call topbar.page_buttons(title) %}
+        {{ topbar.button('Autoridades', url_for('autoridades.list_active'), 'mdi:scale-balance') }}
+        {{ topbar.button_districts('Departamentos', url_for('distritos.list_active')) }}
+        {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
+        {% if current_user.can_edit('materias_tipos_juicios') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('materias_tipos_juicios.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('materias_tipos_juicios.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('materias_tipos_juicios') %}
+            {{ topbar.button_new('Nuevo Tipo de Juicio', url_for('materias_tipos_juicios.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="materias_tipos_juicios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Materias</th>
+                    <th>Tipos de Juicios</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for materia_tipo_juicio in materias_tipos_juicios %}
+                <tr>
+                    <td>{{ materia_tipo_juicio.materia.nombre }}</td>
+                    <td><a href="{{ url_for('materias_tipos_juicios.detail', materia_tipo_juicio_id=materia_tipo_juicio.id) }}">{{ materia_tipo_juicio.descripcion }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('materias_tipos_juicios_datatable') }}
+{% endblock %}
