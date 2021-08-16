@@ -26,31 +26,71 @@
                 <tr>
                     <th>Fechas y horas</th>
                     <th>Tipos de audiencias</th>
-                    {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
                     <th>Salas</th>
                     <th>Caracteres</th>
                     <th>Causas penales</th>
                     <th>Delitos</th>
-                    {% endif %}
                 </tr>
             </thead>
-            <tbody>
-                {% for audiencia in audiencias %}
-                <tr>
-                    <td>{{ audiencia.tiempo }}</td>
-                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
-                    {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
-                    <td>{% if audiencia.sala %}{{ audiencia.sala }}{% endif %}</td>
-                    <td>{% if audiencia.caracter %}{{ audiencia.caracter }}{% endif %}</td>
-                    <td>{% if audiencia.causa_penal %}{{ audiencia.causa_penal }}{% endif %}</td>
-                    <td>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
+    <script>
+        $('#audiencias_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/audiencias/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "tiempo" },
+                { data: "detalle" },
+                { data: "sala" },
+                { data: "caracter" },
+                { data: "causa_penal" },
+                { data: "delitos" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

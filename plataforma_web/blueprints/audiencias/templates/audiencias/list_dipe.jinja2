@@ -26,32 +26,14 @@
                 <tr>
                     <th>Fechas y horas</th>
                     <th>Tipos de audiencias</th>
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
                     <th>Expedientes</th>
                     <th>Actores</th>
                     <th>Demandados</th>
                     <th>Tocas</th>
                     <th>Exp. origen</th>
                     <th>Imputados</th>
-                    {% endif %}
                 </tr>
             </thead>
-            <tbody>
-                {% for audiencia in audiencias %}
-                <tr>
-                    <td>{{ audiencia.tiempo }}</td>
-                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
-                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
-                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
-                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
-                    <td>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</td>
-                    <td>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</td>
-                    <td>{% if audiencia.imputados %}{{ audiencia.imputados }}{% endif %}</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
@@ -76,26 +58,26 @@
             columns: [
                 { data: "tiempo" },
                 { data: "detalle" },
-                { data: "expediente" }
-                { data: "actores" }
-                { data: "demandados" }
-                { data: "toca" }
-                { data: "expediente_origen" }
+                { data: "expediente" },
+                { data: "actores" },
+                { data: "demandados" },
+                { data: "toca" },
+                { data: "expediente_origen" },
                 { data: "imputados" }
             ],
             columnDefs: [
                 {
-                    targets: 1,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
                     }
                 },
                 {
-                    targets: 2,
+                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">PDF</a>';
+                        return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
                     }
                 }
             ],
