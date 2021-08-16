@@ -118,7 +118,7 @@ def list_autoridades(distrito_id):
     return render_template(
         "audiencias/list_autoridades.jinja2",
         distrito=distrito,
-        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter_by(estatus="A").order_by(Autoridad.clave).all(),
+        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
     )
 
 
@@ -127,14 +127,14 @@ def list_autoridad_audiencias(autoridad_id):
     """Listado de Audiencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if current_user.can_admin("audiencias"):
-        plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="admin", por_defecto="list_admin")
+        plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="_admin", por_defecto="list_admin")
     else:
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list")
     return render_template(
         plantilla,
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
-        titulo=f"Audiencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        titulo=f"Audiencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta} [{autoridad.audiencia_categoria}]",
         estatus="A",
     )
 
@@ -145,7 +145,7 @@ def list_autoridad_audiencias_inactive(autoridad_id):
     """Listado de Audiencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if current_user.can_admin("audiencias"):
-        plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="admin", por_defecto="list_admin")
+        plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="_admin", por_defecto="list_admin")
     else:
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list")
     return render_template(
@@ -182,22 +182,22 @@ def datatable_json():
     for audiencia in registros:
         data.append(
             {
-                'tiempo': audiencia.tiempo,
+                "tiempo": audiencia.tiempo,
                 "detalle": {
                     "tipo_audiencia": audiencia.tipo_audiencia,
-                    "url": url_for("listas_de_acuerdos.detail", audiencia_id=audiencia.id),
+                    "url": url_for("audiencias.detail", audiencia_id=audiencia.id),
                 },
-                'expediente': audiencia.expediente,
-                'actores': audiencia.actores,
-                'demandados': audiencia.demandados,
-                'sala': audiencia.sala,
-                'caracter': audiencia.caracter,
-                'causa_penal': audiencia.causa_penal,
-                'delitos': audiencia.delitos,
-                'toca': audiencia.toca,
-                'expediente_origen': audiencia.expediente_origen,
-                'imputados': audiencia.imputados,
-                'origen': audiencia.origen,
+                "expediente": audiencia.expediente,
+                "actores": audiencia.actores,
+                "demandados": audiencia.demandados,
+                "sala": audiencia.sala,
+                "caracter": audiencia.caracter,
+                "causa_penal": audiencia.causa_penal,
+                "delitos": audiencia.delitos,
+                "toca": audiencia.toca,
+                "expediente_origen": audiencia.expediente_origen,
+                "imputados": audiencia.imputados,
+                "origen": audiencia.origen,
             }
         )
     # Entregar JSON
@@ -236,22 +236,22 @@ def datatable_json_admin():
             {
                 "creado": audiencia.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": audiencia.autoridad.clave,
-                'tiempo': audiencia.tiempo,
+                "tiempo": audiencia.tiempo,
                 "detalle": {
                     "tipo_audiencia": audiencia.tipo_audiencia,
-                    "url": url_for("listas_de_acuerdos.detail", audiencia_id=audiencia.id),
+                    "url": url_for("audiencias.detail", audiencia_id=audiencia.id),
                 },
-                'expediente': audiencia.expediente,
-                'actores': audiencia.actores,
-                'demandados': audiencia.demandados,
-                'sala': audiencia.sala,
-                'caracter': audiencia.caracter,
-                'causa_penal': audiencia.causa_penal,
-                'delitos': audiencia.delitos,
-                'toca': audiencia.toca,
-                'expediente_origen': audiencia.expediente_origen,
-                'imputados': audiencia.imputados,
-                'origen': audiencia.origen,
+                "expediente": audiencia.expediente,
+                "actores": audiencia.actores,
+                "demandados": audiencia.demandados,
+                "sala": audiencia.sala,
+                "caracter": audiencia.caracter,
+                "causa_penal": audiencia.causa_penal,
+                "delitos": audiencia.delitos,
+                "toca": audiencia.toca,
+                "expediente_origen": audiencia.expediente_origen,
+                "imputados": audiencia.imputados,
+                "origen": audiencia.origen,
             }
         )
     # Entregar JSON
