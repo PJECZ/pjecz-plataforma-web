@@ -4,7 +4,7 @@ Audiencias, vistas
 from datetime import datetime, date, time, timedelta
 import json
 import pytz
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_expediente, safe_message, safe_string
 
@@ -70,7 +70,7 @@ def before_request():
 @audiencias.route("/audiencias")
 def list_active():
     """Listado de Audiencias activos"""
-    # Si es administrador ve todo34
+    # Si es administrador ve todo
     if current_user.can_admin("audiencias"):
         # audiencias_activas = Audiencia.query.filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template(
@@ -127,26 +127,41 @@ def list_inactive():
 @audiencias.route("/audiencias/distritos")
 def list_distritos():
     """Listado de Distritos"""
-    distritos = Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all()
-    return render_template("audiencias/list_distritos.jinja2", distritos=distritos)
+    return render_template(
+        "audiencias/list_distritos.jinja2",
+        distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
+    )
 
 
 @audiencias.route("/audiencias/distrito/<int:distrito_id>")
 def list_autoridades(distrito_id):
     """Listado de Autoridades de un distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
-    autoridades = Autoridad.query.filter(Autoridad.distrito == distrito).filter_by(estatus="A").order_by(Autoridad.clave).all()
-    return render_template("audiencias/list_autoridades.jinja2", distrito=distrito, autoridades=autoridades)
+    return render_template(
+        "audiencias/list_autoridades.jinja2",
+        distrito=distrito,
+        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter_by(estatus="A").order_by(Autoridad.clave).all(),
+    )
 
 
 @audiencias.route("/audiencias/autoridad/<int:autoridad_id>")
 def list_autoridad_audiencias(autoridad_id):
     """Listado de Audiencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+    # audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("audiencias"):
-        return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_activas, estatus="A")
-    return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_activas, estatus="A")
+        plantilla = "audiencias/list_admin.jinja2"
+    else:
+        plantilla = "audiencias/list.jinja2"
+    return render_template(
+        plantilla,
+        autoridad=autoridad,
+        filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+        titulo=f"Audiencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        estatus="A",
+    )
+    # return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_activas, estatus="A")
+    # return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_activas, estatus="A")
 
 
 @audiencias.route("/audiencias/inactivos/autoridad/<int:autoridad_id>")
@@ -154,10 +169,62 @@ def list_autoridad_audiencias(autoridad_id):
 def list_autoridad_audiencias_inactive(autoridad_id):
     """Listado de Audiencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+    # audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("audiencias"):
-        return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
-    return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
+        plantilla = "audiencias/list_admin.jinja2"
+    else:
+        plantilla = "audiencias/list.jinja2"
+    return render_template(
+        plantilla,
+        autoridad=autoridad,
+        filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
+        titulo=f"Audiencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        estatus="B",
+    )
+    # return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
+    # return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
+
+
+
+@audiencias.route("/audiencias/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de audiencias"""
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+    # Consultar
+    consulta = Audiencia.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for audiencia in registros:
+        data.append(
+            {
+            }
+        )
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
+
+
+@audiencias.route("/audiencias/datatable_json_admin", methods=["GET", "POST"])
+def datatable_json_admin():
+    """DataTable JSON para listado de audiencias admin"""
 
 
 @audiencias.route("/audiencias/<int:audiencia_id>")

@@ -26,25 +26,6 @@
                 <tr>
                     <th>Fechas y horas</th>
                     <th>Tipos de audiencias</th>
-                    {% if current_user.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
-                    <th>Expedientes</th>
-                    <th>Actores</th>
-                    <th>Demandados</th>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
-                    <th>Salas</th>
-                    <th>Caracteres</th>
-                    <th>Causas penales</th>
-                    <th>Delitos</th>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
-                    <th>Expedientes</th>
-                    <th>Actores</th>
-                    <th>Demandados</th>
-                    <th>Tocas</th>
-                    <th>Exp. origen</th>
-                    <th>Imputados</th>
-                    {% endif %}
                     {% if current_user.autoridad.audiencia_categoria == 'SALAS' %}
                     <th>Expedientes</th>
                     <th>Actores</th>
@@ -61,25 +42,6 @@
                 <tr>
                     <td>{{ audiencia.tiempo }}</td>
                     <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
-                    {% if current_user.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
-                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
-                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
-                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
-                    <td>{% if audiencia.sala %}{{ audiencia.sala }}{% endif %}</td>
-                    <td>{% if audiencia.caracter %}{{ audiencia.caracter }}{% endif %}</td>
-                    <td>{% if audiencia.causa_penal %}{{ audiencia.causa_penal }}{% endif %}</td>
-                    <td>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</td>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
-                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
-                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
-                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
-                    <td>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</td>
-                    <td>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</td>
-                    <td>{% if audiencia.imputados %}{{ audiencia.imputados }}{% endif %}</td>
-                    {% endif %}
                     {% if current_user.autoridad.audiencia_categoria == 'SALAS' %}
                     <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
                     <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
