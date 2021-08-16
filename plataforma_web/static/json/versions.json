@@ -1,0 +1,50 @@
+{
+    "versiones": [
+        {
+            "numero": "1.2",
+            "fecha": "2021-08-16",
+            "novedades": [
+                {
+                    "titulo": "Agenda de audiencias",
+                    "descripcion": "Se mejora la administración de las agendas gracias a su integración a Plataforma Web. Hay cuatro categorías de audiencias."
+                },
+                {
+                    "titulo": "Listados sin límites",
+                    "descripcion": "Ahora la paginación permite navegar por todos los registros; antes los listados estaban limitados a cien resultados. Se aprovechan más capacidades de DataTables y los datos viajan por AJAX."
+                },
+                {
+                    "titulo": "Nuevos buscadores",
+                    "descripcion": "Presione el botón Buscar en la parte superior derecha para mostrar un formulario propio de módulo para que encuentre la información que necesite."
+                }
+            ]
+        },
+        {
+            "numero": "1.1",
+            "fecha": "2021-06-28",
+            "novedades": [
+                {
+                    "titulo": "Nueva plantilla basada en Bootstrap 5",
+                    "descripcion": "Moderno diseño con los colores institucionales. Mejor visulización en pantallas pequeñas."
+                },
+                {
+                    "titulo": "Módulos edictos, glosas, ubicación de expedientes y versión pública de sentencias",
+                    "descripcion": "Listos para recibir estas publicaciones."
+                }
+            ]
+        },
+        {
+            "numero": "1.0",
+            "fecha": "2021-06-01",
+            "novedades": [
+                {
+                    "titulo": "Puesta en línea",
+                    "descripcion": "Usa la autentificación de Google (en vez de usuario y contraseña) y tecnología de contenedores en la nube."
+                },
+                {
+                    "titulo": "Carga de archivos PDF",
+                    "descripcion": "Ahora los documentos que se publican pueden visualizarse inmediatamente en el sitio web. Antes se tenían que esperar algunas horas por las rutinas que usaban el correo electrónico."
+                }
+            ]
+        }
+    ]
+}

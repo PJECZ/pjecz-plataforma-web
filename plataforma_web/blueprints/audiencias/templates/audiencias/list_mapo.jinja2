@@ -2,20 +2,18 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Todas las Audiencias{% endblock %}
+{% block title %}Agenda de Audiencias{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('audiencias.list_distritos')) }}
         {% if autoridad %}
-            {% if current_user.can_edit('audiencias') %}
-                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('audiencias.list_autoridad_audiencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
-                {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id)) }}{% endif %}
-            {% endif %}
-        {% else %}
-            {% if current_user.can_edit('audiencias') %}
+            {% if current_user.can_admin('audiencias') or (current_user.can_insert('audiencias') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('audiencias.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_active')) }}{% endif %}
+            {% endif %}
+            {% if current_user.can_insert('audiencias') and current_user.autoridad_id == autoridad.id %}
+                {{ topbar.button_new('Nueva Audiencia', url_for('audiencias.new')) }}
             {% endif %}
         {% endif %}
     {% endcall %}
@@ -26,10 +24,11 @@
         <table id="audiencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Creados</th>
-                    <th>Autoridades</th>
                     <th>Fechas y horas</th>
                     <th>Tipos de audiencias</th>
+                    <th>Salas</th>
+                    <th>Caracteres</th>
+                    <th>Causas penales</th>
                 </tr>
             </thead>
         </table>
@@ -46,7 +45,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/audiencias/datatable_json_admin",
+                url: "/audiencias/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
@@ -54,10 +53,11 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "creado" },
-                { data: "autoridad" },
                 { data: "tiempo" },
-                { data: "detalle" }
+                { data: "detalle" },
+                { data: "sala" },
+                { data: "caracter" },
+                { data: "causa_penal" }
             ],
             columnDefs: [
                 {
@@ -68,17 +68,17 @@
                     }
                 },
                 {
-                    targets: 2,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
-                    }
-                },
-                {
-                    targets: 3,
+                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
+                    }
+                },
+                {
+                    targets: [2, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 20 ? data.substr(0, 20) + '…' : data);
                     }
                 }
             ],

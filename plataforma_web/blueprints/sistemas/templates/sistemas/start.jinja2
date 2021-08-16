@@ -15,4 +15,16 @@
         <hr class="my-4">
         <p><strong>Poder Judicial del Estado de Coahuila de Zaragoza</strong></p>
     {% endcall %}
+    {% call start.card('Versiones') %}
+        <div id="versiones_container">
+            <span id="versiones_spinner" class="spinner-border" role="status"></span>
+        </div>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script type="text/javascript">
+        const versiones_json = "{{ url_for('static', filename='json/versions.json') }}";
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/versions.js') }}"></script>
 {% endblock %}

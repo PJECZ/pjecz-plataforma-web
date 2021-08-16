@@ -4,11 +4,12 @@ Audiencias
 - alimentar: Desde un archivo CLAVE.csv
 - respaldar: Respaldar a un archivo CSV
 """
-from datetime import datetime
+from datetime import datetime, date, time
 from pathlib import Path
 import csv
 import click
 from lib.safe_string import safe_string
+from lib.time_utc import local_to_utc
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -61,7 +62,7 @@ def alimentar(entrada_csv):
             try:
                 exp = row["expediente"].strip()
                 if len(exp) > 60:
-                    expediente = exp[:60] + '...'
+                    expediente = exp[:60] + "..."
                 else:
                     expediente = exp
             except KeyError:
@@ -110,7 +111,7 @@ def alimentar(entrada_csv):
                 origen = ""
             Audiencia(
                 autoridad=autoridad,
-                tiempo=tiempo,
+                tiempo=local_to_utc(tiempo),
                 tipo_audiencia=tipo_audiencia,
                 expediente=expediente,
                 actores=actores,
