@@ -7,6 +7,7 @@ import pytz
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_expediente, safe_message, safe_string
+from lib.time_utc import combine_to_utc, decombine_to_local, join_for_message
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -26,38 +27,19 @@ TIEMPO_HASTA = time(hour=17, minute=0, second=0)
 ZONA_HORARIA = pytz.timezone("America/Mexico_City")
 
 
-def combine_to_utc(tiempo_fecha: date, tiempo_horas_minutos: time):
-    """Validar, combinar y cambiar un tiempo local a UTC"""
-
-    # Validar tiempo_horas_minutos
-    if not TIEMPO_DESDE <= tiempo_horas_minutos <= TIEMPO_HASTA:
-        raise ValueError(f"La hora:minutos está fuera de rango. Debe ser entre {TIEMPO_DESDE.strftime('%H:%M')} y {TIEMPO_HASTA.strftime('%H:%M')}.")
-
-    # Combinar
-    combinado = datetime.combine(tiempo_fecha, tiempo_horas_minutos)
-
-    # Validar que el tiempo esté dentro del rango permitido
-    hoy = date.today()
-    hoy_dt = datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    desde_dt = hoy_dt + timedelta(days=-LIMITE_DIAS)
-    hasta_dt = hoy_dt + timedelta(days=LIMITE_DIAS)
-    if not desde_dt <= combinado <= hasta_dt:
-        raise ValueError(f"La fecha está fuera de rango. Debe ser entre {desde_dt.strftime('%Y-%m-%d')} y {hasta_dt.strftime('%Y-%m-%d')}.")
-
-    # Entregar datetime en UTC
-    return ZONA_HORARIA.normalize(ZONA_HORARIA.localize(combinado)).astimezone(pytz.utc)
-
-
-def decombine_to_local(tiempo: datetime):
-    """Descombinar un tiempo UTC a la fecha y hora local"""
-    utc = pytz.utc.localize(tiempo)
-    local = utc.astimezone(ZONA_HORARIA)
-    return local.date(), local.time()
-
-
-def join_for_message(tiempo_fecha: date, tiempo_horas_minutos: time):
-    """Juntar fecha y hora:minuto para el mensaje"""
-    return tiempo_fecha.strftime("%Y-%m-%d") + " " + tiempo_horas_minutos.strftime("%H:%M")
+def plantilla_por_categoria(categoria: str, prefijo: str = "list_", sufijo: str = "", por_defecto: str = "list"):
+    """Determinar la plantilla por tipo de agenda de audiencia"""
+    if categoria == "CIVIL FAMILIAR MERCANTIL LETRADO TCYA":
+        nombre = f"{prefijo}generica{sufijo}"
+    elif categoria == "MATERIA ACUSATORIO PENAL ORAL":
+        nombre = f"{prefijo}mapo{sufijo}"
+    elif categoria == "DISTRITALES":
+        nombre = f"{prefijo}dipe{sufijo}"
+    elif categoria == "SALAS":
+        nombre = f"{prefijo}sape{sufijo}"
+    else:
+        nombre = por_defecto
+    return f"audiencias/{nombre}.jinja2"
 
 
 @audiencias.before_request
@@ -72,7 +54,6 @@ def list_active():
     """Listado de Audiencias activos"""
     # Si es administrador ve todo
     if current_user.can_admin("audiencias"):
-        # audiencias_activas = Audiencia.query.filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template(
             "audiencias/list_admin.jinja2",
             autoridad=None,
@@ -83,9 +64,8 @@ def list_active():
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
         autoridad = current_user.autoridad
-        # sus_audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template(
-            "audiencias/list.jinja2",
+            plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list"),
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
             titulo=f"Audiencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
@@ -101,7 +81,6 @@ def list_inactive():
     """Listado de Audiencias inactivos"""
     # Si es administrador ve todo
     if current_user.can_admin("audiencias"):
-        # audiencias_inactivas = Audiencia.query.filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template(
             "audiencias/list_admin.jinja2",
             autoridad=None,
@@ -112,9 +91,8 @@ def list_inactive():
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
         autoridad = current_user.autoridad
-        # sus_audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
         return render_template(
-            "audiencias/list.jinja2",
+            plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list"),
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
             titulo=f"Audiencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
@@ -148,11 +126,10 @@ def list_autoridades(distrito_id):
 def list_autoridad_audiencias(autoridad_id):
     """Listado de Audiencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    # audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("audiencias"):
-        plantilla = "audiencias/list_admin.jinja2"
+        plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="admin", por_defecto="list_admin")
     else:
-        plantilla = "audiencias/list.jinja2"
+        plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list")
     return render_template(
         plantilla,
         autoridad=autoridad,
@@ -160,8 +137,6 @@ def list_autoridad_audiencias(autoridad_id):
         titulo=f"Audiencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="A",
     )
-    # return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_activas, estatus="A")
-    # return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_activas, estatus="A")
 
 
 @audiencias.route("/audiencias/inactivos/autoridad/<int:autoridad_id>")
@@ -169,11 +144,10 @@ def list_autoridad_audiencias(autoridad_id):
 def list_autoridad_audiencias_inactive(autoridad_id):
     """Listado de Audiencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    # audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
     if current_user.can_admin("audiencias"):
-        plantilla = "audiencias/list_admin.jinja2"
+        plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="admin", por_defecto="list_admin")
     else:
-        plantilla = "audiencias/list.jinja2"
+        plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list")
     return render_template(
         plantilla,
         autoridad=autoridad,
@@ -181,9 +155,6 @@ def list_autoridad_audiencias_inactive(autoridad_id):
         titulo=f"Audiencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="B",
     )
-    # return render_template("audiencias/list_admin.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
-    # return render_template("audiencias/list.jinja2", autoridad=autoridad, audiencias=audiencias_inactivas, estatus="B")
-
 
 
 @audiencias.route("/audiencias/datatable_json", methods=["GET", "POST"])
@@ -204,13 +175,29 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Audiencia.tiempo.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for audiencia in registros:
         data.append(
             {
+                'tiempo': audiencia.tiempo,
+                "detalle": {
+                    "tipo_audiencia": audiencia.tipo_audiencia,
+                    "url": url_for("listas_de_acuerdos.detail", audiencia_id=audiencia.id),
+                },
+                'expediente': audiencia.expediente,
+                'actores': audiencia.actores,
+                'demandados': audiencia.demandados,
+                'sala': audiencia.sala,
+                'caracter': audiencia.caracter,
+                'causa_penal': audiencia.causa_penal,
+                'delitos': audiencia.delitos,
+                'toca': audiencia.toca,
+                'expediente_origen': audiencia.expediente_origen,
+                'imputados': audiencia.imputados,
+                'origen': audiencia.origen,
             }
         )
     # Entregar JSON
@@ -225,6 +212,55 @@ def datatable_json():
 @audiencias.route("/audiencias/datatable_json_admin", methods=["GET", "POST"])
 def datatable_json_admin():
     """DataTable JSON para listado de audiencias admin"""
+    # Tomar parámetros de Datatables
+    try:
+        draw = int(request.form["draw"])
+        start = int(request.form["start"])
+        rows_per_page = int(request.form["length"])
+    except (TypeError, ValueError):
+        draw = 1
+        start = 1
+        rows_per_page = 10
+    # Consultar
+    consulta = Audiencia.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(Audiencia.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for audiencia in registros:
+        data.append(
+            {
+                "creado": audiencia.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "autoridad": audiencia.autoridad.clave,
+                'tiempo': audiencia.tiempo,
+                "detalle": {
+                    "tipo_audiencia": audiencia.tipo_audiencia,
+                    "url": url_for("listas_de_acuerdos.detail", audiencia_id=audiencia.id),
+                },
+                'expediente': audiencia.expediente,
+                'actores': audiencia.actores,
+                'demandados': audiencia.demandados,
+                'sala': audiencia.sala,
+                'caracter': audiencia.caracter,
+                'causa_penal': audiencia.causa_penal,
+                'delitos': audiencia.delitos,
+                'toca': audiencia.toca,
+                'expediente_origen': audiencia.expediente_origen,
+                'imputados': audiencia.imputados,
+                'origen': audiencia.origen,
+            }
+        )
+    # Entregar JSON
+    return {
+        "draw": draw,
+        "iTotalRecords": total,
+        "iTotalDisplayRecords": total,
+        "aaData": data,
+    }
 
 
 @audiencias.route("/audiencias/<int:audiencia_id>")

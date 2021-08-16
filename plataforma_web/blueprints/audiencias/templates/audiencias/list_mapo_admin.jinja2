@@ -24,6 +24,8 @@
         <table id="audiencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Creados</th>
+                    <th>Autoridades</th>
                     <th>Fechas y horas</th>
                     <th>Tipos de audiencias</th>
                     <th>Salas</th>
@@ -45,7 +47,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/audiencias/datatable_json",
+                url: "/audiencias/datatable_json_admin",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
@@ -53,6 +55,8 @@
                 data: {{ filtros }}
             },
             columns: [
+                { data: "creado" },
+                { data: "autoridad" },
                 { data: "tiempo" },
                 { data: "detalle" },
                 { data: "sala" },
@@ -68,14 +72,21 @@
                     }
                 },
                 {
-                    targets: 1,
+                    targets: 2,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
                     }
                 },
                 {
-                    targets: [2, 4],
+                    targets: [4, 6],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 20 ? data.substr(0, 20) + '…' : data);

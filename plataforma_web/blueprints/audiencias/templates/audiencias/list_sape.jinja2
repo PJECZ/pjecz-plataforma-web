@@ -29,10 +29,6 @@
                     <th>Expedientes</th>
                     <th>Actores</th>
                     <th>Demandados</th>
-                    <th>Tocas</th>
-                    <th>Exp. origen</th>
-                    <th>Delitos</th>
-                    <th>Origen</th>
                 </tr>
             </thead>
         </table>
@@ -61,11 +57,7 @@
                 { data: "detalle" },
                 { data: "expediente" },
                 { data: "actores" },
-                { data: "demandados" },
-                { data: "toca" },
-                { data: "expediente_origen" },
-                { data: "delitos" },
-                { data: "origen" }
+                { data: "demandados" }
             ],
             columnDefs: [
                 {
@@ -80,6 +72,13 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
+                    }
+                },
+                {
+                    targets: [3, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 20 ? data.substr(0, 20) + '…' : data);
                     }
                 }
             ],

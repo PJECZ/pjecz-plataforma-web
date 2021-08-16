@@ -73,6 +73,13 @@
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
                     }
+                },
+                {
+                    targets: [3, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 20 ? data.substr(0, 20) + '…' : data);
+                    }
                 }
             ],
             language: {
