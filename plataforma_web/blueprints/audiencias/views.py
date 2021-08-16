@@ -2,6 +2,7 @@
 Audiencias, vistas
 """
 from datetime import datetime, date, time, timedelta
+import json
 import pytz
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
@@ -19,7 +20,6 @@ from plataforma_web.blueprints.audiencias.forms import AudienciaGenericaForm, Au
 audiencias = Blueprint("audiencias", __name__, template_folder="templates")
 
 MODULO = "AUDIENCIAS"
-LIMITE_CONSULTAS = 400
 LIMITE_DIAS = 30  # Cantidad de días al pasado y al futuro que se permiten
 TIEMPO_DESDE = time(hour=8, minute=0, second=0)
 TIEMPO_HASTA = time(hour=17, minute=0, second=0)
@@ -70,15 +70,28 @@ def before_request():
 @audiencias.route("/audiencias")
 def list_active():
     """Listado de Audiencias activos"""
-    # Si es administrador, ve las audiencias de todas las autoridades
+    # Si es administrador ve todo34
     if current_user.can_admin("audiencias"):
-        audiencias_activas = Audiencia.query.filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
-        return render_template("audiencias/list_admin.jinja2", audiencias=audiencias_activas, estatus="A")
-    # No es administrador, consultar su autoridad
+        # audiencias_activas = Audiencia.query.filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+        return render_template(
+            "audiencias/list_admin.jinja2",
+            autoridad=None,
+            filtros=json.dumps({"estatus": "A"}),
+            titulo="Todos las Audiencias",
+            estatus="A",
+        )
+    # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        sus_audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
-        return render_template("audiencias/list.jinja2", autoridad=current_user.autoridad, audiencias=sus_audiencias_activas, estatus="A")
-    # No es jurisdiccional, se redirige al listado de distritos
+        autoridad = current_user.autoridad
+        # sus_audiencias_activas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="A").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+        return render_template(
+            "audiencias/list.jinja2",
+            autoridad=autoridad,
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+            titulo=f"Audiencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            estatus="A",
+        )
+    # Ninguno de los anteriores
     return redirect(url_for("audiencias.list_distritos"))
 
 
@@ -86,15 +99,28 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_JUSTICIABLES)
 def list_inactive():
     """Listado de Audiencias inactivos"""
-    # Si es administrador, ve las audiencias de todas las autoridades
+    # Si es administrador ve todo
     if current_user.can_admin("audiencias"):
-        audiencias_inactivas = Audiencia.query.filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
-        return render_template("audiencias/list_admin.jinja2", audiencias=audiencias_inactivas, estatus="B")
-    # No es administrador, consultar su autoridad
+        # audiencias_inactivas = Audiencia.query.filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+        return render_template(
+            "audiencias/list_admin.jinja2",
+            autoridad=None,
+            filtros=json.dumps({"estatus": "B"}),
+            titulo="Todos las Audiencias inactivos",
+            estatus="B",
+        )
+    # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
-        sus_audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
-        return render_template("audiencias/list.jinja2", autoridad=current_user.autoridad, audiencias=sus_audiencias_inactivas, estatus="B")
-    # No es jurisdiccional, se redirige al listado de distritos
+        autoridad = current_user.autoridad
+        # sus_audiencias_inactivas = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="B").order_by(Audiencia.creado.desc()).limit(LIMITE_CONSULTAS).all()
+        return render_template(
+            "audiencias/list.jinja2",
+            autoridad=autoridad,
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
+            titulo=f"Audiencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            estatus="B",
+        )
+    # Ninguno de los anteriores
     return redirect(url_for("audiencias.list_distritos"))
 
 
