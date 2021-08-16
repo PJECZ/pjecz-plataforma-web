@@ -1,9 +1,7 @@
 """
 Audiencias, vistas
 """
-from datetime import datetime, date, time, timedelta
 import json
-import pytz
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_expediente, safe_message, safe_string
@@ -21,10 +19,6 @@ from plataforma_web.blueprints.audiencias.forms import AudienciaGenericaForm, Au
 audiencias = Blueprint("audiencias", __name__, template_folder="templates")
 
 MODULO = "AUDIENCIAS"
-LIMITE_DIAS = 30  # Cantidad de días al pasado y al futuro que se permiten
-TIEMPO_DESDE = time(hour=8, minute=0, second=0)
-TIEMPO_HASTA = time(hour=17, minute=0, second=0)
-ZONA_HORARIA = pytz.timezone("America/Mexico_City")
 
 
 def plantilla_por_categoria(categoria: str, prefijo: str = "list_", sufijo: str = "", por_defecto: str = "list"):
@@ -134,7 +128,7 @@ def list_autoridad_audiencias(autoridad_id):
         plantilla,
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
-        titulo=f"Audiencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta} [{autoridad.audiencia_categoria}]",
+        titulo=f"Audiencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="A",
     )
 
