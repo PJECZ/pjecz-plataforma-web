@@ -169,6 +169,10 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        if autoridad:
+            consulta = consulta.filter_by(autoridad=autoridad)
     registros = consulta.order_by(Audiencia.tiempo.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -221,6 +225,10 @@ def datatable_json_admin():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "autoridad_id" in request.form:
+        autoridad = Autoridad.query.get(request.form["autoridad_id"])
+        if autoridad:
+            consulta = consulta.filter_by(autoridad=autoridad)
     registros = consulta.order_by(Audiencia.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
