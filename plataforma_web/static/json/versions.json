@@ -2,11 +2,11 @@
     "versiones": [
         {
             "numero": "1.2",
-            "fecha": "2021-08-12",
+            "fecha": "2021-08-16",
             "novedades": [
                 {
                     "titulo": "Agenda de audiencias",
-                    "descripcion": "Se mejora la administración de las agendas gracias a los sencillos formularios en Plataforma. Hay tres opciones de formatos de agenda programados."
+                    "descripcion": "Se mejora la administración de las agendas gracias a su integración a Plataforma Web. Hay cuatro categorías de audiencias."
                 },
                 {
                     "titulo": "Listados sin límites",
