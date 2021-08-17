@@ -279,7 +279,7 @@ def datatable_json():
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
                 },
                 "expediente": sentencia.expediente,
-                "es_paridad_genero": "Sí" if sentencia.es_paridad_genero else "",
+                "es_perspectiva_genero": "Sí" if sentencia.es_perspectiva_genero else "",
                 "archivo": {
                     "url": sentencia.url,
                 },
@@ -348,7 +348,7 @@ def datatable_json_admin():
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
                 },
                 "expediente": sentencia.expediente,
-                "es_paridad_genero": "Sí" if sentencia.es_paridad_genero else "",
+                "es_perspectiva_genero": "Sí" if sentencia.es_perspectiva_genero else "",
                 "archivo": {
                     "url": sentencia.url,
                 },
@@ -452,7 +452,7 @@ def new():
             return render_template("sentencias/new.jinja2", form=form)
 
         # Tomar perspectiva de género
-        es_paridad_genero = form.es_paridad_genero.data  # Boleano
+        es_perspectiva_genero = form.es_perspectiva_genero.data  # Boleano
 
         # Validar archivo
         archivo = request.files["archivo"]
@@ -467,7 +467,7 @@ def new():
             fecha=fecha,
             sentencia=sentencia_input,
             expediente=expediente,
-            es_paridad_genero=es_paridad_genero,
+            es_perspectiva_genero=es_perspectiva_genero,
         )
         sentencia.save()
 
@@ -477,7 +477,7 @@ def new():
         fecha_str = fecha.strftime("%Y-%m-%d")
         sentencia_str = sentencia_input.replace("/", "-")
         expediente_str = expediente.replace("/", "-")
-        if es_paridad_genero:
+        if es_perspectiva_genero:
             archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-G-{sentencia.encode_id()}.pdf"
         else:
             archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
@@ -508,7 +508,7 @@ def new():
     return render_template(
         "sentencias/new.jinja2",
         form=form,
-        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.id).all(),
         materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
     )
 
@@ -568,7 +568,7 @@ def new_for_autoridad(autoridad_id):
             return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Tomar perspectiva de género
-        es_paridad_genero = form.es_paridad_genero.data  # Boleano
+        es_perspectiva_genero = form.es_perspectiva_genero.data  # Boleano
 
         # Validar archivo
         archivo = request.files["archivo"]
@@ -583,7 +583,7 @@ def new_for_autoridad(autoridad_id):
             fecha=fecha,
             sentencia=sentencia_input,
             expediente=expediente,
-            es_paridad_genero=es_paridad_genero,
+            es_perspectiva_genero=es_perspectiva_genero,
         )
         sentencia.save()
 
@@ -593,7 +593,7 @@ def new_for_autoridad(autoridad_id):
         fecha_str = fecha.strftime("%Y-%m-%d")
         sentencia_str = sentencia_input.replace("/", "-")
         expediente_str = expediente.replace("/", "-")
-        if es_paridad_genero:
+        if es_perspectiva_genero:
             archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
         else:
             archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-G-{sentencia.encode_id()}.pdf"
@@ -625,7 +625,7 @@ def new_for_autoridad(autoridad_id):
         "sentencias/new_for_autoridad.jinja2",
         form=form,
         autoridad=autoridad,
-        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.id).all(),
         materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
     )
 
@@ -655,7 +655,7 @@ def edit(sentencia_id):
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             es_valido = False
-        sentencia.es_paridad_genero = form.es_paridad_genero.data
+        sentencia.es_perspectiva_genero = form.es_perspectiva_genero.data
         if es_valido:
             sentencia.save()
             bitacora = Bitacora(
@@ -670,7 +670,7 @@ def edit(sentencia_id):
     form.fecha.data = sentencia.fecha
     form.sentencia.data = sentencia.sentencia
     form.expediente.data = sentencia.expediente
-    form.es_paridad_genero.data = sentencia.es_paridad_genero
+    form.es_perspectiva_genero.data = sentencia.es_perspectiva_genero
     return render_template("sentencias/edit.jinja2", form=form, sentencia=sentencia)
 
 

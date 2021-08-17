@@ -22,7 +22,7 @@ class SentenciaNewForm(FlaskForm):
     materia = SelectField("Materia", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     materia_tipo_juicio = SelectField("Tipo de Juicio", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     descripcion = TextAreaField("Descripción", validators=[Optional(), Length(1024)])
-    es_paridad_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
+    es_perspectiva_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
@@ -37,7 +37,7 @@ class SentenciaEditForm(FlaskForm):
     materia = SelectField("Materia", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     materia_tipo_juicio = SelectField("Tipo de Juicio", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     descripcion = TextAreaField("Descripción", validators=[Optional(), Length(1024)])
-    es_paridad_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
+    es_perspectiva_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
@@ -54,7 +54,7 @@ class SentenciaSearchForm(FlaskForm):
     # materia
     # materia_tipo_juicio
     # descripcion
-    # es_paridad_genero
+    # es_perspectiva_genero
     # tipo_juicio
     buscar = SubmitField("Buscar")
 
@@ -72,6 +72,6 @@ class SentenciaSearchAdminForm(FlaskForm):
     # materia
     # materia_tipo_juicio
     # descripcion
-    # es_paridad_genero
+    # es_perspectiva_genero
     # tipo_juicio
     buscar = SubmitField("Buscar")

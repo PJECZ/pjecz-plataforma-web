@@ -26,4 +26,4 @@ class MateriaTipoJuicio(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<MateriaTipoJuicio>"
+        return "<MateriaTipoJuicio>"
