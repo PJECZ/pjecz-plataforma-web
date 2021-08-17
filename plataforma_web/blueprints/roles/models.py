@@ -144,18 +144,17 @@ class Rol(db.Model, UniversalMixin):
             ],
             "SECRETARIA TECNICA": [
                 Permiso.VER_CATALOGOS,
+                Permiso.MODIFICAR_CATALOGOS,
+                Permiso.CREAR_CATALOGOS,
                 Permiso.VER_CONSULTAS,
                 Permiso.MODIFICAR_CONSULTAS,
                 Permiso.CREAR_CONSULTAS,
                 Permiso.VER_JUSTICIABLES,
                 Permiso.MODIFICAR_JUSTICIABLES,
-                Permiso.ADMINISTRAR_JUSTICIABLES,
                 Permiso.VER_NOTARIALES,
                 Permiso.MODIFICAR_NOTARIALES,
-                Permiso.ADMINISTRAR_NOTARIALES,
                 Permiso.VER_SEGUNDAS,
                 Permiso.MODIFICAR_SEGUNDAS,
-                Permiso.ADMINISTRAR_SEGUNDAS,
             ],
             "USUARIO": [
                 Permiso.VER_CONSULTAS,
@@ -204,7 +203,7 @@ class Rol(db.Model, UniversalMixin):
         """¿Tiene permiso para ver?"""
         if module in ("bitacoras", "entradas_salidas", "modulos", "rep_graficas", "rep_reportes", "rep_resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.VER_CUENTAS)
-        if module in ("distritos", "autoridades", "materias"):
+        if module in ("distritos", "autoridades", "materias", "materias_tipos_juicios"):
             return self.has_permission(Permiso.VER_CATALOGOS)
         if module in ("cid_procedimientos", "cid_formatos", "cid_registros"):
             return self.has_permission(Permiso.VER_DOCUMENTACIONES)
@@ -222,7 +221,7 @@ class Rol(db.Model, UniversalMixin):
         """¿Tiene permiso para agregar?"""
         if module in ("bitacoras", "entradas_salidas", "modulos", "rep_graficas", "rep_reportes", "rep_resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.MODIFICAR_CUENTAS)
-        if module in ("distritos", "autoridades", "materias"):
+        if module in ("distritos", "autoridades", "materias", "materias_tipos_juicios"):
             return self.has_permission(Permiso.MODIFICAR_CATALOGOS)
         if module in ("cid_procedimientos", "cid_formatos", "cid_registros"):
             return self.has_permission(Permiso.MODIFICAR_DOCUMENTACIONES)
@@ -240,7 +239,7 @@ class Rol(db.Model, UniversalMixin):
         """¿Tiene permiso para editar?"""
         if module in ("bitacoras", "entradas_salidas", "modulos", "rep_graficas", "rep_reportes", "rep_resultados", "roles", "tareas", "usuarios"):
             return self.has_permission(Permiso.CREAR_CUENTAS)
-        if module in ("distritos", "autoridades", "materias"):
+        if module in ("distritos", "autoridades", "materias", "materias_tipos_juicios"):
             return self.has_permission(Permiso.CREAR_CATALOGOS)
         if module in ("cid_procedimientos", "cid_formatos", "cid_registros"):
             return self.has_permission(Permiso.CREAR_DOCUMENTACIONES)

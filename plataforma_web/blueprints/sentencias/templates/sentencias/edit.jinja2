@@ -17,10 +17,14 @@
             {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.materia) %}{% endcall %}
+            {% call f.form_group(form.materia_tipo_juicio) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.es_paridad_genero) %}{% endcall %}
-            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+            {% call f.form_group(form.es_perspectiva_genero) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_materia_tipo_juicio(materias, materias_tipos_juicios, mi_materia=sentencia.materia_tipo_juicio.materia_id, mi_materia_tipo_juicio=sentencia.materia_tipo_juicio_id) }}
 {% endblock %}

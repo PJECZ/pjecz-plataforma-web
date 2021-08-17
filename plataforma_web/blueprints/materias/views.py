@@ -12,6 +12,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias.forms import MateriaForm
+from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 
 materias = Blueprint("materias", __name__, template_folder="templates")
 
@@ -28,24 +29,34 @@ def before_request():
 @materias.route("/materias")
 def list_active():
     """Listado de Materias activas"""
-    materias_activas = Materia.query.filter_by(estatus="A").order_by(Materia.creado.desc()).all()
-    return render_template("materias/list.jinja2", materias=materias_activas, estatus="A")
+    return render_template(
+        "materias/list.jinja2",
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
+        estatus="A",
+    )
 
 
 @materias.route("/materias/inactivos")
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def list_inactive():
     """Listado de Materias inactivas"""
-    materias_inactivas = Materia.query.filter_by(estatus="B").order_by(Materia.creado.desc()).all()
-    return render_template("materias/list.jinja2", materias=materias_inactivas, estatus="B")
+    return render_template(
+        "materias/list.jinja2",
+        materias=Materia.query.filter_by(estatus="B").order_by(Materia.nombre).all(),
+        estatus="B",
+    )
 
 
 @materias.route("/materias/<int:materia_id>")
 def detail(materia_id):
     """Detalle de una Materia"""
     materia = Materia.query.get_or_404(materia_id)
-    autoridades = Autoridad.query.filter(Autoridad.materia == materia).filter_by(estatus="A").all()
-    return render_template("materias/detail.jinja2", materia=materia, autoridades=autoridades)
+    return render_template(
+        "materias/detail.jinja2",
+        materia=materia,
+        autoridades=Autoridad.query.filter(Autoridad.materia == materia).filter_by(estatus="A").all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter(MateriaTipoJuicio.materia == materia).filter_by(estatus="A").all(),
+    )
 
 
 @materias.route("/materias/nuevo", methods=["GET", "POST"])

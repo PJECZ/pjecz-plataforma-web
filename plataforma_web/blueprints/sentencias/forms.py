@@ -3,20 +3,11 @@ Sentencias, formularios
 """
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import BooleanField, DateField, SelectField, StringField, SubmitField
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms import BooleanField, DateField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
-
-from plataforma_web.blueprints.materias.models import Materia
-from plataforma_web.blueprints.sentencias.models import Sentencia
 
 SENTENCIA_REGEXP = r"^\d+/[12]\d\d\d$"
 EXPEDIENTE_REGEXP = r"^\d+/[12]\d\d\d$"
-
-
-def materias_opciones():
-    """Materias: opciones para select"""
-    return Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all()
 
 
 class SentenciaNewForm(FlaskForm):
@@ -28,10 +19,10 @@ class SentenciaNewForm(FlaskForm):
     sentencia_fecha = DateField("Fecha de la sentencia", validators=[DataRequired()])
     expediente = StringField("Expediente (número/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     fecha = DateField("Fecha de publicación", validators=[DataRequired()])
-    materia = QuerySelectField("Materia", query_factory=materias_opciones, get_label="nombre")
-    descripcion = StringField("Descripción", validators=[Optional(), Length(256)])
-    es_paridad_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
-    tipo_juicio = SelectField("Tipo de Juicio", choices=Sentencia.TIPOS_JUICIOS, validators=[DataRequired()])
+    materia = SelectField("Materia", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    materia_tipo_juicio = SelectField("Tipo de Juicio", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    descripcion = TextAreaField("Descripción", validators=[Optional(), Length(max=1024)])
+    es_perspectiva_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
@@ -43,10 +34,10 @@ class SentenciaEditForm(FlaskForm):
     sentencia_fecha = DateField("Fecha de la sentencia", validators=[DataRequired()])
     expediente = StringField("Expediente (número/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     fecha = DateField("Fecha de publicación", validators=[DataRequired()])
-    materia = QuerySelectField("Materia", query_factory=materias_opciones, get_label="nombre")
-    descripcion = StringField("Descripción", validators=[Optional(), Length(256)])
-    es_paridad_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
-    tipo_juicio = SelectField("Tipo de Juicio", choices=Sentencia.TIPOS_JUICIOS, validators=[DataRequired()])
+    materia = SelectField("Materia", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    materia_tipo_juicio = SelectField("Tipo de Juicio", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    descripcion = TextAreaField("Descripción", validators=[Optional(), Length(max=1024)])
+    es_perspectiva_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
@@ -56,14 +47,15 @@ class SentenciaSearchForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     sentencia = StringField("Sentencia (número/año)", validators=[Optional(), Length(max=16), Regexp(SENTENCIA_REGEXP)])
-    # sentencia_fecha = DateField("Fecha de la sentencia", validators=[Optional()])
+    # sentencia_fecha
     expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     fecha_desde = DateField("Fecha de publicación desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha de publicación hasta", validators=[Optional()])
-    # materia = QuerySelectField("Materia", query_factory=materias_opciones, get_label="nombre")
-    # descripcion = StringField("Descripción", validators=[Optional(), Length(256)])
-    # es_paridad_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
-    # tipo_juicio = SelectField("Tipo de Juicio", choices=Sentencia.TIPOS_JUICIOS, validators=[Optional()])
+    # materia
+    # materia_tipo_juicio
+    # descripcion
+    # es_perspectiva_genero
+    # tipo_juicio
     buscar = SubmitField("Buscar")
 
 
@@ -73,12 +65,13 @@ class SentenciaSearchAdminForm(FlaskForm):
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     sentencia = StringField("Sentencia (número/año)", validators=[Optional(), Length(max=16), Regexp(SENTENCIA_REGEXP)])
-    # sentencia_fecha = DateField("Fecha de la sentencia", validators=[Optional()])
+    # sentencia_fecha
     expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     fecha_desde = DateField("Fecha de publicación desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha de publicación hasta", validators=[Optional()])
-    # materia = QuerySelectField("Materia", query_factory=materias_opciones, get_label="nombre")
-    # descripcion = StringField("Descripción", validators=[Optional(), Length(256)])
-    # es_paridad_genero = BooleanField("Es Perspectiva de Género", validators=[Optional()])
-    # tipo_juicio = SelectField("Tipo de Juicio", choices=Sentencia.TIPOS_JUICIOS, validators=[Optional()])
+    # materia
+    # materia_tipo_juicio
+    # descripcion
+    # es_perspectiva_genero
+    # tipo_juicio
     buscar = SubmitField("Buscar")

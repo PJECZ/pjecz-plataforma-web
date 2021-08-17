@@ -10,6 +10,7 @@
     {% call topbar.page_buttons(title) %}
         {{ topbar.button_districts('Departamentos', url_for('distritos.list_active')) }}
         {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
+        {{ topbar.button('Tipos de Juicios', url_for('materias_tipos_juicios.list_active'), 'mdi:label') }}
         {% if current_user.can_edit('autoridades') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('autoridades.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('autoridades.list_active')) }}{% endif %}

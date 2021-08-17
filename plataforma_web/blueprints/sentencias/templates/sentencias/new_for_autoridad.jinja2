@@ -23,9 +23,9 @@
             {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.materia) %}{% endcall %}
+            {% call f.form_group(form.materia_tipo_juicio) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.es_paridad_genero) %}{% endcall %}
-            {% call f.form_group(form.tipo_juicio) %}{% endcall %}
+            {% call f.form_group(form.es_perspectiva_genero) %}{% endcall %}
             {% call f.drop_zone_wrapper() %}
                 {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
             {% endcall %}
@@ -35,5 +35,6 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ f.js_select_materia_tipo_juicio(materias, materias_tipos_juicios, mi_materia=1, mi_materia_tipo_juicio=1) }}
     {{ f.drop_zone_js() }}
 {% endblock %}
