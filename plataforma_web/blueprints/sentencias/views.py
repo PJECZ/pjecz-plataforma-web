@@ -460,7 +460,7 @@ def new():
         materia_tipo_juicio = MateriaTipoJuicio.query.get(form.materia_tipo_juicio.data)
 
         # Tomar descripcion
-        descripcion = safe_string(form.descripcion.data)
+        descripcion = safe_string(form.descripcion.data, max_len=1020)
 
         # Tomar perspectiva de género
         es_perspectiva_genero = form.es_perspectiva_genero.data  # Boleano
@@ -591,7 +591,7 @@ def new_for_autoridad(autoridad_id):
         materia_tipo_juicio = MateriaTipoJuicio.query.get(form.materia_tipo_juicio.data)
 
         # Tomar descripcion
-        descripcion = safe_string(form.descripcion.data)
+        descripcion = safe_string(form.descripcion.data, max_len=1020)
 
         # Tomar perspectiva de género
         es_perspectiva_genero = form.es_perspectiva_genero.data  # Boleano
@@ -713,7 +713,7 @@ def edit(sentencia_id):
         sentencia.materia_tipo_juicio = MateriaTipoJuicio.query.get(form.materia_tipo_juicio.data)
 
         # Tomar descripcion
-        sentencia.descripcion = safe_string(form.descripcion.data)
+        sentencia.descripcion = safe_string(form.descripcion.data, max_len=1020)
 
         if es_valido:
             sentencia.save()
@@ -727,15 +727,19 @@ def edit(sentencia_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
 
-    form.materia.data = sentencia.materia_tipo_juicio.materia_id
-    form.materia_tipo_juicio.data = sentencia.materia_tipo_juicio_id
     form.sentencia.data = sentencia.sentencia
     form.sentencia_fecha.data = sentencia.sentencia_fecha
     form.expediente.data = sentencia.expediente
     form.fecha.data = sentencia.fecha
     form.descripcion.data = sentencia.descripcion
     form.es_perspectiva_genero.data = sentencia.es_perspectiva_genero
-    return render_template("sentencias/edit.jinja2", form=form, sentencia=sentencia)
+    return render_template(
+        "sentencias/edit.jinja2",
+        form=form,
+        sentencia=sentencia,
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.id).all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
+    )
 
 
 def delete_success(sentencia):

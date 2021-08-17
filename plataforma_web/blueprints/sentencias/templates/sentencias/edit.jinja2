@@ -24,3 +24,7 @@
         {% endcall %}
     {% endcall %}
 {% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_materia_tipo_juicio(materias, materias_tipos_juicios, mi_materia=sentencia.materia_tipo_juicio.materia_id, mi_materia_tipo_juicio=sentencia.materia_tipo_juicio_id) }}
+{% endblock %}
