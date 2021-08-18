@@ -23,10 +23,10 @@ class Edicto(db.Model, UniversalMixin):
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
-    expediente = db.Column(db.String(16), nullable=False, default="", server_default="")  # No debe ser nulo, puede ser texto vacío por defecto ""
-    numero_publicacion = db.Column(db.String(16), nullable=False, default="", server_default="")  # No debe ser nulo, puede ser texto vacío por defecto ""
-    archivo = db.Column(db.String(256))
-    url = db.Column(db.String(512))
+    expediente = db.Column(db.String(16), nullable=False, default="", server_default="")
+    numero_publicacion = db.Column(db.String(16), nullable=False, default="", server_default="")
+    archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
+    url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     def __repr__(self):
         """Representación"""
