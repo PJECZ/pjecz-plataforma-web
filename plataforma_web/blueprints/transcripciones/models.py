@@ -21,7 +21,7 @@ class Transcripcion(db.Model, UniversalMixin):
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
     expediente = db.Column(db.String(24))
-    audio_url = db.Column(db.String(256))
+    audio_url = db.Column(db.String(256), nullable=False, default="", server_default="")
     transcripcion = db.Column(db.Text())
 
     def __repr__(self):

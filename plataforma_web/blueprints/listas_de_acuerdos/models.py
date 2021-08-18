@@ -21,8 +21,8 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
     # Columnas
     fecha = db.Column(db.Date, index=True, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
-    archivo = db.Column(db.String(256))
-    url = db.Column(db.String(512))
+    archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
+    url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     # Hijos
     listas_de_acuerdos_acuerdos = db.relationship('ListaDeAcuerdoAcuerdo', back_populates='lista_de_acuerdo')

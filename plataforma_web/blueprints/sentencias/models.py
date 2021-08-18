@@ -27,8 +27,8 @@ class Sentencia(db.Model, UniversalMixin):
     fecha = db.Column(db.Date, index=True, nullable=False)
     descripcion = db.Column(db.String(1024), nullable=False, default="", server_default="")
     es_perspectiva_genero = db.Column(db.Boolean, nullable=False, default=False)
-    archivo = db.Column(db.String(256))
-    url = db.Column(db.String(512))
+    archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
+    url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     def __repr__(self):
         """Representación"""
