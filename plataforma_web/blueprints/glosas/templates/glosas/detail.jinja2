@@ -12,6 +12,11 @@
         {% else %}
             {{ topbar.button_previous('Glosas', url_for('glosas.list_active')) }}
         {% endif %}
+        {% if current_user.can_admin('glosas') %}
+            {{ topbar.button_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=glosa.autoridad_id)) }}
+        {% elif current_user.can_insert('glosas') and current_user.autoridad_id == glosa.autoridad_id %}
+            {{ topbar.button_upload('Subir', url_for('glosas.new')) }}
+        {% endif %}
         {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('glosas.edit', glosa_id=glosa.id)) }}
             {% if glosa.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('glosas.delete', glosa_id=glosa.id)) }}{% endif %}

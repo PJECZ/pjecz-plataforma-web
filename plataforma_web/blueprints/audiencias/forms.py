@@ -5,9 +5,8 @@ from flask_wtf import FlaskForm
 from wtforms import DateField, SelectField, StringField, SubmitField, TimeField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
 
+from lib.safe_string import EXPEDIENTE_REGEXP
 from plataforma_web.blueprints.audiencias.models import Audiencia
-
-EXPEDIENTE_REGEXP = r"^\d+/[12]\d\d\d$"
 
 
 class AudienciaGenericaForm(FlaskForm):
@@ -18,7 +17,7 @@ class AudienciaGenericaForm(FlaskForm):
     tiempo_fecha = DateField("Fecha", format="%Y-%m-%d", validators=[DataRequired()])
     tiempo_horas_minutos = TimeField("Hora:Minuto", format="%H:%M", validators=[DataRequired()])
     tipo_audiencia = StringField("Tipo de audiencia", validators=[DataRequired(), Length(max=64)])
-    expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     actores = StringField("Actores", validators=[Optional(), Length(max=256)])
     demandados = StringField("Demandados", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
@@ -48,7 +47,7 @@ class AudienciaDipeForm(FlaskForm):
     tiempo_horas_minutos = TimeField("Hora:Minuto", format="%H:%M", validators=[DataRequired()])
     tipo_audiencia = StringField("Tipo de audiencia", validators=[DataRequired(), Length(max=64)])
     # Civil, Familiar, Mercantil o Laboral
-    expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     actores = StringField("Actores", validators=[Optional(), Length(max=256)])
     demandados = StringField("Demandados", validators=[Optional(), Length(max=256)])
     # Penales
@@ -67,7 +66,7 @@ class AudienciaSapeForm(FlaskForm):
     tiempo_horas_minutos = TimeField("Hora:Minuto", format="%H:%M", validators=[DataRequired()])
     tipo_audiencia = StringField("Tipo de audiencia", validators=[DataRequired(), Length(max=64)])
     # Civil, Familiar, Mercantil o Laboral
-    expediente = StringField("Expediente (número/año)", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     actores = StringField("Actores", validators=[Optional(), Length(max=256)])
     demandados = StringField("Demandados", validators=[Optional(), Length(max=256)])
     # Penales
