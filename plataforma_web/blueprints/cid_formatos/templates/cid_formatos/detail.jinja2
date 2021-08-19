@@ -9,7 +9,7 @@
     {% call topbar.page_buttons('Formato ' + cid_formato.descripcion) %}
         {{ topbar.button_previous('Formatos', url_for('cid_formatos.list_active')) }}
         {% if current_user.can_edit('cid_formatos') %}
-            {{ topbar.button_edit('Editar', url_for('cid_formato.edit', cid_formato_id=cid_formato.id)) }}
+            {{ topbar.button_edit('Editar', url_for('cid_formatos.edit', cid_formato_id=cid_formato.id)) }}
             {% if cid_formato.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_formatos.delete', cid_formato_id=cid_formato.id)) }}{% endif %}
             {% if cid_formato.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_formatos.recover', cid_formato_id=cid_formato.id)) }}{% endif %}
         {% endif %}
@@ -18,8 +18,12 @@
 
 {% block content %}
     {% call detail.card(estatus=cid_formato.estatus) %}
-        {# detail.label_value_big('Formato', cid_formato.descripcion) #}
         {{ detail.label_value('Procedimiento', cid_formato.procedimiento.descripcion, url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_formato.procedimiento_id)) }}
+        {{ detail.label_value('Número', cid_formato.numero) }}
+        {{ detail.label_value('Código', cid_formato.codigo) }}
+        {{ detail.label_value('Responsable', cid_formato.responsable) }}
+        {{ detail.label_value('Forma', cid_formato.forma) }}
+        {{ detail.label_value('Tiempo de retención', cid_formato.tiempo_retencion) }}
     {% endcall %}
 {% endblock %}
 

@@ -14,9 +14,6 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_formatos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_formatos.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('cid_formatos') %}
-            {{ topbar.button_new('Nuevo Formato', url_for('cid_formatos.new')) }}
-        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -27,13 +24,17 @@
                 <tr>
                     <th>Procedimientos</th>
                     <th>Formatos</th>
+                    <th>Códigos</th>
+                    <th>Formas</th>
                 </tr>
             </thead>
             <tbody>
                 {% for cid_formato in cid_formatos %}
                 <tr>
-                    <td>{{ cid_formato.procedimiento.descripcion }}</td>
+                    <td>{{ cid_formato.procedimiento.codigo }}</td>
                     <td><a href="{{ url_for('cid_formatos.detail', cid_formato_id=cid_formato.id) }}">{{ cid_formato.descripcion }}</a></td>
+                    <td>{{ cid_formato.codigo }}</td>
+                    <td>{{ cid_formato.forma }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

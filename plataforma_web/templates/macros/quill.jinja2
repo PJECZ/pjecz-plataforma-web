@@ -1,0 +1,68 @@
+{# Quill editor #}
+
+{# Quill theme for custom head #}
+{%- macro custom_head() -%}
+    <!-- Quill theme -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.snow.css" rel="stylesheet">
+{%- endmacro -%}
+
+{# Quill div #}
+{%- macro div(quill_id='editor') -%}
+    <div id="{{ quill_id }}" class="mb-2" style="display:block; clear:both; break-after:page; height:55vh;"></div>
+{%- endmacro -%}
+
+{# Quill custom javascript editor #}
+{%- macro editor_custom_javascript(form_id, form_hidden_id, content='', quill_id='editor') -%}
+    <!-- Quill library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
+    <script>
+        $( document ).ready(function() {
+            // Quill editor
+            var quill = new Quill('#{{ quill_id }}', {
+                modules: {
+                    table: true,
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block', 'image'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'script': 'sub' }, { 'script': 'super' }],  // superscript/subscript
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],      // outdent/indent
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],       // dropdown with defaults from theme
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean']                                      // remove formatting
+                    ],
+                },
+                theme: 'snow'
+            });
+            // Fill at start
+            if (content != '') {
+                quill.setContents({{ content }});
+            }
+            // On submit
+            document.getElementById('{{ form_id }}').onsubmit = function() {copyFromQuillToInputHidden()};
+            // Copy to input hidden field
+            function copyFromQuillToInputHidden() {
+                document.getElementById('{{ form_hidden_id }}').value = JSON.stringify(quill.getContents());
+            }
+        });
+    </script>
+{%- endmacro -%}
+
+{# Quill custom javascript reader #}
+{%- macro reader_custom_javascript(content='', quill_id='editor') -%}
+    <!-- Quill library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
+    <script>
+        $( document ).ready(function() {
+            // Quill reader
+            var quill = new Quill('#{{ quill_id }}', {
+                readOnly: true,
+                theme: 'snow'
+            });
+            // Fill at start
+            quill.setContents({{ content }});
+        });
+    </script>
+{%- endmacro -%}

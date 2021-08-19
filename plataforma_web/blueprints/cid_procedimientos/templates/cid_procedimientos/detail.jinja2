@@ -5,11 +5,6 @@
 
 {% block title %}Procedimiento{% endblock %}
 
-{% block custom_head %}
-    <!-- Quill theme -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.snow.css" rel="stylesheet">
-{% endblock %}
-
 {% block topbar_actions %}
     {% call topbar.page_buttons('Procedimiento ' + cid_procedimiento.descripcion) %}
         {{ topbar.button_previous('Procedimientos', url_for('cid_procedimientos.list_active')) }}
@@ -18,13 +13,23 @@
             {% if cid_procedimiento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_procedimientos.delete', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
             {% if cid_procedimiento.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_procedimientos.recover', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
         {% endif %}
+        {% if current_user.can_insert('cid_formatos') %}
+            {{ topbar.button_new('Agregar formato', url_for('cid_formatos.new', cid_procedimiento_id=cid_procedimiento.id)) }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call detail.card(estatus=cid_procedimiento.estatus) %}
-        <div id="editor" style="display:block; clear:both; break-after:page; height:70vh;"></div>
+        {{ detail.label_value('Código', cid_procedimiento.codigo) }}
+        {{ detail.label_value('Revisión', cid_procedimiento.revision) }}
+        {{ detail.label_value('Fecha', cid_procedimiento.fecha) }}
+        {{ detail.label_value('Etapa', cid_procedimiento.etapa) }}
     {% endcall %}
+    {% if cid_formatos %}
+        {% call detail.card(title='Formatos') %}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -32,16 +37,4 @@
         {% if cid_procedimiento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
         {% if cid_procedimiento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
     {% endif %}
-    <!-- Quill library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
-    <script>
-        // Quill editor
-        $( document ).ready(function() {
-            var quill = new Quill('#editor', {
-                readOnly: true,
-                theme: 'snow'
-            });
-            quill.setContents({{ cid_procedimiento.contenido }});
-        });
-    </script>
 {% endblock %}
