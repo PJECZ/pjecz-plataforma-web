@@ -28,8 +28,8 @@ sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
 MODULO = "SENTENCIAS"
 SUBDIRECTORIO = "Sentencias"
-LIMITE_DIAS = 365
-LIMITE_ADMINISTRADORES_DIAS = 365
+LIMITE_DIAS = 1460
+LIMITE_ADMINISTRADORES_DIAS = 1460
 
 
 @sentencias.route("/sentencias/acuses/<id_hashed>")
