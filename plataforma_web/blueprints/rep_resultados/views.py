@@ -21,7 +21,7 @@ def before_request():
 @rep_resultados.route("/rep_resultados")
 def list_active():
     """Listado de Resultados activos"""
-    rep_resultados_activos = RepResultado.query.filter(RepResultado.estatus == "A").order_by(RepResultado.creado.desc()).limit(100).all()
+    rep_resultados_activos = RepResultado.query.filter_by(estatus="A").order_by(RepResultado.creado.desc()).limit(100).all()
     return render_template("rep_resultados/list.jinja2", rep_resultados=rep_resultados_activos, estatus="A")
 
 
@@ -29,7 +29,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Resultados inactivos"""
-    rep_resultados_inactivos = RepResultado.query.filter(RepResultado.estatus == "B").order_by(RepResultado.creado.desc()).limit(100).all()
+    rep_resultados_inactivos = RepResultado.query.filter_by(estatus="B").order_by(RepResultado.creado.desc()).limit(100).all()
     return render_template("rep_resultados/list.jinja2", rep_resultados=rep_resultados_inactivos, estatus="B")
 
 

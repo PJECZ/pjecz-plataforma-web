@@ -14,6 +14,11 @@
         {% else %}
             {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
         {% endif %}
+        {% if current_user.can_admin('listas_de_acuerdos') %}
+            {{ topbar.button_upload('Subir', url_for('listas_de_acuerdos.new_for_autoridad', autoridad_id=lista_de_acuerdo.autoridad_id)) }}
+        {% elif current_user.can_insert('listas_de_acuerdos') and current_user.autoridad_id == lista_de_acuerdo.autoridad_id %}
+            {{ topbar.button_upload('Subir', url_for('listas_de_acuerdos.new')) }}
+        {% endif %}
         {% if current_user.can_admin('listas_de_acuerdos') or (current_user.can_edit('listas_de_acuerdos') and lista_de_acuerdo.autoridad_id == current_user.autoridad_id) %}
             {% if lista_de_acuerdo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('listas_de_acuerdos.delete', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}{% endif %}
             {% if lista_de_acuerdo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('listas_de_acuerdos.recover', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}{% endif %}

@@ -5,13 +5,7 @@
 {% block title %}Agenda de Audiencias{% endblock %}
 
 {% block topbar_actions %}
-    {% if autoridad %}
-        {% set title='Agenda de Audiencias de ' + autoridad.clave %}
-    {% else %}
-        {% if estatus == 'A' %}{% set title='Agenda de Audiencias' %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Agenda de Audiencias inactivos' %}{% endif %}
-    {% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('audiencias.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('audiencias') or (current_user.can_insert('audiencias') and current_user.autoridad_id == autoridad.id) %}
@@ -32,76 +26,63 @@
                 <tr>
                     <th>Fechas y horas</th>
                     <th>Tipos de audiencias</th>
-                    {% if current_user.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
-                    <th>Expedientes</th>
-                    <th>Actores</th>
-                    <th>Demandados</th>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
-                    <th>Salas</th>
-                    <th>Caracteres</th>
-                    <th>Causas penales</th>
-                    <th>Delitos</th>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
-                    <th>Expedientes</th>
-                    <th>Actores</th>
-                    <th>Demandados</th>
-                    <th>Tocas</th>
-                    <th>Exp. origen</th>
-                    <th>Imputados</th>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'SALAS' %}
-                    <th>Expedientes</th>
-                    <th>Actores</th>
-                    <th>Demandados</th>
-                    <th>Tocas</th>
-                    <th>Exp. origen</th>
-                    <th>Delitos</th>
-                    <th>Origen</th>
-                    {% endif %}
                 </tr>
             </thead>
-            <tbody>
-                {% for audiencia in audiencias %}
-                <tr>
-                    <td>{{ audiencia.tiempo }}</td>
-                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
-                    {% if current_user.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}
-                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
-                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
-                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'MATERIA ACUSATORIO PENAL ORAL' %}
-                    <td>{% if audiencia.sala %}{{ audiencia.sala }}{% endif %}</td>
-                    <td>{% if audiencia.caracter %}{{ audiencia.caracter }}{% endif %}</td>
-                    <td>{% if audiencia.causa_penal %}{{ audiencia.causa_penal }}{% endif %}</td>
-                    <td>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</td>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'DISTRITALES' %}
-                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
-                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
-                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
-                    <td>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</td>
-                    <td>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</td>
-                    <td>{% if audiencia.imputados %}{{ audiencia.imputados }}{% endif %}</td>
-                    {% endif %}
-                    {% if current_user.autoridad.audiencia_categoria == 'SALAS' %}
-                    <td>{% if audiencia.expediente %}{{ audiencia.expediente }}{% endif %}</td>
-                    <td>{% if audiencia.actores %}{{ audiencia.actores }}{% endif %}</td>
-                    <td>{% if audiencia.demandados %}{{ audiencia.demandados }}{% endif %}</td>
-                    <td>{% if audiencia.toca %}{{ audiencia.toca }}{% endif %}</td>
-                    <td>{% if audiencia.expediente_origen %}{{ audiencia.expediente_origen }}{% endif %}</td>
-                    <td>{% if audiencia.delitos %}{{ audiencia.delitos }}{% endif %}</td>
-                    <td>{% if audiencia.origen %}{{ audiencia.origen }}{% endif %}</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('audiencias_datatable') }}
+    <script>
+        $('#audiencias_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/audiencias/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "tiempo" },
+                { data: "detalle" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

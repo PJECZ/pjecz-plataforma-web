@@ -5,14 +5,7 @@
 {% block title %}Todas las Audiencias{% endblock %}
 
 {% block topbar_actions %}
-    {% if autoridad %}
-        {% if estatus == 'A' %}{% set title='Audiencias de ' + autoridad.clave %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Audiencias inactivos de ' + autoridad.clave %}{% endif %}
-    {% else %}
-        {% if estatus == 'A' %}{% set title='Todas las Audiencias' %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Todas las Audiencias inactivos' %}{% endif %}
-    {% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('audiencias.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_edit('audiencias') %}
@@ -33,24 +26,76 @@
         <table id="audiencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Creados</th>
+                    <th>Autoridades</th>
                     <th>Fechas y horas</th>
-                    {% if not autoridad %}<th>Autoridades</th>{% endif %}
                     <th>Tipos de audiencias</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for audiencia in audiencias %}
-                <tr>
-                    <td>{{ audiencia.tiempo }}</td>
-                    {% if not autoridad %}<td>{{ audiencia.autoridad.clave }}</td>{% endif %}
-                    <td><a href="{{ url_for('audiencias.detail', audiencia_id=audiencia.id) }}">{{ audiencia.tipo_audiencia }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('audiencias_datatable') }}
+    <script>
+        $('#audiencias_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/audiencias/datatable_json_admin",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "creado" },
+                { data: "autoridad" },
+                { data: "tiempo" },
+                { data: "detalle" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 2,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

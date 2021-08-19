@@ -15,7 +15,7 @@ CONTRASENA_MENSAJE = "De 8 a 48 caracteres con al menos una may√∫scula, una min√
 
 def roles_opciones():
     """ Roles: opciones para select """
-    return Rol.query.filter(Rol.estatus == "A").order_by(Rol.nombre).all()
+    return Rol.query.filter_by(estatus="A").order_by(Rol.nombre).all()
 
 
 class AccesoForm(FlaskForm):

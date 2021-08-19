@@ -67,7 +67,9 @@
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' +
+                            (data.descripcion.length > 40 ? data.descripcion.substr(0, 40) + '…' : data.descripcion) +
+                            '</a>';
                     }
                 },
                 {

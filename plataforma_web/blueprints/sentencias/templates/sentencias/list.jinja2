@@ -5,13 +5,7 @@
 {% block title %}Versiones Públicas de Sentencias{% endblock %}
 
 {% block topbar_actions %}
-    {% if autoridad %}
-        {% set title='V.P. Sentencias de ' + autoridad.clave %}
-    {% else %}
-        {% if estatus == 'A' %}{% set title='Versiones Públicas de Sentencias' %}{% endif %}
-        {% if estatus == 'B' %}{% set title='Versiones Públicas de Sentencias inactivas' %}{% endif %}
-    {% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('sentencias.list_distritos')) }}
         {% if autoridad %}
             {% if current_user.can_admin('sentencias') or (current_user.can_insert('sentencias') and current_user.autoridad_id == autoridad.id) %}
@@ -27,7 +21,7 @@
                 {# topbar.button_refresh('Refrescar', url_for('sentencias.refresh', autoridad_id=autoridad.id)) #}
             {# endif #}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('sentencias.search')) #}
+        {{ topbar.button_search('Buscar', url_for('sentencias.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -62,16 +56,13 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {
-                    {% if autoridad %}autoridad_id: {{ autoridad.id }},{% endif %}
-                    estatus: "{{ estatus }}"
-                }
+                data: {{ filtros }}
             },
             columns: [
                 { data: "fecha" },
                 { data: "detalle" },
                 { data: "expediente" },
-                { data: "es_paridad_genero" },
+                { data: "es_perspectiva_genero" },
                 { data: "archivo" }
             ],
             columnDefs: [

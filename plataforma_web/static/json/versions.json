@@ -1,0 +1,60 @@
+{
+    "versiones": [
+        {
+            "numero": "1.3",
+            "fecha": "2021-08-19",
+            "novedades": [
+                {
+                    "titulo": "Los campos 'expediente' pueden tener un complemento alfanumérico después de un guión medio",
+                    "descripcion": "Ejemplos de expedientes válidos: 56/2021, 56/2021-2, 56/2021-J2 y 56/2021-III."
+                }
+            ]
+        },
+        {
+            "numero": "1.2",
+            "fecha": "2021-08-16",
+            "novedades": [
+                {
+                    "titulo": "Agenda de audiencias",
+                    "descripcion": "Se mejora la administración de las agendas gracias a su integración a Plataforma Web. Hay cuatro categorías de audiencias."
+                },
+                {
+                    "titulo": "Más campos en Versión Pública de las Sentencias",
+                    "descripcion": "Las sentencias pueden recibir información adicional: fecha de la sentencia, tipo de juicio y descripción."
+                },
+                {
+                    "titulo": "Listados sin límites",
+                    "descripcion": "Ahora la paginación permite navegar por todos los registros; antes los listados estaban limitados a cien resultados. Se aprovechan más capacidades de DataTables y los datos viajan por AJAX."
+                },
+                {
+                    "titulo": "Nuevos buscadores",
+                    "descripcion": "Presione el botón Buscar en la parte superior derecha para mostrar un formulario propio de módulo para que encuentre la información que necesite."
+                }
+            ]
+        },
+        {
+            "numero": "1.1",
+            "fecha": "2021-06-28",
+            "novedades": [
+                {
+                    "titulo": "Moderno diseño con los colores institucionales",
+                    "descripcion": "Nueva plantilla basada en Bootstrap 5 que funciona en pantallas pequeñas."
+                }
+            ]
+        },
+        {
+            "numero": "1.0",
+            "fecha": "2021-06-01",
+            "novedades": [
+                {
+                    "titulo": "Autentificación segura",
+                    "descripcion": "Usa la autentificación de Google (en vez de usuario y contraseña)."
+                },
+                {
+                    "titulo": "Publicación inmediata",
+                    "descripcion": "Ahora los documentos que se publican pueden visualizarse inmediatamente en el sitio web. Antes se tenían que esperar algunas horas por las rutinas que usaban el correo electrónico."
+                }
+            ]
+        }
+    ]
+}

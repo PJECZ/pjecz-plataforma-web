@@ -104,7 +104,7 @@ def list_distritos():
     """Listado de Distritos"""
     return render_template(
         "listas_de_acuerdos/list_distritos.jinja2",
-        distritos=Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all(),
+        distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
     )
 
 
@@ -115,7 +115,7 @@ def list_autoridades(distrito_id):
     return render_template(
         "listas_de_acuerdos/list_autoridades.jinja2",
         distrito=distrito,
-        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
     )
 
 
@@ -130,9 +130,9 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
     return render_template(
         plantilla,
         autoridad=autoridad,
-        estatus="A",
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
         titulo=f"Listas de Acuerdos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        estatus="A",
     )
 
 
@@ -211,7 +211,6 @@ def search():
 @listas_de_acuerdos.route("/listas_de_acuerdos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de listas de acuerdos"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -221,7 +220,6 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = ListaDeAcuerdo.query
     if "estatus" in request.form:
@@ -238,7 +236,6 @@ def datatable_json():
         consulta = consulta.filter(ListaDeAcuerdo.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for lista_de_acuerdo in registros:
@@ -254,7 +251,6 @@ def datatable_json():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -267,7 +263,6 @@ def datatable_json():
 @listas_de_acuerdos.route("/listas_de_acuerdos/datatable_json_admin", methods=["GET", "POST"])
 def datatable_json_admin():
     """DataTable JSON para listado de listas de acuerdos admin"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -277,7 +272,6 @@ def datatable_json_admin():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = ListaDeAcuerdo.query
     if "estatus" in request.form:
@@ -294,7 +288,6 @@ def datatable_json_admin():
         consulta = consulta.filter(ListaDeAcuerdo.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for lista_de_acuerdo in registros:
@@ -312,7 +305,6 @@ def datatable_json_admin():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -346,7 +338,7 @@ def detail(lista_de_acuerdo_id):
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     acuerdos = None  # Por lo pronto sólo los administradores ven los acuerdos
     if current_user.can_admin("listas_de_acuerdos"):
-        acuerdos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.lista_de_acuerdo == lista_de_acuerdo).filter(ListaDeAcuerdoAcuerdo.estatus == "A").all()
+        acuerdos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.lista_de_acuerdo == lista_de_acuerdo).filter_by(estatus="A").all()
     return render_template("listas_de_acuerdos/detail.jinja2", lista_de_acuerdo=lista_de_acuerdo, acuerdos=acuerdos)
 
 
@@ -420,7 +412,7 @@ def new():
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
         anterior_borrada = False
-        anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
+        anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter_by(estatus="A").first()
         if anterior_lista_de_acuerdo:
             anterior_lista_de_acuerdo.delete()
             anterior_borrada = True
@@ -523,7 +515,7 @@ def new_for_autoridad(autoridad_id):
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
         anterior_borrada = False
-        anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter(ListaDeAcuerdo.estatus == "A").first()
+        anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter_by(estatus="A").first()
         if anterior_lista_de_acuerdo:
             anterior_lista_de_acuerdo.delete()
             anterior_borrada = True
@@ -648,7 +640,7 @@ def recover(lista_de_acuerdo_id):
     """Recuperar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "B":
-        if ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.fecha == lista_de_acuerdo.fecha).filter(ListaDeAcuerdo.estatus == "A").first():
+        if ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.fecha == lista_de_acuerdo.fecha).filter_by(estatus="A").first():
             flash("No puede recuperar esta lista porque ya hay una activa de la misma fecha.", "warning")
         else:
             if current_user.can_admin("listas_de_acuerdos"):

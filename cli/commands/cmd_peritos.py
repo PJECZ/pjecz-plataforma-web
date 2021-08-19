@@ -91,7 +91,7 @@ def respaldar(salida_csv):
         return
     click.echo("Respaldando peritos...")
     contador = 0
-    peritos = Perito.query.filter(Perito.estatus == "A").order_by(Perito.distrito_id, Perito.tipo, Perito.nombre).all()
+    peritos = Perito.query.filter_by(estatus="A").order_by(Perito.distrito_id, Perito.tipo, Perito.nombre).all()
     with open(ruta, "w") as puntero:
         escritor = csv.writer(puntero)
         escritor.writerow(["distrito", "tipo", "nombre", "domicilio", "telefono_fijo", "telefono_celular", "email", "renovacion", "notas"])

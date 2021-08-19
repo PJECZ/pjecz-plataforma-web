@@ -12,6 +12,11 @@
         {% else %}
             {{ topbar.button_previous('Ubicaciones de Expedientes', url_for('ubicaciones_expedientes.list_active')) }}
         {% endif %}
+        {% if current_user.can_admin('ubicaciones_expedientes') %}
+            {{ topbar.button_new('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new_for_autoridad', autoridad_id=ubicacion_expediente.autoridad_id)) }}
+        {% elif current_user.can_insert('ubicaciones_expedientes') and current_user.autoridad_id == ubicacion_expediente.autoridad_id %}
+            {{ topbar.button_new('Nueva Ubicación de Expediente', url_for('ubicaciones_expedientes.new')) }}
+        {% endif %}
         {% if current_user.can_admin('ubicaciones_expedientes') or (current_user.can_edit('ubicaciones_expedientes') and ubicacion_expediente.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('ubicaciones_expedientes.edit', ubicacion_expediente_id=ubicacion_expediente.id)) }}
             {% if ubicacion_expediente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('ubicaciones_expedientes.delete', ubicacion_expediente_id=ubicacion_expediente.id)) }}{% endif %}

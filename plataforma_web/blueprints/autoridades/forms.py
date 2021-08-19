@@ -13,12 +13,12 @@ from plataforma_web.blueprints.materias.models import Materia
 
 def distritos_opciones():
     """Distritos: opciones para select"""
-    return Distrito.query.filter(Distrito.estatus == "A").order_by(Distrito.nombre).all()
+    return Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()
 
 
 def materias_opciones():
     """Materias: opciones para select"""
-    return Materia.query.filter(Materia.estatus == "A").order_by(Materia.nombre).all()
+    return Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all()
 
 
 class AutoridadNewForm(FlaskForm):

@@ -40,8 +40,8 @@ class Glosa(db.Model, UniversalMixin):
     tipo_juicio = db.Column(db.Enum(*TIPOS_JUICIOS, name="tipos_juicios", native_enum=False), index=True, nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
     expediente = db.Column(db.String(16), nullable=False)
-    archivo = db.Column(db.String(256))
-    url = db.Column(db.String(512))
+    archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
+    url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     def __repr__(self):
         """Representación"""

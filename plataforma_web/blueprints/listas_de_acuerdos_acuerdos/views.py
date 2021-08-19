@@ -1,6 +1,7 @@
 """
 Listas de Acuerdos Acuerdos, vistas
 """
+import json
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
@@ -11,7 +12,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.models import ListaDeAcuerdoAcuerdo
-from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.forms import ListaDeAcuerdoAcuerdoForm
+from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.forms import ListaDeAcuerdoAcuerdoForm, ListaDeAcuerdoAcuerdoSearchForm
 
 listas_de_acuerdos_acuerdos = Blueprint("listas_de_acuerdos_acuerdos", __name__, template_folder="templates")
 
@@ -28,20 +29,61 @@ def before_request():
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos")
 def list_active():
     """Listado de Acuerdos activos"""
-    return render_template("listas_de_acuerdos_acuerdos/list.jinja2", estatus="A")
+    return render_template(
+        "listas_de_acuerdos_acuerdos/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Todos los Acuerdos",
+        estatus="A",
+    )
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/inactivos")
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def list_inactive():
     """Listado de Acuerdos inactivos"""
-    return render_template("listas_de_acuerdos_acuerdos/list.jinja2", estatus="B")
+    return render_template(
+        "listas_de_acuerdos_acuerdos/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Todos los Acuerdos inactivos",
+        estatus="B",
+    )
+
+
+@listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Acuerdos"""
+    form_search = ListaDeAcuerdoAcuerdoSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        fallo_validacion = False
+        # folio
+        # expediente
+        # actor
+        # demandado
+        # tipo_acuerdo
+        # tipo_juicio
+        # Mostrar resultados
+        if current_user.can_admin("listas_de_acuerdos"):
+            plantilla = "listas_de_acuerdos/list_admin.jinja2"
+        else:
+            plantilla = "listas_de_acuerdos/list.jinja2"
+        if not fallo_validacion:
+            return render_template(
+                plantilla,
+                filtros=json.dumps(busqueda),
+                titulo="Acuerdos con " + ", ".join(titulos),
+            )
+    # Mostrar formulario para buscar
+    return render_template(
+        "listas_de_acuerdos_acuerdos/search.jinja2",
+        form=form_search,
+    )
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para Acuerdos"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -51,16 +93,20 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = ListaDeAcuerdoAcuerdo.query
     if "estatus" in request.form:
-        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
+    # folio
+    # expediente
+    # actor
+    # demandado
+    # tipo_acuerdo
+    # tipo_juicio
     registros = consulta.order_by(ListaDeAcuerdoAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for acuerdo in registros:
@@ -76,7 +122,6 @@ def datatable_json():
                 "demandado": acuerdo.demandado,
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -90,26 +135,29 @@ def datatable_json():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def datatable_json_admin():
     """DataTable JSON para Acuerdos admin"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
         start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])  
+        rows_per_page = int(request.form["length"])
     except (TypeError, ValueError):
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = ListaDeAcuerdoAcuerdo.query
     if "estatus" in request.form:
-        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(ListaDeAcuerdoAcuerdo.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
+    # folio
+    # expediente
+    # actor
+    # demandado
+    # tipo_acuerdo
+    # tipo_juicio
     registros = consulta.order_by(ListaDeAcuerdoAcuerdo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for acuerdo in registros:
@@ -126,7 +174,6 @@ def datatable_json_admin():
                 "demandado": acuerdo.demandado,
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,

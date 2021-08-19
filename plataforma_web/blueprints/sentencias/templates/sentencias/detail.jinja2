@@ -12,6 +12,11 @@
         {% else %}
             {{ topbar.button_previous('V.P. Sentencias', url_for('sentencias.list_active')) }}
         {% endif %}
+        {% if current_user.can_admin('sentencias') %}
+            {{ topbar.button_upload('Subir', url_for('sentencias.new_for_autoridad', autoridad_id=sentencia.autoridad_id)) }}
+        {% elif current_user.can_insert('sentencias') and current_user.autoridad_id == sentencia.autoridad_id %}
+            {{ topbar.button_upload('Subir', url_for('sentencias.new')) }}
+        {% endif %}
         {% if current_user.can_admin('sentencias') or (current_user.can_edit('sentencias') and sentencia.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('sentencias.edit', sentencia_id=sentencia.id)) }}
             {% if sentencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('sentencias.delete', sentencia_id=sentencia.id)) }}{% endif %}
@@ -25,10 +30,13 @@
         {{ detail.label_value_big('Sentencia', sentencia.sentencia) }}
         {{ detail.label_value('Distrito', sentencia.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', sentencia.autoridad.descripcion) }}
-        {{ detail.label_value('Fecha', sentencia.fecha) }}
+        {{ detail.label_value('Fecha de la sentencia', sentencia.sentencia_fecha) }}
         {{ detail.label_value('Expediente', sentencia.expediente) }}
-        {{ detail.label_value_boolean('Es Perspectiva de Género', sentencia.es_paridad_genero) }}
-        {{ detail.label_value('Archivo', sentencia.archivo) }}
+        {{ detail.label_value('Fecha de publicación', sentencia.fecha) }}
+        {{ detail.label_value('Materia', sentencia.materia_tipo_juicio.materia.nombre) }}
+        {{ detail.label_value('Tipo de Juicio', sentencia.materia_tipo_juicio.descripcion) }}
+        {{ detail.label_value('Descripción', sentencia.descripcion) }}
+        {{ detail.label_value_boolean('Es Perspectiva de Género', sentencia.es_perspectiva_genero) }}
         {{ detail.label_value_new_tab('Archivo PDF', sentencia.archivo, sentencia.url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('sentencias.checkout', id_hashed=sentencia.encode_id())) }}
         {{ detail.label_value('Creado', moment(sentencia.creado).format('llll')) }}

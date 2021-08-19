@@ -23,7 +23,7 @@ def before_request():
 @transcripciones.route("/transcripciones")
 def list_active():
     """ Listado de Transcripciones activas """
-    transcripciones_activas = Transcripcion.query.filter(Transcripcion.estatus == "A").order_by(Transcripcion.creado.desc()).limit(100).all()
+    transcripciones_activas = Transcripcion.query.filter_by(estatus="A").order_by(Transcripcion.creado.desc()).limit(100).all()
     return render_template("transcripciones/list.jinja2", transcripciones=transcripciones_activas, estatus="A")
 
 
@@ -31,7 +31,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """ Listado de Transcripciones inactivas """
-    transcripciones_inactivas = Transcripcion.query.filter(Transcripcion.estatus == "B").order_by(Transcripcion.creado.desc()).limit(100).all()
+    transcripciones_inactivas = Transcripcion.query.filter_by(estatus="B").order_by(Transcripcion.creado.desc()).limit(100).all()
     return render_template("transcripciones/list.jinja2", transcripciones=transcripciones_inactivas, estatus="B")
 
 

@@ -85,7 +85,7 @@ def list_distritos():
     """Listado de Distritos"""
     return render_template(
         "ubicaciones_expedientes/list_distritos.jinja2",
-        distritos=Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all(),
+        distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
     )
 
 
@@ -96,7 +96,7 @@ def list_autoridades(distrito_id):
     return render_template(
         "ubicaciones_expedientes/list_autoridades.jinja2",
         distrito=distrito,
-        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+        autoridades=Autoridad.query.filter(Autoridad.distrito == distrito).filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
     )
 
 
@@ -161,8 +161,12 @@ def search():
         busqueda["autoridad_id"] = autoridad.id
         titulos.append(autoridad.distrito.nombre_corto + ", " + autoridad.descripcion_corta)
         # Expediente es un campo obligatorio
-        busqueda["expediente"] = safe_expediente(form_search.expediente.data)
-        titulos.append("expediente " + busqueda["expediente"])
+        try:
+            expediente = safe_expediente(form_search.expediente.data)
+            busqueda["expediente"] = expediente
+            titulos.append("expediente " + expediente)
+        except:
+            pass
         # Mostrar resultados
         return render_template(
             plantilla,
@@ -174,8 +178,8 @@ def search():
         return render_template(
             "ubicaciones_expedientes/search_admin.jinja2",
             form=form_search,
-            distritos=Distrito.query.filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").order_by(Distrito.nombre).all(),
-            autoridades=Autoridad.query.filter(Autoridad.es_jurisdiccional == True).filter(Autoridad.es_notaria == False).filter(Autoridad.estatus == "A").order_by(Autoridad.clave).all(),
+            distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
+            autoridades=Autoridad.query.filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
         )
     # Mostrar buscador con la autoridad fija
     form_search.distrito.data = current_user.autoridad.distrito.nombre
@@ -186,7 +190,6 @@ def search():
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de ubicaciones de expedientes"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -196,25 +199,24 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = UbicacionExpediente.query
     if "estatus" in request.form:
-        consulta = consulta.filter(UbicacionExpediente.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(UbicacionExpediente.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
         if autoridad:
             consulta = consulta.filter(UbicacionExpediente.autoridad == autoridad)
     if "expediente" in request.form:
         try:
-            consulta = consulta.filter(UbicacionExpediente.expediente == safe_expediente(request.form["expediente"]))
+            expediente = safe_expediente(request.form["expediente"])
+            consulta = consulta.filter_by(expediente=expediente)
         except (IndexError, ValueError):
             pass
     registros = consulta.order_by(UbicacionExpediente.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for ubicacion_expediente in registros:
@@ -228,7 +230,6 @@ def datatable_json():
                 "ubicacion": ubicacion_expediente.ubicacion,
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,
@@ -242,7 +243,6 @@ def datatable_json():
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def datatable_json_admin():
     """DataTable JSON para listado de ubicaciones de expedientes admin"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -252,25 +252,24 @@ def datatable_json_admin():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = UbicacionExpediente.query
     if "estatus" in request.form:
-        consulta = consulta.filter(UbicacionExpediente.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(UbicacionExpediente.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
         if autoridad:
             consulta = consulta.filter(UbicacionExpediente.autoridad == autoridad)
     if "expediente" in request.form:
         try:
-            consulta = consulta.filter(UbicacionExpediente.expediente == safe_expediente(request.form["expediente"]))
+            expediente = safe_expediente(request.form["expediente"])
+            consulta = consulta.filter_by(expediente=expediente)
         except (IndexError, ValueError):
             pass
     registros = consulta.order_by(UbicacionExpediente.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for ubicacion_expediente in registros:
@@ -285,7 +284,6 @@ def datatable_json_admin():
                 "ubicacion": ubicacion_expediente.ubicacion,
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,

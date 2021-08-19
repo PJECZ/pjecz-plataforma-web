@@ -8,6 +8,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 
 def alimentar_modulos():
     """Alimentar modulos"""
+    click.echo("Alimentando módulos...")
     Modulo(nombre="ABOGADOS").save()
     Modulo(nombre="AUDIENCIAS").save()
     Modulo(nombre="AUTORIDADES").save()

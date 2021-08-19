@@ -12,6 +12,9 @@
         {% else %}
             {{ topbar.button_previous('Agenda de Audiencias', url_for('audiencias.list_active')) }}
         {% endif %}
+        {% if current_user.can_insert('audiencias') and current_user.autoridad_id == audiencia.autoridad_id %}
+            {{ topbar.button_new('Nueva Audiencia', url_for('audiencias.new')) }}
+        {% endif %}
         {% if current_user.can_admin('audiencias') or (current_user.can_edit('audiencias') and audiencia.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('audiencias.edit', audiencia_id=audiencia.id)) }}
             {% if audiencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('audiencias.delete', audiencia_id=audiencia.id)) }}{% endif %}

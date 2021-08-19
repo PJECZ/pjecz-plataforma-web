@@ -62,14 +62,20 @@ def search():
             busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
             titulos.append("fecha hasta " + busqueda["fecha_hasta"])
         if form_search.numero.data:
-            busqueda["numero"] = safe_string(form_search.numero.data)
-            titulos.append("número " + busqueda["numero"])
+            numero = safe_string(form_search.numero.data)
+            if numero != "":
+                busqueda["numero"] = numero
+                titulos.append("número " + numero)
         if form_search.libro.data:
-            busqueda["libro"] = safe_string(form_search.libro.data)
-            titulos.append("libro " + busqueda["libro"])
+            libro = safe_string(form_search.libro.data)
+            if libro != "":
+                busqueda["libro"] = libro
+                titulos.append("libro " + libro)
         if form_search.nombre.data:
-            busqueda["nombre"] = safe_string(form_search.nombre.data)
-            titulos.append("nombre " + busqueda["nombre"])
+            nombre = safe_string(form_search.nombre.data)
+            if nombre != "":
+                busqueda["nombre"] = nombre
+                titulos.append("nombre " + nombre)
         return render_template(
             "abogados/list.jinja2",
             filtros=json.dumps(busqueda),
@@ -81,7 +87,6 @@ def search():
 @abogados.route("/abogados/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de abogados"""
-
     # Tomar parámetros de Datatables
     try:
         draw = int(request.form["draw"])
@@ -91,26 +96,24 @@ def datatable_json():
         draw = 1
         start = 1
         rows_per_page = 10
-
     # Consultar
     consulta = Abogado.query
     if "estatus" in request.form:
-        consulta = consulta.filter(Abogado.estatus == request.form["estatus"])
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter(Abogado.estatus == "A")
+        consulta = consulta.filter_by(estatus="A")
     if "fecha_desde" in request.form:
         consulta = consulta.filter(Abogado.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Abogado.fecha <= request.form["fecha_hasta"])
     if "numero" in request.form:
-        consulta = consulta.filter(Abogado.numero == safe_string(request.form["numero"]))
+        consulta = consulta.filter_by(numero=safe_string(request.form["numero"]))
     if "libro" in request.form:
-        consulta = consulta.filter(Abogado.libro == safe_string(request.form["libro"]))
+        consulta = consulta.filter_by(libro=safe_string(request.form["libro"]))
     if "nombre" in request.form:
         consulta = consulta.filter(Abogado.nombre.like("%" + safe_string(request.form["nombre"]) + "%"))
     registros = consulta.order_by(Abogado.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
     # Elaborar datos para DataTable
     data = []
     for abogado in registros:
@@ -125,7 +128,6 @@ def datatable_json():
                 },
             }
         )
-
     # Entregar JSON
     return {
         "draw": draw,

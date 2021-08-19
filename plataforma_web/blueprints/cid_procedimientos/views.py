@@ -25,7 +25,7 @@ def before_request():
 @cid_procedimientos.route("/cid_procedimientos")
 def list_active():
     """Listado de CID Procedimientos activos"""
-    cid_procedimientos_activos = CIDProcedimiento.query.filter(CIDProcedimiento.estatus == "A").order_by(CIDProcedimiento.creado.desc()).limit(100).all()
+    cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").order_by(CIDProcedimiento.creado.desc()).limit(100).all()
     return render_template("cid_procedimientos/list.jinja2", cid_procedimientos=cid_procedimientos_activos, estatus="A")
 
 
@@ -33,7 +33,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
     """Listado de CID Procedimientos inactivos"""
-    cid_procedimientos_inactivos = CIDProcedimiento.query.filter(CIDProcedimiento.estatus == "B").order_by(CIDProcedimiento.creado.desc()).limit(100).all()
+    cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").order_by(CIDProcedimiento.creado.desc()).limit(100).all()
     return render_template("cid_procedimientos/list.jinja2", cid_procedimientos=cid_procedimientos_inactivos, estatus="B")
 
 

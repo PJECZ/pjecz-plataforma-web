@@ -9,7 +9,7 @@ from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 
 
 class CIDFormatoForm(FlaskForm):
-    """ Formulario CID Formato """
+    """Formulario CID Formato"""
 
     procedimiento = StringField("Procedimiento")  # Read only
     numero = IntegerField("Número", validators=[DataRequired()])

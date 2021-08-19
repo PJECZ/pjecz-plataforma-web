@@ -24,7 +24,7 @@ def before_request():
 @rep_reportes.route("/rep_reportes")
 def list_active():
     """Listado de Reportes activos"""
-    rep_reportes_activos = RepReporte.query.filter(RepReporte.estatus == "A").order_by(RepReporte.creado.desc()).limit(100).all()
+    rep_reportes_activos = RepReporte.query.filter_by(estatus="A").order_by(RepReporte.creado.desc()).limit(100).all()
     return render_template("rep_reportes/list.jinja2", rep_reportes=rep_reportes_activos, estatus="A")
 
 
@@ -32,7 +32,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Reportes inactivos"""
-    rep_reportes_inactivos = RepReporte.query.filter(RepReporte.estatus == "B").order_by(RepReporte.creado.desc()).limit(100).all()
+    rep_reportes_inactivos = RepReporte.query.filter_by(estatus="B").order_by(RepReporte.creado.desc()).limit(100).all()
     return render_template("rep_reportes/list.jinja2", rep_reportes=rep_reportes_inactivos, estatus="B")
 
 
@@ -40,7 +40,7 @@ def list_inactive():
 def detail(rep_reporte_id):
     """Detalle de un Reporte"""
     rep_reporte = RepReporte.query.get_or_404(rep_reporte_id)
-    rep_resultados = RepResultado.query.filter(RepResultado.rep_reporte == rep_reporte).filter(RepResultado.estatus == "A").all()
+    rep_resultados = RepResultado.query.filter(RepResultado.rep_reporte == rep_reporte).filter_by(estatus="A").all()
     return render_template("rep_reportes/detail.jinja2", rep_reporte=rep_reporte, rep_resultados=rep_resultados)
 
 

@@ -5,15 +5,10 @@
 {% block title %}Acuerdos{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Acuerdos' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Acuerdos inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('listas_de_acuerdos_acuerdos') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('listas_de_acuerdos_acuerdos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('listas_de_acuerdos_acuerdos.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('listas_de_acuerdos_acuerdos') %}
-            {{ topbar.button_new('Nuevo Acuerdo', url_for('listas_de_acuerdos_acuerdos.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -51,7 +46,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {estatus: "{{ estatus }}"}
+                data: {{ filtros }}
             },
             columns: [
                 { data: "creado" },
@@ -74,7 +69,16 @@
                     targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.referencia + '</a>';
+                        return '<a href="' + data.url + '">' +
+                            (data.descripcion.length > 40 ? data.descripcion.substr(0, 20) + '…' : data.descripcion) +
+                            '</a>';
+                    }
+                },
+                {
+                    targets: [5, 6],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.length > 20 ? data.substr(0, 20) + '…' : data;
                     }
                 }
             ],
