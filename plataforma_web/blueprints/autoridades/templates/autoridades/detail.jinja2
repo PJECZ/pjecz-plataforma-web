@@ -18,33 +18,35 @@
 
 {% block content %}
 
-    {% call detail.mosaics() %}
-        {% if autoridad.audiencia_categoria != "NO DEFINIDO" %}
-            {% call detail.mosaics_card(label='Agenda de Audiencias', url=url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id), icon="mdi:calendar-month") %}
-                <p>{{ autoridad.audiencia_categoria }}</p>
-            {% endcall %}
-        {% endif %}
-        {% if autoridad.directorio_edictos != "" %}
-            {% call detail.mosaics_card(label='Edictos', url=url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id), icon="mdi:file-check") %}
-                <p>{{ autoridad.directorio_edictos }}</p>
-            {% endcall %}
-        {% endif %}
-        {% if autoridad.directorio_glosas != "" %}
-            {% call detail.mosaics_card(label='Glosas', url=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id), icon="mdi:book") %}
-                <p>{{ autoridad.directorio_glosas }}</p>
-            {% endcall %}
-        {% endif %}
-        {% if autoridad.directorio_listas_de_acuerdos != "" %}
-            {% call detail.mosaics_card(label='Listas de Acuerdos', url=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id), icon="mdi:file-document") %}
-                <p>{{ autoridad.directorio_listas_de_acuerdos }}</p>
-            {% endcall %}
-        {% endif %}
-        {% if autoridad.directorio_listas_de_acuerdos != "" %}
-            {% call detail.mosaics_card(label='V.P. de Sentencias', url=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id), icon="mdi:gavel") %}
-                <p>{{ autoridad.directorio_sentencias }}</p>
-            {% endcall %}
-        {% endif %}
-    {% endcall %}
+    {% if autoridad.audiencia_categoria != "NO DEFINIDO" or autoridad.directorio_edictos != "" or autoridad.directorio_glosas != "" or autoridad.directorio_listas_de_acuerdos != "" or autoridad.directorio_sentencias != "" %}
+        {% call detail.mosaics() %}
+            {% if autoridad.audiencia_categoria != "NO DEFINIDO" %}
+                {% call detail.mosaics_card(label='Agenda de Audiencias', url=url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id), icon="mdi:calendar-month") %}
+                    <p>{{ autoridad.audiencia_categoria }}</p>
+                {% endcall %}
+            {% endif %}
+            {% if autoridad.directorio_edictos != "" %}
+                {% call detail.mosaics_card(label='Edictos', url=url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id), icon="mdi:file-check") %}
+                    <p>{{ autoridad.directorio_edictos }}</p>
+                {% endcall %}
+            {% endif %}
+            {% if autoridad.directorio_glosas != "" %}
+                {% call detail.mosaics_card(label='Glosas', url=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id), icon="mdi:book") %}
+                    <p>{{ autoridad.directorio_glosas }}</p>
+                {% endcall %}
+            {% endif %}
+            {% if autoridad.directorio_listas_de_acuerdos != "" %}
+                {% call detail.mosaics_card(label='Listas de Acuerdos', url=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id), icon="mdi:file-document") %}
+                    <p>{{ autoridad.directorio_listas_de_acuerdos }}</p>
+                {% endcall %}
+            {% endif %}
+            {% if autoridad.directorio_sentencias != "" %}
+                {% call detail.mosaics_card(label='V.P. de Sentencias', url=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id), icon="mdi:gavel") %}
+                    <p>{{ autoridad.directorio_sentencias }}</p>
+                {% endcall %}
+            {% endif %}
+        {% endcall %}
+    {% endif %}
 
     {% call detail.card(estatus=autoridad.estatus) %}
         {{ detail.label_value_big('Descripción', autoridad.descripcion) }}
