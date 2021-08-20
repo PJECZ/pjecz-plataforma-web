@@ -30,8 +30,6 @@
                     <th>Departamentos</th>
                     <th>Descripciones</th>
                     <th>Desc. cortas</th>
-                    <th>Es Jurisdiccional</th>
-                    <th>Es Notaría</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,8 +39,6 @@
                     <td>{{ autoridad.distrito.nombre_corto }}</td>
                     <td>{{ autoridad.descripcion }}</td>
                     <td>{{ autoridad.descripcion_corta }}</td>
-                    <td>{% if autoridad.es_jurisdiccional %}Jurisdiccional{% endif %}</td>
-                    <td>{% if autoridad.es_notaria %}Notaría{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

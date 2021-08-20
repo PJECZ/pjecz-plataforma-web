@@ -23,6 +23,7 @@ pylint-flask-sqlalchemy
 PyMySQL
 pylint
 python-dateutil
+pytz
 rq
 SQLAlchemy
 SQLAlchemy-Utils

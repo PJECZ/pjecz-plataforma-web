@@ -53,8 +53,8 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "tiempo" },
                 { data: "detalle" },
+                { data: "tipo_audiencia" },
                 { data: "sala" },
                 { data: "caracter" },
                 { data: "causa_penal" }
@@ -62,16 +62,9 @@
             columnDefs: [
                 {
                     targets: 0,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
-                    }
-                },
-                {
-                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.tipo_audiencia + '</a>';
+                        return '<a href="' + data.url + '">' + moment.utc(data.tiempo).local().format("YYYY-MM-DD HH:mm:ss") + '</a>';
                     }
                 },
                 {
