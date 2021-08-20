@@ -109,9 +109,9 @@
 
 {# Mosaic #}
 {%- macro mosaics(title='') -%}
-    <div class="container px-2 py-2">
+    <div class="container px-2">
         {% if title !=''%}<h3 class="pb-2">{{ title }}</h3>{% endif %}
-        <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+        <div class="row g-4 py-2 row-cols-1 row-cols-lg-3">
             {{ caller () }}
         </div>
     </div>
