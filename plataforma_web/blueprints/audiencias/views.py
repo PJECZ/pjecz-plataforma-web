@@ -180,11 +180,11 @@ def datatable_json():
     for audiencia in registros:
         data.append(
             {
-                "tiempo": audiencia.tiempo,
                 "detalle": {
-                    "tipo_audiencia": audiencia.tipo_audiencia,
+                    "tiempo": audiencia.tiempo,
                     "url": url_for("audiencias.detail", audiencia_id=audiencia.id),
                 },
+                "tipo_audiencia": audiencia.tipo_audiencia,
                 "expediente": audiencia.expediente,
                 "actores": audiencia.actores,
                 "demandados": audiencia.demandados,
@@ -238,11 +238,11 @@ def datatable_json_admin():
             {
                 "creado": audiencia.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": audiencia.autoridad.clave,
-                "tiempo": audiencia.tiempo,
                 "detalle": {
-                    "tipo_audiencia": audiencia.tipo_audiencia,
+                    "tiempo": audiencia.tiempo,
                     "url": url_for("audiencias.detail", audiencia_id=audiencia.id),
                 },
+                "tipo_audiencia": audiencia.tipo_audiencia,
                 "expediente": audiencia.expediente,
                 "actores": audiencia.actores,
                 "demandados": audiencia.demandados,
@@ -318,6 +318,11 @@ def new_generica():
             flash(str(error), "warning")
             return render_template("audiencias/new_generica.jinja2", form=form)
 
+        # Validar tipo de audiencia
+        tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        if tipo_audiencia == "":
+            tipo_audiencia = "NO DEFINIDO"
+
         # Validar expediente
         try:
             expediente = safe_expediente(form.expediente.data)
@@ -329,7 +334,7 @@ def new_generica():
         audiencia = Audiencia(
             autoridad=autoridad,
             tiempo=tiempo,
-            tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            tipo_audiencia=tipo_audiencia,
             expediente=expediente,
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
@@ -379,11 +384,16 @@ def new_mapo():
             flash(str(error), "warning")
             return render_template("audiencias/new_mapo.jinja2", form=form)
 
+        # Validar tipo de audiencia
+        tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        if tipo_audiencia == "":
+            tipo_audiencia = "NO DEFINIDO"
+
         # Insertar registro
         audiencia = Audiencia(
             autoridad=autoridad,
             tiempo=tiempo,
-            tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            tipo_audiencia=tipo_audiencia,
             sala=safe_string(form.sala.data),
             caracter=safe_string(form.caracter.data),
             causa_penal=safe_string(form.causa_penal.data),
@@ -434,6 +444,11 @@ def new_dipe():
             flash(str(error), "warning")
             return render_template("audiencias/new_dipe.jinja2", form=form)
 
+        # Validar tipo de audiencia
+        tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        if tipo_audiencia == "":
+            tipo_audiencia = "NO DEFINIDO"
+
         # Validar expediente
         try:
             expediente = safe_expediente(form.expediente.data)
@@ -445,7 +460,7 @@ def new_dipe():
         audiencia = Audiencia(
             autoridad=autoridad,
             tiempo=tiempo,
-            tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            tipo_audiencia=tipo_audiencia,
             expediente=expediente,
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
@@ -498,6 +513,11 @@ def new_sape():
             flash(str(error), "warning")
             return render_template("audiencias/new_sape.jinja2", form=form)
 
+        # Validar tipo de audiencia
+        tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        if tipo_audiencia == "":
+            tipo_audiencia = "NO DEFINIDO"
+
         # Validar expediente
         try:
             expediente = safe_expediente(form.expediente.data)
@@ -509,7 +529,7 @@ def new_sape():
         audiencia = Audiencia(
             autoridad=autoridad,
             tiempo=tiempo,
-            tipo_audiencia=safe_string(form.tipo_audiencia.data),
+            tipo_audiencia=tipo_audiencia,
             expediente=expediente,
             actores=safe_string(form.actores.data),
             demandados=safe_string(form.demandados.data),
@@ -596,6 +616,11 @@ def edit_generica(audiencia_id):
             flash(str(error), "warning")
             return render_template("audiencias/edit_generica.jinja2", form=form, audiencia=audiencia)
 
+        # Validar tipo de audiencia
+        tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        if tipo_audiencia == "":
+            tipo_audiencia = "NO DEFINIDO"
+
         # Validar expediente
         try:
             expediente = safe_expediente(form.expediente.data)
@@ -605,7 +630,7 @@ def edit_generica(audiencia_id):
 
         # Actualizar registro
         audiencia.tiempo = tiempo
-        audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.tipo_audiencia = tipo_audiencia
         audiencia.expediente = expediente
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
@@ -667,9 +692,14 @@ def edit_mapo(audiencia_id):
             flash(str(error), "warning")
             return render_template("audiencias/edit_mapo.jinja2", form=form, audiencia=audiencia)
 
+        # Validar tipo de audiencia
+        tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        if tipo_audiencia == "":
+            tipo_audiencia = "NO DEFINIDO"
+
         # Actualizar registro
         audiencia.tiempo = tiempo
-        audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.tipo_audiencia = tipo_audiencia
         audiencia.sala = safe_string(form.sala.data)
         audiencia.caracter = safe_string(form.caracter.data)
         audiencia.causa_penal = safe_string(form.causa_penal.data)
@@ -733,6 +763,11 @@ def edit_dipe(audiencia_id):
             flash(str(error), "warning")
             return render_template("audiencias/edit_dipe.jinja2", form=form, audiencia=audiencia)
 
+        # Validar tipo de audiencia
+        tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        if tipo_audiencia == "":
+            tipo_audiencia = "NO DEFINIDO"
+
         # Validar expediente
         try:
             expediente = safe_expediente(form.expediente.data)
@@ -742,7 +777,7 @@ def edit_dipe(audiencia_id):
 
         # Actualizar registro
         audiencia.tiempo = tiempo
-        audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.tipo_audiencia = tipo_audiencia
         audiencia.expediente = expediente
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
@@ -810,6 +845,11 @@ def edit_sape(audiencia_id):
             flash(str(error), "warning")
             return render_template("audiencias/edit_sape.jinja2", form=form, audiencia=audiencia)
 
+        # Validar tipo de audiencia
+        tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        if tipo_audiencia == "":
+            tipo_audiencia = "NO DEFINIDO"
+
         # Validar expediente
         try:
             expediente = safe_expediente(form.expediente.data)
@@ -819,7 +859,7 @@ def edit_sape(audiencia_id):
 
         # Actualizar registro
         audiencia.tiempo = tiempo
-        audiencia.tipo_audiencia = safe_string(form.tipo_audiencia.data)
+        audiencia.tipo_audiencia = tipo_audiencia
         audiencia.expediente = expediente
         audiencia.actores = safe_string(form.actores.data)
         audiencia.demandados = safe_string(form.demandados.data)
