@@ -106,3 +106,26 @@
     {{ moment.include_moment() }}
     {{ moment.locale("es") }}
 {%- endmacro -%}
+
+{# Mosaic #}
+{%- macro mosaics(title='') -%}
+    <div class="container px-2 py-2">
+        {% if title !=''%}<h3 class="pb-2">{{ title }}</h3>{% endif %}
+        <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+            {{ caller () }}
+        </div>
+    </div>
+{%- endmacro -%}
+
+{# Mosaic element #}
+{%- macro mosaics_card(label, url, icon) -%}
+            <div class="feature col">
+                <a href="{{ url }}" class="icon-link">
+                    <div class="feature-icon bg-primary bg-gradient">
+                        <span class="iconify" data-icon="{{ icon }}" style="font-size: 48px;"></span>
+                    </div>
+                </a>
+                <h3>{{ label }}</h3>
+                {{ caller () }}
+            </div>
+{%- endmacro -%}

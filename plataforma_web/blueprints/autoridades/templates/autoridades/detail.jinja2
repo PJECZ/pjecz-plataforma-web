@@ -6,7 +6,7 @@
 {% block title %}Autoridad{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Autoridad') %}
+    {% call topbar.page_buttons(autoridad.descripcion + ', ' + autoridad.distrito.nombre_corto) %}
         {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
         {% if current_user.can_edit('autoridades') %}
             {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
@@ -17,6 +17,35 @@
 {% endblock %}
 
 {% block content %}
+
+    {% call detail.mosaics() %}
+        {% if autoridad.audiencia_categoria != "NO DEFINIDO" %}
+            {% call detail.mosaics_card(label='Agenda de Audiencias', url=url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id), icon="mdi:calendar-month") %}
+                <p>{{ autoridad.audiencia_categoria }}</p>
+            {% endcall %}
+        {% endif %}
+        {% if autoridad.directorio_edictos != "" %}
+            {% call detail.mosaics_card(label='Edictos', url=url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id), icon="mdi:file-check") %}
+                <p>{{ autoridad.directorio_edictos }}</p>
+            {% endcall %}
+        {% endif %}
+        {% if autoridad.directorio_glosas != "" %}
+            {% call detail.mosaics_card(label='Glosas', url=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id), icon="mdi:book") %}
+                <p>{{ autoridad.directorio_glosas }}</p>
+            {% endcall %}
+        {% endif %}
+        {% if autoridad.directorio_listas_de_acuerdos != "" %}
+            {% call detail.mosaics_card(label='Listas de Acuerdos', url=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id), icon="mdi:file-document") %}
+                <p>{{ autoridad.directorio_listas_de_acuerdos }}</p>
+            {% endcall %}
+        {% endif %}
+        {% if autoridad.directorio_listas_de_acuerdos != "" %}
+            {% call detail.mosaics_card(label='V.P. de Sentencias', url=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id), icon="mdi:gavel") %}
+                <p>{{ autoridad.directorio_sentencias }}</p>
+            {% endcall %}
+        {% endif %}
+    {% endcall %}
+
     {% call detail.card(estatus=autoridad.estatus) %}
         {{ detail.label_value_big('Descripción', autoridad.descripcion) }}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
@@ -26,13 +55,9 @@
         {{ detail.label_value_boolean('Es Notaría', autoridad.es_notaria) }}
         {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
         {{ detail.label_value('Materia', autoridad.materia.nombre, url_for('materias.detail', materia_id=autoridad.materia_id)) }}
-        {{ detail.label_value('Categoría de audiencias', autoridad.audiencia_categoria) }}
-        {{ detail.label_value('Directorio para edictos', autoridad.directorio_edictos, link=url_for('edictos.list_autoridad_edictos', autoridad_id=autoridad.id)) }}
-        {{ detail.label_value('Directorio para glosas', autoridad.directorio_glosas, link=url_for('glosas.list_autoridad_glosas', autoridad_id=autoridad.id)) }}
-        {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos, link=url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
-        {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias, link=url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
+
     {% if usuarios and current_user.can_view('usuarios') %}
         {% call detail.card('Usuarios') %}
             <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
@@ -57,6 +82,7 @@
             </table>
         {% endcall %}
     {% endif %}
+
 {% endblock %}
 
 {% block custom_javascript %}
