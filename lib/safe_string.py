@@ -33,7 +33,7 @@ def safe_expediente(input_str):
     """Safe expediente"""
     if not isinstance(input_str, str) or input_str.strip() == "":
         return ""
-    elementos = re.sub(r"[^0-9A-Z]+", "|", unidecode(input_str)).split("|")
+    elementos = re.sub(r"[^a-zA-Z0-9]+", "|", unidecode(input_str)).split("|")
     try:
         numero = int(elementos[0])
         ano = int(elementos[1])
@@ -44,10 +44,10 @@ def safe_expediente(input_str):
     if ano < 1950 or ano > date.today().year:
         raise ValueError
     extra_1 = ""
-    if len(elementos) == 3:
+    if len(elementos) >= 3:
         extra_1 = "-" + elementos[2].upper()
     extra_2 = ""
-    if len(elementos) == 4:
+    if len(elementos) >= 4:
         extra_2 = "-" + elementos[3].upper()
     limpio = f"{str(numero)}/{str(ano)}{extra_1}{extra_2}"
     if len(limpio) > 16:
