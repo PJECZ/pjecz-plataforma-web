@@ -5,7 +5,7 @@ import re
 from datetime import date
 from unidecode import unidecode
 
-EXPEDIENTE_REGEXP = r"^\d+\/[12]\d\d\d(-[a-zA-Z0-9]+)?$"
+EXPEDIENTE_REGEXP = r"^\d+\/[12]\d\d\d(-[a-zA-Z0-9]+(-[a-zA-Z0-9]+)?)?$"
 FOLIO_REGEXP = r"^\d+/[12]\d\d\d$"
 NUMERO_PUBLICACION_REGEXP = r"^\d+/[12]\d\d\d$"
 SENTENCIA_REGEXP = r"^\d+/[12]\d\d\d$"
@@ -43,10 +43,13 @@ def safe_expediente(input_str):
         raise ValueError
     if ano < 1950 or ano > date.today().year:
         raise ValueError
-    extra = ""
+    extra_1 = ""
     if len(elementos) == 3:
-        extra = "-" + elementos[2].upper()
-    limpio = f"{str(numero)}/{str(ano)}{extra}"
+        extra_1 = "-" + elementos[2].upper()
+    extra_2 = ""
+    if len(elementos) == 4:
+        extra_2 = "-" + elementos[3].upper()
+    limpio = f"{str(numero)}/{str(ano)}{extra_1}{extra_2}"
     if len(limpio) > 16:
         raise ValueError
     return limpio
