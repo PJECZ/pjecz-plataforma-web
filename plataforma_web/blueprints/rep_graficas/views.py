@@ -14,6 +14,8 @@ from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
 rep_graficas = Blueprint("rep_graficas", __name__, template_folder="templates")
 
+MODULO = "REPORTES"
+
 
 @rep_graficas.before_request
 @login_required

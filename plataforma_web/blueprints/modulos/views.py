@@ -10,6 +10,8 @@ from plataforma_web.blueprints.modulos.models import Modulo
 
 modulos = Blueprint("modulos", __name__, template_folder="templates")
 
+MODULO = "MODULOS"
+
 
 @modulos.before_request
 @login_required
