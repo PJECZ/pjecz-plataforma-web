@@ -13,6 +13,8 @@ from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
 rep_reportes = Blueprint("rep_reportes", __name__, template_folder="templates")
 
+MODULO = "REPORTES"
+
 
 @rep_reportes.before_request
 @login_required

@@ -14,6 +14,8 @@ from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 
 cid_formatos = Blueprint("cid_formatos", __name__, template_folder="templates")
 
+MODULO = "DOCUMENTACIONES"
+
 
 @cid_formatos.before_request
 @login_required

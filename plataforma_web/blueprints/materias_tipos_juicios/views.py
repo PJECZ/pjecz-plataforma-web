@@ -14,7 +14,7 @@ from plataforma_web.blueprints.materias_tipos_juicios.forms import MateriaTipoJu
 
 materias_tipos_juicios = Blueprint("materias_tipos_juicios", __name__, template_folder="templates")
 
-MODULO = "MATERIAS_TIPOS_JUICIOS"
+MODULO = "MATERIAS TIPOS JUICIOS"
 
 
 @materias_tipos_juicios.before_request

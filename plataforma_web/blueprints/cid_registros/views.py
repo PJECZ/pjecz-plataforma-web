@@ -13,6 +13,8 @@ from plataforma_web.blueprints.cid_registros.models import CIDRegistro
 
 cid_registros = Blueprint("cid_registros", __name__, template_folder="templates")
 
+MODULO = "DOCUMENTACIONES"
+
 
 @cid_registros.before_request
 @login_required
