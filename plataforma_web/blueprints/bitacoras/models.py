@@ -21,6 +21,7 @@ class Bitacora(db.Model, UniversalMixin):
             ("LISTAS DE ACUERDOS", "Listas de Acuerdos"),
             ("MATERIAS", "Materias"),
             ("MATERIAS TIPOS JUICIOS", "Materias Tipos Juicios"),
+            ("MODULOS", "Módulos"),
             ("PERITOS", "Peritos"),
             ("REPORTES", "Reportes"),
             ("SENTENCIAS", "Sentencias"),
