@@ -13,7 +13,6 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
-
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")

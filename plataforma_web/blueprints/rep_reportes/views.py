@@ -38,6 +38,15 @@ def list_inactive():
     return render_template("rep_reportes/list.jinja2", rep_reportes=rep_reportes_inactivos, estatus="B")
 
 
+@rep_reportes.route("/rep_reportes/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Reportes"""
+    # Tomar parámetros de Datatables
+    # Consultar
+    # Elaborar datos para DataTable
+    # Entregar JSON
+
+
 @rep_reportes.route("/rep_reportes/<int:rep_reporte_id>")
 def detail(rep_reporte_id):
     """Detalle de un Reporte"""

@@ -11,7 +11,6 @@ from plataforma_web.app import create_app
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
 
-
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
@@ -37,7 +36,7 @@ def elaborar(rep_grafica_id: int):
         bitacora.error(mensaje)
         return mensaje
 
-    # Si no tiene reportes
+    # Si no tiene reportes, crearlos
     if len(rep_grafica.rep_reportes) == 0:
         if rep_grafica.corte == 'DIARIO':
             puntero = rep_grafica.desde

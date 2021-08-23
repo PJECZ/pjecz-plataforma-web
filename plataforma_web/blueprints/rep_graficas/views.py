@@ -39,6 +39,15 @@ def list_inactive():
     return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_inactivos, estatus="B")
 
 
+@rep_graficas.route("/rep_graficas/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Gráficas"""
+    # Tomar parámetros de Datatables
+    # Consultar
+    # Elaborar datos para DataTable
+    # Entregar JSON
+
+
 @rep_graficas.route("/rep_graficas/<int:rep_grafica_id>")
 def detail(rep_grafica_id):
     """Detalle de una Gráfica"""

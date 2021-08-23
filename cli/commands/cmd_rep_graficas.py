@@ -9,7 +9,6 @@ from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 
-
 app = create_app()
 db.app = app
 
