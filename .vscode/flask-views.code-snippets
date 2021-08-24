@@ -6,11 +6,13 @@
 			"\"\"\"",
 			"${1:Modulos}, vistas",
 			"\"\"\"",
-			"from flask import Blueprint, flash, redirect, render_template, url_for",
+			"import json",
+			"from flask import Blueprint, flash, redirect, render_template, request, url_for",
 			"from flask_login import login_required",
+			"",
+			"from lib import datatables",
 			"from ${2:sistema}.blueprints.roles.models import Permiso",
 			"from ${2:sistema}.blueprints.usuarios.decorators import permission_required",
-			"",
 			"from ${2:sistema}.blueprints.${3:blueprint}.models import ${4:Clase}",
 			"",
 			"${3:blueprint} = Blueprint('${3:blueprint}', __name__, template_folder='templates')",
@@ -18,16 +20,9 @@
 			"",
 			"@${3:blueprint}.before_request",
 			"@login_required",
-			"@permission_required(Permiso.VER_)",
+			"@permission_required(Permiso.${4:VER})",
 			"def before_request():",
 			"\t\"\"\" Permiso por defecto \"\"\"",
-			"",
-			"",
-			"@${3:blueprint}.route('/${3:blueprint}')",
-			"def list_active():",
-			"\t\"\"\" Listado de ${1:Modulos} activos \"\"\"",
-			"\t${3:blueprint}_activos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'A').order_by(${4:Clase}.creado.desc()).limit(100).all()",
-			"\treturn render_template('${3:blueprint}/list.jinja2', ${3:blueprint}=${3:blueprint}_activos, estatus='A')",
 			"",
 			""
 		],
@@ -47,6 +42,23 @@
 		],
 		"description": "Listado de registros activos"
 	},
+	"Flask views list_active datatable json": {
+		"scope": "python",
+		"prefix": "fviews_list_active_datatable_json",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}')",
+			"def list_active():",
+			"\t\"\"\"Listado de ${2:Modulo} activos\"\"\"",
+			"\treturn render_template(",
+			"\t\t'${1:blueprint}/list.jinja2',",
+			"\t\tfiltros=json.dumps({'estatus': 'A'}),",
+			"\t\ttitulo='${2:Modulo}',",
+			"\t\testatus='A',",
+			"\t)",
+			""
+		],
+		"description": "Listado de registros activos datatable json"
+	},
 	"Flask views list_inactive": {
 		"scope": "python",
 		"prefix": "fviews_list_inactive",
@@ -61,6 +73,24 @@
 			""
 		],
 		"description": "Listado de registros inactivos"
+	},
+	"Flask views list_inactive datatable json": {
+		"scope": "python",
+		"prefix": "fviews_list_inactive_datatable_json",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
+			"@permission_required(Permiso.MODIFICAR_)",
+			"def list_inactive():",
+			"\t\"\"\"Listado de ${2:Modulo} inactivos\"\"\"",
+			"\treturn render_template(",
+			"\t\t'${1:blueprint}/list.jinja2',",
+			"\t\tfiltros=json.dumps({'estatus': 'B'}),",
+			"\t\ttitulo='${2:Modulo} inactivos',",
+			"\t\testatus='B',",
+			"\t)",
+			""
+		],
+		"description": "Listado de registros inactivos datatable json"
 	},
 	"Flask views search": {
 		"scope": "python",
@@ -86,6 +116,42 @@
 			""
 		],
 		"description": "Buscar"
+	},
+	"Flask views datatable json": {
+		"scope": "python",
+		"prefix": "fviews_datatable_json",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/datatable_json', methods=['GET', 'POST'])",
+			"def datatable_json():",
+			"\t\"\"\"DataTable JSON para listado de ${2:Modulo}\"\"\"",
+			"\t# Tomar parámetros de Datatables",
+			"\tdraw, start, rows_per_page = datatables.get_parameters()",
+			"\t# Consultar",
+			"\tconsulta = ${3:Class}.query",
+			"\tif 'estatus' in request.form:",
+			"\t\tconsulta = consulta.filter_by(estatus=request.form['estatus'])",
+			"\telse:",
+			"\t\tconsulta = consulta.filter_by(estatus='A')",
+			"\tregistros = consulta.order_by(${3:Class}.creado.desc()).offset(start).limit(rows_per_page).all()",
+			"\ttotal = consulta.count()",
+			"\t# Elaborar datos para DataTable",
+			"\tdata = []",
+			"\tfor resultado in registros:",
+			"\t\tdata.append(",
+			"\t\t\t{",
+			"\t\t\t\t'creado': resultado.creado.strftime('%Y-%m-%d %H:%M:%S'),",
+			"\t\t\t\t'detalle': {",
+			"\t\t\t\t\t'descripcion': resultado.descripcion,",
+			"\t\t\t\t\t'url': url_for('rep_resultados.detail', rep_resultado_id=resultado.id),",
+			"\t\t\t\t},",
+			"\t\t\t}",
+			"\t\t)",
+			"\t# Entregar JSON",
+			"\treturn datatables.output(draw, total, data)",
+			"",
+			""
+		],
+		"description": "DataTable JSON para listado"
 	},
 	"Flask views detail": {
 		"scope": "python",

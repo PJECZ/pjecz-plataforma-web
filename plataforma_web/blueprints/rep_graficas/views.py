@@ -1,11 +1,13 @@
 """
 Rep Graficas, vistas
 """
-from flask import Blueprint, current_app, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+
+from lib import datatables
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.extensions import db
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_graficas.forms import RepGraficaForm
@@ -26,26 +28,57 @@ def before_request():
 
 @rep_graficas.route("/rep_graficas")
 def list_active():
-    """Listado de Gráficas activos"""
-    rep_graficas_activos = RepGrafica.query.filter_by(estatus="A").all()
-    return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_activos, estatus="A")
+    """Listado de Gráficas activas"""
+    return render_template(
+        "rep_graficas/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Reportes Gráficas",
+        estatus="A",
+    )
 
 
 @rep_graficas.route("/rep_graficas/inactivos")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
-    """Listado de Gráficas inactivos"""
-    rep_graficas_inactivos = RepGrafica.query.filter_by(estatus="B").all()
-    return render_template("rep_graficas/list.jinja2", rep_graficas=rep_graficas_inactivos, estatus="B")
+    """Listado de Gráficas inactivas"""
+    return render_template(
+        "rep_graficas/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Reportes Gráficas inactivas",
+        estatus="B",
+    )
 
 
 @rep_graficas.route("/rep_graficas/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Gráficas"""
     # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
+    consulta = RepGrafica.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(RepGrafica.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
     # Elaborar datos para DataTable
+    data = []
+    for grafica in registros:
+        data.append(
+            {
+                "creado": grafica.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "detalle": {
+                    "descripcion": grafica.descripcion,
+                    "url": url_for("rep_graficas.detail", rep_grafica_id=grafica.id),
+                },
+                "desde": grafica.desde,
+                "hasta": grafica.hasta,
+                "corte": grafica.corte,
+            }
+        )
     # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @rep_graficas.route("/rep_graficas/<int:rep_grafica_id>")
