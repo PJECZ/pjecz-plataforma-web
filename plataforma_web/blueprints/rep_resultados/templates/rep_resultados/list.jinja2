@@ -5,9 +5,7 @@
 {% block title %}Resultados{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Resultados' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Resultados inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button('Gráficas', url_for('rep_graficas.list_active'), 'mdi:puzzle') }}
         {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
         {% if current_user.can_edit('rep_resultados') %}
@@ -47,5 +45,58 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('rep_resultados_datatable') }}
+    <script>
+        $('#rep_resultados_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/rep_resultados/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "creado" },
+                { data: "detalle" },
+                { data: "modulo_nombre" },
+                { data: "tipo" },
+                { data: "cantidad" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
 {% endblock %}

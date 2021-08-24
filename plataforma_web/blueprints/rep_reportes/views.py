@@ -59,6 +59,10 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if request.form["rep_grafica_id"]:
+        rep_grafica = RepGrafica.query.get(request.form["rep_grafica_id"])
+        if rep_grafica:
+            consulta = consulta.filter(RepReporte.rep_grafica == rep_grafica)
     registros = consulta.order_by(RepReporte.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

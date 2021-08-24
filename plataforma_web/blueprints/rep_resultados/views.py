@@ -2,6 +2,7 @@
 Rep Resultados, vistas
 """
 import json
+from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
@@ -56,6 +57,10 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if request.form["rep_reporte_id"]:
+        rep_reporte = RepReporte.query.get(request.form["rep_reporte_id"])
+        if rep_reporte:
+            consulta = consulta.filter(RepResultado.rep_reporte == rep_reporte)
     registros = consulta.order_by(RepResultado.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -64,12 +69,11 @@ def datatable_json():
         data.append(
             {
                 "creado": resultado.creado.strftime("%Y-%m-%d %H:%M:%S"),
-                "rep_reporte_descripcion": resultado.rep_reporte.descripcion,
-                "modulo_nombre": resultado.modulo.nombre,
                 "detalle": {
                     "descripcion": resultado.descripcion,
                     "url": url_for("rep_resultados.detail", rep_resultado_id=resultado.id),
                 },
+                "modulo_nombre": resultado.modulo.nombre,
                 "tipo": resultado.tipo,
                 "cantidad": resultado.cantidad,
             }
