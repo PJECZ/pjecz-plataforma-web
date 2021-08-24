@@ -7,9 +7,9 @@ from flask_login import current_user, login_required
 from lib.safe_string import safe_expediente, safe_message, safe_string
 from lib.time_utc import combine_to_utc, decombine_to_local, join_for_message
 
+from lib import datatables
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
@@ -155,14 +155,7 @@ def list_autoridad_audiencias_inactive(autoridad_id):
 def datatable_json():
     """DataTable JSON para listado de audiencias"""
     # Tomar parámetros de Datatables
-    try:
-        draw = int(request.form["draw"])
-        start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])
-    except (TypeError, ValueError):
-        draw = 1
-        start = 1
-        rows_per_page = 10
+    draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = Audiencia.query
     if "estatus" in request.form:
@@ -199,26 +192,14 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return {
-        "draw": draw,
-        "iTotalRecords": total,
-        "iTotalDisplayRecords": total,
-        "aaData": data,
-    }
+    return datatables.output(draw, total, data)
 
 
 @audiencias.route("/audiencias/datatable_json_admin", methods=["GET", "POST"])
 def datatable_json_admin():
     """DataTable JSON para listado de audiencias admin"""
     # Tomar parámetros de Datatables
-    try:
-        draw = int(request.form["draw"])
-        start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])
-    except (TypeError, ValueError):
-        draw = 1
-        start = 1
-        rows_per_page = 10
+    draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = Audiencia.query
     if "estatus" in request.form:
@@ -257,12 +238,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return {
-        "draw": draw,
-        "iTotalRecords": total,
-        "iTotalDisplayRecords": total,
-        "aaData": data,
-    }
+    return datatables.output(draw, total, data)
 
 
 @audiencias.route("/audiencias/<int:audiencia_id>")

@@ -8,10 +8,9 @@ from flask_login import login_required
 from lib import datatables
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.rep_reportes.forms import RepReporteForm
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
-from plataforma_web.blueprints.rep_reportes.forms import RepReporteForm
-from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
 rep_reportes = Blueprint("rep_reportes", __name__, template_folder="templates")
 
@@ -75,9 +74,9 @@ def datatable_json():
                     "descripcion": reporte.descripcion,
                     "url": url_for("rep_reportes.detail", rep_reporte_id=reporte.id),
                 },
-                "inicio": reporte.inicio,
-                "termino": reporte.termino,
-                "programado": reporte.programado,
+                "inicio": reporte.inicio.strftime("%Y-%m-%d %H:%M:%S"),
+                "termino": reporte.termino.strftime("%Y-%m-%d %H:%M:%S"),
+                "programado": reporte.programado.strftime("%Y-%m-%d %H:%M:%S"),
                 "progreso": reporte.progreso,
             }
         )
@@ -89,8 +88,7 @@ def datatable_json():
 def detail(rep_reporte_id):
     """Detalle de un Reporte"""
     rep_reporte = RepReporte.query.get_or_404(rep_reporte_id)
-    rep_resultados = RepResultado.query.filter(RepResultado.rep_reporte == rep_reporte).filter_by(estatus="A").all()
-    return render_template("rep_reportes/detail.jinja2", rep_reporte=rep_reporte, rep_resultados=rep_resultados)
+    return render_template("rep_reportes/detail.jinja2", rep_reporte=rep_reporte)
 
 
 @rep_reportes.route("/rep_reportes/nuevo/<int:rep_grafica_id>", methods=["GET", "POST"])

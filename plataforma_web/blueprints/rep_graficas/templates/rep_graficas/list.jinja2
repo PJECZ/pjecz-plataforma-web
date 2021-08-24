@@ -26,20 +26,9 @@
                     <th>Descripciones</th>
                     <th>Desde</th>
                     <th>Hasta</th>
-                    <th>Corte</th>
+                    <th>Cortes</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for rep_grafica in rep_graficas %}
-                <tr>
-                    <td>{{ rep_grafica.creado }}</td>
-                    <td><a href="{{ url_for('rep_graficas.detail', rep_grafica_id=rep_grafica.id) }}">{{ rep_grafica.descripcion }}</a></td>
-                    <td>{{ rep_grafica.desde }}</td>
-                    <td>{{ rep_grafica.hasta }}</td>
-                    <td>{{ rep_grafica.corte }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
@@ -99,4 +88,5 @@
                 }
             }
         });
+    </script>
 {% endblock %}

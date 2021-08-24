@@ -21,25 +21,12 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    <th>Reportes</th>
-                    <th>Módulos</th>
                     <th>Descripciones</th>
+                    <th>Módulos</th>
                     <th>Tipos</th>
                     <th>Cantidades</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for rep_resultado in rep_resultados %}
-                <tr>
-                    <td>{{ rep_resultado.creado }}</td>
-                    <td>{{ rep_resultado.rep_reporte.descripcion }}</td>
-                    <td>{{ rep_resultado.modulo.nombre }}</td>
-                    <td><a href="{{ url_for('rep_resultados.detail', rep_resultado_id=rep_resultado.id) }}">{{ rep_resultado.descripcion }}</a></td>
-                    <td>{{ rep_resultado.tipo }}</td>
-                    <td>{{ rep_resultado.cantidad }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
@@ -99,4 +86,5 @@
                 }
             }
         });
+    </script>
 {% endblock %}

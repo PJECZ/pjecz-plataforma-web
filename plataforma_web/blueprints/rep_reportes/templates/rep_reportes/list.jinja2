@@ -24,22 +24,10 @@
                     <th>Descripciones</th>
                     <th>Inicios</th>
                     <th>Términos</th>
-                    <th>Programado</th>
-                    <th>Progreso</th>
+                    <th>Programados</th>
+                    <th>Progresos</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for rep_reporte in rep_reportes %}
-                <tr>
-                    <td>{{ rep_reporte.creado }}</td>
-                    <td><a href="{{ url_for('rep_reportes.detail', rep_reporte_id=rep_reporte.id) }}">{{ rep_reporte.descripcion }}</a></td>
-                    <td>{{ rep_reporte.inicio }}</td>
-                    <td>{{ rep_reporte.termino }}</td>
-                    <td>{{ rep_reporte.programado }}</td>
-                    <td>{{ rep_reporte.progreso }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
@@ -71,7 +59,7 @@
             ],
             columnDefs: [
                 {
-                    targets: 0,
+                    targets: [0, 2, 3, 4],
                     type: "date",
                     render: function (data, type, row) {
                         return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
@@ -100,4 +88,5 @@
                 }
             }
         });
+    </script>
 {% endblock %}

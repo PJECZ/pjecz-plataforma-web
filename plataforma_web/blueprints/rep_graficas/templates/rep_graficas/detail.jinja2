@@ -15,8 +15,8 @@
             {% if rep_grafica.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('rep_graficas.delete', rep_grafica_id=rep_grafica.id)) }}{% endif %}
             {% if rep_grafica.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('rep_graficas.recover', rep_grafica_id=rep_grafica.id)) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('rep_reportes') %}
-            {{ topbar.button_new('Nuevo Reporte', url_for('rep_reportes.new', rep_grafica_id=rep_grafica.id)) }}
+        {% if current_user.can_insert('rep_graficas') %}
+            {# topbar.button_new('Nuevo Reporte', url_for('rep_reportes.new', rep_grafica_id=rep_grafica.id)) #}
             {{ topbar.button_make('Elaborar Gráfica', url_for('rep_graficas.make', rep_grafica_id=rep_grafica.id)) }}
         {% endif %}
     {% endcall %}

@@ -2,13 +2,13 @@
 Rep Resultados, vistas
 """
 import json
-from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from lib import datatables
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
 rep_resultados = Blueprint("rep_resultados", __name__, template_folder="templates")
