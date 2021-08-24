@@ -10,12 +10,13 @@ from flask_login import current_user, login_required
 from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
+
+from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_sentencia, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
@@ -232,14 +233,7 @@ def search():
 def datatable_json():
     """DataTable JSON para sentencias"""
     # Tomar parámetros de Datatables
-    try:
-        draw = int(request.form["draw"])
-        start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])
-    except (TypeError, ValueError):
-        draw = 1
-        start = 1
-        rows_per_page = 10
+    draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = Sentencia.query
     if "estatus" in request.form:
@@ -279,6 +273,8 @@ def datatable_json():
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
                 },
                 "expediente": sentencia.expediente,
+                "materia_nombre": sentencia.materia_tipo_juicio.materia.nombre,
+                "materia_tipo_juicio_descripcion": sentencia.materia_tipo_juicio.descripcion,
                 "es_perspectiva_genero": "Sí" if sentencia.es_perspectiva_genero else "",
                 "archivo": {
                     "url": sentencia.url,
@@ -286,12 +282,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return {
-        "draw": draw,
-        "iTotalRecords": total,
-        "iTotalDisplayRecords": total,
-        "aaData": data,
-    }
+    return datatables.output(draw, total, data)
 
 
 @sentencias.route("/sentencias/datatable_json_admin", methods=["GET", "POST"])
@@ -299,14 +290,7 @@ def datatable_json():
 def datatable_json_admin():
     """DataTable JSON para sentencias admin"""
     # Tomar parámetros de Datatables
-    try:
-        draw = int(request.form["draw"])
-        start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])
-    except (TypeError, ValueError):
-        draw = 1
-        start = 1
-        rows_per_page = 10
+    draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = Sentencia.query
     if "estatus" in request.form:
@@ -348,6 +332,8 @@ def datatable_json_admin():
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
                 },
                 "expediente": sentencia.expediente,
+                "materia_nombre": sentencia.materia_tipo_juicio.materia.nombre,
+                "materia_tipo_juicio_descripcion": sentencia.materia_tipo_juicio.descripcion,
                 "es_perspectiva_genero": "Sí" if sentencia.es_perspectiva_genero else "",
                 "archivo": {
                     "url": sentencia.url,
@@ -355,12 +341,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return {
-        "draw": draw,
-        "iTotalRecords": total,
-        "iTotalDisplayRecords": total,
-        "aaData": data,
-    }
+    return datatables.output(draw, total, data)
 
 
 @sentencias.route("/sentencias/refrescar/<int:autoridad_id>")

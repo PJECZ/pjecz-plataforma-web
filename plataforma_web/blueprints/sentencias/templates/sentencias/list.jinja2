@@ -33,6 +33,8 @@
                     <th>Fechas</th>
                     <th>Sentencias</th>
                     <th>Expedientes</th>
+                    <th>Materias</th>
+                    <th>Tipos de Juicios</th>
                     <th>P. Género</th>
                     <th>Archivos</th>
                 </tr>
@@ -62,6 +64,8 @@
                 { data: "fecha" },
                 { data: "detalle" },
                 { data: "expediente" },
+                { data: "materia_nombre" },
+                { data: "materia_tipo_juicio_descripcion" },
                 { data: "es_perspectiva_genero" },
                 { data: "archivo" }
             ],
@@ -75,6 +79,13 @@
                 },
                 {
                     targets: 4,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.length > 20 ? data.substr(0, 40) + '…' : data;
+                    }
+                },
+                {
+                    targets: 6,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">PDF</a>';

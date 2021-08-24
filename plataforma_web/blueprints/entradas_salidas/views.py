@@ -5,9 +5,10 @@ from flask import Blueprint, request, render_template
 from flask.helpers import url_for
 from flask_login import login_required
 
+from lib import datatables
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 
 entradas_salidas = Blueprint("entradas_salidas", __name__, template_folder="templates")
@@ -24,17 +25,10 @@ def list_active():
 @entradas_salidas.route("/entradas_salidas/datatable_json", methods=["GET", "POST"])
 @login_required
 @permission_required(Permiso.VER_CUENTAS)
-def json():
+def datatable_json():
     """DataTable JSON para listado de entradas y salidas"""
     # Tomar parámetros de Datatables
-    try:
-        draw = int(request.form["draw"])
-        start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])
-    except (TypeError, ValueError):
-        draw = 1
-        start = 1
-        rows_per_page = 10
+    draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = EntradaSalida.query
     registros = consulta.order_by(EntradaSalida.creado.desc()).offset(start).limit(rows_per_page).all()
@@ -53,9 +47,4 @@ def json():
             }
         )
     # Entregar JSON
-    return {
-        "draw": draw,
-        "iTotalRecords": total,
-        "iTotalDisplayRecords": total,
-        "aaData": data,
-    }
+    return datatables.output(draw, total, data)
