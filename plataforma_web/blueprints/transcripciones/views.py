@@ -6,7 +6,6 @@ from flask_login import login_required
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.blueprints.transcripciones.models import Transcripcion
 from plataforma_web.blueprints.transcripciones.forms import TranscripcionNewForm, TranscripcionEditForm, TranscripcionSearchForm
 

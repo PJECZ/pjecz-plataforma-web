@@ -4,9 +4,10 @@ Bitácoras, vistas
 from flask import Blueprint, render_template, request, url_for
 from flask_login import login_required
 
+from lib import datatables
+
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 
 bitacoras = Blueprint("bitacoras", __name__, template_folder="templates")
@@ -26,14 +27,7 @@ def list_active():
 def datatable_json():
     """DataTable JSON para listado de listado de bitácoras"""
     # Tomar parámetros de Datatables
-    try:
-        draw = int(request.form["draw"])
-        start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])
-    except (TypeError, ValueError):
-        draw = 1
-        start = 1
-        rows_per_page = 10
+    draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = Bitacora.query
     registros = consulta.order_by(Bitacora.creado.desc()).offset(start).limit(rows_per_page).all()
@@ -55,10 +49,5 @@ def datatable_json():
                 },
             }
         )
-    # Entregar (desde Flask 1.1.0 un diccionario se convierte en JSON automáticamente)
-    return {
-        "draw": draw,
-        "iTotalRecords": total,
-        "iTotalDisplayRecords": total,
-        "aaData": data,
-    }
+    # Entregar JSON
+    return datatables.output(draw, total, data)

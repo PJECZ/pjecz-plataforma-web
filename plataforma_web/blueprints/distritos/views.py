@@ -3,11 +3,11 @@ Distritos, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
+
 from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.autoridades.models import Autoridad

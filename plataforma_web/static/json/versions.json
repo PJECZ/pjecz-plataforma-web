@@ -5,8 +5,8 @@
             "fecha": "2021-08-19",
             "novedades": [
                 {
-                    "titulo": "Los campos 'expediente' pueden tener un complemento alfanumérico después de un guión medio",
-                    "descripcion": "Ejemplos de expedientes válidos: 56/2021, 56/2021-2, 56/2021-J2 y 56/2021-III."
+                    "titulo": "Los campos 'expediente' pueden tener uno o dos complementos alfanuméricos después de guiones medios",
+                    "descripcion": "Ejemplos de expedientes válidos: 56/2021, 56/2021-2, 56/2021-J2, 56/2021-III y 56/2021-III-IV."
                 }
             ]
         },

@@ -4,11 +4,12 @@ Abogados, vistas
 import json
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
+
+from lib import datatables
 from lib.safe_string import safe_string, safe_message
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.blueprints.abogados.models import Abogado
 from plataforma_web.blueprints.abogados.forms import AbogadoForm, AbogadoSearchForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -88,14 +89,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de abogados"""
     # Tomar parámetros de Datatables
-    try:
-        draw = int(request.form["draw"])
-        start = int(request.form["start"])
-        rows_per_page = int(request.form["length"])
-    except (TypeError, ValueError):
-        draw = 1
-        start = 1
-        rows_per_page = 10
+    draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = Abogado.query
     if "estatus" in request.form:
@@ -129,12 +123,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return {
-        "draw": draw,
-        "iTotalRecords": total,
-        "iTotalDisplayRecords": total,
-        "aaData": data,
-    }
+    return datatables.output(draw, total, data)
 
 
 @abogados.route("/abogados/<int:abogado_id>")

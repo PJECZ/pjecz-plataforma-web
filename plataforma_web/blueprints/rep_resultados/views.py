@@ -1,11 +1,14 @@
 """
 Rep Resultados, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
+
+from lib import datatables
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
+from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
 
 rep_resultados = Blueprint("rep_resultados", __name__, template_folder="templates")
@@ -23,16 +26,60 @@ def before_request():
 @rep_resultados.route("/rep_resultados")
 def list_active():
     """Listado de Resultados activos"""
-    rep_resultados_activos = RepResultado.query.filter_by(estatus="A").order_by(RepResultado.creado.desc()).limit(100).all()
-    return render_template("rep_resultados/list.jinja2", rep_resultados=rep_resultados_activos, estatus="A")
+    return render_template(
+        "rep_resultados/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Reportes Resultados",
+        estatus="A",
+    )
 
 
 @rep_resultados.route("/rep_resultados/inactivos")
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Resultados inactivos"""
-    rep_resultados_inactivos = RepResultado.query.filter_by(estatus="B").order_by(RepResultado.creado.desc()).limit(100).all()
-    return render_template("rep_resultados/list.jinja2", rep_resultados=rep_resultados_inactivos, estatus="B")
+    return render_template(
+        "rep_resultados/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Reportes Resultados inactivos",
+        estatus="B",
+    )
+
+
+@rep_resultados.route("/rep_resultados/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Resultados"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = RepResultado.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if request.form["rep_reporte_id"]:
+        rep_reporte = RepReporte.query.get(request.form["rep_reporte_id"])
+        if rep_reporte:
+            consulta = consulta.filter(RepResultado.rep_reporte == rep_reporte)
+    registros = consulta.order_by(RepResultado.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "creado": resultado.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "detalle": {
+                    "descripcion": resultado.descripcion,
+                    "url": url_for("rep_resultados.detail", rep_resultado_id=resultado.id),
+                },
+                "modulo_nombre": resultado.modulo.nombre,
+                "tipo": resultado.tipo,
+                "cantidad": resultado.cantidad,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @rep_resultados.route("/rep_resultados/<int:rep_resultado_id>")

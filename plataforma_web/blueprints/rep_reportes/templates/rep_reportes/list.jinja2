@@ -5,9 +5,7 @@
 {% block title %}Reportes{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Reportes' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Reportes inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button('Gráficas', url_for('rep_graficas.list_active'), 'mdi:puzzle') }}
         {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
         {% if current_user.can_edit('rep_reportes') %}
@@ -26,26 +24,69 @@
                     <th>Descripciones</th>
                     <th>Inicios</th>
                     <th>Términos</th>
-                    <th>Programado</th>
-                    <th>Progreso</th>
+                    <th>Programados</th>
+                    <th>Progresos</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for rep_reporte in rep_reportes %}
-                <tr>
-                    <td>{{ rep_reporte.creado }}</td>
-                    <td><a href="{{ url_for('rep_reportes.detail', rep_reporte_id=rep_reporte.id) }}">{{ rep_reporte.descripcion }}</a></td>
-                    <td>{{ rep_reporte.inicio }}</td>
-                    <td>{{ rep_reporte.termino }}</td>
-                    <td>{{ rep_reporte.programado }}</td>
-                    <td>{{ rep_reporte.progreso }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('rep_reportes_datatable') }}
+    <script>
+        $('#rep_reportes_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/rep_reportes/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "creado" },
+                { data: "detalle" },
+                { data: "inicio" },
+                { data: "termino" },
+                { data: "programado" },
+                { data: "progreso" }
+            ],
+            columnDefs: [
+                {
+                    targets: [0, 2, 3, 4],
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

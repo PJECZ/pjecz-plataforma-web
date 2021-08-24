@@ -7,6 +7,7 @@ from wtforms.validators import DataRequired, Length
 
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 
+
 class RepGraficaForm(FlaskForm):
     """Formulario RepGrafica"""
 
