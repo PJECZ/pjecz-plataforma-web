@@ -13,6 +13,7 @@ from plataforma_web.extensions import db
 from cli.commands.alimentar_autoridades import alimentar_autoridades
 from cli.commands.alimentar_distritos import alimentar_distritos
 from cli.commands.alimentar_materias import alimentar_materias
+from cli.commands.alimentar_materias_tipos_juicios import alimentar_materias_tipos_juicios
 from cli.commands.alimentar_modulos import alimentar_modulos
 from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_usuarios import alimentar_usuarios
@@ -47,6 +48,7 @@ def alimentar():
         return
     alimentar_roles()
     alimentar_materias()
+    alimentar_materias_tipos_juicios()
     alimentar_modulos()
     alimentar_distritos()
     alimentar_autoridades()
