@@ -155,8 +155,8 @@ def respaldar(desde, salida_csv):
         audiencias = audiencias.filter(Audiencia.fecha >= desde_fecha)
     audiencias = audiencias.order_by(Audiencia.fecha).all()
     with open(ruta, "w") as puntero:
-        escritor = csv.writer(puntero)
-        escritor.writerow(
+        respaldo = csv.writer(puntero)
+        respaldo.writerow(
             [
                 "autoridad_id",
                 "tiempo",
@@ -175,7 +175,7 @@ def respaldar(desde, salida_csv):
             ]
         )
         for audiencia in audiencias:
-            escritor.writerow(
+            respaldo.writerow(
                 [
                     audiencia.autoridad_id,
                     audiencia.tiempo,

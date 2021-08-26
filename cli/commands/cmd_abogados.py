@@ -85,10 +85,10 @@ def respaldar(desde, salida_csv):
         abogados = abogados.filter(Abogado.fecha >= desde_fecha)
     abogados = abogados.order_by(Abogado.fecha).all()
     with open(ruta, "w") as puntero:
-        escritor = csv.writer(puntero)
-        escritor.writerow(["numero", "nombre", "libro", "fecha"])
+        respaldo = csv.writer(puntero)
+        respaldo.writerow(["numero", "nombre", "libro", "fecha"])
         for abogado in abogados:
-            escritor.writerow(
+            respaldo.writerow(
                 [
                     abogado.numero,
                     abogado.nombre,

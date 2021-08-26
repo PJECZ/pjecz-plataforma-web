@@ -120,10 +120,10 @@ def respaldar(salida_csv):
     contador = 0
     ubicaciones_expedientes = UbicacionExpediente.query.filter_by(estatus="A").all()
     with open(ruta, "w") as puntero:
-        escritor = csv.writer(puntero)
-        escritor.writerow(["autoridad", "expediente", "ubicacion"])
+        respaldo = csv.writer(puntero)
+        respaldo.writerow(["autoridad", "expediente", "ubicacion"])
         for ubicacion_expediente in ubicaciones_expedientes:
-            escritor.writerow(
+            respaldo.writerow(
                 [
                     ubicacion_expediente.autoridad_id,
                     ubicacion_expediente.expediente,
