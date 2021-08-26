@@ -1,5 +1,5 @@
 """
-Materias
+Materias Tipos Juicios
 
 - respaldar: Respaldar a un archivo CSV
 """
@@ -10,7 +10,7 @@ import click
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
-from plataforma_web.blueprints.materias.models import Materia
+from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 
 app = create_app()
 db.app = app
@@ -18,33 +18,34 @@ db.app = app
 
 @click.group()
 def cli():
-    """Materias"""
+    """Materias Tipos Juicios"""
 
 
 @click.command()
-@click.option("--output", default="materias.csv", type=str, help="Archivo CSV a escribir")
+@click.option("--output", default="materias_tipos_juicios.csv", type=str, help="Archivo CSV a escribir")
 def respaldar(output):
     """Respaldar a un archivo CSV"""
     ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
-    click.echo("Respaldando materias...")
+    click.echo("Respaldando materias/tipos de juicios...")
     contador = 0
-    materias = Materia.query.order_by(Materia.id).all()
+    materias_tipos_juicios = MateriaTipoJuicio.query.order_by(MateriaTipoJuicio.id).all()
     with open(ruta, "w") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["id", "nombre", "estatus"])
-        for materia in materias:
+        respaldo.writerow(["id", "materia_id", "descripcion", "estatus"])
+        for materia in materias_tipos_juicios:
             respaldo.writerow(
                 [
                     materia.id,
-                    materia.nombre,
+                    materia.materia_id,
+                    materia.descripcion,
                     materia.estatus,
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} materias en {ruta.name}")
+    click.echo(f"Respaldados {contador} materias/tipos de juicios en {ruta.name}")
 
 
 cli.add_command(respaldar)

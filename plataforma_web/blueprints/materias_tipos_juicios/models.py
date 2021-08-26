@@ -22,7 +22,7 @@ class MateriaTipoJuicio(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
-    sentencias = db.relationship("Sentencia", back_populates="materia_tipo_juicio")
+    sentencias = db.relationship("Sentencia", back_populates="materia_tipo_juicio", lazy="noload")
 
     def __repr__(self):
         """Representación"""

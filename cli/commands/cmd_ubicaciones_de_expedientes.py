@@ -16,8 +16,6 @@ from plataforma_web.extensions import db
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 
-from lib.safe_string import safe_expediente
-
 app = create_app()
 db.app = app
 
@@ -109,10 +107,10 @@ def alimentar(entrada_csv):
 
 
 @click.command()
-@click.argument("salida_csv")
-def respaldar(salida_csv):
+@click.option("--output", default="ubicaciones_de_expedientes.csv", type=str, help="Archivo CSV a escribir")
+def respaldar(output):
     """Respaldar a un archivo CSV"""
-    ruta = Path(salida_csv)
+    ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
@@ -120,10 +118,10 @@ def respaldar(salida_csv):
     contador = 0
     ubicaciones_expedientes = UbicacionExpediente.query.filter_by(estatus="A").all()
     with open(ruta, "w") as puntero:
-        escritor = csv.writer(puntero)
-        escritor.writerow(["autoridad", "expediente", "ubicacion"])
+        respaldo = csv.writer(puntero)
+        respaldo.writerow(["autoridad", "expediente", "ubicacion"])
         for ubicacion_expediente in ubicaciones_expedientes:
-            escritor.writerow(
+            respaldo.writerow(
                 [
                     ubicacion_expediente.autoridad_id,
                     ubicacion_expediente.expediente,
@@ -133,7 +131,7 @@ def respaldar(salida_csv):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
-    click.echo(f"Respaldados {contador} registros.")
+    click.echo(f"Respaldados {contador} en {ruta.name}")
 
 
 cli.add_command(alimentar)

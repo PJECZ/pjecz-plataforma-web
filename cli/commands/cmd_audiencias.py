@@ -4,7 +4,7 @@ Audiencias
 - alimentar: Desde un archivo CLAVE.csv
 - respaldar: Respaldar a un archivo CSV
 """
-from datetime import datetime, date, time
+from datetime import datetime
 from pathlib import Path
 import csv
 import click
@@ -132,11 +132,11 @@ def alimentar(entrada_csv):
 
 
 @click.command()
-@click.argument("salida_csv")
+@click.option("--output", default="audiencias.csv", type=str, help="Archivo CSV a escribir")
 @click.option("--desde", default="", type=str, help="Fecha de inicio AAAA-MM-DD")
-def respaldar(desde, salida_csv):
+def respaldar(output, desde):
     """Respaldar la tabla audiencias a su archivo CSV"""
-    ruta = Path(salida_csv)
+    ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
@@ -155,8 +155,8 @@ def respaldar(desde, salida_csv):
         audiencias = audiencias.filter(Audiencia.fecha >= desde_fecha)
     audiencias = audiencias.order_by(Audiencia.fecha).all()
     with open(ruta, "w") as puntero:
-        escritor = csv.writer(puntero)
-        escritor.writerow(
+        respaldo = csv.writer(puntero)
+        respaldo.writerow(
             [
                 "autoridad_id",
                 "tiempo",
@@ -175,7 +175,7 @@ def respaldar(desde, salida_csv):
             ]
         )
         for audiencia in audiencias:
-            escritor.writerow(
+            respaldo.writerow(
                 [
                     audiencia.autoridad_id,
                     audiencia.tiempo,
@@ -196,7 +196,7 @@ def respaldar(desde, salida_csv):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
-    click.echo(f"Respaldados {contador} registros.")
+    click.echo(f"Respaldados {contador} audiencias en {ruta.name}")
 
 
 cli.add_command(alimentar)

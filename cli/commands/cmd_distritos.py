@@ -1,7 +1,6 @@
 """
 Distritos
 
-- alimentar: Alimentar la tabla insertando registros desde un archivo CSV
 - respaldar: Respaldar a un archivo CSV
 """
 from pathlib import Path
@@ -23,36 +22,10 @@ def cli():
 
 
 @click.command()
-@click.argument("entrada_csv")
-def alimentar(entrada_csv):
-    """Alimentar la tabla insertando registros desde un archivo CSV"""
-    ruta = Path(entrada_csv)
-    if not ruta.exists():
-        click.echo(f"AVISO: {ruta.name} no se encontró.")
-        return
-    if not ruta.is_file():
-        click.echo(f"AVISO: {ruta.name} no es un archivo.")
-        return
-    click.echo("Alimentando distritos...")
-    contador = 0
-    with open(ruta, encoding="utf8") as puntero:
-        rows = csv.DictReader(puntero)
-        for row in rows:
-            Distrito(
-                nombre=row["nombre"],
-                nombre_corto=row["nombre_corto"],
-                es_distrito_judicial=(row["es_distrito_judicial"] == "1"),
-                estatus=row["estatus"],
-            ).save()
-            contador += 1
-    click.echo(f"{contador} distritos alimentados.")
-
-
-@click.command()
-@click.argument("salida_csv")
-def respaldar(salida_csv):
+@click.option("--output", default="distritos.csv", type=str, help="Archivo CSV a escribir")
+def respaldar(output):
     """Respaldar a un archivo CSV"""
-    ruta = Path(salida_csv)
+    ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
@@ -60,10 +33,10 @@ def respaldar(salida_csv):
     contador = 0
     distritos = Distrito.query.order_by(Distrito.id).all()
     with open(ruta, "w") as puntero:
-        escritor = csv.writer(puntero)
-        escritor.writerow(["id", "nombre", "nombre_corto", "es_distrito_judicial", "estatus"])
+        respaldo = csv.writer(puntero)
+        respaldo.writerow(["id", "nombre", "nombre_corto", "es_distrito_judicial", "estatus"])
         for distrito in distritos:
-            escritor.writerow(
+            respaldo.writerow(
                 [
                     distrito.id,
                     distrito.nombre,
@@ -73,8 +46,7 @@ def respaldar(salida_csv):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} distritos.")
+    click.echo(f"Respaldados {contador} distritos en {ruta.name}")
 
 
-cli.add_command(alimentar)
 cli.add_command(respaldar)

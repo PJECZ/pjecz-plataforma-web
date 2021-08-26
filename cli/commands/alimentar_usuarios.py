@@ -13,7 +13,7 @@ USUARIOS_CSV = "seed/usuarios.csv"
 
 
 def alimentar_usuarios():
-    """ Alimentar usuarios """
+    """Alimentar usuarios"""
     ruta = Path(USUARIOS_CSV)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -39,4 +39,6 @@ def alimentar_usuarios():
                 estatus=row["estatus"],
             ).save()
             contador += 1
-    click.echo(f"  {contador} usuarios alimentados.")
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador} registros...")
+    click.echo(f"  {contador} usuarios alimentados con contraseñas aleatorias.")
