@@ -13,7 +13,7 @@ USUARIOS_CSV = "seed/usuarios.csv"
 
 
 def alimentar_usuarios():
-    """ Alimentar usuarios """
+    """Alimentar usuarios"""
     ruta = Path(USUARIOS_CSV)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")

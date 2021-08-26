@@ -11,7 +11,7 @@ MATERIAS_TIPOS_JUICIOS_CSV = "seed/materias_tipos_juicios.csv"
 
 
 def alimentar_materias_tipos_juicios():
-    """ Alimentar materias tipos juicios """
+    """Alimentar materias tipos juicios"""
     ruta = Path(MATERIAS_TIPOS_JUICIOS_CSV)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")

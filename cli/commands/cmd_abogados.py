@@ -62,11 +62,11 @@ def alimentar(entrada_csv):
 
 
 @click.command()
-@click.argument("salida_csv")
+@click.option("--output", default="abogados.csv", type=str, help="Archivo CSV a escribir")
 @click.option("--desde", default="", type=str, help="Fecha de inicio AAAA-MM-DD")
-def respaldar(desde, salida_csv):
+def respaldar(output, desde):
     """Respaldar la tabla abogados a su archivo CSV"""
-    ruta = Path(salida_csv)
+    ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return

@@ -1,29 +1,32 @@
 """
 Alimentar modulos
 """
+from pathlib import Path
+import csv
 import click
 
 from plataforma_web.blueprints.modulos.models import Modulo
 
+MODULOS_CSV = "seed/modulos.csv"
+
 
 def alimentar_modulos():
     """Alimentar modulos"""
+    ruta = Path(MODULOS_CSV)
+    if not ruta.exists():
+        click.echo(f"AVISO: {ruta.name} no se encontró.")
+        return
+    if not ruta.is_file():
+        click.echo(f"AVISO: {ruta.name} no es un archivo.")
+        return
     click.echo("Alimentando módulos...")
-    Modulo(nombre="ABOGADOS").save()
-    Modulo(nombre="AUDIENCIAS").save()
-    Modulo(nombre="AUTORIDADES").save()
-    Modulo(nombre="DOCUMENTACIONES").save()
-    Modulo(nombre="DISTRITOS").save()
-    Modulo(nombre="EDICTOS").save()
-    Modulo(nombre="GLOSAS").save()
-    Modulo(nombre="LISTAS DE ACUERDOS").save()
-    Modulo(nombre="MATERIAS").save()
-    Modulo(nombre="MATERIAS TIPOS JUICIOS").save()
-    Modulo(nombre="MODULOS").save()
-    Modulo(nombre="PERITOS").save()
-    Modulo(nombre="REPORTES").save()
-    Modulo(nombre="SENTENCIAS").save()
-    Modulo(nombre="TRANSCRIPCIONES").save()
-    Modulo(nombre="UBICACIONES DE EXPEDIENTES").save()
-    Modulo(nombre="USUARIOS").save()
-    click.echo("  12 módulos alimentados.")
+    contador = 0
+    with open(ruta, encoding="utf8") as puntero:
+        rows = csv.DictReader(puntero)
+        for row in rows:
+            Modulo(
+                nombre=row["nombre"],
+                estatus=row["estatus"],
+            ).save()
+            contador += 1
+    click.echo(f"  {contador} módulos alimentadas.")

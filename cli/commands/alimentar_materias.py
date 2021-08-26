@@ -11,7 +11,7 @@ MATERIAS_CSV = "seed/materias.csv"
 
 
 def alimentar_materias():
-    """ Alimentar materias """
+    """Alimentar materias"""
     ruta = Path(MATERIAS_CSV)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -30,16 +30,3 @@ def alimentar_materias():
             ).save()
             contador += 1
     click.echo(f"  {contador} materias alimentadas.")
-
-
-"""
-    click.echo("Alimentando materias...")
-    Materia(nombre="NO DEFINIDO").save()
-    Materia(nombre="CIVIL").save()
-    Materia(nombre="FAMILIAR").save()
-    Materia(nombre="MERCANTIL").save()
-    Materia(nombre="LETRADO").save()
-    Materia(nombre="FAMILIAR ORAL").save()
-    Materia(nombre="PENAL").save()
-    click.echo("  7 materias alimentadas.")
-"""

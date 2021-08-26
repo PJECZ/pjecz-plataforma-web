@@ -16,8 +16,6 @@ from plataforma_web.extensions import db
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 
-from lib.safe_string import safe_expediente
-
 app = create_app()
 db.app = app
 
@@ -109,10 +107,10 @@ def alimentar(entrada_csv):
 
 
 @click.command()
-@click.argument("salida_csv")
-def respaldar(salida_csv):
+@click.option("--output", default="ubicaciones_de_expedientes.csv", type=str, help="Archivo CSV a escribir")
+def respaldar(output):
     """Respaldar a un archivo CSV"""
-    ruta = Path(salida_csv)
+    ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return

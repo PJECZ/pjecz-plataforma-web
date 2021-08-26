@@ -11,7 +11,7 @@ DISTRITOS_CSV = "seed/distritos.csv"
 
 
 def alimentar_distritos():
-    """ Alimentar distritos """
+    """Alimentar distritos"""
     ruta = Path(DISTRITOS_CSV)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")

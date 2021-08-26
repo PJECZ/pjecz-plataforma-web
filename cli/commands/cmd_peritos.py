@@ -3,16 +3,13 @@ Peritos
 
 - respaldar: Respaldar a un archivo CSV
 """
-from datetime import datetime
 from pathlib import Path
 import csv
 import click
-from unidecode import unidecode
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
-from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.peritos.models import Perito
 
 app = create_app()
@@ -25,10 +22,10 @@ def cli():
 
 
 @click.command()
-@click.argument("salida_csv")
-def respaldar(salida_csv):
+@click.option("--output", default="peritos.csv", type=str, help="Archivo CSV a escribir")
+def respaldar(output):
     """Respaldar a un archivo CSV"""
-    ruta = Path(salida_csv)
+    ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
