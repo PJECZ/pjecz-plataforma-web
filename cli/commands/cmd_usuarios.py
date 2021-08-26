@@ -66,7 +66,9 @@ def respaldar(output):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldadas {contador} usuarios.")
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador} registros...")
+    click.echo(f"Respaldadas {contador} en {ruta.name}")
 
 
 @click.command()

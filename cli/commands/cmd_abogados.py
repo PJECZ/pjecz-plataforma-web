@@ -99,7 +99,7 @@ def respaldar(output, desde):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
-    click.echo(f"Respaldados {contador} registros.")
+    click.echo(f"Respaldados {contador} abogados en {ruta.name}")
 
 
 cli.add_command(alimentar)

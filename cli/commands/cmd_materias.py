@@ -44,7 +44,7 @@ def respaldar(output):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} materias.")
+    click.echo(f"Respaldados {contador} materias en {ruta.name}")
 
 
 cli.add_command(respaldar)

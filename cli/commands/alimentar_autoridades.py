@@ -41,4 +41,6 @@ def alimentar_autoridades():
                 estatus=row["estatus"],
             ).save()
             contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador} registros...")
     click.echo(f"  {contador} autoridades alimentadas.")

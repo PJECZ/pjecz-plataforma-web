@@ -74,7 +74,9 @@ def respaldar(output):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldadas {contador} autoridades.")
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador} registros...")
+    click.echo(f"Respaldadas {contador} autoridades en {ruta.name}")
 
 
 cli.add_command(respaldar)

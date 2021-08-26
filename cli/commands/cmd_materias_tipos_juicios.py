@@ -29,7 +29,7 @@ def respaldar(output):
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
-    click.echo("Respaldando materias tipos juicios...")
+    click.echo("Respaldando materias/tipos de juicios...")
     contador = 0
     materias_tipos_juicios = MateriaTipoJuicio.query.order_by(MateriaTipoJuicio.id).all()
     with open(ruta, "w") as puntero:
@@ -45,7 +45,7 @@ def respaldar(output):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} materias tipos juicios.")
+    click.echo(f"Respaldados {contador} materias/tipos de juicios en {ruta.name}")
 
 
 cli.add_command(respaldar)
