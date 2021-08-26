@@ -18,7 +18,7 @@ db.app = app
 
 @click.group()
 def cli():
-    """Materia"""
+    """Materias"""
 
 
 @click.command()
@@ -33,14 +33,14 @@ def respaldar(salida_csv):
     contador = 0
     materias = Materia.query.order_by(Materia.id).all()
     with open(ruta, "w") as puntero:
-        materia = csv.writer(puntero)
-        materia.writerow(["id", "nombre", "estatus"])
-        for distrito in materias:
-            materia.writerow(
+        respaldo = csv.writer(puntero)
+        respaldo.writerow(["id", "nombre", "estatus"])
+        for materia in materias:
+            respaldo.writerow(
                 [
-                    distrito.id,
-                    distrito.nombre,
-                    distrito.estatus,
+                    materia.id,
+                    materia.nombre,
+                    materia.estatus,
                 ]
             )
             contador += 1
