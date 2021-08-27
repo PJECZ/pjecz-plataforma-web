@@ -57,7 +57,7 @@ def list_active():
             "sentencias/list_admin.jinja2",
             autoridad=None,
             filtros=json.dumps({"estatus": "A"}),
-            titulo="Todas las Sentencias",
+            titulo="Todas las V.P. de Sentencias",
             estatus="A",
         )
     # Si es jurisdiccional ve lo de su autoridad
@@ -67,7 +67,7 @@ def list_active():
             "sentencias/list.jinja2",
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
-            titulo=f"Sentencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            titulo=f"V.P. de Sentencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="A",
         )
     # Ninguno de los anteriores
@@ -84,7 +84,7 @@ def list_inactive():
             "sentencias/list_admin.jinja2",
             autoridad=None,
             filtros=json.dumps({"estatus": "B"}),
-            titulo="Todas las Sentencias inactivas",
+            titulo="Todas las V.P. de Sentencias inactivas",
             estatus="B",
         )
     # Si es jurisdiccional ve lo de su autoridad
@@ -94,7 +94,7 @@ def list_inactive():
             "sentencias/list.jinja2",
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
-            titulo=f"Sentencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            titulo=f"V.P. de Sentencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="B",
         )
     # No es jurisdiccional, se redirige al listado de distritos
@@ -133,7 +133,7 @@ def list_autoridad_sentencias(autoridad_id):
         plantilla,
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
-        titulo=f"Sentencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        titulo=f"V.P. de Sentencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="A",
     )
 
@@ -151,7 +151,7 @@ def list_autoridad_sentencias_inactive(autoridad_id):
         plantilla,
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
-        titulo=f"Sentencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+        titulo=f"V.P. de Sentencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="B",
     )
 
@@ -504,6 +504,7 @@ def new():
     return render_template(
         "sentencias/new.jinja2",
         form=form,
+        autoridad=autoridad,
         materias=Materia.query.filter_by(estatus="A").order_by(Materia.id).all(),
         materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
     )

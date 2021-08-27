@@ -34,6 +34,6 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ f.js_select_materia_materia_tipo_juicio(materias, materias_tipos_juicios, mi_materia=1, mi_materia_tipo_juicio=1) }}
+    {{ f.js_select_materia_materia_tipo_juicio(materias, materias_tipos_juicios, mi_materia=autoridad.materia_id) }}
     {{ f.drop_zone_js() }}
 {% endblock %}
