@@ -102,8 +102,10 @@ body           { font-size: .875rem; background-color: #EEE; }
     justify-content: center;
     width: 4rem;
     height: 4rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
+    margin-right: 0.5rem;
     font-size: 2rem;
     color: #fff;
     border-radius: .75rem;
+    float: left;
 }

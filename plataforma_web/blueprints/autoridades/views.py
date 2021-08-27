@@ -12,6 +12,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.edictos.models import Edicto
+from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 autoridades = Blueprint("autoridades", __name__, template_folder="templates")
@@ -69,11 +70,9 @@ def edictos_json(autoridad_id):
         listado.append(
             {
                 "fecha": edicto.fecha.strftime("%Y-%m-%d"),
-                "detalle": {
-                    "descripcion": edicto.descripcion,
-                    "url": url_for("edictos.detail", edicto_id=edicto.id),
-                },
+                "descripcion": edicto.descripcion,
                 "expediente": edicto.expediente,
+                "url": url_for("edictos.detail", edicto_id=edicto.id),
             }
         )
     if len(listado) > 0:
@@ -90,10 +89,23 @@ def edictos_json(autoridad_id):
 @autoridades.route("/autoridades/<int:autoridad_id>/listas_de_acuerdos_json", methods=["GET", "POST"])
 def listas_de_acuerdos_json(autoridad_id):
     """Listas de Acuerdos de una Autoridad en JSON"""
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    listas_de_acuerdos = ListaDeAcuerdo.query.\
+        filter(ListaDeAcuerdo.autoridad == autoridad).\
+        filter_by(estatus="A").\
+        order_by(ListaDeAcuerdo.fecha.desc()).limit(4).all()
+    listado = []
+    for lista_de_acuerdo in listas_de_acuerdos:
+        listado.append(
+            {
+                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
+                "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+            }
+        )
     return {
         "titulo": "Listas de Acuerdos",
         "breve": "Por programar.",
-        "listado": [],
+        "listado": listado,
     }
 
 

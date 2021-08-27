@@ -10,7 +10,7 @@ function obtener_autoridades_sentencias(path_json, container_id, spinner_id) {
             // Icono
             var icono = document.createElement('span');
             icono.classList.add('iconify');
-            icono.setAttribute("data-icon", 'mdi:calendar-month');
+            icono.setAttribute("data-icon", 'mdi:gavel');
             var icono_boton = document.createElement('div');
             icono_boton.classList.add('feature-icon');
             icono_boton.classList.add('bg-primary');

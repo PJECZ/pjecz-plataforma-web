@@ -10,12 +10,24 @@ function obtener_autoridades_listas_de_acuerdos(path_json, container_id, spinner
             // Icono
             var icono = document.createElement('span');
             icono.classList.add('iconify');
-            icono.setAttribute("data-icon", 'mdi:calendar-month');
+            icono.setAttribute("data-icon", 'mdi:file-document');
             var icono_boton = document.createElement('div');
             icono_boton.classList.add('feature-icon');
             icono_boton.classList.add('bg-primary');
             icono_boton.classList.add('bg-gradient');
             icono_boton.appendChild(icono);
+
+            // Listado
+            var las_listas_de_acuerdos = entrada.listado;
+            var listado = document.createElement('ul');
+            for (var i = 0; i < las_listas_de_acuerdos.length; i++) {
+                var renglon = document.createElement('li');
+                renglon.innerText = las_listas_de_acuerdos[i].fecha;
+                renglon.classList.add('list-group-item');
+                listado.appendChild(renglon);
+            }
+            listado.classList.add('list-group');
+            listado.classList.add('list-group-flush');
 
             // Titulo
             var titulo = document.createElement('h3');
@@ -37,7 +49,7 @@ function obtener_autoridades_listas_de_acuerdos(path_json, container_id, spinner
             // Tarjeta = Cuerpo + Listado
             var tarjeta = document.createElement('div');
             tarjeta.appendChild(cuerpo);
-            //tarjeta.appendChild(listado);
+            tarjeta.appendChild(listado);
             tarjeta.classList.add('card');
 
             // Poner en el contenedor
