@@ -16,8 +16,11 @@ function obtener_autoridades_listas_de_acuerdos(path_json, container_id, spinner
             icono_boton.classList.add('bg-primary');
             icono_boton.classList.add('bg-gradient');
             icono_boton.appendChild(icono);
+            var icono_vinculo = document.createElement('a');
+            icono_vinculo.appendChild(icono_boton);
+            icono_vinculo.href = entrada.url;
 
-            // Listado
+            // Listado de listas de acuerdos
             var las_listas_de_acuerdos = entrada.listado;
             var listado = document.createElement('ul');
             for (var i = 0; i < las_listas_de_acuerdos.length; i++) {
@@ -33,17 +36,20 @@ function obtener_autoridades_listas_de_acuerdos(path_json, container_id, spinner
             var titulo = document.createElement('h3');
             titulo.classList.add('card-title');
             titulo.innerText = entrada.titulo;
+            var titulo_vinculo = document.createElement('a');
+            titulo_vinculo.appendChild(titulo);
+            titulo_vinculo.href = entrada.url;
 
             // Breve
             var breve = document.createElement('p');
             breve.classList.add('card-text');
-            breve.innerText = 'Breve comentario.';
+            breve.innerText = entrada.breve;
 
             // Cuerpo = Icono + Titulo + Breve
             var cuerpo = document.createElement('div');
             cuerpo.classList.add('card-body');
-            cuerpo.appendChild(icono_boton);
-            cuerpo.appendChild(titulo);
+            cuerpo.appendChild(icono_vinculo);
+            cuerpo.appendChild(titulo_vinculo);
             cuerpo.appendChild(breve);
 
             // Tarjeta = Cuerpo + Listado

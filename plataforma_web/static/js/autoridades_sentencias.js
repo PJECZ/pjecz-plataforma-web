@@ -16,28 +16,46 @@ function obtener_autoridades_sentencias(path_json, container_id, spinner_id) {
             icono_boton.classList.add('bg-primary');
             icono_boton.classList.add('bg-gradient');
             icono_boton.appendChild(icono);
+            var icono_vinculo = document.createElement('a');
+            icono_vinculo.appendChild(icono_boton);
+            icono_vinculo.href = entrada.url;
+
+            // Listado de sentencias
+            var las_sentencias = entrada.listado;
+            var listado = document.createElement('ul');
+            for (var i = 0; i < las_sentencias.length; i++) {
+                var renglon = document.createElement('li');
+                renglon.innerText = las_sentencias[i].sentencia;
+                renglon.classList.add('list-group-item');
+                listado.appendChild(renglon);
+            }
+            listado.classList.add('list-group');
+            listado.classList.add('list-group-flush');
 
             // Titulo
             var titulo = document.createElement('h3');
             titulo.classList.add('card-title');
             titulo.innerText = entrada.titulo;
+            var titulo_vinculo = document.createElement('a');
+            titulo_vinculo.appendChild(titulo);
+            titulo_vinculo.href = entrada.url;
 
             // Breve
             var breve = document.createElement('p');
             breve.classList.add('card-text');
-            breve.innerText = 'Breve comentario.';
+            breve.innerText = entrada.breve;
 
             // Cuerpo = Icono + Titulo + Breve
             var cuerpo = document.createElement('div');
             cuerpo.classList.add('card-body');
-            cuerpo.appendChild(icono_boton);
-            cuerpo.appendChild(titulo);
+            cuerpo.appendChild(icono_vinculo);
+            cuerpo.appendChild(titulo_vinculo);
             cuerpo.appendChild(breve);
 
             // Tarjeta = Cuerpo + Listado
             var tarjeta = document.createElement('div');
             tarjeta.appendChild(cuerpo);
-            //tarjeta.appendChild(listado);
+            tarjeta.appendChild(listado);
             tarjeta.classList.add('card');
 
             // Poner en el contenedor

@@ -11,12 +11,16 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.usuarios.models import Usuario
+
+from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
-from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.sentencias.models import Sentencia
 
 autoridades = Blueprint("autoridades", __name__, template_folder="templates")
 
+TARJETAS_LIMITE_DIAS = 5
 MODULO = "AUTORIDADES"
 
 
@@ -53,10 +57,30 @@ def detail(autoridad_id):
 @autoridades.route("/autoridades/<int:autoridad_id>/audiencias_json", methods=["GET", "POST"])
 def audiencias_json(autoridad_id):
     """Audiencias de una Autoridad en JSON"""
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    # Filtrar por el dia de hoy
+    audiencias = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="A").order_by(Audiencia.tiempo.desc())
+    # Listado
+    listado = []
+    for audiencia in audiencias.limit(TARJETAS_LIMITE_DIAS).all():
+        listado.append(
+            {
+                "tiempo": audiencia.tiempo,
+                "tipo_audiencia" "url": url_for("audiencias.detail", audiencia_id=audiencia.id),
+            }
+        )
+    # Total
+    total = audiencias.count()
+    if total > 0:
+        breve = f"Tiene un total de {total} Audiencias agendadas."
+    else:
+        breve = "Nunca ha agendado Audiencias."
+    # Entregar JSON
     return {
         "titulo": "Agenda de Audiencias",
-        "breve": "Por programar.",
+        "breve": breve,
         "listado": [],
+        "url": url_for("audiencias.list_autoridad_audiencias", autoridad_id=autoridad_id),
     }
 
 
@@ -64,9 +88,10 @@ def audiencias_json(autoridad_id):
 def edictos_json(autoridad_id):
     """Edictos de una Autoridad en JSON"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    edictos = Edicto.query.filter(Edicto.autoridad == autoridad).filter_by(estatus="A").order_by(Edicto.fecha.desc()).limit(4).all()
+    edictos = Edicto.query.filter(Edicto.autoridad == autoridad).filter_by(estatus="A").order_by(Edicto.creado.desc())
+    # Listado
     listado = []
-    for edicto in edictos:
+    for edicto in edictos.limit(TARJETAS_LIMITE_DIAS).all():
         listado.append(
             {
                 "fecha": edicto.fecha.strftime("%Y-%m-%d"),
@@ -75,14 +100,18 @@ def edictos_json(autoridad_id):
                 "url": url_for("edictos.detail", edicto_id=edicto.id),
             }
         )
-    if len(listado) > 0:
-        titulo = "Edictos"
+    # Total
+    total = edictos.count()
+    if total > 0:
+        breve = f"Tiene un total de {total} Edictos."
     else:
-        titulo = "No hay Edictos recientes"
+        breve = "Nunca a subido Edictos."
+    # Entregar JSON
     return {
-        "titulo": titulo,
-        "breve": "Por programar.",
+        "titulo": "Edictos",
+        "breve": breve,
         "listado": listado,
+        "url": url_for("edictos.list_autoridad_edictos", autoridad_id=autoridad_id),
     }
 
 
@@ -90,32 +119,57 @@ def edictos_json(autoridad_id):
 def listas_de_acuerdos_json(autoridad_id):
     """Listas de Acuerdos de una Autoridad en JSON"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    listas_de_acuerdos = ListaDeAcuerdo.query.\
-        filter(ListaDeAcuerdo.autoridad == autoridad).\
-        filter_by(estatus="A").\
-        order_by(ListaDeAcuerdo.fecha.desc()).limit(4).all()
+    listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter_by(estatus="A").order_by(ListaDeAcuerdo.creado.desc())
+    # Listado
     listado = []
-    for lista_de_acuerdo in listas_de_acuerdos:
+    for lista_de_acuerdo in listas_de_acuerdos.limit(TARJETAS_LIMITE_DIAS).all():
         listado.append(
             {
                 "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
                 "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
             }
         )
+    # Total
+    total = listas_de_acuerdos.count()
+    if total > 0:
+        breve = f"Tiene un total de {total} Listas de Acuerdos."
+    else:
+        breve = "Nunca a subido Listas de Acuerdos."
+    # Entregar JSON
     return {
         "titulo": "Listas de Acuerdos",
-        "breve": "Por programar.",
+        "breve": breve,
         "listado": listado,
+        "url": url_for("listas_de_acuerdos.list_autoridad_listas_de_acuerdos", autoridad_id=autoridad_id),
     }
 
 
 @autoridades.route("/autoridades/<int:autoridad_id>/sentencias_json", methods=["GET", "POST"])
 def sentencias_json(autoridad_id):
     """Sentencias de una Autoridad en JSON"""
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    sentencias = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter_by(estatus="A").order_by(Sentencia.creado.desc())
+    # Listado
+    listado = []
+    for sentencia in sentencias.limit(TARJETAS_LIMITE_DIAS).all():
+        listado.append(
+            {
+                "sentencia": sentencia.sentencia,
+                "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
+            }
+        )
+    # Total
+    total = sentencias.count()
+    if total > 0:
+        breve = f"Tiene un total de {total} V.P. de Sentencias."
+    else:
+        breve = "Nunca a subido V.P. de Sentencias."
+    # Entregar JSON
     return {
         "titulo": "V.P. de Sentencias",
-        "breve": "Por programar.",
-        "listado": [],
+        "breve": breve,
+        "listado": listado,
+        "url": url_for("sentencias.list_autoridad_sentencias", autoridad_id=autoridad_id),
     }
 
 
