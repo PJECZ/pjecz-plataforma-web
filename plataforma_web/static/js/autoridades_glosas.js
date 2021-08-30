@@ -45,6 +45,7 @@ function obtener_autoridades_glosas(path_json, container_id, spinner_id) {
             tarjeta.appendChild(cuerpo);
             //tarjeta.appendChild(listado);
             tarjeta.classList.add('card');
+            tarjeta.classList.add(datos.style);
 
             // Poner en el contenedor
             $(container_id).append(tarjeta);

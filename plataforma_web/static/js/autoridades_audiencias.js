@@ -20,6 +20,20 @@ function obtener_autoridades_audiencias(path_json, container_id, spinner_id) {
             icono_vinculo.appendChild(icono_boton);
             icono_vinculo.href = datos.url;
 
+            // Listado de agenda de audiencias
+            var listado = document.createElement('ul');
+            for (var i = 0; i < datos.listado.length; i++) {
+                var vinculo = document.createElement('a');
+                vinculo.innerText = datos.listado[i].tiempo + ', ' + datos.listado[i].tipo_audiencia;
+                vinculo.href = datos.listado[i].url;
+                var renglon = document.createElement('li');
+                renglon.appendChild(vinculo)
+                renglon.classList.add('list-group-item');
+                listado.appendChild(renglon);
+            }
+            listado.classList.add('list-group');
+            listado.classList.add('list-group-flush');
+
             // Titulo
             var titulo = document.createElement('h3');
             titulo.classList.add('card-title');
@@ -43,8 +57,9 @@ function obtener_autoridades_audiencias(path_json, container_id, spinner_id) {
             // Tarjeta = Cuerpo + Listado
             var tarjeta = document.createElement('div');
             tarjeta.appendChild(cuerpo);
-            //tarjeta.appendChild(listado);
+            tarjeta.appendChild(listado);
             tarjeta.classList.add('card');
+            tarjeta.classList.add(datos.style);
 
             // Poner en el contenedor
             $(container_id).append(tarjeta);

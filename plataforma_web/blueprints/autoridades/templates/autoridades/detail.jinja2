@@ -35,14 +35,6 @@
             </div>
         </div>
         {% endif %}
-        {% if autoridad.directorio_glosas != "" %}
-        <div id="autoridades_glosas_container" class="col-md-6 mb-2">
-            <div id="autoridades_glosas_spinner">
-                <h5>Listas de Acuerdos</h5>
-                <p><span class="spinner-border" role="status"></span></p>
-            </div>
-        </div>
-        {% endif %}
         {% if autoridad.directorio_listas_de_acuerdos != "" %}
         <div id="autoridades_listas_de_acuerdos_container" class="col-md-6 mb-2">
             <div id="autoridades_listas_de_acuerdos_spinner">
@@ -109,7 +101,6 @@
     <!-- Obtener informacion para las tarjetas -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_audiencias.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_edictos.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_glosas.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_listas_de_acuerdos.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_sentencias.js') }}"></script>
     <script type="text/javascript">
@@ -119,9 +110,6 @@
             {% endif %}
             {% if autoridad.directorio_edictos != "" %}
             obtener_autoridades_edictos('/autoridades/{{ autoridad.id }}/edictos_json', '#autoridades_edictos_container', '#autoridades_edictos_spinner');
-            {% endif %}
-            {% if autoridad.directorio_glosas != "" %}
-            obtener_autoridades_glosas('/autoridades/{{ autoridad.id }}/glosas_json', '#autoridades_glosas_container', '#autoridades_glosas_spinner');
             {% endif %}
             {% if autoridad.directorio_listas_de_acuerdos != "" %}
             obtener_autoridades_listas_de_acuerdos('/autoridades/{{ autoridad.id }}/listas_de_acuerdos_json', '#autoridades_listas_de_acuerdos_container', '#autoridades_listas_de_acuerdos_spinner');

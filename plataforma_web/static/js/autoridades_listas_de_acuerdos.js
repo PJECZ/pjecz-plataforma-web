@@ -59,6 +59,7 @@ function obtener_autoridades_listas_de_acuerdos(path_json, container_id, spinner
             tarjeta.appendChild(cuerpo);
             tarjeta.appendChild(listado);
             tarjeta.classList.add('card');
+            tarjeta.classList.add(datos.style);
 
             // Poner en el contenedor
             $(container_id).append(tarjeta);
