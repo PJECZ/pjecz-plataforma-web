@@ -5,7 +5,7 @@ function obtener_autoridades_audiencias(path_json, container_id, spinner_id) {
 
     // Se hace la peticion y se espera su respuesta
     fetch(path_json).then((promesa) => {
-        promesa.json().then((entrada) => {
+        promesa.json().then((datos) => {
 
             // Icono
             var icono = document.createElement('span');
@@ -18,20 +18,20 @@ function obtener_autoridades_audiencias(path_json, container_id, spinner_id) {
             icono_boton.appendChild(icono);
             var icono_vinculo = document.createElement('a');
             icono_vinculo.appendChild(icono_boton);
-            icono_vinculo.href = entrada.url;
+            icono_vinculo.href = datos.url;
 
             // Titulo
             var titulo = document.createElement('h3');
             titulo.classList.add('card-title');
-            titulo.innerText = entrada.titulo;
+            titulo.innerText = datos.titulo;
             var titulo_vinculo = document.createElement('a');
             titulo_vinculo.appendChild(titulo);
-            titulo_vinculo.href = entrada.url;
+            titulo_vinculo.href = datos.url;
 
             // Breve
             var breve = document.createElement('p');
             breve.classList.add('card-text');
-            breve.innerText = entrada.breve;
+            breve.innerText = datos.breve;
 
             // Cuerpo = Icono + Titulo + Breve
             var cuerpo = document.createElement('div');

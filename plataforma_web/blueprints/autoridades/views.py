@@ -20,7 +20,7 @@ from plataforma_web.blueprints.sentencias.models import Sentencia
 
 autoridades = Blueprint("autoridades", __name__, template_folder="templates")
 
-TARJETAS_LIMITE_DIAS = 5
+TARJETAS_LIMITE_REGISTROS = 5
 MODULO = "AUTORIDADES"
 
 
@@ -62,7 +62,7 @@ def audiencias_json(autoridad_id):
     audiencias = Audiencia.query.filter(Audiencia.autoridad == autoridad).filter_by(estatus="A").order_by(Audiencia.tiempo.desc())
     # Listado
     listado = []
-    for audiencia in audiencias.limit(TARJETAS_LIMITE_DIAS).all():
+    for audiencia in audiencias.limit(TARJETAS_LIMITE_REGISTROS).all():
         listado.append(
             {
                 "tiempo": audiencia.tiempo,
@@ -91,7 +91,7 @@ def edictos_json(autoridad_id):
     edictos = Edicto.query.filter(Edicto.autoridad == autoridad).filter_by(estatus="A").order_by(Edicto.creado.desc())
     # Listado
     listado = []
-    for edicto in edictos.limit(TARJETAS_LIMITE_DIAS).all():
+    for edicto in edictos.limit(TARJETAS_LIMITE_REGISTROS).all():
         listado.append(
             {
                 "expediente": edicto.expediente,
@@ -121,7 +121,7 @@ def listas_de_acuerdos_json(autoridad_id):
     listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter_by(estatus="A").order_by(ListaDeAcuerdo.creado.desc())
     # Listado
     listado = []
-    for lista_de_acuerdo in listas_de_acuerdos.limit(TARJETAS_LIMITE_DIAS).all():
+    for lista_de_acuerdo in listas_de_acuerdos.limit(TARJETAS_LIMITE_REGISTROS).all():
         listado.append(
             {
                 "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
@@ -150,7 +150,7 @@ def sentencias_json(autoridad_id):
     sentencias = Sentencia.query.filter(Sentencia.autoridad == autoridad).filter_by(estatus="A").order_by(Sentencia.creado.desc())
     # Listado
     listado = []
-    for sentencia in sentencias.limit(TARJETAS_LIMITE_DIAS).all():
+    for sentencia in sentencias.limit(TARJETAS_LIMITE_REGISTROS).all():
         listado.append(
             {
                 "sentencia": sentencia.sentencia,
