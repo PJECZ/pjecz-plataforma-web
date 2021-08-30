@@ -25,7 +25,7 @@ function obtener_autoridades_sentencias(path_json, container_id, spinner_id) {
             var listado = document.createElement('ul');
             for (var i = 0; i < las_sentencias.length; i++) {
                 var renglon = document.createElement('li');
-                renglon.innerText = las_sentencias[i].sentencia;
+                renglon.innerText = las_sentencias[i].sentencia + ', ' + las_sentencias[i].materia_tipo_juicio;
                 renglon.classList.add('list-group-item');
                 listado.appendChild(renglon);
             }

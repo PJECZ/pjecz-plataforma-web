@@ -25,7 +25,7 @@ function obtener_autoridades_edictos(path_json, container_id, spinner_id) {
             var listado = document.createElement('ul');
             for (var i = 0; i < los_edictos.length; i++) {
                 var renglon = document.createElement('li');
-                renglon.innerText = los_edictos[i].expediente;
+                renglon.innerText = los_edictos[i].expediente + ', ' + los_edictos[i].descripcion;
                 renglon.classList.add('list-group-item');
                 listado.appendChild(renglon);
             }

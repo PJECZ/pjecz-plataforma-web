@@ -94,9 +94,8 @@ def edictos_json(autoridad_id):
     for edicto in edictos.limit(TARJETAS_LIMITE_DIAS).all():
         listado.append(
             {
-                "fecha": edicto.fecha.strftime("%Y-%m-%d"),
-                "descripcion": edicto.descripcion,
                 "expediente": edicto.expediente,
+                "descripcion": edicto.descripcion,
                 "url": url_for("edictos.detail", edicto_id=edicto.id),
             }
         )
@@ -155,6 +154,7 @@ def sentencias_json(autoridad_id):
         listado.append(
             {
                 "sentencia": sentencia.sentencia,
+                "materia_tipo_juicio": sentencia.materia_tipo_juicio.descripcion,
                 "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
             }
         )
