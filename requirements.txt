@@ -25,6 +25,7 @@ pylint
 python-dateutil
 pytz
 rq
+sendgrid
 SQLAlchemy
 SQLAlchemy-Utils
 Unidecode
