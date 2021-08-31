@@ -441,7 +441,7 @@ def new():
         materia_tipo_juicio = MateriaTipoJuicio.query.get(form.materia_tipo_juicio.data)
 
         # Tomar descripcion
-        descripcion = safe_string(form.descripcion.data, max_len=1020)
+        descripcion = safe_string(form.descripcion.data, max_len=1000)
 
         # Tomar perspectiva de género
         es_perspectiva_genero = form.es_perspectiva_genero.data  # Boleano
@@ -573,7 +573,7 @@ def new_for_autoridad(autoridad_id):
         materia_tipo_juicio = MateriaTipoJuicio.query.get(form.materia_tipo_juicio.data)
 
         # Tomar descripcion
-        descripcion = safe_string(form.descripcion.data, max_len=1020)
+        descripcion = safe_string(form.descripcion.data, max_len=1000)
 
         # Tomar perspectiva de género
         es_perspectiva_genero = form.es_perspectiva_genero.data  # Boleano
@@ -583,7 +583,7 @@ def new_for_autoridad(autoridad_id):
         archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            return render_template("sentencias/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+            es_valido = False
 
         if es_valido:
             # Insertar registro
@@ -695,7 +695,7 @@ def edit(sentencia_id):
         sentencia.materia_tipo_juicio = MateriaTipoJuicio.query.get(form.materia_tipo_juicio.data)
 
         # Tomar descripcion
-        sentencia.descripcion = safe_string(form.descripcion.data, max_len=1020)
+        sentencia.descripcion = safe_string(form.descripcion.data, max_len=1000)
 
         if es_valido:
             sentencia.save()
