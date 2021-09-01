@@ -16,6 +16,9 @@ from plataforma_web.blueprints.tareas.views import tareas
 from plataforma_web.blueprints.abogados.views import abogados
 from plataforma_web.blueprints.audiencias.views import audiencias
 from plataforma_web.blueprints.autoridades.views import autoridades
+from plataforma_web.blueprints.cid_procedimientos.views import cid_procedimientos
+from plataforma_web.blueprints.cid_formatos.views import cid_formatos
+from plataforma_web.blueprints.cid_registros.views import cid_registros
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.glosas.views import glosas
@@ -31,10 +34,6 @@ from plataforma_web.blueprints.rep_resultados.views import rep_resultados
 from plataforma_web.blueprints.sentencias.views import sentencias
 from plataforma_web.blueprints.transcripciones.views import transcripciones
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
-
-from plataforma_web.blueprints.cid_procedimientos.views import cid_procedimientos
-from plataforma_web.blueprints.cid_formatos.views import cid_formatos
-from plataforma_web.blueprints.cid_registros.views import cid_registros
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 

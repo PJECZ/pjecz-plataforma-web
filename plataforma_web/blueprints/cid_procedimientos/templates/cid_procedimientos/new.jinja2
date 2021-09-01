@@ -251,7 +251,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ quill.custom_library() }}
+    {{ quill.library_custom_javascript() }}
     {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='objetivo',  quill_id='objetivo') }}
     {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='alcance',  quill_id='alcance') }}
     {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='documentos',  quill_id='documentos') }}
@@ -260,6 +260,5 @@
     {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='desarrollo',  quill_id='desarrollo') }}
     {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='registros',  quill_id='registros') }}
     {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='cambios',  quill_id='cambios') }}
-    {{ quill.steps_custom_javascript() }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
 {% endblock %}

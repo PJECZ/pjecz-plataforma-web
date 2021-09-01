@@ -11,10 +11,15 @@
     <div id="{{ quill_id }}" class="mb-2" style="display:block; clear:both; break-after:page; height:55vh;"></div>
 {%- endmacro -%}
 
-{# Quill custom javascript editor #}
-{%- macro editor_custom_javascript(form_id, form_hidden_id, content='', quill_id='editor') -%}
+{# Quill library #}
+{%- macro library_custom_javascript() -%}
     <!-- Quill library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
+{%- endmacro -%}
+
+{# Quill custom javascript #}
+{%- macro editor_custom_javascript(form_id, form_hidden_id, content='', quill_id='editor') -%}
+    <!-- Quill custom javascript -->
     <script>
         $( document ).ready(function() {
             // Quill editor
