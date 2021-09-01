@@ -57,7 +57,7 @@
                                 </div>
                             </div>
                             <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                 <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente">Siguiente</button>
+                                 <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_encabezados()">Siguiente</button>
                             </div>
                             </div>
                         </div>
@@ -261,4 +261,5 @@
     {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='registros',  quill_id='registros') }}
     {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='cambios',  quill_id='cambios') }}
     {{ quill.steps_custom_javascript() }}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
 {% endblock %}

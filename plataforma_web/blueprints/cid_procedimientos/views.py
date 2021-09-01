@@ -1,7 +1,7 @@
 """
 CID Procedimientos, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import login_required
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -65,6 +65,15 @@ def new():
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} guardado.", "success")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
     return render_template("cid_procedimientos/new.jinja2", form=form)
+
+
+@cid_procedimientos.route("/cid_procedimientos/nuevo_encabezados", methods=["GET", "POST"])
+@permission_required(Permiso.CREAR_DOCUMENTACIONES)
+def new_encabezados():
+    """Nuevo CID Procedimiento Encabezados"""
+    recibido = request.json
+    print(str(recibido))
+    return {"status": "recibed"}
 
 
 @cid_procedimientos.route("/cid_procedimientos/edicion/<int:cid_procedimiento_id>", methods=["GET", "POST"])
