@@ -3,13 +3,32 @@
 // Guardar Encabezados
 function guardar_encabezados() {
     titulo_procedimiento = $('#titulo_procedimiento').val();
-    console.log(titulo_procedimiento);
     codigo = $('#codigo').val();
-    console.log(codigo);
     revision = $('#revision').val();
-    console.log(revision);
     fecha = $('#fecha').val();
+    console.log(titulo_procedimiento);
+    console.log(codigo);
+    console.log(revision);
     console.log(fecha);
+}
+
+// Guardar Objetivo
+function guardar_objetivo() {
+    quill = $('#objetivo');
+    objetivo = JSON.stringify(quill.getContents());
+    console.log(objetivo);
+}
+
+// Guardar Alcance
+function guardar_alcance() {
+    alcance = $('#alcance').val();
+    console.log(alcance)
+}
+
+// Guardar Documentos
+function guardar_documentos() {
+    documentos = $('#documentos').val();
+    console.log(documentos);
 }
 
 // Steps custom
@@ -27,7 +46,7 @@ const DOMstrings = {
     stepNextBtnClass: 'js-btn-next'
 };
 
-//remove class from a set of items
+// remove class from a set of items
 const removeClasses = (elemSet, className) => {
     elemSet.forEach(elem => {
         elem.classList.remove(className);

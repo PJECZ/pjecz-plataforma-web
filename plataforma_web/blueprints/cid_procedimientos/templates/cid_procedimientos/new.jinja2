@@ -40,7 +40,7 @@
             <div class="row">
                 <div class="col-lg-12 m-auto">
                     <form class="multisteps-form__form">
-                        <!--single form panel-->
+                        <!-- Encabezado -->
                         <div class="multisteps-form__panel shadow p-4 rounded bg-white js-active" data-animation="scaleIn">
                             <h3 class="multisteps-form__title">Encabezado</h3>
                             <div class="multisteps-form__content">
@@ -61,7 +61,7 @@
                             </div>
                             </div>
                         </div>
-                        <!--single form panel-->
+                        <!-- Objetivo -->
                         <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
                             <h3 class="multisteps-form__title">Objetivo</h3>
                             <div class="multisteps-form__content">
@@ -72,11 +72,11 @@
                             </div>
                             <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
                                 <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente">Siguiente</button>
+                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_objetivo()">Siguiente</button>
                             </div>
                             </div>
                         </div>
-                        <!--single form panel-->
+                        <!-- Alcance -->
                         <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
                             <h3 class="multisteps-form__title">Alcance</h3>
                             <div class="multisteps-form__content">
@@ -87,11 +87,11 @@
                             </div>
                             <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
                                 <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente">Siguiente</button>
+                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_alcance()">Siguiente</button>
                             </div>
                             </div>
                         </div>
-                        <!--single form panel-->
+                        <!-- Documentos -->
                         <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
                             <h3 class="multisteps-form__title">Documentos</h3>
                             <div class="multisteps-form__content">
@@ -102,7 +102,7 @@
                             </div>
                             <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
                                 <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente">Siguiente</button>
+                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_documentos()">Siguiente</button>
                             </div>
                             </div>
                         </div>
@@ -252,13 +252,13 @@
 
 {% block custom_javascript %}
     {{ quill.library_custom_javascript() }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='objetivo',  quill_id='objetivo') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='alcance',  quill_id='alcance') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='documentos',  quill_id='documentos') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='definiciones',  quill_id='definiciones') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='responsabilidades',  quill_id='responsabilidades') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='desarrollo',  quill_id='desarrollo') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='registros',  quill_id='registros') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='cambios',  quill_id='cambios') }}
+    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='objetivo', quill_id='objetivo') }}
+    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='alcance', quill_id='alcance') }}
+    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='documentos', quill_id='documentos') }}
+    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='definiciones', quill_id='definiciones') }}
+    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='responsabilidades', quill_id='responsabilidades') }}
+    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='desarrollo', quill_id='desarrollo') }}
+    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='registros', quill_id='registros') }}
+    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='cambios', quill_id='cambios') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
 {% endblock %}
