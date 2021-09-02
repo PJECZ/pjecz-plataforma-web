@@ -9,13 +9,18 @@ from wtforms.validators import DataRequired, Length
 class CIDProcedimientoForm(FlaskForm):
     """Formulario CID Procedimiento"""
 
+    # Step Encabezado
     titulo_procedimiento = StringField("Título", validators=[DataRequired(), Length(max=256)])
     codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
     revision = IntegerField("Revisión", validators=[DataRequired()])
     fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
+    # Step Objetivo
     objetivo = StringField("Objetivo", validators=[DataRequired()])
+    # Step Alcance
     alcance = StringField("Alcance", validators=[DataRequired()])
+    # Step Documentos
     documentos = StringField("Documentos", validators=[DataRequired()])
+    # Step Definiciones
     definiciones = StringField("Definiciones", validators=[DataRequired()])
     responsabilidades = StringField("Responsabilidades", validators=[DataRequired()])
     desarrollo = StringField("Desarrollo", validators=[DataRequired()])

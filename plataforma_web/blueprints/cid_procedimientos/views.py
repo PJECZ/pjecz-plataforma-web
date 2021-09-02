@@ -27,7 +27,7 @@ def before_request():
 @cid_procedimientos.route("/cid_procedimientos")
 def list_active():
     """Listado de CID Procedimientos activos"""
-    cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").order_by(CIDProcedimiento.creado.desc()).limit(100).all()
+    cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").order_by(CIDProcedimiento.id).limit(100).all()
     return render_template("cid_procedimientos/list.jinja2", cid_procedimientos=cid_procedimientos_activos, estatus="A")
 
 
@@ -35,7 +35,7 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
     """Listado de CID Procedimientos inactivos"""
-    cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").order_by(CIDProcedimiento.creado.desc()).limit(100).all()
+    cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").order_by(CIDProcedimiento.id).limit(100).all()
     return render_template("cid_procedimientos/list.jinja2", cid_procedimientos=cid_procedimientos_inactivos, estatus="B")
 
 
@@ -43,7 +43,7 @@ def list_inactive():
 def detail(cid_procedimiento_id):
     """Detalle de un CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-    cid_formatos = CIDFormato.query.filter(CIDFormato.procedimiento == cid_procedimiento).filter(CIDFormato.estatus == "A").order_by(CIDFormato.numero).all()
+    cid_formatos = CIDFormato.query.filter(CIDFormato.procedimiento == cid_procedimiento).filter(CIDFormato.estatus == "A").order_by(CIDFormato.id).all()
     return render_template("cid_procedimientos/detail.jinja2", cid_procedimiento=cid_procedimiento, cid_formatos=cid_formatos)
 
 
@@ -65,15 +65,6 @@ def new():
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} guardado.", "success")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
     return render_template("cid_procedimientos/new.jinja2", form=form)
-
-
-@cid_procedimientos.route("/cid_procedimientos/nuevo_encabezados", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_DOCUMENTACIONES)
-def new_encabezados():
-    """Nuevo CID Procedimiento Encabezados"""
-    recibido = request.json
-    print(str(recibido))
-    return {"status": "recibed"}
 
 
 @cid_procedimientos.route("/cid_procedimientos/edicion/<int:cid_procedimiento_id>", methods=["GET", "POST"])
