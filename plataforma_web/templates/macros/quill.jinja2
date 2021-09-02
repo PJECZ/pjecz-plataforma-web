@@ -7,8 +7,9 @@
 {%- endmacro -%}
 
 {# Quill div #}
-{%- macro div(quill_id='editor') -%}
-    <div id="{{ quill_id }}" class="mb-2" style="display:block; clear:both; break-after:page; height:50vh;"></div>
+{%- macro div(div_id='contenido_quill', hidden_id='') -%}
+    <div id="{{ div_id }}" class="mb-2" style="display:block; clear:both; break-after:page; height:50vh;"></div>
+    {% if hidden_id != '' %}<input id="{{ hidden_id }}" name="{{ hidden_id }}" type="hidden">{% endif %}
 {%- endmacro -%}
 
 {# Quill library for custom_javascript #}
@@ -17,7 +18,7 @@
 {%- endmacro -%}
 
 {# Quill editor for custom_javascript #}
-{%- macro editor(form_id='', instance='editorQuill', div_id='editor_quill', hidden_id='', content='') -%}
+{%- macro editor(form_id='', instance='contenidoQuill', div_id='contenido_quill', hidden_id='contenido', content='') -%}
     <script>
         // Quill editor
         var {{ instance }} = new Quill('#{{ div_id }}', {

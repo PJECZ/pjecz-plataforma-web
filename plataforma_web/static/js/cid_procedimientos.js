@@ -15,42 +15,49 @@ function guardar_encabezado() {
 // Guardar Objetivo
 function guardar_objetivo() {
     objetivo = JSON.stringify(objetivoQuill.getContents());
+    $('#objetivo').val(objetivo);
     console.log(objetivo);
 }
 
 // Guardar Alcance
 function guardar_alcance() {
     alcance = JSON.stringify(alcanceQuill.getContents());
+    $('#alcance').val(alcance);
     console.log(alcance)
 }
 
 // Guardar Documentos
 function guardar_documentos() {
     documentos = JSON.stringify(documentosQuill.getContents());
+    $('#documentos').val(documentos);
     console.log(documentos);
 }
 
 // Guardar Definiciones
 function guardar_definiciones() {
     definiciones = JSON.stringify(definicionesQuill.getContents());
+    $('#definiciones').val(definiciones);
     console.log(definiciones);
 }
 
 // Guardar Responsabilidades
 function guardar_responsabilidades() {
     responsabilidades = JSON.stringify(responsabilidadesQuill.getContents());
+    $('#responsabilidades').val(responsabilidades);
     console.log(responsabilidades);
 }
 
 // Guardar Desarrollo
 function guardar_desarrollo() {
     desarrollo = JSON.stringify(desarrolloQuill.getContents());
+    $('#desarrollo').val(desarrollo);
     console.log(desarrollo);
 }
 
 // Guardar Registros
 function guardar_registros() {
     registros = JSON.stringify(registrosQuill.getContents());
+    $('#registros').val(registros);
     console.log(registros);
 }
 
@@ -69,6 +76,7 @@ function guardar_control_cambios() {
     aprobo_email = $('#aprobo_email').val()
     console.log(aprobo_nombre, aprobo_puesto, aprobo_email);
     control_cambios = JSON.stringify(controlCambiosQuill.getContents());
+    $('#control_cambios').val(control_cambios);
     console.log(control_cambios);
 }
 
