@@ -54,6 +54,12 @@ function guardar_registros() {
     console.log(registros);
 }
 
+// Guardar Control de Cambios
+function guardar_control_cambios() {
+    control_cambios = JSON.stringify(controlCambiosQuill.getContents());
+    console.log(control_cambios);
+}
+
 // STEPS
 
 // DOM elements

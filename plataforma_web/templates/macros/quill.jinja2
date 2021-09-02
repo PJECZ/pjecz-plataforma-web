@@ -103,8 +103,8 @@
     </div>
 {%- endmacro -%}
 
-{# Encabezado #}
-{%- macro encabezado() -%}
+{# Step Encabezado #}
+{%- macro step_encabezado() -%}
     <label class="form-label">Título del procedimiento</label>
     <input type="text" class="form-control" id="titulo_procedimiento"><br>
     <label class="form-label">Código</label>
@@ -113,4 +113,53 @@
     <input type="text" class="form-control" id="revision"><br>
     <label class="form-label">Fecha</label>
     <input type="date" class="form-control" id="fecha">
+{%- endmacro -%}
+
+{# Step Control de Cambios #}
+{%- macro step_control_cambios() -%}
+    <h4>Elaboró</h4>
+    <div class="row">
+        <div class="col">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="elaboro_nombre"><br>
+        </div>
+        <div class="col">
+            <label class="form-label">Puesto</label>
+            <input type="text" class="form-control" id="elaboro_puesto"><br>
+        </div>
+        <div class="col">
+            <label class="form-label">Correo</label>
+            <input type="email" class="form-control" id="elaboro_email"><br>
+        </div>
+    </div>
+    <h4>Revisó</h4>
+    <div class="row">
+        <div class="col">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="reviso_nombre"><br>
+        </div>
+        <div class="col">
+            <label class="form-label">Puesto</label>
+            <input type="text" class="form-control" id="reviso_puesto"><br>
+        </div>
+        <div class="col">
+            <label class="form-label">Correo</label>
+            <input type="email" class="form-control" id="reviso_email"><br>
+        </div>
+    </div>
+    <h4>Autorizó</h4>
+    <div class="row">
+        <div class="col">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="aprobo_nombre"><br>
+        </div>
+        <div class="col">
+            <label class="form-label">Puesto</label>
+            <input type="text" class="form-control" id="aprobo_puesto"><br>
+        </div>
+        <div class="col">
+            <label class="form-label">Correo</label>
+            <input type="email" class="form-control" id="aprobo_email"><br>
+        </div>
+    </div>
 {%- endmacro -%}
