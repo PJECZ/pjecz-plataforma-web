@@ -56,6 +56,18 @@ function guardar_registros() {
 
 // Guardar Control de Cambios
 function guardar_control_cambios() {
+    elaboro_nombre = $('#elaboro_nombre').val()
+    elaboro_puesto = $('#elaboro_puesto').val()
+    elaboro_email = $('#elaboro_email').val()
+    console.log(elaboro_nombre, elaboro_puesto, elaboro_email);
+    reviso_nombre = $('#reviso_nombre').val()
+    reviso_puesto = $('#reviso_puesto').val()
+    reviso_email = $('#reviso_email').val()
+    console.log(reviso_nombre, reviso_puesto, reviso_email);
+    autorizo_nombre = $('#autorizo_nombre').val()
+    autorizo_puesto = $('#autorizo_puesto').val()
+    autorizo_email = $('#autorizo_email').val()
+    console.log(autorizo_nombre, autorizo_puesto, autorizo_email);
     control_cambios = JSON.stringify(controlCambiosQuill.getContents());
     console.log(control_cambios);
 }
