@@ -7,9 +7,8 @@
 {%- endmacro -%}
 
 {# Quill div #}
-{%- macro div(div_id='contenido_quill', hidden_id='') -%}
+{%- macro div(div_id='contenido_quill') -%}
     <div id="{{ div_id }}" class="mb-2" style="display:block; clear:both; break-after:page; height:50vh;"></div>
-    {% if hidden_id != '' %}<input id="{{ hidden_id }}" name="{{ hidden_id }}" type="hidden">{% endif %}
 {%- endmacro -%}
 
 {# Quill library for custom_javascript #}
