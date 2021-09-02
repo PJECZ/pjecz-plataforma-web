@@ -64,12 +64,17 @@ function guardar_control_cambios() {
     reviso_puesto = $('#reviso_puesto').val()
     reviso_email = $('#reviso_email').val()
     console.log(reviso_nombre, reviso_puesto, reviso_email);
-    autorizo_nombre = $('#autorizo_nombre').val()
-    autorizo_puesto = $('#autorizo_puesto').val()
-    autorizo_email = $('#autorizo_email').val()
-    console.log(autorizo_nombre, autorizo_puesto, autorizo_email);
+    aprobo_nombre = $('#aprobo_nombre').val()
+    aprobo_puesto = $('#aprobo_puesto').val()
+    aprobo_email = $('#aprobo_email').val()
+    console.log(aprobo_nombre, aprobo_puesto, aprobo_email);
     control_cambios = JSON.stringify(controlCambiosQuill.getContents());
     console.log(control_cambios);
+}
+
+// Guardar Vista Previa
+function guardar_vista_previa() {
+    console.log('OK Vista Previa');
 }
 
 // STEPS

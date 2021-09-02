@@ -54,16 +54,16 @@
 {%- endmacro -%}
 
 {# Quill reader for custom_javascript #}
-{%- macro reader(content='', quill_id='contenido_quill') -%}
+{%- macro reader(instance='readerQuill', div_id='contenido_quill', content='') -%}
     <script>
         $( document ).ready(function() {
             // Quill reader
-            var quill = new Quill('#{{ quill_id }}', {
+            var {{ instance }} = new Quill('#{{ div_id }}', {
                 readOnly: true,
                 theme: 'snow'
             });
             // Fill at start
-            quill.setContents({{ content }});
+            {{ instance }}.setContents({{ content }});
         });
     </script>
 {%- endmacro -%}
@@ -103,8 +103,26 @@
     </div>
 {%- endmacro -%}
 
-{# Step Encabezado #}
-{%- macro step_encabezado() -%}
+{# Step last #}
+{%- macro step_last(title, back_onclick='') -%}
+    <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
+        <h3 class="multisteps-form__title">{{ title }}</h3>
+        <div class="multisteps-form__content">
+            <div class="form-row mt-4">
+                <div class="col-lg-12">
+                    {{ caller () }}
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
+                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
+                <button class="btn btn-success ml-auto" type="submit" id="guardar" title="Guardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{# Fields Encabezado #}
+{%- macro fields_encabezado() -%}
     <label class="form-label">Título del procedimiento</label>
     <input type="text" class="form-control" id="titulo_procedimiento"><br>
     <label class="form-label">Código</label>
@@ -115,8 +133,8 @@
     <input type="date" class="form-control" id="fecha">
 {%- endmacro -%}
 
-{# Step Control de Cambios #}
-{%- macro step_control_cambios() -%}
+{# Fields Control de Cambios #}
+{%- macro fields_control_cambios() -%}
     <h4>Elaboró</h4>
     <div class="row">
         <div class="col">
