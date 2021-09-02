@@ -1,7 +1,7 @@
 // cid_procedimientos.js
 
-// Guardar Encabezados
-function guardar_encabezados() {
+// Guardar Encabezado
+function guardar_encabezado() {
     titulo_procedimiento = $('#titulo_procedimiento').val();
     codigo = $('#codigo').val();
     revision = $('#revision').val();
@@ -14,24 +14,47 @@ function guardar_encabezados() {
 
 // Guardar Objetivo
 function guardar_objetivo() {
-    quill = $('#objetivo');
-    objetivo = JSON.stringify(quill.getContents());
+    objetivo = JSON.stringify(objetivoQuill.getContents());
     console.log(objetivo);
 }
 
 // Guardar Alcance
 function guardar_alcance() {
-    alcance = $('#alcance').val();
+    alcance = JSON.stringify(alcanceQuill.getContents());
     console.log(alcance)
 }
 
 // Guardar Documentos
 function guardar_documentos() {
-    documentos = $('#documentos').val();
+    documentos = JSON.stringify(documentosQuill.getContents());
     console.log(documentos);
 }
 
-// Steps custom
+// Guardar Definiciones
+function guardar_definiciones() {
+    definiciones = JSON.stringify(definicionesQuill.getContents());
+    console.log(definiciones);
+}
+
+// Guardar Responsabilidades
+function guardar_responsabilidades() {
+    responsabilidades = JSON.stringify(responsabilidadesQuill.getContents());
+    console.log(responsabilidades);
+}
+
+// Guardar Desarrollo
+function guardar_desarrollo() {
+    desarrollo = JSON.stringify(desarrolloQuill.getContents());
+    console.log(desarrollo);
+}
+
+// Guardar Registros
+function guardar_registros() {
+    registros = JSON.stringify(registrosQuill.getContents());
+    console.log(registros);
+}
+
+// STEPS
 
 // DOM elements
 const DOMstrings = {
@@ -53,7 +76,7 @@ const removeClasses = (elemSet, className) => {
     });
 };
 
-//return exect parent node of the element
+// return exect parent node of the element
 const findParent = (elem, parentClass) => {
     let currentNode = elem;
     while (!currentNode.classList.contains(parentClass)) {
@@ -62,16 +85,16 @@ const findParent = (elem, parentClass) => {
     return currentNode;
 };
 
-//get active button step number
+// get active button step number
 const getActiveStep = elem => {
     return Array.from(DOMstrings.stepsBtns).indexOf(elem);
 };
 
-//set all steps before clicked (and clicked too) to active
+// set all steps before clicked (and clicked too) to active
 const setActiveStep = activeStepNum => {
-    //remove active state from all the state
+    // remove active state from all the state
     removeClasses(DOMstrings.stepsBtns, 'js-active');
-    //set picked items to active
+    // set picked items to active
     DOMstrings.stepsBtns.forEach((elem, index) => {
         if (index <= activeStepNum) {
             elem.classList.add('js-active');
@@ -79,7 +102,7 @@ const setActiveStep = activeStepNum => {
     });
 };
 
-//get active panel
+// get active panel
 const getActivePanel = () => {
     let activePanel;
     DOMstrings.stepFormPanels.forEach(elem => {
@@ -90,11 +113,11 @@ const getActivePanel = () => {
     return activePanel;
 };
 
-//open active panel (and close unactive panels)
+// open active panel (and close unactive panels)
 const setActivePanel = activePanelNum => {
-    //remove active class from all the panels
+    // remove active class from all the panels
     removeClasses(DOMstrings.stepFormPanels, 'js-active');
-    //show active panel
+    // show active panel
     DOMstrings.stepFormPanels.forEach((elem, index) => {
         if (index === activePanelNum) {
             elem.classList.add('js-active');
@@ -103,7 +126,7 @@ const setActivePanel = activePanelNum => {
     });
 };
 
-//set form height equal to current panel height
+// set form height equal to current panel height
 const formHeight = activePanel => {
     const activePanelHeight = activePanel.offsetHeight;
     DOMstrings.stepsForm.style.height = `${activePanelHeight}px`;
@@ -114,32 +137,32 @@ const setFormHeight = () => {
     formHeight(activePanel);
 };
 
-//STEPS BAR CLICK FUNCTION
+// STEPS BAR CLICK FUNCTION
 DOMstrings.stepsBar.addEventListener('click', e => {
-    //check if click target is a step button
+    // check if click target is a step button
     const eventTarget = e.target;
     if (!eventTarget.classList.contains(`${DOMstrings.stepsBtnClass}`)) {
         return;
     }
-    //get active button step number
+    // get active button step number
     const activeStep = getActiveStep(eventTarget);
-    //set all steps before clicked (and clicked too) to active
+    // set all steps before clicked (and clicked too) to active
     setActiveStep(activeStep);
-    //open active panel
+    // open active panel
     setActivePanel(activeStep);
 });
 
-//PREV/NEXT BTNS CLICK
+// PREV/NEXT BTNS CLICK
 DOMstrings.stepsForm.addEventListener('click', e => {
     const eventTarget = e.target;
-    //check if we clicked on `PREV` or NEXT` buttons
+    // check if we clicked on `PREV` or NEXT` buttons
     if (!(eventTarget.classList.contains(`${DOMstrings.stepPrevBtnClass}`) || eventTarget.classList.contains(`${DOMstrings.stepNextBtnClass}`))) {
         return;
     }
-    //find active panel
+    // find active panel
     const activePanel = findParent(eventTarget, `${DOMstrings.stepFormPanelClass}`);
     let activePanelNum = Array.from(DOMstrings.stepFormPanels).indexOf(activePanel);
-    //set active step and active panel onclick
+    // set active step and active panel onclick
     if (eventTarget.classList.contains(`${DOMstrings.stepPrevBtnClass}`)) {
         activePanelNum--;
     } else {
@@ -149,8 +172,8 @@ DOMstrings.stepsForm.addEventListener('click', e => {
     setActivePanel(activePanelNum);
 });
 
-//SETTING PROPER FORM HEIGHT ONLOAD
+// SETTING PROPER FORM HEIGHT ONLOAD
 window.addEventListener('load', setFormHeight, false);
 
-//SETTING PROPER FORM HEIGHT ONRESIZE
+// SETTING PROPER FORM HEIGHT ONRESIZE
 window.addEventListener('resize', setFormHeight, false);

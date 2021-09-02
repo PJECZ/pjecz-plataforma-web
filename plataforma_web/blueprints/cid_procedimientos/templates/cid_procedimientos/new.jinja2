@@ -10,8 +10,7 @@
 {% endblock %}
 
 {% block custom_head %}
-    {{ quill.custom_head() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/quill.css') }}" type="text/css">
+    {{ quill.head() }}
 {% endblock %}
 
 {% block content %}
@@ -41,132 +40,38 @@
                 <div class="col-lg-12 m-auto">
                     <form class="multisteps-form__form">
                         <!-- Encabezado -->
-                        <div class="multisteps-form__panel shadow p-4 rounded bg-white js-active" data-animation="scaleIn">
-                            <h3 class="multisteps-form__title">Encabezado</h3>
-                            <div class="multisteps-form__content">
-                            <div class="form-row mt-4">
-                                <div class="col-lg-12">
-                                    <label class="form-label">Título del procedimiento</label>
-                                    <input type="text" class="form-control" id="titulo_procedimiento"><br>
-                                    <label class="form-label">Código</label>
-                                    <input type="text" class="form-control" id="codigo"><br>
-                                    <label class="form-label">Revisión</label>
-                                    <input type="text" class="form-control" id="revision"><br>
-                                    <label class="form-label">Fecha</label>
-                                    <input type="date" class="form-control" id="fecha">
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                 <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_encabezados()">Siguiente</button>
-                            </div>
-                            </div>
-                        </div>
-                        <!-- Objetivo -->
-                        <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
-                            <h3 class="multisteps-form__title">Objetivo</h3>
-                            <div class="multisteps-form__content">
-                            <div class="form-row mt-4">
-                                <div class="col-lg-12">
-                                    {{quill.div('objetivo')}}
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_objetivo()">Siguiente</button>
-                            </div>
-                            </div>
-                        </div>
-                        <!-- Alcance -->
-                        <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
-                            <h3 class="multisteps-form__title">Alcance</h3>
-                            <div class="multisteps-form__content">
-                            <div class="form-row mt-4">
-                                <div class="col-lg-12">
-                                    {{quill.div('alcance')}}
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_alcance()">Siguiente</button>
-                            </div>
-                            </div>
-                        </div>
-                        <!-- Documentos -->
-                        <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
-                            <h3 class="multisteps-form__title">Documentos</h3>
-                            <div class="multisteps-form__content">
-                            <div class="form-row mt-4">
-                                <div class="col-lg-12">
-                                    {{quill.div('documentos')}}
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_documentos()">Siguiente</button>
-                            </div>
-                            </div>
-                        </div>
-                        <!--single form panel-->
-                        <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
-                            <h3 class="multisteps-form__title">Definiciones</h3>
-                            <div class="multisteps-form__content">
-                            <div class="form-row mt-4">
-                                <div class="col-lg-12">
-                                    {{quill.div('definiciones')}}
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente">Siguiente</button>
-                            </div>
-                            </div>
-                        </div>
-                        <!--single form panel-->
-                        <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
-                            <h3 class="multisteps-form__title">Responsabilidades</h3>
-                            <div class="multisteps-form__content">
-                            <div class="form-row mt-4">
-                                <div class="col-lg-12">
-                                    {{quill.div('responsabilidades')}}
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente">Siguiente</button>
-                            </div>
-                            </div>
-                        </div>
-                        <!--single form panel-->
-                        <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
-                            <h3 class="multisteps-form__title">Desarrollo</h3>
-                            <div class="multisteps-form__content">
-                            <div class="form-row mt-4">
-                                <div class="col-lg-12">
-                                    {{quill.div('desarrollo')}}
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente">Siguiente</button>
-                            </div>
-                            </div>
-                        </div>
-                         <!--single form panel-->
-                        <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
-                            <h3 class="multisteps-form__title">Registros</h3>
-                            <div class="multisteps-form__content">
-                            <div class="form-row mt-4">
-                                <div class="col-lg-12">
-                                    {{quill.div('registros')}}
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás">Atrás</button>
-                                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente">Siguiente</button>
-                            </div>
-                            </div>
-                        </div>
-                         <!--single form panel-->
+                        {% call quill.step_first('Encabezado', next_onclick='javascript:guardar_objetivo()') %}
+                            {{ quill.encabezado() }}
+                        {% endcall %}
+                        <!-- Step Objetivo -->
+                        {% call quill.step('Objetivo', next_onclick='javascript:guardar_objetivo()') %}
+                            {{ quill.div('objetivo_quill') }}
+                        {% endcall %}
+                        <!-- Step Alcance -->
+                        {% call quill.step('Alcance', next_onclick='javascript:guardar_alcance()') %}
+                            {{ quill.div('alcance_quill') }}
+                        {% endcall %}
+                        <!-- Step Documentos -->
+                        {% call quill.step('Documentos', next_onclick='javascript:guardar_documentos()') %}
+                            {{ quill.div('documentos_quill') }}
+                        {% endcall %}
+                        <!-- Step Definiciones -->
+                        {% call quill.step('Definiciones', next_onclick='javascript:guardar_definiciones()') %}
+                            {{ quill.div('definiciones_quill') }}
+                        {% endcall %}
+                        <!-- Responsabilidades -->
+                        {% call quill.step('Responsabilidades', next_onclick='javascript:guardar_responsabilidades()') %}
+                            {{ quill.div('responsabilidades_quill') }}
+                        {% endcall %}
+                        <!-- Desarrollo -->
+                        {% call quill.step('Desarrollo', next_onclick='javascript:guardar_desarrollo()') %}
+                            {{ quill.div('desarrollo_quill') }}
+                        {% endcall %}
+                        <!-- Registros -->
+                        {% call quill.step('Registros', next_onclick='javascript:guardar_registros()') %}
+                            {{ quill.div('registros_quill') }}
+                        {% endcall %}
+                        <!-- Control de cambios -->
                         <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
                             <h3 class="multisteps-form__title">Control de cambios</h3>
                             <div class="multisteps-form__content">
@@ -220,7 +125,7 @@
                                 </div>
                                 <br>
                                 <div class="col-lg-12">
-                                    {{quill.div('cambios')}}
+                                    {{ quill.div('cambios_quill') }}
                                 </div>
                             </div>
                             <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
@@ -229,7 +134,7 @@
                             </div>
                             </div>
                         </div>
-                        <!--single form panel-->
+                        <!-- Vista previa -->
                         <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
                             <h3 class="multisteps-form__title">Vista previa</h3>
                             <div class="multisteps-form__content">
@@ -251,14 +156,14 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ quill.library_custom_javascript() }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='objetivo', quill_id='objetivo') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='alcance', quill_id='alcance') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='documentos', quill_id='documentos') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='definiciones', quill_id='definiciones') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='responsabilidades', quill_id='responsabilidades') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='desarrollo', quill_id='desarrollo') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='registros', quill_id='registros') }}
-    {{ quill.editor_custom_javascript(form_id='cid_procedimiento_form', form_hidden_id='cambios', quill_id='cambios') }}
+    {{ quill.library() }}
+    {{ quill.editor(instance='objetivoQuill', div_id='objetivo_quill') }}
+    {{ quill.editor(instance='alcanceQuill', div_id='alcance_quill') }}
+    {{ quill.editor(instance='documentosQuill', div_id='documentos_quill') }}
+    {{ quill.editor(instance='definicionesQuill', div_id='definiciones_quill') }}
+    {{ quill.editor(instance='responsabilidadesQuill', div_id='responsabilidades_quill') }}
+    {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
+    {{ quill.editor(instance='registrosQuill', div_id='registros_quill') }}
+    {{ quill.editor(instance='cambiosQuill', div_id='cambios_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
 {% endblock %}
