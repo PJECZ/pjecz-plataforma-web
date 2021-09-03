@@ -2,7 +2,7 @@
 CID Procedimientos, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import DateField, HiddenField, IntegerField, StringField, SubmitField
+from wtforms import DateField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional
 
 
@@ -15,19 +15,19 @@ class CIDProcedimientoForm(FlaskForm):
     revision = IntegerField("Revisión", validators=[DataRequired()])
     fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
     # Step Objetivo
-    objetivo = HiddenField("Objetivo", validators=[Optional()])
+    objetivo = StringField("Objetivo", validators=[Optional()])
     # Step Alcance
-    alcance = HiddenField("Alcance", validators=[Optional()])
+    alcance = StringField("Alcance", validators=[Optional()])
     # Step Documentos
-    documentos = HiddenField("Documentos", validators=[Optional()])
+    documentos = StringField("Documentos", validators=[Optional()])
     # Step Definiciones
-    definiciones = HiddenField("Definiciones", validators=[Optional()])
+    definiciones = StringField("Definiciones", validators=[Optional()])
     # Step Responsabilidades
-    responsabilidades = HiddenField("Responsabilidades", validators=[Optional()])
+    responsabilidades = StringField("Responsabilidades", validators=[Optional()])
     # Step Desarrollo
-    desarrollo = HiddenField("Desarrollo", validators=[Optional()])
+    desarrollo = StringField("Desarrollo", validators=[Optional()])
     # Step Registros
-    registros = HiddenField("Registros", validators=[Optional()])
+    registros = StringField("Registros", validators=[Optional()])
     # Step Control de Cambios
     elaboro_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     elaboro_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
@@ -38,6 +38,6 @@ class CIDProcedimientoForm(FlaskForm):
     aprobo_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     aprobo_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     aprobo_email = StringField("Correo", validators=[Optional(), Length(max=256)])
-    control_cambios = HiddenField("Control de Cambios", validators=[Optional()])
+    control_cambios = StringField("Control de Cambios", validators=[Optional()])
     # Guardar
     guardar = SubmitField("Guardar")

@@ -6,7 +6,7 @@
 {% block title %}Procedimiento{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Procedimiento ' + cid_procedimiento.descripcion) %}
+    {% call topbar.page_buttons('Procedimiento') %}
         {{ topbar.button_previous('Procedimientos', url_for('cid_procedimientos.list_active')) }}
         {% if current_user.can_edit('cid_procedimientos') %}
             {{ topbar.button_edit('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id)) }}
@@ -21,10 +21,27 @@
 
 {% block content %}
     {% call detail.card(estatus=cid_procedimiento.estatus) %}
+        {{ detail.label_value('Título', cid_procedimiento.titulo_procedimiento) }}
         {{ detail.label_value('Código', cid_procedimiento.codigo) }}
         {{ detail.label_value('Revisión', cid_procedimiento.revision) }}
         {{ detail.label_value('Fecha', cid_procedimiento.fecha) }}
-        {{ detail.label_value('Etapa', cid_procedimiento.etapa) }}
+        {{ detail.label_value('Objetivo', cid_procedimiento.objetivo) }}
+        {{ detail.label_value('Alcance', cid_procedimiento.alcance) }}
+        {{ detail.label_value('Documentos', cid_procedimiento.documentos) }}
+        {{ detail.label_value('Definiciones', cid_procedimiento.definiciones) }}
+        {{ detail.label_value('Responsabilidades', cid_procedimiento.responsabilidades) }}
+        {{ detail.label_value('Desarrollo', cid_procedimiento.desarrollo) }}
+        {{ detail.label_value('Registros', cid_procedimiento.registros) }}
+        {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
+        {{ detail.label_value('Elaboró puesto', cid_procedimiento.elaboro_puesto) }}
+        {{ detail.label_value('Elaboró correo', cid_procedimiento.elaboro_email) }}
+        {{ detail.label_value('Revisó nombre', cid_procedimiento.reviso_nombre) }}
+        {{ detail.label_value('Revisó puesto', cid_procedimiento.reviso_puesto) }}
+        {{ detail.label_value('Revisó correo', cid_procedimiento.reviso_email) }}
+        {{ detail.label_value('Autorizó nombre', cid_procedimiento.aprobo_nombre) }}
+        {{ detail.label_value('Autorizó puesto', cid_procedimiento.aprobo_puesto) }}
+        {{ detail.label_value('Autorizó correo', cid_procedimiento.aprobo_email) }}
+        {{ detail.label_value('Control de Cambios', cid_procedimiento.control_cambios) }}
     {% endcall %}
     {% if cid_formatos %}
         {% call detail.card(title='Formatos') %}
@@ -34,7 +51,7 @@
 
 {% block custom_javascript %}
     {% if current_user.can_edit('cid_procedimientos') %}
-        {% if cid_procedimiento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
-        {% if cid_procedimiento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_procedimiento.descripcion + '?') }}{% endif %}
+        {% if cid_procedimiento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_procedimiento.titulo_procedimiento + '?') }}{% endif %}
+        {% if cid_procedimiento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_procedimiento.titulo_procedimiento + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

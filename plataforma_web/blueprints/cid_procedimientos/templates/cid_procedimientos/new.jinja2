@@ -49,37 +49,37 @@
                         <!-- Step Objetivo -->
                         {% call quill.step('Objetivo', back_onclick='javascript:guardar_objetivo()', next_onclick='javascript:guardar_objetivo()') %}
                             {{ quill.div(div_id='objetivo_quill') }}
-                            {% call f.form_group(form.objetivo) %}{% endcall %}
+                            {% call f.form_group(form.objetivo, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Step Alcance -->
                         {% call quill.step('Alcance', back_onclick='javascript:guardar_alcance()', next_onclick='javascript:guardar_alcance()') %}
                             {{ quill.div(div_id='alcance_quill') }}
-                            {% call f.form_group(form.alcance) %}{% endcall %}
+                            {% call f.form_group(form.alcance, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Step Documentos -->
                         {% call quill.step('Documentos', back_onclick='javascript:guardar_documentos()', next_onclick='javascript:guardar_documentos()') %}
                             {{ quill.div(div_id='documentos_quill') }}
-                            {% call f.form_group(form.documentos) %}{% endcall %}
+                            {% call f.form_group(form.documentos, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Step Definiciones -->
                         {% call quill.step('Definiciones', back_onclick='javascript:guardar_definiciones()', next_onclick='javascript:guardar_definiciones()') %}
                             {{ quill.div(div_id='definiciones_quill') }}
-                            {% call f.form_group(form.definiciones) %}{% endcall %}
+                            {% call f.form_group(form.definiciones, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Responsabilidades -->
                         {% call quill.step('Responsabilidades', back_onclick='javascript:guardar_responsabilidades()', next_onclick='javascript:guardar_responsabilidades()') %}
                             {{ quill.div(div_id='responsabilidades_quill') }}
-                            {% call f.form_group(form.responsabilidades) %}{% endcall %}
+                            {% call f.form_group(form.responsabilidades, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Desarrollo -->
                         {% call quill.step('Desarrollo', back_onclick='javascript:guardar_desarrollo()', next_onclick='javascript:guardar_desarrollo()') %}
                             {{ quill.div(div_id='desarrollo_quill') }}
-                            {% call f.form_group(form.desarrollo) %}{% endcall %}
+                            {% call f.form_group(form.desarrollo, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()') %}
                             {{ quill.div(div_id='registros_quill') }}
-                            {% call f.form_group(form.registros) %}{% endcall %}
+                            {% call f.form_group(form.registros, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()') %}
@@ -120,7 +120,7 @@
                                 </div>
                             </div>
                             {{ quill.div(div_id='control_cambios_quill') }}
-                            {% call f.form_group(form.control_cambios) %}{% endcall %}
+                            {% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Vista previa -->
                         {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
