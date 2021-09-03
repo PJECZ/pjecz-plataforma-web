@@ -92,7 +92,12 @@
                                     {% call f.form_group(form.elaboro_puesto) %}{% endcall %}
                                 </div>
                                 <div class="col">
-                                    {% call f.form_group(form.elaboro_email) %}{% endcall %}
+                                    <select name="{{ nombre }}" class="js-example-basic-multiple">
+                                        {% for user in users %}
+                                            <option> {{ user.email }}</option>
+                                            {% call f.form_group(form.elaboro_email) %}{% endcall %}
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <h4>Revisó</h4>
