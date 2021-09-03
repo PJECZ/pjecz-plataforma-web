@@ -37,10 +37,7 @@
 
 {# un campo del formulario #}
 {%- macro field(f, css_class='form-control') -%}
-    {% if f.type == 'HiddenField' %}
-        {{ f.description }}
-        {{ f(class=css_class, **kwargs) }}
-    {% elif f.type == 'DateField'  %}
+    {% if f.type == 'DateField'  %}
         {{ f(class=css_class, type='date', **kwargs) }}
     {% elif f.type == 'TimeField'  %}
         {{ f(class=css_class, type='time', **kwargs) }}
@@ -74,7 +71,10 @@
     {% if f.errors %}
         {% set css_class = css_class + ' has-error ' + kwargs.pop('class', '') %}
     {% endif %}
-    {% if f.type == 'FileField' %}
+    {% if f.type == 'HiddenField' %}
+        {{ field(f, **kwargs) }}
+        {{ caller () }}
+    {% elif f.type == 'FileField' %}
         {{ field(f, **kwargs) }}
         {{ field_errors(f) }}
         {{ caller () }}

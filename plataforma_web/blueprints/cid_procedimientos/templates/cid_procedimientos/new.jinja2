@@ -41,7 +41,10 @@
                     {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form', css_class='multisteps-form__form') %}
                         <!-- Encabezado -->
                         {% call quill.step_first('Encabezado', next_onclick='javascript:guardar_encabezado()') %}
-                            {{ quill.fields_encabezado() }}
+                            {% call f.form_group(form.titulo_procedimiento) %}{% endcall %}
+                            {% call f.form_group(form.codigo) %}{% endcall %}
+                            {% call f.form_group(form.revision) %}{% endcall %}
+                            {% call f.form_group(form.fecha) %}{% endcall %}
                         {% endcall %}
                         <!-- Step Objetivo -->
                         {% call quill.step('Objetivo', back_onclick='javascript:guardar_objetivo()', next_onclick='javascript:guardar_objetivo()') %}
@@ -80,7 +83,42 @@
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()') %}
-                            {{ quill.fields_control_cambios() }}
+                            <h4>Elaboró</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.elaboro_nombre) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.elaboro_puesto) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.elaboro_email) %}{% endcall %}
+                                </div>
+                            </div>
+                            <h4>Revisó</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_nombre) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_puesto) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_email) %}{% endcall %}
+                                </div>
+                            </div>
+                            <h4>Autorizó</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_puesto) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_email) %}{% endcall %}
+                                </div>
+                            </div>
                             {{ quill.div(div_id='control_cambios_quill') }}
                             {% call f.form_group(form.control_cambios) %}{% endcall %}
                         {% endcall %}

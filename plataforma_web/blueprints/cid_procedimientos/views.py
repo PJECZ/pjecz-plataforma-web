@@ -2,7 +2,7 @@
 CID Procedimientos, vistas
 """
 from flask import Blueprint, flash, redirect, request, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -54,6 +54,7 @@ def new():
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
         cid_procedimiento = CIDProcedimiento(
+            autoridad=current_user.autoridad,
             titulo_procedimiento=form.titulo_procedimiento.data,
             codigo=form.codigo.data,
             revision=form.revision.data,
@@ -77,7 +78,7 @@ def new():
             control_cambios=form.control_cambios.data,
         )
         cid_procedimiento.save()
-        flash(f"CID Procedimiento {cid_procedimiento.descripcion} guardado.", "success")
+        flash(f"Procedimiento {cid_procedimiento.titulo_procedimiento} guardado.", "success")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
     return render_template("cid_procedimientos/new.jinja2", form=form)
 
@@ -89,51 +90,51 @@ def edit(cid_procedimiento_id):
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
-        cid_procedimiento.titulo_procedimiento=form.titulo_procedimiento.data
-        cid_procedimiento.codigo=form.codigo.data
-        cid_procedimiento.revision=form.revision.data
-        cid_procedimiento.fecha=form.fecha.data
-        cid_procedimiento.objetivo=form.objetivo.data
-        cid_procedimiento.alcance=form.alcance.data
-        cid_procedimiento.documentos=form.documentos.data
-        cid_procedimiento.definiciones=form.definiciones.data
-        cid_procedimiento.responsabilidades=form.responsabilidades.data
-        cid_procedimiento.desarrollo=form.desarrollo.data
-        cid_procedimiento.registros=form.registros.data
-        cid_procedimiento.elaboro_nombre=form.elaboro_nombre.data
-        cid_procedimiento.elaboro_puesto=form.elaboro_puesto.data
-        cid_procedimiento.elaboro_email=form.elaboro_email.data
-        cid_procedimiento.reviso_nombre=form.reviso_nombre.data
-        cid_procedimiento.reviso_puesto=form.reviso_puesto.data
-        cid_procedimiento.reviso_email=form.reviso_email.data
-        cid_procedimiento.aprobo_nombre=form.aprobo_nombre.data
-        cid_procedimiento.aprobo_puesto=form.aprobo_puesto.data
-        cid_procedimiento.aprobo_email=form.aprobo_email.data
-        cid_procedimiento.control_cambios=form.control_cambios.data
+        cid_procedimiento.titulo_procedimiento = form.titulo_procedimiento.data
+        cid_procedimiento.codigo = form.codigo.data
+        cid_procedimiento.revision = form.revision.data
+        cid_procedimiento.fecha = form.fecha.data
+        cid_procedimiento.objetivo = form.objetivo.data
+        cid_procedimiento.alcance = form.alcance.data
+        cid_procedimiento.documentos = form.documentos.data
+        cid_procedimiento.definiciones = form.definiciones.data
+        cid_procedimiento.responsabilidades = form.responsabilidades.data
+        cid_procedimiento.desarrollo = form.desarrollo.data
+        cid_procedimiento.registros = form.registros.data
+        cid_procedimiento.elaboro_nombre = form.elaboro_nombre.data
+        cid_procedimiento.elaboro_puesto = form.elaboro_puesto.data
+        cid_procedimiento.elaboro_email = form.elaboro_email.data
+        cid_procedimiento.reviso_nombre = form.reviso_nombre.data
+        cid_procedimiento.reviso_puesto = form.reviso_puesto.data
+        cid_procedimiento.reviso_email = form.reviso_email.data
+        cid_procedimiento.aprobo_nombre = form.aprobo_nombre.data
+        cid_procedimiento.aprobo_puesto = form.aprobo_puesto.data
+        cid_procedimiento.aprobo_email = form.aprobo_email.data
+        cid_procedimiento.control_cambios = form.control_cambios.data
         cid_procedimiento.save()
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} guardado.", "success")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
-    form.titulo_procedimiento.data=cid_procedimiento.titulo_procedimiento
-    form.codigo.data=cid_procedimiento.codigo
-    form.revision.data=cid_procedimiento.revision
-    form.fecha.data=cid_procedimiento.fecha
-    form.objetivo.data=cid_procedimiento.objetivo
-    form.alcance.data=cid_procedimiento.alcance
-    form.documentos.data=cid_procedimiento.documentos
-    form.definiciones.data=cid_procedimiento.definiciones
-    form.responsabilidades.data=cid_procedimiento.responsabilidades
-    form.desarrollo.data=cid_procedimiento.desarrollo
-    form.registros.data=cid_procedimiento.registros
-    form.elaboro_nombre.data=cid_procedimiento.elaboro_nombre
-    form.elaboro_puesto.data=cid_procedimiento.elaboro_puesto
-    form.elaboro_email.data=cid_procedimiento.elaboro_email
-    form.reviso_nombre.data=cid_procedimiento.reviso_nombre
-    form.reviso_puesto.data=cid_procedimiento.reviso_puesto
-    form.reviso_email.data=cid_procedimiento.reviso_email
-    form.aprobo_nombre.data=cid_procedimiento.aprobo_nombre
-    form.aprobo_puesto.data=cid_procedimiento.aprobo_puesto
-    form.aprobo_email.data=cid_procedimiento.aprobo_email
-    form.control_cambios.data=cid_procedimiento.control_cambios
+    form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
+    form.codigo.data = cid_procedimiento.codigo
+    form.revision.data = cid_procedimiento.revision
+    form.fecha.data = cid_procedimiento.fecha
+    form.objetivo.data = cid_procedimiento.objetivo
+    form.alcance.data = cid_procedimiento.alcance
+    form.documentos.data = cid_procedimiento.documentos
+    form.definiciones.data = cid_procedimiento.definiciones
+    form.responsabilidades.data = cid_procedimiento.responsabilidades
+    form.desarrollo.data = cid_procedimiento.desarrollo
+    form.registros.data = cid_procedimiento.registros
+    form.elaboro_nombre.data = cid_procedimiento.elaboro_nombre
+    form.elaboro_puesto.data = cid_procedimiento.elaboro_puesto
+    form.elaboro_email.data = cid_procedimiento.elaboro_email
+    form.reviso_nombre.data = cid_procedimiento.reviso_nombre
+    form.reviso_puesto.data = cid_procedimiento.reviso_puesto
+    form.reviso_email.data = cid_procedimiento.reviso_email
+    form.aprobo_nombre.data = cid_procedimiento.aprobo_nombre
+    form.aprobo_puesto.data = cid_procedimiento.aprobo_puesto
+    form.aprobo_email.data = cid_procedimiento.aprobo_email
+    form.control_cambios.data = cid_procedimiento.control_cambios
     return render_template("cid_procedimientos/edit.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 
