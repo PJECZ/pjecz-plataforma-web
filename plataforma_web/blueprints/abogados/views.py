@@ -106,7 +106,7 @@ def datatable_json():
         consulta = consulta.filter_by(libro=safe_string(request.form["libro"]))
     if "nombre" in request.form:
         consulta = consulta.filter(Abogado.nombre.like("%" + safe_string(request.form["nombre"]) + "%"))
-    registros = consulta.order_by(Abogado.creado.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Abogado.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []

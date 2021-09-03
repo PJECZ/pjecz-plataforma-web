@@ -1,6 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/quill.jinja2' as quill %}
 
 {% block title %}Nuevo Procedimiento{% endblock %}
 
@@ -8,15 +9,141 @@
     {{ topbar.page('Nuevo Procedimiento') }}
 {% endblock %}
 
+{% block custom_head %}
+    {{ quill.head() }}
+{% endblock %}
+
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form') %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.codigo) %}{% endcall %}
-            {% call f.form_group(form.revision) %}{% endcall %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.etapa) %}{% endcall %}
-            {% call f.form_group(form.guardar) %}{% endcall %}
+        <div><form></form></div>
+        <div class="multisteps-form">
+            <!-- Steps Progress Bar -->
+            <div class="row">
+                <div class="col-lg-12 ml-auto mr-auto mb-4">
+                    <div class="multisteps-form__progress">
+                        <button class="multisteps-form__progress-btn js-active" type="button" title="Encabezado">Encabezado</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Objetivo">Objetivo</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Alcance">Alcance</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Documentos">Documentos</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Definiciones">Definiciones</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Responsabilidades">Responsabilidades</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Desarrollo">Desarrollo</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Registros">Registros</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Control de Cambios">Control de Cambios</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Vista previa">Vista previa</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Steps Form Panels -->
+            <div class="row">
+                <div class="col-lg-12 m-auto">
+                    {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form', css_class='multisteps-form__form') %}
+                        <!-- Encabezado -->
+                        {% call quill.step_first('Encabezado', next_onclick='javascript:guardar_encabezado()') %}
+                            {% call f.form_group(form.titulo_procedimiento) %}{% endcall %}
+                            {% call f.form_group(form.codigo) %}{% endcall %}
+                            {% call f.form_group(form.revision) %}{% endcall %}
+                            {% call f.form_group(form.fecha) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Step Objetivo -->
+                        {% call quill.step('Objetivo', back_onclick='javascript:guardar_objetivo()', next_onclick='javascript:guardar_objetivo()') %}
+                            {{ quill.div(div_id='objetivo_quill') }}
+                            {% call f.form_group(form.objetivo, readonly=true) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Step Alcance -->
+                        {% call quill.step('Alcance', back_onclick='javascript:guardar_alcance()', next_onclick='javascript:guardar_alcance()') %}
+                            {{ quill.div(div_id='alcance_quill') }}
+                            {% call f.form_group(form.alcance, readonly=true) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Step Documentos -->
+                        {% call quill.step('Documentos', back_onclick='javascript:guardar_documentos()', next_onclick='javascript:guardar_documentos()') %}
+                            {{ quill.div(div_id='documentos_quill') }}
+                            {% call f.form_group(form.documentos, readonly=true) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Step Definiciones -->
+                        {% call quill.step('Definiciones', back_onclick='javascript:guardar_definiciones()', next_onclick='javascript:guardar_definiciones()') %}
+                            {{ quill.div(div_id='definiciones_quill') }}
+                            {% call f.form_group(form.definiciones, readonly=true) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Responsabilidades -->
+                        {% call quill.step('Responsabilidades', back_onclick='javascript:guardar_responsabilidades()', next_onclick='javascript:guardar_responsabilidades()') %}
+                            {{ quill.div(div_id='responsabilidades_quill') }}
+                            {% call f.form_group(form.responsabilidades, readonly=true) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Desarrollo -->
+                        {% call quill.step('Desarrollo', back_onclick='javascript:guardar_desarrollo()', next_onclick='javascript:guardar_desarrollo()') %}
+                            {{ quill.div(div_id='desarrollo_quill') }}
+                            {% call f.form_group(form.desarrollo, readonly=true) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Registros -->
+                        {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()') %}
+                            {{ quill.div(div_id='registros_quill') }}
+                            {% call f.form_group(form.registros, readonly=true) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Control de cambios -->
+                        {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()') %}
+                            <h4>Elaboró</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.elaboro_nombre) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.elaboro_puesto) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.elaboro_email) %}{% endcall %}
+                                </div>
+                            </div>
+                            <h4>Revisó</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_nombre) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_puesto) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_email) %}{% endcall %}
+                                </div>
+                            </div>
+                            <h4>Autorizó</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_puesto) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_email) %}{% endcall %}
+                                </div>
+                            </div>
+                            {{ quill.div(div_id='control_cambios_quill') }}
+                            {% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}
+                        {% endcall %}
+                        <!-- Vista previa -->
+                        {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
+                            {{ quill.div(div_id='vista_previa_quill') }}
+                        {% endcall %}
+                    {% endcall %}
+                </div>
+            </div>
+        </div>
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ quill.library() }}
+    {{ quill.editor(instance='objetivoQuill', div_id='objetivo_quill') }}
+    {{ quill.editor(instance='alcanceQuill', div_id='alcance_quill') }}
+    {{ quill.editor(instance='documentosQuill', div_id='documentos_quill') }}
+    {{ quill.editor(instance='definicionesQuill', div_id='definiciones_quill') }}
+    {{ quill.editor(instance='responsabilidadesQuill', div_id='responsabilidades_quill') }}
+    {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
+    {{ quill.editor(instance='registrosQuill', div_id='registros_quill') }}
+    {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
+    {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
 {% endblock %}

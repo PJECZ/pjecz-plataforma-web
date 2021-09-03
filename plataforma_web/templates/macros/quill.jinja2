@@ -1,68 +1,122 @@
 {# Quill editor #}
 
-{# Quill theme for custom head #}
-{%- macro custom_head() -%}
-    <!-- Quill theme -->
+{# Quill theme for custom_head #}
+{%- macro head() -%}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.snow.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/quill.css') }}" rel="stylesheet" type="text/css">
 {%- endmacro -%}
 
 {# Quill div #}
-{%- macro div(quill_id='editor') -%}
-    <div id="{{ quill_id }}" class="mb-2" style="display:block; clear:both; break-after:page; height:55vh;"></div>
+{%- macro div(div_id='contenido_quill') -%}
+    <div id="{{ div_id }}" class="mb-2" style="display:block; clear:both; break-after:page; height:50vh;"></div>
 {%- endmacro -%}
 
-{# Quill custom javascript editor #}
-{%- macro editor_custom_javascript(form_id, form_hidden_id, content='', quill_id='editor') -%}
-    <!-- Quill library -->
+{# Quill library for custom_javascript #}
+{%- macro library() -%}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
+{%- endmacro -%}
+
+{# Quill editor for custom_javascript #}
+{%- macro editor(form_id='', instance='contenidoQuill', div_id='contenido_quill', hidden_id='contenido', content='') -%}
     <script>
-        $( document ).ready(function() {
-            // Quill editor
-            var quill = new Quill('#{{ quill_id }}', {
-                modules: {
-                    table: true,
-                    toolbar: [
-                        ['bold', 'italic', 'underline', 'strike'],
-                        ['blockquote', 'code-block', 'image'],
-                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                        [{ 'script': 'sub' }, { 'script': 'super' }],  // superscript/subscript
-                        [{ 'indent': '-1' }, { 'indent': '+1' }],      // outdent/indent
-                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        [{ 'color': [] }, { 'background': [] }],       // dropdown with defaults from theme
-                        [{ 'font': [] }],
-                        [{ 'align': [] }],
-                        ['clean']                                      // remove formatting
-                    ],
-                },
-                theme: 'snow'
-            });
-            // Fill at start
-            if (content != '') {
-                quill.setContents({{ content }});
-            }
-            // On submit
-            document.getElementById('{{ form_id }}').onsubmit = function() {copyFromQuillToInputHidden()};
-            // Copy to input hidden field
-            function copyFromQuillToInputHidden() {
-                document.getElementById('{{ form_hidden_id }}').value = JSON.stringify(quill.getContents());
-            }
+        // Quill editor
+        var {{ instance }} = new Quill('#{{ div_id }}', {
+            modules: {
+                table: true,
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block', 'image'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'script': 'sub' }, { 'script': 'super' }],  // superscript/subscript
+                    [{ 'indent': '-1' }, { 'indent': '+1' }],      // outdent/indent
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    [{ 'color': [] }, { 'background': [] }],       // dropdown with defaults from theme
+                    [{ 'font': [] }],
+                    [{ 'align': [] }],
+                    ['clean']                                      // remove formatting
+                ],
+            },
+            theme: 'snow'
         });
+        {% if content != '' %}
+        // Fill at start
+        {{ instance }}.setContents({{ content }});
+        {% endif %}
+        {% if form_id != '' and hidden_id != '' %}
+        // On submit
+        document.getElementById('{{ form_id }}').onsubmit = function() {copyFromQuillToInputHidden()};
+        // Copy to input hidden field
+        function copyFromQuillToInputHidden() {
+            document.getElementById('{{ hidden_id }}').value = JSON.stringify({{ instance }}.getContents());
+        }
+        {% endif %}
     </script>
 {%- endmacro -%}
 
-{# Quill custom javascript reader #}
-{%- macro reader_custom_javascript(content='', quill_id='editor') -%}
-    <!-- Quill library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
+{# Quill reader for custom_javascript #}
+{%- macro reader(instance='readerQuill', div_id='contenido_quill', content='') -%}
     <script>
         $( document ).ready(function() {
             // Quill reader
-            var quill = new Quill('#{{ quill_id }}', {
+            var {{ instance }} = new Quill('#{{ div_id }}', {
                 readOnly: true,
                 theme: 'snow'
             });
             // Fill at start
-            quill.setContents({{ content }});
+            {{ instance }}.setContents({{ content }});
         });
     </script>
+{%- endmacro -%}
+
+{# Step first #}
+{%- macro step_first(title, next_onclick='') -%}
+    <div class="multisteps-form__panel shadow p-4 rounded bg-white js-active" data-animation="scaleIn">
+        <h3 class="multisteps-form__title">Encabezado</h3>
+        <div class="multisteps-form__content">
+            <div class="form-row mt-4">
+                <div class="col-lg-12">
+                    {{ caller () }}
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
+                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" onClick="javascript:guardar_encabezado()">Siguiente</button>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{# Step #}
+{%- macro step(title, back_onclick='', next_onclick='') -%}
+    <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
+        <h3 class="multisteps-form__title">{{ title }}</h3>
+        <div class="multisteps-form__content">
+            <div class="form-row mt-4">
+                <div class="col-lg-12">
+                    {{ caller () }}
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
+                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
+                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" {% if next_onclick != '' %}onClick="{{ next_onclick }}"{% endif %}>Siguiente</button>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{# Step last #}
+{%- macro step_last(title, back_onclick='') -%}
+    <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
+        <h3 class="multisteps-form__title">{{ title }}</h3>
+        <div class="multisteps-form__content">
+            <div class="form-row mt-4">
+                <div class="col-lg-12">
+                    {{ caller () }}
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
+                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
+                <button class="btn btn-success ml-auto" type="submit" id="guardar" title="Guardar">Guardar</button>
+            </div>
+        </div>
+    </div>
 {%- endmacro -%}

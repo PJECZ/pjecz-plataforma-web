@@ -22,8 +22,8 @@
         <table id="abogados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Fecha</th>
                     <th>Número</th>
+                    <th>Fecha</th>
                     <th>Libro</th>
                     <th>Nombre</th>
                 </tr>
@@ -50,8 +50,8 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "fecha" },
                 { data: "numero" },
+                { data: "fecha" },
                 { data: "libro" },
                 { data: "detalle" }
             ],

@@ -29,17 +29,15 @@
                     <th>Códigos</th>
                     <th>Revisiones</th>
                     <th>Fechas</th>
-                    <th>Etapas</th>
                 </tr>
             </thead>
             <tbody>
                 {% for cid_procedimiento in cid_procedimientos %}
                 <tr>
-                    <td><a href="{{ url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id) }}">{{ cid_procedimiento.descripcion }}</a></td>
+                    <td><a href="{{ url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id) }}">{{ cid_procedimiento.titulo_procedimiento }}</a></td>
                     <td>{{ cid_procedimiento.codigo }}</td>
                     <td>{{ cid_procedimiento.revision }}</td>
                     <td>{{ cid_procedimiento.fecha }}</td>
-                    <td>{{ cid_procedimiento.etapa }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
