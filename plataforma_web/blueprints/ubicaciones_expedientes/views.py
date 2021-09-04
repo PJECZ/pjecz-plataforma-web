@@ -6,7 +6,7 @@ from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from lib.safe_string import safe_expediente, safe_message
+from lib.safe_string import safe_expediente, safe_message, safe_string
 
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -152,7 +152,7 @@ def search():
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
-        # Autoridad es un campo obligatorio
+        # Autoridad
         if puede_elegir_autoridad:
             autoridad = Autoridad.query.get(form_search.autoridad.data)
             plantilla = "ubicaciones_expedientes/list_admin.jinja2"
@@ -161,13 +161,19 @@ def search():
             plantilla = "ubicaciones_expedientes/list.jinja2"
         busqueda["autoridad_id"] = autoridad.id
         titulos.append(autoridad.distrito.nombre_corto + ", " + autoridad.descripcion_corta)
-        # Expediente es un campo obligatorio
-        try:
-            expediente = safe_expediente(form_search.expediente.data)
-            busqueda["expediente"] = expediente
-            titulos.append("expediente " + expediente)
-        except:
-            pass
+        # Expediente
+        if form_search.expediente.data != "":
+            try:
+                expediente = safe_expediente(form_search.expediente.data)
+                busqueda["expediente"] = expediente
+                titulos.append("expediente " + expediente)
+            except (IndexError, ValueError):
+                pass
+        # Ubicacion
+        ubicacion = safe_string(form_search.ubicacion.data)
+        if ubicacion != "":
+            busqueda["ubicacion"] = ubicacion
+            titulos.append("ubicación " + ubicacion)
         # Mostrar resultados
         return render_template(
             plantilla,
@@ -209,6 +215,10 @@ def datatable_json():
             consulta = consulta.filter_by(expediente=expediente)
         except (IndexError, ValueError):
             pass
+    if "ubicacion" in request.form:
+        ubicacion = safe_string(request.form["ubicacion"])
+        if ubicacion != "":
+            consulta = consulta.filter_by(ubicacion=ubicacion)
     registros = consulta.order_by(UbicacionExpediente.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -250,6 +260,10 @@ def datatable_json_admin():
             consulta = consulta.filter_by(expediente=expediente)
         except (IndexError, ValueError):
             pass
+    if "ubicacion" in request.form:
+        ubicacion = safe_string(request.form["ubicacion"])
+        if ubicacion != "":
+            consulta = consulta.filter_by(ubicacion=ubicacion)
     registros = consulta.order_by(UbicacionExpediente.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
