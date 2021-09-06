@@ -92,10 +92,10 @@
                                     {% call f.form_group(form.elaboro_puesto) %}{% endcall %}
                                 </div>
                                 <div class="col">
-                                    <select name="{{ nombre }}" class="js-example-basic-multiple">
-                                        {% for user in users %}
-                                            <option> {{ user.email }}</option>
-                                            {% call f.form_group(form.elaboro_email) %}{% endcall %}
+                                    <select name="email" class="js-example-placeholder-multiple js-states form-control" multiple="multiple">
+                                        {% for usuario in usuarios %}
+                                            {#% call f.form_group(form.elaboro_email) %}{% endcall %#}
+                                            <option value="email">{{ usuario.email }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -151,4 +151,9 @@
     {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
+    <script>
+     $(".js-example-placeholder-multiple").select2({
+        placeholder: "Selecciona el correo"
+    });
+    </script>
 {% endblock %}

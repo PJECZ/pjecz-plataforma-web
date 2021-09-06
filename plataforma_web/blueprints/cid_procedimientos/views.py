@@ -1,6 +1,7 @@
 """
 CID Procedimientos, vistas
 """
+from plataforma_web.blueprints.usuarios.models import Usuario
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 
@@ -8,6 +9,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
@@ -52,6 +54,7 @@ def detail(cid_procedimiento_id):
 def new():
     """Nuevo CID Procedimiento"""
     form = CIDProcedimientoForm()
+    usuarios = Usuario.query.filter(Usuario.id).filter_by(estatus="A").all()
     if form.validate_on_submit():
         cid_procedimiento = CIDProcedimiento(
             autoridad=current_user.autoridad,
@@ -77,10 +80,11 @@ def new():
             aprobo_email=form.aprobo_email.data,
             control_cambios=form.control_cambios.data,
         )
+
         cid_procedimiento.save()
         flash(f"Procedimiento {cid_procedimiento.titulo_procedimiento} guardado.", "success")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
-    return render_template("cid_procedimientos/new.jinja2", form=form)
+    return render_template("cid_procedimientos/new.jinja2", form=form, usuarios=usuarios)
 
 
 @cid_procedimientos.route("/cid_procedimientos/edicion/<int:cid_procedimiento_id>", methods=["GET", "POST"])
