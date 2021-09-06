@@ -32,7 +32,8 @@ class UbicacionExpedienteSearchForm(FlaskForm):
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
-    expediente = StringField("Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    ubicacion = RadioField("Ubicación", validators=[Optional()], choices=UbicacionExpediente.UBICACIONES)
     buscar = SubmitField("Buscar")
 
 
