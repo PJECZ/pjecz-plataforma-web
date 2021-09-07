@@ -1,5 +1,8 @@
 """
 Listas de Acuerdos, tareas para ejecutar en el fondo
+
+- refrescar: Rastrear las listas de acuerdos para agregar las que no tiene y dar de baja las que no existen en la BD
+- enviar_reporte: Enviar via correo electronico el reporte de listas de acuerdos
 """
 import logging
 import os
@@ -216,4 +219,20 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     set_task_progress(100)
     bitacora.info(mensaje_final)
     bitacora.info("Termina")
+    return mensaje_final
+
+
+def enviar_reporte():
+    """Enviar via correo electronico el reporte de listas de acuerdos"""
+    bitacora.info("Inicia")
+
+    # Bucle por distritos judiciales
+    # Consultar juzgados
+    # Determinar si entregaron la lista de acuerdos de hoy
+
+    mensaje_final = "Termina"
+
+    # Terminar tarea
+    set_task_progress(100)
+    bitacora.info(mensaje_final)
     return mensaje_final
