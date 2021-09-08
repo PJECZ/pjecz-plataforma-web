@@ -5,6 +5,13 @@ from flask_wtf import FlaskForm
 from wtforms import DateField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional
 from lib.wtforms import JSONField
+from plataforma_web.blueprints.usuarios.models import Usuario
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+
+
+def usuarios_email_opciones():
+    """Seleccionar correo electronico de usuarios: opciones para select"""
+    return Usuario.query.filter_by(estatus="A").order_by(Usuario.email).all()
 
 
 class CIDProcedimientoForm(FlaskForm):
@@ -32,13 +39,13 @@ class CIDProcedimientoForm(FlaskForm):
     # Step Control de Cambios
     elaboro_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     elaboro_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    elaboro_email = StringField("Correo", validators=[Optional(), Length(max=256)])
+    elaboro_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email")
     reviso_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     reviso_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    reviso_email = StringField("Correo", validators=[Optional(), Length(max=256)])
+    reviso_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email")
     aprobo_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     aprobo_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    aprobo_email = StringField("Correo", validators=[Optional(), Length(max=256)])
+    aprobo_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email")
     control_cambios = JSONField("Control de Cambios", validators=[Optional()])
     # Guardar
     guardar = SubmitField("Guardar")
