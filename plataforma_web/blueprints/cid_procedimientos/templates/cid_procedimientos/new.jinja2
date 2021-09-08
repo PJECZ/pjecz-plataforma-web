@@ -92,9 +92,9 @@
                                     {% call f.form_group(form.elaboro_puesto) %}{% endcall %}
                                 </div>
                                 <div class="col">
+                                    <label> Correo</label>
                                     <select name="email" class="js-example-placeholder-multiple js-states form-control" multiple="multiple">
                                         {% for usuario in usuarios %}
-                                            {#% call f.form_group(form.elaboro_email) %}{% endcall %#}
                                             <option value="email">{{ usuario.email }}</option>
                                         {% endfor %}
                                     </select>
@@ -109,7 +109,12 @@
                                     {% call f.form_group(form.reviso_puesto) %}{% endcall %}
                                 </div>
                                 <div class="col">
-                                    {% call f.form_group(form.reviso_email) %}{% endcall %}
+                                    <label> Correo</label>
+                                    <select name="email" class="js-example-placeholder-multiple js-states form-control" multiple="multiple">
+                                        {% for usuario in usuarios %}
+                                            <option value="email">{{ usuario.email }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <h4>Autorizó</h4>
@@ -121,7 +126,12 @@
                                     {% call f.form_group(form.aprobo_puesto) %}{% endcall %}
                                 </div>
                                 <div class="col">
-                                    {% call f.form_group(form.aprobo_email) %}{% endcall %}
+                                    <label> Correo</label>
+                                    <select name="email" class="js-example-placeholder-multiple js-states form-control" multiple="multiple">
+                                        {% for usuario in usuarios %}
+                                            <option value="email">{{ usuario.email }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             {{ quill.div(div_id='control_cambios_quill') }}
