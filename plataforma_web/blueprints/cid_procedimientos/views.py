@@ -8,6 +8,7 @@ from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
@@ -53,6 +54,9 @@ def new():
     """Nuevo CID Procedimiento"""
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
+        elaboro = form.elaboro_email.data
+        reviso = form.reviso_email.data
+        aprobo = form.aprobo_email.data
         cid_procedimiento = CIDProcedimiento(
             autoridad=current_user.autoridad,
             titulo_procedimiento=form.titulo_procedimiento.data,
@@ -68,13 +72,13 @@ def new():
             registros=form.registros.data,
             elaboro_nombre=form.elaboro_nombre.data,
             elaboro_puesto=form.elaboro_puesto.data,
-            elaboro_email=form.elaboro_email.data,
+            elaboro_email=elaboro.email,
             reviso_nombre=form.reviso_nombre.data,
             reviso_puesto=form.reviso_puesto.data,
-            reviso_email=form.reviso_email.data,
+            reviso_email=reviso.email,
             aprobo_nombre=form.aprobo_nombre.data,
             aprobo_puesto=form.aprobo_puesto.data,
-            aprobo_email=form.aprobo_email.data,
+            aprobo_email=aprobo.email,
             control_cambios=form.control_cambios.data,
         )
         cid_procedimiento.save()

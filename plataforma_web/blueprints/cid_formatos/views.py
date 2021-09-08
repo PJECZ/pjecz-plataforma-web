@@ -21,12 +21,12 @@ MODULO = "DOCUMENTACIONES"
 @login_required
 @permission_required(Permiso.VER_DOCUMENTACIONES)
 def before_request():
-    """ Permiso por defecto """
+    """Permiso por defecto"""
 
 
 @cid_formatos.route("/cid_formatos")
 def list_active():
-    """ Listado de CID Formatos activos """
+    """Listado de CID Formatos activos"""
     cid_formatos_activos = CIDFormato.query.filter_by(estatus="A").order_by(CIDFormato.creado.desc()).limit(100).all()
     return render_template("cid_formatos/list.jinja2", cid_formatos=cid_formatos_activos, estatus="A")
 
@@ -34,14 +34,14 @@ def list_active():
 @cid_formatos.route("/cid_formatos/inactivos")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
-    """ Listado de CID Formatos inactivos """
+    """Listado de CID Formatos inactivos"""
     cid_formatos_inactivos = CIDFormato.query.filter_by(estatus="B").order_by(CIDFormato.creado.desc()).limit(100).all()
     return render_template("cid_formatos/list.jinja2", cid_formatos=cid_formatos_inactivos, estatus="B")
 
 
 @cid_formatos.route("/cid_formatos/<int:cid_formato_id>")
 def detail(cid_formato_id):
-    """ Detalle de un CID Formato """
+    """Detalle de un CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
     return render_template("cid_formatos/detail.jinja2", cid_formato=cid_formato)
 
@@ -49,7 +49,7 @@ def detail(cid_formato_id):
 @cid_formatos.route("/cid_formatos/nuevo/<int:cid_procedimiento_id>", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_DOCUMENTACIONES)
 def new(cid_procedimiento_id):
-    """ Nuevo CID Formato """
+    """Nuevo CID Formato"""
 
     # Validar procedimiento
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -81,7 +81,7 @@ def new(cid_procedimiento_id):
 @cid_formatos.route("/cid_formatos/edicion/<int:cid_formato_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def edit(cid_formato_id):
-    """ Editar CID Formato """
+    """Editar CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
     form = CIDFormatoForm()
     if form.validate_on_submit():
@@ -107,7 +107,7 @@ def edit(cid_formato_id):
 @cid_formatos.route("/cid_formatos/eliminar/<int:cid_formato_id>")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def delete(cid_formato_id):
-    """ Eliminar CID Formato """
+    """Eliminar CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
     if cid_formato.estatus == "A":
         cid_formato.delete()
@@ -118,7 +118,7 @@ def delete(cid_formato_id):
 @cid_formatos.route("/cid_formatos/recuperar/<int:cid_formato_id>")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def recover(cid_formato_id):
-    """ Recuperar CID Formato """
+    """Recuperar CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
     if cid_formato.estatus == "B":
         cid_formato.recover()
