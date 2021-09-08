@@ -14,10 +14,16 @@ from dateutil.tz import tzlocal
 from google.cloud import storage
 from hashids import Hashids
 from rq import get_current_job
+
+import pandas as pd
+
 from lib.safe_string import safe_string
 
 from plataforma_web.app import create_app
+from plataforma_web.extensions import db
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.tareas.models import Tarea
 from plataforma_web.blueprints.usuarios.models import Usuario
@@ -31,6 +37,7 @@ bitacora.addHandler(empunadura)
 
 app = create_app()
 app.app_context().push()
+db.app = app
 
 SUBDIRECTORIO = "Listas de Acuerdos"
 
@@ -226,9 +233,27 @@ def enviar_reporte():
     """Enviar via correo electronico el reporte de listas de acuerdos"""
     bitacora.info("Inicia")
 
-    # Bucle por distritos judiciales
-    # Consultar juzgados
-    # Determinar si entregaron la lista de acuerdos de hoy
+    # Fecha de hoy
+    hoy = date.today()
+
+    # Distrito Judicial de Saltillo
+    distrito = Distrito.query.get(6)
+
+    # Juzgados
+    autoridades_select = db.session.query(Autoridad.id, Autoridad.clave, Autoridad.descripcion).\
+        filter(Autoridad.distrito_id == distrito.id).\
+        filter(Autoridad.es_jurisdiccional == True).\
+        filter(Autoridad.es_notaria == False).\
+        filter(Autoridad.estatus == "A").statement
+    autoridades = pd.read_sql_query(sql=autoridades_select, con=db.engine)
+
+    # Listas de acuerdos de hoy
+    listas_de_acuerdos_select = db.session.query(ListaDeAcuerdo.id, Autoridad.clave, ListaDeAcuerdo.fecha, ListaDeAcuerdo.archivo, ListaDeAcuerdo.creado).\
+        join(Autoridad).\
+        filter(ListaDeAcuerdo.autoridad_id.in_(autoridades.id)).\
+        filter(ListaDeAcuerdo.fecha == hoy).\
+        filter(ListaDeAcuerdo.estatus == "A").statement
+    listas_de_acuerdos = pd.read_sql_query(sql=listas_de_acuerdos_select, con=db.engine)
 
     mensaje_final = "Termina"
 
