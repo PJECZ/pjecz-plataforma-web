@@ -49,7 +49,6 @@
         function copyFromQuillToInputHidden() {
             document.getElementById('{{ hidden_id }}').value = JSON.stringify({{ instance }}.getContents());
         }
-        
         {% endif %}
     </script>
 {%- endmacro -%}

@@ -1,7 +1,6 @@
 """
 CID Procedimientos, vistas
 """
-from plataforma_web.blueprints.usuarios.models import Usuario
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 
