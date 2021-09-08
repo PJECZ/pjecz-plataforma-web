@@ -11,6 +11,8 @@
 
 {% block custom_head %}
     {{ quill.head() }}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 {% endblock %}
 
 {% block content %}
@@ -146,4 +148,21 @@
     {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#elaboro_email').addClass('js-example-placeholder-single js-states form-control');
+            $('#reviso_email').addClass('js-example-placeholder-single js-states form-control');
+            $('#aprobo_email').addClass('js-example-placeholder-single js-states form-control');
+            $("#elaboro_email").prop("selectedIndex", -1); // Poner en blanco el select
+            $("#reviso_email").prop("selectedIndex", -1); // Poner en blanco el select
+            $("#aprobo_email").prop("selectedIndex", -1); // Poner en blanco el select
+            $(".js-example-placeholder-single").select2({
+                placeholder: "correo",
+                allowClear: true
+            });
+        });
+            
+    </script>
 {% endblock %}
