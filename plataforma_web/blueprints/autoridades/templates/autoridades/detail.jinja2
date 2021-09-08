@@ -60,8 +60,9 @@
         {{ detail.label_value('Clave', autoridad.clave) }}
         {{ detail.label_value_boolean('Es Jurisdiccional', autoridad.es_jurisdiccional) }}
         {{ detail.label_value_boolean('Es Notaría', autoridad.es_notaria) }}
-        {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
+        {{ detail.label_value('Categoría de audiencias', autoridad.audiencia_categoria) }}
         {{ detail.label_value('Materia', autoridad.materia.nombre, url_for('materias.detail', materia_id=autoridad.materia_id)) }}
+        {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
     {# Usuarios de la autoridad #}

@@ -15,6 +15,7 @@ class Perito(db.Model, UniversalMixin):
             ("AMBIENTAL", "Ambiental"),
             ("ARBITRO", "Árbitro"),
             ("AREA DE RECONOCIMIENTO DE VOZ Y CONTROL DE RUIDO", "Área de reconocimiento de voz y control de ruido"),
+            ("ARQUITECTURA", "Arquitectura"),
             ("AUDITORIA INTERNA", "Auditoría Interna"),
             ("BALISTICA", "Balística"),
             ("CALIGRAFIA", "Caligrafía"),
