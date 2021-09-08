@@ -93,9 +93,9 @@
                                 </div>
                                 <div class="col">
                                     <label> Correo</label>
-                                    <select name="email" class="js-example-basic-multiple js-states form-control" multiple="multiple">
+                                    <select name="email" class="js-example-placeholder-single js-states form-control">
                                         {% for usuario in usuarios %}
-                                            <option value="email">{{ usuario.email }}</option>
+                                            <option>{{ usuario.email }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -110,9 +110,9 @@
                                 </div>
                                 <div class="col">
                                     <label> Correo</label>
-                                    <select name="email" class="js-example-basic-multiple js-states form-control" multiple="multiple">
+                                    <select name="email" class="js-example-placeholder-single js-states form-control">
                                         {% for usuario in usuarios %}
-                                            <option value="email">{{ usuario.email }}</option>
+                                            <option>{{ usuario.email }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -127,9 +127,9 @@
                                 </div>
                                 <div class="col">
                                     <label> Correo</label>
-                                    <select name="email" class="js-example-basic-multiple js-states form-control" multiple="multiple">
+                                    <select name="email" class="js-example-placeholder-single js-states form-control">
                                         {% for usuario in usuarios %}
-                                            <option value="email">{{ usuario.email }}</option>
+                                            <option>{{ usuario.email }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -162,6 +162,9 @@
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
     <script>
-     $(".js-example-basic-multiple").select2();
+        $(".js-example-placeholder-single").select2({
+            placeholder: "correo",
+            allowClear: true
+        });
     </script>
 {% endblock %}
