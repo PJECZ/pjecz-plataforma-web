@@ -1,5 +1,8 @@
 """
 Listas de Acuerdos, tareas para ejecutar en el fondo
+
+- refrescar: Rastrear las listas de acuerdos para agregar las que no tiene y dar de baja las que no existen en la BD
+- enviar_reporte: Enviar via correo electronico el reporte de listas de acuerdos
 """
 import logging
 import os
@@ -11,10 +14,18 @@ from dateutil.tz import tzlocal
 from google.cloud import storage
 from hashids import Hashids
 from rq import get_current_job
+import pandas as pd
+
+import sendgrid
+from sendgrid.helpers.mail import Email, To, Content, Mail
+
 from lib.safe_string import safe_string
 
 from plataforma_web.app import create_app
+from plataforma_web.extensions import db
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.tareas.models import Tarea
 from plataforma_web.blueprints.usuarios.models import Usuario
@@ -28,6 +39,7 @@ bitacora.addHandler(empunadura)
 
 app = create_app()
 app.app_context().push()
+db.app = app
 
 SUBDIRECTORIO = "Listas de Acuerdos"
 
@@ -216,4 +228,83 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     set_task_progress(100)
     bitacora.info(mensaje_final)
     bitacora.info("Termina")
+    return mensaje_final
+
+
+def enviar_reporte():
+    """Enviar via correo electronico el reporte de listas de acuerdos"""
+
+    # Tiempos
+    momento = datetime.now()
+    momento_str = momento.strftime("%d/%B/%Y %I:%M%p")
+    hoy = date.today()
+
+    # Cabecera
+    bitacora.info("Reporte diario del %s", momento_str)
+    contenidos = [
+        "<h1>PJECZ Plataforma Web</h1>",
+        f"<p>Reporte diario de <strong>Listas de Acuerdos</strong> del {momento_str}</p>",
+    ]
+
+    # Distritos
+    distritos_select = db.session.query(Distrito.id, Distrito.nombre).filter(Distrito.es_distrito_judicial == True).filter(Distrito.estatus == "A").statement
+    distritos = pd.read_sql_query(sql=distritos_select, con=db.engine)
+    total = 0
+    for distrito in distritos:
+        contenidos.append(f"<h3>{distrito.nombre}</h3>")
+
+        # Juzgados
+        autoridades_select = (
+            db.session.query(Autoridad.id, Autoridad.clave, Autoridad.descripcion_corta)
+            .filter(Autoridad.distrito_id == distrito.id)
+            .filter(Autoridad.es_jurisdiccional == True)
+            .filter(Autoridad.es_notaria == False)
+            .filter(Autoridad.estatus == "A")
+            .order_by(Autoridad.clave)
+            .statement
+        )
+        autoridades = pd.read_sql_query(sql=autoridades_select, con=db.engine)
+
+        # Listas de acuerdos
+        listas_de_acuerdos_select = (
+            db.session.query(Autoridad.clave, ListaDeAcuerdo.archivo, ListaDeAcuerdo.creado)
+            .join(Autoridad)
+            .filter(ListaDeAcuerdo.autoridad_id.in_(autoridades.id))
+            .filter(ListaDeAcuerdo.fecha == hoy)
+            .filter(ListaDeAcuerdo.estatus == "A")
+            .order_by(ListaDeAcuerdo.creado)
+            .statement
+        )
+        listas_de_acuerdos = pd.read_sql_query(sql=listas_de_acuerdos_select, con=db.engine)
+        listas_de_acuerdos.columns = ["clave2", "archivo", "creado"]
+
+        # Reporte
+        diario = pd.merge(autoridades, listas_de_acuerdos, left_on="clave", right_on="clave2", how="left").drop("clave2", axis=1)
+        contenidos.append(diario.to_html())
+
+        # A bitacora
+        cantidad = len(listas_de_acuerdos)
+        bitacora.info("- En %s hay %s", distrito.nombre_corto, cantidad)
+        total += cantidad
+
+    # Pie del mensaje
+    contenidos.append("Este mensaje de crea de forma automatica. Favor de no responder.")
+
+    # Mensaje via correo electronico
+    api_key = os.environ.get("SENDGRID_API_KEY", "Debe estar definida como variable de entorno")
+    sg = sendgrid.SendGridAPIClient(api_key=api_key)
+    from_email = Email("informatica@pjecz.gob.mx")
+    to_email = To("guillermo.valdes@pjecz.gob.mx")
+    subject = "Plataforma Web - Listas de Acuerdos"
+    content = Content("text/html", "/n".join(contenidos))
+    mail = Mail(from_email, to_email, subject, content)
+    response = sg.client.mail.send.post(request_body=mail.get())
+    bitacora.info(response.status_code)
+    bitacora.info(response.body)
+    bitacora.info(response.headers)
+
+    # Terminar tarea
+    set_task_progress(100)
+    mensaje_final = "Total " + str(total)
+    bitacora.info(mensaje_final)
     return mensaje_final

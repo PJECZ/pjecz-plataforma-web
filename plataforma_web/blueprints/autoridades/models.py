@@ -60,6 +60,7 @@ class Autoridad(db.Model, UniversalMixin):
         index=True,
         nullable=False,
     )
+    limite_dias_listas_de_acuerdos = db.Column(db.Integer(), nullable=False, default=0)
 
     # Hijos
     audiencias = db.relationship("Audiencia", back_populates="autoridad", lazy="noload")

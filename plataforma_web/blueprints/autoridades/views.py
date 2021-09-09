@@ -230,11 +230,13 @@ def new():
         directorio_sentencias = ""
         directorio_edictos = ""
         directorio_glosas = ""
+        limite_dias_listas_de_acuerdos = 0
         if es_jurisdiccional:
             directorio_edictos = directorio
             directorio_listas_de_acuerdos = directorio
             directorio_sentencias = directorio
             directorio_glosas = directorio
+            limite_dias_listas_de_acuerdos = 1
         if es_notaria:
             directorio_edictos = directorio
         # Insertar registro
@@ -252,6 +254,7 @@ def new():
             directorio_sentencias=directorio_sentencias,
             directorio_edictos=directorio_edictos,
             directorio_glosas=directorio_glosas,
+            limite_dias_listas_de_acuerdos=limite_dias_listas_de_acuerdos,
         )
         autoridad.save()
         # Mensaje de éxito e ir al detalle
@@ -288,6 +291,7 @@ def edit(autoridad_id):
         autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
         autoridad.directorio_edictos = form.directorio_edictos.data.strip()
         autoridad.directorio_glosas = form.directorio_glosas.data.strip()
+        autoridad.limite_dias_listas_de_acuerdos = form.limite_dias_listas_de_acuerdos.data
         autoridad.save()
         bitacora = Bitacora(
             modulo=MODULO,
@@ -311,6 +315,7 @@ def edit(autoridad_id):
     form.directorio_sentencias.data = autoridad.directorio_sentencias
     form.directorio_edictos.data = autoridad.directorio_edictos
     form.directorio_glosas.data = autoridad.directorio_glosas
+    form.limite_dias_listas_de_acuerdos.data = autoridad.limite_dias_listas_de_acuerdos
     return render_template("autoridades/edit.jinja2", form=form, autoridad=autoridad)
 
 

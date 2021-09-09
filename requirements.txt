@@ -15,6 +15,7 @@ google-cloud-logging
 google-cloud-storage
 hashids
 Jinja2
+pandas
 passlib
 psycopg2-binary
 pylint

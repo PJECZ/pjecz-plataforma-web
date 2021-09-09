@@ -28,7 +28,7 @@ listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="
 
 MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
-LIMITE_DIAS = 1
+LIMITE_DIAS = 3  # Es el maximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor
 LIMITE_ADMINISTRADORES_DIAS = 90
 
 
@@ -341,11 +341,6 @@ def new_success(lista_de_acuerdo, anterior_borrada):
 def new():
     """Subir Lista de Acuerdos como juzgado"""
 
-    # Para validar la fecha
-    hoy = datetime.date.today()
-    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
-
     # Validar autoridad
     autoridad = current_user.autoridad
     if autoridad is None or autoridad.estatus != "A":
@@ -361,6 +356,18 @@ def new():
         flash("El juzgado/autoridad no tiene directorio para listas de acuerdos.", "warning")
         return redirect(url_for("listas_de_acuerdos.list_active"))
 
+    # Para validar la fecha
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    if autoridad.limite_dias_listas_de_acuerdos < LIMITE_DIAS:
+        mi_limite_dias = autoridad.limite_dias_listas_de_acuerdos
+    else:
+        mi_limite_dias = LIMITE_DIAS
+    if mi_limite_dias > 0:
+        limite_dt = hoy_dt + datetime.timedelta(days=-mi_limite_dias)
+    else:
+        limite_dt = hoy_dt
+
     # Si viene el formulario
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
@@ -372,20 +379,20 @@ def new():
 
         # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_DIAS} días.", "warning")
+            flash(f"La fecha no debe ser del futuro ni anterior a {mi_limite_dias} días.", "warning")
             form.fecha.data = hoy
-            return render_template("listas_de_acuerdos/new.jinja2", form=form)
+            return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
         # Validar descripcion, porque safe_string puede resultar vacío
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
-            return render_template("listas_de_acuerdos/new.jinja2", form=form)
+            return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
         # Validar archivo
         archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
-            return render_template("listas_de_acuerdos/new.jinja2", form=form)
+            return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
         anterior_borrada = False
@@ -433,18 +440,13 @@ def new():
     form.autoridad.data = autoridad.descripcion
     form.descripcion.data = "LISTA DE ACUERDOS"
     form.fecha.data = hoy
-    return render_template("listas_de_acuerdos/new.jinja2", form=form)
+    return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
 @permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
 def new_for_autoridad(autoridad_id):
     """Subir Lista de Acuerdos para una autoridad dada"""
-
-    # Para validar la fecha
-    hoy = datetime.date.today()
-    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -463,6 +465,11 @@ def new_for_autoridad(autoridad_id):
     if autoridad.directorio_listas_de_acuerdos is None or autoridad.directorio_listas_de_acuerdos == "":
         flash("El juzgado/autoridad no tiene directorio para edictos.", "warning")
         return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+
+    # Para validar la fecha
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
 
     # Si viene el formulario
     form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))

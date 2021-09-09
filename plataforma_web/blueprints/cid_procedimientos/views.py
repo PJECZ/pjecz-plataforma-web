@@ -7,8 +7,6 @@ from flask_login import current_user, login_required
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
@@ -70,13 +68,13 @@ def new():
             responsabilidades=form.responsabilidades.data,
             desarrollo=form.desarrollo.data,
             registros=form.registros.data,
-            elaboro_nombre=form.elaboro_nombre.data,
+            elaboro_nombre=elaboro.nombre,
             elaboro_puesto=form.elaboro_puesto.data,
             elaboro_email=elaboro.email,
-            reviso_nombre=form.reviso_nombre.data,
+            reviso_nombre=reviso.nombre,
             reviso_puesto=form.reviso_puesto.data,
             reviso_email=reviso.email,
-            aprobo_nombre=form.aprobo_nombre.data,
+            aprobo_nombre=aprobo.nombre,
             aprobo_puesto=form.aprobo_puesto.data,
             aprobo_email=aprobo.email,
             control_cambios=form.control_cambios.data,
