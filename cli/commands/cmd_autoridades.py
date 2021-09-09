@@ -50,6 +50,7 @@ def respaldar(output):
                 "directorio_listas_de_acuerdos",
                 "directorio_sentencias",
                 "audiencia_categoria",
+                "limite_dias_listas_de_acuerdos",
                 "estatus",
             ]
         )
@@ -70,6 +71,7 @@ def respaldar(output):
                     autoridad.directorio_listas_de_acuerdos,
                     autoridad.directorio_sentencias,
                     autoridad.audiencia_categoria,
+                    autoridad.limite_dias_listas_de_acuerdos,
                     autoridad.estatus,
                 ]
             )

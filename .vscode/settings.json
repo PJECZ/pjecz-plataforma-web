@@ -4,7 +4,7 @@
 		"--max-line-length",
 		"256",
 		"--load-plugins",
-		"pylint_flask_sqlalchemy"
+		"pylint_sqlalchemy pylint_flask_sqlalchemy"
 	],
 	"python.formatting.provider": "black",
 	"python.formatting.blackArgs": [

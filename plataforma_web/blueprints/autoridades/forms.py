@@ -4,6 +4,7 @@ Autoridades, formularios
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, SelectField, StringField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms.fields.core import IntegerField
 from wtforms.validators import DataRequired, Length, Optional
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -52,6 +53,7 @@ class AutoridadEditForm(FlaskForm):
     directorio_glosas = StringField("Directorio para glosas", validators=[Optional(), Length(max=256)])
     directorio_listas_de_acuerdos = StringField("Directorio para listas de acuerdos", validators=[Optional(), Length(max=256)])
     directorio_sentencias = StringField("Directorio para sentencias", validators=[Optional(), Length(max=256)])
+    limite_dias_listas_de_acuerdos = IntegerField("Límite días para listas de acuerdos", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 
