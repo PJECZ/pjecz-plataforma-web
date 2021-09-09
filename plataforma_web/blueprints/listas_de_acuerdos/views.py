@@ -28,7 +28,7 @@ listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="
 
 MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
-LIMITE_DIAS = 3  # Es el maximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor
+LIMITE_DIAS = 7  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
 LIMITE_ADMINISTRADORES_DIAS = 90
 
 

@@ -1,9 +1,11 @@
 """
 Listas de Acuerdos
 
+- enviar_reporte: Enviar via correo electronico el reporte de listas de acuerdos
 - refrescar: Rastrear el depósito para agregar o dar de baja
 - refrescar_todos: Rastrear el depósito para agregar o dar de baja
 """
+from datetime import datetime
 import click
 
 from plataforma_web.app import create_app
@@ -18,6 +20,25 @@ db.app = app
 @click.group()
 def cli():
     """Listas de Acuerdos"""
+
+
+@click.command()
+@click.option("--fecha", default="", type=str, help="Fecha a consultar")
+def enviar_reporte(fecha):
+    """Enviar via correo electronico el reporte de listas de acuerdos"""
+    if fecha != "":
+        try:
+            fecha_date = datetime.strptime(fecha, "%Y-%m-%d")
+        except ValueError as mensaje:
+            click.echo(f"AVISO: Fecha incorrecta {mensaje}")
+            return
+    else:
+        fecha_date = None
+    app.task_queue.enqueue(
+        "plataforma_web.blueprints.listas_de_acuerdos.tasks.enviar_reporte",
+        fecha=fecha_date,
+    )
+    click.echo("Enviar reporte de listas de acuerdo se está ejecutando en el fondo.")
 
 
 @click.command()
@@ -70,5 +91,6 @@ def refrescar_todos():
     click.echo(f"Se lanzaron {contador} tareas para ejecutar en el fondo.")
 
 
+cli.add_command(enviar_reporte)
 cli.add_command(refrescar)
 cli.add_command(refrescar_todos)
