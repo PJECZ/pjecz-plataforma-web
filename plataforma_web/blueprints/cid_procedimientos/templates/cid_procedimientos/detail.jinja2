@@ -42,6 +42,7 @@
         {{ detail.label_value('Autorizó puesto', cid_procedimiento.aprobo_puesto) }}
         {{ detail.label_value('Autorizó correo', cid_procedimiento.aprobo_email) }}
         {{ detail.label_value('Control de Cambios', cid_procedimiento.control_cambios) }}
+        {{ detail.label_value('Firma electrónica', cid_procedimiento.firma) }}
     {% endcall %}
     {% if cid_formatos %}
         {% call detail.card(title='Formatos') %}

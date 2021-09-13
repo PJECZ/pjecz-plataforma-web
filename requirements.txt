@@ -17,6 +17,7 @@ hashids
 Jinja2
 pandas
 passlib
+pdfkit
 psycopg2-binary
 pylint
 pylint-sqlalchemy
@@ -25,6 +26,7 @@ PyMySQL
 pylint
 python-dateutil
 pytz
+quill-delta[html]
 rq
 sendgrid
 SQLAlchemy
