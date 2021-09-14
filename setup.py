@@ -1,5 +1,5 @@
 """
-Setup sirve para installar los comandos click
+Comandos Click para instalar con pip install --editable .
 """
 from setuptools import setup
 
@@ -10,5 +10,5 @@ setup(
     entry_points="""
         [console_scripts]
         plataforma_web=cli.cli:cli
-        """,
+    """,
 )

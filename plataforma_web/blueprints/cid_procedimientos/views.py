@@ -1,6 +1,8 @@
 """
 CID Procedimientos, vistas
 """
+import json
+from delta import html
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 
@@ -43,7 +45,20 @@ def detail(cid_procedimiento_id):
     """Detalle de un CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     cid_formatos = CIDFormato.query.filter(CIDFormato.procedimiento == cid_procedimiento).filter(CIDFormato.estatus == "A").order_by(CIDFormato.id).all()
-    return render_template("cid_procedimientos/detail.jinja2", cid_procedimiento=cid_procedimiento, cid_formatos=cid_formatos)
+    return render_template(
+        "cid_procedimientos/detail.jinja2",
+        cid_procedimiento=cid_procedimiento,
+        firma=cid_procedimiento.elaborar_firma(),
+        objetivo=str(html.render(cid_procedimiento.objetivo['ops'])),
+        alcance=str(html.render(cid_procedimiento.alcance['ops'])),
+        documentos=str(html.render(cid_procedimiento.documentos['ops'])),
+        definiciones=str(html.render(cid_procedimiento.definiciones['ops'])),
+        responsabilidades=str(html.render(cid_procedimiento.responsabilidades['ops'])),
+        desarrollo=str(html.render(cid_procedimiento.desarrollo['ops'])),
+        registros=str(html.render(cid_procedimiento.registros['ops'])),
+        control_cambios=str(html.render(cid_procedimiento.control_cambios['ops'])),
+        cid_formatos=cid_formatos,
+    )
 
 
 @cid_procedimientos.route("/cid_procedimientos/nuevo", methods=["GET", "POST"])

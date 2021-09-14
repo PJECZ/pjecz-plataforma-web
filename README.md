@@ -49,16 +49,14 @@ Debe crear un archivo instance/settings.py que defina su configuración para des
     # Base de datos MariaDB
     # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://wronguser:badpassword@127.0.0.1/pjecz_plataforma_web'
 
-Opcionalmente puede guardar valores en un archivo .env como variables de entorno...
+O bien, puede guardar valores en un archivo .env como variables de entorno...
 
     # Flask
     FLASK_APP=plataforma_web.app
     FLASK_DEBUG=1
     SECRET_KEY=****************
 
-Por ejemplo, para PostgreSQL agregue en .env los datos de conexión...
-
-    # Base de datos local
+    # Base de datos
     DB_USER=pjeczadmin
     DB_PASS=********
     DB_NAME=pjecz_plataforma_web
@@ -71,7 +69,7 @@ Y los obtiene en instance/settings.py con...
     DB_PASS = os.environ.get("DB_PASS", "badpassword")
     DB_NAME = os.environ.get("DB_NAME", "pjecz_plataforma_web")
     DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
-    SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 
 ## Cargar registros iniciales
 
@@ -79,9 +77,14 @@ Crear directorio seed
 
     mkdir seed
 
-Copiar archivos CSV y ponerlos en seed. Ejecutar...
+Copie los archivos CSV en seed.
+
+Instale el comando click con
 
     pip install --editable .
+
+Y ejecute la inicialización y alimentación
+
     plataforma_web db inicializar
     plataforma_web db alimentar
 
@@ -121,20 +124,3 @@ Abra una terminal, cargue el entorno virtual y deje en ejecución el worker
     rq worker pjecz_plataforma_web
 
 Estará vigilante de Redis
-
-## Configurar VSCode
-
-Aparte de su configuració particular, agregue el archivo .vscode/settings.json con
-
-    {
-        "editor.formatOnSave": true,
-        "python.formatting.provider": "black",
-        "python.formatting.blackArgs": ["--line-length", "256"],
-        "python.linting.pylintArgs": ["--max-line-length", "256", "--load-plugins", "pylint_flask_sqlalchemy"]
-    }
-
-Esto habilita...
-
-- El formateo del código con [Black](https://black.readthedocs.io/en/stable/)
-- Líneas más largas de hasta 256 caracteres
-- Reconocimiento de sintaxis de Flask SQLAlchemy

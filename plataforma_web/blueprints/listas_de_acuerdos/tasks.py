@@ -4,6 +4,7 @@ Listas de Acuerdos, tareas para ejecutar en el fondo
 - refrescar: Rastrear las listas de acuerdos para agregar las que no tiene y dar de baja las que no existen en la BD
 - enviar_reporte: Enviar via correo electronico el reporte de listas de acuerdos
 """
+import locale
 import logging
 import os
 import re
@@ -40,6 +41,8 @@ bitacora.addHandler(empunadura)
 app = create_app()
 app.app_context().push()
 db.app = app
+
+locale.setlocale(locale.LC_TIME, "es_MX")
 
 SUBDIRECTORIO = "Listas de Acuerdos"
 
