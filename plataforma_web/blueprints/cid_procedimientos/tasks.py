@@ -2,6 +2,10 @@
 CID Procedimientos, tareas en el fondo
 
 - crear_pdf: Crear PDF
+
+Debe de instalar
+
+    sudo dnf install wkhtmltopdf
 """
 import locale
 import logging
@@ -9,6 +13,7 @@ import os
 
 from delta import html
 from jinja2 import Environment, FileSystemLoader
+import pdfkit
 
 from lib.tasks import set_task_progress, set_task_error
 from plataforma_web.app import create_app
@@ -70,8 +75,8 @@ def crear_pdf(cid_procedimiento_id: int):
         registros=html.render(cid_procedimiento.registros["ops"]),
     )
 
-    # Monstrar en terminal el resultado
-    print(pdf_body_html)
+    # Crear PDF
+    pdfkit.from_string(pdf_body_html, "out.pdf")
 
     # Crear archivo PDF con el apoyo de
     # - pdfkit https://pypi.org/project/pdfkit/
