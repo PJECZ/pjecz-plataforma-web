@@ -61,17 +61,20 @@ def crear_pdf(cid_procedimiento_id: int):
         codigo=cid_procedimiento.codigo,
         revision=str(cid_procedimiento.revision),
         fecha=cid_procedimiento.fecha.strftime("%d %b %Y"),
-        objetivo=html.render(cid_procedimiento.objetivo['ops']),
-        alcance=html.render(cid_procedimiento.alcance['ops']),
-        documentos=html.render(cid_procedimiento.documentos['ops']),
-        definiciones=html.render(cid_procedimiento.definiciones['ops']),
-        responsabilidades=html.render(cid_procedimiento.responsabilidades['ops']),
-        desarrollo=html.render(cid_procedimiento.desarrollo['ops']),
-        registros=html.render(cid_procedimiento.registros['ops']),
+        objetivo=html.render(cid_procedimiento.objetivo["ops"]),
+        alcance=html.render(cid_procedimiento.alcance["ops"]),
+        documentos=html.render(cid_procedimiento.documentos["ops"]),
+        definiciones=html.render(cid_procedimiento.definiciones["ops"]),
+        responsabilidades=html.render(cid_procedimiento.responsabilidades["ops"]),
+        desarrollo=html.render(cid_procedimiento.desarrollo["ops"]),
+        registros=html.render(cid_procedimiento.registros["ops"]),
     )
 
     # Monstrar en terminal el resultado
     print(pdf_body_html)
+
+    # Crear archivo PDF con el apoyo de
+    # - pdfkit https://pypi.org/project/pdfkit/
 
     # Mensaje de término
     mensaje = "Terminado"
