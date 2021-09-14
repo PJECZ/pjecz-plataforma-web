@@ -1,7 +1,6 @@
 """
 CID Procedimientos, modelos
 """
-import base64
 import hashlib
 
 from plataforma_web.extensions import db
@@ -49,7 +48,7 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     formatos = db.relationship("CIDFormato", back_populates="procedimiento")
 
     def elaborar_firma(self):
-        """Elaborar firma electronica"""
+        """Generate a hash representing the current sample state"""
         if self.id is None or self.creado is None:
             raise ValueError("No se puede elaborar la firma porque no se ha guardado o consultado")
         elementos = []
@@ -58,19 +57,19 @@ class CIDProcedimiento(db.Model, UniversalMixin):
         elementos.append(self.titulo_procedimiento)
         elementos.append(self.codigo)
         elementos.append(str(self.revision))
-        elementos.append(self.objetivo)
-        elementos.append(self.alcance)
-        elementos.append(self.documentos)
-        elementos.append(self.definiciones)
-        elementos.append(self.responsabilidades)
-        elementos.append(self.desarrollo)
-        elementos.append(self.registros)
+        elementos.append(str(self.objetivo))
+        elementos.append(str(self.alcance))
+        elementos.append(str(self.documentos))
+        elementos.append(str(self.definiciones))
+        elementos.append(str(self.responsabilidades))
+        elementos.append(str(self.desarrollo))
+        elementos.append(str(self.registros))
         elementos.append(self.elaboro_email)
         elementos.append(self.reviso_email)
         elementos.append(self.aprobo_email)
-        elementos.append(self.control_cambios)
-        firma = hashlib.md5("|".join(elementos))
-        return base64.b64encode(firma)
+        elementos.append(str(self.control_cambios))
+        firma = hashlib.md5("|".join(elementos).encode("utf-8"))
+        return firma.hexdigest()
 
     def validar_firma(self, validar_esta_firma):
         """Probar firma electronica"""

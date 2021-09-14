@@ -25,13 +25,17 @@
         {{ detail.label_value('Código', cid_procedimiento.codigo) }}
         {{ detail.label_value('Revisión', cid_procedimiento.revision) }}
         {{ detail.label_value('Fecha', cid_procedimiento.fecha) }}
-        {{ detail.label_value('Objetivo', cid_procedimiento.objetivo) }}
-        {{ detail.label_value('Alcance', cid_procedimiento.alcance) }}
-        {{ detail.label_value('Documentos', cid_procedimiento.documentos) }}
-        {{ detail.label_value('Definiciones', cid_procedimiento.definiciones) }}
-        {{ detail.label_value('Responsabilidades', cid_procedimiento.responsabilidades) }}
-        {{ detail.label_value('Desarrollo', cid_procedimiento.desarrollo) }}
-        {{ detail.label_value('Registros', cid_procedimiento.registros) }}
+        {##}
+        {{ detail.label_value('Firma guardada', cid_procedimiento.firma) }}
+        {{ detail.label_value('Firma al vuelo', firma) }}
+        {##}
+        {{ detail.label_value('Objetivo', objetivo) }}
+        {{ detail.label_value('Alcance', alcance) }}
+        {{ detail.label_value('Documentos', documentos) }}
+        {{ detail.label_value('Definiciones', definiciones) }}
+        {{ detail.label_value('Responsabilidades', responsabilidades) }}
+        {{ detail.label_value('Desarrollo', desarrollo) }}
+        {{ detail.label_value('Registros', registros) }}
         {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
         {{ detail.label_value('Elaboró puesto', cid_procedimiento.elaboro_puesto) }}
         {{ detail.label_value('Elaboró correo', cid_procedimiento.elaboro_email) }}
@@ -41,8 +45,7 @@
         {{ detail.label_value('Autorizó nombre', cid_procedimiento.aprobo_nombre) }}
         {{ detail.label_value('Autorizó puesto', cid_procedimiento.aprobo_puesto) }}
         {{ detail.label_value('Autorizó correo', cid_procedimiento.aprobo_email) }}
-        {{ detail.label_value('Control de Cambios', cid_procedimiento.control_cambios) }}
-        {{ detail.label_value('Firma electrónica', cid_procedimiento.firma) }}
+        {{ detail.label_value('Control de Cambios', control_cambios) }}
     {% endcall %}
     {% if cid_formatos %}
         {% call detail.card(title='Formatos') %}
