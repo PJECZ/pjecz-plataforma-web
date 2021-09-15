@@ -124,3 +124,9 @@ Abra una terminal, cargue el entorno virtual y deje en ejecución el worker
     rq worker pjecz_plataforma_web
 
 Estará vigilante de Redis
+
+## Crear archivos PDF con pdfkit
+
+Este paquete de python requiere que se instale wkhtmltopdf
+
+    sudo dnf install wkhtmltopdf

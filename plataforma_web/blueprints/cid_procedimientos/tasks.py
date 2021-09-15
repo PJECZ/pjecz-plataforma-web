@@ -2,16 +2,13 @@
 CID Procedimientos, tareas en el fondo
 
 - crear_pdf: Crear PDF
-
-Debe de instalar
-
-    sudo dnf install wkhtmltopdf
 """
 import locale
 import logging
 import os
 
 from delta import html
+from google.cloud import storage
 from jinja2 import Environment, FileSystemLoader
 import pdfkit
 
@@ -31,6 +28,7 @@ app.app_context().push()
 
 locale.setlocale(locale.LC_TIME, "es_MX")
 
+DEPOSITO_DIR = "cid_procedimientos"
 TEMPLATES_DIR = "plataforma_web/blueprints/cid_procedimientos/templates/cid_procedimientos"
 
 
@@ -40,17 +38,21 @@ def crear_pdf(cid_procedimiento_id: int):
     # Validar procedimiento
     cid_procedimiento = CIDProcedimiento.query.get(cid_procedimiento_id)
     if cid_procedimiento is None:
-        mensaje = set_task_error("El procedimiento no exite.")
+        mensaje = set_task_error(f"El procedimiento con id {cid_procedimiento_id} no exite.")
         bitacora.error(mensaje)
         return mensaje
     if cid_procedimiento.estatus != "A":
-        mensaje = set_task_error("El procedimiento no es activo.")
+        mensaje = set_task_error(f"El procedimiento con id {cid_procedimiento_id} no es activo.")
+        bitacora.error(mensaje)
+        return mensaje
+    if cid_procedimiento.archivo != "" or cid_procedimiento.url != "":
+        mensaje = set_task_error(f"El procedimiento con id {cid_procedimiento_id} ya tiene un archivo PDF.")
         bitacora.error(mensaje)
         return mensaje
 
     # Poner en bitácora información de arranque
+    bitacora.info("Crear PDF de %s", cid_procedimiento.titulo_procedimiento)
     bitacora.info("Directorio actual: %s", os.getcwd())
-    bitacora.info("Título: %s", cid_procedimiento.titulo_procedimiento)
 
     # Renderizar HTML con el apoyo de
     # - Jinja2 https://palletsprojects.com/p/jinja/
@@ -75,14 +77,31 @@ def crear_pdf(cid_procedimiento_id: int):
         registros=html.render(cid_procedimiento.registros["ops"]),
     )
 
-    # Crear PDF
-    pdfkit.from_string(pdf_body_html, "out.pdf")
-
     # Crear archivo PDF con el apoyo de
     # - pdfkit https://pypi.org/project/pdfkit/
+    try:
+        pdf = pdfkit.from_string(pdf_body_html, False)
+    except IOError as error:
+        mensaje = str(error)
+        bitacora.error(mensaje)
+        return mensaje
+
+    # Subir a Google Storage
+    archivo = cid_procedimiento.archivo_pdf()
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(os.environ.get("CLOUD_STORAGE_DEPOSITO"))
+    blob = bucket.blob(DEPOSITO_DIR + "/" + archivo)
+    blob.upload_from_string(pdf, content_type="application/pdf")
+    url = blob.public_url
+
+    # Actualizar registro
+    cid_procedimiento.firma = cid_procedimiento.elaborar_firma()
+    cid_procedimiento.archivo = archivo
+    cid_procedimiento.url = url
+    cid_procedimiento.save()
 
     # Mensaje de término
-    mensaje = "Terminado"
+    mensaje = "Listo " + url
     set_task_progress(100)
     bitacora.info(mensaje)
     return mensaje

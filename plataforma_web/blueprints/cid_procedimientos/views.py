@@ -48,7 +48,7 @@ def detail(cid_procedimiento_id):
     return render_template(
         "cid_procedimientos/detail.jinja2",
         cid_procedimiento=cid_procedimiento,
-        firma=cid_procedimiento.elaborar_firma(),
+        firma_al_vuelo=cid_procedimiento.elaborar_firma(),
         objetivo=str(html.render(cid_procedimiento.objetivo['ops'])),
         alcance=str(html.render(cid_procedimiento.alcance['ops'])),
         documentos=str(html.render(cid_procedimiento.documentos['ops'])),
