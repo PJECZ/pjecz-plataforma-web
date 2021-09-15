@@ -27,7 +27,9 @@
         {{ detail.label_value('Fecha', cid_procedimiento.fecha) }}
         {##}
         {{ detail.label_value('Firma guardada', cid_procedimiento.firma) }}
-        {{ detail.label_value('Firma al vuelo', firma) }}
+        {{ detail.label_value('Firma al vuelo', firma_al_vuelo) }}
+        {##}
+        {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
         {##}
         {{ detail.label_value('Objetivo', objetivo) }}
         {{ detail.label_value('Alcance', alcance) }}
