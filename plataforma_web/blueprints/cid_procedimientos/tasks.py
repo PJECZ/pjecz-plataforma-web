@@ -32,7 +32,7 @@ DEPOSITO_DIR = "cid_procedimientos"
 TEMPLATES_DIR = "plataforma_web/blueprints/cid_procedimientos/templates/cid_procedimientos"
 
 
-def crear_pdf(cid_procedimiento_id: int):
+def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None):
     """Crear PDF"""
 
     # Validar procedimiento

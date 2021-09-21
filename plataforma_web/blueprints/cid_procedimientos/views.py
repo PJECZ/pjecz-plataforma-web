@@ -1,9 +1,8 @@
 """
 CID Procedimientos, vistas
 """
-import json
 from delta import html
-from flask import Blueprint, flash, redirect, request, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from plataforma_web.blueprints.roles.models import Permiso
@@ -49,14 +48,14 @@ def detail(cid_procedimiento_id):
         "cid_procedimientos/detail.jinja2",
         cid_procedimiento=cid_procedimiento,
         firma_al_vuelo=cid_procedimiento.elaborar_firma(),
-        objetivo=str(html.render(cid_procedimiento.objetivo['ops'])),
-        alcance=str(html.render(cid_procedimiento.alcance['ops'])),
-        documentos=str(html.render(cid_procedimiento.documentos['ops'])),
-        definiciones=str(html.render(cid_procedimiento.definiciones['ops'])),
-        responsabilidades=str(html.render(cid_procedimiento.responsabilidades['ops'])),
-        desarrollo=str(html.render(cid_procedimiento.desarrollo['ops'])),
-        registros=str(html.render(cid_procedimiento.registros['ops'])),
-        control_cambios=str(html.render(cid_procedimiento.control_cambios['ops'])),
+        objetivo=str(html.render(cid_procedimiento.objetivo["ops"])),
+        alcance=str(html.render(cid_procedimiento.alcance["ops"])),
+        documentos=str(html.render(cid_procedimiento.documentos["ops"])),
+        definiciones=str(html.render(cid_procedimiento.definiciones["ops"])),
+        responsabilidades=str(html.render(cid_procedimiento.responsabilidades["ops"])),
+        desarrollo=str(html.render(cid_procedimiento.desarrollo["ops"])),
+        registros=str(html.render(cid_procedimiento.registros["ops"])),
+        control_cambios=str(html.render(cid_procedimiento.control_cambios["ops"])),
         cid_formatos=cid_formatos,
     )
 
@@ -71,7 +70,7 @@ def new():
         reviso = form.reviso_email.data
         aprobo = form.aprobo_email.data
         cid_procedimiento = CIDProcedimiento(
-            autoridad=current_user.autoridad,
+            usuario=current_user,
             titulo_procedimiento=form.titulo_procedimiento.data,
             codigo=form.codigo.data,
             revision=form.revision.data,
@@ -93,6 +92,13 @@ def new():
             aprobo_puesto=form.aprobo_puesto.data,
             aprobo_email=aprobo.email,
             control_cambios=form.control_cambios.data,
+            cadena=0,
+            seguimiento="EN ELABORACION",
+            seguimiento_posterior="EN ELABORACION",
+            anterior_id=0,
+            firma="",
+            archivo="",
+            url="",
         )
         cid_procedimiento.save()
         flash(f"Procedimiento {cid_procedimiento.titulo_procedimiento} guardado.", "success")
@@ -155,12 +161,31 @@ def edit(cid_procedimiento_id):
     return render_template("cid_procedimientos/edit.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 
+@cid_procedimientos.route("/cid_procedimientos/elaborar/firmar/<int:cid_procedimiento_id>")
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+def sign_for_maker(cid_procedimiento_id):
+    """Firmar por Elaborador"""
+    cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    if cid_procedimiento.firma == "":
+        tarea = current_user.launch_task(
+            nombre="cid_procedimientos.tasks.crear_pdf",
+            descripcion=f"Crear archivo PDF de {cid_procedimiento.titulo_procedimiento}",
+            usuario_id=current_user.id,
+            cid_procedimiento_id=cid_procedimiento.id,
+        )
+        flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
+    else:
+        flash("Este procedimiento ya ha sido firmado.", "warning")
+    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+
+
 @cid_procedimientos.route("/cid_procedimientos/eliminar/<int:cid_procedimiento_id>")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def delete(cid_procedimiento_id):
     """Eliminar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     if cid_procedimiento.estatus == "A":
+        cid_procedimiento.seguimiento = "CANCELADO POR ELABORADOR"
         cid_procedimiento.delete()
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} eliminado.", "success")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
@@ -172,6 +197,7 @@ def recover(cid_procedimiento_id):
     """Recuperar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     if cid_procedimiento.estatus == "B":
+        cid_procedimiento.seguimiento = "EN ELABORACION"
         cid_procedimiento.recover()
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} recuperado.", "success")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))

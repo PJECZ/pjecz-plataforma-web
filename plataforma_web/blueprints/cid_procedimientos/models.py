@@ -14,11 +14,17 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     SEGUIMIENTOS = OrderedDict(
         [
             ("EN ELABORACION", "En Elaboración"),
+            ("CANCELADO POR ELABORADOR", "Cancelado por elaborador"),
             ("FIRMADO", "Firmado"),
-            ("ACEPTADO", "Aprobado"),
-            ("RECHAZADO", "Rechazado"),
-            ("CANCELADO", "Cancelado"),
-            ("ARCHIVADO", "Archivado"),
+            ("ELABORADO", "Elaborado"),
+            ("RECHAZADO POR REVISOR", "Rechazado por revisor"),
+            ("EN REVISON", "En Revisión"),
+            ("CANCELADO POR REVISOR", "Cancelado por revisor"),
+            ("REVISADO", "Revisado"),
+            ("RECHAZADO POR AUTORIZADOR", "Rechazado por autorizador"),
+            ("EN AUTORIZACION", "En Autorización"),
+            ("CANCELADO POR AUTORIZADOR", "Cancelado por autorizador"),
+            ("AUTORIZADO", "Autorizado"),
         ]
     )
 
@@ -60,6 +66,11 @@ class CIDProcedimiento(db.Model, UniversalMixin):
 
     # Seguimiento
     seguimiento = db.Column(
+        db.Enum(*SEGUIMIENTOS, name="cid_procedimientos_seguimientos", native_enum=False),
+        index=True,
+        nullable=False,
+    )
+    seguimiento_posterior = db.Column(
         db.Enum(*SEGUIMIENTOS, name="cid_procedimientos_seguimientos", native_enum=False),
         index=True,
         nullable=False,
