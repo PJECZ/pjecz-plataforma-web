@@ -1,6 +1,7 @@
 """
 CID Procedimientos, modelos
 """
+from collections import OrderedDict
 import hashlib
 
 from plataforma_web.extensions import db
@@ -10,6 +11,23 @@ from lib.universal_mixin import UniversalMixin
 class CIDProcedimiento(db.Model, UniversalMixin):
     """CIDProcedimiento"""
 
+    SEGUIMIENTOS = OrderedDict(
+        [
+            ("EN ELABORACION", "En Elaboración"),
+            ("CANCELADO POR ELABORADOR", "Cancelado por elaborador"),
+            ("FIRMADO", "Firmado"),
+            ("ELABORADO", "Elaborado"),
+            ("RECHAZADO POR REVISOR", "Rechazado por revisor"),
+            ("EN REVISON", "En Revisión"),
+            ("CANCELADO POR REVISOR", "Cancelado por revisor"),
+            ("REVISADO", "Revisado"),
+            ("RECHAZADO POR AUTORIZADOR", "Rechazado por autorizador"),
+            ("EN AUTORIZACION", "En Autorización"),
+            ("CANCELADO POR AUTORIZADOR", "Cancelado por autorizador"),
+            ("AUTORIZADO", "Autorizado"),
+        ]
+    )
+
     # Nombre de la tabla
     __tablename__ = "cid_procedimientos"
 
@@ -17,8 +35,8 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    autoridad = db.relationship("Autoridad", back_populates="cid_procedimientos")
+    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
+    usuario = db.relationship("Usuario", back_populates="cid_procedimientos")
 
     # Columnas
     titulo_procedimiento = db.Column(db.String(256), nullable=False)
@@ -42,7 +60,29 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     aprobo_puesto = db.Column(db.String(256), nullable=False, default="", server_default="")
     aprobo_email = db.Column(db.String(256), nullable=False, default="", server_default="")
     control_cambios = db.Column(db.JSON())
-    firma = db.Column(db.String(256))
+
+    # Número en la cadena, empieza en cero cuando quien elabora aun no lo firma
+    cadena = db.Column(db.Integer(), nullable=False)
+
+    # Seguimiento
+    seguimiento = db.Column(
+        db.Enum(*SEGUIMIENTOS, name="cid_procedimientos_seguimientos", native_enum=False),
+        index=True,
+        nullable=False,
+    )
+    seguimiento_posterior = db.Column(
+        db.Enum(*SEGUIMIENTOS, name="cid_procedimientos_seguimientos", native_enum=False),
+        index=True,
+        nullable=False,
+    )
+
+    # ID del registro anterior en la cadena
+    anterior_id = db.Column(db.Integer(), nullable=False)
+
+    # Al firmarse cambia de texto vacio al hash MD5 y ya no debe modificarse
+    firma = db.Column(db.String(32), nullable=False, default="", server_default="")
+
+    # Al elaborar el archivo PDF y subirlo a Google Storage
     archivo = db.Column(db.String(256), default="", server_default="")
     url = db.Column(db.String(512), default="", server_default="")
 
@@ -77,12 +117,7 @@ class CIDProcedimiento(db.Model, UniversalMixin):
         elementos.append(self.reviso_email)
         elementos.append(self.aprobo_email)
         elementos.append(str(self.control_cambios))
-        firma = hashlib.md5("|".join(elementos).encode("utf-8"))
-        return firma.hexdigest()
-
-    def validar_firma(self, validar_esta_firma):
-        """Probar firma electronica"""
-        return validar_esta_firma == self.firma
+        return hashlib.md5("|".join(elementos).encode("utf-8")).hexdigest()
 
     def __repr__(self):
         """Representación"""

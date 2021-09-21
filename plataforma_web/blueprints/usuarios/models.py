@@ -44,8 +44,9 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
 
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")
+    cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="usuario", lazy="noload")
     entradas_salidas = db.relationship("EntradaSalida", back_populates="usuario", lazy="noload")
-    tareas = db.relationship("Tarea", back_populates="usuario", lazy="dynamic")
+    tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
 
     @property
     def nombre(self):
