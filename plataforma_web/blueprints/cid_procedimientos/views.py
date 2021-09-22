@@ -8,9 +8,10 @@ from flask_login import current_user, login_required
 from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm
+from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
+from plataforma_web.blueprints.usuarios.models import Usuario
 
 cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="templates")
 
@@ -161,7 +162,7 @@ def edit(cid_procedimiento_id):
     return render_template("cid_procedimientos/edit.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 
-@cid_procedimientos.route("/cid_procedimientos/elaborar/firmar/<int:cid_procedimiento_id>")
+@cid_procedimientos.route("/cid_procedimientos/firmar/<int:cid_procedimiento_id>")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def sign_for_maker(cid_procedimiento_id):
     """Firmar por Elaborador"""
@@ -177,6 +178,83 @@ def sign_for_maker(cid_procedimiento_id):
     else:
         flash("Este procedimiento ya ha sido firmado.", "warning")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+
+
+@cid_procedimientos.route("/cid_procedimientos/aceptar_rechazar/<int:cid_procedimiento_id>", methods=["GET", "POST"])
+@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+def accept_reject(cid_procedimiento_id):
+    """Aceptar o Rechazar un Procedimiento"""
+    cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    if not cid_procedimiento.seguimiento in ["ELABORADO", "REVISADO"]:
+        flash("Este procedimiento no puede ser aceptado o rechazado.", "warning")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+    form = CIDProcedimientoAcceptRejectForm()
+    if form.validate_on_submit():
+        # Si fue aceptado
+        if form.aceptar.data is True:
+            # Crear un nuevo registro
+            nuevo = CIDProcedimiento(
+                titulo_procedimiento=cid_procedimiento.titulo_procedimiento,
+                codigo=cid_procedimiento.codigo,
+                revision=cid_procedimiento.revision,
+                fecha=cid_procedimiento.fecha,
+                objetivo=cid_procedimiento.objetivo,
+                alcance=cid_procedimiento.alcance,
+                documentos=cid_procedimiento.documentos,
+                definiciones=cid_procedimiento.definiciones,
+                responsabilidades=cid_procedimiento.responsabilidades,
+                desarrollo=cid_procedimiento.desarrollo,
+                registros=cid_procedimiento.registros,
+                elaboro_nombre=cid_procedimiento.elaboro_nombre,
+                elaboro_puesto=cid_procedimiento.elaboro_puesto,
+                elaboro_email=cid_procedimiento.elaboro_email,
+                reviso_nombre=cid_procedimiento.reviso_nombre,
+                reviso_puesto=cid_procedimiento.reviso_puesto,
+                reviso_email=cid_procedimiento.reviso_email,
+                aprobo_nombre=cid_procedimiento.aprobo_nombre,
+                aprobo_puesto=cid_procedimiento.aprobo_puesto,
+                aprobo_email=cid_procedimiento.aprobo_email,
+                control_cambios=cid_procedimiento.control_cambios,
+            )
+            nuevo.cadena = cid_procedimiento.cadena + 1
+            # Si este procedimiento fue elaborado, sigue revisarlo
+            if cid_procedimiento.seguimiento == "ELABORADO":
+                nuevo.seguimiento = "EN REVISION"
+                nuevo.seguimiento_posterior = "EN REVISION"
+                usuario = Usuario.query.filter_by(email=cid_procedimiento.reviso_email).first()
+                if usuario:
+                    nuevo.usuario = usuario
+                else:
+                    flash(f"No fue encontrado el usuario con e-mail {cid_procedimiento.reviso_email}", "danger")
+                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+            # Si este procedimiento fue revisado, sigue autorizarlo
+            if cid_procedimiento.seguimiento == "REVISADO":
+                nuevo.seguimiento = "EN AUTORIZACION"
+                nuevo.seguimiento_posterior = "EN AUTORIZACION"
+                usuario = Usuario.query.filter_by(email=cid_procedimiento.aprobo_email).first()
+                if usuario:
+                    nuevo.usuario = usuario
+                else:
+                    flash(f"No fue encontrado el usuario con e-mail {cid_procedimiento.aprobo_email}", "danger")
+                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+            nuevo.anterior_id = cid_procedimiento.id
+            nuevo.firma = ""
+            nuevo.archivo = ""
+            nuevo.url = ""
+            nuevo.save()
+            flash("Usted ha aceptado revisar/autorizar este procedimiento.", "success")
+            return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=nuevo.id))
+        # Fue rechazado
+        if form.rechazar.data is True:
+            # Preguntar porque fue rechazado
+            flash("Usted ha rechazado revisar/autorizar este procedimiento.", "success")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+    form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
+    form.codigo.data = cid_procedimiento.codigo
+    form.revision.data = cid_procedimiento.revision
+    form.seguimiento.data = cid_procedimiento.seguimiento
+    form.seguimiento_posterior.data = cid_procedimiento.seguimiento_posterior
+    return render_template("cid_procedimientos/accept_reject.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 
 @cid_procedimientos.route("/cid_procedimientos/eliminar/<int:cid_procedimiento_id>")

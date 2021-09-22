@@ -50,3 +50,15 @@ class CIDProcedimientoForm(FlaskForm):
     control_cambios = JSONField("Control de Cambios", validators=[Optional()])
     # Guardar
     guardar = SubmitField("Guardar")
+
+
+class CIDProcedimientoAcceptRejectForm(FlaskForm):
+    """Formaulario para Aceptar o Rechazar"""
+
+    titulo_procedimiento = StringField("Título", validators=[DataRequired(), Length(max=256)])
+    codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
+    revision = IntegerField("Revisión", validators=[DataRequired()])
+    seguimiento = StringField("Seguimiento", validators=[DataRequired()])
+    seguimiento_posterior = StringField("Seguimiento posterior", validators=[DataRequired()])
+    aceptar = SubmitField("Aceptar")
+    rechazar = SubmitField("Rechazar")
