@@ -49,6 +49,10 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None):
         mensaje = set_task_error(f"El procedimiento con id {cid_procedimiento_id} ya tiene un archivo PDF.")
         bitacora.error(mensaje)
         return mensaje
+    if not cid_procedimiento.seguimiento in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]:
+        mensaje = set_task_error(f"El procedimiento con id {cid_procedimiento_id} tiene un seguimiento incorrecto.")
+        bitacora.error(mensaje)
+        return mensaje
 
     # Poner en bitácora información de arranque
     bitacora.info("Crear PDF de %s", cid_procedimiento.titulo_procedimiento)
@@ -98,7 +102,46 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None):
     cid_procedimiento.firma = cid_procedimiento.elaborar_firma()
     cid_procedimiento.archivo = archivo
     cid_procedimiento.url = url
+
+    if cid_procedimiento.seguimiento == "EN ELABORACION":
+        # Primer firma en la cadena
+        cid_procedimiento.cadena = 1
+        cid_procedimiento.seguimiento = "ELABORADO"
+        cid_procedimiento.seguimiento_posterior = "ELABORADO"
+    elif cid_procedimiento.seguimiento == "EN REVISION":
+        # Segunda firma en la cadena
+        cid_procedimiento.cadena = 2
+        cid_procedimiento.seguimiento = "REVISADO"
+        cid_procedimiento.seguimiento_posterior = "REVISADO"
+    elif cid_procedimiento.seguimiento == "EN AUTORIZACION":
+        # Segunda firma en la cadena
+        cid_procedimiento.cadena = 3
+        cid_procedimiento.seguimiento = "AUTORIZADO"
+        cid_procedimiento.seguimiento_posterior = "AUTORIZADO"
+    else:
+        # Algo anda mal
+        mensaje = set_task_error("El seguimiento no es lo que se esperaba.")
+        bitacora.error(mensaje)
+        return mensaje
+
+    # Guardar cambios
     cid_procedimiento.save()
+
+    # Notificar al elaborador que fue revisado
+    if cid_procedimiento.seguimiento == "REVISADO":
+        anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
+        while anterior is not None:
+            anterior.seguimiento_posterior = "REVISADO"
+            anterior.save()
+            anterior = CIDProcedimiento.query.get(anterior.anterior_id)
+
+    # Notificar al elaborador y al revisor que fue autorizado
+    if cid_procedimiento.seguimiento == "AUTORIZADO":
+        anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
+        while anterior is not None:
+            anterior.seguimiento_posterior = "AUTORIZADO"
+            anterior.save()
+            anterior = CIDProcedimiento.query.get(anterior.anterior_id)
 
     # Mensaje de término
     mensaje = "Listo " + url

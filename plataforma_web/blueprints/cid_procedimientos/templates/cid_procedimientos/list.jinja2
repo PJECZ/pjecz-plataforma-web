@@ -29,6 +29,9 @@
                     <th>Códigos</th>
                     <th>Revisiones</th>
                     <th>Fechas</th>
+                    <th>Usuarios</th>
+                    <th>Seguimiento</th>
+                    <th>Seguimiento posterior</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,6 +41,9 @@
                     <td>{{ cid_procedimiento.codigo }}</td>
                     <td>{{ cid_procedimiento.revision }}</td>
                     <td>{{ cid_procedimiento.fecha }}</td>
+                    <td>{{ cid_procedimiento.usuario.nombre }}</td>
+                    <td>{{ cid_procedimiento.seguimiento }}</td>
+                    <td>{{ cid_procedimiento.seguimiento_posterior }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

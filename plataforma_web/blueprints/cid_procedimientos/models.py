@@ -15,10 +15,9 @@ class CIDProcedimiento(db.Model, UniversalMixin):
         [
             ("EN ELABORACION", "En Elaboración"),
             ("CANCELADO POR ELABORADOR", "Cancelado por elaborador"),
-            ("FIRMADO", "Firmado"),
             ("ELABORADO", "Elaborado"),
             ("RECHAZADO POR REVISOR", "Rechazado por revisor"),
-            ("EN REVISON", "En Revisión"),
+            ("EN REVISION", "En Revisión"),
             ("CANCELADO POR REVISOR", "Cancelado por revisor"),
             ("REVISADO", "Revisado"),
             ("RECHAZADO POR AUTORIZADOR", "Rechazado por autorizador"),
