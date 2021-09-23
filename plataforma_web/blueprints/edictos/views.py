@@ -27,8 +27,8 @@ edictos = Blueprint("edictos", __name__, template_folder="templates")
 
 MODULO = "EDICTOS"
 SUBDIRECTORIO = "Edictos"
-LIMITE_DIAS = 30
-LIMITE_ADMINISTRADORES_DIAS = 90
+LIMITE_DIAS = 365
+LIMITE_ADMINISTRADORES_DIAS = 365
 
 
 @edictos.route("/edictos/acuses/<id_hashed>")
