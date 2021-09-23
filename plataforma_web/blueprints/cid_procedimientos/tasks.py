@@ -143,7 +143,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None):
             anterior.save()
             anterior = CIDProcedimiento.query.get(anterior.anterior_id)
 
-    # Mensaje de término
+    # Terminar tarea
     mensaje = "Listo " + url
     set_task_progress(100)
     bitacora.info(mensaje)
