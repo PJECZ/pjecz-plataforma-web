@@ -173,6 +173,7 @@ def sign_for_maker(cid_procedimiento_id):
             descripcion=f"Crear archivo PDF de {cid_procedimiento.titulo_procedimiento}",
             usuario_id=current_user.id,
             cid_procedimiento_id=cid_procedimiento.id,
+            accept_reject_url=url_for("cid_procedimientos.accept_reject", cid_procedimiento_id=cid_procedimiento.id),
         )
         flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
     else:
@@ -242,6 +243,7 @@ def accept_reject(cid_procedimiento_id):
             nuevo.archivo = ""
             nuevo.url = ""
             nuevo.save()
+            # TODO: Falta cambiar seguimiento_posterior en anterior_id
             flash("Usted ha aceptado revisar/autorizar este procedimiento.", "success")
             return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=nuevo.id))
         # Fue rechazado

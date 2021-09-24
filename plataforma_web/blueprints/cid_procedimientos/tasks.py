@@ -11,6 +11,8 @@ from delta import html
 from google.cloud import storage
 from jinja2 import Environment, FileSystemLoader
 import pdfkit
+import sendgrid
+from sendgrid.helpers.mail import Email, To, Content, Mail
 
 from lib.tasks import set_task_progress, set_task_error
 from plataforma_web.app import create_app
@@ -32,7 +34,7 @@ DEPOSITO_DIR = "cid_procedimientos"
 TEMPLATES_DIR = "plataforma_web/blueprints/cid_procedimientos/templates/cid_procedimientos"
 
 
-def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None):
+def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_url: str = ""):
     """Crear PDF"""
 
     # Validar procedimiento
@@ -127,21 +129,73 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None):
     # Guardar cambios
     cid_procedimiento.save()
 
-    # Notificar al elaborador que fue revisado
+    # Preparar SendGrid para enviar mensajes por correo electrónico
+    api_key = os.environ.get("SENDGRID_API_KEY", "Debe estar definida como variable de entorno")
+    sg = sendgrid.SendGridAPIClient(api_key=api_key)
+    from_email = Email("plataforma.web@pjecz.gob.mx")
+
+    # Si seguimiento es ELABORADO
+    if cid_procedimiento.seguimiento == "ELABORADO":
+        # Enviar mensaje para aceptar o rechazar al revisor
+        subject = "Solicitud para aceptar o rechazar la revisión de un procedimiento"
+        mensaje_plantilla = entorno.get_template("message_accept_reject.html")
+        mensaje_html = mensaje_plantilla.render(
+            subject=subject,
+            destinatario_nombre=cid_procedimiento.reviso_nombre,
+            cid_procedimiento=cid_procedimiento,
+            accept_reject_url=accept_reject_url,
+            remitente_nombre=cid_procedimiento.elaboro_nombre,
+        )
+        to_email = To(cid_procedimiento.reviso_email)
+        content = Content("text/html", mensaje_html)
+        mail = Mail(from_email, to_email, subject, content)
+        sg.client.mail.send.post(request_body=mail.get())
+
+    # Si seguimiento es REVISADO
     if cid_procedimiento.seguimiento == "REVISADO":
+        # Notificar al elaborador que fue revisado
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
         while anterior is not None:
             anterior.seguimiento_posterior = "REVISADO"
             anterior.save()
             anterior = CIDProcedimiento.query.get(anterior.anterior_id)
+        # Enviar mensaje para aceptar o rechazar al autorizador
+        subject = "Solicitud para aceptar o rechazar la autorización de un procedimiento"
+        mensaje_plantilla = entorno.get_template("message_accept_reject.html")
+        mensaje_html = mensaje_plantilla.render(
+            subject=subject,
+            destinatario_nombre=cid_procedimiento.aprobo_nombre,
+            cid_procedimiento=cid_procedimiento,
+            accept_reject_url=accept_reject_url,
+            remitente_nombre=cid_procedimiento.reviso_nombre,
+        )
+        to_email = To(cid_procedimiento.aprobo_email)
+        content = Content("text/html", mensaje_html)
+        mail = Mail(from_email, to_email, subject, content)
+        sg.client.mail.send.post(request_body=mail.get())
+        # Enviar mensaje para informar al elaborador
+        subject = "Ya fue revisado el procedimiento"
+        mensaje_plantilla = entorno.get_template("message_signed.html")
+        mensaje_html = mensaje_plantilla.render(
+            subject=subject,
+            destinatario_nombre=cid_procedimiento.elaboro_nombre,
+            cid_procedimiento=cid_procedimiento,
+        )
+        to_email = To(cid_procedimiento.elaboro_email)
+        content = Content("text/html", mensaje_html)
+        mail = Mail(from_email, to_email, subject, content)
+        sg.client.mail.send.post(request_body=mail.get())
 
-    # Notificar al elaborador y al revisor que fue autorizado
+    # Si seguimiento es AUTORIZADO
     if cid_procedimiento.seguimiento == "AUTORIZADO":
+        # Notificar al elaborador y al revisor que fue autorizado
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
         while anterior is not None:
             anterior.seguimiento_posterior = "AUTORIZADO"
             anterior.save()
             anterior = CIDProcedimiento.query.get(anterior.anterior_id)
+        # TODO: Enviar mensaje para informar al elaborador
+        # TODO: Enviar mensaje para informar al revisor
 
     # Terminar tarea
     mensaje = "Listo " + url
