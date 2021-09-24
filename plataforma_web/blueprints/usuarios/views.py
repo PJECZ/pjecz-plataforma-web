@@ -162,7 +162,6 @@ def datatable_json():
                 "nombre": usuario.nombre,
                 "autoridad": usuario.autoridad.clave,
                 "rol": usuario.rol.nombre,
-                "workspace": usuario.workspace,
             }
         )
     # Entregar JSON

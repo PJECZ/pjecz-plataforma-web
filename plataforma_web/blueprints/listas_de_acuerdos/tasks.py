@@ -25,7 +25,6 @@ from plataforma_web.extensions import db
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
-from plataforma_web.blueprints.tareas.models import Tarea
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 bitacora = logging.getLogger(__name__)
@@ -264,7 +263,6 @@ def enviar_reporte(fecha: date = None):
     sg = sendgrid.SendGridAPIClient(api_key=api_key)
     from_email = Email("plataforma.web@pjecz.gob.mx")
     to_email = To("plataforma.web.reportes@pjecz.gob.mx")
-    # subject = "Plataforma Web - Listas de Acuerdos"
     content = Content("text/html", "<br>".join(contenidos))
     mail = Mail(from_email, to_email, subject, content)
     response = sg.client.mail.send.post(request_body=mail.get())
