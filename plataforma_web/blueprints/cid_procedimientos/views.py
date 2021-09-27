@@ -26,18 +26,52 @@ def before_request():
 
 
 @cid_procedimientos.route("/cid_procedimientos")
+def list_authorized():
+    """Listado de Procedimientos autorizados"""
+    cid_procedimientos_autorizados = CIDProcedimiento.query.filter_by(seguimiento="AUTORIZADO").filter_by(estatus="A").order_by(CIDProcedimiento.codigo).limit(100).all()
+    return render_template(
+        "cid_procedimientos/list.jinja2",
+        cid_procedimientos=cid_procedimientos_autorizados,
+        estatus="A",
+        titulo="Procedimientos autorizados",
+    )
+
+
+@cid_procedimientos.route("/cid_procedimientos/propios")
+def list_owned():
+    """Listado de Procedimientos propios"""
+    cid_procedimientos_propios = CIDProcedimiento.query.filter(CIDProcedimiento.usuario == current_user).filter_by(estatus="A").order_by(CIDProcedimiento.codigo).limit(100).all()
+    return render_template(
+        "cid_procedimientos/list.jinja2",
+        cid_procedimientos=cid_procedimientos_propios,
+        estatus="A",
+        titulo="Procedimientos propios",
+    )
+
+
+@cid_procedimientos.route("/cid_procedimientos/activos")
 def list_active():
-    """Listado de CID Procedimientos activos"""
+    """Listado de TODOS los Procedimientos activos"""
     cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").order_by(CIDProcedimiento.id).limit(100).all()
-    return render_template("cid_procedimientos/list.jinja2", cid_procedimientos=cid_procedimientos_activos, estatus="A")
+    return render_template(
+        "cid_procedimientos/list.jinja2",
+        cid_procedimientos=cid_procedimientos_activos,
+        estatus="A",
+        titulo="Todos los procedimientos",
+    )
 
 
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
-    """Listado de CID Procedimientos inactivos"""
+    """Listado de TODOS los Procedimientos inactivos"""
     cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").order_by(CIDProcedimiento.id).limit(100).all()
-    return render_template("cid_procedimientos/list.jinja2", cid_procedimientos=cid_procedimientos_inactivos, estatus="B")
+    return render_template(
+        "cid_procedimientos/list.jinja2",
+        cid_procedimientos=cid_procedimientos_inactivos,
+        estatus="B",
+        titulo="Todos los procedimientos inactivos",
+    )
 
 
 @cid_procedimientos.route("/cid_procedimientos/<int:cid_procedimiento_id>")

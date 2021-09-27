@@ -5,11 +5,10 @@
 {% block title %}Procedimientos{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Procedimientos' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Procedimientos inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
-        {{ topbar.button('Formatos', url_for('cid_formatos.list_active'), 'mdi:notebook') }}
-        {{ topbar.button('Registros', url_for('cid_formatos.list_active'), 'mdi:clipboard-text') }}
+    {% call topbar.page_buttons(titulo) %}
+        {{ topbar.button('Autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
+        {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
+        {{ topbar.button('Todos', url_for('cid_procedimientos.list_active'), 'mdi:table') }}
         {% if current_user.can_edit('cid_procedimientos') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_procedimientos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_procedimientos.list_active')) }}{% endif %}
