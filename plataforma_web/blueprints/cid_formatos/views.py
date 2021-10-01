@@ -27,16 +27,24 @@ def before_request():
 @cid_formatos.route("/cid_formatos")
 def list_active():
     """Listado de CID Formatos activos"""
-    cid_formatos_activos = CIDFormato.query.filter_by(estatus="A").order_by(CIDFormato.creado.desc()).limit(100).all()
-    return render_template("cid_formatos/list.jinja2", cid_formatos=cid_formatos_activos, estatus="A")
+    return render_template(
+        "cid_formatos/list.jinja2",
+        cid_formatos=CIDFormato.query.filter_by(estatus="A").all(),
+        titulo="Formatos",
+        estatus="A",
+    )
 
 
 @cid_formatos.route("/cid_formatos/inactivos")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
     """Listado de CID Formatos inactivos"""
-    cid_formatos_inactivos = CIDFormato.query.filter_by(estatus="B").order_by(CIDFormato.creado.desc()).limit(100).all()
-    return render_template("cid_formatos/list.jinja2", cid_formatos=cid_formatos_inactivos, estatus="B")
+    return render_template(
+        "cid_formatos/list.jinja2",
+        cid_formatos=CIDFormato.query.filter_by(estatus="B").all(),
+        titulo="Formatos inactivos",
+        estatus="B",
+    )
 
 
 @cid_formatos.route("/cid_formatos/<int:cid_formato_id>")

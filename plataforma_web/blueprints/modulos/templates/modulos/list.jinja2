@@ -5,9 +5,7 @@
 {% block title %}Modulos{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Modulos' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Modulos inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button('Gráficas', url_for('rep_graficas.list_active'), 'mdi:puzzle') }}
         {% if current_user.can_edit('modulos') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('modulos.list_inactive')) }}{% endif %}

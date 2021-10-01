@@ -126,17 +126,27 @@ def change_password():
 @permission_required(Permiso.VER_CUENTAS)
 def list_active():
     """Listado de Usuarios activos"""
-    return render_template("usuarios/list.jinja2", estatus="A")
+    return render_template(
+        "usuarios/list.jinja2",
+        titulo="Usuarios",
+        estatus="A",
+    )
 
 
 @usuarios.route("/usuarios/inactivos")
+@login_required
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def list_inactive():
     """Listado de Usuarios inactivos"""
-    return render_template("usuarios/list.jinja2", estatus="B")
+    return render_template(
+        "usuarios/list.jinja2",
+        titulo="Usuarios inactivos",
+        estatus="B",
+    )
 
 
 @usuarios.route("/usuarios/datatable_json", methods=["GET", "POST"])
+@login_required
 @permission_required(Permiso.VER_CUENTAS)
 def datatable_json():
     """DataTable JSON para listado de usuarios"""
@@ -195,7 +205,12 @@ def search():
             apellido_materno = form_search.apellido_materno.data.strip()
             consulta = consulta.filter(Usuario.apellido_materno.like(f"%{apellido_materno}%"))
         consulta = consulta.limit(100).all()
-        return render_template("usuarios/list.jinja2", usuarios=consulta)
+        return render_template(
+            "usuarios/list.jinja2",
+            usuarios=consulta,
+            titulo="Usuarios",
+            estatus="A",
+        )
     return render_template("usuarios/search.jinja2", form=form_search)
 
 
@@ -272,6 +287,7 @@ def edit(usuario_id):
 
 
 @usuarios.route("/usuarios/eliminar/<int:usuario_id>")
+@login_required
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def delete(usuario_id):
     """Eliminar Usuario"""
@@ -290,6 +306,7 @@ def delete(usuario_id):
 
 
 @usuarios.route("/usuarios/recuperar/<int:usuario_id>")
+@login_required
 @permission_required(Permiso.MODIFICAR_CUENTAS)
 def recover(usuario_id):
     """Recuperar Usuario"""

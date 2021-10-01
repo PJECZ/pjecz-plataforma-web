@@ -71,6 +71,7 @@ def search():
             "peritos/list.jinja2",
             filtros=json.dumps(busqueda),
             titulo="Peritos con " + ", ".join(titulos),
+            estatus="A",
         )
     return render_template("peritos/search.jinja2", form=form_search)
 

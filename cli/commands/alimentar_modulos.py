@@ -29,4 +29,4 @@ def alimentar_modulos():
                 estatus=row["estatus"],
             ).save()
             contador += 1
-    click.echo(f"  {contador} módulos alimentadas.")
+    click.echo(f"  {contador} módulos alimentados.")

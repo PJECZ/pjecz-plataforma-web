@@ -28,16 +28,24 @@ def before_request():
 @distritos.route("/distritos")
 def list_active():
     """Listado de Distritos"""
-    distritos_activos = Distrito.query.filter_by(estatus="A").all()
-    return render_template("distritos/list.jinja2", distritos=distritos_activos, estatus="A")
+    return render_template(
+        "distritos/list.jinja2",
+        distritos=Distrito.query.filter_by(estatus="A").all(),
+        titulo="Distritos",
+        estatus="A",
+    )
 
 
 @distritos.route("/distritos/inactivos")
 @permission_required(Permiso.MODIFICAR_CATALOGOS)
 def list_inactive():
     """Listado de Distritos inactivos"""
-    distritos_inactivos = Distrito.query.filter_by(estatus="B").all()
-    return render_template("distritos/list.jinja2", distritos=distritos_inactivos, estatus="B")
+    return render_template(
+        "distritos/list.jinja2",
+        distritos=Distrito.query.filter_by(estatus="B").all(),
+        titulo="Distritos inactivos",
+        estatus="B",
+    )
 
 
 @distritos.route("/distritos/<int:distrito_id>")
@@ -86,11 +94,11 @@ def edit(distrito_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Editado distrito {distrito.nombre}'),
-            url=url_for('distritos.detail', distrito_id=distrito.id),
+            descripcion=safe_message(f"Editado distrito {distrito.nombre}"),
+            url=url_for("distritos.detail", distrito_id=distrito.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.nombre.data = distrito.nombre
     form.nombre_corto.data = distrito.nombre_corto
@@ -108,11 +116,11 @@ def delete(distrito_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Eliminado distrito {distrito.nombre}'),
-            url=url_for('distritos.detail', distrito_id=distrito.id),
+            descripcion=safe_message(f"Eliminado distrito {distrito.nombre}"),
+            url=url_for("distritos.detail", distrito_id=distrito.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("distritos.detail", distrito_id=distrito_id))
 
 
@@ -126,9 +134,9 @@ def recover(distrito_id):
         bitacora = Bitacora(
             modulo=MODULO,
             usuario=current_user,
-            descripcion=safe_message(f'Recuperado distrito {distrito.nombre}'),
-            url=url_for('distritos.detail', distrito_id=distrito.id),
+            descripcion=safe_message(f"Recuperado distrito {distrito.nombre}"),
+            url=url_for("distritos.detail", distrito_id=distrito.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("distritos.detail", distrito_id=distrito_id))

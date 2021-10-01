@@ -5,9 +5,7 @@
 {% block title %}Registros{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Registros' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Registros inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button('Procedimientos', url_for('cid_procedimientos.list_active'), 'mdi:book-open-variant') }}
         {{ topbar.button('Formatos', url_for('cid_formatos.list_active'), 'mdi:notebook') }}
         {% if current_user.can_edit('cid_registros') %}

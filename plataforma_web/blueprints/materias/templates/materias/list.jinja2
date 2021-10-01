@@ -5,9 +5,7 @@
 {% block title %}Materias{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Materias' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Materias inactivas' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button('Autoridades', url_for('autoridades.list_active'), 'mdi:scale-balance') }}
         {{ topbar.button_districts('Departamentos', url_for('distritos.list_active')) }}
         {{ topbar.button('Tipos de Juicios', url_for('materias_tipos_juicios.list_active'), 'mdi:label') }}

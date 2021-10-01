@@ -29,7 +29,8 @@ def list_active():
     """Listado de Materias Tipos de Juicios activos"""
     return render_template(
         "materias_tipos_juicios/list.jinja2",
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.descripcion).limit(100).all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").all(),
+        titulo="Tipos de Juicios",
         estatus="A",
     )
 
@@ -40,7 +41,8 @@ def list_inactive():
     """Listado de Materias Tipos de Juicios inactivos"""
     return render_template(
         "materias_tipos_juicios/list.jinja2",
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="B").order_by(MateriaTipoJuicio.descripcion).limit(100).all(),
+        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="B").all(),
+        titulo="Tipos de Juicios inactivos",
         estatus="B",
     )
 

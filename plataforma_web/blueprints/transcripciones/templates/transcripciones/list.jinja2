@@ -5,9 +5,7 @@
 {% block title %}Transcripciones{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Transcripciones' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Transcripciones inactivas' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('transcripciones') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('transcripciones.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('transcripciones.list_active')) }}{% endif %}

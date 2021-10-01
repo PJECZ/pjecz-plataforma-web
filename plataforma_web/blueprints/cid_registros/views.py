@@ -20,27 +20,35 @@ MODULO = "DOCUMENTACIONES"
 @login_required
 @permission_required(Permiso.VER_DOCUMENTACIONES)
 def before_request():
-    """ Permiso por defecto """
+    """Permiso por defecto"""
 
 
 @cid_registros.route("/cid_registros")
 def list_active():
-    """ Listado de CID Registros activos """
-    cid_registros_activos = CIDRegistro.query.filter_by(estatus="A").order_by(CIDRegistro.creado.desc()).limit(100).all()
-    return render_template("cid_registros/list.jinja2", cid_registros=cid_registros_activos, estatus="A")
+    """Listado de CID Registros activos"""
+    return render_template(
+        "cid_registros/list.jinja2",
+        cid_registros=CIDRegistro.query.filter_by(estatus="A").all(),
+        titulo="Registros",
+        estatus="A",
+    )
 
 
 @cid_registros.route("/cid_registros/inactivos")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
-    """ Listado de CID Registros inactivos """
-    cid_registros_inactivos = CIDRegistro.query.filter_by(estatus="B").order_by(CIDRegistro.creado.desc()).limit(100).all()
-    return render_template("cid_registros/list.jinja2", cid_registros=cid_registros_inactivos, estatus="B")
+    """Listado de CID Registros inactivos"""
+    return render_template(
+        "cid_registros/list.jinja2",
+        cid_registros=CIDRegistro.query.filter_by(estatus="B").all(),
+        titulo="Registros inactivos",
+        estatus="B",
+    )
 
 
 @cid_registros.route("/cid_registros/<int:cid_registro_id>")
 def detail(cid_registro_id):
-    """ Detalle de un CID Registro """
+    """Detalle de un CID Registro"""
     cid_registro = CIDRegistro.query.get_or_404(cid_registro_id)
     return render_template("cid_registros/detail.jinja2", cid_registro=cid_registro)
 
@@ -48,7 +56,7 @@ def detail(cid_registro_id):
 @cid_registros.route("/cid_registros/nuevo", methods=["GET", "POST"])
 @permission_required(Permiso.CREAR_DOCUMENTACIONES)
 def new():
-    """ Nuevo CID Registro """
+    """Nuevo CID Registro"""
     form = CIDRegistroForm()
     if form.validate_on_submit():
         cid_registro = CIDRegistro(
@@ -64,7 +72,7 @@ def new():
 @cid_registros.route("/cid_registros/edicion/<int:cid_registro_id>", methods=["GET", "POST"])
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def edit(cid_registro_id):
-    """ Editar CID Registro """
+    """Editar CID Registro"""
     cid_registro = CIDRegistro.query.get_or_404(cid_registro_id)
     form = CIDRegistroForm()
     if form.validate_on_submit():
@@ -81,7 +89,7 @@ def edit(cid_registro_id):
 @cid_registros.route("/cid_registros/eliminar/<int:cid_registro_id>")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def delete(cid_registro_id):
-    """ Eliminar CID Registro """
+    """Eliminar CID Registro"""
     cid_registro = CIDRegistro.query.get_or_404(cid_registro_id)
     if cid_registro.estatus == "A":
         cid_registro.delete()
@@ -92,7 +100,7 @@ def delete(cid_registro_id):
 @cid_registros.route("/cid_registros/recuperar/<int:cid_registro_id>")
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def recover(cid_registro_id):
-    """ Recuperar CID Registro """
+    """Recuperar CID Registro"""
     cid_registro = CIDRegistro.query.get_or_404(cid_registro_id)
     if cid_registro.estatus == "B":
         cid_registro.recover()

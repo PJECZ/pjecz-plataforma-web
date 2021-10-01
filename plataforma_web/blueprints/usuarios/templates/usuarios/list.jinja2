@@ -5,9 +5,7 @@
 {% block title %}Usuarios{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Usuarios' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Usuarios inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
+    {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_view('roles') %}{{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}{% endif %}
         {% if current_user.can_edit('usuarios') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('usuarios.list_inactive')) }}{% endif %}

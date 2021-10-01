@@ -29,7 +29,7 @@ def list_active():
     return render_template(
         "rep_resultados/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Reportes Resultados",
+        titulo="Resultados",
         estatus="A",
     )
 
@@ -41,7 +41,7 @@ def list_inactive():
     return render_template(
         "rep_resultados/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="Reportes Resultados inactivos",
+        titulo="Resultados inactivos",
         estatus="B",
     )
 

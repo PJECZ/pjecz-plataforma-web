@@ -1,21 +1,21 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list %}
+{% import 'macros/list.jinja2' as list with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Roles{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Roles') %}
+    {% call topbar.page_buttons(titulo) %}
         {{ topbar.button('Usuarios', url_for('usuarios.list_active'), 'mdi:account-key') }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table class="table display nowrap">
+        <table id="roles_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Rol</th>
+                    <th>Roles</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,4 +27,8 @@
             </tbody>
         </table>
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('roles_datatable') }}
 {% endblock %}

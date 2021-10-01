@@ -28,36 +28,33 @@ def before_request():
 @cid_procedimientos.route("/cid_procedimientos")
 def list_authorized():
     """Listado de Procedimientos autorizados"""
-    cid_procedimientos_autorizados = CIDProcedimiento.query.filter_by(seguimiento="AUTORIZADO").filter_by(estatus="A").order_by(CIDProcedimiento.codigo).limit(100).all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_autorizados,
-        estatus="A",
+        cid_procedimientos=CIDProcedimiento.query.filter_by(seguimiento="AUTORIZADO").filter_by(estatus="A").all(),
         titulo="Procedimientos autorizados",
+        estatus="A",
     )
 
 
 @cid_procedimientos.route("/cid_procedimientos/propios")
 def list_owned():
     """Listado de Procedimientos propios"""
-    cid_procedimientos_propios = CIDProcedimiento.query.filter(CIDProcedimiento.usuario == current_user).filter_by(estatus="A").order_by(CIDProcedimiento.codigo).limit(100).all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_propios,
-        estatus="A",
+        cid_procedimientos=CIDProcedimiento.query.filter(CIDProcedimiento.usuario == current_user).filter_by(estatus="A").all(),
         titulo="Procedimientos propios",
+        estatus="A",
     )
 
 
 @cid_procedimientos.route("/cid_procedimientos/activos")
 def list_active():
     """Listado de TODOS los Procedimientos activos"""
-    cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").order_by(CIDProcedimiento.id).limit(100).all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_activos,
-        estatus="A",
+        cid_procedimientos=CIDProcedimiento.query.filter_by(estatus="A").all(),
         titulo="Todos los procedimientos",
+        estatus="A",
     )
 
 
@@ -65,12 +62,11 @@ def list_active():
 @permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
 def list_inactive():
     """Listado de TODOS los Procedimientos inactivos"""
-    cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").order_by(CIDProcedimiento.id).limit(100).all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_inactivos,
-        estatus="B",
+        cid_procedimientos=CIDProcedimiento.query.filter_by(estatus="B").all(),
         titulo="Todos los procedimientos inactivos",
+        estatus="B",
     )
 
 

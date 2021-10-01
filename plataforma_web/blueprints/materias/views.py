@@ -33,6 +33,7 @@ def list_active():
     return render_template(
         "materias/list.jinja2",
         materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
+        titulo="Materias",
         estatus="A",
     )
 
@@ -44,6 +45,7 @@ def list_inactive():
     return render_template(
         "materias/list.jinja2",
         materias=Materia.query.filter_by(estatus="B").order_by(Materia.nombre).all(),
+        titulo="Materias inactivas",
         estatus="B",
     )
 
