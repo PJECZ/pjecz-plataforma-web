@@ -1,6 +1,8 @@
 """
 Usuarios, vistas
 """
+import json
+
 import google.auth.transport.requests
 import google.oauth2.id_token
 from flask import Blueprint, flash, redirect, request, render_template, url_for
@@ -128,6 +130,7 @@ def list_active():
     """Listado de Usuarios activos"""
     return render_template(
         "usuarios/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Usuarios",
         estatus="A",
     )
@@ -140,6 +143,7 @@ def list_inactive():
     """Listado de Usuarios inactivos"""
     return render_template(
         "usuarios/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Usuarios inactivos",
         estatus="B",
     )
