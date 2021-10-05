@@ -6,20 +6,6 @@
 
 {% block title %}Procedimiento{% endblock %}
 
-{% block custom_head %}
-    <style>
-        .contenedor-a{ 
-            border: 1px solid #F1F1F1; 
-            box-shadow: 3px 2px 60px -16px rgba(230,228,228,0.75);
-            -webkit-box-shadow: 3px 2px 60px -16px rgba(230,228,228,0.75);
-            -moz-box-shadow: 3px 2px 60px -16px rgba(230,228,228,0.75);
-            margin-left:100px;
-            padding: 20px; 
-            width:800px; 
-        }
-    </style>
-{% endblock %}
-
 {% block topbar_actions %}
     {% call topbar.page_buttons('Procedimiento') %}
         {{ topbar.button_previous('Procedimientos', url_for('cid_procedimientos.list_active')) }}
@@ -37,37 +23,38 @@
 
 {% block content %}
     {% call detail.card(estatus=cid_procedimiento.estatus) %}
-
-        {{ previa.vista_previa_items('titulo_proced', 'Título', cid_procedimiento.titulo_procedimiento) }}
-        {{ previa.vista_previa_items('codigo', 'Código', cid_procedimiento.codigo) }}
-        {{ previa.vista_previa_items('revision', 'Revisión', cid_procedimiento.revision) }}
-        {{ previa.vista_previa_items('fecha', 'Fecha', cid_procedimiento.fecha) }}
-        {{ previa.vista_previa_items('seguimiento', 'Seguimiento', cid_procedimiento.seguimiento) }}
-        {{ previa.vista_previa_items('seguimiento_posterior', 'Seguimiento posterior', cid_procedimiento.seguimiento_posterior) }}
-        {{ previa.vista_previa_items('usuario', 'Usuario', cid_procedimiento.usuario.nombre) }}
-        {##}
-        {{ previa.vista_previa_items('firma', 'Firma guardada', cid_procedimiento.firma) }}
-        {{ previa.vista_previa_items('firma_vuelo', 'Firma al vuelo', firma_al_vuelo) }}
-        {##} {# Comnieza acordeon #}
-        {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
-        {##}{# Comnieza acordeon #}
-        {{ previa.vista_previa_items('objetivos', 'Objetivo', objetivo)}}
-        {{ previa.vista_previa_items('alcance', 'Alcance', alcance)}}
-        {{ previa.vista_previa_items('documentos', 'Documentos', documentos)}}
-        {{ previa.vista_previa_items('definiciones', 'Definiciones', definiciones)}}
-        {{ previa.vista_previa_items('responsabilidades', 'Responsabilidades', responsabilidades)}}
-        {{ previa.vista_previa_items('desarrollo', 'Desarrollo', desarrollo)}}
-        {{ previa.vista_previa_items('registro', 'Registros', registros)}}
-        {{ previa.vista_previa_items('elaboro_nombre', 'Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
-        {{ previa.vista_previa_items('elaboro_puesto', 'Elaboró puesto', cid_procedimiento.elaboro_puesto) }}
-        {{ previa.vista_previa_items('elaboro_email', 'Elaboró correo', cid_procedimiento.elaboro_email) }}
-        {{ previa.vista_previa_items('reviso_nombre', 'Revisó nombre', cid_procedimiento.reviso_nombre) }}
-        {{ previa.vista_previa_items('reviso_puesto', 'Revisó puesto', cid_procedimiento.reviso_puesto) }}
-        {{ previa.vista_previa_items('reviso_email', 'Revisó correo', cid_procedimiento.reviso_email) }}
-        {{ previa.vista_previa_items('aprobo_nombre', 'Autorizó nombre', cid_procedimiento.aprobo_nombre) }}
-        {{ previa.vista_previa_items('aprobo_puesto', 'Autorizó puesto', cid_procedimiento.aprobo_puesto) }}
-        {{ previa.vista_previa_items('aprobo_email', 'Autorizó correo', cid_procedimiento.aprobo_email) }}
-        {{ previa.vista_previa_items('control_cambios', 'Control de Cambios', control_cambios) }}
+        <div class="accordion accordion-flush" id="accordionViewP">
+            {{ previa.vista_previa_items('titulo', 'Título', cid_procedimiento.titulo_procedimiento) }}
+            {{ previa.vista_previa_items('codigo', 'Código', cid_procedimiento.codigo) }}
+            {{ previa.vista_previa_items('revision', 'Revisión', cid_procedimiento.revision) }}
+            {{ previa.vista_previa_items('fecha', 'Fecha', cid_procedimiento.fecha) }}
+            {{ previa.vista_previa_items('seguimiento', 'Seguimiento', cid_procedimiento.seguimiento) }}
+            {{ previa.vista_previa_items('seguimiento_posterior', 'Seguimiento posterior', cid_procedimiento.seguimiento_posterior) }}
+            {{ previa.vista_previa_items('usuario', 'Usuario', cid_procedimiento.usuario.nombre) }}
+            {##}
+            {{ previa.vista_previa_items('firma', 'Firma guardada', cid_procedimiento.firma) }}
+            {{ previa.vista_previa_items('firma_vuelo', 'Firma al vuelo', firma_al_vuelo) }}
+            {##} {# Comnieza acordeon #}
+            {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
+            {##}{# Comnieza acordeon #}
+            {{ previa.vista_previa_items('objetivos', 'Objetivo', objetivo)}}
+            {{ previa.vista_previa_items('alcance', 'Alcance', alcance)}}
+            {{ previa.vista_previa_items('documentos', 'Documentos', documentos)}}
+            {{ previa.vista_previa_items('definiciones', 'Definiciones', definiciones)}}
+            {{ previa.vista_previa_items('responsabilidades', 'Responsabilidades', responsabilidades)}}
+            {{ previa.vista_previa_items('desarrollo', 'Desarrollo', desarrollo)}}
+            {{ previa.vista_previa_items('registro', 'Registros', registros)}}
+            {{ previa.vista_previa_items('control_cambios', 'Control de Cambios', control_cambios) }}
+            {{ previa.vista_previa_items('elaboro_nombre', 'Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
+            {{ previa.vista_previa_items('elaboro_puesto', 'Elaboró puesto', cid_procedimiento.elaboro_puesto) }}
+            {{ previa.vista_previa_items('elaboro_email', 'Elaboró correo', cid_procedimiento.elaboro_email) }}
+            {{ previa.vista_previa_items('reviso_nombre', 'Revisó nombre', cid_procedimiento.reviso_nombre) }}
+            {{ previa.vista_previa_items('reviso_puesto', 'Revisó puesto', cid_procedimiento.reviso_puesto) }}
+            {{ previa.vista_previa_items('reviso_email', 'Revisó correo', cid_procedimiento.reviso_email) }}
+            {{ previa.vista_previa_items('aprobo_nombre', 'Autorizó nombre', cid_procedimiento.aprobo_nombre) }}
+            {{ previa.vista_previa_items('aprobo_puesto', 'Autorizó puesto', cid_procedimiento.aprobo_puesto) }}
+            {{ previa.vista_previa_items('aprobo_email', 'Autorizó correo', cid_procedimiento.aprobo_email) }}
+        </div>  
     {% endcall %}
     {% if cid_formatos %}
         {% call detail.card(title='Formatos') %}

@@ -60,5 +60,6 @@ class CIDProcedimientoAcceptRejectForm(FlaskForm):
     revision = IntegerField("Revisión", validators=[DataRequired()])
     seguimiento = StringField("Seguimiento", validators=[DataRequired()])
     seguimiento_posterior = StringField("Seguimiento posterior", validators=[DataRequired()])
+    usuario = StringField("Nombre", validator=[DataRequired()])
     aceptar = SubmitField("Aceptar")
     rechazar = SubmitField("Rechazar")
