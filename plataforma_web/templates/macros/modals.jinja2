@@ -1,13 +1,33 @@
 {# Bootstrap 5 modals #}
 {# https://getbootstrap.com/docs/5.0/components/modal/ #}
 
-{# Modal executes a javascript function #}
-{%- macro modal(title, message, onclick_js, id) -%}
-    <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ id }}Label" aria-hidden="true">
+{# Button modal #}
+{%- macro button_modal(label, url, id, icon, message) -%}
+    <a class="btn btn-sm btn-outline-secondary" href="javascript:void(0)" onclick="showModal{{ id }}('{{ url }}', '{{ message }}');"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
+{%- endmacro -%}
+
+{# Button modal delete #}
+{%- macro button_delete(label="", url="#", id="Delete", icon="mdi:delete", message="") -%}
+    <a class="btn btn-sm btn-outline-danger" href="javascript:void(0)" onclick="showModal{{ id }}('{{ url }}', '{{ message }}');"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
+{%- endmacro -%}
+
+{# Button modal recover #}
+{%- macro button_recover(label="", url="#", id="Recover", icon="mdi:file-check", message="") -%}
+    <a class="btn btn-sm btn-outline-primary" href="javascript:void(0)" onclick="showModal{{ id }}('{{ url }}', '{{ message }}');"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
+{%- endmacro -%}
+
+{# Button modal make #}
+{%- macro button_make(label="", url="#", id="Make", icon="mdi:database-plus", message="") -%}
+    <a class="btn btn-sm btn-outline-success" href="javascript:void(0)" onclick="showModal{{ id }}('{{ url }}', '{{ message }}');"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
+{%- endmacro -%}
+
+{# Modal #}
+{%- macro modal(title, message, id, onclick_js) -%}
+    <div class="modal fade" id="modal{{ id }}" tabindex="-1" aria-labelledby="modal{{ id }}Label" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="{{ id }}Label">{{ title }}</h5>
+                    <h5 class="modal-title" id="modal{{ id }}Label">{{ title }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -22,50 +42,37 @@
     </div>
 {%- endmacro -%}
 
+{# Custom javascript #}
+{%- macro custom_javascript(title, message, id) -%}
+    {{ modal(title, message, onclick_js="proceedTo" + id +"();", id=id) }}
+    <script>
+        var this{{ id }}URL;
+        function showModal{{ id }}(url, message='') {
+            var myModalEl = document.getElementById('modal{{ id }}');
+            if (message != "") {
+                myModalEl.getElementsByClassName("modal-body")[0].innerHTML = message;
+            }
+            var myModal = new bootstrap.Modal(myModalEl);
+            myModal.show();
+            this{{ id }}URL = url;
+        }
+        function proceedTo{{ id }}() {
+            location.href = this{{ id }}URL;
+        }
+    </script>
+{%- endmacro -%}
+
+{# Custom javascript delete #}
 {%- macro custom_javascript_delete(title, message) -%}
-    <!-- Modal Delete -->
-    {{ modal(title, message, onclick_js="proceedToDelete();", id="modalDelete") }}
-    <script>
-        var deleteURL;
-        function showModalDelete(url) {
-            var myModal = new bootstrap.Modal(document.getElementById('modalDelete'));
-            myModal.show();
-            deleteURL = url;
-        }
-        function proceedToDelete() {
-            location.href = deleteURL;
-        }
-    </script>
+    {{ custom_javascript(title, message, id="Delete") }}
 {%- endmacro -%}
 
+{# Custom javascript recover #}
 {%- macro custom_javascript_recover(title, message) -%}
-    <!-- Modal Recover -->
-    {{ modal(title, message, onclick_js="proceedToRecover();", id="modalRecover") }}
-    <script>
-        var recoverURL;
-        function showModalRecover(url) {
-            var myModal = new bootstrap.Modal(document.getElementById('modalRecover'));
-            myModal.show();
-            recoverURL = url;
-        }
-        function proceedToRecover() {
-            location.href = recoverURL;
-        }
-    </script>
+    {{ custom_javascript(title, message, id="Recover") }}
 {%- endmacro -%}
 
+{# Custom javascript make #}
 {%- macro custom_javascript_make(title, message) -%}
-    <!-- Modal Make -->
-    {{ modal(title, message, onclick_js="proceedToMake();", id="modalMake") }}
-    <script>
-        var refreshURL;
-        function showModalMake(url) {
-            var myModal = new bootstrap.Modal(document.getElementById('modalMake'));
-            myModal.show();
-            refreshURL = url;
-        }
-        function proceedToMake() {
-            location.href = refreshURL;
-        }
-    </script>
+    {{ custom_javascript(title, message, id="Make") }}
 {%- endmacro -%}

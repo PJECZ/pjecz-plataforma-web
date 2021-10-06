@@ -1,14 +1,16 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/list.jinja2' as list %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Módulo{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(modulo.nombre) %}
+    {% call topbar.page_buttons('Módulo ' + modulo.nombre) %}
         {{ topbar.button_previous('Módulos', url_for('modulos.list_active')) }}
         {% if current_user.can_edit('modulos') %}
+            {{ topbar.button_edit('Editar', url_for('modulos.edit', modulo_id=modulo.id)) }}
             {% if modulo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('modulos.delete', modulo_id=modulo.id)) }}{% endif %}
             {% if modulo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('modulos.recover', modulo_id=modulo.id)) }}{% endif %}
         {% endif %}
@@ -17,7 +19,38 @@
 
 {% block content %}
     {% call detail.card(estatus=modulo.estatus) %}
-        {{ detail.label_value_big('Nombre', modulo.nombre) }}
+        {{ detail.label_value('Nombre en menú', modulo.nombre_corto) }}
+        {{ detail.label_value('Icono', modulo.icono) }}
+        {{ detail.label_value('Ruta', modulo.ruta) }}
+        {{ detail.label_value_boolean('En navegación', modulo.en_navegacion) }}
+    {% endcall %}
+    {% call detail.card('Permisos') %}
+        <table id="permisos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Roles</th>
+                    <th>Niveles</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for permiso in modulo.permisos %}
+                {% if permiso.estatus == "A" %}
+                <tr>
+                    <td><a href="{{ url_for('roles.detail', rol_id=permiso.rol_id) }}">{{ permiso.rol.nombre }}</a></td>
+                    <td><a href="{{ url_for('permisos.detail', permiso_id=permiso.id) }}">{{ permiso.nivel_descrito }}</a></td>
+                    <td>
+                    {% if current_user.can_edit('permisos') %}
+                        {{ list.button_edit(url=url_for('permisos.edit', permiso_id=permiso.id)) }}
+                        {{ modals.button_delete(url=url_for('permisos.delete', permiso_id=permiso.id), id='DeletePermiso', message='¿Eliminar ' + permiso.nombre + '?') }}
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('permisos.new_with_modulo', modulo_id=modulo.id) }}" class="btn btn-primary">Agregar</a>
     {% endcall %}
 {% endblock %}
 
@@ -26,4 +59,6 @@
         {% if modulo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + modulo.nombre + '?') }}{% endif %}
         {% if modulo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + modulo.nombre + '?') }}{% endif %}
     {% endif %}
+    {{ detail.datatable('permisos_datatable') }}
+    {{ modals.custom_javascript('Eliminar', '¿Eliminar ese permiso del rol?', 'DeletePermiso') }}
 {% endblock %}

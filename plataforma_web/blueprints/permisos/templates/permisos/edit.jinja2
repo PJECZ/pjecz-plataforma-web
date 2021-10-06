@@ -1,0 +1,19 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Permiso{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar permiso ' + permiso.nombre) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'permiso_id': permiso.id} %}
+        {% call f.form_tag('permisos.edit', fid='permiso_form', **form_kwargs) %}
+            {% call f.form_group(form.nivel) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

@@ -6,10 +6,11 @@ import csv
 import click
 from lib.pwgen import generar_contrasena
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.extensions import pwd_context
 
-USUARIOS_CSV = "seed/usuarios.csv"
+USUARIOS_CSV = "seed/usuarios_roles.csv"
 
 
 def alimentar_usuarios():
@@ -26,19 +27,23 @@ def alimentar_usuarios():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            autoridad_clave = row["autoridad_clave"]
+            autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
+            if autoridad is None:
+                click.echo(f"  Falta la autoridad {autoridad_clave}")
+                continue
             Usuario(
-                rol_id=int(row["rol_id"]),
-                autoridad_id=int(row["autoridad_id"]),
+                autoridad=autoridad,
                 email=row["email"],
-                contrasena=pwd_context.hash(generar_contrasena()),
                 nombres=row["nombres"],
                 apellido_paterno=row["apellido_paterno"],
                 apellido_materno=row["apellido_materno"],
-                telefono_celular=row["telefono_celular"],
-                workspace=row["workspace"],
+                curp=row["curp"],
+                puesto=row["puesto"],
                 estatus=row["estatus"],
+                contrasena=pwd_context.hash(generar_contrasena()),
             ).save()
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
+                click.echo(f"  Van {contador} usuarios...")
     click.echo(f"  {contador} usuarios alimentados con contraseñas aleatorias.")

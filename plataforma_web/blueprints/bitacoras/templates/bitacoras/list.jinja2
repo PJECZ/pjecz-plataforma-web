@@ -18,7 +18,6 @@
                 <tr>
                     <th>Tiempos</th>
                     <th>Usuarios</th>
-                    <th>Módulos</th>
                     <th>Descripciones</th>
                 </tr>
             </thead>
@@ -46,7 +45,6 @@
             columns: [
                 { data: "creado" },
                 { data: "usuario" },
-                { data: "modulo" },
                 { data: "vinculo" }
             ],
             columnDefs: [
@@ -65,7 +63,7 @@
                     }
                 },
                 {
-                    targets: 3,
+                    targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '" target="_blank">' + data.descripcion + ' <span class="iconify" data-icon="mdi:open-in-new"></span></a>';

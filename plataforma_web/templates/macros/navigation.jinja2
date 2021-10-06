@@ -1,0 +1,27 @@
+{# Navigation #}
+
+{%- macro menu(usuario_email) -%}
+    <div class="d-flex flex-column flex-shrink-0 text-white">
+        <ul class="nav nav-pills flex-column mb-auto">
+            {{ caller () }}
+        </ul>
+        <hr>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <strong>{{ usuario_email }}</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" href="{{ url_for('usuarios.profile') }}">Perfil</a></li>
+                <li><a class="dropdown-item" href="/logout">Salir</a></li>
+            </ul>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{%- macro menu_option(label, url, icon='mdi:folder', li_class='') -%}
+    <li class="nav-item {{li_class}}">
+        <a class="nav-link text-white" href="{{ url }}">
+            <span class="iconify" data-icon="{{ icon }}" style="font-size: 1.4em; margin-right: 4px;"></span> {{ label }}
+        </a>
+    </li>
+{%- endmacro -%}

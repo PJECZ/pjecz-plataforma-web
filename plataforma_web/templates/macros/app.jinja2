@@ -6,7 +6,7 @@
 {%- macro sidebar_nav_option(label, url, icon='mdi:folder') -%}
     <li class="nav-item">
         <a class="nav-link text-white" href="{{ url }}">
-            <span class="iconify" data-icon="{{ icon }}" style="font-size: 24px; margin-right: 4px;"></span> {{ label }}
+            <span class="iconify" data-icon="{{ icon }}" style="font-size: 1.4em; margin-right: 4px;"></span> {{ label }}
         </a>
     </li>
 {%- endmacro -%}
@@ -15,7 +15,7 @@
 {%- macro sidebar_nav_option_active(label, url, icon='mdi:folder') -%}
     <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="{{ url }}">
-            <span class="iconify" data-icon="{{ icon }}" style="font-size: 24px; margin-right: 4px;"></span> {{ label }}
+            <span class="iconify" data-icon="{{ icon }}" style="font-size: 1.4em; margin-right: 4px;"></span> {{ label }}
         </a>
     </li>
 {%- endmacro -%}

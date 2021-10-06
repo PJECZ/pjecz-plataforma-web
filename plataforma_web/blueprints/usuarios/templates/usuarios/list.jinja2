@@ -6,7 +6,12 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_view('roles') %}{{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}{% endif %}
+        {% if current_user.can_view('modulos') %}
+            {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:toy-brick') }}
+        {% endif %}
+        {% if current_user.can_view('roles') %}
+            {{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}
+        {% endif %}
         {% if current_user.can_edit('usuarios') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('usuarios.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('usuarios.list_active')) }}{% endif %}
@@ -14,7 +19,6 @@
         {% if current_user.can_insert('usuarios') %}
             {{ topbar.button_new('Nuevo Usuario', url_for('usuarios.new')) }}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('usuarios.search')) #}
     {% endcall %}
 {% endblock %}
 
@@ -24,9 +28,8 @@
             <thead>
                 <tr>
                     <th>e-mail</th>
-                    <th>Nombre</th>
-                    <th>Autoridad</th>
-                    <th>Rol</th>
+                    <th>Nombres</th>
+                    <th>Puestos</th>
                 </tr>
             </thead>
         </table>
@@ -53,8 +56,7 @@
             columns: [
                 { data: "detalle" },
                 { data: "nombre" },
-                { data: "autoridad" },
-                { data: "rol" }
+                { data: "puesto" }
             ],
             columnDefs: [
                 {

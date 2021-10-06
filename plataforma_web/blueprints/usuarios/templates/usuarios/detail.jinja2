@@ -6,7 +6,7 @@
 {% block title %}Usuario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Usuario') %}
+    {% call topbar.page_buttons('Usuario ' + usuario.email) %}
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
         {% if current_user.can_edit('usuarios') %}
             {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
@@ -21,12 +21,35 @@
         {{ detail.label_value_big('Nombre', usuario.nombre) }}
         {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
         {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
+        {{ detail.label_value('CURP', usuario.curp) }}
         {{ detail.label_value('e-mail', usuario.email) }}
-        {% if current_user.can_edit('usuarios') %}
-            {{ detail.label_value('Workspace', usuario.workspace) }}
-            {{ detail.label_value('Rol', usuario.rol.nombre) }}
-        {% endif %}
+        {{ detail.label_value('Puesto', usuario.puesto) }}
         {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
+    {% endcall %}
+    {% call detail.card("Roles") %}
+        <table id="roles_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for usuario_rol in usuario.usuarios_roles %}
+                {% if usuario_rol.estatus == "A" %}
+                <tr>
+                    <td><a href="{{ url_for('roles.detail', rol_id=usuario_rol.rol_id) }}">{{ usuario_rol.rol.nombre }}</a></td>
+                    <td>
+                    {% if current_user.can_edit('usuarios roles') %}
+                        {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteRolUsuario', message='¿Eliminar ' + usuario_rol.rol.nombre + '?') }}
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
     {% endcall %}
 {% endblock %}
 
@@ -36,4 +59,6 @@
         {% if usuario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + usuario.nombre + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
+    {{ detail.datatable('roles_datatable') }}
+    {{ modals.custom_javascript('Eliminar', '¿Eliminar ese rol del usuario?', 'DeleteRolUsuario') }}
 {% endblock %}

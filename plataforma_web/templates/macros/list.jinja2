@@ -67,9 +67,18 @@
         });
     </script>
 {%- endmacro -%}
-{#  #}
 
 {# Material Design Icons #}
 {%- macro icon_open_in_new() -%}
     <span class='iconify' data-icon='mdi:open-in-new'></span>
+{%- endmacro -%}
+
+{# Button #}
+{%- macro button(label, url, icon) -%}
+    <a class="btn btn-sm btn-outline-secondary" href="{{ url }}"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
+{%- endmacro -%}
+
+{# Button edit #}
+{%- macro button_edit(label="", url="#") -%}
+    {{ button(label, url, 'mdi:pencil') }}
 {%- endmacro -%}

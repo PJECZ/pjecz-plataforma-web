@@ -10,13 +10,16 @@ import click
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
+
 from cli.commands.alimentar_autoridades import alimentar_autoridades
 from cli.commands.alimentar_distritos import alimentar_distritos
 from cli.commands.alimentar_materias import alimentar_materias
 from cli.commands.alimentar_materias_tipos_juicios import alimentar_materias_tipos_juicios
 from cli.commands.alimentar_modulos import alimentar_modulos
+from cli.commands.alimentar_permisos import alimentar_permisos
 from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_usuarios import alimentar_usuarios
+from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
 
 app = create_app()
 db.app = app
@@ -46,13 +49,15 @@ def alimentar():
     if entorno_implementacion == "PRODUCTION":
         click.echo("PROHIBIDO: No se alimenta porque este es el servidor de producción.")
         return
-    alimentar_roles()
     alimentar_materias()
     alimentar_materias_tipos_juicios()
     alimentar_modulos()
+    alimentar_roles()
+    alimentar_permisos()
     alimentar_distritos()
     alimentar_autoridades()
     alimentar_usuarios()
+    alimentar_usuarios_roles()
     click.echo("Alimentado.")
 
 

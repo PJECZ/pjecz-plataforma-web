@@ -10,6 +10,8 @@ def anonymous_required(url="/"):
     """Redirigir si ya se ha autentificado"""
 
     def decorator(f):
+        """Decorador para anonimo"""
+
         @wraps(f)
         def decorated_function(*args, **kargs):
             if current_user.is_authenticated:
@@ -21,13 +23,15 @@ def anonymous_required(url="/"):
     return decorator
 
 
-def permission_required(perm):
+def permission_required(module, permission):
     """¿Tiene permiso para estar en esta página?"""
 
     def decorator(f):
+        """Decorador"""
+
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if not current_user.can(perm):
+            if not current_user.can(module, permission):
                 abort(403)
             return f(*args, **kwargs)
 

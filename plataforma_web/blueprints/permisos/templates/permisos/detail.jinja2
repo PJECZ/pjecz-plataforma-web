@@ -1,0 +1,31 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Permiso{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Permiso ' + permiso.nombre) %}
+        {{ topbar.button_previous('Permisos', url_for('permisos.list_active')) }}
+        {% if current_user.can_edit('permisos') %}
+            {{ topbar.button_edit('Editar', url_for('permisos.edit', permiso_id=permiso.id)) }}
+            {% if permiso.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('permisos.delete', permiso_id=permiso.id)) }}{% endif %}
+            {% if permiso.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('permisos.recover', permiso_id=permiso.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=permiso.estatus) %}
+        {{ detail.label_value('Rol', permiso.rol.nombre, url_for('roles.detail', rol_id=permiso.rol_id)) }}
+        {{ detail.label_value('Módulo', permiso.modulo.nombre, url_for('modulos.detail', modulo_id=permiso.modulo_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('permisos') %}
+        {% if permiso.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + permiso.nombre + '?') }}{% endif %}
+        {% if permiso.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + permiso.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
