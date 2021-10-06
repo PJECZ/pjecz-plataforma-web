@@ -4,7 +4,6 @@
     box-sizing: border-box;
 }
 
-
 .multisteps-form__progress {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));

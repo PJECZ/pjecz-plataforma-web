@@ -62,7 +62,6 @@
     {% endif %}
 {% endblock %}
 
-
 {% block custom_javascript %}
     {% if current_user.can_edit('cid_procedimientos') %}
         {% if cid_procedimiento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_procedimiento.titulo_procedimiento + '?') }}{% endif %}
