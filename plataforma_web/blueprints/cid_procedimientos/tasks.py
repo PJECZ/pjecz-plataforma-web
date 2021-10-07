@@ -28,7 +28,7 @@ bitacora.addHandler(empunadura)
 app = create_app()
 app.app_context().push()
 
-locale.setlocale(locale.LC_TIME, "es_MX")
+locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 
 DEPOSITO_DIR = "cid_procedimientos"
 TEMPLATES_DIR = "plataforma_web/blueprints/cid_procedimientos/templates/cid_procedimientos"
@@ -68,12 +68,24 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         trim_blocks=True,
         lstrip_blocks=True,
     )
-    pdf_body_plantilla = entorno.get_template("pdf_body.html")
-    pdf_body_html = pdf_body_plantilla.render(
+    # Renderizar Header
+    pdf_header_plantilla = entorno.get_template("pdf_header.html")
+    pdf_header_html = pdf_header_plantilla.render(
         titulo_procedimiento=cid_procedimiento.titulo_procedimiento,
         codigo=cid_procedimiento.codigo,
         revision=str(cid_procedimiento.revision),
         fecha=cid_procedimiento.fecha.strftime("%d %b %Y"),
+    )
+    # Renderizar Footer
+    pdf_footer_plantilla = entorno.get_template("pdf_footer.html")
+    pdf_footer_html = pdf_footer_plantilla.render(
+        codigo=cid_procedimiento.codigo,
+        revision=str(cid_procedimiento.revision),
+        fecha=cid_procedimiento.fecha.strftime("%d %b %Y"),
+    )
+    # Renderizar Body
+    pdf_body_plantilla = entorno.get_template("pdf_body.html")
+    pdf_body_html = pdf_body_plantilla.render(
         objetivo=html.render(cid_procedimiento.objetivo["ops"]),
         alcance=html.render(cid_procedimiento.alcance["ops"]),
         documentos=html.render(cid_procedimiento.documentos["ops"]),
@@ -81,12 +93,37 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         responsabilidades=html.render(cid_procedimiento.responsabilidades["ops"]),
         desarrollo=html.render(cid_procedimiento.desarrollo["ops"]),
         registros=html.render(cid_procedimiento.registros["ops"]),
+        elaboro_nombre=cid_procedimiento.elaboro_nombre,
+        elaboro_puesto=cid_procedimiento.elaboro_puesto,
+        reviso_nombre=cid_procedimiento.reviso_nombre,
+        reviso_puesto=cid_procedimiento.reviso_puesto,
+        aprobo_nombre=cid_procedimiento.aprobo_nombre,
+        aprobo_puesto=cid_procedimiento.aprobo_puesto,
     )
+
+    path_header = os.path.join(os.path.dirname(__file__), "templates/cid_procedimientos/temporal_header.html")
+    path_footer = os.path.join(os.path.dirname(__file__), "templates/cid_procedimientos/temporal_footer.html")
+
+    archivo = open(path_header, "w", encoding="utf8")
+    archivo.write(pdf_header_html)
+    archivo.close()
+
+    archivo = open(path_footer, "w", encoding="utf8")
+    archivo.write(pdf_footer_html)
+    archivo.close()
+
+    # Opciones de configuracion para Header y Footer
+    wkhtmltopdf_options = {
+        "enable-local-file-access": False,
+        "javascript-delay": 2000,
+        "header-html": path_header,
+        "footer-html": path_footer,
+    }
 
     # Crear archivo PDF con el apoyo de
     # - pdfkit https://pypi.org/project/pdfkit/
     try:
-        pdf = pdfkit.from_string(pdf_body_html, False)
+        pdf = pdfkit.from_string(pdf_body_html, False, options=wkhtmltopdf_options)
     except IOError as error:
         mensaje = str(error)
         bitacora.error(mensaje)
