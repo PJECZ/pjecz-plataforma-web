@@ -2,10 +2,10 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Agenda de Audiencias - Departamentos{% endblock %}
+{% block title %}Agenda de Audiencias - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Agenda de Audiencias / Departamentos') %}
+    {% call topbar.page_buttons('Agenda de Audiencias / Distritos') %}
         {{ topbar.button_previous('Agenda de Audiencias', url_for('audiencias.list_active')) }}
     {% endcall %}
 {% endblock %}
@@ -15,7 +15,7 @@
         <table class="table display nowrap">
             <thead>
                 <tr>
-                    <th>Departamentos</th>
+                    <th>Distritos</th>
                 </tr>
             </thead>
             <tbody>

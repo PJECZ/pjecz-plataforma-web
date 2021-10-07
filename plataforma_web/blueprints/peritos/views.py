@@ -108,7 +108,7 @@ def datatable_json():
                     "url": url_for("peritos.detail", perito_id=perito.id),
                 },
                 "tipo": perito.tipo,
-                "departamento": perito.distrito.nombre,
+                "distrito": perito.distrito.nombre,
             }
         )
     # Entregar JSON

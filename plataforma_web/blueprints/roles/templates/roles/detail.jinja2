@@ -50,9 +50,10 @@
         <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>e-mail</th>
                     <th>Nombres</th>
                     <th>Puestos</th>
-                    <th>e-mail</th>
+                    <th>CURP</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -60,9 +61,10 @@
             {% for usuario_rol in rol.usuarios_roles %}
                 {% if usuario_rol.estatus == "A" and usuario_rol.usuario.estatus == "A" %}
                 <tr>
-                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario_rol.usuario_id) }}">{{ usuario_rol.usuario.nombre }}</a></td>
+                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario_rol.usuario_id) }}">{{ usuario_rol.usuario.email }}</a></td>
+                    <td>{{ usuario_rol.usuario.nombre }}</td>
                     <td>{{ usuario_rol.usuario.puesto }}</td>
-                    <td>{{ usuario_rol.usuario.email }}</td>
+                    <td>{{ usuario_rol.usuario.curp }}</td>
                     <td>
                     {% if current_user.can_edit('USUARIOS ROLES') %}
                         {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteUsuarioRol', message='¿Eliminar ' + usuario_rol.usuario.nombre + '?') }}

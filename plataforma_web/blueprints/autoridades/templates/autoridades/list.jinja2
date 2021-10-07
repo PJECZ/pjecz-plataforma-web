@@ -6,8 +6,8 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('DEPARTAMENTOS') %}
-            {{ topbar.button_districts('Departamentos', url_for('distritos.list_active')) }}
+        {% if current_user.can_edit('DISTRITOS') %}
+            {{ topbar.button_districts('Distritos', url_for('distritos.list_active')) }}
         {% endif %}
         {% if current_user.can_edit('AUTORIDADES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('autoridades.list_inactive')) }}{% endif %}
@@ -25,7 +25,7 @@
             <thead>
                 <tr>
                     <th>Claves</th>
-                    <th>Departamentos</th>
+                    <th>Distritos</th>
                     <th>Descripciones</th>
                     <th>Desc. cortas</th>
                 </tr>

@@ -2,7 +2,7 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Departamentos{% endblock %}
+{% block title %}Distritos{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
@@ -14,7 +14,7 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('distritos.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('DISTRITOS') %}
-            {{ topbar.button_new('Nuevo Departamento', url_for('distritos.new')) }}
+            {{ topbar.button_new('Nuevo Distrito', url_for('distritos.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -26,7 +26,7 @@
                 <tr>
                     <th>Nombres</th>
                     <th>Nombres cortos</th>
-                    <th>Es judicial</th>
+                    <th>Es Distrito Judicial</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,7 +34,7 @@
                 <tr>
                     <td><a href="{{ url_for('distritos.detail', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
                     <td>{{ distrito.nombre_corto }}</td>
-                    <td>{% if distrito.es_distrito_judicial %}Judicial{% endif %}</td>
+                    <td>{% if distrito.es_distrito_judicial %}Distrito Judicial{% endif %}</td>
                 </tr>
             {% endfor %}
             </tbody>

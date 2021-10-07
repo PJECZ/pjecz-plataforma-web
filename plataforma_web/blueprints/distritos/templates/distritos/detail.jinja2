@@ -19,7 +19,7 @@
 {% block content %}
     {% call detail.card(estatus=distrito.estatus) %}
         {{ detail.label_value('Nombre corto', distrito.nombre_corto) }}
-        {{ detail.label_value_boolean('Es distrito judicial', distrito.es_distrito_judicial) }}
+        {{ detail.label_value_boolean('Es Distrito Judicial', distrito.es_distrito_judicial) }}
         {{ detail.label_value('Creado', moment(distrito.creado).format('llll')) }}
     {% endcall %}
     {% call detail.card(title='Autoridades') %}

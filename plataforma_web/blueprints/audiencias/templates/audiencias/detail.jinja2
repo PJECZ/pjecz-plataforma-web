@@ -26,7 +26,7 @@
 {% block content %}
     {% call detail.card(estatus=audiencia.estatus) %}
         {{ detail.label_value('Fecha y hora', moment(audiencia.tiempo).format('llll')) }}
-        {{ detail.label_value('Departamento', audiencia.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Distrito', audiencia.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', audiencia.autoridad.descripcion) }}
         {{ detail.label_value('Tipo de audiencia', audiencia.tipo_audiencia) }}
         {% if audiencia.autoridad.audiencia_categoria == 'CIVIL FAMILIAR MERCANTIL LETRADO TCYA' %}

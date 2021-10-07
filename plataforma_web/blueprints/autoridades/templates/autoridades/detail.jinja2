@@ -17,7 +17,6 @@
 {% endblock %}
 
 {% block content %}
-    {# Detalle #}
     {% call detail.card(estatus=autoridad.estatus) %}
         {{ detail.label_value_big('Descripción', autoridad.descripcion) }}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
@@ -26,29 +25,30 @@
         {{ detail.label_value_boolean('Es Jurisdiccional', autoridad.es_jurisdiccional) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
-    {# Usuarios de la autoridad #}
-    {% call detail.card('Usuarios') %}
-        <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>e-mail</th>
-                    <th>Nombres</th>
-                    <th>Puestos</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for usuario in autoridad.usuarios %}
-                {% if usuario.estatus == "A" %}
-                <tr>
-                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
-                    <td>{{ usuario.nombre }}</td>
-                    <td>{{ usuario.puesto }}</td>
-                </tr>
-                {% endif %}
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endcall %}
+    {% if current_user.can_view('USUARIOS') %}
+        {% call detail.card('Usuarios') %}
+            <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>e-mail</th>
+                        <th>Nombres</th>
+                        <th>Puestos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for usuario in autoridad.usuarios %}
+                    {% if usuario.estatus == "A" %}
+                    <tr>
+                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
+                        <td>{{ usuario.nombre }}</td>
+                        <td>{{ usuario.puesto }}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -56,7 +56,7 @@
         {% if autoridad.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?') }}{% endif %}
         {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
-    {% if usuarios %}
+    {% if current_user.can_view('USUARIOS') %}
         {{ detail.datatable('usuarios_datatable') }}
     {% endif %}
     {{ detail.moment_js(moment) }}
