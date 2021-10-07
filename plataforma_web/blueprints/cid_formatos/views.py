@@ -13,7 +13,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 
 cid_formatos = Blueprint("cid_formatos", __name__, template_folder="templates")
 
-MODULO = "DOCUMENTACIONES"
+MODULO = "ISO FORMATOS"
 
 
 @cid_formatos.before_request

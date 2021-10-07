@@ -12,7 +12,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 
 cid_registros = Blueprint("cid_registros", __name__, template_folder="templates")
 
-MODULO = "DOCUMENTACIONES"
+MODULO = "ISO REGISTROS"
 
 
 @cid_registros.before_request

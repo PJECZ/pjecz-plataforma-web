@@ -389,7 +389,7 @@ def new_success(edicto):
 
 
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_NOTARIALES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Subir Edicto como juzgado"""
 

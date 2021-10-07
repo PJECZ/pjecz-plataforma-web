@@ -13,9 +13,9 @@ from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.permisos.models import Permiso
 
-rep_reportes = Blueprint("rep_reportes", __name__, template_folder="templates")
-
 MODULO = "REPORTES"
+
+rep_reportes = Blueprint("rep_reportes", __name__, template_folder="templates")
 
 
 @rep_reportes.before_request

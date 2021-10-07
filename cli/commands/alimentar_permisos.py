@@ -41,8 +41,10 @@ def alimentar_permisos():
                     click.echo(f"  Falta la columna {columna}")
                     continue
                 try:
+                    if row[columna] == "":
+                        continue
                     nivel = int(row[columna])
-                    if nivel < 0 or nivel > 3:
+                    if nivel < 0 or nivel > 4:
                         click.echo("  Nivel incorrecto.")
                         continue
                 except ValueError:

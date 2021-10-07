@@ -16,9 +16,9 @@ from plataforma_web.blueprints.permisos.models import Permiso
 
 from plataforma_web.extensions import db
 
-rep_graficas = Blueprint("rep_graficas", __name__, template_folder="templates")
-
 MODULO = "REPORTES"
+
+rep_graficas = Blueprint("rep_graficas", __name__, template_folder="templates")
 
 
 @rep_graficas.before_request

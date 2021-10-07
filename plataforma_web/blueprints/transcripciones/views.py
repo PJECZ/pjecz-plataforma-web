@@ -10,6 +10,8 @@ from plataforma_web.blueprints.transcripciones.models import Transcripcion
 from plataforma_web.blueprints.transcripciones.forms import TranscripcionNewForm, TranscripcionEditForm, TranscripcionSearchForm
 from plataforma_web.blueprints.permisos.models import Permiso
 
+MODULO = "TRANSCRIPCIONES"
+
 transcripciones = Blueprint("transcripciones", __name__, template_folder="templates")
 
 

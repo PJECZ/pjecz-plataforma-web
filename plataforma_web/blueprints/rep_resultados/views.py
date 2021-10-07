@@ -12,9 +12,9 @@ from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
 from plataforma_web.blueprints.permisos.models import Permiso
 
-rep_resultados = Blueprint("rep_resultados", __name__, template_folder="templates")
-
 MODULO = "REPORTES"
+
+rep_resultados = Blueprint("rep_resultados", __name__, template_folder="templates")
 
 
 @rep_resultados.before_request

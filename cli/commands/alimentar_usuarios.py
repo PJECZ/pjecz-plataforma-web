@@ -49,6 +49,8 @@ def alimentar_usuarios():
                 apellido_materno=row["apellido_materno"],
                 curp=row["curp"],
                 puesto=row["puesto"],
+                telefono_celular=row["telefono_celular"],
+                workspace=row["workspace"],
                 estatus=row["estatus"],
                 contrasena=pwd_context.hash(generar_contrasena()),
             ).save()

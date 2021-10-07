@@ -7,6 +7,7 @@ import click
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.materias.models import Materia
 
 AUTORIDADES_CSV = "seed/autoridades.csv"
 
@@ -30,12 +31,25 @@ def alimentar_autoridades():
             if distrito is None:
                 click.echo(f"  Falta el distrito {str(distrito_id)}")
                 continue
+            materia_id = int(row["materia_id"])
+            materia = Materia.query.get(materia_id)
+            if materia is None:
+                click.echo(f"  Falta la materia {str(materia_id)}")
+                continue
             Autoridad(
                 distrito=distrito,
+                materia=materia,
                 clave=row["clave"],
                 descripcion=row["descripcion"],
                 descripcion_corta=row["descripcion_corta"],
                 es_jurisdiccional=(row["es_jurisdiccional"] == "1"),
+                es_notaria=(row["es_notaria"] == "1"),
+                organo_jurisdiccional=row["organo_jurisdiccional"],
+                directorio_edictos=row["directorio_edictos"],
+                directorio_glosas=row["directorio_glosas"],
+                directorio_listas_de_acuerdos=row["directorio_listas_de_acuerdos"],
+                directorio_sentencias=row["directorio_sentencias"],
+                audiencia_categoria=row["audiencia_categoria"],
                 estatus=row["estatus"],
             ).save()
             contador += 1
