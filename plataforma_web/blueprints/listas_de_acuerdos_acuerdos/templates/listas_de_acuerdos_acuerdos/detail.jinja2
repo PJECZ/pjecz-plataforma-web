@@ -8,10 +8,10 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Acuerdo') %}
         {{ topbar.button_previous('Lista de Acuerdos', url_for('listas_de_acuerdos.detail', lista_de_acuerdo_id=acuerdo.lista_de_acuerdo_id)) }}
-        {% if current_user.can_admin('listas_de_acuerdos_acuerdos') %}
+        {% if current_user.can_admin('LISTAS DE ACUERDOS ACUERDOS') %}
             {{ topbar.button_edit('Editar', url_for('listas_de_acuerdos_acuerdos.edit', lista_de_acuerdo_acuerdo_id=acuerdo.id)) }}
         {% endif %}
-        {% if current_user.can_admin('listas_de_acuerdos_acuerdos') or (current_user.can_edit('listas_de_acuerdos_acuerdos') and acuerdo.autoridad_id == current_user.autoridad_id) %}
+        {% if current_user.can_admin('LISTAS DE ACUERDOS ACUERDOS') or (current_user.can_edit('LISTAS DE ACUERDOS ACUERDOS') and acuerdo.autoridad_id == current_user.autoridad_id) %}
             {% if acuerdo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('listas_de_acuerdos_acuerdos.delete', lista_de_acuerdo_acuerdo_id=acuerdo.id)) }}{% endif %}
             {% if acuerdo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('listas_de_acuerdos_acuerdos.recover', lista_de_acuerdo_acuerdo_id=acuerdo.id)) }}{% endif %}
         {% endif %}
@@ -34,7 +34,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_admin('listas_de_acuerdos_acuerdos') or (current_user.can_edit('listas_de_acuerdos_acuerdos') and acuerdo.autoridad_id == current_user.autoridad_id) %}
+    {% if current_user.can_admin('LISTAS DE ACUERDOS ACUERDOS') or (current_user.can_edit('LISTAS DE ACUERDOS ACUERDOS') and acuerdo.autoridad_id == current_user.autoridad_id) %}
         {% if acuerdo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar el acuerdo con folio ' + acuerdo.folio + '?') }}{% endif %}
         {% if acuerdo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar el acuerdo con folio ' + acuerdo.folio + '?') }}{% endif %}
     {% endif %}

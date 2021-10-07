@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Resultado') %}
         {{ topbar.button_previous('Resultados', url_for('rep_resultados.list_active')) }}
-        {% if current_user.can_edit('rep_resultados') %}
+        {% if current_user.can_edit('REP RESULTADOS') %}
             {% if rep_resultado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('rep_resultados.delete', rep_resultado_id=rep_resultado.id)) }}{% endif %}
             {% if rep_resultado.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('rep_resultados.recover', rep_resultado_id=rep_resultado.id)) }}{% endif %}
         {% endif %}
@@ -26,7 +26,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('rep_resultados') %}
+    {% if current_user.can_edit('REP RESULTADOS') %}
         {% if rep_resultado.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rep_resultado.descripcion + '?') }}{% endif %}
         {% if rep_resultado.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + rep_resultado.descripcion + '?') }}{% endif %}
     {% endif %}

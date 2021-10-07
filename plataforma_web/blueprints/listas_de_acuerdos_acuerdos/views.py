@@ -17,7 +17,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 
 listas_de_acuerdos_acuerdos = Blueprint("listas_de_acuerdos_acuerdos", __name__, template_folder="templates")
 
-MODULO = "LISTAS DE ACUERDOS"
+MODULO = "LISTAS DE ACUERDOS ACUERDOS"
 
 
 @listas_de_acuerdos_acuerdos.before_request
@@ -65,7 +65,7 @@ def search():
         # tipo_acuerdo
         # tipo_juicio
         # Mostrar resultados
-        if current_user.can_admin("listas_de_acuerdos"):
+        if current_user.can_admin("LISTAS DE ACUERDOS"):
             plantilla = "listas_de_acuerdos/list_admin.jinja2"
         else:
             plantilla = "listas_de_acuerdos/list.jinja2"

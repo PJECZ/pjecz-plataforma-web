@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Usuario ' + usuario.email) %}
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
-        {% if current_user.can_edit('usuarios') %}
+        {% if current_user.can_edit('USUARIOS') %}
             {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
             {% if usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('usuarios.delete', usuario_id=usuario.id)) }}{% endif %}
             {% if usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('usuarios.recover', usuario_id=usuario.id)) }}{% endif %}
@@ -40,7 +40,7 @@
                 <tr>
                     <td><a href="{{ url_for('roles.detail', rol_id=usuario_rol.rol_id) }}">{{ usuario_rol.rol.nombre }}</a></td>
                     <td>
-                    {% if current_user.can_edit('usuarios roles') %}
+                    {% if current_user.can_edit('USUARIOS ROLES') %}
                         {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteRolUsuario', message='¿Eliminar ' + usuario_rol.rol.nombre + '?') }}
                     {% endif %}
                     </td>
@@ -54,7 +54,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('usuarios') %}
+    {% if current_user.can_edit('USUARIOS') %}
         {% if usuario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + usuario.nombre + '?') }}{% endif %}
         {% if usuario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + usuario.nombre + '?') }}{% endif %}
     {% endif %}

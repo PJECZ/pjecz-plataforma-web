@@ -51,7 +51,7 @@ def before_request():
 def list_active():
     """Listado de Glosas activos"""
     # Si es administrador ve todo
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         return render_template(
             "glosas/list_admin.jinja2",
             autoridad=None,
@@ -60,7 +60,7 @@ def list_active():
             estatus="A",
         )
     # Si puede editar o crear glosas ve lo de su autoridad
-    if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+    if current_user.can_edit("GLOSAS") or current_user.can_insert("GLOSAS"):
         autoridad = current_user.autoridad
         return render_template(
             "glosas/list.jinja2",
@@ -84,7 +84,7 @@ def list_active():
 def list_inactive():
     """Listado de Glosas inactivas"""
     # Si es administrador ve todo
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         return render_template(
             "glosas/list_admin.jinja2",
             autoridad=None,
@@ -93,7 +93,7 @@ def list_inactive():
             estatus="B",
         )
     # Si puede editar o crear glosas ve lo de su autoridad
-    if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+    if current_user.can_edit("GLOSAS") or current_user.can_insert("GLOSAS"):
         autoridad = current_user.autoridad
         return render_template(
             "glosas/list.jinja2",
@@ -123,7 +123,7 @@ def list_autoridades():
 def list_autoridad_glosas(autoridad_id):
     """Listado de Glosas activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         plantilla = "glosas/list_admin.jinja2"
     else:
         plantilla = "glosas/list.jinja2"
@@ -141,7 +141,7 @@ def list_autoridad_glosas(autoridad_id):
 def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         plantilla = "glosas/list_admin.jinja2"
     else:
         plantilla = "glosas/list.jinja2"
@@ -157,9 +157,9 @@ def list_autoridad_glosas_inactive(autoridad_id):
 @glosas.route("/glosas/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Glosas"""
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         puede_elegir_autoridad = True
-    elif current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+    elif current_user.can_edit("GLOSAS") or current_user.can_insert("GLOSAS"):
         puede_elegir_autoridad = False
     else:
         puede_elegir_autoridad = True
@@ -595,7 +595,7 @@ def edit_success(glosa):
 def edit(glosa_id):
     """Editar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
-    if not (current_user.can_admin("glosas") or current_user.autoridad_id == glosa.autoridad_id):
+    if not (current_user.can_admin("GLOSAS") or current_user.autoridad_id == glosa.autoridad_id):
         flash("No tiene permiso para editar esta glosa.", "warning")
         return redirect(url_for("glosas.list_active"))
     form = GlosaEditForm()
@@ -641,7 +641,7 @@ def delete(glosa_id):
     if glosa.estatus == "A":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("glosas"):
+        if current_user.can_admin("GLOSAS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= glosa.creado:
                 glosa.delete()
                 bitacora = delete_success(glosa)
@@ -680,7 +680,7 @@ def recover(glosa_id):
     if glosa.estatus == "B":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("glosas"):
+        if current_user.can_admin("GLOSAS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= glosa.creado:
                 glosa.recover()
                 bitacora = recover_success(glosa)

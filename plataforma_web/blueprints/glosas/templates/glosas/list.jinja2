@@ -8,13 +8,13 @@
     {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Autoridades', url_for('glosas.list_autoridades')) }}
         {% if autoridad %}
-            {% if current_user.can_admin('glosas') or (current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id) %}
+            {% if current_user.can_admin('GLOSAS') or (current_user.can_insert('GLOSAS') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('glosas.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('glosas.list_active')) }}{% endif %}
             {% endif %}
-            {% if current_user.can_admin('glosas') %}
+            {% if current_user.can_admin('GLOSAS') %}
                 {{ topbar.button_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=autoridad.id)) }}
-            {% elif current_user.can_insert('glosas') and current_user.autoridad_id == autoridad.id %}
+            {% elif current_user.can_insert('GLOSAS') and current_user.autoridad_id == autoridad.id %}
                 {{ topbar.button_upload('Subir', url_for('glosas.new')) }}
             {% endif %}
         {% endif %}

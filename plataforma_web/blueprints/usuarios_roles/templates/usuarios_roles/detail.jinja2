@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Usuario-Rol ' + usuario_rol.descripcion) %}
         {{ topbar.button_previous('Usuarios-Roles', url_for('usuarios_roles.list_active')) }}
-        {% if current_user.can_edit('usuarios roles') %}
+        {% if current_user.can_edit('USUARIOS ROLES') %}
             {% if usuario_rol.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id)) }}{% endif %}
             {% if usuario_rol.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('usuarios_roles.recover', usuario_rol_id=usuario_rol.id)) }}{% endif %}
         {% endif %}
@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('usuarios roles') %}
+    {% if current_user.can_edit('USUARIOS ROLES') %}
         {% if usuario_rol.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + usuario_rol.descripcion + '?') }}{% endif %}
         {% if usuario_rol.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + usuario_rol.descripcion + '?') }}{% endif %}
     {% endif %}

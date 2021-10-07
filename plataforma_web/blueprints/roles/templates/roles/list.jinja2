@@ -6,17 +6,17 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_view('modulos') %}
+        {% if current_user.can_view('MODULOS') %}
             {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:toy-brick') }}
         {% endif %}
-        {% if current_user.can_view('usuarios') %}
+        {% if current_user.can_view('USUARIOS') %}
             {{ topbar.button('Usuarios', url_for('usuarios.list_active'), 'mdi:account-key') }}
         {% endif %}
-        {% if current_user.can_edit('roles') %}
+        {% if current_user.can_edit('ROLES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('roles.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('roles.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('roles') %}
+        {% if current_user.can_insert('ROLES') %}
             {{ topbar.button_new('Nuevo Rol', url_for('roles.new')) }}
         {% endif %}
     {% endcall %}

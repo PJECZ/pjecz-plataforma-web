@@ -32,7 +32,7 @@ def before_request():
 def list_active():
     """Listado de Ubicaciones de Expedientes"""
     # Si es administrador ve todo
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         return render_template(
             "ubicaciones_expedientes/list_admin.jinja2",
             autoridad=None,
@@ -59,7 +59,7 @@ def list_active():
 def list_inactive():
     """Listado de Ubicaciones de Expedientes inactivos"""
     # Si es administrador ve todo
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         return render_template(
             "ubicaciones_expedientes/list_admin.jinja2",
             autoridad=None,
@@ -105,7 +105,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_ubicaciones_expedientes(autoridad_id):
     """Listado de Ubicaciones de Expedientes activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         plantilla = "ubicaciones_expedientes/list_admin.jinja2"
     else:
         plantilla = "ubicaciones_expedientes/list.jinja2"
@@ -123,7 +123,7 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
 def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
     """Listado de Ubicaciones de Expedientes inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         plantilla = "ubicaciones_expedientes/list_admin.jinja2"
     else:
         plantilla = "ubicaciones_expedientes/list.jinja2"
@@ -139,7 +139,7 @@ def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Ubicacion de Expediente"""
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         puede_elegir_autoridad = True
     elif current_user.autoridad.es_jurisdiccional:
         puede_elegir_autoridad = False
@@ -425,7 +425,7 @@ def edit(ubicacion_expediente_id):
 
     # Validar ubicación de expediente
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
-    if not (current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id):
+    if not (current_user.can_admin("UBICACIONES EXPEDIENTES") or current_user.autoridad_id == ubicacion_expediente.autoridad_id):
         flash("No tiene permiso para editar esta ubicación de expediente.", "warning")
         return redirect(url_for("ubicaciones_expedientes.list_active"))
 
@@ -473,7 +473,7 @@ def delete(ubicacion_expediente_id):
     """Eliminar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "A":
-        if current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
+        if current_user.can_admin("UBICACIONES EXPEDIENTES") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
             ubicacion_expediente.delete()
             bitacora = delete_success(ubicacion_expediente)
             flash(bitacora.descripcion, "success")
@@ -500,7 +500,7 @@ def recover(ubicacion_expediente_id):
     """Recuperar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "B":
-        if current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
+        if current_user.can_admin("UBICACIONES EXPEDIENTES") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
             ubicacion_expediente.recover()
             bitacora = recover_success(ubicacion_expediente)
             flash(bitacora.descripcion, "success")

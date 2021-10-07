@@ -7,15 +7,15 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Audiencia') %}
-        {% if current_user.can_admin('audiencias') %}
+        {% if current_user.can_admin('AUDIENCIAS') %}
             {{ topbar.button_previous('Agenda de Audiencias de ' + audiencia.autoridad.clave, url_for('audiencias.list_autoridad_audiencias', autoridad_id=audiencia.autoridad_id)) }}
         {% else %}
             {{ topbar.button_previous('Agenda de Audiencias', url_for('audiencias.list_active')) }}
         {% endif %}
-        {% if current_user.can_insert('audiencias') and current_user.autoridad_id == audiencia.autoridad_id %}
+        {% if current_user.can_insert('AUDIENCIAS') and current_user.autoridad_id == audiencia.autoridad_id %}
             {{ topbar.button_new('Nueva Audiencia', url_for('audiencias.new')) }}
         {% endif %}
-        {% if current_user.can_admin('audiencias') or (current_user.can_edit('audiencias') and audiencia.autoridad_id == current_user.autoridad_id) %}
+        {% if current_user.can_admin('AUDIENCIAS') or (current_user.can_edit('AUDIENCIAS') and audiencia.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('audiencias.edit', audiencia_id=audiencia.id)) }}
             {% if audiencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('audiencias.delete', audiencia_id=audiencia.id)) }}{% endif %}
             {% if audiencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('audiencias.recover', audiencia_id=audiencia.id)) }}{% endif %}
@@ -77,7 +77,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_admin('audiencias') or (current_user.can_edit('audiencias') and audiencia.autoridad_id == current_user.autoridad_id) %}
+    {% if current_user.can_admin('AUDIENCIAS') or (current_user.can_edit('AUDIENCIAS') and audiencia.autoridad_id == current_user.autoridad_id) %}
         {% if audiencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + audiencia.tipo_audiencia + '?') }}{% endif %}
         {% if audiencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + audiencia.tipo_audiencia + '?') }}{% endif %}
     {% endif %}

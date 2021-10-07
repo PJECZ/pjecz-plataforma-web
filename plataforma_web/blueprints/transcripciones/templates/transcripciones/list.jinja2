@@ -6,11 +6,11 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('transcripciones') %}
+        {% if current_user.can_edit('TRANSCRIPCIONES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('transcripciones.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('transcripciones.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('transcripciones') %}
+        {% if current_user.can_insert('TRANSCRIPCIONES') %}
             {{ topbar.button_new('Nueva Transcripción', url_for('transcripciones.new')) }}
         {% endif %}
         {# topbar.button_search('Buscar', url_for('transcripciones.search')) #}

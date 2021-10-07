@@ -15,7 +15,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 
 cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="templates")
 
-MODULO = "ISO PROCEDIMIENTOS"
+MODULO = "CID PROCEDIMIENTOS"
 
 
 @cid_procedimientos.before_request

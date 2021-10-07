@@ -51,7 +51,7 @@ def before_request():
 def list_active():
     """Listado de Listas de Acuerdos activas"""
     # Si es administrador ve todo
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         return render_template(
             "listas_de_acuerdos/list_admin.jinja2",
             autoridad=None,
@@ -78,7 +78,7 @@ def list_active():
 def list_inactive():
     """Listado de Listas de Acuerdos inactivas"""
     # Si es administrador ve todo
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         return render_template(
             "listas_de_acuerdos/list_admin.jinja2",
             autoridad=None,
@@ -124,7 +124,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_listas_de_acuerdos(autoridad_id):
     """Listado de Listas de Acuerdos activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         plantilla = "listas_de_acuerdos/list_admin.jinja2"
     else:
         plantilla = "listas_de_acuerdos/list.jinja2"
@@ -142,7 +142,7 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
     """Listado de Listas de Acuerdos inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         plantilla = "listas_de_acuerdos/list_admin.jinja2"
     else:
         plantilla = "listas_de_acuerdos/list.jinja2"
@@ -158,7 +158,7 @@ def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
 @listas_de_acuerdos.route("/listas_de_acuerdos/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Lista de Acuerdos"""
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         puede_elegir_autoridad = True
     elif current_user.autoridad.es_jurisdiccional:
         puede_elegir_autoridad = False
@@ -314,7 +314,7 @@ def detail(lista_de_acuerdo_id):
     """Detalle de una Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     acuerdos = None  # Por lo pronto sólo los administradores ven los acuerdos
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         acuerdos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.lista_de_acuerdo == lista_de_acuerdo).filter_by(estatus="A").all()
     return render_template("listas_de_acuerdos/detail.jinja2", lista_de_acuerdo=lista_de_acuerdo, acuerdos=acuerdos)
 
@@ -588,7 +588,7 @@ def delete(lista_de_acuerdo_id):
     """Eliminar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "A":
-        if current_user.can_admin("listas_de_acuerdos"):
+        if current_user.can_admin("LISTAS DE ACUERDOS"):
             hoy = datetime.date.today()
             hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:
@@ -627,7 +627,7 @@ def recover(lista_de_acuerdo_id):
         if ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.fecha == lista_de_acuerdo.fecha).filter_by(estatus="A").first():
             flash("No puede recuperar esta lista porque ya hay una activa de la misma fecha.", "warning")
         else:
-            if current_user.can_admin("listas_de_acuerdos"):
+            if current_user.can_admin("LISTAS DE ACUERDOS"):
                 hoy = datetime.date.today()
                 hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
                 if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:

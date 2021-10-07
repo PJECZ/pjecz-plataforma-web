@@ -8,18 +8,18 @@
     {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('listas_de_acuerdos.list_distritos')) }}
         {% if autoridad %}
-            {% if current_user.can_admin('listas_de_acuerdos') %}
+            {% if current_user.can_admin('LISTAS DE ACUERDOS') %}
                 {{ topbar.button_upload('Subir', url_for('listas_de_acuerdos.new_for_autoridad', autoridad_id=autoridad.id)) }}
             {% endif %}
-            {% if current_user.can_edit('listas_de_acuerdos') %}
+            {% if current_user.can_edit('LISTAS DE ACUERDOS') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos_inactive', autoridad_id=autoridad.id)) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}{% endif %}
             {% endif %}
-            {# if current_user.can_insert('tareas') #}
+            {# if current_user.can_insert('TAREAS') #}
                 {# topbar.button_refresh('Refrescar', url_for('listas_de_acuerdos.refresh', autoridad_id=autoridad.id)) #}
             {# endif #}
         {% else %}
-            {% if current_user.can_edit('listas_de_acuerdos') %}
+            {% if current_user.can_edit('LISTAS DE ACUERDOS') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('listas_de_acuerdos.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('listas_de_acuerdos.list_active')) }}{% endif %}
             {% endif %}

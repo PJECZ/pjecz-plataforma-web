@@ -48,7 +48,7 @@ def before_request():
 def list_active():
     """Listado de Audiencias activos"""
     # Si es administrador ve todo
-    if current_user.can_admin("audiencias"):
+    if current_user.can_admin("AUDIENCIAS"):
         return render_template(
             "audiencias/list_admin.jinja2",
             autoridad=None,
@@ -75,7 +75,7 @@ def list_active():
 def list_inactive():
     """Listado de Audiencias inactivos"""
     # Si es administrador ve todo
-    if current_user.can_admin("audiencias"):
+    if current_user.can_admin("AUDIENCIAS"):
         return render_template(
             "audiencias/list_admin.jinja2",
             autoridad=None,
@@ -121,7 +121,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_audiencias(autoridad_id):
     """Listado de Audiencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("audiencias"):
+    if current_user.can_admin("AUDIENCIAS"):
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="_admin", por_defecto="list_admin")
     else:
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list")
@@ -139,7 +139,7 @@ def list_autoridad_audiencias(autoridad_id):
 def list_autoridad_audiencias_inactive(autoridad_id):
     """Listado de Audiencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("audiencias"):
+    if current_user.can_admin("AUDIENCIAS"):
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="_admin", por_defecto="list_admin")
     else:
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list")
@@ -568,7 +568,7 @@ def edit_generica(audiencia_id):
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
+    if not (current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -644,7 +644,7 @@ def edit_mapo(audiencia_id):
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
+    if not (current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -715,7 +715,7 @@ def edit_dipe(audiencia_id):
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
+    if not (current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -797,7 +797,7 @@ def edit_sape(audiencia_id):
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
+    if not (current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -880,7 +880,7 @@ def delete(audiencia_id):
     """Eliminar Audiencia"""
     audiencia = Audiencia.query.get_or_404(audiencia_id)
     if audiencia.estatus == "A":
-        if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
+        if current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id:
             audiencia.delete()
             bitacora = Bitacora(
                 modulo=MODULO,
@@ -901,7 +901,7 @@ def recover(audiencia_id):
     """Recuperar Audiencia"""
     audiencia = Audiencia.query.get_or_404(audiencia_id)
     if audiencia.estatus == "B":
-        if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
+        if current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id:
             audiencia.recover()
             bitacora = Bitacora(
                 modulo=MODULO,

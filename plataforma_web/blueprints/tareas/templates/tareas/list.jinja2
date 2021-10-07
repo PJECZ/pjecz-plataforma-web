@@ -6,12 +6,16 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('tareas') %}
+        {% if current_user.can_view('BITACORAS') %}
+            {{ topbar.button('Bitácoras', url_for('bitacoras.list_active'), 'mdi:calendar-clock') }}
+        {% endif %}
+        {% if current_user.can_view('ENTRADAS SALIDAS') %}
+            {{ topbar.button('Entradas/Salidas', url_for('entradas_salidas.list_active'), 'mdi:calendar-clock') }}
+        {% endif %}
+        {% if current_user.can_edit('TAREAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('tareas.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('tareas.list_active')) }}{% endif %}
         {% endif %}
-        {{ topbar.button('Bitácoras', url_for('bitacoras.list_active'), 'mdi:calendar-clock') }}
-        {{ topbar.button('Entradas/Salidas', url_for('entradas_salidas.list_active'), 'mdi:calendar-clock') }}
     {% endcall %}
 {% endblock %}
 

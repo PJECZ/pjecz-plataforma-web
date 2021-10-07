@@ -50,7 +50,7 @@ def before_request():
 def list_active():
     """Listado de Edictos activos"""
     # Si es administrador ve todo
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         return render_template(
             "edictos/list_admin.jinja2",
             autoridad=None,
@@ -77,7 +77,7 @@ def list_active():
 def list_inactive():
     """Listado de Edictos inactivos"""
     # Si es administrador ve todo
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         return render_template(
             "edictos/list_admin.jinja2",
             autoridad=None,
@@ -123,7 +123,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_edictos(autoridad_id):
     """Listado de Edictos activos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         plantilla = "edictos/list_admin.jinja2"
     else:
         plantilla = "edictos/list.jinja2"
@@ -141,7 +141,7 @@ def list_autoridad_edictos(autoridad_id):
 def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         plantilla = "edictos/list_admin.jinja2"
     else:
         plantilla = "edictos/list.jinja2"
@@ -157,7 +157,7 @@ def list_autoridad_edictos_inactive(autoridad_id):
 @edictos.route("/edictos/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Edictos"""
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         puede_elegir_autoridad = True
     elif current_user.autoridad.es_jurisdiccional:
         puede_elegir_autoridad = False
@@ -644,7 +644,7 @@ def edit(edicto_id):
 
     # Validar edicto
     edicto = Edicto.query.get_or_404(edicto_id)
-    if not (current_user.can_admin("edictos") or current_user.autoridad_id == edicto.autoridad_id):
+    if not (current_user.can_admin("EDICTOS") or current_user.autoridad_id == edicto.autoridad_id):
         flash("No tiene permiso para editar este edicto.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -706,7 +706,7 @@ def delete(edicto_id):
     if edicto.estatus == "A":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("edictos"):
+        if current_user.can_admin("EDICTOS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.delete()
                 bitacora = delete_success(edicto)
@@ -745,7 +745,7 @@ def recover(edicto_id):
     if edicto.estatus == "B":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("edictos"):
+        if current_user.can_admin("EDICTOS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.recover()
                 bitacora = recover_success(edicto)

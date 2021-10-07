@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Materia ' + materia.nombre) %}
         {{ topbar.button_previous('Materias', url_for('materias.list_active')) }}
-        {% if current_user.can_edit('materias') %}
+        {% if current_user.can_edit('MATERIAS') %}
             {{ topbar.button_edit('Editar', url_for('materias.edit', materia_id=materia.id)) }}
             {% if materia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('materias.delete', materia_id=materia.id)) }}{% endif %}
             {% if materia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('materias.recover', materia_id=materia.id)) }}{% endif %}
@@ -63,7 +63,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('materias') %}
+    {% if current_user.can_edit('MATERIAS') %}
         {% if materia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + materia.nombre + '?') }}{% endif %}
         {% if materia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + materia.nombre + '?') }}{% endif %}
     {% endif %}

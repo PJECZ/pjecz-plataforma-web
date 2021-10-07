@@ -52,7 +52,7 @@ def before_request():
 def list_active():
     """Listado de Sentencias activas más recientes"""
     # Si es administrador ve todo
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         return render_template(
             "sentencias/list_admin.jinja2",
             autoridad=None,
@@ -79,7 +79,7 @@ def list_active():
 def list_inactive():
     """Listado de Sentencias inactivas"""
     # Si es administrador ve todo
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         return render_template(
             "sentencias/list_admin.jinja2",
             autoridad=None,
@@ -125,7 +125,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_sentencias(autoridad_id):
     """Listado de Sentencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         plantilla = "sentencias/list_admin.jinja2"
     else:
         plantilla = "sentencias/list.jinja2"
@@ -143,7 +143,7 @@ def list_autoridad_sentencias(autoridad_id):
 def list_autoridad_sentencias_inactive(autoridad_id):
     """Listado de Sentencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         plantilla = "sentencias/list_admin.jinja2"
     else:
         plantilla = "sentencias/list.jinja2"
@@ -159,7 +159,7 @@ def list_autoridad_sentencias_inactive(autoridad_id):
 @sentencias.route("/sentencias/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Sentencias"""
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         puede_elegir_autoridad = True
     elif current_user.autoridad.es_jurisdiccional:
         puede_elegir_autoridad = False
@@ -654,7 +654,7 @@ def edit(sentencia_id):
 
     # Validar sentencia
     sentencia = Sentencia.query.get_or_404(sentencia_id)
-    if not (current_user.can_admin("sentencias") or current_user.autoridad_id == sentencia.autoridad_id):
+    if not (current_user.can_admin("SENTENCIAS") or current_user.autoridad_id == sentencia.autoridad_id):
         flash("No tiene permiso para editar esta sentencia.", "warning")
         return redirect(url_for("sentencias.list_active"))
 
@@ -744,7 +744,7 @@ def delete(sentencia_id):
     if sentencia.estatus == "A":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("sentencias"):
+        if current_user.can_admin("SENTENCIAS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
                 sentencia.delete()
                 bitacora = delete_success(sentencia)
@@ -783,7 +783,7 @@ def recover(sentencia_id):
     if sentencia.estatus == "B":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("sentencias"):
+        if current_user.can_admin("SENTENCIAS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
                 sentencia.recover()
                 bitacora = recover_success(sentencia)

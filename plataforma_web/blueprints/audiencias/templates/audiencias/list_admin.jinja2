@@ -8,12 +8,12 @@
     {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Departamentos', url_for('audiencias.list_distritos')) }}
         {% if autoridad %}
-            {% if current_user.can_edit('audiencias') %}
+            {% if current_user.can_edit('AUDIENCIAS') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('audiencias.list_autoridad_audiencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_autoridad_audiencias', autoridad_id=autoridad.id)) }}{% endif %}
             {% endif %}
         {% else %}
-            {% if current_user.can_edit('audiencias') %}
+            {% if current_user.can_edit('AUDIENCIAS') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('audiencias.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('audiencias.list_active')) }}{% endif %}
             {% endif %}

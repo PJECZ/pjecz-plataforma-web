@@ -7,17 +7,17 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('V.P. Sentencia') %}
-        {% if current_user.can_admin('sentencias') %}
+        {% if current_user.can_admin('SENTENCIAS') %}
             {{ topbar.button_previous('V.P. Sentencias de ' + sentencia.autoridad.clave, url_for('sentencias.list_autoridad_sentencias', autoridad_id=sentencia.autoridad_id)) }}
         {% else %}
             {{ topbar.button_previous('V.P. Sentencias', url_for('sentencias.list_active')) }}
         {% endif %}
-        {% if current_user.can_admin('sentencias') %}
+        {% if current_user.can_admin('SENTENCIAS') %}
             {{ topbar.button_upload('Subir', url_for('sentencias.new_for_autoridad', autoridad_id=sentencia.autoridad_id)) }}
-        {% elif current_user.can_insert('sentencias') and current_user.autoridad_id == sentencia.autoridad_id %}
+        {% elif current_user.can_insert('SENTENCIAS') and current_user.autoridad_id == sentencia.autoridad_id %}
             {{ topbar.button_upload('Subir', url_for('sentencias.new')) }}
         {% endif %}
-        {% if current_user.can_admin('sentencias') or (current_user.can_edit('sentencias') and sentencia.autoridad_id == current_user.autoridad_id) %}
+        {% if current_user.can_admin('SENTENCIAS') or (current_user.can_edit('SENTENCIAS') and sentencia.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('sentencias.edit', sentencia_id=sentencia.id)) }}
             {% if sentencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('sentencias.delete', sentencia_id=sentencia.id)) }}{% endif %}
             {% if sentencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('sentencias.recover', sentencia_id=sentencia.id)) }}{% endif %}
@@ -44,7 +44,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_admin('sentencias') or (current_user.can_edit('sentencias') and sentencia.autoridad_id == current_user.autoridad_id) %}
+    {% if current_user.can_admin('SENTENCIAS') or (current_user.can_edit('SENTENCIAS') and sentencia.autoridad_id == current_user.autoridad_id) %}
         {% if sentencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + sentencia.sentencia + '?') }}{% endif %}
         {% if sentencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + sentencia.sentencia + '?') }}{% endif %}
     {% endif %}

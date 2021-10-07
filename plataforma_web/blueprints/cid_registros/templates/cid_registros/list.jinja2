@@ -8,7 +8,7 @@
     {% call topbar.page_buttons(titulo) %}
         {{ topbar.button('Procedimientos', url_for('cid_procedimientos.list_active'), 'mdi:book-open-variant') }}
         {{ topbar.button('Formatos', url_for('cid_formatos.list_active'), 'mdi:notebook') }}
-        {% if current_user.can_edit('cid_registros') %}
+        {% if current_user.can_edit('CID REGISTROS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_registros.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_registros.list_active')) }}{% endif %}
         {% endif %}
