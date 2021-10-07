@@ -108,6 +108,8 @@ def edit(modulo_id):
     form.ruta.data = modulo.ruta
     if modulo.en_navegacion:
         form.en_navegacion.data = 1
+    else:
+        form.en_navegacion.data = 0
     return render_template("modulos/edit.jinja2", form=form, modulo=modulo)
 
 

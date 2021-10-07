@@ -119,9 +119,10 @@ def profile():
 @permission_required(MODULO, Permiso.VER)
 def list_active():
     """Listado de Usuarios activos"""
+    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").all()
     return render_template(
         "usuarios/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
+        usuarios=usuarios_activos,
         titulo="Usuarios",
         estatus="A",
     )
@@ -132,44 +133,13 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Usuarios inactivos"""
+    usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").all()
     return render_template(
         "usuarios/list.jinja2",
-        filtros=json.dumps({"estatus": "B"}),
+        usuarios=usuarios_inactivos,
         titulo="Usuarios inactivos",
         estatus="B",
     )
-
-
-@usuarios.route("/usuarios/datatable_json", methods=["GET", "POST"])
-@login_required
-@permission_required(MODULO, Permiso.VER)
-def datatable_json():
-    """DataTable JSON para listado de usuarios"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
-    # Consultar
-    consulta = Usuario.query
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(Usuario.email).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for usuario in registros:
-        data.append(
-            {
-                "detalle": {
-                    "email": usuario.email,
-                    "url": url_for("usuarios.detail", usuario_id=usuario.id),
-                },
-                "nombre": usuario.nombre,
-                "puesto": usuario.puesto,
-            }
-        )
-    # Entregar JSON
-    return datatables.output(draw, total, data)
 
 
 @usuarios.route("/usuarios/<int:usuario_id>")

@@ -42,9 +42,9 @@
 		],
 		"description": "Listado de registros activos"
 	},
-	"Flask views list_active datatable json": {
+	"Flask views list_active json": {
 		"scope": "python",
-		"prefix": "fviews_list_active_datatable_json",
+		"prefix": "fviews_list_active_json",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}')",
 			"def list_active():",
@@ -57,7 +57,7 @@
 			"\t)",
 			""
 		],
-		"description": "Listado de registros activos datatable json"
+		"description": "Listado de registros activos json"
 	},
 	"Flask views list_inactive": {
 		"scope": "python",
@@ -74,9 +74,9 @@
 		],
 		"description": "Listado de registros inactivos"
 	},
-	"Flask views list_inactive datatable json": {
+	"Flask views list_inactive json": {
 		"scope": "python",
-		"prefix": "fviews_list_inactive_datatable_json",
+		"prefix": "fviews_list_inactive_json",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
 			"@permission_required(MODULO, Permiso.MODIFICAR)",
@@ -90,7 +90,7 @@
 			"\t)",
 			""
 		],
-		"description": "Listado de registros inactivos datatable json"
+		"description": "Listado de registros inactivos json"
 	},
 	"Flask views search": {
 		"scope": "python",

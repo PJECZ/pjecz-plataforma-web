@@ -30,57 +30,23 @@
                     <th>e-mail</th>
                     <th>Nombres</th>
                     <th>Puestos</th>
+                    <th>CURP</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.puesto }}</td>
+                    <td>{{ usuario.curp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#usuarios_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/usuarios/datatable_json",
-                type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
-            },
-            columns: [
-                { data: "detalle" },
-                { data: "nombre" },
-                { data: "puesto" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.email + '</a>';
-                    }
-                }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
-        });
-    </script>
+    {{ list.datatable('usuarios_datatable') }}
 {% endblock %}
