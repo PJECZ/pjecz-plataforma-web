@@ -5,26 +5,42 @@
 {% block title %}Roles{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Roles') %}
-        {{ topbar.button('Usuarios', url_for('usuarios.list_active'), 'mdi:account-key') }}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('MODULOS') %}
+            {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:toy-brick') }}
+        {% endif %}
+        {% if current_user.can_view('USUARIOS') %}
+            {{ topbar.button('Usuarios', url_for('usuarios.list_active'), 'mdi:account-key') }}
+        {% endif %}
+        {% if current_user.can_edit('ROLES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('roles.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('roles.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('ROLES') %}
+            {{ topbar.button_new('Nuevo Rol', url_for('roles.new')) }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table class="table display nowrap">
+        <table id="roles_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Rol</th>
+                    <th>Roles</th>
                 </tr>
             </thead>
             <tbody>
-                {% for rol in roles %}
+            {% for rol in roles %}
                 <tr>
                     <td><a href="{{ url_for('roles.detail', rol_id=rol.id) }}">{{ rol.nombre }}</a></td>
                 </tr>
-                {% endfor %}
+            {% endfor %}
             </tbody>
         </table>
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('roles_datatable') }}
 {% endblock %}

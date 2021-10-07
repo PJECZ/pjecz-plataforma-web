@@ -1,28 +1,35 @@
 {% extends 'layouts/login.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 
-{% block title %}Plataforma Web{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block welcome %}
     <div id="welcome" class="text-center">
         <p><img class="img-fluid" src="{{ url_for('static', filename='images/poder-judicial.png') }}" alt="PJECZ"></p>
-        <h4 class="mb-3">Plataforma Web</h4>
+        <h4 class="mb-3">{{ title }}</h4>
     </div>
 {% endblock %}
 
-{% block firebase_content %}
-    <div id="firebase_content" class="text-center">
-        <p id="firebase_logged_out" class="text-white">Ingrese con su cuenta de...</p>
-        <p id="firebase_logged_in" class="text-white" style="display:none;"><strong>¡Hola <span id="user">____</span>!</strong></p>
-        <button id="quickstart-sign-in" disabled class="btn btn-primary py-2">Cargando...</button>
-        <p id="quickstart-sign-in-status" class="text-gray"></p>
+{% block content %}
+    <div id="firebase" class="py-2">
+        <div class="text-center my-2">
+            <p id="firebase-logged-out" class="text-white">Ingrese con:</p>
+            <p id="firebase-logged-in" class="text-white" style="display:none;"><strong>¡Hola <span id="user"></span>!</strong></p>
+            <p>
+                <span id="firebase-sign-in-google-status" class="text-secondary"></span>
+                <span id="firebase-sign-in-github-status" class="text-secondary"></span>
+                <span id="firebase-sign-in-microsoft-status" class="text-secondary"></span>
+            </p>
+        </div>
+        <div class="d-grid gap-2 my-2">
+            <button id="firebase-sign-in-google" disabled class="btn btn-info">Cargando...</button>
+            <button id="firebase-sign-in-microsoft" disabled class="btn btn-primary">Cargando...</button>
+            <button id="firebase-sign-in-github" disabled class="btn btn-secondary">Cargando...</button>
+        </div>
     </div>
-{% endblock %}
-
-{% block acceso_form_content %}
-    <div id="acceso_form_content">
-        {% call f.form_tag('usuarios.login', fid='acceso_form') %}
-        <div id="acceso_form_firebase_fields" class="my-2" style="display:none;">
+    <div id="access" class="py-2">
+        {% call f.form_tag('usuarios.login', fid='access_form') %}
+        <div id="access-form-firebase" class="my-2" style="display:none;">
             <div class="form-floating">
                 {% call f.field(form.email, id='email', class='form-control', readonly='readonly') %}{% endcall %}
                 <label for="email">Correo electrónico</label>
@@ -31,32 +38,41 @@
                 {% call f.field(form.token, id='token', class='form-control', readonly='readonly') %}{% endcall %}
                 <label for="token">Token</label>
             </div>
-            <button id="acceso_form_firebase_submit" class="w-100 btn btn-lg btn-primary my-2" type="submit">Ingresar</button>
+            <button id="access-form-firebase-submit" class="w-100 btn btn-lg btn-primary my-2" type="submit">Ingresar</button>
         </div>
-        <div id="acceso_form_password_fields" class="my-2" style="display:none;">
+        <div id="access-form-password" class="my-2" style="display:none;">
             <div class="form-floating">
-                {% call f.field(form.identidad, id='identidad', class='form-control', autofocus='autofocus') %}{% endcall %}
-                <label for="identidad">Correo electrónico</label>
+                {% call f.field(form.identidad, id='username', class='form-control', autofocus='autofocus') %}{% endcall %}
+                <label for="username">Usuario</label>
             </div>
             <div class="form-floating">
-                {% call f.field(form.contrasena, id='contrasena', class='form-control') %}{% endcall %}
-                <label for="contrasena">Contraseña</label>
+                {% call f.field(form.contrasena, id='password', class='form-control') %}{% endcall %}
+                <label for="password">Contraseña</label>
             </div>
-            <button id="acceso_form_password_submit" class="w-100 btn btn-lg btn-primary my-2" type="submit">Ingresar</button>
+            <button id="access-form-password-submit" class="w-100 btn btn-lg btn-primary my-2" type="submit">Ingresar</button>
         </div>
         {% endcall %}
+        <div id="account" class="my-2" style="display:none;">
+            <div class="card">
+                <div class="card-body">
+                    <pre class="text-secondary"><code id="account-details"></code></pre>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
 {% block custom_javascript %}
     <!-- The core Firebase JS SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-auth.js"></script>
-    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="{{ url_for('static', filename='js/firebase-auth-github.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/firebase-auth-google.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/firebase-auth-microsoft.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/firebase-auth.js') }}"></script>
     <script>
-        /* Firebase configuracion */
-        var firebaseConfig = {
+        /* Firebase configuration */
+        const firebaseConfig = {
             apiKey: "{{ firebase_auth['apiKey'] }}",
             authDomain: "{{ firebase_auth['authDomain'] }}",
             databaseURL: "{{ firebase_auth['databaseURL'] }}",
@@ -66,16 +82,15 @@
             appId: "{{ firebase_auth['appId'] }}",
             measurementId: "{{ firebase_auth['measurementId'] }}"
         };
-        /* Al inicio */
-        $(document).ready(function() {
-            if (window.location.protocol == "https:" && firebaseConfig['apiKey'] != "") {
-                firebase.initializeApp(firebaseConfig); // Inicializar Firebase
-                initApp(); // Cargar eventos de la interfaz
-                $('#acceso_form_password_fields').hide();
+        /* Login with Google/Microsoft/GitHub or Username/Password */
+        window.onload = function() {
+            if (firebaseConfig['apiKey'] != "") {
+                firebase.initializeApp(firebaseConfig);
+                initApp();
             } else {
-                $('#firebase_content').hide(); // Ocultar autentificación por cuenta
-                $('#acceso_form_password_fields').show(); // Mostrar ingreso por e-mail y contraseña
+                document.getElementById('firebase').style.display = 'none';
+                document.getElementById('access-form-password').style.display = 'inline';
             }
-        });
+        };
     </script>
 {% endblock %}

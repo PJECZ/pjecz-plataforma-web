@@ -6,8 +6,12 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Bitácoras') %}
-        {{ topbar.button('Entradas/Salidas', url_for('entradas_salidas.list_active'), 'mdi:calendar-clock') }}
-        {{ topbar.button('Tareas', url_for('tareas.list_active'), 'mdi:washing-machine') }}
+        {% if current_user.can_view('ENTRADAS SALIDAS') %}
+            {{ topbar.button('Entradas/Salidas', url_for('entradas_salidas.list_active'), 'mdi:calendar-clock') }}
+        {% endif %}
+        {% if current_user.can_view('TAREAS') %}
+            {{ topbar.button('Tareas', url_for('tareas.list_active'), 'mdi:washing-machine') }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -18,7 +22,6 @@
                 <tr>
                     <th>Tiempos</th>
                     <th>Usuarios</th>
-                    <th>Módulos</th>
                     <th>Descripciones</th>
                 </tr>
             </thead>
@@ -46,7 +49,6 @@
             columns: [
                 { data: "creado" },
                 { data: "usuario" },
-                { data: "modulo" },
                 { data: "vinculo" }
             ],
             columnDefs: [
@@ -65,7 +67,7 @@
                     }
                 },
                 {
-                    targets: 3,
+                    targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '" target="_blank">' + data.descripcion + ' <span class="iconify" data-icon="mdi:open-in-new"></span></a>';

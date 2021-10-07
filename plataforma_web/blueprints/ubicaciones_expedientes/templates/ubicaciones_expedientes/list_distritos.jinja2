@@ -2,10 +2,10 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Ubicaciones de Expedientes - Departamentos{% endblock %}
+{% block title %}Ubicaciones de Expedientes - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Ubicaciones de Expedientes / Departamentos') %}
+    {% call topbar.page_buttons('Ubicaciones de Expedientes / Distritos') %}
         {{ topbar.button_previous('Ubicaciones de Expedientes', url_for('ubicaciones_expedientes.list_active')) }}
     {% endcall %}
 {% endblock %}
@@ -15,7 +15,7 @@
         <table class="table display nowrap">
             <thead>
                 <tr>
-                    <th>Departamentos</th>
+                    <th>Distritos</th>
                 </tr>
             </thead>
             <tbody>

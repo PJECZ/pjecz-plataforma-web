@@ -7,23 +7,24 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_string
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm, UbicacionExpedienteSearchAdminForm
 
-ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, template_folder="templates")
-
 MODULO = "UBICACIONES DE EXPEDIENTES"
+
+ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, template_folder="templates")
 
 
 @ubicaciones_expedientes.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -32,7 +33,7 @@ def before_request():
 def list_active():
     """Listado de Ubicaciones de Expedientes"""
     # Si es administrador ve todo
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         return render_template(
             "ubicaciones_expedientes/list_admin.jinja2",
             autoridad=None,
@@ -55,11 +56,11 @@ def list_active():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Ubicaciones de Expedientes inactivos"""
     # Si es administrador ve todo
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         return render_template(
             "ubicaciones_expedientes/list_admin.jinja2",
             autoridad=None,
@@ -105,7 +106,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_ubicaciones_expedientes(autoridad_id):
     """Listado de Ubicaciones de Expedientes activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         plantilla = "ubicaciones_expedientes/list_admin.jinja2"
     else:
         plantilla = "ubicaciones_expedientes/list.jinja2"
@@ -119,11 +120,11 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
     """Listado de Ubicaciones de Expedientes inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         plantilla = "ubicaciones_expedientes/list_admin.jinja2"
     else:
         plantilla = "ubicaciones_expedientes/list.jinja2"
@@ -139,7 +140,7 @@ def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Ubicacion de Expediente"""
-    if current_user.can_admin("ubicaciones_expedientes"):
+    if current_user.can_admin("UBICACIONES EXPEDIENTES"):
         puede_elegir_autoridad = True
     elif current_user.autoridad.es_jurisdiccional:
         puede_elegir_autoridad = False
@@ -239,7 +240,7 @@ def datatable_json():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para listado de ubicaciones de expedientes admin"""
     # Tomar parámetros de Datatables
@@ -294,7 +295,7 @@ def detail(ubicacion_expediente_id):
 def new_success(ubicacion_expediente):
     """Mensaje de éxito en nueva ubicación de expediente"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Nueva ubicación del expediente {ubicacion_expediente.expediente} en {ubicacion_expediente.ubicacion} de {ubicacion_expediente.autoridad.clave}"),
         url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
@@ -304,7 +305,7 @@ def new_success(ubicacion_expediente):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Ubicación de Expedientes como juzgado"""
 
@@ -354,7 +355,7 @@ def new():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_for_autoridad(autoridad_id):
     """Nuevo Ubicación de Expedientes para una autoridad dada"""
 
@@ -409,7 +410,7 @@ def new_for_autoridad(autoridad_id):
 def edit_success(ubicacion_expediente):
     """Mensaje de éxito al editar una ubicación de expediente"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Editada la ubicación del expediente {ubicacion_expediente.expediente} en {ubicacion_expediente.ubicacion} de {ubicacion_expediente.autoridad.clave}"),
         url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
@@ -419,13 +420,13 @@ def edit_success(ubicacion_expediente):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(ubicacion_expediente_id):
     """Editar Ubicación de Expedientes"""
 
     # Validar ubicación de expediente
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
-    if not (current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id):
+    if not (current_user.can_admin("UBICACIONES EXPEDIENTES") or current_user.autoridad_id == ubicacion_expediente.autoridad_id):
         flash("No tiene permiso para editar esta ubicación de expediente.", "warning")
         return redirect(url_for("ubicaciones_expedientes.list_active"))
 
@@ -458,7 +459,7 @@ def edit(ubicacion_expediente_id):
 def delete_success(ubicacion_expediente):
     """Mensaje de éxito al eliminar una ubicacion de expediente"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminada la ubicación del expediente {ubicacion_expediente.expediente} de {ubicacion_expediente.autoridad.clave}"),
         url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
@@ -468,12 +469,12 @@ def delete_success(ubicacion_expediente):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/eliminar/<int:ubicacion_expediente_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(ubicacion_expediente_id):
     """Eliminar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "A":
-        if current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
+        if current_user.can_admin("UBICACIONES EXPEDIENTES") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
             ubicacion_expediente.delete()
             bitacora = delete_success(ubicacion_expediente)
             flash(bitacora.descripcion, "success")
@@ -485,7 +486,7 @@ def delete(ubicacion_expediente_id):
 def recover_success(ubicacion_expediente):
     """Mensaje de éxito al recuperar una ubicacion de expediente"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperada la ubicación del expediente {ubicacion_expediente.expediente} de {ubicacion_expediente.autoridad.clave}"),
         url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
@@ -495,12 +496,12 @@ def recover_success(ubicacion_expediente):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/recuperar/<int:ubicacion_expediente_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(ubicacion_expediente_id):
     """Recuperar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
     if ubicacion_expediente.estatus == "B":
-        if current_user.can_admin("ubicaciones_expedientes") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
+        if current_user.can_admin("UBICACIONES EXPEDIENTES") or current_user.autoridad_id == ubicacion_expediente.autoridad_id:
             ubicacion_expediente.recover()
             bitacora = recover_success(ubicacion_expediente)
             flash(bitacora.descripcion, "success")

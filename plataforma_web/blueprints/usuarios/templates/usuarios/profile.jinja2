@@ -10,11 +10,11 @@
 
 {% block content %}
     {% call detail.card() %}
-        {# detail.label_value_big('Nombre', current_user.nombre) #}
-        {{ detail.label_value('Departamento', current_user.autoridad.distrito.nombre) }}
+        {{ detail.label_value_big('Nombre', current_user.nombre) }}
+        {{ detail.label_value('Distrito', current_user.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', current_user.autoridad.descripcion) }}
+        {{ detail.label_value('CURP', current_user.curp) }}
         {{ detail.label_value('e-mail', current_user.email) }}
-        {{ detail.label_value('Teléfono celular', current_user.telefono_celular) }}
-        {{ detail.label_value('Rol', current_user.rol.nombre) }}
+        {{ detail.label_value('Puesto', current_user.puesto) }}
     {% endcall %}
 {% endblock %}

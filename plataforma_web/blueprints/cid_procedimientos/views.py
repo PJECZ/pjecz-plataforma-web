@@ -5,22 +5,22 @@ from delta import html
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
+from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="templates")
 
-MODULO = "DOCUMENTACIONES"
+MODULO = "CID PROCEDIMIENTOS"
 
 
 @cid_procedimientos.before_request
 @login_required
-@permission_required(Permiso.VER_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -28,49 +28,45 @@ def before_request():
 @cid_procedimientos.route("/cid_procedimientos")
 def list_authorized():
     """Listado de Procedimientos autorizados"""
-    cid_procedimientos_autorizados = CIDProcedimiento.query.filter_by(seguimiento="AUTORIZADO").filter_by(estatus="A").order_by(CIDProcedimiento.codigo).limit(100).all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_autorizados,
-        estatus="A",
+        cid_procedimientos=CIDProcedimiento.query.filter_by(seguimiento="AUTORIZADO").filter_by(estatus="A").all(),
         titulo="Procedimientos autorizados",
+        estatus="A",
     )
 
 
 @cid_procedimientos.route("/cid_procedimientos/propios")
 def list_owned():
     """Listado de Procedimientos propios"""
-    cid_procedimientos_propios = CIDProcedimiento.query.filter(CIDProcedimiento.usuario == current_user).filter_by(estatus="A").order_by(CIDProcedimiento.codigo).limit(100).all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_propios,
-        estatus="A",
+        cid_procedimientos=CIDProcedimiento.query.filter(CIDProcedimiento.usuario == current_user).filter_by(estatus="A").all(),
         titulo="Procedimientos propios",
+        estatus="A",
     )
 
 
 @cid_procedimientos.route("/cid_procedimientos/activos")
 def list_active():
     """Listado de TODOS los Procedimientos activos"""
-    cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").order_by(CIDProcedimiento.id).limit(100).all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_activos,
-        estatus="A",
+        cid_procedimientos=CIDProcedimiento.query.filter_by(estatus="A").all(),
         titulo="Todos los procedimientos",
+        estatus="A",
     )
 
 
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de TODOS los Procedimientos inactivos"""
-    cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").order_by(CIDProcedimiento.id).limit(100).all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_inactivos,
-        estatus="B",
+        cid_procedimientos=CIDProcedimiento.query.filter_by(estatus="B").all(),
         titulo="Todos los procedimientos inactivos",
+        estatus="B",
     )
 
 
@@ -96,7 +92,7 @@ def detail(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo CID Procedimiento"""
     form = CIDProcedimientoForm()
@@ -142,7 +138,7 @@ def new():
 
 
 @cid_procedimientos.route("/cid_procedimientos/edicion/<int:cid_procedimiento_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cid_procedimiento_id):
     """Editar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -197,7 +193,7 @@ def edit(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/firmar/<int:cid_procedimiento_id>")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def sign_for_maker(cid_procedimiento_id):
     """Firmar por Elaborador"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -216,7 +212,7 @@ def sign_for_maker(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/aceptar_rechazar/<int:cid_procedimiento_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def accept_reject(cid_procedimiento_id):
     """Aceptar o Rechazar un Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -294,7 +290,7 @@ def accept_reject(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/eliminar/<int:cid_procedimiento_id>")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(cid_procedimiento_id):
     """Eliminar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -306,7 +302,7 @@ def delete(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/recuperar/<int:cid_procedimiento_id>")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(cid_procedimiento_id):
     """Recuperar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)

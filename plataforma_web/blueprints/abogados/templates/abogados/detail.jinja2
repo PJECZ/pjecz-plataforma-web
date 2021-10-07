@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Abogado registrado') %}
         {{ topbar.button_previous('Abogados registrados', url_for('abogados.list_active')) }}
-        {% if current_user.can_edit('abogados') %}
+        {% if current_user.can_edit("ABOGADOS") %}
             {{ topbar.button_edit('Editar', url_for('abogados.edit', abogado_id=abogado.id)) }}
             {% if abogado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('abogados.delete', abogado_id=abogado.id)) }}{% endif %}
             {% if abogado.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('abogados.recover', abogado_id=abogado.id)) }}{% endif %}
@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('abogados') %}
+    {% if current_user.can_edit("ABOGADOS") %}
         {% if abogado.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + abogado.nombre + '?') }}{% endif %}
         {% if abogado.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + abogado.nombre + '?') }}{% endif %}
     {% endif %}

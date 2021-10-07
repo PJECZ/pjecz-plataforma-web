@@ -14,15 +14,16 @@ from werkzeug.utils import secure_filename
 from lib import datatables
 from lib.safe_string import safe_message, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm, ListaDeAcuerdoSearchAdminForm
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.models import ListaDeAcuerdoAcuerdo
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
@@ -42,7 +43,7 @@ def checkout(id_hashed):
 
 @listas_de_acuerdos.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -51,7 +52,7 @@ def before_request():
 def list_active():
     """Listado de Listas de Acuerdos activas"""
     # Si es administrador ve todo
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         return render_template(
             "listas_de_acuerdos/list_admin.jinja2",
             autoridad=None,
@@ -74,11 +75,11 @@ def list_active():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Listas de Acuerdos inactivas"""
     # Si es administrador ve todo
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         return render_template(
             "listas_de_acuerdos/list_admin.jinja2",
             autoridad=None,
@@ -124,7 +125,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_listas_de_acuerdos(autoridad_id):
     """Listado de Listas de Acuerdos activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         plantilla = "listas_de_acuerdos/list_admin.jinja2"
     else:
         plantilla = "listas_de_acuerdos/list.jinja2"
@@ -138,11 +139,11 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
     """Listado de Listas de Acuerdos inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         plantilla = "listas_de_acuerdos/list_admin.jinja2"
     else:
         plantilla = "listas_de_acuerdos/list.jinja2"
@@ -158,7 +159,7 @@ def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
 @listas_de_acuerdos.route("/listas_de_acuerdos/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Lista de Acuerdos"""
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         puede_elegir_autoridad = True
     elif current_user.autoridad.es_jurisdiccional:
         puede_elegir_autoridad = False
@@ -292,7 +293,7 @@ def datatable_json_admin():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def refresh(autoridad_id):
     """Refrescar Listas de Acuerdos"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -314,7 +315,7 @@ def detail(lista_de_acuerdo_id):
     """Detalle de una Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     acuerdos = None  # Por lo pronto sólo los administradores ven los acuerdos
-    if current_user.can_admin("listas_de_acuerdos"):
+    if current_user.can_admin("LISTAS DE ACUERDOS"):
         acuerdos = ListaDeAcuerdoAcuerdo.query.filter(ListaDeAcuerdoAcuerdo.lista_de_acuerdo == lista_de_acuerdo).filter_by(estatus="A").all()
     return render_template("listas_de_acuerdos/detail.jinja2", lista_de_acuerdo=lista_de_acuerdo, acuerdos=acuerdos)
 
@@ -327,7 +328,7 @@ def new_success(lista_de_acuerdo, anterior_borrada):
         mensaje = "Nueva "
     mensaje = mensaje + f"lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(mensaje),
         url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
@@ -337,7 +338,7 @@ def new_success(lista_de_acuerdo, anterior_borrada):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Subir Lista de Acuerdos como juzgado"""
 
@@ -444,7 +445,7 @@ def new():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_autoridad(autoridad_id):
     """Subir Lista de Acuerdos para una autoridad dada"""
 
@@ -547,7 +548,7 @@ def new_for_autoridad(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def edit(lista_de_acuerdo_id):
     """Editar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
@@ -557,7 +558,7 @@ def edit(lista_de_acuerdo_id):
         lista_de_acuerdo.descripcion = safe_string(form.descripcion.data)
         lista_de_acuerdo.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
             url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
@@ -573,7 +574,7 @@ def edit(lista_de_acuerdo_id):
 def delete_success(lista_de_acuerdo):
     """Mensaje de éxito al eliminar una lista de acuerdos"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
         url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
@@ -583,12 +584,12 @@ def delete_success(lista_de_acuerdo):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/eliminar/<int:lista_de_acuerdo_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(lista_de_acuerdo_id):
     """Eliminar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
     if lista_de_acuerdo.estatus == "A":
-        if current_user.can_admin("listas_de_acuerdos"):
+        if current_user.can_admin("LISTAS DE ACUERDOS"):
             hoy = datetime.date.today()
             hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:
@@ -609,7 +610,7 @@ def delete(lista_de_acuerdo_id):
 def recover_success(lista_de_acuerdo):
     """Mensaje de éxito al recuperar una lista de acuerdos"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
         url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
@@ -619,7 +620,7 @@ def recover_success(lista_de_acuerdo):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/recuperar/<int:lista_de_acuerdo_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(lista_de_acuerdo_id):
     """Recuperar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
@@ -627,7 +628,7 @@ def recover(lista_de_acuerdo_id):
         if ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter(ListaDeAcuerdo.fecha == lista_de_acuerdo.fecha).filter_by(estatus="A").first():
             flash("No puede recuperar esta lista porque ya hay una activa de la misma fecha.", "warning")
         else:
-            if current_user.can_admin("listas_de_acuerdos"):
+            if current_user.can_admin("LISTAS DE ACUERDOS"):
                 hoy = datetime.date.today()
                 hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
                 if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:

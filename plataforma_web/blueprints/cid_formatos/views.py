@@ -4,22 +4,21 @@ CID Formatos, vistas
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.cid_formatos.forms import CIDFormatoForm
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
+from plataforma_web.blueprints.permisos.models import Permiso
 
 cid_formatos = Blueprint("cid_formatos", __name__, template_folder="templates")
 
-MODULO = "DOCUMENTACIONES"
+MODULO = "CID FORMATOS"
 
 
 @cid_formatos.before_request
 @login_required
-@permission_required(Permiso.VER_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -27,16 +26,24 @@ def before_request():
 @cid_formatos.route("/cid_formatos")
 def list_active():
     """Listado de CID Formatos activos"""
-    cid_formatos_activos = CIDFormato.query.filter_by(estatus="A").order_by(CIDFormato.creado.desc()).limit(100).all()
-    return render_template("cid_formatos/list.jinja2", cid_formatos=cid_formatos_activos, estatus="A")
+    return render_template(
+        "cid_formatos/list.jinja2",
+        cid_formatos=CIDFormato.query.filter_by(estatus="A").all(),
+        titulo="Formatos",
+        estatus="A",
+    )
 
 
 @cid_formatos.route("/cid_formatos/inactivos")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de CID Formatos inactivos"""
-    cid_formatos_inactivos = CIDFormato.query.filter_by(estatus="B").order_by(CIDFormato.creado.desc()).limit(100).all()
-    return render_template("cid_formatos/list.jinja2", cid_formatos=cid_formatos_inactivos, estatus="B")
+    return render_template(
+        "cid_formatos/list.jinja2",
+        cid_formatos=CIDFormato.query.filter_by(estatus="B").all(),
+        titulo="Formatos inactivos",
+        estatus="B",
+    )
 
 
 @cid_formatos.route("/cid_formatos/<int:cid_formato_id>")
@@ -47,7 +54,7 @@ def detail(cid_formato_id):
 
 
 @cid_formatos.route("/cid_formatos/nuevo/<int:cid_procedimiento_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.CREAR)
 def new(cid_procedimiento_id):
     """Nuevo CID Formato"""
 
@@ -79,7 +86,7 @@ def new(cid_procedimiento_id):
 
 
 @cid_formatos.route("/cid_formatos/edicion/<int:cid_formato_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cid_formato_id):
     """Editar CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
@@ -105,7 +112,7 @@ def edit(cid_formato_id):
 
 
 @cid_formatos.route("/cid_formatos/eliminar/<int:cid_formato_id>")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(cid_formato_id):
     """Eliminar CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
@@ -116,7 +123,7 @@ def delete(cid_formato_id):
 
 
 @cid_formatos.route("/cid_formatos/recuperar/<int:cid_formato_id>")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(cid_formato_id):
     """Recuperar CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)

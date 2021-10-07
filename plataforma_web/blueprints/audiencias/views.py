@@ -8,14 +8,15 @@ from flask_login import current_user, login_required
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_string
 from lib.time_utc import combine_to_utc, decombine_to_local, join_for_message
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
+from plataforma_web.blueprints.audiencias.models import Audiencia
+from plataforma_web.blueprints.audiencias.forms import AudienciaGenericaForm, AudienciaMapoForm, AudienciaDipeForm, AudienciaSapeForm
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
-from plataforma_web.blueprints.audiencias.models import Audiencia
-from plataforma_web.blueprints.audiencias.forms import AudienciaGenericaForm, AudienciaMapoForm, AudienciaDipeForm, AudienciaSapeForm
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 
 audiencias = Blueprint("audiencias", __name__, template_folder="templates")
 
@@ -39,7 +40,7 @@ def plantilla_por_categoria(categoria: str, prefijo: str = "list_", sufijo: str 
 
 @audiencias.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -48,7 +49,7 @@ def before_request():
 def list_active():
     """Listado de Audiencias activos"""
     # Si es administrador ve todo
-    if current_user.can_admin("audiencias"):
+    if current_user.can_admin("AUDIENCIAS"):
         return render_template(
             "audiencias/list_admin.jinja2",
             autoridad=None,
@@ -71,11 +72,11 @@ def list_active():
 
 
 @audiencias.route("/audiencias/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Audiencias inactivos"""
     # Si es administrador ve todo
-    if current_user.can_admin("audiencias"):
+    if current_user.can_admin("AUDIENCIAS"):
         return render_template(
             "audiencias/list_admin.jinja2",
             autoridad=None,
@@ -121,7 +122,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_audiencias(autoridad_id):
     """Listado de Audiencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("audiencias"):
+    if current_user.can_admin("AUDIENCIAS"):
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="_admin", por_defecto="list_admin")
     else:
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list")
@@ -135,11 +136,11 @@ def list_autoridad_audiencias(autoridad_id):
 
 
 @audiencias.route("/audiencias/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_audiencias_inactive(autoridad_id):
     """Listado de Audiencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("audiencias"):
+    if current_user.can_admin("AUDIENCIAS"):
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, sufijo="_admin", por_defecto="list_admin")
     else:
         plantilla = plantilla_por_categoria(autoridad.audiencia_categoria, por_defecto="list")
@@ -250,7 +251,7 @@ def detail(audiencia_id):
 
 
 @audiencias.route("/audiencias/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Audiencia"""
     autoridad = current_user.autoridad
@@ -270,7 +271,7 @@ def new():
 
 
 @audiencias.route("/audiencias/nuevo/generica", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_generica():
     """Nueva Audiencia Materias CIVIL FAMILIAR MERCANTIL LETRADO TCYA"""
 
@@ -320,7 +321,7 @@ def new_generica():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva audiencia en {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -336,7 +337,7 @@ def new_generica():
 
 
 @audiencias.route("/audiencias/nuevo/mapo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_mapo():
     """Nueva Audiencia MATERIA ACUSATORIO PENAL ORAL"""
 
@@ -380,7 +381,7 @@ def new_mapo():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva audiencia en {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -396,7 +397,7 @@ def new_mapo():
 
 
 @audiencias.route("/audiencias/nuevo/dipe", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_dipe():
     """Nueva Audiencia DISTRITALES"""
 
@@ -449,7 +450,7 @@ def new_dipe():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva audiencia en {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -465,7 +466,7 @@ def new_dipe():
 
 
 @audiencias.route("/audiencias/nuevo/sape", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_sape():
     """Nueva Audiencia SALAS"""
 
@@ -519,7 +520,7 @@ def new_sape():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva audiencia en {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -535,7 +536,7 @@ def new_sape():
 
 
 @audiencias.route("/audiencias/edicion/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(audiencia_id):
     """Editar Audiencia"""
 
@@ -562,13 +563,13 @@ def edit(audiencia_id):
 
 
 @audiencias.route("/audiencias/edicion/generica/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_generica(audiencia_id):
     """Editar Audiencia CIVIL FAMILIAR MERCANTIL LETRADO TCYA"""
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
+    if not (current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -615,7 +616,7 @@ def edit_generica(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la audiencia de {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -638,13 +639,13 @@ def edit_generica(audiencia_id):
 
 
 @audiencias.route("/audiencias/edicion/mapo/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_mapo(audiencia_id):
     """Editar Audiencia MATERIA ACUSATORIO PENAL ORAL"""
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
+    if not (current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -685,7 +686,7 @@ def edit_mapo(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la audiencia de {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -709,13 +710,13 @@ def edit_mapo(audiencia_id):
 
 
 @audiencias.route("/audiencias/edicion/dipe/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_dipe(audiencia_id):
     """Editar Audiencia DISTRITALES"""
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
+    if not (current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -765,7 +766,7 @@ def edit_dipe(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la audiencia de {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -791,13 +792,13 @@ def edit_dipe(audiencia_id):
 
 
 @audiencias.route("/audiencias/edicion/sape/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_sape(audiencia_id):
     """Editar Audiencia SALAS"""
 
     # Validar audiencia
     audiencia = Audiencia.query.get_or_404(audiencia_id)
-    if not (current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id):
+    if not (current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id):
         flash("No tiene permiso para editar esta audiencia.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -848,7 +849,7 @@ def edit_sape(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la audiencia de {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -875,15 +876,15 @@ def edit_sape(audiencia_id):
 
 
 @audiencias.route("/audiencias/eliminar/<int:audiencia_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(audiencia_id):
     """Eliminar Audiencia"""
     audiencia = Audiencia.query.get_or_404(audiencia_id)
     if audiencia.estatus == "A":
-        if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
+        if current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id:
             audiencia.delete()
             bitacora = Bitacora(
-                modulo=MODULO,
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
                 descripcion=safe_message("Eliminada la audiencia"),
                 url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -896,15 +897,15 @@ def delete(audiencia_id):
 
 
 @audiencias.route("/audiencias/recuperar/<int:audiencia_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(audiencia_id):
     """Recuperar Audiencia"""
     audiencia = Audiencia.query.get_or_404(audiencia_id)
     if audiencia.estatus == "B":
-        if current_user.can_admin("audiencias") or current_user.autoridad_id == audiencia.autoridad_id:
+        if current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id:
             audiencia.recover()
             bitacora = Bitacora(
-                modulo=MODULO,
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
                 descripcion=safe_message("Recuperada la audiencia"),
                 url=url_for("audiencias.detail", audiencia_id=audiencia.id),

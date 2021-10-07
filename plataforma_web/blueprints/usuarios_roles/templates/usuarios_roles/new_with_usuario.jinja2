@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Agregar rol al usuario{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'usuario_id': usuario.id} %}
+        {% call f.form_tag('usuarios_roles.new_with_usuario', fid='usuario_rol_form', **form_kwargs) %}
+            {% call f.form_group(form.rol) %}{% endcall %}
+            {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

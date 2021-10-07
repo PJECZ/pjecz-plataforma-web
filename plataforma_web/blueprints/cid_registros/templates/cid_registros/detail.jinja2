@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Registro ' + cid_registro.descripcion) %}
         {{ topbar.button_previous('Registros', url_for('cid_registros.list_active')) }}
-        {% if current_user.can_edit('cid_registros') %}
+        {% if current_user.can_edit('CID REGISTROS') %}
             {{ topbar.button_edit('Editar', url_for('cid_registros.edit', cid_registro_id=cid_registro.id)) }}
             {% if registro.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_registros.delete', cid_registro_id=cid_registro.id)) }}{% endif %}
             {% if registro.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_registros.recover', cid_registro_id=cid_registro.id)) }}{% endif %}
@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('cid_registros') %}
+    {% if current_user.can_edit('CID REGISTROS') %}
         {% if registro.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_registro.descripcion + '?') }}{% endif %}
         {% if registro.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + cid_registro.descripcion + '?') }}{% endif %}
     {% endif %}

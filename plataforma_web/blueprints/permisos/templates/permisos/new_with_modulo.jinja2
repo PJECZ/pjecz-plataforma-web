@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Agregar permiso al módulo{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'modulo_id': modulo.id} %}
+        {% call f.form_tag('permisos.new_with_modulo', fid='permiso_form', **form_kwargs) %}
+            {% call f.form_group(form.modulo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.rol) %}{% endcall %}
+            {% call f.form_group(form.nivel) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

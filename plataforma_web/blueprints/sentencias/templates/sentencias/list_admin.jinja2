@@ -6,20 +6,20 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button_districts('Departamentos', url_for('sentencias.list_distritos')) }}
+        {{ topbar.button_districts('Distritos', url_for('sentencias.list_distritos')) }}
         {% if autoridad %}
-            {% if current_user.can_admin('sentencias') %}
+            {% if current_user.can_admin('SENTENCIAS') %}
                 {{ topbar.button_upload('Subir', url_for('sentencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
             {% endif %}
-            {% if current_user.can_edit('sentencias') %}
+            {% if current_user.can_edit('SENTENCIAS') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('sentencias.list_autoridad_sentencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}{% endif %}
             {% endif %}
-            {# if current_user.can_insert('tareas') #}
+            {# if current_user.can_insert('TAREAS') #}
                 {# topbar.button_refresh('Refrescar', url_for('sentencias.refresh', autoridad_id=autoridad.id)) #}
             {# endif #}
         {% else %}
-            {% if current_user.can_edit('sentencias') %}
+            {% if current_user.can_edit('SENTENCIAS') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('sentencias.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('sentencias.list_active')) }}{% endif %}
             {% endif %}

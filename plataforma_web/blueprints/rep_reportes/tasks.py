@@ -8,8 +8,9 @@ import logging
 from lib.tasks import set_task_progress, set_task_error
 
 from plataforma_web.app import create_app
-from plataforma_web.blueprints.modulos.models import Modulo
+
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
 

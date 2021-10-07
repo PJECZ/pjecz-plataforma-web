@@ -2,10 +2,10 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Listas de Acuerdos - Departamentos{% endblock %}
+{% block title %}Listas de Acuerdos - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Listas de Acuerdos / Departamentos') %}
+    {% call topbar.page_buttons('Listas de Acuerdos / Distritos') %}
         {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
     {% endcall %}
 {% endblock %}
@@ -15,7 +15,7 @@
         <table class="table display nowrap">
             <thead>
                 <tr>
-                    <th>Departamentos</th>
+                    <th>Distritos</th>
                 </tr>
             </thead>
             <tbody>

@@ -5,17 +5,15 @@
 {% block title %}Autoridades{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Autoridades' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Autoridades inactivas' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
-        {{ topbar.button_districts('Departamentos', url_for('distritos.list_active')) }}
-        {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
-        {{ topbar.button('Tipos de Juicios', url_for('materias_tipos_juicios.list_active'), 'mdi:label') }}
-        {% if current_user.can_edit('autoridades') %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('DISTRITOS') %}
+            {{ topbar.button_districts('Distritos', url_for('distritos.list_active')) }}
+        {% endif %}
+        {% if current_user.can_edit('AUTORIDADES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('autoridades.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('autoridades.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('autoridades') %}
+        {% if current_user.can_insert('AUTORIDADES') %}
             {{ topbar.button_new('Nueva Autoridad', url_for('autoridades.new')) }}
         {% endif %}
     {% endcall %}
@@ -27,20 +25,20 @@
             <thead>
                 <tr>
                     <th>Claves</th>
-                    <th>Departamentos</th>
+                    <th>Distritos</th>
                     <th>Descripciones</th>
                     <th>Desc. cortas</th>
                 </tr>
             </thead>
             <tbody>
-                {% for autoridad in autoridades %}
+            {% for autoridad in autoridades %}
                 <tr>
                     <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
                     <td>{{ autoridad.distrito.nombre_corto }}</td>
                     <td>{{ autoridad.descripcion }}</td>
                     <td>{{ autoridad.descripcion_corta }}</td>
                 </tr>
-                {% endfor %}
+            {% endfor %}
             </tbody>
         </table>
     {% endcall %}

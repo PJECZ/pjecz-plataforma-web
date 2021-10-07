@@ -7,7 +7,7 @@ from wtforms.validators import DataRequired, Length, Optional
 
 
 class DistritoForm(FlaskForm):
-    """ Formulario Distrito """
+    """Formulario Distrito"""
 
     nombre = StringField("Nombre", validators=[DataRequired(), Length(max=256)])
     nombre_corto = StringField("Nombre corto", validators=[Optional(), Length(max=64)])

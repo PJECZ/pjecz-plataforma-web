@@ -1,6 +1,20 @@
 {
     "versiones": [
         {
+            "numero": "2.1",
+            "fecha": "2021-10-07",
+            "novedades": [
+                {
+                    "titulo": "Acceso con cuentas de Google, Microsoft y GitHub",
+                    "descripcion": "La entrada al sistema no requiere contraseña. Se basa en la autentificación previa de su cuenta de correo electrónico. Al uso de cuentas institucionales PJECZ y de GMail se suman las de Microsoft como hotmail.com, coahuila.gob.mx, etc. y las de GitHub."
+                },
+                {
+                    "titulo": "Reestructuración en módulos, roles, permisos y usuarios",
+                    "descripcion": "Ahora un usuario puede pertenecer a varios roles. Gracias a esto se mejora la administración de privilegios y la capacidad de agregar más funcionalidades a Plataforma Web."
+                }
+            ]
+        },
+        {
             "numero": "1.3",
             "fecha": "2021-08-19",
             "novedades": [

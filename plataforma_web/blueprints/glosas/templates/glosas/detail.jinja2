@@ -7,17 +7,17 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Glosa') %}
-        {% if current_user.can_admin('glosas') %}
+        {% if current_user.can_admin('GLOSAS') %}
             {{ topbar.button_previous('Glosas de ' + glosa.autoridad.clave, url_for('glosas.list_autoridad_glosas', autoridad_id=glosa.autoridad_id)) }}
         {% else %}
             {{ topbar.button_previous('Glosas', url_for('glosas.list_active')) }}
         {% endif %}
-        {% if current_user.can_admin('glosas') %}
+        {% if current_user.can_admin('GLOSAS') %}
             {{ topbar.button_upload('Subir', url_for('glosas.new_for_autoridad', autoridad_id=glosa.autoridad_id)) }}
-        {% elif current_user.can_insert('glosas') and current_user.autoridad_id == glosa.autoridad_id %}
+        {% elif current_user.can_insert('GLOSAS') and current_user.autoridad_id == glosa.autoridad_id %}
             {{ topbar.button_upload('Subir', url_for('glosas.new')) }}
         {% endif %}
-        {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
+        {% if current_user.can_admin('GLOSAS') or (current_user.can_edit('GLOSAS') and glosa.autoridad_id == current_user.autoridad_id) %}
             {{ topbar.button_edit('Editar', url_for('glosas.edit', glosa_id=glosa.id)) }}
             {% if glosa.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('glosas.delete', glosa_id=glosa.id)) }}{% endif %}
             {% if glosa.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('glosas.recover', glosa_id=glosa.id)) }}{% endif %}
@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_admin('glosas') or (current_user.can_edit('glosas') and glosa.autoridad_id == current_user.autoridad_id) %}
+    {% if current_user.can_admin('GLOSAS') or (current_user.can_edit('GLOSAS') and glosa.autoridad_id == current_user.autoridad_id) %}
         {% if glosa.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + glosa.descripcion + '?') }}{% endif %}
         {% if glosa.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + glosa.descripcion + '?') }}{% endif %}
     {% endif %}
