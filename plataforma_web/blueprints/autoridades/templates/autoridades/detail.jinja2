@@ -17,6 +17,42 @@
 {% endblock %}
 
 {% block content %}
+    {# Tarjetas #}
+    <div id="tarjetas" class="row">
+        {% if autoridad.audiencia_categoria != "NO DEFINIDO" %}
+        <div id="autoridades_audiencias_container" class="col-md-6 mb-2">
+            <div id="autoridades_audiencias_spinner">
+                <h5>Agenda de Audiencias</h5>
+                <p class="card-text"><span class="spinner-border" role="status"></span></p>
+            </div>
+        </div>
+        {% endif %}
+        {% if autoridad.directorio_edictos != "" %}
+        <div id="autoridades_edictos_container" class="col-md-6 mb-2">
+            <div id="autoridades_edictos_spinner">
+                <h5>Edictos</h5>
+                <p class="card-text"><span class="spinner-border" role="status"></span></p>
+            </div>
+        </div>
+        {% endif %}
+        {% if autoridad.directorio_listas_de_acuerdos != "" %}
+        <div id="autoridades_listas_de_acuerdos_container" class="col-md-6 mb-2">
+            <div id="autoridades_listas_de_acuerdos_spinner">
+                <h5>Listas de Acuerdos</h5>
+                <p><span class="spinner-border" role="status"></span></p>
+            </div>
+        </div>
+        {% endif %}
+        {% if autoridad.directorio_sentencias != "" %}
+        <div id="autoridades_sentencias_container" class="col-md-6 mb-2">
+            <div id="autoridades_sentencias_spinner">
+                <h5>Sentencias</h5>
+                <p><span class="spinner-border" role="status"></span></p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {# Detalles #}
     {% call detail.card(estatus=autoridad.estatus) %}
         {{ detail.label_value_big('Descripción', autoridad.descripcion) }}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
@@ -25,6 +61,7 @@
         {{ detail.label_value_boolean('Es Jurisdiccional', autoridad.es_jurisdiccional) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
+    {# Usuarios de la autoridad #}
     {% if current_user.can_view('USUARIOS') %}
         {% call detail.card('Usuarios') %}
             <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
@@ -60,4 +97,25 @@
         {{ detail.datatable('usuarios_datatable') }}
     {% endif %}
     {{ detail.moment_js(moment) }}
+    <!-- Obtener informacion para las tarjetas -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_audiencias.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_edictos.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_listas_de_acuerdos.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_sentencias.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% if autoridad.audiencia_categoria != "NO DEFINIDO" %}
+            obtener_autoridades_audiencias('/autoridades/{{ autoridad.id }}/audiencias_json', '#autoridades_audiencias_container', '#autoridades_audiencias_spinner');
+            {% endif %}
+            {% if autoridad.directorio_edictos != "" %}
+            obtener_autoridades_edictos('/autoridades/{{ autoridad.id }}/edictos_json', '#autoridades_edictos_container', '#autoridades_edictos_spinner');
+            {% endif %}
+            {% if autoridad.directorio_listas_de_acuerdos != "" %}
+            obtener_autoridades_listas_de_acuerdos('/autoridades/{{ autoridad.id }}/listas_de_acuerdos_json', '#autoridades_listas_de_acuerdos_container', '#autoridades_listas_de_acuerdos_spinner');
+            {% endif %}
+            {% if autoridad.directorio_sentencias != "" %}
+            obtener_autoridades_sentencias('/autoridades/{{ autoridad.id }}/sentencias_json', '#autoridades_sentencias_container', '#autoridades_sentencias_spinner');
+            {% endif %}
+        });
+    </script>
 {% endblock %}
