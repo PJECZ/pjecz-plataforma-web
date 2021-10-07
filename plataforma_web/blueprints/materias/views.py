@@ -13,6 +13,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias.forms import MateriaForm
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
 materias = Blueprint("materias", __name__, template_folder="templates")
@@ -71,7 +72,7 @@ def new():
         materia = Materia(nombre=safe_string(form.nombre.data))
         materia.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva materia {materia.nombre}"),
             url=url_for("materias.detail", materia_id=materia.id),
@@ -92,7 +93,7 @@ def edit(materia_id):
         materia.nombre = safe_string(form.nombre.data)
         materia.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada materia {materia.nombre}"),
             url=url_for("materias.detail", materia_id=materia.id),
@@ -112,7 +113,7 @@ def delete(materia_id):
     if materia.estatus == "A":
         materia.delete()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Eliminada materia {materia.nombre}"),
             url=url_for("materias.detail", materia_id=materia.id),
@@ -130,7 +131,7 @@ def recover(materia_id):
     if materia.estatus == "B":
         materia.recover()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Recuperada materia {materia.nombre}"),
             url=url_for("materias.detail", materia_id=materia.id),

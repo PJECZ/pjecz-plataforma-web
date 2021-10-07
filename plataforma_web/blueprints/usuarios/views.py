@@ -23,8 +23,8 @@ from plataforma_web.extensions import pwd_context
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
-from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew, UsuarioFormEdit
 from plataforma_web.blueprints.usuarios.models import Usuario
 

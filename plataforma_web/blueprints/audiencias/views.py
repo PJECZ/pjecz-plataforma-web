@@ -15,6 +15,7 @@ from plataforma_web.blueprints.audiencias.forms import AudienciaGenericaForm, Au
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
 audiencias = Blueprint("audiencias", __name__, template_folder="templates")
@@ -320,7 +321,7 @@ def new_generica():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva audiencia en {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -380,7 +381,7 @@ def new_mapo():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva audiencia en {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -449,7 +450,7 @@ def new_dipe():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva audiencia en {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -519,7 +520,7 @@ def new_sape():
 
         # Mostrar mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva audiencia en {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -615,7 +616,7 @@ def edit_generica(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la audiencia de {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -685,7 +686,7 @@ def edit_mapo(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la audiencia de {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -765,7 +766,7 @@ def edit_dipe(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la audiencia de {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -848,7 +849,7 @@ def edit_sape(audiencia_id):
 
         # Registrar en bitácora e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada la audiencia de {autoridad.clave} para {tiempo_mensaje}"),
             url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -883,7 +884,7 @@ def delete(audiencia_id):
         if current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id:
             audiencia.delete()
             bitacora = Bitacora(
-                modulo=MODULO,
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
                 descripcion=safe_message("Eliminada la audiencia"),
                 url=url_for("audiencias.detail", audiencia_id=audiencia.id),
@@ -904,7 +905,7 @@ def recover(audiencia_id):
         if current_user.can_admin("AUDIENCIAS") or current_user.autoridad_id == audiencia.autoridad_id:
             audiencia.recover()
             bitacora = Bitacora(
-                modulo=MODULO,
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
                 descripcion=safe_message("Recuperada la audiencia"),
                 url=url_for("audiencias.detail", audiencia_id=audiencia.id),

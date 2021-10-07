@@ -250,7 +250,7 @@
 		"prefix": "fviews_bitacora_save",
 		"body": [
 			"bitacora = Bitacora(",
-			"\tmodulo=MODULO,",
+			"\tmodulo=Modulo.query.filter_by(nombre=MODULO).first(),",
 			"\tusuario=current_user,",
 			"\tdescripcion=safe_message('${1:Nuevo/Editado/Eliminado/Recuperado} registro con...'),",
 			"\turl=url_for('${2:blueprint}.detail', ${3:column_id}=${4:instance}.id),",

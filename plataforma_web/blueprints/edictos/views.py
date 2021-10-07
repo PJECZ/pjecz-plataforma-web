@@ -21,6 +21,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm, EdictoSearchAdminForm
 from plataforma_web.blueprints.edictos.models import Edicto
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
@@ -379,7 +380,7 @@ def new_success(edicto):
         piezas.append(f"número {edicto.numero_publicacion},")
     piezas.append(f"fecha {edicto.fecha.strftime('%Y-%m-%d')} de {edicto.autoridad.clave}")
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(" ".join(piezas)),
         url=url_for("edictos.detail", edicto_id=edicto.id),
@@ -628,7 +629,7 @@ def edit_success(edicto):
         piezas.append(f"número {edicto.numero_publicacion},")
     piezas.append(f"fecha {edicto.fecha.strftime('%Y-%m-%d')} de {edicto.autoridad.clave}")
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(" ".join(piezas)),
         url=url_for("edictos.detail", edicto_id=edicto.id),
@@ -689,7 +690,7 @@ def edit(edicto_id):
 def delete_success(edicto):
     """Mensaje de éxito al eliminar un edicto"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminado edicto de {edicto.autoridad.clave}"),
         url=url_for("edictos.detail", edicto_id=edicto.id),
@@ -728,7 +729,7 @@ def delete(edicto_id):
 def recover_success(edicto):
     """Mensaje de éxito al recuperar un edicto"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperado edicto de {edicto.autoridad.clave}"),
         url=url_for("edictos.detail", edicto_id=edicto.id),

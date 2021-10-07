@@ -21,6 +21,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.glosas.forms import GlosaEditForm, GlosaNewForm, GlosaSearchForm, GlosaSearchAdminForm
 from plataforma_web.blueprints.glosas.models import Glosa
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
 glosas = Blueprint("glosas", __name__, template_folder="templates")
@@ -360,7 +361,7 @@ def detail(glosa_id):
 def new_success(glosa):
     """Mensaje de éxito en nueva glosa"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Nueva glosa con fecha {glosa.fecha}, tipo {glosa.tipo_juicio} y expediente {glosa.expediente}"),
         url=url_for("glosas.detail", glosa_id=glosa.id),
@@ -581,7 +582,7 @@ def new_for_autoridad(autoridad_id):
 def edit_success(glosa):
     """Mensaje de éxito al editar una glosa"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Editada glosa con fecha {glosa.fecha}, tipo {glosa.tipo_juicio} y expediente {glosa.expediente}"),
         url=url_for("glosas.detail", glosa_id=glosa.id),
@@ -624,7 +625,7 @@ def edit(glosa_id):
 def delete_success(glosa):
     """Mensaje de éxito al eliminar una glosa"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminada glosa con fecha {glosa.fecha}, tipo {glosa.tipo_juicio} y expediente {glosa.expediente}"),
         url=url_for("glosas.detail", glosa_id=glosa.id),
@@ -663,7 +664,7 @@ def delete(glosa_id):
 def recover_success(glosa):
     """Mensaje de éxito al recuperar una glosa"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperada glosa con fecha {glosa.fecha}, tipo {glosa.tipo_juicio} y expediente {glosa.expediente}"),
         url=url_for("glosas.detail", glosa_id=glosa.id),

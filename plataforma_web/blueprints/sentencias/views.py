@@ -21,6 +21,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.sentencias.forms import SentenciaNewForm, SentenciaEditForm, SentenciaSearchForm, SentenciaSearchAdminForm
 from plataforma_web.blueprints.sentencias.models import Sentencia
@@ -372,7 +373,7 @@ def detail(sentencia_id):
 def new_success(sentencia):
     """Mensaje de éxito en nueva sentencia"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Nueva sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
         url=url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -700,7 +701,7 @@ def edit(sentencia_id):
         if es_valido:
             sentencia.save()
             bitacora = Bitacora(
-                modulo=MODULO,
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
                 descripcion=safe_message(f"Editada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
                 url=url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -727,7 +728,7 @@ def edit(sentencia_id):
 def delete_success(sentencia):
     """Mensaje de éxito al eliminar una sentencia"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
         url=url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -766,7 +767,7 @@ def delete(sentencia_id):
 def recover_success(sentencia):
     """Mensaje de éxito al recuperar una sentencia"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
         url=url_for("sentencias.detail", sentencia_id=sentencia.id),

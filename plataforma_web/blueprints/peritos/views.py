@@ -13,6 +13,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.peritos.models import Perito
 from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
 peritos = Blueprint("peritos", __name__, template_folder="templates")
@@ -140,7 +141,7 @@ def new():
         )
         perito.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nuevo perito {perito.nombre}, tipo {perito.tipo} en {perito.distrito.nombre}"),
             url=url_for("peritos.detail", perito_id=perito.id),
@@ -169,7 +170,7 @@ def edit(perito_id):
         perito.notas = safe_string(form.notas.data)
         perito.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editado perito {perito.nombre} de {perito.distrito.nombre}"),
             url=url_for("peritos.detail", perito_id=perito.id),
@@ -197,7 +198,7 @@ def delete(perito_id):
     if perito.estatus == "A":
         perito.delete()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Eliminado perito {perito.nombre} de {perito.distrito.nombre}"),
             url=url_for("peritos.detail", perito_id=perito.id),
@@ -215,7 +216,7 @@ def recover(perito_id):
     if perito.estatus == "B":
         perito.recover()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Recuperado perito {perito.nombre} de {perito.distrito.nombre}"),
             url=url_for("peritos.detail", perito_id=perito.id),

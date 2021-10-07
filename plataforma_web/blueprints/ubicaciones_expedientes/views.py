@@ -12,6 +12,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm, UbicacionExpedienteSearchAdminForm
@@ -294,7 +295,7 @@ def detail(ubicacion_expediente_id):
 def new_success(ubicacion_expediente):
     """Mensaje de éxito en nueva ubicación de expediente"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Nueva ubicación del expediente {ubicacion_expediente.expediente} en {ubicacion_expediente.ubicacion} de {ubicacion_expediente.autoridad.clave}"),
         url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
@@ -409,7 +410,7 @@ def new_for_autoridad(autoridad_id):
 def edit_success(ubicacion_expediente):
     """Mensaje de éxito al editar una ubicación de expediente"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Editada la ubicación del expediente {ubicacion_expediente.expediente} en {ubicacion_expediente.ubicacion} de {ubicacion_expediente.autoridad.clave}"),
         url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
@@ -458,7 +459,7 @@ def edit(ubicacion_expediente_id):
 def delete_success(ubicacion_expediente):
     """Mensaje de éxito al eliminar una ubicacion de expediente"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminada la ubicación del expediente {ubicacion_expediente.expediente} de {ubicacion_expediente.autoridad.clave}"),
         url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),
@@ -485,7 +486,7 @@ def delete(ubicacion_expediente_id):
 def recover_success(ubicacion_expediente):
     """Mensaje de éxito al recuperar una ubicacion de expediente"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperada la ubicación del expediente {ubicacion_expediente.expediente} de {ubicacion_expediente.autoridad.clave}"),
         url=url_for("ubicaciones_expedientes.detail", ubicacion_expediente_id=ubicacion_expediente.id),

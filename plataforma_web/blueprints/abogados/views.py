@@ -12,6 +12,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.abogados.models import Abogado
 from plataforma_web.blueprints.abogados.forms import AbogadoForm, AbogadoSearchForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
 abogados = Blueprint("abogados", __name__, template_folder="templates")
@@ -148,7 +149,7 @@ def new():
         )
         abogado.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nuevo abogado registrado {abogado.nombre} con número {abogado.numero}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),
@@ -172,7 +173,7 @@ def edit(abogado_id):
         abogado.fecha = form.fecha.data
         abogado.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editado abogado registrado {abogado.nombre}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),
@@ -195,7 +196,7 @@ def delete(abogado_id):
     if abogado.estatus == "A":
         abogado.delete()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Eliminado abogado registrado {abogado.nombre}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),
@@ -213,7 +214,7 @@ def recover(abogado_id):
     if abogado.estatus == "B":
         abogado.recover()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Recuperado abogado registrado {abogado.nombre}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),

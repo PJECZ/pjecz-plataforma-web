@@ -10,6 +10,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.materias_tipos_juicios.forms import MateriaTipoJuicioForm
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
 materias_tipos_juicios = Blueprint("materias_tipos_juicios", __name__, template_folder="templates")
@@ -69,7 +70,7 @@ def new():
         )
         materia_tipo_juicio.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nuevo Tipo de Juicio {materia_tipo_juicio.descripcion} en {materia_tipo_juicio.materia.nombre}"),
             url=url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id),
@@ -91,7 +92,7 @@ def edit(materia_tipo_juicio_id):
         materia_tipo_juicio.descripcion = safe_string(form.descripcion.data)
         materia_tipo_juicio.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editado el tipo de juicio {materia_tipo_juicio.descripcion} en {materia_tipo_juicio.materia.nombre}"),
             url=url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id),
@@ -112,7 +113,7 @@ def delete(materia_tipo_juicio_id):
     if materia_tipo_juicio.estatus == "A":
         materia_tipo_juicio.delete()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Eliminado el tipo de juicio {materia_tipo_juicio.descripcion} de {materia_tipo_juicio.materia.nombre}"),
             url=url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id),
@@ -130,7 +131,7 @@ def recover(materia_tipo_juicio_id):
     if materia_tipo_juicio.estatus == "B":
         materia_tipo_juicio.recover()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Recuperado el tipo de juicio {materia_tipo_juicio.descripcion} de {materia_tipo_juicio.materia.nombre}"),
             url=url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id),
