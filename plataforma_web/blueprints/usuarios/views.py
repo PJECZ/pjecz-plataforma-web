@@ -90,7 +90,7 @@ def login():
                     flash("No está activa esa cuenta", "warning")
             else:
                 flash("Usuario o contraseña incorrectos.", "warning")
-    return render_template("usuarios/login.jinja2", form=form, firebase_auth=firebase_auth, title="Turnos")
+    return render_template("usuarios/login.jinja2", form=form, firebase_auth=firebase_auth, title="Plataforma Web")
 
 
 @usuarios.route("/logout")
