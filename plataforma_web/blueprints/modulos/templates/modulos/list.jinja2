@@ -5,32 +5,46 @@
 {% block title %}Modulos{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Modulos' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Modulos inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
-        {{ topbar.button('Gráficas', url_for('rep_graficas.list_active'), 'mdi:puzzle') }}
-        {% if current_user.can_edit('modulos') %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('ROLES') %}
+            {{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}
+        {% endif %}
+        {% if current_user.can_view('USUARIOS') %}
+            {{ topbar.button('Usuarios', url_for('usuarios.list_active'), 'mdi:account-key') }}
+        {% endif %}
+        {% if current_user.can_edit('MODULOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('modulos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('modulos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('MODULOS') %}
+            {{ topbar.button_new('Nuevo Modulo', url_for('modulos.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="modulos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Nombres</th>
+                    <th>Iconos</th>
+                    <th>En menú de navegación</th>
                 </tr>
             </thead>
             <tbody>
-                {% for modulo in modulos %}
+            {% for modulo in modulos %}
                 <tr>
                     <td><a href="{{ url_for('modulos.detail', modulo_id=modulo.id) }}">{{ modulo.nombre }}</a></td>
+                    <td><span class="iconify" data-icon="{{ modulo.icono }}" style="font-size: 1.4em"></span></td>
+                    <td>{% if modulo.en_navegacion %}SI{% endif %}</td>
                 </tr>
-                {% endfor %}
+            {% endfor %}
             </tbody>
         </table>
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('modulos_datatable') }}
 {% endblock %}

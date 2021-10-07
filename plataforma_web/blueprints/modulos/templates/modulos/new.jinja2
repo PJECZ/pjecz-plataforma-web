@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Módulo{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Módulo') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('modulos.new', fid='modulo_form') %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.nombre_corto) %}{% endcall %}
+            {% call f.form_group(form.icono) %}{% endcall %}
+            {% call f.form_group(form.ruta) %}{% endcall %}
+            {% call f.form_group(form.en_navegacion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

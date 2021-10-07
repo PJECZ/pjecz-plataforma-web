@@ -11,7 +11,7 @@
 			"from flask_login import login_required",
 			"",
 			"from lib import datatables",
-			"from ${2:sistema}.blueprints.roles.models import Permiso",
+			"from ${2:sistema}.blueprints.permisos.models import Permiso",
 			"from ${2:sistema}.blueprints.usuarios.decorators import permission_required",
 			"from ${2:sistema}.blueprints.${3:blueprint}.models import ${4:Clase}",
 			"",
@@ -35,16 +35,16 @@
 			"@${1:blueprint}.route('/${1:blueprint}')",
 			"def list_active():",
 			"\t\"\"\" Listado de ${2:Modulo} activos \"\"\"",
-			"\t${3:registros}_activos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'A').order_by(${4:Clase}.creado.desc()).limit(100).all()",
-			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_activos, estatus='A')",
+			"\t${3:registros}_activos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'A').all()",
+			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_activos, titulo='${2:Modulo}', estatus='A',)",
 			"",
 			""
 		],
 		"description": "Listado de registros activos"
 	},
-	"Flask views list_active datatable json": {
+	"Flask views list_active json": {
 		"scope": "python",
-		"prefix": "fviews_list_active_datatable_json",
+		"prefix": "fviews_list_active_json",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}')",
 			"def list_active():",
@@ -57,29 +57,29 @@
 			"\t)",
 			""
 		],
-		"description": "Listado de registros activos datatable json"
+		"description": "Listado de registros activos json"
 	},
 	"Flask views list_inactive": {
 		"scope": "python",
 		"prefix": "fviews_list_inactive",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def list_inactive():",
 			"\t\"\"\" Listado de ${2:Modulo} inactivos \"\"\"",
-			"\t${3:registros}_inactivos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'B').order_by(${4:Clase}.creado.desc()).limit(100).all()",
-			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_inactivos, estatus='B')",
+			"\t${3:registros}_inactivos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'B').all()",
+			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_inactivos, titulo='${2:Modulo} inactivos', estatus='B',)",
 			"",
 			""
 		],
 		"description": "Listado de registros inactivos"
 	},
-	"Flask views list_inactive datatable json": {
+	"Flask views list_inactive json": {
 		"scope": "python",
-		"prefix": "fviews_list_inactive_datatable_json",
+		"prefix": "fviews_list_inactive_json",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def list_inactive():",
 			"\t\"\"\"Listado de ${2:Modulo} inactivos\"\"\"",
 			"\treturn render_template(",
@@ -90,7 +90,7 @@
 			"\t)",
 			""
 		],
-		"description": "Listado de registros inactivos datatable json"
+		"description": "Listado de registros inactivos json"
 	},
 	"Flask views search": {
 		"scope": "python",
@@ -172,7 +172,7 @@
 		"prefix": "fviews_new",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/nuevo', methods=['GET', 'POST'])",
-			"@permission_required(Permiso.CREAR_)",
+			"@permission_required(MODULO, Permiso.CREAR)",
 			"def new():",
 			"\t\"\"\" Nuevo ${2:Modulo} \"\"\"",
 			"\tform = ${3:ClassForm}()",
@@ -192,7 +192,7 @@
 		"prefix": "fviews_edit",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/edicion/<int:${2:column_id}>', methods=['GET', 'POST'])",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def edit(${2:column_id}):",
 			"\t\"\"\" Editar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
@@ -214,7 +214,7 @@
 		"prefix": "fviews_delete",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/eliminar/<int:${2:column_id}>')",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def delete(${2:column_id}):",
 			"\t\"\"\" Eliminar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
@@ -232,7 +232,7 @@
 		"prefix": "fviews_recover",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/recuperar/<int:${2:column_id}>')",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def recover(${2:column_id}):",
 			"\t\"\"\" Recuperar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
@@ -250,7 +250,7 @@
 		"prefix": "fviews_bitacora_save",
 		"body": [
 			"bitacora = Bitacora(",
-			"\tmodulo=MODULO,",
+			"\tmodulo=Modulo.query.filter_by(nombre=MODULO).first(),",
 			"\tusuario=current_user,",
 			"\tdescripcion=safe_message('${1:Nuevo/Editado/Eliminado/Recuperado} registro con...'),",
 			"\turl=url_for('${2:blueprint}.detail', ${3:column_id}=${4:instance}.id),",

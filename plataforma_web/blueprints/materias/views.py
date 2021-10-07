@@ -6,14 +6,15 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias.forms import MateriaForm
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 
 materias = Blueprint("materias", __name__, template_folder="templates")
 
@@ -22,7 +23,7 @@ MODULO = "MATERIAS"
 
 @materias.before_request
 @login_required
-@permission_required(Permiso.VER_CATALOGOS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -33,17 +34,19 @@ def list_active():
     return render_template(
         "materias/list.jinja2",
         materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
+        titulo="Materias",
         estatus="A",
     )
 
 
 @materias.route("/materias/inactivos")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Materias inactivas"""
     return render_template(
         "materias/list.jinja2",
         materias=Materia.query.filter_by(estatus="B").order_by(Materia.nombre).all(),
+        titulo="Materias inactivas",
         estatus="B",
     )
 
@@ -61,7 +64,7 @@ def detail(materia_id):
 
 
 @materias.route("/materias/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CATALOGOS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Materia"""
     form = MateriaForm()
@@ -69,7 +72,7 @@ def new():
         materia = Materia(nombre=safe_string(form.nombre.data))
         materia.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva materia {materia.nombre}"),
             url=url_for("materias.detail", materia_id=materia.id),
@@ -81,7 +84,7 @@ def new():
 
 
 @materias.route("/materias/edicion/<int:materia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(materia_id):
     """Editar Materia"""
     materia = Materia.query.get_or_404(materia_id)
@@ -90,7 +93,7 @@ def edit(materia_id):
         materia.nombre = safe_string(form.nombre.data)
         materia.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada materia {materia.nombre}"),
             url=url_for("materias.detail", materia_id=materia.id),
@@ -103,14 +106,14 @@ def edit(materia_id):
 
 
 @materias.route("/materias/eliminar/<int:materia_id>")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(materia_id):
     """Eliminar Materia"""
     materia = Materia.query.get_or_404(materia_id)
     if materia.estatus == "A":
         materia.delete()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Eliminada materia {materia.nombre}"),
             url=url_for("materias.detail", materia_id=materia.id),
@@ -121,14 +124,14 @@ def delete(materia_id):
 
 
 @materias.route("/materias/recuperar/<int:materia_id>")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(materia_id):
     """Recuperar Materia"""
     materia = Materia.query.get_or_404(materia_id)
     if materia.estatus == "B":
         materia.recover()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Recuperada materia {materia.nombre}"),
             url=url_for("materias.detail", materia_id=materia.id),

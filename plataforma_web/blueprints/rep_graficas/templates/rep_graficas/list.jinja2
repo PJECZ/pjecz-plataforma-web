@@ -6,12 +6,11 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:puzzle') }}
-        {% if current_user.can_edit('rep_graficas') %}
+        {% if current_user.can_edit('REP GRAFICAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('rep_graficas.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('rep_graficas.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('rep_graficas') %}
+        {% if current_user.can_insert('REP GRAFICAS') %}
             {{ topbar.button_new('Nueva Gráfica', url_for('rep_graficas.new')) }}
         {% endif %}
     {% endcall %}

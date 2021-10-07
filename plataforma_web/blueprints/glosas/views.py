@@ -14,14 +14,15 @@ from werkzeug.utils import secure_filename
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.glosas.forms import GlosaEditForm, GlosaNewForm, GlosaSearchForm, GlosaSearchAdminForm
 from plataforma_web.blueprints.glosas.models import Glosa
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 
 glosas = Blueprint("glosas", __name__, template_folder="templates")
 
@@ -42,7 +43,7 @@ def checkout(id_hashed):
 
 @glosas.before_request
 @login_required
-@permission_required(Permiso.VER_SEGUNDAS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -51,7 +52,7 @@ def before_request():
 def list_active():
     """Listado de Glosas activos"""
     # Si es administrador ve todo
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         return render_template(
             "glosas/list_admin.jinja2",
             autoridad=None,
@@ -60,7 +61,7 @@ def list_active():
             estatus="A",
         )
     # Si puede editar o crear glosas ve lo de su autoridad
-    if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+    if current_user.can_edit("GLOSAS") or current_user.can_insert("GLOSAS"):
         autoridad = current_user.autoridad
         return render_template(
             "glosas/list.jinja2",
@@ -80,11 +81,11 @@ def list_active():
 
 
 @glosas.route("/glosas/inactivos")
-@permission_required(Permiso.MODIFICAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Glosas inactivas"""
     # Si es administrador ve todo
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         return render_template(
             "glosas/list_admin.jinja2",
             autoridad=None,
@@ -93,7 +94,7 @@ def list_inactive():
             estatus="B",
         )
     # Si puede editar o crear glosas ve lo de su autoridad
-    if current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+    if current_user.can_edit("GLOSAS") or current_user.can_insert("GLOSAS"):
         autoridad = current_user.autoridad
         return render_template(
             "glosas/list.jinja2",
@@ -123,7 +124,7 @@ def list_autoridades():
 def list_autoridad_glosas(autoridad_id):
     """Listado de Glosas activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         plantilla = "glosas/list_admin.jinja2"
     else:
         plantilla = "glosas/list.jinja2"
@@ -137,11 +138,11 @@ def list_autoridad_glosas(autoridad_id):
 
 
 @glosas.route("/glosas/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         plantilla = "glosas/list_admin.jinja2"
     else:
         plantilla = "glosas/list.jinja2"
@@ -157,9 +158,9 @@ def list_autoridad_glosas_inactive(autoridad_id):
 @glosas.route("/glosas/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Glosas"""
-    if current_user.can_admin("glosas"):
+    if current_user.can_admin("GLOSAS"):
         puede_elegir_autoridad = True
-    elif current_user.can_edit("glosas") or current_user.can_insert("glosas"):
+    elif current_user.can_edit("GLOSAS") or current_user.can_insert("GLOSAS"):
         puede_elegir_autoridad = False
     else:
         puede_elegir_autoridad = True
@@ -278,7 +279,7 @@ def datatable_json():
 
 
 @glosas.route("/glosas/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para listado de glosas admin"""
     # Tomar parámetros de Datatables
@@ -333,7 +334,7 @@ def datatable_json_admin():
 
 
 @glosas.route("/glosas/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def refresh(autoridad_id):
     """Refrescar Glosas"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -360,7 +361,7 @@ def detail(glosa_id):
 def new_success(glosa):
     """Mensaje de éxito en nueva glosa"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Nueva glosa con fecha {glosa.fecha}, tipo {glosa.tipo_juicio} y expediente {glosa.expediente}"),
         url=url_for("glosas.detail", glosa_id=glosa.id),
@@ -370,7 +371,7 @@ def new_success(glosa):
 
 
 @glosas.route("/glosas/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Subir Glosa como juzgado"""
 
@@ -473,7 +474,7 @@ def new():
 
 
 @glosas.route("/glosas/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_autoridad(autoridad_id):
     """Subir Glosa para una autoridad dada"""
 
@@ -581,7 +582,7 @@ def new_for_autoridad(autoridad_id):
 def edit_success(glosa):
     """Mensaje de éxito al editar una glosa"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Editada glosa con fecha {glosa.fecha}, tipo {glosa.tipo_juicio} y expediente {glosa.expediente}"),
         url=url_for("glosas.detail", glosa_id=glosa.id),
@@ -591,11 +592,11 @@ def edit_success(glosa):
 
 
 @glosas.route("/glosas/edicion/<int:glosa_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(glosa_id):
     """Editar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
-    if not (current_user.can_admin("glosas") or current_user.autoridad_id == glosa.autoridad_id):
+    if not (current_user.can_admin("GLOSAS") or current_user.autoridad_id == glosa.autoridad_id):
         flash("No tiene permiso para editar esta glosa.", "warning")
         return redirect(url_for("glosas.list_active"))
     form = GlosaEditForm()
@@ -624,7 +625,7 @@ def edit(glosa_id):
 def delete_success(glosa):
     """Mensaje de éxito al eliminar una glosa"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminada glosa con fecha {glosa.fecha}, tipo {glosa.tipo_juicio} y expediente {glosa.expediente}"),
         url=url_for("glosas.detail", glosa_id=glosa.id),
@@ -634,14 +635,14 @@ def delete_success(glosa):
 
 
 @glosas.route("/glosas/eliminar/<int:glosa_id>")
-@permission_required(Permiso.MODIFICAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(glosa_id):
     """Eliminar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
     if glosa.estatus == "A":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("glosas"):
+        if current_user.can_admin("GLOSAS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= glosa.creado:
                 glosa.delete()
                 bitacora = delete_success(glosa)
@@ -663,7 +664,7 @@ def delete(glosa_id):
 def recover_success(glosa):
     """Mensaje de éxito al recuperar una glosa"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperada glosa con fecha {glosa.fecha}, tipo {glosa.tipo_juicio} y expediente {glosa.expediente}"),
         url=url_for("glosas.detail", glosa_id=glosa.id),
@@ -673,14 +674,14 @@ def recover_success(glosa):
 
 
 @glosas.route("/glosas/recuperar/<int:glosa_id>")
-@permission_required(Permiso.MODIFICAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(glosa_id):
     """Recuperar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
     if glosa.estatus == "B":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("glosas"):
+        if current_user.can_admin("GLOSAS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= glosa.creado:
                 glosa.recover()
                 bitacora = recover_success(glosa)

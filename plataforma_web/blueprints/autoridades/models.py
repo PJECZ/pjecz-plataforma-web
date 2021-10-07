@@ -70,7 +70,7 @@ class Autoridad(db.Model, UniversalMixin):
     sentencias = db.relationship("Sentencia", back_populates="autoridad", lazy="noload")
     transcripciones = db.relationship("Transcripcion", back_populates="autoridad", lazy="noload")
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", back_populates="autoridad", lazy="noload")
-    usuarios = db.relationship("Usuario", back_populates="autoridad", lazy="noload")
+    usuarios = db.relationship("Usuario", back_populates="autoridad")
 
     def __repr__(self):
         """Representación"""

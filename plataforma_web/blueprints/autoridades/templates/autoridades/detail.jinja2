@@ -6,9 +6,9 @@
 {% block title %}Autoridad{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(autoridad.descripcion + ', ' + autoridad.distrito.nombre_corto) %}
+    {% call topbar.page_buttons(autoridad.descripcion_corta + ', ' + autoridad.distrito.nombre_corto) %}
         {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
-        {% if current_user.can_edit('autoridades') %}
+        {% if current_user.can_edit('AUTORIDADES') %}
             {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
             {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
             {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}{% endif %}
@@ -56,37 +56,32 @@
     {% call detail.card(estatus=autoridad.estatus) %}
         {{ detail.label_value_big('Descripción', autoridad.descripcion) }}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
-        {{ detail.label_value('Departamento', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
+        {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
         {{ detail.label_value('Clave', autoridad.clave) }}
         {{ detail.label_value_boolean('Es Jurisdiccional', autoridad.es_jurisdiccional) }}
-        {{ detail.label_value_boolean('Es Notaría', autoridad.es_notaria) }}
-        {{ detail.label_value('Categoría de audiencias', autoridad.audiencia_categoria) }}
-        {{ detail.label_value('Límite días para listas de acuerdos', autoridad.limite_dias_listas_de_acuerdos) }}
-        {{ detail.label_value('Materia', autoridad.materia.nombre, url_for('materias.detail', materia_id=autoridad.materia_id)) }}
-        {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
     {# Usuarios de la autoridad #}
-    {% if usuarios and current_user.can_view('usuarios') %}
+    {% if current_user.can_view('USUARIOS') %}
         {% call detail.card('Usuarios') %}
             <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>e-mail</th>
                         <th>Nombres</th>
-                        {% if current_user.can_view('roles') %}<th>Rol</th>{% endif %}
-                        <th>Workspace</th>
+                        <th>Puestos</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for usuario in usuarios %}
+                {% for usuario in autoridad.usuarios %}
+                    {% if usuario.estatus == "A" %}
                     <tr>
                         <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
                         <td>{{ usuario.nombre }}</td>
-                        {% if current_user.can_view('roles') %}<td>{{ usuario.rol.nombre }}</td>{% endif %}
-                        <td>{{ usuario.workspace }}</td>
+                        <td>{{ usuario.puesto }}</td>
                     </tr>
-                    {% endfor %}
+                    {% endif %}
+                {% endfor %}
                 </tbody>
             </table>
         {% endcall %}
@@ -94,11 +89,13 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('autoridades') %}
+    {% if current_user.can_edit('AUTORIDADES') %}
         {% if autoridad.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridad.descripcion + '?') }}{% endif %}
         {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
-    {{ detail.datatable('usuarios_datatable') }}
+    {% if current_user.can_view('USUARIOS') %}
+        {{ detail.datatable('usuarios_datatable') }}
+    {% endif %}
     {{ detail.moment_js(moment) }}
     <!-- Obtener informacion para las tarjetas -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_audiencias.js') }}"></script>

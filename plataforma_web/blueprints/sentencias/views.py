@@ -14,14 +14,15 @@ from werkzeug.utils import secure_filename
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_sentencia, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.sentencias.forms import SentenciaNewForm, SentenciaEditForm, SentenciaSearchForm, SentenciaSearchAdminForm
 from plataforma_web.blueprints.sentencias.models import Sentencia
 
@@ -43,7 +44,7 @@ def checkout(id_hashed):
 
 @sentencias.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -52,7 +53,7 @@ def before_request():
 def list_active():
     """Listado de Sentencias activas más recientes"""
     # Si es administrador ve todo
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         return render_template(
             "sentencias/list_admin.jinja2",
             autoridad=None,
@@ -75,11 +76,11 @@ def list_active():
 
 
 @sentencias.route("/sentencias/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Sentencias inactivas"""
     # Si es administrador ve todo
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         return render_template(
             "sentencias/list_admin.jinja2",
             autoridad=None,
@@ -125,7 +126,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_sentencias(autoridad_id):
     """Listado de Sentencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         plantilla = "sentencias/list_admin.jinja2"
     else:
         plantilla = "sentencias/list.jinja2"
@@ -139,11 +140,11 @@ def list_autoridad_sentencias(autoridad_id):
 
 
 @sentencias.route("/sentencias/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_sentencias_inactive(autoridad_id):
     """Listado de Sentencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         plantilla = "sentencias/list_admin.jinja2"
     else:
         plantilla = "sentencias/list.jinja2"
@@ -159,7 +160,7 @@ def list_autoridad_sentencias_inactive(autoridad_id):
 @sentencias.route("/sentencias/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Sentencias"""
-    if current_user.can_admin("sentencias"):
+    if current_user.can_admin("SENTENCIAS"):
         puede_elegir_autoridad = True
     elif current_user.autoridad.es_jurisdiccional:
         puede_elegir_autoridad = False
@@ -286,7 +287,7 @@ def datatable_json():
 
 
 @sentencias.route("/sentencias/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para sentencias admin"""
     # Tomar parámetros de Datatables
@@ -345,7 +346,7 @@ def datatable_json_admin():
 
 
 @sentencias.route("/sentencias/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def refresh(autoridad_id):
     """Refrescar Listas de Acuerdos"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -372,7 +373,7 @@ def detail(sentencia_id):
 def new_success(sentencia):
     """Mensaje de éxito en nueva sentencia"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Nueva sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
         url=url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -382,7 +383,7 @@ def new_success(sentencia):
 
 
 @sentencias.route("/sentencias/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Sentencia como juzgado"""
 
@@ -511,7 +512,7 @@ def new():
 
 
 @sentencias.route("/sentencias/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_autoridad(autoridad_id):
     """Subir Sentencia para una autoridad dada"""
 
@@ -643,7 +644,7 @@ def new_for_autoridad(autoridad_id):
 
 
 @sentencias.route("/sentencias/edicion/<int:sentencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(sentencia_id):
     """Editar Sentencia"""
 
@@ -654,7 +655,7 @@ def edit(sentencia_id):
 
     # Validar sentencia
     sentencia = Sentencia.query.get_or_404(sentencia_id)
-    if not (current_user.can_admin("sentencias") or current_user.autoridad_id == sentencia.autoridad_id):
+    if not (current_user.can_admin("SENTENCIAS") or current_user.autoridad_id == sentencia.autoridad_id):
         flash("No tiene permiso para editar esta sentencia.", "warning")
         return redirect(url_for("sentencias.list_active"))
 
@@ -700,7 +701,7 @@ def edit(sentencia_id):
         if es_valido:
             sentencia.save()
             bitacora = Bitacora(
-                modulo=MODULO,
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
                 descripcion=safe_message(f"Editada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
                 url=url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -727,7 +728,7 @@ def edit(sentencia_id):
 def delete_success(sentencia):
     """Mensaje de éxito al eliminar una sentencia"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
         url=url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -737,14 +738,14 @@ def delete_success(sentencia):
 
 
 @sentencias.route("/sentencias/eliminar/<int:sentencia_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(sentencia_id):
     """Eliminar Sentencia"""
     sentencia = Sentencia.query.get_or_404(sentencia_id)
     if sentencia.estatus == "A":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("sentencias"):
+        if current_user.can_admin("SENTENCIAS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
                 sentencia.delete()
                 bitacora = delete_success(sentencia)
@@ -766,7 +767,7 @@ def delete(sentencia_id):
 def recover_success(sentencia):
     """Mensaje de éxito al recuperar una sentencia"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperada la sentencia {sentencia.sentencia}, expediente {sentencia.expediente} de {sentencia.autoridad.clave}"),
         url=url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -776,14 +777,14 @@ def recover_success(sentencia):
 
 
 @sentencias.route("/sentencias/recuperar/<int:sentencia_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(sentencia_id):
     """Recuperar Sentencia"""
     sentencia = Sentencia.query.get_or_404(sentencia_id)
     if sentencia.estatus == "B":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("sentencias"):
+        if current_user.can_admin("SENTENCIAS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
                 sentencia.recover()
                 bitacora = recover_success(sentencia)

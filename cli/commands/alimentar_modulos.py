@@ -5,6 +5,8 @@ from pathlib import Path
 import csv
 import click
 
+from lib.safe_string import safe_string
+
 from plataforma_web.blueprints.modulos.models import Modulo
 
 MODULOS_CSV = "seed/modulos.csv"
@@ -24,9 +26,15 @@ def alimentar_modulos():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            nombre = safe_string(row["nombre"])
             Modulo(
-                nombre=row["nombre"],
+                nombre=nombre,
+                nombre_corto=row["nombre_corto"],
+                icono=row["icono"],
+                ruta=row["ruta"],
+                en_navegacion=row["en_navegacion"] == "1",
                 estatus=row["estatus"],
             ).save()
+            click.echo(f"  {nombre}")
             contador += 1
-    click.echo(f"  {contador} módulos alimentadas.")
+    click.echo(f"  {contador} módulos alimentados.")

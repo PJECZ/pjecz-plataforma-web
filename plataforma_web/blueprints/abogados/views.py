@@ -7,12 +7,13 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.abogados.models import Abogado
 from plataforma_web.blueprints.abogados.forms import AbogadoForm, AbogadoSearchForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 
 abogados = Blueprint("abogados", __name__, template_folder="templates")
 
@@ -21,7 +22,7 @@ MODULO = "ABOGADOS"
 
 @abogados.before_request
 @login_required
-@permission_required(Permiso.VER_CONSULTAS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -38,7 +39,7 @@ def list_active():
 
 
 @abogados.route("/abogados/inactivos")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Abogados inactivos"""
     return render_template(
@@ -81,6 +82,7 @@ def search():
             "abogados/list.jinja2",
             filtros=json.dumps(busqueda),
             titulo="Abogados registrados con " + ", ".join(titulos),
+            estatus="A",
         )
     return render_template("abogados/search.jinja2", form=form_search)
 
@@ -134,7 +136,7 @@ def detail(abogado_id):
 
 
 @abogados.route("/abogados/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CONSULTAS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Abogado"""
     form = AbogadoForm()
@@ -147,7 +149,7 @@ def new():
         )
         abogado.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nuevo abogado registrado {abogado.nombre} con número {abogado.numero}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),
@@ -159,7 +161,7 @@ def new():
 
 
 @abogados.route("/abogados/edicion/<int:abogado_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(abogado_id):
     """Editar Abogado"""
     abogado = Abogado.query.get_or_404(abogado_id)
@@ -171,7 +173,7 @@ def edit(abogado_id):
         abogado.fecha = form.fecha.data
         abogado.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editado abogado registrado {abogado.nombre}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),
@@ -187,14 +189,14 @@ def edit(abogado_id):
 
 
 @abogados.route("/abogados/eliminar/<int:abogado_id>")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(abogado_id):
     """Eliminar Abogado"""
     abogado = Abogado.query.get_or_404(abogado_id)
     if abogado.estatus == "A":
         abogado.delete()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Eliminado abogado registrado {abogado.nombre}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),
@@ -205,14 +207,14 @@ def delete(abogado_id):
 
 
 @abogados.route("/abogados/recuperar/<int:abogado_id>")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(abogado_id):
     """Recuperar Abogado"""
     abogado = Abogado.query.get_or_404(abogado_id)
     if abogado.estatus == "B":
         abogado.recover()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Recuperado abogado registrado {abogado.nombre}"),
             url=url_for("abogados.detail", abogado_id=abogado.id),

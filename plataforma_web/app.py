@@ -6,21 +6,17 @@ from redis import Redis
 import rq
 from plataforma_web.extensions import csrf, db, login_manager, moment
 
-from plataforma_web.blueprints.roles.views import roles
-from plataforma_web.blueprints.usuarios.views import usuarios
-from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
-from plataforma_web.blueprints.bitacoras.views import bitacoras
-from plataforma_web.blueprints.sistemas.views import sistemas
-from plataforma_web.blueprints.tareas.views import tareas
 
 from plataforma_web.blueprints.abogados.views import abogados
 from plataforma_web.blueprints.audiencias.views import audiencias
 from plataforma_web.blueprints.autoridades.views import autoridades
+from plataforma_web.blueprints.bitacoras.views import bitacoras
 from plataforma_web.blueprints.cid_procedimientos.views import cid_procedimientos
 from plataforma_web.blueprints.cid_formatos.views import cid_formatos
 from plataforma_web.blueprints.cid_registros.views import cid_registros
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.edictos.views import edictos
+from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_de_acuerdos_acuerdos
@@ -28,12 +24,18 @@ from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.modulos.views import modulos
 from plataforma_web.blueprints.peritos.views import peritos
+from plataforma_web.blueprints.permisos.views import permisos
 from plataforma_web.blueprints.rep_graficas.views import rep_graficas
 from plataforma_web.blueprints.rep_reportes.views import rep_reportes
 from plataforma_web.blueprints.rep_resultados.views import rep_resultados
+from plataforma_web.blueprints.roles.views import roles
 from plataforma_web.blueprints.sentencias.views import sentencias
+from plataforma_web.blueprints.sistemas.views import sistemas
+from plataforma_web.blueprints.tareas.views import tareas
 from plataforma_web.blueprints.transcripciones.views import transcripciones
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
+from plataforma_web.blueprints.usuarios.views import usuarios
+from plataforma_web.blueprints.usuarios_roles.views import usuarios_roles
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -50,17 +52,13 @@ def create_app():
     app.redis = Redis.from_url(app.config["REDIS_URL"])
     app.task_queue = rq.Queue(app.config["TASK_QUEUE"], connection=app.redis, default_timeout=1920)
     # Cargar los blueprints
-    app.register_blueprint(roles)
-    app.register_blueprint(usuarios)
-    app.register_blueprint(entradas_salidas)
-    app.register_blueprint(bitacoras)
-    app.register_blueprint(sistemas)
-    app.register_blueprint(tareas)
     app.register_blueprint(abogados)
     app.register_blueprint(audiencias)
     app.register_blueprint(autoridades)
+    app.register_blueprint(bitacoras)
     app.register_blueprint(distritos)
     app.register_blueprint(edictos)
+    app.register_blueprint(entradas_salidas)
     app.register_blueprint(glosas)
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(listas_de_acuerdos_acuerdos)
@@ -68,11 +66,17 @@ def create_app():
     app.register_blueprint(materias_tipos_juicios)
     app.register_blueprint(modulos)
     app.register_blueprint(peritos)
+    app.register_blueprint(permisos)
     app.register_blueprint(rep_graficas)
     app.register_blueprint(rep_reportes)
     app.register_blueprint(rep_resultados)
+    app.register_blueprint(roles)
     app.register_blueprint(sentencias)
+    app.register_blueprint(sistemas)
+    app.register_blueprint(tareas)
     app.register_blueprint(transcripciones)
+    app.register_blueprint(usuarios)
+    app.register_blueprint(usuarios_roles)
     app.register_blueprint(ubicaciones_expedientes)
     app.register_blueprint(cid_procedimientos)
     app.register_blueprint(cid_formatos)

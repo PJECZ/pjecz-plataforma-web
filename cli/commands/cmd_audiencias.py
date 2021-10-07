@@ -132,14 +132,22 @@ def alimentar(entrada_csv):
 
 
 @click.command()
-@click.option("--output", default="audiencias.csv", type=str, help="Archivo CSV a escribir")
+@click.option("--autoridad-id", default=None, type=int, help="ID de la autoridad")
+@click.option("--autoridad-clave", default="", type=str, help="Clave de la autoridad")
 @click.option("--desde", default="", type=str, help="Fecha de inicio AAAA-MM-DD")
-def respaldar(output, desde):
+@click.option("--output", default="audiencias.csv", type=str, help="Archivo CSV a escribir")
+def respaldar(autoridad_id, autoridad_clave, desde, output):
     """Respaldar la tabla audiencias a su archivo CSV"""
     ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
+    if autoridad_id:
+        autoridad = Autoridad.query.get(autoridad_id)
+    elif autoridad_clave:
+        autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
+    else:
+        autoridad = None
     if desde != "":
         try:
             desde_fecha = datetime.strptime(desde, "%Y-%m-%d")
@@ -151,10 +159,12 @@ def respaldar(output, desde):
     click.echo("Respaldando audiencias...")
     contador = 0
     audiencias = Audiencia.query.filter_by(estatus="A")
+    if autoridad is not None:
+        audiencias = audiencias.filter(Audiencia.autoridad == autoridad)
     if desde_fecha is not None:
-        audiencias = audiencias.filter(Audiencia.fecha >= desde_fecha)
-    audiencias = audiencias.order_by(Audiencia.fecha).all()
-    with open(ruta, "w") as puntero:
+        audiencias = audiencias.filter(Audiencia.tiempo >= desde_fecha)
+    audiencias = audiencias.order_by(Audiencia.tiempo).all()
+    with open(ruta, "w", encoding="utf-8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [

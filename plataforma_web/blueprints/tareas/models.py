@@ -23,8 +23,8 @@ class Tarea(db.Model, UniversalMixin):
 
     # Columnas
     nombre = db.Column(db.String(128), index=True)
-    descripcion = db.Column(db.String(128))
-    ha_terminado = db.Column(db.Boolean, default=False)
+    descripcion = db.Column(db.String(128), default="", server_default="")
+    ha_terminado = db.Column(db.Boolean, nullable=False, default=False)
 
     def get_rq_job(self):
         """Helper method that loads the RQ Job instance"""
@@ -41,4 +41,4 @@ class Tarea(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Tarea {self.descripcion}>"
+        return f"<Tarea {self.nombre}>"

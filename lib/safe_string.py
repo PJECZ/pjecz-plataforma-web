@@ -2,10 +2,12 @@
 Safe string
 """
 import re
-from datetime import date
 from unidecode import unidecode
 
+CONTRASENA_REGEXP = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,48}$"
+EMAIL_REGEXP = r"^[\w.-]+@[\w.-]+\.\w+$"
 EXPEDIENTE_REGEXP = r"^\d+\/[12]\d\d\d(-[a-zA-Z0-9]+(-[a-zA-Z0-9]+)?)?$"
+TOKEN_REGEXP = r"^[a-zA-Z0-9_.=+-]+$"
 FOLIO_REGEXP = r"^\d+/[12]\d\d\d$"
 NUMERO_PUBLICACION_REGEXP = r"^\d+/[12]\d\d\d$"
 SENTENCIA_REGEXP = r"^\d+/[12]\d\d\d$"

@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Reporte') %}
         {{ topbar.button_previous('Gráfica', url_for('rep_graficas.detail', rep_grafica_id=rep_reporte.rep_grafica_id)) }}
-        {% if current_user.can_edit('rep_reportes') %}
+        {% if current_user.can_edit('REP REPORTES') %}
             {{ topbar.button_edit('Editar', url_for('rep_reportes.edit', rep_reporte_id=rep_reporte.id)) }}
             {% if rep_reporte.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('rep_reportes.delete', rep_reporte_id=rep_reporte.id)) }}{% endif %}
             {% if rep_reporte.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('rep_reportes.recover', rep_reporte_id=rep_reporte.id)) }}{% endif %}
@@ -52,7 +52,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('rep_reportes') %}
+    {% if current_user.can_edit('REP REPORTES') %}
         {% if rep_reporte.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rep_reporte.descripcion + '?') }}{% endif %}
         {% if rep_reporte.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + rep_reporte.descripcion + '?') }}{% endif %}
     {% endif %}

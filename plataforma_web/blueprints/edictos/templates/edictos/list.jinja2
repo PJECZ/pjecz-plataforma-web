@@ -6,15 +6,15 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button_districts('Departamentos', url_for('edictos.list_distritos')) }}
+        {{ topbar.button_districts('Distritos', url_for('edictos.list_distritos')) }}
         {% if autoridad %}
-            {% if current_user.can_admin('edictos') or (current_user.can_edit('edictos') and current_user.autoridad_id == autoridad.id) %}
+            {% if current_user.can_admin('EDICTOS') or (current_user.can_edit('EDICTOS') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('edictos.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('edictos.list_active')) }}{% endif %}
             {% endif %}
-            {% if current_user.can_admin('edictos') %}
+            {% if current_user.can_admin('EDICTOS') %}
                 {{ topbar.button_upload('Subir', url_for('edictos.new_for_autoridad', autoridad_id=autoridad.id)) }}
-            {% elif current_user.can_insert('edictos') and current_user.autoridad_id == autoridad.id %}
+            {% elif current_user.can_insert('EDICTOS') and current_user.autoridad_id == autoridad.id %}
                 {{ topbar.button_upload('Subir', url_for('edictos.new')) }}
             {% endif %}
         {% endif %}

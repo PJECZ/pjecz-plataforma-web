@@ -2,10 +2,10 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Versiones Públicas de Sentencias - Departamentos{% endblock %}
+{% block title %}Versiones Públicas de Sentencias - Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('V.P. Sentencias / Departamentos') %}
+    {% call topbar.page_buttons('V.P. Sentencias / Distritos') %}
         {{ topbar.button_previous('V.P. Sentencias', url_for('sentencias.list_active')) }}
     {% endcall %}
 {% endblock %}
@@ -15,7 +15,7 @@
         <table class="table display nowrap">
             <thead>
                 <tr>
-                    <th>Departamentos</th>
+                    <th>Distritos</th>
                 </tr>
             </thead>
             <tbody>

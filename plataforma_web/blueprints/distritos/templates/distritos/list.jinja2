@@ -2,21 +2,19 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Departamentos{% endblock %}
+{% block title %}Distritos{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Departamentos' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Departamentos inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
-        {{ topbar.button('Autoridades', url_for('autoridades.list_active'), 'mdi:scale-balance') }}
-        {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
-        {{ topbar.button('Tipos de Juicios', url_for('materias_tipos_juicios.list_active'), 'mdi:label') }}
-        {% if current_user.can_edit('distritos') %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('AUTORIDADES') %}
+            {{ topbar.button('Autoridades', url_for('autoridades.list_active'), 'mdi:scale-balance') }}
+        {% endif %}
+        {% if current_user.can_edit('DISTRITOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('distritos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('distritos.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('distritos') %}
-            {{ topbar.button_new('Nuevo Departamento', url_for('distritos.new')) }}
+        {% if current_user.can_insert('DISTRITOS') %}
+            {{ topbar.button_new('Nuevo Distrito', url_for('distritos.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -28,17 +26,17 @@
                 <tr>
                     <th>Nombres</th>
                     <th>Nombres cortos</th>
-                    <th>Es judicial</th>
+                    <th>Es Distrito Judicial</th>
                 </tr>
             </thead>
             <tbody>
-                {% for distrito in distritos %}
+            {% for distrito in distritos %}
                 <tr>
                     <td><a href="{{ url_for('distritos.detail', distrito_id=distrito.id) }}">{{ distrito.nombre }}</a></td>
                     <td>{{ distrito.nombre_corto }}</td>
-                    <td>{% if distrito.es_distrito_judicial %}Judicial{% endif %}</td>
+                    <td>{% if distrito.es_distrito_judicial %}Distrito Judicial{% endif %}</td>
                 </tr>
-                {% endfor %}
+            {% endfor %}
             </tbody>
         </table>
     {% endcall %}

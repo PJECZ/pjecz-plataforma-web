@@ -6,6 +6,8 @@ import csv
 import click
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.materias.models import Materia
 
 AUTORIDADES_CSV = "seed/autoridades.csv"
 
@@ -24,12 +26,22 @@ def alimentar_autoridades():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            distrito_id = int(row["distrito_id"])
+            distrito = Distrito.query.get(distrito_id)
+            if distrito is None:
+                click.echo(f"  Falta el distrito {str(distrito_id)}")
+                continue
+            materia_id = int(row["materia_id"])
+            materia = Materia.query.get(materia_id)
+            if materia is None:
+                click.echo(f"  Falta la materia {str(materia_id)}")
+                continue
             Autoridad(
-                distrito_id=int(row["distrito_id"]),
-                materia_id=int(row["materia_id"]),
+                distrito=distrito,
+                materia=materia,
+                clave=row["clave"],
                 descripcion=row["descripcion"],
                 descripcion_corta=row["descripcion_corta"],
-                clave=row["clave"],
                 es_jurisdiccional=(row["es_jurisdiccional"] == "1"),
                 es_notaria=(row["es_notaria"] == "1"),
                 organo_jurisdiccional=row["organo_jurisdiccional"],
@@ -42,5 +54,5 @@ def alimentar_autoridades():
             ).save()
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
+                click.echo(f"  Van {contador} autoridades...")
     click.echo(f"  {contador} autoridades alimentadas.")

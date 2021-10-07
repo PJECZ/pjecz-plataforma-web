@@ -90,15 +90,18 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     except IOError as error:
         mensaje = str(error)
         bitacora.error(mensaje)
-        return mensaje
+        # return mensaje
 
     # Subir a Google Storage
     archivo = cid_procedimiento.archivo_pdf()
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(os.environ.get("CLOUD_STORAGE_DEPOSITO"))
-    blob = bucket.blob(DEPOSITO_DIR + "/" + archivo)
-    blob.upload_from_string(pdf, content_type="application/pdf")
-    url = blob.public_url
+    url = ""
+    cloud_stotage_deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "")
+    if cloud_stotage_deposito != "":
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(cloud_stotage_deposito)
+        blob = bucket.blob(DEPOSITO_DIR + "/" + archivo)
+        blob.upload_from_string(pdf, content_type="application/pdf")
+        url = blob.public_url
 
     # Actualizar registro
     cid_procedimiento.firma = cid_procedimiento.elaborar_firma()

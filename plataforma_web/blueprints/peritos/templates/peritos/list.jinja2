@@ -6,11 +6,11 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('peritos') %}
+        {% if current_user.can_edit('PERITOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('peritos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('peritos.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('peritos') %}
+        {% if current_user.can_insert('PERITOS') %}
             {{ topbar.button_new('Nuevo Perito', url_for('peritos.new')) }}
         {% endif %}
         {{ topbar.button_search('Buscar', url_for('peritos.search')) }}
@@ -22,9 +22,9 @@
         <table id="peritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Tipo</th>
-                    <th>Departamento</th>
+                    <th>Nombres</th>
+                    <th>Tipos</th>
+                    <th>Distritos</th>
                 </tr>
             </thead>
         </table>
@@ -51,7 +51,7 @@
             columns: [
                 { data: "detalle" },
                 { data: "tipo" },
-                { data: "departamento" }
+                { data: "distrito" }
             ],
             columnDefs: [
                 {

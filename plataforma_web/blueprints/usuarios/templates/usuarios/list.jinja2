@@ -5,18 +5,20 @@
 {% block title %}Usuarios{% endblock %}
 
 {% block topbar_actions %}
-    {% if estatus == 'A' %}{% set title='Usuarios' %}{% endif %}
-    {% if estatus == 'B' %}{% set title='Usuarios inactivos' %}{% endif %}
-    {% call topbar.page_buttons(title) %}
-        {% if current_user.can_view('roles') %}{{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}{% endif %}
-        {% if current_user.can_edit('usuarios') %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('MODULOS') %}
+            {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:toy-brick') }}
+        {% endif %}
+        {% if current_user.can_view('ROLES') %}
+            {{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}
+        {% endif %}
+        {% if current_user.can_edit('USUARIOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('usuarios.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('usuarios.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('usuarios') %}
+        {% if current_user.can_insert('USUARIOS') %}
             {{ topbar.button_new('Nuevo Usuario', url_for('usuarios.new')) }}
         {% endif %}
-        {# topbar.button_search('Buscar', url_for('usuarios.search')) #}
     {% endcall %}
 {% endblock %}
 
@@ -26,61 +28,25 @@
             <thead>
                 <tr>
                     <th>e-mail</th>
-                    <th>Nombre</th>
-                    <th>Autoridad</th>
-                    <th>Rol</th>
+                    <th>Nombres</th>
+                    <th>Puestos</th>
+                    <th>CURP</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.puesto }}</td>
+                    <td>{{ usuario.curp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    <script>
-        $('#usuarios_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/usuarios/datatable_json",
-                type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                dataType: "json",
-                dataSrc: "data",
-                data: { estatus: "{{ estatus }}" }
-            },
-            columns: [
-                { data: "detalle" },
-                { data: "nombre" },
-                { data: "autoridad" },
-                { data: "rol" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.email + '</a>';
-                    }
-                }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
-        });
-    </script>
+    {{ list.datatable('usuarios_datatable') }}
 {% endblock %}

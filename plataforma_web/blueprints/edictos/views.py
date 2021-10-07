@@ -14,14 +14,15 @@ from werkzeug.utils import secure_filename
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm, EdictoSearchAdminForm
 from plataforma_web.blueprints.edictos.models import Edicto
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
@@ -41,7 +42,7 @@ def checkout(id_hashed):
 
 @edictos.before_request
 @login_required
-@permission_required(Permiso.VER_NOTARIALES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -50,7 +51,7 @@ def before_request():
 def list_active():
     """Listado de Edictos activos"""
     # Si es administrador ve todo
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         return render_template(
             "edictos/list_admin.jinja2",
             autoridad=None,
@@ -73,11 +74,11 @@ def list_active():
 
 
 @edictos.route("/edictos/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Edictos inactivos"""
     # Si es administrador ve todo
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         return render_template(
             "edictos/list_admin.jinja2",
             autoridad=None,
@@ -123,7 +124,7 @@ def list_autoridades(distrito_id):
 def list_autoridad_edictos(autoridad_id):
     """Listado de Edictos activos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         plantilla = "edictos/list_admin.jinja2"
     else:
         plantilla = "edictos/list.jinja2"
@@ -137,11 +138,11 @@ def list_autoridad_edictos(autoridad_id):
 
 
 @edictos.route("/edictos/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         plantilla = "edictos/list_admin.jinja2"
     else:
         plantilla = "edictos/list.jinja2"
@@ -157,7 +158,7 @@ def list_autoridad_edictos_inactive(autoridad_id):
 @edictos.route("/edictos/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Edictos"""
-    if current_user.can_admin("edictos"):
+    if current_user.can_admin("EDICTOS"):
         puede_elegir_autoridad = True
     elif current_user.autoridad.es_jurisdiccional:
         puede_elegir_autoridad = False
@@ -287,7 +288,7 @@ def datatable_json():
 
 
 @edictos.route("/edictos/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para listado de edictos administradores"""
     # Tomar parámetros de Datatables
@@ -346,7 +347,7 @@ def datatable_json_admin():
 
 
 @edictos.route("/edictos/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def refresh(autoridad_id):
     """Refrescar Edictos"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -379,7 +380,7 @@ def new_success(edicto):
         piezas.append(f"número {edicto.numero_publicacion},")
     piezas.append(f"fecha {edicto.fecha.strftime('%Y-%m-%d')} de {edicto.autoridad.clave}")
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(" ".join(piezas)),
         url=url_for("edictos.detail", edicto_id=edicto.id),
@@ -389,7 +390,7 @@ def new_success(edicto):
 
 
 @edictos.route("/edictos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_NOTARIALES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Subir Edicto como juzgado"""
 
@@ -503,7 +504,7 @@ def new():
 
 
 @edictos.route("/edictos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_autoridad(autoridad_id):
     """Subir Edicto para una autoridad dada"""
 
@@ -628,7 +629,7 @@ def edit_success(edicto):
         piezas.append(f"número {edicto.numero_publicacion},")
     piezas.append(f"fecha {edicto.fecha.strftime('%Y-%m-%d')} de {edicto.autoridad.clave}")
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(" ".join(piezas)),
         url=url_for("edictos.detail", edicto_id=edicto.id),
@@ -638,13 +639,13 @@ def edit_success(edicto):
 
 
 @edictos.route("/edictos/edicion/<int:edicto_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_NOTARIALES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(edicto_id):
     """Editar Edicto"""
 
     # Validar edicto
     edicto = Edicto.query.get_or_404(edicto_id)
-    if not (current_user.can_admin("edictos") or current_user.autoridad_id == edicto.autoridad_id):
+    if not (current_user.can_admin("EDICTOS") or current_user.autoridad_id == edicto.autoridad_id):
         flash("No tiene permiso para editar este edicto.", "warning")
         return redirect(url_for("edictos.list_active"))
 
@@ -689,7 +690,7 @@ def edit(edicto_id):
 def delete_success(edicto):
     """Mensaje de éxito al eliminar un edicto"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Eliminado edicto de {edicto.autoridad.clave}"),
         url=url_for("edictos.detail", edicto_id=edicto.id),
@@ -699,14 +700,14 @@ def delete_success(edicto):
 
 
 @edictos.route("/edictos/eliminar/<int:edicto_id>")
-@permission_required(Permiso.MODIFICAR_NOTARIALES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(edicto_id):
     """Eliminar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
     if edicto.estatus == "A":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("edictos"):
+        if current_user.can_admin("EDICTOS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.delete()
                 bitacora = delete_success(edicto)
@@ -728,7 +729,7 @@ def delete(edicto_id):
 def recover_success(edicto):
     """Mensaje de éxito al recuperar un edicto"""
     bitacora = Bitacora(
-        modulo=MODULO,
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Recuperado edicto de {edicto.autoridad.clave}"),
         url=url_for("edictos.detail", edicto_id=edicto.id),
@@ -738,14 +739,14 @@ def recover_success(edicto):
 
 
 @edictos.route("/edictos/recuperar/<int:edicto_id>")
-@permission_required(Permiso.MODIFICAR_NOTARIALES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(edicto_id):
     """Recuperar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
     if edicto.estatus == "B":
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-        if current_user.can_admin("edictos"):
+        if current_user.can_admin("EDICTOS"):
             if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
                 edicto.recover()
                 bitacora = recover_success(edicto)

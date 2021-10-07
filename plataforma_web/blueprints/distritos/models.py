@@ -6,7 +6,7 @@ from lib.universal_mixin import UniversalMixin
 
 
 class Distrito(db.Model, UniversalMixin):
-    """ Distrito """
+    """Distrito"""
 
     # Nombre de la tabla
     __tablename__ = "distritos"
@@ -20,9 +20,9 @@ class Distrito(db.Model, UniversalMixin):
     es_distrito_judicial = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
-    autoridades = db.relationship('Autoridad', back_populates='distrito')
+    autoridades = db.relationship("Autoridad", back_populates="distrito")
     peritos = db.relationship('Perito', back_populates='distrito', lazy="noload")
 
     def __repr__(self):
-        """ Representación """
+        """Representación"""
         return f"<Distrito {self.nombre}>"

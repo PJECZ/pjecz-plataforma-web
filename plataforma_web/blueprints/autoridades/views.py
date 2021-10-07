@@ -7,22 +7,21 @@ from flask_login import current_user, login_required
 import pytz
 
 from lib.safe_string import safe_message
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.autoridades.forms import AutoridadNewForm, AutoridadEditForm
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.usuarios.models import Usuario
 
 from plataforma_web.blueprints.audiencias.models import Audiencia
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.edictos.models import Edicto
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.sentencias.models import Sentencia
 
-autoridades = Blueprint("autoridades", __name__, template_folder="templates")
-
 MODULO = "AUTORIDADES"
+
+autoridades = Blueprint("autoridades", __name__, template_folder="templates")
 
 HOY = date.today()
 BREVE_LIMITE_DIAS = 15
@@ -37,32 +36,39 @@ TARJETAS_LIMITE_REGISTROS = 5
 
 @autoridades.before_request
 @login_required
-@permission_required(Permiso.VER_CATALOGOS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
 
 @autoridades.route("/autoridades")
 def list_active():
-    """Listado de Autoridades"""
-    autoridades_activas = Autoridad.query.filter_by(estatus="A").all()
-    return render_template("autoridades/list.jinja2", autoridades=autoridades_activas, estatus="A")
+    """Listado de Autoridades activos"""
+    return render_template(
+        "autoridades/list.jinja2",
+        autoridades=Autoridad.query.filter(Autoridad.estatus == "A").all(),
+        titulo="Autoridades",
+        estatus="A",
+    )
 
 
-@autoridades.route("/autoridades/inactivas")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@autoridades.route("/autoridades/inactivos")
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Autoridades inactivas"""
-    autoridades_inactivas = Autoridad.query.filter_by(estatus="B").all()
-    return render_template("autoridades/list.jinja2", autoridades=autoridades_inactivas, estatus="B")
+    """Listado de Autoridades inactivos"""
+    return render_template(
+        "autoridades/list.jinja2",
+        autoridades=Autoridad.query.filter(Autoridad.estatus == "B").all(),
+        titulo="Autoridades inactivas",
+        estatus="B",
+    )
 
 
 @autoridades.route("/autoridades/<int:autoridad_id>")
 def detail(autoridad_id):
-    """Detalle de una Autoridad"""
+    """Detalle de un Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    usuarios = Usuario.query.filter(Usuario.autoridad == autoridad).filter_by(estatus="A").all()
-    return render_template("autoridades/detail.jinja2", autoridad=autoridad, usuarios=usuarios)
+    return render_template("autoridades/detail.jinja2", autoridad=autoridad)
 
 
 @autoridades.route("/autoridades/<int:autoridad_id>/audiencias_json", methods=["GET", "POST"])
@@ -215,12 +221,11 @@ def sentencias_json(autoridad_id):
 
 
 @autoridades.route("/autoridades/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CATALOGOS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nueva Autoridad"""
+    """Nuevo Autoridad"""
     form = AutoridadNewForm()
     if form.validate_on_submit():
-        # Armar directorios
         distrito = form.distrito.data
         descripcion = form.descripcion.data.strip()
         es_jurisdiccional = form.es_jurisdiccional.data
@@ -239,7 +244,6 @@ def new():
             limite_dias_listas_de_acuerdos = 1
         if es_notaria:
             directorio_edictos = directorio
-        # Insertar registro
         autoridad = Autoridad(
             distrito=distrito,
             descripcion=descripcion,
@@ -257,9 +261,8 @@ def new():
             limite_dias_listas_de_acuerdos=limite_dias_listas_de_acuerdos,
         )
         autoridad.save()
-        # Mensaje de éxito e ir al detalle
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nueva autoridad {autoridad.clave}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
@@ -267,12 +270,11 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-
     return render_template("autoridades/new.jinja2", form=form)
 
 
 @autoridades.route("/autoridades/edicion/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(autoridad_id):
     """Editar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -294,7 +296,7 @@ def edit(autoridad_id):
         autoridad.limite_dias_listas_de_acuerdos = form.limite_dias_listas_de_acuerdos.data
         autoridad.save()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Editada autoridad {autoridad.clave}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
@@ -320,36 +322,38 @@ def edit(autoridad_id):
 
 
 @autoridades.route("/autoridades/eliminar/<int:autoridad_id>")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(autoridad_id):
     """Eliminar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad.estatus == "A":
         autoridad.delete()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Eliminada autoridad {autoridad.clave}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-    return redirect(url_for("autoridades.detail", autoridad_id=autoridad_id))
+        return redirect(bitacora.url)
+    return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
 
 @autoridades.route("/autoridades/recuperar/<int:autoridad_id>")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(autoridad_id):
     """Recuperar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad.estatus == "B":
         autoridad.recover()
         bitacora = Bitacora(
-            modulo=MODULO,
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Recuperada autoridad {autoridad.clave}"),
             url=url_for("autoridades.detail", autoridad_id=autoridad.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-    return redirect(url_for("autoridades.detail", autoridad_id=autoridad_id))
+        return redirect(bitacora.url)
+    return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
