@@ -8,14 +8,14 @@ from flask_login import current_user, login_required
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_string
 from lib.time_utc import combine_to_utc, decombine_to_local, join_for_message
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
+from plataforma_web.blueprints.audiencias.models import Audiencia
+from plataforma_web.blueprints.audiencias.forms import AudienciaGenericaForm, AudienciaMapoForm, AudienciaDipeForm, AudienciaSapeForm
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
-from plataforma_web.blueprints.audiencias.models import Audiencia
-from plataforma_web.blueprints.audiencias.forms import AudienciaGenericaForm, AudienciaMapoForm, AudienciaDipeForm, AudienciaSapeForm
+from plataforma_web.blueprints.permisos.models import Permiso
 
 audiencias = Blueprint("audiencias", __name__, template_folder="templates")
 
@@ -39,7 +39,7 @@ def plantilla_por_categoria(categoria: str, prefijo: str = "list_", sufijo: str 
 
 @audiencias.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -71,7 +71,7 @@ def list_active():
 
 
 @audiencias.route("/audiencias/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Audiencias inactivos"""
     # Si es administrador ve todo
@@ -135,7 +135,7 @@ def list_autoridad_audiencias(autoridad_id):
 
 
 @audiencias.route("/audiencias/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_audiencias_inactive(autoridad_id):
     """Listado de Audiencias inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -250,7 +250,7 @@ def detail(audiencia_id):
 
 
 @audiencias.route("/audiencias/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Audiencia"""
     autoridad = current_user.autoridad
@@ -270,7 +270,7 @@ def new():
 
 
 @audiencias.route("/audiencias/nuevo/generica", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_generica():
     """Nueva Audiencia Materias CIVIL FAMILIAR MERCANTIL LETRADO TCYA"""
 
@@ -336,7 +336,7 @@ def new_generica():
 
 
 @audiencias.route("/audiencias/nuevo/mapo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_mapo():
     """Nueva Audiencia MATERIA ACUSATORIO PENAL ORAL"""
 
@@ -396,7 +396,7 @@ def new_mapo():
 
 
 @audiencias.route("/audiencias/nuevo/dipe", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_dipe():
     """Nueva Audiencia DISTRITALES"""
 
@@ -465,7 +465,7 @@ def new_dipe():
 
 
 @audiencias.route("/audiencias/nuevo/sape", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_sape():
     """Nueva Audiencia SALAS"""
 
@@ -535,7 +535,7 @@ def new_sape():
 
 
 @audiencias.route("/audiencias/edicion/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(audiencia_id):
     """Editar Audiencia"""
 
@@ -562,7 +562,7 @@ def edit(audiencia_id):
 
 
 @audiencias.route("/audiencias/edicion/generica/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_generica(audiencia_id):
     """Editar Audiencia CIVIL FAMILIAR MERCANTIL LETRADO TCYA"""
 
@@ -638,7 +638,7 @@ def edit_generica(audiencia_id):
 
 
 @audiencias.route("/audiencias/edicion/mapo/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_mapo(audiencia_id):
     """Editar Audiencia MATERIA ACUSATORIO PENAL ORAL"""
 
@@ -709,7 +709,7 @@ def edit_mapo(audiencia_id):
 
 
 @audiencias.route("/audiencias/edicion/dipe/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_dipe(audiencia_id):
     """Editar Audiencia DISTRITALES"""
 
@@ -791,7 +791,7 @@ def edit_dipe(audiencia_id):
 
 
 @audiencias.route("/audiencias/edicion/sape/<int:audiencia_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_sape(audiencia_id):
     """Editar Audiencia SALAS"""
 
@@ -875,7 +875,7 @@ def edit_sape(audiencia_id):
 
 
 @audiencias.route("/audiencias/eliminar/<int:audiencia_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(audiencia_id):
     """Eliminar Audiencia"""
     audiencia = Audiencia.query.get_or_404(audiencia_id)
@@ -896,7 +896,7 @@ def delete(audiencia_id):
 
 
 @audiencias.route("/audiencias/recuperar/<int:audiencia_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(audiencia_id):
     """Recuperar Audiencia"""
     audiencia = Audiencia.query.get_or_404(audiencia_id)

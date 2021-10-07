@@ -6,13 +6,15 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-from plataforma_web.extensions import db
+
 from plataforma_web.blueprints.rep_graficas.forms import RepGraficaForm
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
 from plataforma_web.blueprints.rep_resultados.models import RepResultado
+from plataforma_web.blueprints.permisos.models import Permiso
+
+from plataforma_web.extensions import db
 
 rep_graficas = Blueprint("rep_graficas", __name__, template_folder="templates")
 
@@ -21,7 +23,7 @@ MODULO = "REPORTES"
 
 @rep_graficas.before_request
 @login_required
-@permission_required(Permiso.VER_CUENTAS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -38,7 +40,7 @@ def list_active():
 
 
 @rep_graficas.route("/rep_graficas/inactivos")
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Gráficas inactivas"""
     return render_template(
@@ -106,7 +108,7 @@ def data_json(rep_grafica_id):
 
 
 @rep_graficas.route("/rep_graficas/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CUENTAS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Gráfica"""
     form = RepGraficaForm()
@@ -124,7 +126,7 @@ def new():
 
 
 @rep_graficas.route("/rep_graficas/edicion/<int:rep_grafica_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(rep_grafica_id):
     """Editar Gráfica"""
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
@@ -145,7 +147,7 @@ def edit(rep_grafica_id):
 
 
 @rep_graficas.route("/rep_graficas/eliminar/<int:rep_grafica_id>")
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(rep_grafica_id):
     """Eliminar Gráfica"""
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
@@ -156,7 +158,7 @@ def delete(rep_grafica_id):
 
 
 @rep_graficas.route("/rep_graficas/recuperar/<int:rep_grafica_id>")
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(rep_grafica_id):
     """Recuperar Gráfica"""
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
@@ -167,7 +169,7 @@ def recover(rep_grafica_id):
 
 
 @rep_graficas.route("/rep_graficas/elaborar/<int:rep_grafica_id>")
-@permission_required(Permiso.CREAR_CUENTAS)
+@permission_required(MODULO, Permiso.CREAR)
 def make(rep_grafica_id):
     """Elaborar Gráfica"""
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)

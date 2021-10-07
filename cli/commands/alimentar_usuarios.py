@@ -27,11 +27,20 @@ def alimentar_usuarios():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            autoridad_clave = row["autoridad_clave"]
-            autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
-            if autoridad is None:
-                click.echo(f"  Falta la autoridad {autoridad_clave}")
-                continue
+            if "autoridad_clave" in row:
+                autoridad_clave = row["autoridad_clave"]
+                autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
+                if autoridad is None:
+                    click.echo(f"  Falta la autoridad_clave {autoridad_clave}")
+                    continue
+            elif "autoridad_id" in row:
+                autoridad_id = row["autoridad_id"]
+                autoridad = Autoridad.query.get(autoridad_id)
+                if autoridad is None:
+                    click.echo(f"  Falta la autoridad_id {autoridad_id}")
+                    continue
+            else:
+                raise Exception("ERROR: No tiene la columna autoridad_clave o autoridad_id")
             Usuario(
                 autoridad=autoridad,
                 email=row["email"],

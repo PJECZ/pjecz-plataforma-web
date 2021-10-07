@@ -14,14 +14,14 @@ from werkzeug.utils import secure_filename
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.edictos.forms import EdictoEditForm, EdictoNewForm, EdictoSearchForm, EdictoSearchAdminForm
 from plataforma_web.blueprints.edictos.models import Edicto
+from plataforma_web.blueprints.permisos.models import Permiso
 
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
@@ -41,7 +41,7 @@ def checkout(id_hashed):
 
 @edictos.before_request
 @login_required
-@permission_required(Permiso.VER_NOTARIALES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -73,7 +73,7 @@ def list_active():
 
 
 @edictos.route("/edictos/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Edictos inactivos"""
     # Si es administrador ve todo
@@ -137,7 +137,7 @@ def list_autoridad_edictos(autoridad_id):
 
 
 @edictos.route("/edictos/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_edictos_inactive(autoridad_id):
     """Listado de Edictos inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -287,7 +287,7 @@ def datatable_json():
 
 
 @edictos.route("/edictos/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para listado de edictos administradores"""
     # Tomar parámetros de Datatables
@@ -346,7 +346,7 @@ def datatable_json_admin():
 
 
 @edictos.route("/edictos/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def refresh(autoridad_id):
     """Refrescar Edictos"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -503,7 +503,7 @@ def new():
 
 
 @edictos.route("/edictos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_autoridad(autoridad_id):
     """Subir Edicto para una autoridad dada"""
 
@@ -638,7 +638,7 @@ def edit_success(edicto):
 
 
 @edictos.route("/edictos/edicion/<int:edicto_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_NOTARIALES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(edicto_id):
     """Editar Edicto"""
 
@@ -699,7 +699,7 @@ def delete_success(edicto):
 
 
 @edictos.route("/edictos/eliminar/<int:edicto_id>")
-@permission_required(Permiso.MODIFICAR_NOTARIALES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(edicto_id):
     """Eliminar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)
@@ -738,7 +738,7 @@ def recover_success(edicto):
 
 
 @edictos.route("/edictos/recuperar/<int:edicto_id>")
-@permission_required(Permiso.MODIFICAR_NOTARIALES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(edicto_id):
     """Recuperar Edicto"""
     edicto = Edicto.query.get_or_404(edicto_id)

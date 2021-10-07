@@ -5,12 +5,12 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from lib.safe_string import safe_message, safe_string
 
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.materias_tipos_juicios.forms import MateriaTipoJuicioForm
+from plataforma_web.blueprints.permisos.models import Permiso
 
 materias_tipos_juicios = Blueprint("materias_tipos_juicios", __name__, template_folder="templates")
 
@@ -19,7 +19,7 @@ MODULO = "MATERIAS TIPOS JUICIOS"
 
 @materias_tipos_juicios.before_request
 @login_required
-@permission_required(Permiso.VER_CATALOGOS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -36,7 +36,7 @@ def list_active():
 
 
 @materias_tipos_juicios.route("/materias/tipos_juicios/inactivos")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Materias Tipos de Juicios inactivos"""
     return render_template(
@@ -58,7 +58,7 @@ def detail(materia_tipo_juicio_id):
 
 
 @materias_tipos_juicios.route("/materias/tipos_juicios/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CATALOGOS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Materia Tipo de Juicio"""
     form = MateriaTipoJuicioForm()
@@ -81,7 +81,7 @@ def new():
 
 
 @materias_tipos_juicios.route("/materias/tipos_juicios/edicion/<int:materia_tipo_juicio_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(materia_tipo_juicio_id):
     """Editar Materia Tipo de Juicio"""
     materia_tipo_juicio = MateriaTipoJuicio.query.get_or_404(materia_tipo_juicio_id)
@@ -105,7 +105,7 @@ def edit(materia_tipo_juicio_id):
 
 
 @materias_tipos_juicios.route("/materias/tipos_juicios/eliminar/<int:materia_tipo_juicio_id>")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(materia_tipo_juicio_id):
     """Eliminar Materia Tipo de Juicio"""
     materia_tipo_juicio = MateriaTipoJuicio.query.get_or_404(materia_tipo_juicio_id)
@@ -123,7 +123,7 @@ def delete(materia_tipo_juicio_id):
 
 
 @materias_tipos_juicios.route("/materias/tipos_juicios/recuperar/<int:materia_tipo_juicio_id>")
-@permission_required(Permiso.MODIFICAR_CATALOGOS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(materia_tipo_juicio_id):
     """Recuperar Materia Tipo de Juicio"""
     materia_tipo_juicio = MateriaTipoJuicio.query.get_or_404(materia_tipo_juicio_id)

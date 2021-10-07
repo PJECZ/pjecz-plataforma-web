@@ -6,11 +6,12 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from lib import datatables
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.rep_reportes.forms import RepReporteForm
 from plataforma_web.blueprints.rep_graficas.models import RepGrafica
 from plataforma_web.blueprints.rep_reportes.models import RepReporte
+from plataforma_web.blueprints.permisos.models import Permiso
 
 rep_reportes = Blueprint("rep_reportes", __name__, template_folder="templates")
 
@@ -19,7 +20,7 @@ MODULO = "REPORTES"
 
 @rep_reportes.before_request
 @login_required
-@permission_required(Permiso.VER_CUENTAS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -36,7 +37,7 @@ def list_active():
 
 
 @rep_reportes.route("/rep_reportes/inactivos")
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Reportes inactivos"""
     return render_template(
@@ -92,7 +93,7 @@ def detail(rep_reporte_id):
 
 
 @rep_reportes.route("/rep_reportes/nuevo/<int:rep_grafica_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CUENTAS)
+@permission_required(MODULO, Permiso.CREAR)
 def new(rep_grafica_id):
     """Nuevo Reporte"""
     rep_grafica = RepGrafica.query.get_or_404(rep_grafica_id)
@@ -114,7 +115,7 @@ def new(rep_grafica_id):
 
 
 @rep_reportes.route("/rep_reportes/edicion/<int:rep_reporte_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(rep_reporte_id):
     """Editar Reporte"""
     rep_reporte = RepReporte.query.get_or_404(rep_reporte_id)
@@ -138,7 +139,7 @@ def edit(rep_reporte_id):
 
 
 @rep_reportes.route("/rep_reportes/eliminar/<int:rep_reporte_id>")
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(rep_reporte_id):
     """Eliminar Reporte"""
     rep_reporte = RepReporte.query.get_or_404(rep_reporte_id)
@@ -149,7 +150,7 @@ def delete(rep_reporte_id):
 
 
 @rep_reportes.route("/rep_reportes/recuperar/<int:rep_reporte_id>")
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(rep_reporte_id):
     """Recuperar Reporte"""
     rep_reporte = RepReporte.query.get_or_404(rep_reporte_id)

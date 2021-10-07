@@ -5,12 +5,12 @@ from delta import html
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
+from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="templates")
@@ -20,7 +20,7 @@ MODULO = "DOCUMENTACIONES"
 
 @cid_procedimientos.before_request
 @login_required
-@permission_required(Permiso.VER_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -59,7 +59,7 @@ def list_active():
 
 
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de TODOS los Procedimientos inactivos"""
     return render_template(
@@ -92,7 +92,7 @@ def detail(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo CID Procedimiento"""
     form = CIDProcedimientoForm()
@@ -138,7 +138,7 @@ def new():
 
 
 @cid_procedimientos.route("/cid_procedimientos/edicion/<int:cid_procedimiento_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cid_procedimiento_id):
     """Editar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -193,7 +193,7 @@ def edit(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/firmar/<int:cid_procedimiento_id>")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def sign_for_maker(cid_procedimiento_id):
     """Firmar por Elaborador"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -212,7 +212,7 @@ def sign_for_maker(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/aceptar_rechazar/<int:cid_procedimiento_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def accept_reject(cid_procedimiento_id):
     """Aceptar o Rechazar un Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -290,7 +290,7 @@ def accept_reject(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/eliminar/<int:cid_procedimiento_id>")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(cid_procedimiento_id):
     """Eliminar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -302,7 +302,7 @@ def delete(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/recuperar/<int:cid_procedimiento_id>")
-@permission_required(Permiso.MODIFICAR_DOCUMENTACIONES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(cid_procedimiento_id):
     """Recuperar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)

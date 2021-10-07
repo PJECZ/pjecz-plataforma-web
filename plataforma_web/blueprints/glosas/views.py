@@ -14,14 +14,14 @@ from werkzeug.utils import secure_filename
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.glosas.forms import GlosaEditForm, GlosaNewForm, GlosaSearchForm, GlosaSearchAdminForm
 from plataforma_web.blueprints.glosas.models import Glosa
+from plataforma_web.blueprints.permisos.models import Permiso
 
 glosas = Blueprint("glosas", __name__, template_folder="templates")
 
@@ -42,7 +42,7 @@ def checkout(id_hashed):
 
 @glosas.before_request
 @login_required
-@permission_required(Permiso.VER_SEGUNDAS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -80,7 +80,7 @@ def list_active():
 
 
 @glosas.route("/glosas/inactivos")
-@permission_required(Permiso.MODIFICAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Glosas inactivas"""
     # Si es administrador ve todo
@@ -137,7 +137,7 @@ def list_autoridad_glosas(autoridad_id):
 
 
 @glosas.route("/glosas/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_glosas_inactive(autoridad_id):
     """Listado de Glosas inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -278,7 +278,7 @@ def datatable_json():
 
 
 @glosas.route("/glosas/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_NOTARIALES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para listado de glosas admin"""
     # Tomar parámetros de Datatables
@@ -333,7 +333,7 @@ def datatable_json_admin():
 
 
 @glosas.route("/glosas/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def refresh(autoridad_id):
     """Refrescar Glosas"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -370,7 +370,7 @@ def new_success(glosa):
 
 
 @glosas.route("/glosas/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Subir Glosa como juzgado"""
 
@@ -473,7 +473,7 @@ def new():
 
 
 @glosas.route("/glosas/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_autoridad(autoridad_id):
     """Subir Glosa para una autoridad dada"""
 
@@ -591,7 +591,7 @@ def edit_success(glosa):
 
 
 @glosas.route("/glosas/edicion/<int:glosa_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(glosa_id):
     """Editar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
@@ -634,7 +634,7 @@ def delete_success(glosa):
 
 
 @glosas.route("/glosas/eliminar/<int:glosa_id>")
-@permission_required(Permiso.MODIFICAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(glosa_id):
     """Eliminar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)
@@ -673,7 +673,7 @@ def recover_success(glosa):
 
 
 @glosas.route("/glosas/recuperar/<int:glosa_id>")
-@permission_required(Permiso.MODIFICAR_SEGUNDAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(glosa_id):
     """Recuperar Glosa"""
     glosa = Glosa.query.get_or_404(glosa_id)

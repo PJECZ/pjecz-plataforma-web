@@ -7,13 +7,13 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.peritos.models import Perito
 from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
+from plataforma_web.blueprints.permisos.models import Permiso
 
 peritos = Blueprint("peritos", __name__, template_folder="templates")
 
@@ -22,7 +22,7 @@ MODULO = "PERITOS"
 
 @peritos.before_request
 @login_required
-@permission_required(Permiso.VER_CONSULTAS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -39,7 +39,7 @@ def list_active():
 
 
 @peritos.route("/peritos/inactivos")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Peritos inactivos"""
     return render_template(
@@ -122,7 +122,7 @@ def detail(perito_id):
 
 
 @peritos.route("/peritos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CONSULTAS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Perito"""
     form = PeritoForm()
@@ -152,7 +152,7 @@ def new():
 
 
 @peritos.route("/peritos/edicion/<int:perito_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(perito_id):
     """Editar Perito"""
     perito = Perito.query.get_or_404(perito_id)
@@ -190,7 +190,7 @@ def edit(perito_id):
 
 
 @peritos.route("/peritos/eliminar/<int:perito_id>")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(perito_id):
     """Eliminar Perito"""
     perito = Perito.query.get_or_404(perito_id)
@@ -208,7 +208,7 @@ def delete(perito_id):
 
 
 @peritos.route("/peritos/recuperar/<int:perito_id>")
-@permission_required(Permiso.MODIFICAR_CONSULTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(perito_id):
     """Recuperar Perito"""
     perito = Perito.query.get_or_404(perito_id)

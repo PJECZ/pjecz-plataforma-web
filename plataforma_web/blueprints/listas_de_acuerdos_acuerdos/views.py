@@ -7,13 +7,13 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.models import ListaDeAcuerdoAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.forms import ListaDeAcuerdoAcuerdoForm, ListaDeAcuerdoAcuerdoSearchForm
+from plataforma_web.blueprints.permisos.models import Permiso
 
 listas_de_acuerdos_acuerdos = Blueprint("listas_de_acuerdos_acuerdos", __name__, template_folder="templates")
 
@@ -22,7 +22,7 @@ MODULO = "LISTAS DE ACUERDOS"
 
 @listas_de_acuerdos_acuerdos.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -39,7 +39,7 @@ def list_active():
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/inactivos")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_inactive():
     """Listado de Acuerdos inactivos"""
     return render_template(
@@ -121,7 +121,7 @@ def datatable_json():
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para Acuerdos admin"""
     # Tomar parámetros de Datatables
@@ -168,7 +168,7 @@ def detail(lista_de_acuerdo_acuerdo_id):
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/nuevo/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new(lista_de_acuerdo_id):
     """Nuevo Acuerdo"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
@@ -218,7 +218,7 @@ def new(lista_de_acuerdo_id):
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/edicion/<int:lista_de_acuerdo_acuerdo_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def edit(lista_de_acuerdo_acuerdo_id):
     """Editar Acuerdo"""
     acuerdo = ListaDeAcuerdoAcuerdo.query.get_or_404(lista_de_acuerdo_acuerdo_id)
@@ -270,7 +270,7 @@ def edit(lista_de_acuerdo_acuerdo_id):
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/eliminar/<int:lista_de_acuerdo_acuerdo_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(lista_de_acuerdo_acuerdo_id):
     """Eliminar Acuerdo"""
     acuerdo = ListaDeAcuerdoAcuerdo.query.get_or_404(lista_de_acuerdo_acuerdo_id)
@@ -281,7 +281,7 @@ def delete(lista_de_acuerdo_acuerdo_id):
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/recuperar/<int:lista_de_acuerdo_acuerdo_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(lista_de_acuerdo_acuerdo_id):
     """Recuperar Acuerdo"""
     acuerdo = ListaDeAcuerdoAcuerdo.query.get_or_404(lista_de_acuerdo_acuerdo_id)

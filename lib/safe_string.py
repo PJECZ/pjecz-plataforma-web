@@ -29,3 +29,54 @@ def safe_message(input_str, max_len=250):
     if message == "":
         message = "Sin descripción"
     return (message[:max_len] + "...") if len(message) > max_len else message
+
+
+def safe_expediente(input_str):
+    """Safe expediente"""
+    if not isinstance(input_str, str) or input_str.strip() == "":
+        return ""
+    elementos = re.sub(r"[^a-zA-Z0-9]+", "|", unidecode(input_str)).split("|")
+    try:
+        numero = int(elementos[0])
+        ano = int(elementos[1])
+    except (IndexError, ValueError) as error:
+        raise error
+    if numero <= 0:
+        raise ValueError
+    if ano < 1950 or ano > date.today().year:
+        raise ValueError
+    extra_1 = ""
+    if len(elementos) >= 3:
+        extra_1 = "-" + elementos[2].upper()
+    extra_2 = ""
+    if len(elementos) >= 4:
+        extra_2 = "-" + elementos[3].upper()
+    limpio = f"{str(numero)}/{str(ano)}{extra_1}{extra_2}"
+    if len(limpio) > 16:
+        raise ValueError
+    return limpio
+
+
+def safe_sentencia(input_str):
+    """Safe sentencia"""
+    if not isinstance(input_str, str) or input_str.strip() == "":
+        return ""
+    elementos = re.sub(r"[^0-9A-Z]+", "|", unidecode(input_str)).split("|")
+    try:
+        numero = int(elementos[0])
+        ano = int(elementos[1])
+    except (IndexError, ValueError) as error:
+        raise error
+    if numero <= 0:
+        raise ValueError
+    if ano < 1950 or ano > date.today().year:
+        raise ValueError
+    limpio = f"{str(numero)}/{str(ano)}"
+    if len(limpio) > 16:
+        raise ValueError
+    return limpio
+
+
+def safe_numero_publicacion(input_str):
+    """Safe número publicación"""
+    return safe_sentencia(input_str)

@@ -4,17 +4,18 @@ Transcripciones, vistas
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.transcripciones.models import Transcripcion
 from plataforma_web.blueprints.transcripciones.forms import TranscripcionNewForm, TranscripcionEditForm, TranscripcionSearchForm
+from plataforma_web.blueprints.permisos.models import Permiso
 
 transcripciones = Blueprint("transcripciones", __name__, template_folder="templates")
 
 
 @transcripciones.before_request
 @login_required
-@permission_required(Permiso.VER_CUENTAS)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -31,7 +32,7 @@ def list_active():
 
 
 @transcripciones.route("/transcripciones/inactivas")
-@permission_required(Permiso.MODIFICAR_CUENTAS)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Transcripciones inactivas"""
     return render_template(
@@ -50,7 +51,7 @@ def detail(transcripcion_id):
 
 
 @transcripciones.route("/transcripciones/nueva", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_CUENTAS)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Transcripción"""
     form = TranscripcionNewForm()

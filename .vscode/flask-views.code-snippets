@@ -11,7 +11,7 @@
 			"from flask_login import login_required",
 			"",
 			"from lib import datatables",
-			"from ${2:sistema}.blueprints.roles.models import Permiso",
+			"from ${2:sistema}.blueprints.permisos.models import Permiso",
 			"from ${2:sistema}.blueprints.usuarios.decorators import permission_required",
 			"from ${2:sistema}.blueprints.${3:blueprint}.models import ${4:Clase}",
 			"",
@@ -64,7 +64,7 @@
 		"prefix": "fviews_list_inactive",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def list_inactive():",
 			"\t\"\"\" Listado de ${2:Modulo} inactivos \"\"\"",
 			"\t${3:registros}_inactivos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'B').all()",
@@ -79,7 +79,7 @@
 		"prefix": "fviews_list_inactive_datatable_json",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def list_inactive():",
 			"\t\"\"\"Listado de ${2:Modulo} inactivos\"\"\"",
 			"\treturn render_template(",
@@ -172,7 +172,7 @@
 		"prefix": "fviews_new",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/nuevo', methods=['GET', 'POST'])",
-			"@permission_required(Permiso.CREAR_)",
+			"@permission_required(MODULO, Permiso.CREAR)",
 			"def new():",
 			"\t\"\"\" Nuevo ${2:Modulo} \"\"\"",
 			"\tform = ${3:ClassForm}()",
@@ -192,7 +192,7 @@
 		"prefix": "fviews_edit",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/edicion/<int:${2:column_id}>', methods=['GET', 'POST'])",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def edit(${2:column_id}):",
 			"\t\"\"\" Editar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
@@ -214,7 +214,7 @@
 		"prefix": "fviews_delete",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/eliminar/<int:${2:column_id}>')",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def delete(${2:column_id}):",
 			"\t\"\"\" Eliminar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
@@ -232,7 +232,7 @@
 		"prefix": "fviews_recover",
 		"body": [
 			"@${1:blueprint}.route('/${1:blueprint}/recuperar/<int:${2:column_id}>')",
-			"@permission_required(Permiso.MODIFICAR_)",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
 			"def recover(${2:column_id}):",
 			"\t\"\"\" Recuperar ${3:Modulo} \"\"\"",
 			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",

@@ -7,12 +7,12 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_string
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm, UbicacionExpedienteSearchAdminForm
 
@@ -23,7 +23,7 @@ MODULO = "UBICACIONES DE EXPEDIENTES"
 
 @ubicaciones_expedientes.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -55,7 +55,7 @@ def list_active():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Ubicaciones de Expedientes inactivos"""
     # Si es administrador ve todo
@@ -119,7 +119,7 @@ def list_autoridad_ubicaciones_expedientes(autoridad_id):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_ubicaciones_expedientes_inactive(autoridad_id):
     """Listado de Ubicaciones de Expedientes inactivos de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -239,7 +239,7 @@ def datatable_json():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para listado de ubicaciones de expedientes admin"""
     # Tomar parámetros de Datatables
@@ -304,7 +304,7 @@ def new_success(ubicacion_expediente):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Ubicación de Expedientes como juzgado"""
 
@@ -354,7 +354,7 @@ def new():
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new_for_autoridad(autoridad_id):
     """Nuevo Ubicación de Expedientes para una autoridad dada"""
 
@@ -419,7 +419,7 @@ def edit_success(ubicacion_expediente):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/edicion/<int:ubicacion_expediente_id>", methods=["GET", "POST"])
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(ubicacion_expediente_id):
     """Editar Ubicación de Expedientes"""
 
@@ -468,7 +468,7 @@ def delete_success(ubicacion_expediente):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/eliminar/<int:ubicacion_expediente_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(ubicacion_expediente_id):
     """Eliminar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)
@@ -495,7 +495,7 @@ def recover_success(ubicacion_expediente):
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/recuperar/<int:ubicacion_expediente_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(ubicacion_expediente_id):
     """Recuperar Ubicacion de Expedientes"""
     ubicacion_expediente = UbicacionExpediente.query.get_or_404(ubicacion_expediente_id)

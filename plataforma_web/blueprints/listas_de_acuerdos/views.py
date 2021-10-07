@@ -14,15 +14,15 @@ from werkzeug.utils import secure_filename
 from lib import datatables
 from lib.safe_string import safe_message, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
-
-from plataforma_web.blueprints.roles.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm, ListaDeAcuerdoSearchAdminForm
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.models import ListaDeAcuerdoAcuerdo
+from plataforma_web.blueprints.permisos.models import Permiso
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
@@ -42,7 +42,7 @@ def checkout(id_hashed):
 
 @listas_de_acuerdos.before_request
 @login_required
-@permission_required(Permiso.VER_JUSTICIABLES)
+@permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
 
@@ -74,7 +74,7 @@ def list_active():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/inactivos")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Listas de Acuerdos inactivas"""
     # Si es administrador ve todo
@@ -138,7 +138,7 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/inactivos/autoridad/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
     """Listado de Listas de Acuerdos inactivas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -292,7 +292,7 @@ def datatable_json_admin():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def refresh(autoridad_id):
     """Refrescar Listas de Acuerdos"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -337,7 +337,7 @@ def new_success(lista_de_acuerdo, anterior_borrada):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo", methods=["GET", "POST"])
-@permission_required(Permiso.CREAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.CREAR)
 def new():
     """Subir Lista de Acuerdos como juzgado"""
 
@@ -444,7 +444,7 @@ def new():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_autoridad(autoridad_id):
     """Subir Lista de Acuerdos para una autoridad dada"""
 
@@ -547,7 +547,7 @@ def new_for_autoridad(autoridad_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
-@permission_required(Permiso.ADMINISTRAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def edit(lista_de_acuerdo_id):
     """Editar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
@@ -583,7 +583,7 @@ def delete_success(lista_de_acuerdo):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/eliminar/<int:lista_de_acuerdo_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(lista_de_acuerdo_id):
     """Eliminar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
@@ -619,7 +619,7 @@ def recover_success(lista_de_acuerdo):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/recuperar/<int:lista_de_acuerdo_id>")
-@permission_required(Permiso.MODIFICAR_JUSTICIABLES)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def recover(lista_de_acuerdo_id):
     """Recuperar Lista de Acuerdos"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
