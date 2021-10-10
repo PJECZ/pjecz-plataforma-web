@@ -170,6 +170,7 @@ def new():
             apellido_materno=form.apellido_materno.data,
             curp=form.curp.data,
             email=form.email.data,
+            workspace=form.workspace.data,
             puesto=form.puesto.data,
             contrasena=contrasena,
         )
@@ -201,6 +202,7 @@ def edit(usuario_id):
         usuario.apellido_materno = form.apellido_materno.data
         usuario.curp = form.curp.data
         usuario.email = form.email.data
+        usuario.workspace = form.workspace.data
         usuario.puesto = form.puesto.data
         if form.contrasena.data != "":
             usuario.contrasena = pwd_context.hash(form.contrasena.data)
@@ -219,6 +221,7 @@ def edit(usuario_id):
     form.apellido_materno.data = usuario.apellido_materno
     form.curp.data = usuario.curp
     form.email.data = usuario.email
+    form.workspace.data = usuario.workspace
     form.puesto.data = usuario.puesto
     return render_template("usuarios/edit.jinja2", form=form, usuario=usuario)
 
