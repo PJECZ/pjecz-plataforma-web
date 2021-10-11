@@ -66,8 +66,8 @@ def new():
         nivel = form.nivel.data
         nombre = f"{rol.nombre} puede {Permiso.NIVELES[nivel]} en {modulo.nombre}"
         if Permiso.query.filter(Permiso.modulo == modulo).filter(Permiso.rol == rol).first() is not None:
-            flash(f"CONFLICTO: Ya existe {nombre}", "warning")
-            return render_template("permisos/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {nombre}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("permisos.list_inactive"))
         permiso = Permiso(
             modulo=modulo,
             rol=rol,
@@ -98,8 +98,8 @@ def new_with_rol(rol_id):
         nivel = form.nivel.data
         nombre = f"{rol.nombre} puede {Permiso.NIVELES[nivel]} en {modulo.nombre}"
         if Permiso.query.filter(Permiso.modulo == modulo).filter(Permiso.rol == rol).first() is not None:
-            flash(f"CONFLICTO: Ya existe {nombre}", "warning")
-            return render_template("permisos/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {nombre}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("permisos.list_inactive"))
         permiso = Permiso(
             modulo=modulo,
             rol=rol,
@@ -136,8 +136,8 @@ def new_with_modulo(modulo_id):
         nivel = form.nivel.data
         nombre = f"{rol.nombre} puede {Permiso.NIVELES[nivel]} en {modulo.nombre}"
         if Permiso.query.filter(Permiso.modulo == modulo).filter(Permiso.rol == rol).first() is not None:
-            flash(f"CONFLICTO: Ya existe {nombre}", "warning")
-            return render_template("permisos/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {nombre}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("permisos.list_inactive"))
         permiso = Permiso(
             modulo=modulo,
             rol=rol,

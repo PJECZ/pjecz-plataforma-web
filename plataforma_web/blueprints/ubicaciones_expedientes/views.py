@@ -17,7 +17,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 from plataforma_web.blueprints.ubicaciones_expedientes.forms import UbicacionExpedienteNewForm, UbicacionExpedienteEditForm, UbicacionExpedienteSearchForm, UbicacionExpedienteSearchAdminForm
 
-MODULO = "UBICACIONES DE EXPEDIENTES"
+MODULO = "UBICACIONES EXPEDIENTES"
 
 ubicaciones_expedientes = Blueprint("ubicaciones_expedientes", __name__, template_folder="templates")
 

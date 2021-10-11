@@ -69,8 +69,8 @@ def new():
         usuario = form.usuario.data
         descripcion = f"{usuario.email} en {rol.nombre}"
         if UsuarioRol.query.filter(UsuarioRol.rol == rol).filter(UsuarioRol.usuario == usuario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}", "warning")
-            return render_template("usuarios_roles/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("usuarios_roles.list_inactive"))
         usuario_rol = UsuarioRol(
             rol=rol,
             usuario=usuario,
@@ -99,8 +99,8 @@ def new_with_rol(rol_id):
         usuario = form.usuario.data
         descripcion = f"{usuario.email} en {rol.nombre}"
         if UsuarioRol.query.filter(UsuarioRol.rol == rol).filter(UsuarioRol.usuario == usuario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}", "warning")
-            return render_template("usuarios_roles/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("usuarios_roles.list_inactive"))
         usuario_rol = UsuarioRol(
             rol=rol,
             usuario=usuario,
@@ -135,8 +135,8 @@ def new_with_usuario(usuario_id):
         rol = form.rol.data
         descripcion = f"{usuario.email} en {rol.nombre}"
         if UsuarioRol.query.filter(UsuarioRol.rol == rol).filter(UsuarioRol.usuario == usuario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}", "warning")
-            return render_template("usuarios_roles/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("usuarios_roles.list_inactive"))
         usuario_rol = UsuarioRol(
             rol=rol,
             usuario=usuario,
@@ -190,7 +190,7 @@ def recover(usuario_rol_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado usuario-rol {usuario_rol.descripcion}"),
+            descripcion=safe_message(f"Recuperado usuario-rol {usuario_rol.descripcion}"),
             url=url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id),
         )
         bitacora.save()

@@ -9,12 +9,49 @@
 {% endblock %}
 
 {% block content %}
+    {# Plataforma Web #}
     {% call start.card() %}
         <h1>Plataforma Web</h1>
         <p class="lead">Sistema para administrar el contenido del sitio web <a href="https://www.pjecz.gob.mx" target="_blank">www.pjecz.gob.mx</a>.</p>
         <hr class="my-4">
         <p><strong>Poder Judicial del Estado de Coahuila de Zaragoza</strong></p>
     {% endcall %}
+    {# Tarjetas #}
+    <div id="tarjetas" class="row">
+        {% if current_user.autoridad.audiencia_categoria != "NO DEFINIDO" %}
+        <div id="autoridades_audiencias_container" class="col-md-6 mb-2">
+            <div id="autoridades_audiencias_spinner">
+                <h5>Agenda de Audiencias</h5>
+                <p class="card-text"><span class="spinner-border" role="status"></span></p>
+            </div>
+        </div>
+        {% endif %}
+        {% if current_user.autoridad.directorio_edictos != "" %}
+        <div id="autoridades_edictos_container" class="col-md-6 mb-2">
+            <div id="autoridades_edictos_spinner">
+                <h5>Edictos</h5>
+                <p class="card-text"><span class="spinner-border" role="status"></span></p>
+            </div>
+        </div>
+        {% endif %}
+        {% if current_user.autoridad.directorio_listas_de_acuerdos != "" %}
+        <div id="autoridades_listas_de_acuerdos_container" class="col-md-6 mb-2">
+            <div id="autoridades_listas_de_acuerdos_spinner">
+                <h5>Listas de Acuerdos</h5>
+                <p><span class="spinner-border" role="status"></span></p>
+            </div>
+        </div>
+        {% endif %}
+        {% if current_user.autoridad.directorio_sentencias != "" %}
+        <div id="autoridades_sentencias_container" class="col-md-6 mb-2">
+            <div id="autoridades_sentencias_spinner">
+                <h5>Sentencias</h5>
+                <p><span class="spinner-border" role="status"></span></p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {# Versiones #}
     {% call start.card('Versiones') %}
         <div id="versiones_container">
             <span id="versiones_spinner" class="spinner-border" role="status"></span>
@@ -23,6 +60,40 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Tarjetas -->
+{% if current_user.autoridad.audiencia_categoria != "NO DEFINIDO" %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_audiencias.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            obtener_autoridades_audiencias('/inicio/audiencias_json', '#autoridades_audiencias_container', '#autoridades_audiencias_spinner');
+        });
+    </script>
+{% endif %}
+{% if current_user.autoridad.directorio_edictos != "" %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_edictos.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            obtener_autoridades_edictos('/inicio/edictos_json', '#autoridades_edictos_container', '#autoridades_edictos_spinner');
+        });
+    </script>
+{% endif %}
+{% if current_user.autoridad.directorio_listas_de_acuerdos != "" %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_listas_de_acuerdos.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            obtener_autoridades_listas_de_acuerdos('/inicio/listas_de_acuerdos_json', '#autoridades_listas_de_acuerdos_container', '#autoridades_listas_de_acuerdos_spinner');
+        });
+    </script>
+{% endif %}
+{% if current_user.autoridad.directorio_sentencias != "" %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_sentencias.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            obtener_autoridades_sentencias('/inicio/sentencias_json', '#autoridades_sentencias_container', '#autoridades_sentencias_spinner');
+        });
+    </script>
+{% endif %}
+    <!-- Versiones -->
     <script type="text/javascript">
         const versiones_json = "{{ url_for('static', filename='json/versions.json') }}";
     </script>
