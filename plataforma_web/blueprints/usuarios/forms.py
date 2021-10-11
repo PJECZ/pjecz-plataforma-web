@@ -50,6 +50,8 @@ class UsuarioFormNew(FlaskForm):
 class UsuarioFormEdit(FlaskForm):
     """Formulario para editar usuario"""
 
+    distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
