@@ -190,7 +190,7 @@ def recover(usuario_rol_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado usuario-rol {usuario_rol.descripcion}"),
+            descripcion=safe_message(f"Recuperado usuario-rol {usuario_rol.descripcion}"),
             url=url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id),
         )
         bitacora.save()

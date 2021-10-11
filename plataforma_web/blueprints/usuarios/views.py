@@ -42,8 +42,8 @@ def login():
     form = AccesoForm(siguiente=request.args.get("siguiente"))
     if form.validate_on_submit():
         # Tomar valores del formulario
-        identidad = request.form.get("username")
-        contrasena = request.form.get("password")
+        identidad = request.form.get("identidad")
+        contrasena = request.form.get("contrasena")
         token = request.form.get("token")
         siguiente_url = request.form.get("siguiente")
         # Si esta definida la variable de entorno FIREBASE_APIKEY
@@ -73,23 +73,28 @@ def login():
                     flash("Falló la autentificación.", "warning")
             else:
                 flash("Token incorrecto.", "warning")
-        elif re.fullmatch(EMAIL_REGEXP, identidad) is not None and re.fullmatch(CONTRASENA_REGEXP, contrasena) is not None:
+        else:
             # De lo contrario, el ingreso es con username/password
-            usuario = Usuario.find_by_identity(identidad)
-            if usuario and usuario.authenticated(password=contrasena):
-                if login_user(usuario, remember=True) and usuario.is_active:
-                    EntradaSalida(
-                        usuario_id=usuario.id,
-                        tipo="INGRESO",
-                        direccion_ip=request.remote_addr,
-                    ).save()
-                    if siguiente_url:
-                        return redirect(safe_next_url(siguiente_url))
-                    return redirect(url_for("sistemas.start"))
-                else:
-                    flash("No está activa esa cuenta", "warning")
+            if re.fullmatch(EMAIL_REGEXP, identidad) is None:
+                flash("Correo electrónico no válido.", "warning")
+            elif re.fullmatch(CONTRASENA_REGEXP, contrasena) is None:
+                flash("Contraseña no válida.", "warning")
             else:
-                flash("Usuario o contraseña incorrectos.", "warning")
+                usuario = Usuario.find_by_identity(identidad)
+                if usuario and usuario.authenticated(password=contrasena):
+                    if login_user(usuario, remember=True) and usuario.is_active:
+                        EntradaSalida(
+                            usuario_id=usuario.id,
+                            tipo="INGRESO",
+                            direccion_ip=request.remote_addr,
+                        ).save()
+                        if siguiente_url:
+                            return redirect(safe_next_url(siguiente_url))
+                        return redirect(url_for("sistemas.start"))
+                    else:
+                        flash("No está activa esa cuenta", "warning")
+                else:
+                    flash("Usuario o contraseña incorrectos.", "warning")
     return render_template("usuarios/login.jinja2", form=form, firebase_auth=firebase_auth, title="Plataforma Web")
 
 
