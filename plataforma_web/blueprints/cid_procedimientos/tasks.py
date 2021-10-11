@@ -172,7 +172,11 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     # Preparar SendGrid para enviar mensajes por correo electrónico
     api_key = os.environ.get("SENDGRID_API_KEY", "Debe estar definida como variable de entorno")
     sg = sendgrid.SendGridAPIClient(api_key=api_key)
-    from_email = Email("plataforma.web@pjecz.gob.mx")
+    email_sendgrid = os.environ.get("EMAIL_SENDGRID", "Variable entorno, cuenta de la cual se envia correo")
+    if email_sendgrid != "":
+        from_email = Email(email_sendgrid)
+    else:
+        from_email = Email("plataforma.web@pjecz.gob.mx")
 
     # Si seguimiento es ELABORADO
     if cid_procedimiento.seguimiento == "ELABORADO":

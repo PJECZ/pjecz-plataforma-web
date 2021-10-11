@@ -9,6 +9,7 @@
 *.sqlite3
 *.sqlite3-journal
 *.yaml
+*.rdb
 __pycache__/
 /instance/settings.py
 /seed/
