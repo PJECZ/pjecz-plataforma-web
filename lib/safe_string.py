@@ -2,6 +2,7 @@
 Safe string
 """
 import re
+from datetime import date
 from unidecode import unidecode
 
 CONTRASENA_REGEXP = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,48}$"
