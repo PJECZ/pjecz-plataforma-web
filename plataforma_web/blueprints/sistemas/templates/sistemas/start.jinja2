@@ -61,7 +61,7 @@
 
 {% block custom_javascript %}
     <!-- Tarjetas -->
-{% if autoridad.audiencia_categoria != "NO DEFINIDO" %}
+{% if current_user.autoridad.audiencia_categoria != "NO DEFINIDO" %}
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_audiencias.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -69,7 +69,7 @@
         });
     </script>
 {% endif %}
-{% if autoridad.directorio_edictos != "" %}
+{% if current_user.autoridad.directorio_edictos != "" %}
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_edictos.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -77,7 +77,7 @@
         });
     </script>
 {% endif %}
-{% if autoridad.directorio_listas_de_acuerdos != "" %}
+{% if current_user.autoridad.directorio_listas_de_acuerdos != "" %}
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_listas_de_acuerdos.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -85,7 +85,7 @@
         });
     </script>
 {% endif %}
-{% if autoridad.directorio_sentencias != "" %}
+{% if current_user.autoridad.directorio_sentencias != "" %}
     <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_sentencias.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
