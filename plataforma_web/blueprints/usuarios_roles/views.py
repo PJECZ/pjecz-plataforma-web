@@ -69,8 +69,8 @@ def new():
         usuario = form.usuario.data
         descripcion = f"{usuario.email} en {rol.nombre}"
         if UsuarioRol.query.filter(UsuarioRol.rol == rol).filter(UsuarioRol.usuario == usuario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}", "warning")
-            return render_template("usuarios_roles/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("usuarios_roles.list_inactive"))
         usuario_rol = UsuarioRol(
             rol=rol,
             usuario=usuario,
@@ -99,8 +99,8 @@ def new_with_rol(rol_id):
         usuario = form.usuario.data
         descripcion = f"{usuario.email} en {rol.nombre}"
         if UsuarioRol.query.filter(UsuarioRol.rol == rol).filter(UsuarioRol.usuario == usuario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}", "warning")
-            return render_template("usuarios_roles/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("usuarios_roles.list_inactive"))
         usuario_rol = UsuarioRol(
             rol=rol,
             usuario=usuario,
@@ -135,8 +135,8 @@ def new_with_usuario(usuario_id):
         rol = form.rol.data
         descripcion = f"{usuario.email} en {rol.nombre}"
         if UsuarioRol.query.filter(UsuarioRol.rol == rol).filter(UsuarioRol.usuario == usuario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}", "warning")
-            return render_template("usuarios_roles/new.jinja2", form=form)
+            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
+            return redirect(url_for("usuarios_roles.list_inactive"))
         usuario_rol = UsuarioRol(
             rol=rol,
             usuario=usuario,
