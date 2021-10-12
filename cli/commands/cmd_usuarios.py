@@ -34,16 +34,20 @@ def respaldar(output):
     click.echo("Respaldando usuarios...")
     contador = 0
     usuarios = Usuario.query.order_by(Usuario.id).all()
-    with open(ruta, "w", encoding="utf-8") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
                 "id",
-                "rol_id",
+                "autoridad_clave",
                 "email",
                 "nombres",
                 "apellido_paterno",
                 "apellido_materno",
+                "curp",
+                "puesto",
+                "telefono_celular",
+                "workspace",
                 "estatus",
             ]
         )
@@ -51,11 +55,15 @@ def respaldar(output):
             respaldo.writerow(
                 [
                     usuario.id,
-                    usuario.rol_id,
+                    usuario.autoridad.clave,
                     usuario.email,
                     usuario.nombres,
                     usuario.apellido_paterno,
                     usuario.apellido_materno,
+                    usuario.curp,
+                    usuario.puesto,
+                    usuario.telefono_celular,
+                    usuario.workspace,
                     usuario.estatus,
                 ]
             )

@@ -117,7 +117,7 @@ def respaldar(output):
     click.echo("Respaldando ubicaciones de expedientes...")
     contador = 0
     ubicaciones_expedientes = UbicacionExpediente.query.filter_by(estatus="A").all()
-    with open(ruta, "w") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(["autoridad", "expediente", "ubicacion"])
         for ubicacion_expediente in ubicaciones_expedientes:

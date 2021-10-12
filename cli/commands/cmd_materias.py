@@ -32,7 +32,7 @@ def respaldar(output):
     click.echo("Respaldando materias...")
     contador = 0
     materias = Materia.query.order_by(Materia.id).all()
-    with open(ruta, "w") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(["id", "nombre", "estatus"])
         for materia in materias:

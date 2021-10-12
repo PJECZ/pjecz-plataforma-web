@@ -1,5 +1,7 @@
 """
 CID Procedimientos
+
+- crear_pdf: Crear PDF
 """
 import click
 

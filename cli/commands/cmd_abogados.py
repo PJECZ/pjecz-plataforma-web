@@ -1,7 +1,7 @@
 """
 Abogados
 
-- alimentar: Alimentar insertando registros desde un archivo CSV
+- alimentar: Alimentar desde un archivo CSV
 - respaldar: Respaldar a un archivo CSV
 """
 from datetime import datetime
@@ -27,7 +27,7 @@ def cli():
 @click.command()
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
-    """Alimentar la tabla abogados insertando registros desde un archivo CSV"""
+    """Alimentar desde un archivo CSV"""
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -84,7 +84,7 @@ def respaldar(output, desde):
     if desde_fecha is not None:
         abogados = abogados.filter(Abogado.fecha >= desde_fecha)
     abogados = abogados.order_by(Abogado.fecha).all()
-    with open(ruta, "w") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(["numero", "nombre", "libro", "fecha"])
         for abogado in abogados:
