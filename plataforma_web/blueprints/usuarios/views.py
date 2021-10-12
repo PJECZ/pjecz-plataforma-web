@@ -1,7 +1,6 @@
 """
 Usuarios, vistas
 """
-import json
 import os
 import re
 
@@ -10,7 +9,6 @@ import google.oauth2.id_token
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
-from lib import datatables
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
@@ -202,6 +200,7 @@ def edit(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     form = UsuarioFormEdit()
     if form.validate_on_submit():
+        usuario.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         usuario.nombres = form.nombres.data
         usuario.apellido_paterno = form.apellido_paterno.data
         usuario.apellido_materno = form.apellido_materno.data
@@ -221,6 +220,8 @@ def edit(usuario_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    form.distrito.data = usuario.autoridad.distrito
+    form.autoridad.data = usuario.autoridad
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno
@@ -228,7 +229,9 @@ def edit(usuario_id):
     form.email.data = usuario.email
     form.workspace.data = usuario.workspace
     form.puesto.data = usuario.puesto
-    return render_template("usuarios/edit.jinja2", form=form, usuario=usuario)
+    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()
+    autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()
+    return render_template("usuarios/edit.jinja2", form=form, usuario=usuario, distritos=distritos, autoridades=autoridades)
 
 
 @usuarios.route("/usuarios/eliminar/<int:usuario_id>")

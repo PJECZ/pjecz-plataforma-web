@@ -32,7 +32,7 @@ def respaldar(output):
     click.echo("Respaldando distritos...")
     contador = 0
     distritos = Distrito.query.order_by(Distrito.id).all()
-    with open(ruta, "w") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(["id", "nombre", "nombre_corto", "es_distrito_judicial", "estatus"])
         for distrito in distritos:

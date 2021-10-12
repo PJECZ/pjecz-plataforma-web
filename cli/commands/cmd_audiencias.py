@@ -1,13 +1,14 @@
 """
 Audiencias
 
-- alimentar: Desde un archivo CLAVE.csv
+- alimentar: Alimentar desde un archivo CSV con el nombre de la clave de la autoridad
 - respaldar: Respaldar a un archivo CSV
 """
 from datetime import datetime
 from pathlib import Path
 import csv
 import click
+
 from lib.safe_string import safe_string
 from lib.time_utc import local_to_utc
 
@@ -29,7 +30,7 @@ def cli():
 @click.command()
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
-    """Alimentar la tabla audiencias insertando registros desde un archivo CSV"""
+    """Alimentar desde un archivo CSV con el nombre de la clave de la autoridad"""
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -137,7 +138,7 @@ def alimentar(entrada_csv):
 @click.option("--desde", default="", type=str, help="Fecha de inicio AAAA-MM-DD")
 @click.option("--output", default="audiencias.csv", type=str, help="Archivo CSV a escribir")
 def respaldar(autoridad_id, autoridad_clave, desde, output):
-    """Respaldar la tabla audiencias a su archivo CSV"""
+    """Respaldar a un archivo CSV"""
     ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
@@ -164,11 +165,11 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
     if desde_fecha is not None:
         audiencias = audiencias.filter(Audiencia.tiempo >= desde_fecha)
     audiencias = audiencias.order_by(Audiencia.tiempo).all()
-    with open(ruta, "w", encoding="utf-8") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
-                "autoridad_id",
+                "autoridad_clave",
                 "tiempo",
                 "tipo_audiencia",
                 "expediente",
@@ -187,7 +188,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
         for audiencia in audiencias:
             respaldo.writerow(
                 [
-                    audiencia.autoridad_id,
+                    audiencia.autoridad.clave,
                     audiencia.tiempo,
                     audiencia.tipo_audiencia,
                     audiencia.expediente,

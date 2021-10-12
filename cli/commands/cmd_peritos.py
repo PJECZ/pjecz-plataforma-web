@@ -32,13 +32,13 @@ def respaldar(output):
     click.echo("Respaldando peritos...")
     contador = 0
     peritos = Perito.query.filter_by(estatus="A").order_by(Perito.distrito_id, Perito.tipo, Perito.nombre).all()
-    with open(ruta, "w") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["distrito_id", "tipo", "nombre", "domicilio", "telefono_fijo", "telefono_celular", "email", "renovacion", "notas"])
+        respaldo.writerow(["distrito_nombre", "tipo", "nombre", "domicilio", "telefono_fijo", "telefono_celular", "email", "renovacion", "notas"])
         for perito in peritos:
             respaldo.writerow(
                 [
-                    perito.distrito_id,
+                    perito.distrito.nombre,
                     perito.tipo,
                     perito.nombre,
                     perito.domicilio,

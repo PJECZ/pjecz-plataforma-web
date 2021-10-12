@@ -32,14 +32,32 @@ def respaldar(output):
     click.echo("Respaldando módulos...")
     contador = 0
     modulos = Modulo.query.order_by(Modulo.id).all()
-    with open(ruta, "w") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["id", "nombre", "estatus"])
+        respaldo.writerow(
+            [
+                "id",
+                "nombre",
+                "nombre_corto",
+                "icono",
+                "ruta",
+                "en_navegacion",
+                "estatus",
+            ]
+        )
         for modulo in modulos:
+            if modulo.en_navegacion:
+                en_navegacion = "1"
+            else:
+                en_navegacion = ""
             respaldo.writerow(
                 [
                     modulo.id,
                     modulo.nombre,
+                    modulo.nombre_corto,
+                    modulo.icono,
+                    modulo.ruta,
+                    en_navegacion,
                     modulo.estatus,
                 ]
             )
