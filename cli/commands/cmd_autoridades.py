@@ -32,7 +32,7 @@ def respaldar(output):
     click.echo("Respaldando autoridades...")
     contador = 0
     autoridades = Autoridad.query.order_by(Autoridad.id).all()
-    with open(ruta, "w") as puntero:
+    with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [

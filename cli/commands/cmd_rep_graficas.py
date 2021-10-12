@@ -1,7 +1,7 @@
 """
 Rep Graficas
 
-- elaborar: Elaborar todas las gráficas activas
+- elaborar: Elaborar las gráficas activas
 """
 import click
 
@@ -20,7 +20,7 @@ def cli():
 
 @click.command()
 def elaborar():
-    """Elaborar todas las gráficas activas"""
+    """Elaborar las gráficas activas"""
     rep_graficas = RepGrafica.query.filter_by(estatus="A").order_by(RepGrafica.id).all()
     if len(rep_graficas) == 0:
         click.echo("No hay gráficas activas.")
