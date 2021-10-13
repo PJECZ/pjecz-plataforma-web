@@ -39,6 +39,7 @@ def respaldar(output):
         encabezados = ["rol_id", "nombre"]
         for modulo in modulos:
             encabezados.append(modulo.nombre.lower())
+        encabezados.append("estatus")
         respaldo = csv.writer(puntero)
         respaldo.writerow(encabezados)
         for rol in roles:
@@ -49,6 +50,7 @@ def respaldar(output):
                     if permiso.modulo_id == modulo.id and permiso.estatus == "A":
                         permiso_str = str(permiso.nivel)
                 renglon.append(permiso_str)
+            renglon.append(rol.estatus)
             respaldo.writerow(renglon)
             contador += 1
     click.echo(f"Respaldados {contador} roles-permisos en {ruta.name}")
