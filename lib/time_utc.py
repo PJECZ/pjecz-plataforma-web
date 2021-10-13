@@ -5,8 +5,8 @@ Ejemplo
     from lib.time_utc import local_to_utc
     from datetime import datetime
     en_texto = "2021-08-13 10:00:00"
-    en_tiempo_local = tiempo = datetime.strptime(en_texto)
-    local_to_utc(en_tiempo_local)
+    tiempo = datetime.strptime(en_texto, "%Y-%m-%d %H:%M:%S")
+    local_to_utc(tiempo)
 """
 from datetime import datetime, date, time, timedelta
 import pytz
@@ -15,6 +15,11 @@ LIMITE_DIAS = 30  # Cantidad de días al pasado y al futuro que se permiten
 TIEMPO_DESDE = time(hour=8, minute=0, second=0)
 TIEMPO_HASTA = time(hour=18, minute=0, second=0)
 ZONA_HORARIA = pytz.timezone("America/Mexico_City")
+
+
+def utc_to_local_str(tiempo: datetime):
+    """Convertir de UTC a local"""
+    return tiempo.astimezone(pytz.utc).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def local_to_utc(tiempo: datetime):
