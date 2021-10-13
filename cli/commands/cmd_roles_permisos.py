@@ -11,7 +11,6 @@ from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.roles.models import Rol
 
 app = create_app()
