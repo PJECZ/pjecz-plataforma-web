@@ -15,16 +15,18 @@ LIMITE_DIAS = 30  # Cantidad de días al pasado y al futuro que se permiten
 TIEMPO_DESDE = time(hour=8, minute=0, second=0)
 TIEMPO_HASTA = time(hour=18, minute=0, second=0)
 ZONA_HORARIA = pytz.timezone("America/Mexico_City")
+ZONA_UTC = pytz.utc
 
 
 def utc_to_local_str(tiempo: datetime):
     """Convertir de UTC a local"""
-    return tiempo.astimezone(pytz.utc).strftime("%Y-%m-%d %H:%M:%S")
+    local = ZONA_UTC.normalize(ZONA_UTC.localize(tiempo)).astimezone(ZONA_HORARIA)
+    return local.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def local_to_utc(tiempo: datetime):
     """Convertir de local a UTC"""
-    return ZONA_HORARIA.normalize(ZONA_HORARIA.localize(tiempo)).astimezone(pytz.utc)
+    return ZONA_HORARIA.normalize(ZONA_HORARIA.localize(tiempo)).astimezone(ZONA_UTC)
 
 
 def combine_to_utc(tiempo_fecha: date, tiempo_horas_minutos: time, validar_rango: bool = True):
