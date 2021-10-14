@@ -85,6 +85,24 @@ function guardar_vista_previa() {
     console.log('OK Vista Previa');
 }
 
+// Mostrar Vista Previa
+function mostrar_vista_previa() {
+    let html = '';
+    $('#vista_previa_div').html('');
+    let titulo = "<h1><center>" + $('#titulo_procedimiento').val() + "</center></h1>";
+    let objetivo = objetivoQuill.root.innerHTML;
+    let alcance = alcanceQuill.root.innerHTML;
+    let documentos = documentosQuill.root.innerHTML;
+    let definiciones = definicionesQuill.root.innerHTML;
+    let responsabilidades = responsabilidadesQuill.root.innerHTML;
+    let desarrollo = desarrolloQuill.root.innerHTML;
+    let registros = registrosQuill.root.innerHTML;
+    let control_de_cambios = controlCambiosQuill.root.innerHTML;
+    html = titulo + objetivo + alcance + documentos + definiciones + responsabilidades + desarrollo + registros + control_de_cambios;
+    document.getElementById('vista_previa_quill').innerHTML = html;
+    document.getElementById('vista_previa').innerHTML = html;
+}
+
 // STEPS
 
 // DOM elements
@@ -181,6 +199,8 @@ DOMstrings.stepsBar.addEventListener('click', e => {
     setActiveStep(activeStep);
     // open active panel
     setActivePanel(activeStep);
+    // mostrar vista previa del procedimiento
+    mostrar_vista_previa();
 });
 
 // PREV/NEXT BTNS CLICK
@@ -201,6 +221,7 @@ DOMstrings.stepsForm.addEventListener('click', e => {
     }
     setActiveStep(activePanelNum);
     setActivePanel(activePanelNum);
+    mostrar_vista_previa();
 });
 
 // SETTING PROPER FORM HEIGHT ONLOAD

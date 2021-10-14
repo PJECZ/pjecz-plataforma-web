@@ -10,7 +10,7 @@ import csv
 import click
 
 from lib.safe_string import safe_string
-from lib.time_utc import local_to_utc
+from lib.time_utc import local_to_utc, utc_to_local_str
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -189,7 +189,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
             respaldo.writerow(
                 [
                     audiencia.autoridad.clave,
-                    audiencia.tiempo,
+                    utc_to_local_str(audiencia.tiempo),
                     audiencia.tipo_audiencia,
                     audiencia.expediente,
                     audiencia.actores,
