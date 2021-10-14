@@ -60,16 +60,16 @@ class CIDProcedimientoAcceptRejectForm(FlaskForm):
     revision = IntegerField("Revisión", validators=[DataRequired()])
     seguimiento = StringField("Seguimiento", validators=[DataRequired()])
     seguimiento_posterior = StringField("Seguimiento posterior", validators=[DataRequired()])
-    elaboro_nombre = StringField("ELABORADO", validators=[DataRequired()])
-    reviso_nombre = StringField("REVISADO", validators=[DataRequired()])
-    aprobo_nombre = StringField("APROBADO", validators=[DataRequired()])
-    remitente_nombre = ""
+    elaboro_nombre = StringField("Remitente", validators=[Optional(), Length(max=256)])
+    reviso_nombre = StringField("Remitente", validators=[Optional(), Length(max=256)])
+    aprobo_nombre = StringField("Remitente", validators=[Optional(), Length(max=256)])
+    remitente = ""
     if seguimiento == "ELABORADO":
-        remitente_nombre = elaboro_nombre
-    elif seguimiento == "REVISADO":
-        remitente_nombre = reviso_nombre
-    elif seguimiento == "APROBADO":
-        remitente_nombre = aprobo_nombre
+        remitente = elaboro_nombre
+    elif seguimiento_posterior == "REVISADO":
+        remitente = reviso_nombre
+    elif seguimiento_posterior == "APROBADO":
+        remitente = aprobo_nombre
 
     aceptar = SubmitField("Aceptar")
     rechazar = SubmitField("Rechazar")
