@@ -24,6 +24,7 @@
 {% block content %}
     {% call detail.card(estatus=cid_procedimiento.estatus) %}
        {% call accordion.div('procedimientos_accordion')%}
+            {# Comnieza acordeon #}
             {{ accordion.item('titulo', 'Título', cid_procedimiento.titulo_procedimiento, 'procedimientos_accordion') }}
             {{ accordion.item('codigo', 'Código', cid_procedimiento.codigo, 'procedimientos_accordion') }}
             {{ accordion.item('revision', 'Revisión', cid_procedimiento.revision, 'procedimientos_accordion') }}
@@ -34,9 +35,9 @@
             {##}
             {{ accordion.item('firma', 'Firma guardada', cid_procedimiento.firma, 'procedimientos_accordion') }}
             {{ accordion.item('firma_vuelo', 'Firma al vuelo', firma_al_vuelo, 'procedimientos_accordion') }}
-            {##} {# Comnieza acordeon #}
+            {##} 
             {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
-            {##}{# Comnieza acordeon #}
+            {##}
             {{ accordion.item('objetivos', 'Objetivo', objetivo, 'procedimientos_accordion')}}
             {{ accordion.item('alcance', 'Alcance', alcance, 'procedimientos_accordion')}}
             {{ accordion.item('documentos', 'Documentos', documentos, 'procedimientos_accordion')}}
