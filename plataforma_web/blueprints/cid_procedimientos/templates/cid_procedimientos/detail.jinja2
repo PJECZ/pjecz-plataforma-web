@@ -2,6 +2,7 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/accordion.jinja2' as accordion %}
 
 {% block title %}Procedimiento{% endblock %}
 
@@ -22,36 +23,38 @@
 
 {% block content %}
     {% call detail.card(estatus=cid_procedimiento.estatus) %}
-        {{ detail.label_value('Título', cid_procedimiento.titulo_procedimiento) }}
-        {{ detail.label_value('Código', cid_procedimiento.codigo) }}
-        {{ detail.label_value('Revisión', cid_procedimiento.revision) }}
-        {{ detail.label_value('Fecha', cid_procedimiento.fecha) }}
-        {{ detail.label_value('Seguimiento', cid_procedimiento.seguimiento) }}
-        {{ detail.label_value('Seguimiento posterior', cid_procedimiento.seguimiento_posterior) }}
-        {{ detail.label_value('Usuario', cid_procedimiento.usuario.nombre) }}
-        {##}
-        {{ detail.label_value('Firma guardada', cid_procedimiento.firma) }}
-        {{ detail.label_value('Firma al vuelo', firma_al_vuelo) }}
-        {##}
-        {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
-        {##}
-        {{ detail.label_value('Objetivo', objetivo) }}
-        {{ detail.label_value('Alcance', alcance) }}
-        {{ detail.label_value('Documentos', documentos) }}
-        {{ detail.label_value('Definiciones', definiciones) }}
-        {{ detail.label_value('Responsabilidades', responsabilidades) }}
-        {{ detail.label_value('Desarrollo', desarrollo) }}
-        {{ detail.label_value('Registros', registros) }}
-        {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
-        {{ detail.label_value('Elaboró puesto', cid_procedimiento.elaboro_puesto) }}
-        {{ detail.label_value('Elaboró correo', cid_procedimiento.elaboro_email) }}
-        {{ detail.label_value('Revisó nombre', cid_procedimiento.reviso_nombre) }}
-        {{ detail.label_value('Revisó puesto', cid_procedimiento.reviso_puesto) }}
-        {{ detail.label_value('Revisó correo', cid_procedimiento.reviso_email) }}
-        {{ detail.label_value('Autorizó nombre', cid_procedimiento.aprobo_nombre) }}
-        {{ detail.label_value('Autorizó puesto', cid_procedimiento.aprobo_puesto) }}
-        {{ detail.label_value('Autorizó correo', cid_procedimiento.aprobo_email) }}
-        {{ detail.label_value('Control de Cambios', control_cambios) }}
+       {% call accordion.div('procedimientos_accordion')%}
+            {{ accordion.item('titulo', 'Título', cid_procedimiento.titulo_procedimiento, 'procedimientos_accordion') }}
+            {{ accordion.item('codigo', 'Código', cid_procedimiento.codigo, 'procedimientos_accordion') }}
+            {{ accordion.item('revision', 'Revisión', cid_procedimiento.revision, 'procedimientos_accordion') }}
+            {{ accordion.item('fecha', 'Fecha', cid_procedimiento.fecha, 'procedimientos_accordion') }}
+            {{ accordion.item('seguimiento', 'Seguimiento', cid_procedimiento.seguimiento, 'procedimientos_accordion') }}
+            {{ accordion.item('seguimiento_posterior', 'Seguimiento posterior', cid_procedimiento.seguimiento_posterior, 'procedimientos_accordion') }}
+            {{ accordion.item('usuario', 'Usuario', cid_procedimiento.usuario.nombre, 'procedimientos_accordion') }}
+            {##}
+            {{ accordion.item('firma', 'Firma guardada', cid_procedimiento.firma, 'procedimientos_accordion') }}
+            {{ accordion.item('firma_vuelo', 'Firma al vuelo', firma_al_vuelo, 'procedimientos_accordion') }}
+            {##} {# Comnieza acordeon #}
+            {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
+            {##}{# Comnieza acordeon #}
+            {{ accordion.item('objetivos', 'Objetivo', objetivo, 'procedimientos_accordion')}}
+            {{ accordion.item('alcance', 'Alcance', alcance, 'procedimientos_accordion')}}
+            {{ accordion.item('documentos', 'Documentos', documentos, 'procedimientos_accordion')}}
+            {{ accordion.item('definiciones', 'Definiciones', definiciones, 'procedimientos_accordion')}}
+            {{ accordion.item('responsabilidades', 'Responsabilidades', responsabilidades, 'procedimientos_accordion')}}
+            {{ accordion.item('desarrollo', 'Desarrollo', desarrollo, 'procedimientos_accordion')}}
+            {{ accordion.item('registro', 'Registros', registros, 'procedimientos_accordion')}}
+            {{ accordion.item('control_cambios', 'Control de Cambios', control_cambios, 'procedimientos_accordion') }}
+            {{ accordion.item('elaboro_nombre', 'Elaboró nombre', cid_procedimiento.elaboro_nombre, 'procedimientos_accordion') }}
+            {{ accordion.item('elaboro_puesto', 'Elaboró puesto', cid_procedimiento.elaboro_puesto, 'procedimientos_accordion') }}
+            {{ accordion.item('elaboro_email', 'Elaboró correo', cid_procedimiento.elaboro_email, 'procedimientos_accordion') }}
+            {{ accordion.item('reviso_nombre', 'Revisó nombre', cid_procedimiento.reviso_nombre, 'procedimientos_accordion') }}
+            {{ accordion.item('reviso_puesto', 'Revisó puesto', cid_procedimiento.reviso_puesto, 'procedimientos_accordion') }}
+            {{ accordion.item('reviso_email', 'Revisó correo', cid_procedimiento.reviso_email, 'procedimientos_accordion') }}
+            {{ accordion.item('aprobo_nombre', 'Autorizó nombre', cid_procedimiento.aprobo_nombre, 'procedimientos_accordion') }}
+            {{ accordion.item('aprobo_puesto', 'Autorizó puesto', cid_procedimiento.aprobo_puesto, 'procedimientos_accordion') }}
+            {{ accordion.item('aprobo_email', 'Autorizó correo', cid_procedimiento.aprobo_email, 'procedimientos_accordion') }}
+        {% endcall %}  
     {% endcall %}
     {% if cid_formatos %}
         {% call detail.card(title='Formatos') %}
