@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <h2>OBJETIVO</h2>
+    <h3>OBJETIVO</h3>
 
     {{ objetivo }}
 
@@ -35,6 +35,31 @@
     <h2>REGISTROS</h2>
 
     {{ registros }}
+
+    <br>
+    <table width='100%' cellpadding="10">
+        <tr>
+            <td align="center">Elaboró</td>
+            <td align="center">Revisó</td>
+            <td align="center">Aprobó</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td align="center">
+                <hr>{{elaboro_nombre}}<br>{{elaboro_puesto}}
+            </td>
+            <td align="center">
+                <hr>{{reviso_nombre}}<br>{{reviso_puesto}}
+            </td>
+            <td align="center">
+                <hr>{{aprobo_nombre}}<br>{{aprobo_puesto}}
+            </td>
+        </tr>
+    </table>
 </body>
 
 </html>

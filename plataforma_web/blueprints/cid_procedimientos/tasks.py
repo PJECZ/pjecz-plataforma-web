@@ -6,6 +6,8 @@ CID Procedimientos, tareas en el fondo
 import locale
 import logging
 import os
+from pathlib import Path
+import random
 
 from delta import html
 from google.cloud import storage
@@ -28,7 +30,7 @@ bitacora.addHandler(empunadura)
 app = create_app()
 app.app_context().push()
 
-locale.setlocale(locale.LC_TIME, "es_MX")
+locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 
 DEPOSITO_DIR = "cid_procedimientos"
 TEMPLATES_DIR = "plataforma_web/blueprints/cid_procedimientos/templates/cid_procedimientos"
@@ -68,12 +70,24 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         trim_blocks=True,
         lstrip_blocks=True,
     )
-    pdf_body_plantilla = entorno.get_template("pdf_body.html")
-    pdf_body_html = pdf_body_plantilla.render(
+    # Renderizar Header
+    pdf_header_plantilla = entorno.get_template("pdf_header.html")
+    pdf_header_html = pdf_header_plantilla.render(
         titulo_procedimiento=cid_procedimiento.titulo_procedimiento,
         codigo=cid_procedimiento.codigo,
         revision=str(cid_procedimiento.revision),
         fecha=cid_procedimiento.fecha.strftime("%d %b %Y"),
+    )
+    # Renderizar Footer
+    pdf_footer_plantilla = entorno.get_template("pdf_footer.html")
+    pdf_footer_html = pdf_footer_plantilla.render(
+        codigo=cid_procedimiento.codigo,
+        revision=str(cid_procedimiento.revision),
+        fecha=cid_procedimiento.fecha.strftime("%d %b %Y"),
+    )
+    # Renderizar Body
+    pdf_body_plantilla = entorno.get_template("pdf_body.html")
+    pdf_body_html = pdf_body_plantilla.render(
         objetivo=html.render(cid_procedimiento.objetivo["ops"]),
         alcance=html.render(cid_procedimiento.alcance["ops"]),
         documentos=html.render(cid_procedimiento.documentos["ops"]),
@@ -81,27 +95,63 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         responsabilidades=html.render(cid_procedimiento.responsabilidades["ops"]),
         desarrollo=html.render(cid_procedimiento.desarrollo["ops"]),
         registros=html.render(cid_procedimiento.registros["ops"]),
+        elaboro_nombre=cid_procedimiento.elaboro_nombre,
+        elaboro_puesto=cid_procedimiento.elaboro_puesto,
+        reviso_nombre=cid_procedimiento.reviso_nombre,
+        reviso_puesto=cid_procedimiento.reviso_puesto,
+        aprobo_nombre=cid_procedimiento.aprobo_nombre,
+        aprobo_puesto=cid_procedimiento.aprobo_puesto,
     )
 
+    # Definir las rutas de los archivos temporales
+    random_hex = "%030x" % random.randrange(16 ** 30)
+    path_header = Path("/tmp/pjecz_plataforma_web-" + random_hex + "-header.html")
+    path_footer = Path("/tmp/pjecz_plataforma_web-" + random_hex + "-footer.html")
+
+    # Guardar archivo temporal con el header
+    archivo = open(path_header, "w", encoding="utf8")
+    archivo.write(pdf_header_html)
+    archivo.close()
+
+    # Guardar archivo temporal con el footer
+    archivo = open(path_footer, "w", encoding="utf8")
+    archivo.write(pdf_footer_html)
+    archivo.close()
+
+    # Opciones de configuracion para Header y Footer
+    wkhtmltopdf_options = {
+        "enable-local-file-access": False,
+        "javascript-delay": 2000,
+        "header-html": path_header,
+        "footer-html": path_footer,
+    }
+
     # Crear archivo PDF con el apoyo de
-    # - pdfkit https://pypi.org/project/pdfkit/
+    # - https://pypi.org/project/pdfkit/
+    # - https://wkhtmltopdf.org/downloads.html
+    pdf = None
     try:
-        pdf = pdfkit.from_string(pdf_body_html, False)
+        pdf = pdfkit.from_string(pdf_body_html, False, options=wkhtmltopdf_options)
     except IOError as error:
         mensaje = str(error)
         bitacora.error(mensaje)
         # return mensaje
 
     # Subir a Google Storage
-    archivo = cid_procedimiento.archivo_pdf()
+    archivo = ""
     url = ""
     cloud_stotage_deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "")
-    if cloud_stotage_deposito != "":
+    if pdf is not None and cloud_stotage_deposito != "":
+        archivo = cid_procedimiento.archivo_pdf()
         storage_client = storage.Client()
         bucket = storage_client.bucket(cloud_stotage_deposito)
         blob = bucket.blob(DEPOSITO_DIR + "/" + archivo)
         blob.upload_from_string(pdf, content_type="application/pdf")
         url = blob.public_url
+
+    # Eliminar archivos temporales
+    path_header.unlink(missing_ok=True)
+    path_footer.unlink(missing_ok=True)
 
     # Actualizar registro
     cid_procedimiento.firma = cid_procedimiento.elaborar_firma()
@@ -129,16 +179,23 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         bitacora.error(mensaje)
         return mensaje
 
-    # Guardar cambios
+    # Guardar cambios en archivo, url, firma, cadena, seguimiento y seguimiento_posterior
     cid_procedimiento.save()
 
     # Preparar SendGrid para enviar mensajes por correo electrónico
-    api_key = os.environ.get("SENDGRID_API_KEY", "Debe estar definida como variable de entorno")
-    sg = sendgrid.SendGridAPIClient(api_key=api_key)
-    from_email = Email("plataforma.web@pjecz.gob.mx")
+    api_key = os.environ.get("SENDGRID_API_KEY", "")
+    sg = None
+    from_email = None
+    if api_key != "":
+        sg = sendgrid.SendGridAPIClient(api_key=api_key)
+        email_sendgrid = os.environ.get("EMAIL_SENDGRID", "plataforma.web@pjecz.gob.mx")
+        if email_sendgrid != "":
+            from_email = Email(email_sendgrid)
+        else:
+            from_email = Email("plataforma.web@pjecz.gob.mx")
 
     # Si seguimiento es ELABORADO
-    if cid_procedimiento.seguimiento == "ELABORADO":
+    if sg is not None and cid_procedimiento.seguimiento == "ELABORADO":
         # Enviar mensaje para aceptar o rechazar al revisor
         subject = "Solicitud para aceptar o rechazar la revisión de un procedimiento"
         mensaje_plantilla = entorno.get_template("message_accept_reject.html")
@@ -155,7 +212,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         sg.client.mail.send.post(request_body=mail.get())
 
     # Si seguimiento es REVISADO
-    if cid_procedimiento.seguimiento == "REVISADO":
+    if sg is not None and cid_procedimiento.seguimiento == "REVISADO":
         # Notificar al elaborador que fue revisado
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
         while anterior is not None:
@@ -190,7 +247,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         sg.client.mail.send.post(request_body=mail.get())
 
     # Si seguimiento es AUTORIZADO
-    if cid_procedimiento.seguimiento == "AUTORIZADO":
+    if sg is not None and cid_procedimiento.seguimiento == "AUTORIZADO":
         # Notificar al elaborador y al revisor que fue autorizado
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
         while anterior is not None:

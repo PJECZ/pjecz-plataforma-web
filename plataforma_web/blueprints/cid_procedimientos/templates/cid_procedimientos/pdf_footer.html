@@ -5,12 +5,36 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function subst() {
+            var vars = {};
+            var x = document.location.search.substring(1).split('&');
+            for (var i in x) {
+                var z = x[i].split('=', 2);
+                vars[z[0]] = unescape(z[1]);
+            }
+            var x = ['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection'];
+            for (var i in x) {
+                var y = document.getElementsByClassName(x[i]);
+                for (var j = 0; j < y.length; ++j) y[j].textContent = vars[x[i]];
+                if (vars['page'] == 10000 /* 0 si quieres que la primera pagina no lleve numero de pagina */) {
+                    document.getElementById("block2").style.display = 'none';
+                } else {
+                    document.getElementById("currentpage").innerHTML = vars['page'];
+                    document.getElementById("allpages").innerHTML = vars['topage'];
+                }
+            }
+        }</script>
 </head>
 
-<body>
-    <div>
-        SIC / Revision / ###<br>
-        X de 99
+<body onload="subst()">
+    <div class="text-center">
+        <center><br>{{codigo}} / {{revision}} / {{fecha}}<br></center>
+    </div>
+    <div class="block2">
+        <div class="footer-center">
+            <center>Página <span id="currentpage"></span> de <span id="allpages"></span></center>
+        </div>
     </div>
 </body>
 
