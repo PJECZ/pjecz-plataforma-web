@@ -11,6 +11,7 @@ class Perito(db.Model, UniversalMixin):
 
     TIPOS = OrderedDict(
         [
+            ("ACCIDENTES DE TRABAJO", "Accidentes de Trabajo"),
             ("ALBACEA", "Albacea"),
             ("AMBIENTAL", "Ambiental"),
             ("ARBITRO", "Árbitro"),
@@ -40,6 +41,7 @@ class Perito(db.Model, UniversalMixin):
             ("INTERVENTORES", "Interventores"),
             ("MEDICINA", "Medicina"),
             ("MEDICINA FORENSE", "Medicina Forense"),
+            ("MEDIO AMBIENTE LABORAL", "Medio Ambiente Laboral"),
             ("ODONTOLOGIA LEGAL Y FORENSE", "Odontología Legal y Forense"),
             ("PARTIDOR", "Partidor"),
             ("POLIGRAFIA", "Poligrafía"),
