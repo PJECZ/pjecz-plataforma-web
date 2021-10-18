@@ -125,6 +125,7 @@
                             {% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}
                         {% endcall %}
                         <!-- Vista previa -->
+                        <style>.ql-disabled{overflow:auto;}</style>
                         {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
                             {{ quill.div(div_id='vista_previa_quill') }}
                         {% endcall %}
