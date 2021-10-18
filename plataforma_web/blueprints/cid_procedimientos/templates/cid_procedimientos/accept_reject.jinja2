@@ -6,7 +6,8 @@
 
 {% block custom_head %}
     <style>
-        #rechazar { background-color:#B80000; border-color:#B80000; }
+        #rechazar { background-color:#B80000; border-color:#B80000; box-sizing: border-box; float: right; }
+        #aceptar { box-sizing: border-box; float: left;}
     </style>
 {% endblock %}
 
@@ -18,6 +19,11 @@
     {% call f.card() %}
         {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
         {% call f.form_tag('cid_procedimientos.accept_reject', fid='cid_procedimiento_accept_reject_form', **form_kwargs) %}
+            {% if cid_procedimiento.seguimiento == "ELABORADO" %}
+                {% call f.form_group(form.elaboro_nombre, readonly=true) %}{% endcall %}
+            {% elif cid_procedimiento.seguimiento == "REVISADO" %}
+                {% call f.form_group(form.reviso_nombre, readonly=true) %}{% endcall %}
+            {% endif %}
             {% call f.form_group(form.titulo_procedimiento, readonly=true) %}{% endcall %}
             {% call f.form_group(form.codigo, readonly=true) %}{% endcall %}
             {% call f.form_group(form.revision, readonly=true) %}{% endcall %}
