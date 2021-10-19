@@ -96,8 +96,8 @@
                 </div>
             </div>
             <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
-                <button class="btn btn-primary ml-auto js-btn-next" type="button" title="Siguiente" {% if next_onclick != '' %}onClick="{{ next_onclick }}"{% endif %}>Siguiente</button>
+                <button class="btn btn-primary js-btn-prev" id="atras" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
+                <button class="btn btn-primary ml-auto js-btn-next" id="siguiente" type="button" title="Siguiente" {% if next_onclick != '' %}onClick="{{ next_onclick }}"{% endif %}>Siguiente</button>
             </div>
         </div>
     </div>
@@ -114,7 +114,7 @@
                 </div>
             </div>
             <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                <button class="btn btn-primary js-btn-prev" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
+                <button class="btn btn-primary js-btn-prev" id="atras" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
                 <button class="btn btn-success ml-auto" type="submit" id="guardar" title="Guardar">Guardar</button>
             </div>
         </div>
