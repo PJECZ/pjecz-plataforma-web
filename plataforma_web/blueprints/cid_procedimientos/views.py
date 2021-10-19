@@ -37,6 +37,7 @@ def list_authorized():
 
 
 @cid_procedimientos.route("/cid_procedimientos/propios")
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_owned():
     """Listado de Procedimientos propios"""
     return render_template(
@@ -48,6 +49,7 @@ def list_owned():
 
 
 @cid_procedimientos.route("/cid_procedimientos/activos")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active():
     """Listado de TODOS los Procedimientos activos"""
     return render_template(
@@ -59,7 +61,7 @@ def list_active():
 
 
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_inactive():
     """Listado de TODOS los Procedimientos inactivos"""
     return render_template(
