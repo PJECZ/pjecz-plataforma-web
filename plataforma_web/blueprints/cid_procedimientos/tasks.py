@@ -206,6 +206,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
             cid_procedimiento=cid_procedimiento,
             accept_reject_url=accept_reject_url,
             remitente_nombre=cid_procedimiento.elaboro_nombre,
+            host=os.environ.get("HOST", ""),
         )
         to_email = To(cid_procedimiento.reviso_email)
         content = Content("text/html", mensaje_html)
@@ -229,6 +230,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
             cid_procedimiento=cid_procedimiento,
             accept_reject_url=accept_reject_url,
             remitente_nombre=cid_procedimiento.reviso_nombre,
+            host=os.environ.get("HOST", ""),
         )
         to_email = To(cid_procedimiento.aprobo_email)
         content = Content("text/html", mensaje_html)
