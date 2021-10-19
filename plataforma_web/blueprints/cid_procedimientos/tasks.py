@@ -95,6 +95,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         responsabilidades=html.render(cid_procedimiento.responsabilidades["ops"]),
         desarrollo=html.render(cid_procedimiento.desarrollo["ops"]),
         registros=html.render(cid_procedimiento.registros["ops"]),
+        control_cambios=html.render(cid_procedimiento.control_cambios["ops"]),
         elaboro_nombre=cid_procedimiento.elaboro_nombre,
         elaboro_puesto=cid_procedimiento.elaboro_puesto,
         reviso_nombre=cid_procedimiento.reviso_nombre,
