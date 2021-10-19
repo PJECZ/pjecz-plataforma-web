@@ -20,6 +20,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
         [
             ("BUSINESS STARTED", "Business Started"),
             ("BUSINESS STANDARD", "Business Standard"),
+            ("COAHUILA", "Coahuila"),
             ("EXTERNO", "Externo"),
         ]
     )
