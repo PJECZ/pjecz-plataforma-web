@@ -115,7 +115,8 @@ const DOMstrings = {
     stepFormPanelClass: 'multisteps-form__panel',
     stepFormPanels: document.querySelectorAll('.multisteps-form__panel'),
     stepPrevBtnClass: 'js-btn-prev',
-    stepNextBtnClass: 'js-btn-next'
+    stepNextBtnClass: 'js-btn-next',
+    stepSaveBtnClass: 'js-btn-save'
 };
 
 // remove class from a set of items
@@ -203,10 +204,10 @@ DOMstrings.stepsBar.addEventListener('click', e => {
     mostrar_vista_previa();
 });
 
-// PREV/NEXT BTNS CLICK
+// PREV/NEXT/SAVE BTNS CLICK
 DOMstrings.stepsForm.addEventListener('click', e => {
     const eventTarget = e.target;
-    // check if we clicked on `PREV` or NEXT` buttons
+    // check if we clicked on `PREV` or NEXT` or `SAVE` buttons
     if (!(eventTarget.classList.contains(`${DOMstrings.stepPrevBtnClass}`) || eventTarget.classList.contains(`${DOMstrings.stepNextBtnClass}`))) {
         return;
     }

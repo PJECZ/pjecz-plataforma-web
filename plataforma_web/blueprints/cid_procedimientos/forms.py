@@ -40,13 +40,13 @@ class CIDProcedimientoForm(FlaskForm):
     # Step Control de Cambios
     elaboro_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     elaboro_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    elaboro_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email")
+    elaboro_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email", validators=[Optional()])
     reviso_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     reviso_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    reviso_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email")
+    reviso_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email", validators=[Optional()])
     aprobo_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     aprobo_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    aprobo_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email")
+    aprobo_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email", validators=[Optional()])
     control_cambios = JSONField("Control de Cambios", validators=[Optional()])
     # Guardar
     guardar = SubmitField("Guardar")

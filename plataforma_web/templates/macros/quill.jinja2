@@ -86,7 +86,7 @@
 {%- endmacro -%}
 
 {# Step #}
-{%- macro step(title, back_onclick='', next_onclick='') -%}
+{%- macro step(title, back_onclick='', next_onclick='', save_onclick='') -%}
     <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
         <h3 class="multisteps-form__title">{{ title }}</h3>
         <div class="multisteps-form__content">
@@ -95,9 +95,16 @@
                     {{ caller () }}
                 </div>
             </div>
-            <div class="d-grid gap-2 d-md-flex aligns-items-right justify-content-end mt-4">
-                <button class="btn btn-primary js-btn-prev" id="atras" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
-                <button class="btn btn-primary ml-auto js-btn-next" id="siguiente" type="button" title="Siguiente" {% if next_onclick != '' %}onClick="{{ next_onclick }}"{% endif %}>Siguiente</button>
+            <div class="d-flex bd-highlight mb-3">
+                <div class="me-auto p-2 bd-highlight">
+                    <button class="btn btn-primary js-btn-prev" id="atras" type="button" title="Atrás" {% if back_onclick != '' %}onClick="{{ back_onclick }}"{% endif %}>Atrás</button>
+                </div>
+                <div class="p-2 bd-highlight">
+                <button class="btn btn-primary float-right ml-auto js-btn-next" id="siguiente" type="button" title="Siguiente" {% if next_onclick != '' %}onClick="{{ next_onclick }}"{% endif %}>Siguiente</button>
+                </div>
+                <div class="p-2 bd-highlight">
+                <button class="btn btn-success float-right ml-auto js-btn-save" type="submit" id="guardar" title="Guardar" {% if save_onclick != '' %}onClick="{{ save_onclick }}"{% endif %}>Guardar</button>
+                </div>
             </div>
         </div>
     </div>
