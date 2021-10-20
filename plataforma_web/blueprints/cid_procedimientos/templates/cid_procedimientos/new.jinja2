@@ -169,4 +169,17 @@
             });
         });
     </script>
+    <!-- Llenar inputs con json vacios -->
+    <script>
+    const vacio = '{"ops":[{"insert":"\n"}]}';
+    $('#objetivo').val(vacio);
+    $('#alcance').val(vacio);
+    $('#documentos').val(vacio);
+    $('#definiciones').val(vacio);
+    $('#responsabilidades').val(vacio);
+    $('#desarrollo').val(vacio);
+    $('#registros').val(vacio);
+    $('#control_cambios').val(vacio);
+    $('#vista_previa').val(vacio);
+    </script>
 {% endblock %}
