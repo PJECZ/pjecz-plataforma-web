@@ -2,7 +2,7 @@
 CID Procedimientos, vistas
 """
 from delta import html
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import abort, Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -144,8 +144,16 @@ def new():
 def edit(cid_procedimiento_id):
     """Editar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    if not (current_user.can_admin(MODULO) or cid_procedimiento.usuario_id == current_user.id):
+        abort(403)  # Acceso no autorizado, solo administradores o el propietario puede editarlo
+    if cid_procedimiento.seguimiento not in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]:
+        flash(f"No puede editar porque su seguimiento es {cid_procedimiento.seguimiento}.")
+        redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
+        elaboro = form.elaboro_email.data
+        reviso = form.reviso_email.data
+        aprobo = form.aprobo_email.data
         cid_procedimiento.titulo_procedimiento = form.titulo_procedimiento.data
         cid_procedimiento.codigo = form.codigo.data
         cid_procedimiento.revision = form.revision.data
@@ -157,15 +165,15 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.responsabilidades = form.responsabilidades.data
         cid_procedimiento.desarrollo = form.desarrollo.data
         cid_procedimiento.registros = form.registros.data
-        cid_procedimiento.elaboro_nombre = form.elaboro_nombre.data
+        cid_procedimiento.elaboro_nombre = elaboro.nombre
         cid_procedimiento.elaboro_puesto = form.elaboro_puesto.data
-        cid_procedimiento.elaboro_email = form.elaboro_email.data
-        cid_procedimiento.reviso_nombre = form.reviso_nombre.data
+        cid_procedimiento.elaboro_email = elaboro.email
+        cid_procedimiento.reviso_nombre = reviso.nombre
         cid_procedimiento.reviso_puesto = form.reviso_puesto.data
-        cid_procedimiento.reviso_email = form.reviso_email.data
-        cid_procedimiento.aprobo_nombre = form.aprobo_nombre.data
+        cid_procedimiento.reviso_email = reviso.email
+        cid_procedimiento.aprobo_nombre = aprobo.nombre
         cid_procedimiento.aprobo_puesto = form.aprobo_puesto.data
-        cid_procedimiento.aprobo_email = form.aprobo_email.data
+        cid_procedimiento.aprobo_email = aprobo.email
         cid_procedimiento.control_cambios = form.control_cambios.data
         cid_procedimiento.save()
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} guardado.", "success")
@@ -199,6 +207,8 @@ def edit(cid_procedimiento_id):
 def sign_for_maker(cid_procedimiento_id):
     """Firmar por Elaborador"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    if cid_procedimiento.usuario_id != current_user.id:
+        abort(403)  # Acceso no autorizado, solo el propietario puede firmarlo
     if cid_procedimiento.firma == "":
         tarea = current_user.launch_task(
             nombre="cid_procedimientos.tasks.crear_pdf",
@@ -298,7 +308,11 @@ def accept_reject(cid_procedimiento_id):
 def delete(cid_procedimiento_id):
     """Eliminar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-    if cid_procedimiento.estatus == "A":
+    if not (current_user.can_admin(MODULO) or cid_procedimiento.usuario_id == current_user.id):
+        abort(403)  # Acceso no autorizado, solo administradores o el propietario puede eliminarlo
+    if not (current_user.can_admin(MODULO) or cid_procedimiento.seguimiento in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]):
+        flash(f"No puede eliminarlo porque su seguimiento es {cid_procedimiento.seguimiento}.")
+    elif cid_procedimiento.estatus == "A":
         cid_procedimiento.seguimiento = "CANCELADO POR ELABORADOR"
         cid_procedimiento.delete()
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} eliminado.", "success")
@@ -310,7 +324,11 @@ def delete(cid_procedimiento_id):
 def recover(cid_procedimiento_id):
     """Recuperar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-    if cid_procedimiento.estatus == "B":
+    if not (current_user.can_admin(MODULO) or cid_procedimiento.usuario_id == current_user.id):
+        abort(403)  # Acceso no autorizado, solo administradores o el propietario puede recuperarlo
+    if not (current_user.can_admin(MODULO) or cid_procedimiento.seguimiento in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]):
+        flash(f"No puede recuperarlo porque su seguimiento es {cid_procedimiento.seguimiento}.")
+    elif cid_procedimiento.estatus == "B":
         cid_procedimiento.seguimiento = "EN ELABORACION"
         cid_procedimiento.recover()
         flash(f"CID Procedimiento {cid_procedimiento.descripcion} recuperado.", "success")

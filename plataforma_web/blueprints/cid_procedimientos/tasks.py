@@ -183,20 +183,18 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     # Guardar cambios en archivo, url, firma, cadena, seguimiento y seguimiento_posterior
     cid_procedimiento.save()
 
-    # Preparar SendGrid para enviar mensajes por correo electrónico
-    api_key = os.environ.get("SENDGRID_API_KEY", "")
+    # Preparar SendGrid
     sg = None
     from_email = None
+    api_key = os.environ.get("SENDGRID_API_KEY", "")
+    email_sendgrid = os.environ.get("EMAIL_SENDGRID", "plataforma.web@pjecz.gob.mx")
     if api_key != "":
         sg = sendgrid.SendGridAPIClient(api_key=api_key)
-        email_sendgrid = os.environ.get("EMAIL_SENDGRID", "plataforma.web@pjecz.gob.mx")
-        if email_sendgrid != "":
-            from_email = Email(email_sendgrid)
-        else:
-            from_email = Email("plataforma.web@pjecz.gob.mx")
+    if email_sendgrid != "":
+        from_email = Email(email_sendgrid)
 
     # Si seguimiento es ELABORADO
-    if sg is not None and cid_procedimiento.seguimiento == "ELABORADO":
+    if sg and cid_procedimiento.seguimiento == "ELABORADO":
         # Enviar mensaje para aceptar o rechazar al revisor
         subject = "Solicitud para aceptar o rechazar la revisión de un procedimiento"
         mensaje_plantilla = entorno.get_template("message_accept_reject.html")
@@ -214,10 +212,10 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         sg.client.mail.send.post(request_body=mail.get())
 
     # Si seguimiento es REVISADO
-    if sg is not None and cid_procedimiento.seguimiento == "REVISADO":
+    if sg and cid_procedimiento.seguimiento == "REVISADO":
         # Notificar al elaborador que fue revisado
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
-        while anterior is not None:
+        while anterior:
             anterior.seguimiento_posterior = "REVISADO"
             anterior.save()
             anterior = CIDProcedimiento.query.get(anterior.anterior_id)
@@ -250,10 +248,10 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         sg.client.mail.send.post(request_body=mail.get())
 
     # Si seguimiento es AUTORIZADO
-    if sg is not None and cid_procedimiento.seguimiento == "AUTORIZADO":
+    if sg and cid_procedimiento.seguimiento == "AUTORIZADO":
         # Notificar al elaborador y al revisor que fue autorizado
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
-        while anterior is not None:
+        while anterior:
             anterior.seguimiento_posterior = "AUTORIZADO"
             anterior.save()
             anterior = CIDProcedimiento.query.get(anterior.anterior_id)
