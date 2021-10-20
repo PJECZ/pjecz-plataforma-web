@@ -258,17 +258,22 @@ def enviar_reporte(fecha: date = None):
     # Pie del mensaje
     contenidos.append("<p>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>")
 
-    # Mensaje via correo electronico
-    api_key = os.environ.get("SENDGRID_API_KEY", "Debe estar definida como variable de entorno")
-    sg = sendgrid.SendGridAPIClient(api_key=api_key)
-    from_email = Email("plataforma.web@pjecz.gob.mx")
-    to_email = To("plataforma.web.reportes@pjecz.gob.mx")
-    content = Content("text/html", "<br>".join(contenidos))
-    mail = Mail(from_email, to_email, subject, content)
-    response = sg.client.mail.send.post(request_body=mail.get())
-    bitacora.info(response.status_code)
-    bitacora.info(response.body)
-    bitacora.info(response.headers)
+    # Preparar SendGrid
+    sg = None
+    from_email = None
+    api_key = os.environ.get("SENDGRID_API_KEY", "")
+    email_sendgrid = os.environ.get("EMAIL_SENDGRID", "plataforma.web@pjecz.gob.mx")
+    if api_key != "":
+        sg = sendgrid.SendGridAPIClient(api_key=api_key)
+    if email_sendgrid != "":
+        from_email = Email(email_sendgrid)
+
+    # Enviar mensaje via correo electronico
+    if sg:
+        to_email = To("plataforma.web.reportes@pjecz.gob.mx")
+        content = Content("text/html", "<br>".join(contenidos))
+        mail = Mail(from_email, to_email, subject, content)
+        sg.client.mail.send.post(request_body=mail.get())
 
     # Terminar tarea
     set_task_progress(100)
