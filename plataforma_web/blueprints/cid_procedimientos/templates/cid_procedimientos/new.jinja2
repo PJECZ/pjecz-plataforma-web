@@ -5,10 +5,6 @@
 
 {% block title %}Nuevo Procedimiento{% endblock %}
 
-{% block topbar_actions %}
-    {{ topbar.page('Nuevo Procedimiento') }}
-{% endblock %}
-
 {% block custom_head %}
     {{ quill.head() }}
     <!-- Select2 bootstrap -->
@@ -17,6 +13,10 @@
         #atras { float: left; box-sizing: border-box; }
         #siguiente { float: right; box-sizing: border-box; }
     </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Procedimiento') }}
 {% endblock %}
 
 {% block content %}
@@ -168,6 +168,5 @@
                 allowClear: true
             });
         });
-            
     </script>
 {% endblock %}
