@@ -100,8 +100,26 @@ def new():
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
         elaboro = form.elaboro_email.data
+        if elaboro is None:
+            elaboro_nombre = ""
+            elaboro_email = ""
+        else:
+            elaboro_nombre = elaboro.nombre
+            elaboro_email = elaboro.email
         reviso = form.reviso_email.data
+        if reviso is None:
+            reviso_nombre = ""
+            reviso_email = ""
+        else:
+            reviso_nombre = reviso.nombre
+            reviso_email = reviso.email
         aprobo = form.aprobo_email.data
+        if aprobo is None:
+            aprobo_nombre = ""
+            aprobo_email = ""
+        else:
+            aprobo_nombre = aprobo.nombre
+            aprobo_email = aprobo.email
         cid_procedimiento = CIDProcedimiento(
             usuario=current_user,
             titulo_procedimiento=form.titulo_procedimiento.data,
@@ -115,15 +133,15 @@ def new():
             responsabilidades=form.responsabilidades.data,
             desarrollo=form.desarrollo.data,
             registros=form.registros.data,
-            elaboro_nombre=elaboro.nombre,
+            elaboro_nombre=elaboro_nombre,
             elaboro_puesto=form.elaboro_puesto.data,
-            elaboro_email=elaboro.email,
-            reviso_nombre=reviso.nombre,
+            elaboro_email=elaboro_email,
+            reviso_nombre=reviso_nombre,
             reviso_puesto=form.reviso_puesto.data,
-            reviso_email=reviso.email,
-            aprobo_nombre=aprobo.nombre,
+            reviso_email=reviso_email,
+            aprobo_nombre=aprobo_nombre,
             aprobo_puesto=form.aprobo_puesto.data,
-            aprobo_email=aprobo.email,
+            aprobo_email=aprobo_email,
             control_cambios=form.control_cambios.data,
             cadena=0,
             seguimiento="EN ELABORACION",

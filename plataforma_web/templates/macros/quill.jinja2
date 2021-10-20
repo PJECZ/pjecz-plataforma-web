@@ -86,7 +86,7 @@
 {%- endmacro -%}
 
 {# Step #}
-{%- macro step(title, back_onclick='', next_onclick='') -%}
+{%- macro step(title, back_onclick='', next_onclick='', save_onclick='') -%}
     <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
         <h3 class="multisteps-form__title">{{ title }}</h3>
         <div class="multisteps-form__content">
@@ -103,7 +103,7 @@
                 <button class="btn btn-primary float-right ml-auto js-btn-next" id="siguiente" type="button" title="Siguiente" {% if next_onclick != '' %}onClick="{{ next_onclick }}"{% endif %}>Siguiente</button>
                 </div>
                 <div class="p-2 bd-highlight">
-                <button class="btn btn-success float-right ml-auto" type="submit" id="guardar" title="Guardar">Guardar</button>
+                <button class="btn btn-success float-right ml-auto js-btn-save" type="submit" id="guardar" title="Guardar" {% if save_onclick != '' %}onClick="{{ save_onclick }}"{% endif %}>Guardar</button>
                 </div>
             </div>
         </div>
