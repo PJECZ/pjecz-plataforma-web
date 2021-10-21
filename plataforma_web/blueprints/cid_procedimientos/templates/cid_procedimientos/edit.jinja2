@@ -22,8 +22,6 @@
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
-        {% call f.form_tag('cid_procedimientos.edit', fid='cid_procedimiento_form', **form_kwargs) %}
         <div><form></form></div>
         <div class="multisteps-form">
             <!-- Steps Progress Bar -->
@@ -46,7 +44,8 @@
             <!-- Steps Form Panels -->
             <div class="row">
                 <div class="col-lg-12 m-auto">
-                    {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form', css_class='multisteps-form__form') %}
+                    {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
+                    {% call f.form_tag('cid_procedimientos.edit', fid='cid_procedimiento_form', css_class='multisteps-form__form', **form_kwargs) %}
                         <!-- Encabezado -->
                         {% call quill.step_first('Encabezado', next_onclick='javascript:guardar_encabezado()') %}
                             {% call f.form_group(form.titulo_procedimiento) %}{% endcall %}
@@ -139,7 +138,6 @@
                 </div>
             </div>
         </div>
-        {% endcall %}
     {% endcall %}
 {% endblock %}
 

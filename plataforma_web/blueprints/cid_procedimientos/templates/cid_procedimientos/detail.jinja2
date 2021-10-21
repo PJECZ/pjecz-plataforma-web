@@ -18,7 +18,7 @@
             {% endif %}
         {% endif %}
         {% if current_user.can_insert('CID FORMATOS') %}
-            {{ topbar.button_new('Agregar formato', url_for('cid_formatos.new', cid_procedimiento_id=cid_procedimiento.id)) }}
+            {# topbar.button_new('Agregar formato', url_for('cid_formatos.new', cid_procedimiento_id=cid_procedimiento.id)) #}
         {% endif %}
     {% endcall %}
 {% endblock %}
