@@ -5,11 +5,14 @@ from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
+from lib.safe_string import safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -152,8 +155,15 @@ def new():
             url="",
         )
         cid_procedimiento.save()
-        flash(f"Procedimiento {cid_procedimiento.titulo_procedimiento} guardado.", "success")
-        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f'Nuevo Procedimiento {cid_procedimiento.titulo_procedimiento}'),
+            url=url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     return render_template("cid_procedimientos/new.jinja2", form=form)
 
 
@@ -170,8 +180,26 @@ def edit(cid_procedimiento_id):
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
         elaboro = form.elaboro_email.data
+        if elaboro is None:
+            elaboro_nombre = ""
+            elaboro_email = ""
+        else:
+            elaboro_nombre = elaboro.nombre
+            elaboro_email = elaboro.email
         reviso = form.reviso_email.data
+        if reviso is None:
+            reviso_nombre = ""
+            reviso_email = ""
+        else:
+            reviso_nombre = reviso.nombre
+            reviso_email = reviso.email
         aprobo = form.aprobo_email.data
+        if aprobo is None:
+            aprobo_nombre = ""
+            aprobo_email = ""
+        else:
+            aprobo_nombre = aprobo.nombre
+            aprobo_email = aprobo.email
         cid_procedimiento.titulo_procedimiento = form.titulo_procedimiento.data
         cid_procedimiento.codigo = form.codigo.data
         cid_procedimiento.revision = form.revision.data
@@ -183,19 +211,26 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.responsabilidades = form.responsabilidades.data
         cid_procedimiento.desarrollo = form.desarrollo.data
         cid_procedimiento.registros = form.registros.data
-        cid_procedimiento.elaboro_nombre = elaboro.nombre
+        cid_procedimiento.elaboro_nombre = elaboro_nombre
         cid_procedimiento.elaboro_puesto = form.elaboro_puesto.data
-        cid_procedimiento.elaboro_email = elaboro.email
-        cid_procedimiento.reviso_nombre = reviso.nombre
+        cid_procedimiento.elaboro_email = elaboro_email
+        cid_procedimiento.reviso_nombre = reviso_nombre
         cid_procedimiento.reviso_puesto = form.reviso_puesto.data
-        cid_procedimiento.reviso_email = reviso.email
-        cid_procedimiento.aprobo_nombre = aprobo.nombre
+        cid_procedimiento.reviso_email = reviso_email
+        cid_procedimiento.aprobo_nombre = aprobo_nombre
         cid_procedimiento.aprobo_puesto = form.aprobo_puesto.data
-        cid_procedimiento.aprobo_email = aprobo.email
+        cid_procedimiento.aprobo_email = aprobo_email
         cid_procedimiento.control_cambios = form.control_cambios.data
         cid_procedimiento.save()
-        flash(f"CID Procedimiento {cid_procedimiento.descripcion} guardado.", "success")
-        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f'Editado Procedimiento {cid_procedimiento.titulo_procedimiento}.'),
+            url=url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo
     form.revision.data = cid_procedimiento.revision
@@ -304,8 +339,15 @@ def accept_reject(cid_procedimiento_id):
             nuevo.url = ""
             nuevo.save()
             # TODO: Falta cambiar seguimiento_posterior en anterior_id
-            flash("Usted ha aceptado revisar/autorizar este procedimiento.", "success")
-            return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=nuevo.id))
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f'Aceptado el Procedimiento {nuevo.titulo_procedimiento}.'),
+                url=url_for('cid_procedimientos.detail', cid_procedimiento_id=nuevo.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, 'success')
+            return redirect(bitacora.url)
         # Fue rechazado
         if form.rechazar.data is True:
             # Preguntar porque fue rechazado
@@ -333,7 +375,14 @@ def delete(cid_procedimiento_id):
     elif cid_procedimiento.estatus == "A":
         cid_procedimiento.seguimiento = "CANCELADO POR ELABORADOR"
         cid_procedimiento.delete()
-        flash(f"CID Procedimiento {cid_procedimiento.descripcion} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f'Eliminado Procedimiento {cid_procedimiento.titulo_procedimiento}.'),
+            url=url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
 
 
@@ -349,5 +398,12 @@ def recover(cid_procedimiento_id):
     elif cid_procedimiento.estatus == "B":
         cid_procedimiento.seguimiento = "EN ELABORACION"
         cid_procedimiento.recover()
-        flash(f"CID Procedimiento {cid_procedimiento.descripcion} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f'Recuperado Procedimiento {cid_procedimiento.titulo_procedimiento}.'),
+            url=url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
