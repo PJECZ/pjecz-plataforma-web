@@ -22,7 +22,6 @@
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form') %}
         <div><form></form></div>
         <div class="multisteps-form">
             <!-- Steps Progress Bar -->
@@ -138,7 +137,6 @@
                 </div>
             </div>
         </div>
-        {% endcall %}
     {% endcall %}
 {% endblock %}
 
