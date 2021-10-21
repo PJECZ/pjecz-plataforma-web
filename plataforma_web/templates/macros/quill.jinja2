@@ -33,11 +33,14 @@
                     [{ 'color': [] }, { 'background': [] }],       // dropdown with defaults from theme
                     [{ 'font': [] }],
                     [{ 'align': [] }],
+                    [{ 'link': true }],
+                    ['table'],
                     ['clean']                                      // remove formatting
                 ],
             },
             theme: 'snow'
         });
+        
         {% if content != '' %}
         // Fill at start
         {{ instance }}.setContents({{ content }});

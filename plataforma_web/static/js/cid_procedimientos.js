@@ -220,10 +220,10 @@ DOMstrings.stepsBar.addEventListener('click', e => {
     mostrar_vista_previa();
 });
 
-// PREV/NEXT/SAVE BTNS CLICK
+// PREV/NEXT BTNS CLICK
 DOMstrings.stepsForm.addEventListener('click', e => {
     const eventTarget = e.target;
-    // check if we clicked on `PREV` or NEXT` or `SAVE` buttons
+    // check if we clicked on `PREV` or NEXT`  buttons
     if (!(eventTarget.classList.contains(`${DOMstrings.stepPrevBtnClass}`) || eventTarget.classList.contains(`${DOMstrings.stepNextBtnClass}`))) {
         return;
     }
