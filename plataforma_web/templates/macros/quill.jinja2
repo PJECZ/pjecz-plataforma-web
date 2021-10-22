@@ -33,6 +33,8 @@
                     [{ 'color': [] }, { 'background': [] }],       // dropdown with defaults from theme
                     [{ 'font': [] }],
                     [{ 'align': [] }],
+                    [{ 'link': true }],
+                    ['table'],
                     ['clean']                                      // remove formatting
                 ],
             },
@@ -89,7 +91,7 @@
 {%- macro step(title, back_onclick='', next_onclick='', save_onclick='') -%}
     <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
         <h3 class="multisteps-form__title">{{ title }}</h3>
-        <div class="multisteps-form__content">
+        <div class="multisteps-form__content space-p">
             <div class="form-row mt-4">
                 <div class="col-lg-12">
                     {{ caller () }}
@@ -114,7 +116,7 @@
 {%- macro step_last(title, back_onclick='') -%}
     <div class="multisteps-form__panel shadow p-4 rounded bg-white" data-animation="scaleIn">
         <h3 class="multisteps-form__title">{{ title }}</h3>
-        <div class="multisteps-form__content">
+        <div class="multisteps-form__content space-p">
             <div class="form-row mt-4">
                 <div class="col-lg-12">
                     {{ caller () }}

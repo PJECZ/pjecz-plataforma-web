@@ -119,3 +119,6 @@
     content: attr(data-value) !important;
     font-size: 18px !important;
 }
+.space-p p{
+    padding: 10px;
+}
