@@ -52,24 +52,32 @@ def list_owned():
 
 
 @cid_procedimientos.route("/cid_procedimientos/activos")
-@permission_required(MODULO, Permiso.ADMINISTRAR)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_active():
     """Listado de TODOS los Procedimientos activos"""
+    if current_user.can_admin(MODULO):
+        cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").all()
+    else:
+        cid_procedimientos_activos = CIDProcedimiento.query.filter_by(usuario_id=current_user.id).filter_by(estatus="A").all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=CIDProcedimiento.query.filter_by(estatus="A").all(),
+        cid_procedimientos=cid_procedimientos_activos,
         titulo="Todos los procedimientos",
         estatus="A",
     )
 
 
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
-@permission_required(MODULO, Permiso.ADMINISTRAR)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de TODOS los Procedimientos inactivos"""
+    if current_user.can_admin(MODULO):
+        cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").all()
+    else:
+        cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(usuario_id=current_user.id).filter_by(estatus="B").all()
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=CIDProcedimiento.query.filter_by(estatus="B").all(),
+        cid_procedimientos=cid_procedimientos_inactivos,
         titulo="Todos los procedimientos inactivos",
         estatus="B",
     )
@@ -158,11 +166,11 @@ def new():
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f'Nuevo Procedimiento {cid_procedimiento.titulo_procedimiento}'),
-            url=url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id),
+            descripcion=safe_message(f"Nuevo Procedimiento {cid_procedimiento.titulo_procedimiento}"),
+            url=url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     return render_template("cid_procedimientos/new.jinja2", form=form)
 
@@ -225,11 +233,11 @@ def edit(cid_procedimiento_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f'Editado Procedimiento {cid_procedimiento.titulo_procedimiento}.'),
-            url=url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id),
+            descripcion=safe_message(f"Editado Procedimiento {cid_procedimiento.titulo_procedimiento}."),
+            url=url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo
@@ -342,11 +350,11 @@ def accept_reject(cid_procedimiento_id):
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f'Aceptado el Procedimiento {nuevo.titulo_procedimiento}.'),
-                url=url_for('cid_procedimientos.detail', cid_procedimiento_id=nuevo.id),
+                descripcion=safe_message(f"Aceptado el Procedimiento {nuevo.titulo_procedimiento}."),
+                url=url_for("cid_procedimientos.detail", cid_procedimiento_id=nuevo.id),
             )
             bitacora.save()
-            flash(bitacora.descripcion, 'success')
+            flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
         # Fue rechazado
         if form.rechazar.data is True:
@@ -373,16 +381,21 @@ def delete(cid_procedimiento_id):
     if not (current_user.can_admin(MODULO) or cid_procedimiento.seguimiento in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]):
         flash(f"No puede eliminarlo porque su seguimiento es {cid_procedimiento.seguimiento}.")
     elif cid_procedimiento.estatus == "A":
-        cid_procedimiento.seguimiento = "CANCELADO POR ELABORADOR"
+        if cid_procedimiento.seguimiento == "EN ELABORACION":
+            cid_procedimiento.seguimiento = "CANCELADO POR ELABORADOR"
+        elif cid_procedimiento.seguimiento == "EN REVISION":
+            cid_procedimiento.seguimiento = "CANCELADO POR REVISOR"
+        elif cid_procedimiento.seguimiento == "EN AUTORIZACION":
+            cid_procedimiento.seguimiento = "CANCELADO POR AUTORIZADOR"
         cid_procedimiento.delete()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f'Eliminado Procedimiento {cid_procedimiento.titulo_procedimiento}.'),
-            url=url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id),
+            descripcion=safe_message(f"Eliminado Procedimiento {cid_procedimiento.titulo_procedimiento}."),
+            url=url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
 
 
@@ -393,17 +406,22 @@ def recover(cid_procedimiento_id):
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     if not (current_user.can_admin(MODULO) or cid_procedimiento.usuario_id == current_user.id):
         abort(403)  # Acceso no autorizado, solo administradores o el propietario puede recuperarlo
-    if not (current_user.can_admin(MODULO) or cid_procedimiento.seguimiento in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]):
+    if not (current_user.can_admin(MODULO) or cid_procedimiento.seguimiento in ["CANCELADO POR ELABORADOR", "CANCELADO POR REVISOR", "CANCELADO POR AUTORIZADOR"]):
         flash(f"No puede recuperarlo porque su seguimiento es {cid_procedimiento.seguimiento}.")
     elif cid_procedimiento.estatus == "B":
-        cid_procedimiento.seguimiento = "EN ELABORACION"
+        if cid_procedimiento.seguimiento == "CANCELADO POR ELABORADOR":
+            cid_procedimiento.seguimiento = "EN ELABORACION"
+        elif cid_procedimiento.seguimiento == "CANCELADO POR REVISOR":
+            cid_procedimiento.seguimiento = "EN REVISION"
+        elif cid_procedimiento.seguimiento == "CANCELADO POR AUTORIZADOR":
+            cid_procedimiento.seguimiento = "EN AUTORIZACION"
         cid_procedimiento.recover()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f'Recuperado Procedimiento {cid_procedimiento.titulo_procedimiento}.'),
-            url=url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id),
+            descripcion=safe_message(f"Recuperado Procedimiento {cid_procedimiento.titulo_procedimiento}."),
+            url=url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))

@@ -25,8 +25,8 @@
 
 {% block content %}
     {% set accordion_id = 'procedimiento_accordion' %}
-    {% call accordion.div(accordion_id)%}
-        {% call accordion.item('generales_item', 'Generales', accordion_id, expanded=True) %}
+    {% call accordion.div(accordion_id, estatus=cid_procedimiento.estatus) %}
+        {% call accordion.item('generales_item', 'Generales', accordion_id, expanded=True, estatus=cid_procedimiento.estatus) %}
             {{ detail.label_value('Título', cid_procedimiento.titulo_procedimiento) }}
             {{ detail.label_value('Código', cid_procedimiento.codigo) }}
             {{ detail.label_value('Revisión', cid_procedimiento.revision) }}
@@ -38,28 +38,28 @@
             {{ detail.label_value('Firma al vuelo', firma_al_vuelo) }}
             {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
         {% endcall %}
-        {% call accordion.item('objetivos_item', 'Objetivo', accordion_id) %}
+        {% call accordion.item('objetivos_item', 'Objetivo', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ objetivo }}
         {% endcall %}
-        {% call accordion.item('alcance_item', 'Alcance', accordion_id) %}
+        {% call accordion.item('alcance_item', 'Alcance', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ alcance }}
         {% endcall %}
-        {% call accordion.item('documentos_item', 'Documentos', accordion_id) %}
+        {% call accordion.item('documentos_item', 'Documentos', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ documentos }}
         {% endcall %}
-        {% call accordion.item('definiciones_item', 'Definiciones', accordion_id) %}
+        {% call accordion.item('definiciones_item', 'Definiciones', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ definiciones }}
         {% endcall %}
-        {% call accordion.item('responsabilidades_item', 'Responsabilidades', accordion_id) %}
+        {% call accordion.item('responsabilidades_item', 'Responsabilidades', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ responsabilidades }}
         {% endcall %}
-        {% call accordion.item('desarrollo_item', 'Desarrollo', accordion_id) %}
+        {% call accordion.item('desarrollo_item', 'Desarrollo', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ desarrollo }}
         {% endcall %}
-        {% call accordion.item('registro_item', 'Registros', accordion_id) %}
+        {% call accordion.item('registro_item', 'Registros', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ registros }}
         {% endcall %}
-        {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id) %}
+        {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ control_cambios }}
             {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
             {{ detail.label_value('Elaboró puesto', cid_procedimiento.elaboro_puesto) }}

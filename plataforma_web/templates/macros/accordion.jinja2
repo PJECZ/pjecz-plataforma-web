@@ -7,14 +7,14 @@
 {%- endmacro -%}
 
 {# Con este div mandas a llamar a cada item #}
-{%- macro div(accordion_id) -%}
-    <div class="accordion" id="{{accordion_id}}">
+{%- macro div(accordion_id, estatus="A") -%}
+    <div class="accordion {% if estatus == 'B' %}bg-secondary{% endif %}" id="{{accordion_id}}">
         {{ caller() }}
     </div>
 {%- endmacro -%}
 
 {# Crea cada item para el accordion #}
-{%- macro item(id, titulo, accordion_id, expanded=False) -%}
+{%- macro item(id, titulo, accordion_id, expanded=False, estatus="A") -%}
     <div class="accordion-item">
         <h2 class="accordion-header" id="heading_{{id}}">
             <button class="accordion-button {% if not expanded %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{id}}" aria-expanded="{% if expanded %}true{% else %}false{% endif %}" aria-controls="collapse_{{id}}">
@@ -22,7 +22,7 @@
             </button>
         </h2>
         <div id="collapse_{{id}}" class="accordion-collapse collapse {% if expanded %}show{% endif %}" aria-labelledby="heading_{{id}}" data-bs-parent="#{{accordion_id}}">
-            <div class="accordion-body">
+            <div class="accordion-body {% if estatus == 'B' %}bg-secondary{% endif %}">
                 {{ caller() }}
             </div>
         </div>
