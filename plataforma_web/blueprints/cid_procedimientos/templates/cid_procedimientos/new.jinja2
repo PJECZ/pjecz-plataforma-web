@@ -63,7 +63,7 @@
                             <div style="display: none;">{% call f.form_group(form.alcance, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Step Documentos -->
-                        {% call quill.step('Documentos', back_onclick='javascript:guardar_documentos()', next_onclick='javascript:guardar_documentos()', save_onclick='javascript:guardar_documentos()') %}
+                        {% call quill.step('Documentos de Referencia', back_onclick='javascript:guardar_documentos()', next_onclick='javascript:guardar_documentos()', save_onclick='javascript:guardar_documentos()') %}
                             {{ quill.div(div_id='documentos_quill') }}
                             <div style="display: none;">{% call f.form_group(form.documentos, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
