@@ -469,7 +469,7 @@ def new():
             elementos.append(expediente.replace("/", "-"))
         if numero_publicacion != "":
             elementos.append(numero_publicacion.replace("/", "-"))
-        elementos.append(descripcion.replace(" ", "-"))
+        elementos.append(safe_string(descripcion, max_len=64).replace(" ", "-"))
         elementos.append(edicto.encode_id())
         archivo_str = "-".join(elementos) + ".pdf"
 
@@ -586,7 +586,7 @@ def new_for_autoridad(autoridad_id):
             elementos.append(expediente.replace("/", "-"))
         if numero_publicacion != "":
             elementos.append(numero_publicacion.replace("/", "-"))
-        elementos.append(descripcion.replace(" ", "-"))
+        elementos.append(safe_string(descripcion, max_len=64).replace(" ", "-"))
         elementos.append(edicto.encode_id())
         archivo_str = "-".join(elementos) + ".pdf"
 
