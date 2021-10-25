@@ -266,7 +266,7 @@ def edit(cid_procedimiento_id):
 @cid_procedimientos.route("/cid_procedimientos/firmar/<int:cid_procedimiento_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def sign_for_maker(cid_procedimiento_id):
-    """Firmar por Elaborador"""
+    """Firmar"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     if cid_procedimiento.usuario_id != current_user.id:
         abort(403)  # Acceso no autorizado, solo el propietario puede firmarlo
@@ -288,65 +288,85 @@ def sign_for_maker(cid_procedimiento_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def accept_reject(cid_procedimiento_id):
     """Aceptar o Rechazar un Procedimiento"""
-    cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-    if not cid_procedimiento.seguimiento in ["ELABORADO", "REVISADO"]:
-        flash("Este procedimiento no puede ser aceptado o rechazado.", "warning")
-        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+    original = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    # Validar que NO haya sido eliminado
+    if original.estatus != "A":
+        flash("Este procedimiento no es activo.", "warning")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+    # Validar que este procedimiento este elaborado o revisado
+    if not original.seguimiento in ["ELABORADO", "REVISADO"]:
+        flash("Este procedimiento no puede ser aceptado.", "warning")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+    # Validar que NO haya sido YA aceptado
+    if original.seguimiento_posterior in ["EN REVISION", "EN AUTORIZACION"]:
+        flash("Este procedimiento ya fue aceptado.", "warning")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
     form = CIDProcedimientoAcceptRejectForm()
     if form.validate_on_submit():
         # Si fue aceptado
         if form.aceptar.data is True:
             # Crear un nuevo registro
             nuevo = CIDProcedimiento(
-                titulo_procedimiento=cid_procedimiento.titulo_procedimiento,
-                codigo=cid_procedimiento.codigo,
-                revision=cid_procedimiento.revision,
-                fecha=cid_procedimiento.fecha,
-                objetivo=cid_procedimiento.objetivo,
-                alcance=cid_procedimiento.alcance,
-                documentos=cid_procedimiento.documentos,
-                definiciones=cid_procedimiento.definiciones,
-                responsabilidades=cid_procedimiento.responsabilidades,
-                desarrollo=cid_procedimiento.desarrollo,
-                registros=cid_procedimiento.registros,
-                elaboro_nombre=cid_procedimiento.elaboro_nombre,
-                elaboro_puesto=cid_procedimiento.elaboro_puesto,
-                elaboro_email=cid_procedimiento.elaboro_email,
-                reviso_nombre=cid_procedimiento.reviso_nombre,
-                reviso_puesto=cid_procedimiento.reviso_puesto,
-                reviso_email=cid_procedimiento.reviso_email,
-                aprobo_nombre=cid_procedimiento.aprobo_nombre,
-                aprobo_puesto=cid_procedimiento.aprobo_puesto,
-                aprobo_email=cid_procedimiento.aprobo_email,
-                control_cambios=cid_procedimiento.control_cambios,
+                titulo_procedimiento=original.titulo_procedimiento,
+                codigo=original.codigo,
+                revision=original.revision,
+                fecha=original.fecha,
+                objetivo=original.objetivo,
+                alcance=original.alcance,
+                documentos=original.documentos,
+                definiciones=original.definiciones,
+                responsabilidades=original.responsabilidades,
+                desarrollo=original.desarrollo,
+                registros=original.registros,
+                elaboro_nombre=original.elaboro_nombre,
+                elaboro_puesto=original.elaboro_puesto,
+                elaboro_email=original.elaboro_email,
+                reviso_nombre=original.reviso_nombre,
+                reviso_puesto=original.reviso_puesto,
+                reviso_email=original.reviso_email,
+                aprobo_nombre=original.aprobo_nombre,
+                aprobo_puesto=original.aprobo_puesto,
+                aprobo_email=original.aprobo_email,
+                control_cambios=original.control_cambios,
             )
-            nuevo.cadena = cid_procedimiento.cadena + 1
+            nuevo.cadena = original.cadena + 1
             # Si este procedimiento fue elaborado, sigue revisarlo
-            if cid_procedimiento.seguimiento == "ELABORADO":
+            if original.seguimiento == "ELABORADO":
+                # Validar el usuario que revisara
+                usuario = Usuario.query.filter_by(email=original.reviso_email).first()
+                if usuario is None:
+                    flash(f"No fue encontrado el usuario con e-mail {original.reviso_email}", "danger")
+                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
                 nuevo.seguimiento = "EN REVISION"
                 nuevo.seguimiento_posterior = "EN REVISION"
-                usuario = Usuario.query.filter_by(email=cid_procedimiento.reviso_email).first()
-                if usuario:
-                    nuevo.usuario = usuario
-                else:
-                    flash(f"No fue encontrado el usuario con e-mail {cid_procedimiento.reviso_email}", "danger")
-                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+                nuevo.usuario = usuario
             # Si este procedimiento fue revisado, sigue autorizarlo
-            if cid_procedimiento.seguimiento == "REVISADO":
+            if original.seguimiento == "REVISADO":
+                usuario = Usuario.query.filter_by(email=original.aprobo_email).first()
+                if usuario is None:
+                    flash(f"No fue encontrado el usuario con e-mail {original.aprobo_email}", "danger")
+                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
                 nuevo.seguimiento = "EN AUTORIZACION"
                 nuevo.seguimiento_posterior = "EN AUTORIZACION"
-                usuario = Usuario.query.filter_by(email=cid_procedimiento.aprobo_email).first()
-                if usuario:
-                    nuevo.usuario = usuario
-                else:
-                    flash(f"No fue encontrado el usuario con e-mail {cid_procedimiento.aprobo_email}", "danger")
-                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
-            nuevo.anterior_id = cid_procedimiento.id
+                nuevo.usuario = usuario
+            # Guardar nuevo procedimiento
+            nuevo.anterior_id = original.id
             nuevo.firma = ""
             nuevo.archivo = ""
             nuevo.url = ""
             nuevo.save()
-            # TODO: Falta cambiar seguimiento_posterior en anterior_id
+            # Actualizar el anterior
+            if original.seguimiento == "ELABORADO":
+                # Cambiar el seguimiento posterior del procedimiento elaborado
+                anterior = CIDProcedimiento.query.get(cid_procedimiento_id)
+                anterior.seguimiento_posterior = "EN REVISION"
+                anterior.save()
+            if original.seguimiento == "REVISADO":
+                # Cambiar el seguimiento posterior del procedimiento revisado
+                anterior = CIDProcedimiento.query.get(cid_procedimiento_id)
+                anterior.seguimiento_posterior = "EN AUTORIZACION"
+                anterior.save()
+            # Bitacora
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
@@ -360,15 +380,16 @@ def accept_reject(cid_procedimiento_id):
         if form.rechazar.data is True:
             # Preguntar porque fue rechazado
             flash("Usted ha rechazado revisar/autorizar este procedimiento.", "success")
-        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
-    form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
-    form.codigo.data = cid_procedimiento.codigo
-    form.revision.data = cid_procedimiento.revision
-    form.seguimiento.data = cid_procedimiento.seguimiento
-    form.seguimiento_posterior.data = cid_procedimiento.seguimiento_posterior
-    form.elaboro_nombre.data = cid_procedimiento.elaboro_nombre
-    form.reviso_nombre.data = cid_procedimiento.reviso_nombre
-    return render_template("cid_procedimientos/accept_reject.jinja2", form=form, cid_procedimiento=cid_procedimiento)
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+    form.titulo_procedimiento.data = original.titulo_procedimiento
+    form.codigo.data = original.codigo
+    form.revision.data = original.revision
+    form.seguimiento.data = original.seguimiento
+    form.seguimiento_posterior.data = original.seguimiento_posterior
+    form.elaboro_nombre.data = original.elaboro_nombre
+    form.reviso_nombre.data = original.reviso_nombre
+    form.firma.data = original.firma
+    return render_template("cid_procedimientos/accept_reject.jinja2", form=form, cid_procedimiento=original)
 
 
 @cid_procedimientos.route("/cid_procedimientos/eliminar/<int:cid_procedimiento_id>")
