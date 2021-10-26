@@ -52,6 +52,11 @@
                             {% call f.form_group(form.revision) %}{% endcall %}
                             {% call f.form_group(form.fecha) %}{% endcall %}
                         {% endcall %}
+                        <!-- Summernote test -->
+                        {% call quill.step('test', back_onclick='javascript:guardar_objetivo()', next_onclick='javascript:guardar_objetivo()', save_onclick='javascript:guardar_objetivo()')%}
+                            {{ quill.divsum(divsum_id='test') }}
+                            <div style="display: none;">{% call f.form_group(form.objetivo, readonly=true) %}{% endcall %}</div> 
+                        {% endcall %}
                         <!-- Step Objetivo -->
                         {% call quill.step('Objetivo', back_onclick='javascript:guardar_objetivo()', next_onclick='javascript:guardar_objetivo()', save_onclick='javascript:guardar_objetivo()') %}
                             {{ quill.div(div_id='objetivo_quill') }}
