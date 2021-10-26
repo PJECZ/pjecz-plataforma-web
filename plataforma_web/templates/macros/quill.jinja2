@@ -22,7 +22,6 @@
         // Quill editor
         var {{ instance }} = new Quill('#{{ div_id }}', {
             modules: {
-                table: true,
                 toolbar: [
                     ['bold', 'italic', 'underline', 'strike'],
                     ['blockquote', 'code-block', 'image'],
@@ -34,7 +33,7 @@
                     [{ 'font': [] }],
                     [{ 'align': [] }],
                     [{ 'link': true }],
-                    ['table'],
+                    [{ 'table': true }],
                     ['clean']                                      // remove formatting
                 ],
             },
