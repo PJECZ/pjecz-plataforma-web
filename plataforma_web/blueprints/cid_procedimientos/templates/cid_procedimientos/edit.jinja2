@@ -157,14 +157,14 @@
     <!-- El formulario llena los inputs, sigue sacarles los contenidos para llenar los quill -->
     <script>
         $(document).ready(function(){
-            llenar_objetivo({{ cid_procedimiento.objetivo }});
-            llenar_alcance({{ cid_procedimiento.alcance }});
-            llenar_documentos({{ cid_procedimiento.documentos }});
-            llenar_definiciones({{ cid_procedimiento.definiciones }});
-            llenar_responsabilidades({{ cid_procedimiento.responsabilidades }});
-            llenar_desarrollo({{ cid_procedimiento.desarrollo }});
-            llenar_registros({{ cid_procedimiento.registros }});
-            llenar_control_cambios({{ cid_procedimiento.control_cambios }});
+            llenar_objetivo({{ objetivo_json }});
+            llenar_alcance({{ alcance_json }});
+            llenar_documentos({{ documentos_json }});
+            llenar_definiciones({{ definiciones_json }});
+            llenar_responsabilidades({{ responsabilidades_json }});
+            llenar_desarrollo({{ desarrollo_json }});
+            llenar_registros({{ registros_json }});
+            llenar_control_cambios({{ control_cambios_json }});
         });
     </script>
     <!-- Select2 bootstrap -->

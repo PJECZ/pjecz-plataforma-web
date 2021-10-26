@@ -1,6 +1,7 @@
 """
 CID Procedimientos, vistas
 """
+import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
@@ -239,6 +240,7 @@ def edit(cid_procedimiento_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    # Definir los valores de los campos del formulario
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo
     form.revision.data = cid_procedimiento.revision
@@ -260,7 +262,42 @@ def edit(cid_procedimiento_id):
     form.aprobo_puesto.data = cid_procedimiento.aprobo_puesto
     form.aprobo_email.data = cid_procedimiento.aprobo_email
     form.control_cambios.data = cid_procedimiento.control_cambios
-    return render_template("cid_procedimientos/edit.jinja2", form=form, cid_procedimiento=cid_procedimiento)
+    # Para cargar el contenido de los QuillJS hay que convertir a JSON válido (por ejemplo, cambia True por true)
+    objetivo_json = json.dumps(cid_procedimiento.objetivo)
+    alcance_json = json.dumps(cid_procedimiento.alcance)
+    documentos_json = json.dumps(cid_procedimiento.documentos)
+    definiciones_json = json.dumps(cid_procedimiento.definiciones)
+    responsabilidades_json = json.dumps(cid_procedimiento.responsabilidades)
+    desarrollo_json = json.dumps(cid_procedimiento.desarrollo)
+    registros_json = json.dumps(cid_procedimiento.registros)
+    control_cambios_json = json.dumps(cid_procedimiento.control_cambios)
+    return render_template(
+        "cid_procedimientos/edit.jinja2",
+        form=form,
+        cid_procedimiento=cid_procedimiento,
+        objetivo_json=objetivo_json,
+        alcance_json=alcance_json,
+        documentos_json=documentos_json,
+        definiciones_json=definiciones_json,
+        responsabilidades_json=responsabilidades_json,
+        desarrollo_json=desarrollo_json,
+        registros_json=registros_json,
+        control_cambios_json=control_cambios_json,
+    )
+
+
+def validate_json_quill_not_empty(data):
+    """Validar que un JSON de Quill no esté vacío"""
+    if not isinstance(data, dict):
+        return False
+    if not "ops" in data:
+        return False
+    try:
+        if data["ops"][0]["insert"].strip() == "":
+            return False
+        return True
+    except KeyError:
+        return False
 
 
 @cid_procedimientos.route("/cid_procedimientos/firmar/<int:cid_procedimiento_id>")
@@ -270,7 +307,63 @@ def sign_for_maker(cid_procedimiento_id):
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     if cid_procedimiento.usuario_id != current_user.id:
         abort(403)  # Acceso no autorizado, solo el propietario puede firmarlo
-    if cid_procedimiento.firma == "":
+    # Validar objetivo
+    objetivo_es_valido = validate_json_quill_not_empty(cid_procedimiento.objetivo)
+    # Validar alcance
+    alcance_es_valido = validate_json_quill_not_empty(cid_procedimiento.alcance)
+    # Validar documentos
+    documentos_es_valido = validate_json_quill_not_empty(cid_procedimiento.documentos)
+    # Validar definiciones
+    definiciones_es_valido = validate_json_quill_not_empty(cid_procedimiento.definiciones)
+    # Validar responsabilidades
+    responsabilidades_es_valido = validate_json_quill_not_empty(cid_procedimiento.responsabilidades)
+    # Validar desarrollo
+    desarrollo_es_valido = validate_json_quill_not_empty(cid_procedimiento.desarrollo)
+    # Validar registros
+    registros_es_valido = validate_json_quill_not_empty(cid_procedimiento.registros)
+    # Validar control_cambios
+    control_cambios_es_valido = validate_json_quill_not_empty(cid_procedimiento.control_cambios)
+    # Validar elaboro
+    elaboro_es_valido = False
+    if cid_procedimiento.elaboro_email != "":
+        elaboro = Usuario.query.filter_by(email=cid_procedimiento.elaboro_email).first()
+        elaboro_es_valido = elaboro is not None  # TODO: Validar que tenga el rol SICGD DUENO DE PROCESO
+    # Validar reviso
+    reviso_es_valido = False
+    if cid_procedimiento.reviso_email != "":
+        reviso = Usuario.query.filter_by(email=cid_procedimiento.reviso_email).first()
+        reviso_es_valido = reviso is not None  # TODO: Validar que tenga el rol SICGD DIRECTOR O JEFE
+    # Validar autorizo
+    aprobo_es_valido = False
+    if cid_procedimiento.aprobo_email != "":
+        aprobo = Usuario.query.filter_by(email=cid_procedimiento.aprobo_email).first()
+        aprobo_es_valido = aprobo is not None  # TODO: Validar que tenga el rol SICGD DIRECTOR O JEFE
+    # Poner barreras para prevenir que se firme si está incompleto
+    if cid_procedimiento.firma != "":
+        flash("Este procedimiento ya ha sido firmado.", "warning")
+    elif not objetivo_es_valido:
+        flash("Objetivo no pasa la validación.", "warning")
+    elif not alcance_es_valido:
+        flash("Alcance no pasa la validación.", "warning")
+    elif not documentos_es_valido:
+        flash("Documentos no pasa la validación.", "warning")
+    elif not definiciones_es_valido:
+        flash("Definiciones no pasa la validación.", "warning")
+    elif not responsabilidades_es_valido:
+        flash("Responsabilidades no pasa la validación.", "warning")
+    elif not desarrollo_es_valido:
+        flash("Desarrollo no pasa la validación.", "warning")
+    elif not registros_es_valido:
+        flash("Registros no pasa la validación.", "warning")
+    elif not control_cambios_es_valido:
+        flash("Control de Cambios no pasa la validación.", "warning")
+    elif not elaboro_es_valido:
+        flash("Quien elabora no pasa la validación.", "warning")
+    elif not reviso_es_valido:
+        flash("Quien revisa no pasa la validación.", "warning")
+    elif not aprobo_es_valido:
+        flash("Quien aprueba no pasa la validación.", "warning")
+    else:
         tarea = current_user.launch_task(
             nombre="cid_procedimientos.tasks.crear_pdf",
             descripcion=f"Crear archivo PDF de {cid_procedimiento.titulo_procedimiento}",
@@ -279,8 +372,6 @@ def sign_for_maker(cid_procedimiento_id):
             accept_reject_url=url_for("cid_procedimientos.accept_reject", cid_procedimiento_id=cid_procedimiento.id),
         )
         flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
-    else:
-        flash("Este procedimiento ya ha sido firmado.", "warning")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
 
 
