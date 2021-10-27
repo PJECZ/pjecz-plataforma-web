@@ -123,3 +123,19 @@
     padding: 10px;
     text-indent: 20px;
 }
+/* css quill table */
+body {
+    padding: 25px;
+  }
+  #bubble-container, #snow-container {
+    height: 300px;
+    margin-bottom: 10px;
+  }
+  .container {
+    display: flex;
+  }
+  .panel {
+    flex: 1;
+    margin-left: 25px;
+    margin-right: 25px;
+  }
