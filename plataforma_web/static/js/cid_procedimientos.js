@@ -96,6 +96,16 @@ function llenar_control_cambios(contenido) {
     controlCambiosQuill.setContents(contenido);
 }
 
+function guardar_autorizaciones() {
+    autorizaciones = JSON.stringify(autorizacionesQuill.getContents());
+    $('#autorizaciones').val(autorizaciones);
+}
+
+// Llenar Control de Cambios
+function llenar_autorizaciones(contenido) {
+    autorizacionesQuill.setContents(contenido);
+}
+
 // Guardar Vista Previa
 function guardar_vista_previa() {
     console.log('OK Vista Previa');
