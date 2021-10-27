@@ -38,10 +38,13 @@ def alimentar(entrada_csv):
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         return
-    clave = ruta.name[: -len(ruta.suffix)]
+    clave = ruta.name[:-len(ruta.suffix)]
     autoridad = Autoridad.query.filter(Autoridad.clave == clave).first()
     if autoridad is None:
-        click.echo(f"AVISO: {ruta.name} no se encuentra esa clave en autoridades.")
+        click.echo(f"AVISO: Con el nombre del archivo {ruta.name} no hay clave en autoridades.")
+        return
+    if autoridad.es_jurisdiccional is False:
+        click.echo("AVISO: La autoridad no es jurisdiccional")
         return
     click.echo("Alimentando audiencias...")
     contador = 0
@@ -149,6 +152,9 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
         autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
     else:
         autoridad = None
+    if autoridad is not None and autoridad.es_jurisdiccional is False:
+        click.echo("AVISO: La autoridad no es jurisdiccional")
+        return
     if desde != "":
         try:
             desde_fecha = datetime.strptime(desde, "%Y-%m-%d")
