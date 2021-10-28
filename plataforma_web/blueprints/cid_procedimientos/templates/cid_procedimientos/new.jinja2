@@ -91,9 +91,6 @@
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
                             {{ quill.div(div_id='control_cambios_quill') }}
-                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
-                        {% endcall %}
-                        {% call quill.step('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()', next_onclick='javascript:guardar_autorizaciones()', save_onclick='javascript:guardar_autorizaciones()')%}
                             <h4>Elaboró</h4>
                             <div class="row">
                                 <div class="col">
@@ -130,8 +127,7 @@
                                         {% call f.form_group(form.aprobo_email) %}{% endcall %}
                                     </div>
                             </div>
-                            <div style="display: none;">{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
-
+                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Vista previa -->
                         <style>.ql-disabled{overflow:auto;}</style>
@@ -157,7 +153,6 @@
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
     {{ quill.editor(instance='registrosQuill', div_id='registros_quill') }}
     {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
-    {{ quill.editor(instance='autorizacionesQuill', div_id='autorizaciones_quill') }}
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
     <!-- Select2 bootstrap -->
@@ -187,7 +182,6 @@
         $('#desarrollo').val(vacio);
         $('#registros').val(vacio);
         $('#control_cambios').val(vacio);
-        $('#autorizaciones').val(vacio);
         $('#vista_previa').val(vacio);
     </script>
 {% endblock %}

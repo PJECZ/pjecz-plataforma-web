@@ -92,9 +92,6 @@
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
                             {{ quill.div(div_id='control_cambios_quill') }}
-                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
-                        {% endcall %}
-                         {% call quill.step('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()', next_onclick='javascript:guardar_autorizaciones()', save_onclick='javascript:guardar_autorizaciones()')%}
                             <h4>Elaboró</h4>
                             <div class="row">
                                 <div class="col">
@@ -121,17 +118,17 @@
                                 </div>
                                 <h4>Autorizó</h4>
                                 <div class="row">
-                                    <div class="col">
-                                        {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
-                                    </div>
-                                    <div class="col">
-                                        {% call f.form_group(form.aprobo_puesto) %}{% endcall %}
-                                    </div>
-                                    <div class="col">
-                                        {% call f.form_group(form.aprobo_email) %}{% endcall %}
-                                    </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_puesto) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_email) %}{% endcall %}
+                                </div>
                             </div>
-                            <div style="display: none;">{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
+                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Vista previa -->
                         <style>.ql-disabled{overflow:auto;}</style>
@@ -156,7 +153,6 @@
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
     {{ quill.editor(instance='registrosQuill', div_id='registros_quill') }}
     {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
-    {{ quill.editor(instance='autorizacionesQuill', div_id='autorizaciones_quill') }}
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
     <!-- El formulario llena los inputs, sigue sacarles los contenidos para llenar los quill -->
@@ -170,7 +166,6 @@
             llenar_desarrollo({{ desarrollo_json }});
             llenar_registros({{ registros_json }});
             llenar_control_cambios({{ control_cambios_json }});
-            llenar_autorizaciones({{ autorizaciones_json }});
         });
     </script>
     <!-- Select2 bootstrap -->

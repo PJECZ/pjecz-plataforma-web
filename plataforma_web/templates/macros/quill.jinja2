@@ -2,10 +2,8 @@
 
 {# Quill theme for custom_head #}
 {%- macro head() -%}
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.snow.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/quill.css') }}" rel="stylesheet" type="text/css">
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 {%- endmacro -%}
 
 {# Quill div #}
@@ -16,7 +14,6 @@
 {# Quill library for custom_javascript #}
 {%- macro library() -%}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 {%- endmacro -%}
 
 {# Quill editor for custom_javascript #}
@@ -71,43 +68,6 @@
         });
     </script>
 {%- endmacro -%}
-
-{# test summernote editor#}
-
-{# summernote div #}
-{%- macro divsum(divsum_id='contenido_summernote') -%}
-    <div id="{{ divsum_id }}" class="mb-2" style="display:block; clear:both; break-after:page; height:50vh;"></div>
-{%- endmacro -%}
-
-{#summernote editor#}
-{%- macro editor_sum(form_id='',  divsum_id='contenido_summernote', hidden_id='contenido', content='') -%}
-    <script>
-     ('#{{ divsum_id }}').summernote({
-        modules: {
-            placeholder: 'Hello stand alone ui',
-            tabsize: 2,
-            height: 420,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ]
-        }
-    });
-    $('#'{{ divsum_id }}).summernote();
-    $('#'{{ divsum_id }}).summernote({
-        height: 300,                 // set editor height
-        minHeight: null,             // set minimum height of editor
-        maxHeight: null,             // set maximum height of editor
-        focus: true                  // set focus to editable area after initializing summernote
-    });
-    </script>
-{%- endmacro -%}
-{# end summernote #}
 
 {# Step first #}
 {%- macro step_first(title, next_onclick='') -%}
