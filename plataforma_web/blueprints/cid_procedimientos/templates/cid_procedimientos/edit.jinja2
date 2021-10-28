@@ -28,17 +28,17 @@
             <div class="row">
                 <div class="col-lg-12 ml-auto mr-auto mb-4">
                     <div class="multisteps-form__progress">
-                        <button class="multisteps-form__progress-btn js-active" type="button" title="Encabezado" style="font-size:12px" disabled>Encabezado</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Objetivo" style="font-size:12px" disabled>Objetivo</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Alcance" style="font-size:12px" disabled>Alcance</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Documentos" style="font-size:12px" disabled>Documentos</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Definiciones" style="font-size:12px" disabled>Definiciones</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Responsabilidades" style="font-size:12px" disabled>Responsabilidades</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Desarrollo" style="font-size:12px" disabled>Desarrollo</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Registros" style="font-size:12px" disabled>Registros</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Control de Cambios" style="font-size:12px" disabled>Control de Cambios</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Autorizaciones" style="font-size:12px" style="font-size:12px" disabled>Autorizaciones</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Vista previa" style="font-size:12px" disabled>Vista previa</button>
+                        <button class="multisteps-form__progress-btn js-active" type="button" title="Encabezado" disabled>Encabezado</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Objetivo" disabled>Objetivo</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Alcance" disabled>Alcance</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Documentos" disabled>Documentos</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Definiciones" disabled>Definiciones</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Responsabilidades" disabled>Responsabilidades</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Desarrollo" disabled>Desarrollo</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Registros" disabled>Registros</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Control de Cambios" disabled>Control de Cambios</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Autorizaciones" disabled>Autorizaciones</button>
+                        <button class="multisteps-form__progress-btn" type="button" title="Vista previa" disabled>Vista previa</button>
                     </div>
                 </div>
             </div>
@@ -103,21 +103,21 @@
                                 <div class="col">
                                     {% call f.form_group(form.elaboro_email) %}{% endcall %}
                                 </div>
+                            </div>
+                            <h4>Revisó</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_nombre) %}{% endcall %}
                                 </div>
-                                <h4>Revisó</h4>
-                                <div class="row">
-                                    <div class="col">
-                                        {% call f.form_group(form.reviso_nombre) %}{% endcall %}
-                                    </div>
-                                    <div class="col">
-                                        {% call f.form_group(form.reviso_puesto) %}{% endcall %}
-                                    </div>
-                                    <div class="col">
-                                        {% call f.form_group(form.reviso_email) %}{% endcall %}
-                                    </div>
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_puesto) %}{% endcall %}
                                 </div>
-                                <h4>Autorizó</h4>
-                                <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_email) %}{% endcall %}
+                                </div>
+                            </div>
+                            <h4>Autorizó</h4>
+                            <div class="row">
                                 <div class="col">
                                     {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
                                 </div>
@@ -128,14 +128,15 @@
                                     {% call f.form_group(form.aprobo_email) %}{% endcall %}
                                 </div>
                             </div>
-                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
-                        {% endcall %}
-                        <!-- Vista previa -->
-                        <style>.ql-disabled{overflow:auto;}</style>
-                        {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
-                            {{ quill.div(div_id='vista_previa_quill') }}
-                        {% endcall %}
+                        </div>
+                        <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                     {% endcall %}
+                    <!-- Vista previa -->
+                    <style>.ql-disabled{overflow:auto;}</style>
+                    {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
+                        {{ quill.div(div_id='vista_previa_quill') }}
+                    {% endcall %}
+                {% endcall %}
                 </div>
             </div>
         </div>
