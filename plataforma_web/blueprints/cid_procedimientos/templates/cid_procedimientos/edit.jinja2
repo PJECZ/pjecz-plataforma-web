@@ -126,15 +126,15 @@
                                     {% call f.form_group(form.aprobo_email) %}{% endcall %}
                                 </div>
                             </div>
-                        {{ quill.div(div_id='control_cambios_quill') }}
-                        <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
+                            {{ quill.div(div_id='control_cambios_quill') }}
+                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
+                        {% endcall %}
+                        <!-- Vista previa -->
+                        <style>.ql-disabled{overflow:auto;}</style>
+                        {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
+                            {{ quill.div(div_id='vista_previa_quill') }}
+                        {% endcall %}
                     {% endcall %}
-                    <!-- Vista previa -->
-                    <style>.ql-disabled{overflow:auto;}</style>
-                    {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
-                        {{ quill.div(div_id='vista_previa_quill') }}
-                    {% endcall %}
-                {% endcall %}
                 </div>
             </div>
         </div>
