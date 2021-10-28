@@ -90,7 +90,6 @@
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
-                            {{ quill.div(div_id='control_cambios_quill') }}
                             <h4>Elaboró</h4>
                             <div class="row">
                                 <div class="col">
@@ -128,6 +127,7 @@
                                 </div>
                             </div>
                         </div>
+                        {{ quill.div(div_id='control_cambios_quill') }}
                         <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                     {% endcall %}
                     <!-- Vista previa -->
