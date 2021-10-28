@@ -61,6 +61,8 @@
         {% endcall %}
         {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ control_cambios }}
+        {% endcall %}
+        {% call accordion.item('autorizaciones', 'Autorizaciones', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
             {{ detail.label_value('Elaboró puesto', cid_procedimiento.elaboro_puesto) }}
             {{ detail.label_value('Elaboró correo', cid_procedimiento.elaboro_email) }}
