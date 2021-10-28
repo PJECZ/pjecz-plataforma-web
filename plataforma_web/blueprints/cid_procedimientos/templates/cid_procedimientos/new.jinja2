@@ -105,33 +105,32 @@
                                 <div class="col">
                                     {% call f.form_group(form.elaboro_email) %}{% endcall %}
                                 </div>
+                            </div>
+                            <h4>Revisó</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_nombre) %}{% endcall %}
                                 </div>
-                                <h4>Revisó</h4>
-                                <div class="row">
-                                    <div class="col">
-                                        {% call f.form_group(form.reviso_nombre) %}{% endcall %}
-                                    </div>
-                                    <div class="col">
-                                        {% call f.form_group(form.reviso_puesto) %}{% endcall %}
-                                    </div>
-                                    <div class="col">
-                                        {% call f.form_group(form.reviso_email) %}{% endcall %}
-                                    </div>
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_puesto) %}{% endcall %}
                                 </div>
-                                <h4>Autorizó</h4>
-                                <div class="row">
-                                    <div class="col">
-                                        {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
-                                    </div>
-                                    <div class="col">
-                                        {% call f.form_group(form.aprobo_puesto) %}{% endcall %}
-                                    </div>
-                                    <div class="col">
-                                        {% call f.form_group(form.aprobo_email) %}{% endcall %}
-                                    </div>
+                                <div class="col">
+                                    {% call f.form_group(form.reviso_email) %}{% endcall %}
+                                </div>
+                            </div>
+                            <h4>Autorizó</h4>
+                            <div class="row">
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_puesto) %}{% endcall %}
+                                </div>
+                                <div class="col">
+                                    {% call f.form_group(form.aprobo_email) %}{% endcall %}
+                                </div>
                             </div>
                             <div style="display: none;">{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
-
                         {% endcall %}
                         <!-- Vista previa -->
                         <style>.ql-disabled{overflow:auto;}</style>
@@ -142,7 +141,6 @@
                 </div>
             </div>
         </div>
-    {{ quill.editor(instance='autorizacionesQuill', div_id='autorizaciones_quill') }}
     {% endcall %}
 {% endblock %}
 
