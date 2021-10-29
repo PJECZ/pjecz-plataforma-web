@@ -44,7 +44,7 @@
         {% call accordion.item('alcance_item', 'Alcance', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ alcance }}
         {% endcall %}
-        {% call accordion.item('documentos_item', 'Documentos', accordion_id, estatus=cid_procedimiento.estatus) %}
+        {% call accordion.item('documentos_item', 'Documentos de Referencia', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ documentos }}
         {% endcall %}
         {% call accordion.item('definiciones_item', 'Definiciones', accordion_id, estatus=cid_procedimiento.estatus) %}
@@ -61,6 +61,8 @@
         {% endcall %}
         {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ control_cambios }}
+        {% endcall %}
+        {% call accordion.item('autorizaciones', 'Autorizaciones', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
             {{ detail.label_value('Elaboró puesto', cid_procedimiento.elaboro_puesto) }}
             {{ detail.label_value('Elaboró correo', cid_procedimiento.elaboro_email) }}

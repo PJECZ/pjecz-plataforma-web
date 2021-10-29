@@ -13,7 +13,7 @@
 
 {# Quill library for custom_javascript #}
 {%- macro library() -%}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.1/quill.min.js"></script> 
 {%- endmacro -%}
 
 {# Quill editor for custom_javascript #}
@@ -34,7 +34,6 @@
                     [{ 'font': [] }],
                     [{ 'align': [] }],
                     ['clean']
-                                                         // remove formatting
                 ],
             },
             theme: 'snow'
@@ -61,7 +60,7 @@
             // Quill reader
             var {{ instance }} = new Quill('#{{ div_id }}', {
                 readOnly: true,
-                theme: 'snow'
+                theme: 'snow'po
             });
             // Fill at start
             {{ instance }}.setContents({{ content }});
