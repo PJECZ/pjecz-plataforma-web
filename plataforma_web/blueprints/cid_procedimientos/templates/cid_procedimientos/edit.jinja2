@@ -156,7 +156,6 @@
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
     {{ quill.editor(instance='registrosQuill', div_id='registros_quill') }}
     {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
-    {{ quill.editor(instance='autorizacionesQuill', div_id='autorizaciones_quill') }}
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
     <!-- El formulario llena los inputs, sigue sacarles los contenidos para llenar los quill -->
@@ -170,7 +169,6 @@
             llenar_desarrollo({{ desarrollo_json }});
             llenar_registros({{ registros_json }});
             llenar_control_cambios({{ control_cambios_json }});
-            llenar_autorizaciones({{ autorizaciones_json }});
         });
     </script>
     <!-- Select2 bootstrap -->
