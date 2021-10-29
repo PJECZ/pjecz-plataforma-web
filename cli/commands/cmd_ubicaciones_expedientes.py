@@ -1,7 +1,7 @@
 """
-Ubicación de Expedientes
+Ubicación Expedientes
 
-- alimentar: Alimentar insertando registros desde un archivo CSV
+- alimentar: Alimentar desde un archivo CSV con el nombre de la clave de la autoridad
 - respaldar: Respaldar a un archivo CSV
 """
 import re
@@ -22,13 +22,13 @@ db.app = app
 
 @click.group()
 def cli():
-    """Ubicación de Expedientes"""
+    """Ubicación Expedientes"""
 
 
 @click.command()
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
-    """Alimentar insertando registros desde un archivo CSV"""
+    """Alimentar desde un archivo CSV con el nombre de la clave de la autoridad"""
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -36,39 +36,23 @@ def alimentar(entrada_csv):
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         return
+    clave = ruta.name[: -len(ruta.suffix)]
+    autoridad = Autoridad.query.filter(Autoridad.clave == clave).first()
+    if autoridad is None:
+        click.echo(f"AVISO: Con el nombre del archivo {ruta.name} no hay clave en autoridades.")
+        return
     click.echo("Alimentando ubicaciones de expedientes...")
     contador = 0
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-
-            # Validar autoridad
-            autoridad_str = row["autoridad_id"].strip()
-            if autoridad_str == "":
-                click.echo("! Sin autoridad")
-                continue
-            try:
-                autoridad_id = int(autoridad_str)
-            except ValueError:
-                click.echo("! El ID de la autoridad no es un entero")
-                continue
-            autoridad = Autoridad.query.get(autoridad_id)
-            if autoridad is False:
-                click.echo("! No existe la autoridad")
-                continue
-            if autoridad.es_jurisdiccional is False:
-                click.echo("! La autoridad no es jurisdiccional")
-                continue
-
             # Validar ubicación
             ubicacion = row["ubicacion"].strip()
             if not ubicacion in UbicacionExpediente.UBICACIONES.keys():
                 click.echo("! Ubicación no válida")
                 continue
-
             # Validar expediente
             try:
-
                 if not row["expediente"] or row["expediente"].strip() == "":
                     click.echo("! Expediente vacio ")
                     continue
@@ -85,13 +69,10 @@ def alimentar(entrada_csv):
                     raise ValueError
                 if ano < 1950 or ano > date.today().year:
                     raise ValueError
-
                 expediente = f"{str(numero)}/{str(ano)}{str(texto)}"
-
             except (IndexError, ValueError):
                 click.echo("! Expediente no válido " + row["expediente"].strip())
                 continue
-
             # Insertar
             datos = {
                 "autoridad": autoridad,
@@ -102,28 +83,41 @@ def alimentar(entrada_csv):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} ubicaciones de expedientes...")
-
     click.echo(f"{contador} ubicaciones de expedientes alimentadas.")
 
 
 @click.command()
-@click.option("--output", default="ubicaciones_de_expedientes.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(output):
+@click.option("--autoridad-id", default=None, type=int, help="ID de la autoridad")
+@click.option("--autoridad-clave", default="", type=str, help="Clave de la autoridad")
+@click.option("--output", default="ubicaciones_expedientes.csv", type=str, help="Archivo CSV a escribir")
+def respaldar(autoridad_id, autoridad_clave, output):
     """Respaldar a un archivo CSV"""
     ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
+    if autoridad_id:
+        autoridad = Autoridad.query.get(autoridad_id)
+    elif autoridad_clave:
+        autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
+    else:
+        autoridad = None
+    if autoridad is not None and autoridad.es_jurisdiccional is False:
+        click.echo("AVISO: La autoridad no es jurisdiccional")
+        return
     click.echo("Respaldando ubicaciones de expedientes...")
     contador = 0
-    ubicaciones_expedientes = UbicacionExpediente.query.filter_by(estatus="A").all()
+    ubicaciones_expedientes = UbicacionExpediente.query.filter_by(estatus="A")
+    if autoridad is not None:
+        ubicaciones_expedientes = ubicaciones_expedientes.filter(UbicacionExpediente.autoridad == autoridad)
+    ubicaciones_expedientes = ubicaciones_expedientes.all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["autoridad", "expediente", "ubicacion"])
+        respaldo.writerow(["autoridad_clave", "expediente", "ubicacion"])
         for ubicacion_expediente in ubicaciones_expedientes:
             respaldo.writerow(
                 [
-                    ubicacion_expediente.autoridad_id,
+                    ubicacion_expediente.autoridad.clave,
                     ubicacion_expediente.expediente,
                     ubicacion_expediente.ubicacion,
                 ]
