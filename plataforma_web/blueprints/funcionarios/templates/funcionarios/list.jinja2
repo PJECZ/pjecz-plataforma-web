@@ -1,0 +1,44 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Funcionarios{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('FUNCIONARIOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('funcionarios.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('funcionarios.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('FUNCIONARIOS') %}
+            {{ topbar.button_new('Nuevo Funcionario', url_for('funcionarios.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombres</th>
+                    <th>e-mail</th>
+                    <th>En funciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for funcionario in funcionarios %}
+                <tr>
+                    <td><a href="{{ url_for('funcionarios.detail', funcionario_id=funcionario.id) }}">{{ funcionario.nombre }}</a></td>
+                    <td>{{ funcionario.email }}</td>
+                    <td>{% if funcionario.en_funciones %}SI{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('funcionarios_datatable') }}
+{% endblock %}
