@@ -96,15 +96,15 @@ function llenar_control_cambios(contenido) {
     controlCambiosQuill.setContents(contenido);
 }
 
+//Guardar Autorizaciones
 function guardar_autorizaciones() {
-    autorizaciones = JSON.stringify(autorizacionesQuill.getContents());
-    $('#autorizaciones').val(autorizaciones);
+    autorizaciones = $('#autorizaciones').val();
 }
 
-// Llenar Control de Cambios
-function llenar_autorizaciones(contenido) {
-    autorizacionesQuill.setContents(contenido);
-}
+// // Llenar Autorizaciones
+// function llenar_autorizaciones(contenido) {
+//     autorizacionesQuill.setContents(contenido);
+// }
 
 // Guardar Vista Previa
 function guardar_vista_previa() {
