@@ -101,11 +101,6 @@ function guardar_autorizaciones() {
     autorizaciones = $('#autorizaciones').val();
 }
 
-// // Llenar Autorizaciones
-// function llenar_autorizaciones(contenido) {
-//     autorizacionesQuill.setContents(contenido);
-// }
-
 // Guardar Vista Previa
 function guardar_vista_previa() {
     console.log('OK Vista Previa');
