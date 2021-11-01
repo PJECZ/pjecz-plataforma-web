@@ -21,7 +21,7 @@ class CIDProcedimientoForm(FlaskForm):
     # Step Encabezado
     titulo_procedimiento = StringField("Título", validators=[DataRequired(), Length(max=256)])
     codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
-    revision = IntegerField("Revisión", validators=[DataRequired()])
+    revision = IntegerField("Revisión (Número entero apartir de 1)", validators=[DataRequired()])
     fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
     # Step Objetivo
     objetivo = JSONField("Objetivo", validators=[Optional()])
