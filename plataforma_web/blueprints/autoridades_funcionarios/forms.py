@@ -22,7 +22,7 @@ def funcionarios_opciones():
 
 class AutoridadFuncionarioForm(FlaskForm):
     """ Formulario AutoridadFuncionario """
-    autoridad = QuerySelectField(query_factory=autoridades_opciones, get_label='nombre', validators=[DataRequired()])
+    autoridad = QuerySelectField(query_factory=autoridades_opciones, get_label='clave', validators=[DataRequired()])
     funcionario = QuerySelectField(query_factory=funcionarios_opciones, get_label='nombre', validators=[DataRequired()])
     guardar = SubmitField('Guardar')
 
@@ -36,6 +36,6 @@ class AutoridadFuncionarioWithAutoridadForm(FlaskForm):
 
 class AutoridadFuncionarioWithFuncionarioForm(FlaskForm):
     """ Formulario AutoridadFuncionario """
-    autoridad = QuerySelectField(query_factory=autoridades_opciones, get_label='nombre', validators=[DataRequired()])
+    autoridad = QuerySelectField(query_factory=autoridades_opciones, get_label='clave', validators=[DataRequired()])
     funcionario = StringField("Funcionario")  # Solo lectura
     guardar = SubmitField('Guardar')
