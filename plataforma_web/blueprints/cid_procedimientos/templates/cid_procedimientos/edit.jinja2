@@ -178,9 +178,17 @@
             $('#elaboro_email').addClass('js-example-placeholder-single js-states form-control');
             $('#reviso_email').addClass('js-example-placeholder-single js-states form-control');
             $('#aprobo_email').addClass('js-example-placeholder-single js-states form-control');
-            $("#elaboro_email").prop("selectedIndex", -1); // Poner en blanco el select
-            $("#reviso_email").prop("selectedIndex", -1); // Poner en blanco el select
-            $("#aprobo_email").prop("selectedIndex", -1); // Poner en blanco el select
+            $('#elaboro_email option').each(function() {
+                if($(this).text() == '{{cid_procedimiento.elaboro_email}}') {
+                    $("#elaboro_email").val( $(this).val() );
+                }
+                if($(this).text() == '{{cid_procedimiento.reviso_email}}') {
+                    $("#reviso_email").val( $(this).val() );
+                }
+                if($(this).text() == '{{cid_procedimiento.aprobo_email}}') {
+                    $("#aprobo_email").val( $(this).val() );
+                }
+            });
             $(".js-example-placeholder-single").select2({
                 placeholder: "correo",
                 allowClear: true
