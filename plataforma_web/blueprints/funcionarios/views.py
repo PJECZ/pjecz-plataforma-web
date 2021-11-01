@@ -67,6 +67,7 @@ def new():
             nombres=form.nombres.data,
             apellido_paterno=form.apellido_paterno.data,
             apellido_materno=form.apellido_materno.data,
+            email=form.email.data,
             en_funciones=form.en_funciones.data,
         )
         funcionario.save()
@@ -82,3 +83,67 @@ def new():
     return render_template("funcionarios/new.jinja2", form=form)
 
 
+@funcionarios.route('/funcionarios/edicion/<int:funcionario_id>', methods=['GET', 'POST'])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(funcionario_id):
+    """ Editar Funcionario """
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    form = FuncionarioForm()
+    if form.validate_on_submit():
+        funcionario.nombres = form.nombres.data
+        funcionario.apellido_paterno = form.apellido_paterno.data
+        funcionario.apellido_materno = form.apellido_materno.data
+        funcionario.email = form.email.data
+        funcionario.en_funciones = form.en_funciones.data
+        funcionario.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f'Editado funcionario {funcionario.nombre}'),
+            url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+        return redirect(bitacora.url)
+    form.nombres.data = funcionario.nombres
+    form.apellido_paterno.data = funcionario.apellido_paterno
+    form.apellido_materno.data = funcionario.apellido_materno
+    form.email.data = funcionario.email
+    form.en_funciones.data = funcionario.en_funciones
+    return render_template('funcionarios/edit.jinja2', form=form, funcionario=funcionario)
+
+
+@funcionarios.route('/funcionarios/eliminar/<int:funcionario_id>')
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(funcionario_id):
+    """ Eliminar Funcionario """
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    if funcionario.estatus == 'A':
+        funcionario.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f'Eliminado funcionario  {funcionario.nombre}'),
+            url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+    return redirect(url_for('funcionarios.detail', funcionario_id=funcionario.id))
+
+
+@funcionarios.route('/funcionarios/recuperar/<int:funcionario_id>')
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(funcionario_id):
+    """ Recuperar Funcionario """
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    if funcionario.estatus == 'B':
+        funcionario.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f'Recuperado {funcionario.nombre}'),
+            url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, 'success')
+    return redirect(url_for('funcionarios.detail', funcionario_id=funcionario.id))

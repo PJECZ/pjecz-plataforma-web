@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Agregar autoridad al funcionario{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'funcionario_id': funcionario.id} %}
+        {% call f.form_tag('autoridades_funcionarios.new_with_funcionario', fid='autoridad_funcionario_form', **form_kwargs) %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.funcionario, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
