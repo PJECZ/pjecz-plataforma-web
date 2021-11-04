@@ -2,6 +2,7 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/quill.jinja2' as quill %}
+{% import 'macros/accordion.jinja2' as accordion %}
 
 {% block title %}Nuevo Procedimiento{% endblock %}
 
@@ -9,6 +10,8 @@
     {{ quill.head() }}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- font awesom-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Botón Atrás a la izquierda, botón Siguiente a la derecha -->
     <style>
         #atras { float: left; box-sizing: border-box; }
@@ -143,6 +146,23 @@
         </div>
     {% endcall %}
 {% endblock %}
+
+{% block content_help %}
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebar" aria-labelledby="sidebar-label" data-overlay="false">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebar-label">Asistente de Quill</h5>
+            <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" >
+            <aside class="flex-1 p-3 font-md leading-normal markup-page no-padding bg-white shadow-md mb-4 rounded aside-secc" style="background-color:#ebebeb" >
+                <a href="/cid_procedimientos/nuevo">Componentes de editor</a>
+            </aside>
+        </div>
+    </div>
+    <a href="#sidebar" class="d-block mt-3 btn-flotante" data-bs-toggle="offcanvas" role="button" aria-controls="sidebar"><i class="fas fa-question"></i></a>
+    {# <button class="btn-flotante" type="button" data-toggle="canvas" data-target="#bs-canvas-right" aria-expanded="false" aria-controls="bs-canvas-right"><i class="fas fa-question"></i></button> #}
+{% endblock %}
+
 
 {% block custom_javascript %}
     <!-- Quill -->

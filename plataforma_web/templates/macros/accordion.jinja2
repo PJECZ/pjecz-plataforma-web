@@ -28,3 +28,11 @@
         </div>
     </div>
 {%- endmacro -%}
+
+{# Esta macro nos ayuda a crear el boton de ayuda flotante #}
+{%- macro help(label) -%}
+        <div class="offcanvas-header offcanvas-bg ">
+            <h5 class="offcanvas-title" id="sidebar-label">{{ label }}</h5>
+            <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+{%- endmacro -%}
