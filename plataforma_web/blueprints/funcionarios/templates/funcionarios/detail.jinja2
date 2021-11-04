@@ -18,7 +18,9 @@
 
 {% block content %}
     {% call detail.card(estatus=funcionario.estatus) %}
-        {{ detail.label_value_big('Nombre', funcionario.nombre) }}
+        {{ detail.label_value('Nombres', funcionario.nombres) }}
+        {{ detail.label_value('Apellido paterno', funcionario.apellido_paterno) }}
+        {{ detail.label_value('Apellido materno', funcionario.apellido_materno) }}
         {{ detail.label_value('e-mail', funcionario.email) }}
         {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
     {% endcall %}
