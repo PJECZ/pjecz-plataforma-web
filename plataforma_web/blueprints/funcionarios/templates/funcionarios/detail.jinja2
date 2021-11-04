@@ -1,0 +1,32 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Funcionario{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(funcionario.nombre) %}
+        {{ topbar.button_previous('Funcionarios', url_for('funcionarios.list_active')) }}
+        {% if current_user.can_edit('funcionarios') %}
+            {{ topbar.button_edit('Editar', url_for('funcionarios.edit', funcionario_id=funcionario.id)) }}
+            {% if funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('funcionarios.delete', funcionario_id=funcionario.id)) }}{% endif %}
+            {% if funcionario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('funcionarios.recover', funcionario_id=funcionario.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=funcionario.estatus) %}
+        {{ detail.label_value_big('Nombre', funcionario.nombre) }}
+        {{ detail.label_value('e-mail', funcionario.email) }}
+        {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('funcionarios') %}
+        {% if funcionario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + funcionario.nombre + '?') }}{% endif %}
+        {% if funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + funcionario.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

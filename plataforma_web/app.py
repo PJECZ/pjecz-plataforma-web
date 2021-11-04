@@ -10,6 +10,7 @@ from plataforma_web.extensions import csrf, db, login_manager, moment
 from plataforma_web.blueprints.abogados.views import abogados
 from plataforma_web.blueprints.audiencias.views import audiencias
 from plataforma_web.blueprints.autoridades.views import autoridades
+from plataforma_web.blueprints.autoridades_funcionarios.views import autoridades_funcionarios
 from plataforma_web.blueprints.bitacoras.views import bitacoras
 from plataforma_web.blueprints.cid_procedimientos.views import cid_procedimientos
 from plataforma_web.blueprints.cid_formatos.views import cid_formatos
@@ -17,6 +18,7 @@ from plataforma_web.blueprints.cid_registros.views import cid_registros
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
+from plataforma_web.blueprints.funcionarios.views import funcionarios
 from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_de_acuerdos_acuerdos
@@ -55,10 +57,12 @@ def create_app():
     app.register_blueprint(abogados)
     app.register_blueprint(audiencias)
     app.register_blueprint(autoridades)
+    app.register_blueprint(autoridades_funcionarios)
     app.register_blueprint(bitacoras)
     app.register_blueprint(distritos)
     app.register_blueprint(edictos)
     app.register_blueprint(entradas_salidas)
+    app.register_blueprint(funcionarios)
     app.register_blueprint(glosas)
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(listas_de_acuerdos_acuerdos)

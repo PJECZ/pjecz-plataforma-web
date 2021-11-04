@@ -1,0 +1,35 @@
+"""
+Alimentar funcionarios
+"""
+from pathlib import Path
+import csv
+import click
+
+from plataforma_web.blueprints.funcionarios.models import Funcionario
+
+FUNCIONARIOS_CSV = "seed/funcionarios.csv"
+
+
+def alimentar_funcionarios():
+    """Alimentar funcionarios"""
+    ruta = Path(FUNCIONARIOS_CSV)
+    if not ruta.exists():
+        click.echo(f"AVISO: {ruta.name} no se encontró.")
+        return
+    if not ruta.is_file():
+        click.echo(f"AVISO: {ruta.name} no es un archivo.")
+        return
+    click.echo("Alimentando funcionarios...")
+    contador = 0
+    with open(ruta, encoding="utf-8") as puntero:
+        rows = csv.DictReader(puntero)
+        for row in rows:
+            Funcionario(
+                nombres=row["nombres"],
+                apellido_paterno=row["apellido_paterno"],
+                apellido_materno=row["apellido_materno"],
+                email=row["email"],
+                en_funciones=(int(row["en_funciones"]) == 1),
+            ).save()
+            contador += 1
+    click.echo(f"  {contador} funcionarios alimentados")
