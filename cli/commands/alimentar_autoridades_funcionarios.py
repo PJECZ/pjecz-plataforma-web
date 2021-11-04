@@ -1,0 +1,49 @@
+"""
+Alimentar autoridades-funcionarios
+"""
+from pathlib import Path
+import csv
+import click
+
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.autoridades_funcionarios.models import AutoridadFuncionario
+from plataforma_web.blueprints.funcionarios.models import Funcionario
+
+AUTORIDADES_FUNCIONARIOS_CSV = "seed/funcionarios.csv"
+
+
+def alimentar_autoridades_funcionarios():
+    """Alimentar Autoridades-Funcionarios"""
+    ruta = Path(AUTORIDADES_FUNCIONARIOS_CSV)
+    if not ruta.exists():
+        click.echo(f"AVISO: {ruta.name} no se encontró.")
+        return
+    if not ruta.is_file():
+        click.echo(f"AVISO: {ruta.name} no es un archivo.")
+        return
+    if Funcionario.query.filter_by(estatus="A").count() == 0:
+        click.echo("AVISO: Faltan de alimentar los funcionarios")
+        return
+    click.echo("Alimentando funcionarios...")
+    contador = 0
+    autoridad = None
+    with open(ruta, encoding="utf-8") as puntero:
+        rows = csv.DictReader(puntero)
+        for row in rows:
+            autoridad_clave = row["autoridad_clave"]
+            if autoridad is None or autoridad.clave != autoridad_clave:
+                autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
+                if autoridad is None:
+                    click.echo(f"AVISO: No se encontró la autoridad {autoridad_clave}.")
+                    continue
+            funcionario = Funcionario.query.get(row["id"])
+            if funcionario is None:
+                click.echo(f"AVISO: No se encontró el funcionario {row['id']}.")
+                continue
+            AutoridadFuncionario(
+                autoridad=autoridad,
+                funcionario=funcionario,
+                descripcion=f"{funcionario.nombre} en {autoridad.clave}",
+            ).save()
+            contador += 1
+    click.echo(f"  {contador} autoridades-funcionarios alimentados")

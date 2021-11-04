@@ -6,25 +6,25 @@
 {% block title %}Autoridad Funcionario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(autoridades_funcionarios.descripcion) %}
+    {% call topbar.page_buttons(autoridad_funcionario.descripcion) %}
         {{ topbar.button_previous('Autoridades Funcionarios', url_for('autoridades_funcionarios.list_active')) }}
         {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-            {{ topbar.button_edit('Editar', url_for('autoridades_funcionarios.edit', autoridades_funcionarios_id=autoridades_funcionarios.id)) }}
-            {% if autoridades_funcionarios.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades_funcionarios.delete', autoridades_funcionarios_id=autoridades_funcionarios.id)) }}{% endif %}
-            {% if autoridades_funcionarios.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades_funcionarios.recover', autoridades_funcionarios_id=autoridades_funcionarios.id)) }}{% endif %}
+            {% if autoridad_funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades_funcionarios.delete', autoridad_funcionario_id=autoridad_funcionario.id)) }}{% endif %}
+            {% if autoridad_funcionario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades_funcionarios.recover', autoridad_funcionario_id=autoridad_funcionario.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=autoridades_funcionarios.estatus) %}
-        {{ detail.label_value_big('Descripción', autoridades_funcionarios.descripcion) }}
+    {% call detail.card(estatus=autoridad_funcionario.estatus) %}
+        {{ detail.label_value('Autoridad', autoridad_funcionario.autoridad.clave) }}
+        {{ detail.label_value('Funcionario', autoridad_funcionario.funcionario.nombre) }}
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-        {% if autoridades_funcionarios.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridades_funcionarios.descripcion + '?') }}{% endif %}
-        {% if autoridades_funcionarios.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridades_funcionarios.descripcion + '?') }}{% endif %}
+        {% if autoridad_funcionario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridad_funcionario.descripcion + '?') }}{% endif %}
+        {% if autoridad_funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad_funcionario.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}
