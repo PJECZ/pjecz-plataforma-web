@@ -5,38 +5,73 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 50;
+            padding: 4px 10px;
+        }
+
+        #divd::before {
+            content: "COPIA NO CONTROLADA";
+            font-size: 30px;
+            font-weight: 600;
+            position: absolute;
+            opacity: 0.3;
+            left: 50%;
+            margin-left: -150px;
+            top: 10px;
+        }
+
+        #divd::after {
+            content: "COPIA NO CONTROLADA";
+            font-size: 30px;
+            font-weight: 600;
+            position: relative;
+            opacity: 0.3;
+            left: 50%;
+            margin-left: -150px;
+            top: 1390px
+        }
+    </style>
 </head>
 
 <body>
-    <h3>OBJETIVO</h3>
+    <div id="divd"></div>
+    <h2>OBJETIVO</h2>
 
-    {{ objetivo }}
+    {{ objetivo }}<br>
 
     <h2>ALCANCE</h2>
 
-    {{ alcance }}
+    {{ alcance }}<br>
 
     <h2>DOCUMENTOS DE REFERENCIA</h2>
 
-    {{ documentos }}
+    {{ documentos }}<br>
 
     <h2>DEFINICIONES</h2>
 
-    {{ definiciones }}
+    {{ definiciones }}<br>
 
     <h2>RESPONSABILIDADES</h2>
 
-    {{ responsabilidades }}
+    {{ responsabilidades }}<br>
 
     <h2>DESARROLLO</h2>
 
-    {{ desarrollo }}
+    {{ desarrollo }}<br>
 
     <h2>REGISTROS</h2>
 
-    {{ registros }}
+    {{ registros }}<br>
 
     <h2>CONTROL DE CAMBIOS</h2>
+
+    {{ control_cambios }}<br>
+
+
+    <div style="page-break-before:always"></div>
+    <h2>AUTORIZACIONES</h2>
 
     <br>
     <table width='100%' cellpadding="10">
@@ -63,7 +98,6 @@
         </tr>
     </table>
 
-    {{ control_cambios }}
 
 </body>
 
