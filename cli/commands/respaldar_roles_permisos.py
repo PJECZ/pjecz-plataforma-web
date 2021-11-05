@@ -37,4 +37,4 @@ def respaldar_roles_permisos(salida: str = "roles_permisos.csv"):
             renglon.append(rol.estatus)
             respaldo.writerow(renglon)
             contador += 1
-    click.echo(f"Respaldados {contador} roles-permisos en {ruta.name}")
+    click.echo(f"  {contador} roles-permisos en {ruta.name}")

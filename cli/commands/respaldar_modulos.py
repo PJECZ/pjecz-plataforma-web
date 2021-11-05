@@ -47,4 +47,4 @@ def respaldar_modulos(salida: str = "modulos.csv"):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} módulos en {ruta.name}")
+    click.echo(f"  {contador} módulos en {ruta.name}")

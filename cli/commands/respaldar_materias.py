@@ -29,4 +29,4 @@ def respaldar_materias(salida: str = "materias.csv"):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} materias en {ruta.name}")
+    click.echo(f"  {contador} materias en {ruta.name}")

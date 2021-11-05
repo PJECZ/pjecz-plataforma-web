@@ -63,4 +63,4 @@ def respaldar_autoridades(salida: str = "autoridades.csv"):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
-    click.echo(f"Respaldadas {contador} autoridades en {ruta.name}")
+    click.echo(f"  {contador} autoridades en {ruta.name}")

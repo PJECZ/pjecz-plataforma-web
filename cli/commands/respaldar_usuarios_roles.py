@@ -59,4 +59,4 @@ def respaldar_usuarios_roles(salida: str = "usuarios_roles.csv"):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador} registros...")
-    click.echo(f"Respaldadas {contador} en {ruta.name}")
+    click.echo(f"  {contador} en {ruta.name}")
