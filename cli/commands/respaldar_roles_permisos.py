@@ -9,7 +9,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.roles.models import Rol
 
 
-def respaldar_roles_permisos(salida):
+def respaldar_roles_permisos(salida: str = "roles_permisos.csv"):
     """Respaldar Roles-Permisos a un archivo CSV"""
     ruta = Path(salida)
     if ruta.exists():

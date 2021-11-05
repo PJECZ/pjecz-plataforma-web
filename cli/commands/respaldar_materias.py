@@ -8,7 +8,7 @@ import click
 from plataforma_web.blueprints.materias.models import Materia
 
 
-def respaldar_materias(salida):
+def respaldar_materias(salida: str = "materias.csv"):
     """Respaldar Materias a un archivo CSV"""
     ruta = Path(salida)
     if ruta.exists():

@@ -8,7 +8,7 @@ import click
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 
 
-def respaldar_materias_tipos_juicios(salida):
+def respaldar_materias_tipos_juicios(salida: str = "materias_tipos_juicios.csv"):
     """Respaldar Materias-Tipos de Juicios a un archivo CSV"""
     ruta = Path(salida)
     if ruta.exists():

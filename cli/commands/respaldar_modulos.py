@@ -8,7 +8,7 @@ import click
 from plataforma_web.blueprints.modulos.models import Modulo
 
 
-def respaldar_modulos(salida):
+def respaldar_modulos(salida: str = "modulos.csv"):
     """Respaldar Modulos a un archivo CSV"""
     ruta = Path(salida)
     if ruta.exists():
