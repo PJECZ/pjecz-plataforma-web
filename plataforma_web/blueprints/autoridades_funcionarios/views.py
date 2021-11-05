@@ -175,7 +175,7 @@ def delete(autoridad_funcionario_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado autoridad-funcionario {autoridad_funcionario.descipcion}"),
+            descripcion=safe_message(f"Eliminado autoridad-funcionario {autoridad_funcionario.descripcion}"),
             url=url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=autoridad_funcionario.id),
         )
         bitacora.save()

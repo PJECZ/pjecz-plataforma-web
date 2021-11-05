@@ -41,7 +41,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256), default="", server_default="")
-    curp = db.Column(db.String(256), default="", server_default="")
+    curp = db.Column(db.String(18), default="", server_default="")
     puesto = db.Column(db.String(256), default="", server_default="")
     telefono_celular = db.Column(db.String(256), default="", server_default="")
     workspace = db.Column(db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False), index=True, nullable=False)

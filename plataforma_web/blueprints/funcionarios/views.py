@@ -67,6 +67,8 @@ def new():
             nombres=form.nombres.data,
             apellido_paterno=form.apellido_paterno.data,
             apellido_materno=form.apellido_materno.data,
+            curp=form.curp.data,
+            puesto=form.puesto.data,
             email=form.email.data,
             en_funciones=form.en_funciones.data,
         )
@@ -93,6 +95,8 @@ def edit(funcionario_id):
         funcionario.nombres = form.nombres.data
         funcionario.apellido_paterno = form.apellido_paterno.data
         funcionario.apellido_materno = form.apellido_materno.data
+        funcionario.curp = form.curp.data
+        funcionario.puesto = form.puesto.data
         funcionario.email = form.email.data
         funcionario.en_funciones = form.en_funciones.data
         funcionario.save()
@@ -108,6 +112,8 @@ def edit(funcionario_id):
     form.nombres.data = funcionario.nombres
     form.apellido_paterno.data = funcionario.apellido_paterno
     form.apellido_materno.data = funcionario.apellido_materno
+    form.curp.data = funcionario.curp
+    form.puesto.data = funcionario.puesto
     form.email.data = funcionario.email
     form.en_funciones.data = funcionario.en_funciones
     return render_template('funcionarios/edit.jinja2', form=form, funcionario=funcionario)

@@ -53,7 +53,6 @@
                     <th>e-mail</th>
                     <th>Nombres</th>
                     <th>Puestos</th>
-                    <th>CURP</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -64,7 +63,6 @@
                     <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario_rol.usuario_id) }}">{{ usuario_rol.usuario.email }}</a></td>
                     <td>{{ usuario_rol.usuario.nombre }}</td>
                     <td>{{ usuario_rol.usuario.puesto }}</td>
-                    <td>{{ usuario_rol.usuario.curp }}</td>
                     <td>
                     {% if current_user.can_edit('USUARIOS ROLES') %}
                         {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteUsuarioRol', message='¿Eliminar ' + usuario_rol.usuario.nombre + '?') }}
@@ -80,12 +78,16 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ detail.datatable('permisos_datatable') }}
+    {{ detail.datatable('usuarios_datatable') }}
     {% if current_user.can_edit('ROLES') %}
         {% if rol.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rol.nombre + '?') }}{% endif %}
         {% if rol.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + rol.nombre + '?') }}{% endif %}
     {% endif %}
-    {{ detail.datatable('permisos_datatable') }}
-    {{ detail.datatable('usuarios_datatable') }}
-    {{ modals.custom_javascript('Eliminar', '¿Eliminar ese permiso del rol?', 'DeletePermiso') }}
-    {{ modals.custom_javascript('Eliminar', '¿Eliminar ese usuario del rol?', 'DeleteUsuarioRol') }}
+    {% if current_user.can_edit('PERMISOS') %}
+        {{ modals.custom_javascript('Eliminar', '¿Eliminar ese permiso del rol?', 'DeletePermiso') }}
+    {% endif %}
+    {% if current_user.can_edit('USUARIOS ROLES') %}
+        {{ modals.custom_javascript('Eliminar', '¿Eliminar ese usuario del rol?', 'DeleteUsuarioRol') }}
+    {% endif %}
 {% endblock %}
