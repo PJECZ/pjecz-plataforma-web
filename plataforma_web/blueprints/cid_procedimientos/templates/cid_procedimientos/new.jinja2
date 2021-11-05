@@ -2,7 +2,6 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/quill.jinja2' as quill %}
-{% import 'macros/accordion.jinja2' as accordion %}
 
 {% block title %}Nuevo Procedimiento{% endblock %}
 
@@ -147,22 +146,9 @@
     {% endcall %}
 {% endblock %}
 
-{% block content_help %}
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebar" aria-labelledby="sidebar-label" data-overlay="false">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="sidebar-label">Asistente de Quill</h5>
-            <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body" >
-            <aside class="flex-1 p-3 font-md leading-normal markup-page no-padding bg-white shadow-md mb-4 rounded aside-secc" style="background-color:#ebebeb" >
-                <a href="/cid_procedimientos/nuevo">Componentes de editor</a>
-            </aside>
-        </div>
-    </div>
-    <a href="#sidebar" class="d-block mt-3 btn-flotante" data-bs-toggle="offcanvas" role="button" aria-controls="sidebar"><i class="fas fa-question"></i></a>
-    {# <button class="btn-flotante" type="button" data-toggle="canvas" data-target="#bs-canvas-right" aria-expanded="false" aria-controls="bs-canvas-right"><i class="fas fa-question"></i></button> #}
+{% block content_help %} 
+    {{ help_quill }}
 {% endblock %}
-
 
 {% block custom_javascript %}
     <!-- Quill -->

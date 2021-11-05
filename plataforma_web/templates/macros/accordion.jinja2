@@ -29,10 +29,17 @@
     </div>
 {%- endmacro -%}
 
-{# Esta macro nos ayuda a crear el boton de ayuda flotante #}
-{%- macro help(label) -%}
-        <div class="offcanvas-header offcanvas-bg ">
-            <h5 class="offcanvas-title" id="sidebar-label">{{ label }}</h5>
-            <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+{%- macro help_items(id, titulo, descripcion, id_accordion, show="") -%}
+    <div class="accordion-item">
+        <h2 class="accordion-header accordion-color" id="{{id}}">
+        <button class="accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{id}}"  aria-controls="collapse_{{id}}">
+            {{ titulo|safe }}
+        </button>
+        </h2>
+        <div id="collapse_{{id}}" class="accordion-collapse collapse  {{show}}" aria-labelledby="{{id}}" data-bs-parent="#{{id_accordion}}">
+        <div class="accordion-body help-body">
+            {{ descripcion|safe }}    
         </div>
+        </div>
+    </div>
 {%- endmacro -%}
