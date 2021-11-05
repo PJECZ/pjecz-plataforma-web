@@ -21,8 +21,8 @@
         <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Nombres</th>
-                    <th>e-mail</th>
+                    <th>Nombres completos</th>
+                    <th>Puestos</th>
                     <th>En funciones</th>
                 </tr>
             </thead>
@@ -30,7 +30,7 @@
                 {% for funcionario in funcionarios %}
                 <tr>
                     <td><a href="{{ url_for('funcionarios.detail', funcionario_id=funcionario.id) }}">{{ funcionario.nombre }}</a></td>
-                    <td>{{ funcionario.email }}</td>
+                    <td>{{ funcionario.puesto }}</td>
                     <td>{% if funcionario.en_funciones %}SI{% endif %}</td>
                 </tr>
                 {% endfor %}

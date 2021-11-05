@@ -86,7 +86,11 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    return render_template("autoridades_funcionarios/new.jinja2", form=form)
+    return render_template(
+        "autoridades_funcionarios/new.jinja2",
+        form=form,
+        titulo="Nuevo Autoridad-Funcionario",
+    )
 
 
 @autoridades_funcionarios.route("/autoridades_funcionarios/nuevo_con_autoridad/<int:autoridad_id>", methods=["GET", "POST"])
@@ -99,7 +103,7 @@ def new_with_autoridad(autoridad_id):
         funcionario = form.funcionario.data
         descripcion = f"{funcionario.nombre} en {autoridad.clave}"
         if AutoridadFuncionario.query.filter(AutoridadFuncionario.autoridad == autoridad).filter(AutoridadFuncionario.funcionario == funcionario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
+            flash(f"CONFLICTO: Ya existe {descripcion}. Si está eliminado puede recuperarlo.", "warning")
             return redirect(url_for("autoridades_funcionarios.list_inactive"))
         autoridad_funcionario = AutoridadFuncionario(
             autoridad=autoridad,
@@ -118,7 +122,7 @@ def new_with_autoridad(autoridad_id):
         return redirect(bitacora.url)
     form.autoridad.data = autoridad.clave
     return render_template(
-        "autoridades_funcionarios/new.jinja2",
+        "autoridades_funcionarios/new_with_autoridad.jinja2",
         form=form,
         autoridad=autoridad,
         titulo=f"Agregar funcionario a la autoridad {autoridad.clave}",
@@ -135,7 +139,7 @@ def new_with_funcionario(funcionario_id):
         autoridad = form.autoridad.data
         descripcion = f"{funcionario.nombre} en {autoridad.clave}"
         if AutoridadFuncionario.query.filter(AutoridadFuncionario.autoridad == autoridad).filter(AutoridadFuncionario.funcionario == funcionario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
+            flash(f"CONFLICTO: Ya existe {descripcion}. Si está eliminado puede recuperarlo.", "warning")
             return redirect(url_for("autoridades_funcionarios.list_inactive"))
         autoridad_funcionario = AutoridadFuncionario(
             autoridad=autoridad,
@@ -154,7 +158,7 @@ def new_with_funcionario(funcionario_id):
         return redirect(bitacora.url)
     form.funcionario.data = funcionario.nombre
     return render_template(
-        "autoridades_funcionarios/new.jinja2",
+        "autoridades_funcionarios/new_with_funcionario.jinja2",
         form=form,
         funcionario=funcionario,
         titulo=f"Agregar autoridad al funcionario {funcionario.nombre}",
@@ -171,7 +175,7 @@ def delete(autoridad_funcionario_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado autoridad-funcionario {autoridad_funcionario.descipcion}"),
+            descripcion=safe_message(f"Eliminado autoridad-funcionario {autoridad_funcionario.descripcion}"),
             url=url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=autoridad_funcionario.id),
         )
         bitacora.save()

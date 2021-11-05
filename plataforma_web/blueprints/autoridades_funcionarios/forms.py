@@ -17,7 +17,7 @@ def autoridades_opciones():
 
 def funcionarios_opciones():
     """ Funcionarios: opciones para select """
-    return Funcionario.query.filter_by(estatus='A').order_by(Funcionario.nombre).all()
+    return Funcionario.query.filter_by(estatus='A').order_by(Funcionario.nombres).all()
 
 
 class AutoridadFuncionarioForm(FlaskForm):
