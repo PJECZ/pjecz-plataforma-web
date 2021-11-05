@@ -18,9 +18,9 @@ class Funcionario(db.Model, UniversalMixin):
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256), default="", server_default="")
-    email = db.Column(db.String(256), index=True, default="", server_default="")
+    email = db.Column(db.String(256), default="", server_default="")
     curp = db.Column(db.String(18), index=True, default="", server_default="")
-    puesto = db.Column(db.String(256), index=True, default="", server_default="")
+    puesto = db.Column(db.String(256), default="", server_default="")
     en_funciones = db.Column(db.Boolean, nullable=False, default=True)
 
     # Hijos
