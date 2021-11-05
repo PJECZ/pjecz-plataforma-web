@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Autoridad Funcionario{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(autoridad_funcionario.descripcion) %}
+        {{ topbar.button_previous('Autoridades Funcionarios', url_for('autoridades_funcionarios.list_active')) }}
+        {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
+            {% if autoridad_funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades_funcionarios.delete', autoridad_funcionario_id=autoridad_funcionario.id)) }}{% endif %}
+            {% if autoridad_funcionario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades_funcionarios.recover', autoridad_funcionario_id=autoridad_funcionario.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=autoridad_funcionario.estatus) %}
+        {{ detail.label_value('Autoridad', autoridad_funcionario.autoridad.clave, url_for('autoridades.detail', autoridad_id=autoridad_funcionario.autoridad_id)) }}
+        {{ detail.label_value('Funcionario', autoridad_funcionario.funcionario.nombre, url_for('funcionarios.detail', funcionario_id=autoridad_funcionario.funcionario_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
+        {% if autoridad_funcionario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + autoridad_funcionario.descripcion + '?') }}{% endif %}
+        {% if autoridad_funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad_funcionario.descripcion + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

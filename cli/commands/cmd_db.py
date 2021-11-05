@@ -12,7 +12,9 @@ from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
 from cli.commands.alimentar_autoridades import alimentar_autoridades
+from cli.commands.alimentar_autoridades_funcionarios import alimentar_autoridades_funcionarios
 from cli.commands.alimentar_distritos import alimentar_distritos
+from cli.commands.alimentar_funcionarios import alimentar_funcionarios
 from cli.commands.alimentar_materias import alimentar_materias
 from cli.commands.alimentar_materias_tipos_juicios import alimentar_materias_tipos_juicios
 from cli.commands.alimentar_modulos import alimentar_modulos
@@ -58,6 +60,8 @@ def alimentar():
     alimentar_autoridades()
     alimentar_usuarios()
     alimentar_usuarios_roles()
+    alimentar_funcionarios()
+    alimentar_autoridades_funcionarios()
     click.echo("Alimentado.")
 
 

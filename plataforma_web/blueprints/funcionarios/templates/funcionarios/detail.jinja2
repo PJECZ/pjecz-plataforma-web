@@ -1,0 +1,73 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Funcionario{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(funcionario.nombre) %}
+        {{ topbar.button_previous('Funcionarios', url_for('funcionarios.list_active')) }}
+        {% if current_user.can_edit('funcionarios') %}
+            {{ topbar.button_edit('Editar', url_for('funcionarios.edit', funcionario_id=funcionario.id)) }}
+            {% if funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('funcionarios.delete', funcionario_id=funcionario.id)) }}{% endif %}
+            {% if funcionario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('funcionarios.recover', funcionario_id=funcionario.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=funcionario.estatus) %}
+        {{ detail.label_value('Nombres', funcionario.nombres) }}
+        {{ detail.label_value('Apellido paterno', funcionario.apellido_paterno) }}
+        {{ detail.label_value('Apellido materno', funcionario.apellido_materno) }}
+        {{ detail.label_value('CURP', funcionario.curp) }}
+        {{ detail.label_value('Puesto', funcionario.puesto) }}
+        {{ detail.label_value('e-mail', funcionario.email) }}
+        {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
+    {% endcall %}
+    {# Autoridades del funcionario #}
+    {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
+        {% call detail.card('Autoridades') %}
+            <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Claves</th>
+                        <th>Distritos</th>
+                        <th>Descripciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for autoridad_funcionario in funcionario.autoridades_funcionarios %}
+                    {% if autoridad_funcionario.estatus == "A" %}
+                    <tr>
+                        <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad_funcionario.autoridad_id) }}">{{ autoridad_funcionario.autoridad.clave }}</a></td>
+                        <td>{{ autoridad_funcionario.autoridad.distrito.nombre }}</td>
+                        <td>{{ autoridad_funcionario.autoridad.descripcion }}</td>
+                        <td>
+                        {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
+                            {{ modals.button_delete(url=url_for('autoridades_funcionarios.delete', autoridad_funcionario_id=autoridad_funcionario.id), id='DeleteAutoridadFuncionario', message='¿Eliminar ' + autoridad_funcionario.funcionario.nombre + '?') }}
+                        {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('funcionarios') %}
+        {% if funcionario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + funcionario.nombre + '?') }}{% endif %}
+        {% if funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + funcionario.nombre + '?') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
+        {{ detail.datatable('autoridades_datatable') }}
+    {% endif %}
+    {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
+        {{ modals.custom_javascript('Eliminar', '¿Eliminar esa autoridad del funcionario?', 'DeleteAutoridadFuncionario') }}
+    {% endif %}
+{% endblock %}

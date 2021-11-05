@@ -21,8 +21,7 @@ def alimentar_usuarios_roles():
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         return
-    usuarios = Usuario.query.filter_by(estatus="A").all()
-    if len(usuarios) == 0:
+    if Usuario.query.filter_by(estatus="A").count() == 0:
         click.echo("AVISO: Faltan de alimentar los usuarios")
         return
     click.echo("Alimentando usuarios-roles...")
