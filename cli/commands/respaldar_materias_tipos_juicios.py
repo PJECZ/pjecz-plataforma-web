@@ -30,4 +30,4 @@ def respaldar_materias_tipos_juicios(salida: str = "materias_tipos_juicios.csv")
                 ]
             )
             contador += 1
-    click.echo(f"  {contador} materias/tipos de juicios en {ruta.name}")
+    click.echo(f"  {contador} materias-tipos de juicios en {ruta.name}")

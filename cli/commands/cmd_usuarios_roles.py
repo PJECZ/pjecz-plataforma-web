@@ -1,8 +1,7 @@
 """
-Usuarios - Roles
+Usuarios-Roles
 
 - alimentar: Alimentar desde un archivo CSV
-- respaldar: Respaldar a un archivo CSV
 """
 from pathlib import Path
 import csv
@@ -19,15 +18,13 @@ from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
-from cli.commands.respaldar_usuarios_roles import respaldar_usuarios_roles
-
 app = create_app()
 db.app = app
 
 
 @click.group()
 def cli():
-    """Usuarios"""
+    """Usuarios-Roles"""
 
 
 @click.command()
@@ -117,12 +114,4 @@ def alimentar(entrada_csv):
     click.echo(f"{contador} usuarios alimentados.")
 
 
-@click.command()
-@click.option("--output", default="usuarios_roles.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(output):
-    """Respaldar a un archivo CSV"""
-    respaldar_usuarios_roles(output)
-
-
 cli.add_command(alimentar)
-cli.add_command(respaldar)

@@ -26,11 +26,12 @@ from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
 
 from cli.commands.respaldar_autoridades import respaldar_autoridades
 from cli.commands.respaldar_distritos import respaldar_distritos
+from cli.commands.respaldar_funcionarios import respaldar_funcionarios
 from cli.commands.respaldar_materias_tipos_juicios import respaldar_materias_tipos_juicios
 from cli.commands.respaldar_materias import respaldar_materias
 from cli.commands.respaldar_modulos import respaldar_modulos
 from cli.commands.respaldar_roles_permisos import respaldar_roles_permisos
-from cli.commands.respaldar_usuarios_roles import respaldar_usuarios_roles
+from cli.commands.respaldar_usuarios import respaldar_usuarios
 
 app = create_app()
 db.app = app
@@ -87,11 +88,12 @@ def respaldar():
     """Respaldar"""
     respaldar_autoridades()
     respaldar_distritos()
+    respaldar_funcionarios()
     respaldar_materias_tipos_juicios()
     respaldar_materias()
     respaldar_modulos()
     respaldar_roles_permisos()
-    respaldar_usuarios_roles()
+    respaldar_usuarios()
     click.echo("Termina respaldar.")
 
 

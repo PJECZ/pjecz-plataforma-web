@@ -1,5 +1,5 @@
 """
-Respaldar Usuarios-Roles
+Respaldar Usuarios
 """
 from pathlib import Path
 import csv
@@ -8,8 +8,8 @@ import click
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 
-def respaldar_usuarios_roles(salida: str = "usuarios_roles.csv"):
-    """Respaldar Usuarios-Roles a un archivo CSV"""
+def respaldar_usuarios(salida: str = "usuarios_roles.csv"):
+    """Respaldar Usuarios a un archivo CSV"""
     ruta = Path(salida)
     if ruta.exists():
         click.echo(f"AVISO: {salida} existe, no voy a sobreescribirlo.")
@@ -52,11 +52,11 @@ def respaldar_usuarios_roles(salida: str = "usuarios_roles.csv"):
                     usuario.puesto,
                     usuario.telefono_celular,
                     usuario.workspace,
-                    ", ".join(roles_list),
+                    ",".join(roles_list),
                     usuario.estatus,
                 ]
             )
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
+                click.echo(f"  Van {contador} usuarios...")
     click.echo(f"  {contador} en {ruta.name}")
