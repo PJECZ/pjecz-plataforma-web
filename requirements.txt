@@ -32,4 +32,4 @@ sendgrid
 SQLAlchemy
 SQLAlchemy-Utils
 Unidecode
-WTForms
+WTForms >=2.3.3,<3.0.0

@@ -1,3 +1,0 @@
-"""
-Autoridades-Funcionarios
-"""

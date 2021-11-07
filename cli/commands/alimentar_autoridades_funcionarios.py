@@ -24,26 +24,30 @@ def alimentar_autoridades_funcionarios():
     if Funcionario.query.filter_by(estatus="A").count() == 0:
         click.echo("AVISO: Faltan de alimentar los funcionarios")
         return
-    click.echo("Alimentando funcionarios...")
+    click.echo("Alimentando autoridades-funcionarios...")
     contador = 0
     autoridad = None
     with open(ruta, encoding="utf-8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            autoridad_clave = row["autoridad_clave"]
-            if autoridad is None or autoridad.clave != autoridad_clave:
-                autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
-                if autoridad is None:
-                    click.echo(f"AVISO: No se encontró la autoridad {autoridad_clave}.")
-                    continue
             funcionario = Funcionario.query.get(row["id"])
             if funcionario is None:
                 click.echo(f"AVISO: No se encontró el funcionario {row['id']}.")
                 continue
-            AutoridadFuncionario(
-                autoridad=autoridad,
-                funcionario=funcionario,
-                descripcion=f"{funcionario.nombre} en {autoridad.clave}",
-            ).save()
-            contador += 1
+            autoridades_claves_list = row["autoridades_claves"].split(",")
+            if len(autoridades_claves_list) == 0:
+                continue
+            for autoridad_clave in autoridades_claves_list:
+                autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
+                if autoridad is None:
+                    click.echo(f"AVISO: No se encontró la autoridad {autoridad_clave}.")
+                    continue
+                AutoridadFuncionario(
+                    autoridad=autoridad,
+                    funcionario=funcionario,
+                    descripcion=f"{funcionario.nombre} en {autoridad.clave}",
+                ).save()
+                contador += 1
+                if contador % 100 == 0:
+                    click.echo(f"  Van {contador} autoridades-funcionarios...")
     click.echo(f"  {contador} autoridades-funcionarios alimentados")
