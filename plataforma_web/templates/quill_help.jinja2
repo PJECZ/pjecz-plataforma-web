@@ -7,15 +7,15 @@
         <div class="offcanvas-body p-descript">
             <div style="background-color:#ebebeb" >
                 <div class="overflow-auto " data-spy="scroll" data-target="#navbar-example2" data-offset="0">
+                    <div class="accordion " id="accordionP">
                     {% for seccion in secciones %}
-                    <div class="accordion " id="accordionExample">
                         {% set show = "" %}
                         {% if seccion["id"] == seccion_id %}
                             {% set show = "show" %}
                         {% endif %}
-                        {{  accordion.help_items(seccion["id"], seccion["subtitulo"], ("<p>" + seccion["descripcion"]|join('</p>\n<p>')  + "</p>"), show, 'help_accordion' ) }}
-                    </div>
+                        {{  accordion.help_items(seccion["id"], seccion["subtitulo"], ("<p>" + seccion["descripcion"]|join('</p>\n<p>')  + "</p>"), show) }}
                     {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
