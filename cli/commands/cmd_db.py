@@ -4,6 +4,7 @@ Base de datos
 - inicializar
 - alimentar
 - reiniciar
+- respaldar
 """
 import os
 import click
@@ -22,6 +23,15 @@ from cli.commands.alimentar_permisos import alimentar_permisos
 from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
+
+from cli.commands.respaldar_autoridades import respaldar_autoridades
+from cli.commands.respaldar_distritos import respaldar_distritos
+from cli.commands.respaldar_funcionarios import respaldar_funcionarios
+from cli.commands.respaldar_materias_tipos_juicios import respaldar_materias_tipos_juicios
+from cli.commands.respaldar_materias import respaldar_materias
+from cli.commands.respaldar_modulos import respaldar_modulos
+from cli.commands.respaldar_roles_permisos import respaldar_roles_permisos
+from cli.commands.respaldar_usuarios import respaldar_usuarios
 
 app = create_app()
 db.app = app
@@ -42,7 +52,7 @@ def inicializar():
         return
     db.drop_all()
     db.create_all()
-    click.echo("Inicializado.")
+    click.echo("Termina inicializar.")
 
 
 @click.command()
@@ -62,7 +72,7 @@ def alimentar():
     alimentar_usuarios_roles()
     alimentar_funcionarios()
     alimentar_autoridades_funcionarios()
-    click.echo("Alimentado.")
+    click.echo("Termina alimentar.")
 
 
 @click.command()
@@ -73,6 +83,21 @@ def reiniciar(ctx):
     ctx.invoke(alimentar)
 
 
+@click.command()
+def respaldar():
+    """Respaldar"""
+    respaldar_autoridades()
+    respaldar_distritos()
+    respaldar_funcionarios()
+    respaldar_materias_tipos_juicios()
+    respaldar_materias()
+    respaldar_modulos()
+    respaldar_roles_permisos()
+    respaldar_usuarios()
+    click.echo("Termina respaldar.")
+
+
 cli.add_command(inicializar)
 cli.add_command(alimentar)
 cli.add_command(reiniciar)
+cli.add_command(respaldar)

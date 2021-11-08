@@ -1,33 +1,18 @@
 """
-Autoridades
-
-- respaldar: Respaldar a un archivo CSV
+Respaldar Autoridades
 """
 from pathlib import Path
 import csv
 import click
 
-from plataforma_web.app import create_app
-from plataforma_web.extensions import db
-
 from plataforma_web.blueprints.autoridades.models import Autoridad
 
-app = create_app()
-db.app = app
 
-
-@click.group()
-def cli():
-    """Autoridades"""
-
-
-@click.command()
-@click.option("--output", default="autoridades.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(output):
-    """Respaldar a un archivo CSV"""
-    ruta = Path(output)
+def respaldar_autoridades(salida: str = "autoridades.csv"):
+    """Respaldar Autoridades a un archivo CSV"""
+    ruta = Path(salida)
     if ruta.exists():
-        click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
+        click.echo(f"AVISO: {salida} existe, no voy a sobreescribirlo.")
         return
     click.echo("Respaldando autoridades...")
     contador = 0
@@ -77,8 +62,5 @@ def respaldar(output):
             )
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
-    click.echo(f"Respaldadas {contador} autoridades en {ruta.name}")
-
-
-cli.add_command(respaldar)
+                click.echo(f"  Van {contador} autoridades...")
+    click.echo(f"  {contador} autoridades en {ruta.name}")

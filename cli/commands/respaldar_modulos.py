@@ -1,33 +1,18 @@
 """
-Modulos
-
-- respaldar: Respaldar a un archivo CSV
+Respaldar Modulos
 """
 from pathlib import Path
 import csv
 import click
 
-from plataforma_web.app import create_app
-from plataforma_web.extensions import db
-
 from plataforma_web.blueprints.modulos.models import Modulo
 
-app = create_app()
-db.app = app
 
-
-@click.group()
-def cli():
-    """Modulos"""
-
-
-@click.command()
-@click.option("--output", default="modulos.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(output):
-    """Respaldar a un archivo CSV"""
-    ruta = Path(output)
+def respaldar_modulos(salida: str = "modulos.csv"):
+    """Respaldar Modulos a un archivo CSV"""
+    ruta = Path(salida)
     if ruta.exists():
-        click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
+        click.echo(f"AVISO: {salida} existe, no voy a sobreescribirlo.")
         return
     click.echo("Respaldando módulos...")
     contador = 0
@@ -62,7 +47,4 @@ def respaldar(output):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} módulos en {ruta.name}")
-
-
-cli.add_command(respaldar)
+    click.echo(f"  {contador} módulos en {ruta.name}")

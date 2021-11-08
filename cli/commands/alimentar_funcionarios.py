@@ -28,8 +28,11 @@ def alimentar_funcionarios():
                 nombres=row["nombres"],
                 apellido_paterno=row["apellido_paterno"],
                 apellido_materno=row["apellido_materno"],
+                curp=row["curp"],
                 email=row["email"],
+                puesto=row["puesto"],
                 en_funciones=(int(row["en_funciones"]) == 1),
+                estatus=row["estatus"],
             ).save()
             contador += 1
     click.echo(f"  {contador} funcionarios alimentados")

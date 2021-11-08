@@ -1,33 +1,18 @@
 """
-Distritos
-
-- respaldar: Respaldar a un archivo CSV
+Respaldar Distritos
 """
 from pathlib import Path
 import csv
 import click
 
-from plataforma_web.app import create_app
-from plataforma_web.extensions import db
-
 from plataforma_web.blueprints.distritos.models import Distrito
 
-app = create_app()
-db.app = app
 
-
-@click.group()
-def cli():
-    """Distritos"""
-
-
-@click.command()
-@click.option("--output", default="distritos.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(output):
-    """Respaldar a un archivo CSV"""
-    ruta = Path(output)
+def respaldar_distritos(salida: str = "distritos.csv"):
+    """Respaldar Distritos a un archivo CSV"""
+    ruta = Path(salida)
     if ruta.exists():
-        click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
+        click.echo(f"AVISO: {salida} existe, no voy a sobreescribirlo.")
         return
     click.echo("Respaldando distritos...")
     contador = 0
@@ -46,7 +31,4 @@ def respaldar(output):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} distritos en {ruta.name}")
-
-
-cli.add_command(respaldar)
+    click.echo(f"  {contador} distritos en {ruta.name}")

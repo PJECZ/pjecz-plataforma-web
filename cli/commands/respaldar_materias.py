@@ -1,33 +1,18 @@
 """
-Materias
-
-- respaldar: Respaldar a un archivo CSV
+Respaldar Materias
 """
 from pathlib import Path
 import csv
 import click
 
-from plataforma_web.app import create_app
-from plataforma_web.extensions import db
-
 from plataforma_web.blueprints.materias.models import Materia
 
-app = create_app()
-db.app = app
 
-
-@click.group()
-def cli():
-    """Materias"""
-
-
-@click.command()
-@click.option("--output", default="materias.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(output):
-    """Respaldar a un archivo CSV"""
-    ruta = Path(output)
+def respaldar_materias(salida: str = "materias.csv"):
+    """Respaldar Materias a un archivo CSV"""
+    ruta = Path(salida)
     if ruta.exists():
-        click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
+        click.echo(f"AVISO: {salida} existe, no voy a sobreescribirlo.")
         return
     click.echo("Respaldando materias...")
     contador = 0
@@ -44,7 +29,4 @@ def respaldar(output):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} materias en {ruta.name}")
-
-
-cli.add_command(respaldar)
+    click.echo(f"  {contador} materias en {ruta.name}")

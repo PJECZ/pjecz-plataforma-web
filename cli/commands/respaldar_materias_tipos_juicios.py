@@ -1,33 +1,18 @@
 """
-Materias Tipos Juicios
-
-- respaldar: Respaldar a un archivo CSV
+Respaldar Materias-Tipos de Juicios
 """
 from pathlib import Path
 import csv
 import click
 
-from plataforma_web.app import create_app
-from plataforma_web.extensions import db
-
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 
-app = create_app()
-db.app = app
 
-
-@click.group()
-def cli():
-    """Materias Tipos Juicios"""
-
-
-@click.command()
-@click.option("--output", default="materias_tipos_juicios.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(output):
-    """Respaldar a un archivo CSV"""
-    ruta = Path(output)
+def respaldar_materias_tipos_juicios(salida: str = "materias_tipos_juicios.csv"):
+    """Respaldar Materias-Tipos de Juicios a un archivo CSV"""
+    ruta = Path(salida)
     if ruta.exists():
-        click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
+        click.echo(f"AVISO: {salida} existe, no voy a sobreescribirlo.")
         return
     click.echo("Respaldando materias/tipos de juicios...")
     contador = 0
@@ -45,7 +30,4 @@ def respaldar(output):
                 ]
             )
             contador += 1
-    click.echo(f"Respaldados {contador} materias/tipos de juicios en {ruta.name}")
-
-
-cli.add_command(respaldar)
+    click.echo(f"  {contador} materias-tipos de juicios en {ruta.name}")
