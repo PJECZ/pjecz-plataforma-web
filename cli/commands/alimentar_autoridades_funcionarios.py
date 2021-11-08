@@ -34,10 +34,10 @@ def alimentar_autoridades_funcionarios():
             if funcionario is None:
                 click.echo(f"AVISO: No se encontró el funcionario {row['id']}.")
                 continue
-            autoridades_claves_list = row["autoridades_claves"].split(",")
-            if len(autoridades_claves_list) == 0:
+            if row["autoridades_claves"].strip() == "":
                 continue
-            for autoridad_clave in autoridades_claves_list:
+            for autoridad_clave in row["autoridades_claves"].split(","):
+                autoridad_clave = autoridad_clave.strip()
                 autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
                 if autoridad is None:
                     click.echo(f"AVISO: No se encontró la autoridad {autoridad_clave}.")

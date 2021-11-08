@@ -62,6 +62,26 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     bitacora.info("Crear PDF de %s", cid_procedimiento.titulo_procedimiento)
     bitacora.info("Directorio actual: %s", os.getcwd())
 
+    # Juntar las firmas
+    elaboro_firma = ""
+    reviso_firma = ""
+    autorizo_firma = ""
+    if cid_procedimiento.seguimiento == "EN ELABORACION":
+        # Firmas: elaboró
+        elaboro_firma = cid_procedimiento.elaborar_firma()
+    elif cid_procedimiento.seguimiento == "EN REVISION":
+        # Firmas: elaboró y revisó
+        procedimiento_elaboro = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
+        elaboro_firma = procedimiento_elaboro.firma
+        reviso_firma = cid_procedimiento.elaborar_firma()
+    elif cid_procedimiento.seguimiento == "EN AUTORIZACION":
+        # Firmas: autorizó, elaboró y revisó
+        procedimiento_reviso = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
+        reviso_firma = procedimiento_reviso.firma
+        procedimiento_elaboro = CIDProcedimiento.query.get(procedimiento_reviso.anterior_id)
+        elaboro_firma = procedimiento_elaboro.firma
+        autorizo_firma = cid_procedimiento.elaborar_firma()
+
     # Renderizar HTML con el apoyo de
     # - Jinja2 https://palletsprojects.com/p/jinja/
     # - Quill Delta https://pypi.org/project/quill-delta/
@@ -102,6 +122,9 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         reviso_puesto=cid_procedimiento.reviso_puesto,
         aprobo_nombre=cid_procedimiento.aprobo_nombre,
         aprobo_puesto=cid_procedimiento.aprobo_puesto,
+        elaboro_firma=elaboro_firma,
+        reviso_firma=reviso_firma,
+        autorizo_firma=autorizo_firma,
     )
 
     # Definir las rutas de los archivos temporales
