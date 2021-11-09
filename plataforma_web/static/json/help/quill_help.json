@@ -1,0 +1,159 @@
+{
+    "titulo": "Ayuda para el Editor Quill",
+    "descripcion": "Descripción detallada de las opciones mostradas en la barra de herramientas mostradas en el editor de textos conocido como Quill",
+    "secciones": [
+        {
+            "id": "negritas",
+            "subtitulo": "Negritas",
+            "descripcion": [
+                "<i class='fas fa-bold'></i> Si selecciona un texto y presiona sobre este botón hará que el texto quede resaltado en negritas. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
+            ]
+        },
+        {
+            "id": "italicas",
+            "subtitulo": "Italicas",
+            "descripcion": [
+                "<i class='fas fa-italic'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea en italicas. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
+            ]
+        },
+        {
+            "id": "subrayado",
+            "subtitulo": "Subrayado",
+            "descripcion": [
+                "<i class='fas fa-underline'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea con un formato de subrayado. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
+            ]
+        },
+        {
+            "id": "tachado",
+            "subtitulo": "Tachado",
+            "descripcion": [
+                "<i class='fas fa-strikethrough'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea con un formato de tachado. Texto con una línea transversal. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
+            ]
+        },
+        {
+            "id": "citado",
+            "subtitulo": "Citado",
+            "descripcion": [
+                "<i class='fas fa-quote-right'></i> Este formato es comunmente utilizado para resaltar un texto citado con anterioridad en una conversación.",
+                "Coloca al lado izquierdo del texto una línea y desplaza el texto un poco hacia la derecha."
+            ]
+        },
+        {
+            "id": "codigo",
+            "subtitulo": "Código - Texto monoespaciado",
+            "descripcion": [
+                "<i class='fas fa-code'></i> Este formato es comunmente utilizado para mostrar texto con un ancho no variable, conservando la anchura de los caracteres. Muy utilizado para explicación de texto oficiales."
+            ]
+        },
+        {
+            "id": "image",
+            "subtitulo": "Insertar una imagen",
+            "descripcion": [
+                "<i class='far fa-image'></i> Permite insertar una imagen en el documento. Solo debe indicar la dirección dentro de su equipo."
+            ]
+        },
+        {
+            "id": "link",
+            "subtitulo": "Hipervinculo",
+            "descripcion": [
+                "<i class='fas fa-link'></i> Permite insertar un hipervinculo a una dirección en internet.",
+                "Para utilizarlo debe seleccionar el texto que desea utilizar como enlace y presionar sobre el botón. Esto abrira una pequeña ventana donde debe indicar la dirección URL de internet."
+            ]
+        },
+        {
+            "id": "listas_ordenadas",
+            "subtitulo": "Listado Ordenado",
+            "descripcion": [
+                "<i class='fas fa-list-ol'></i> Pude insertar un listado ordenado numéricamente seleccionando el texto deseado y presionando sobre este botón."
+            ]
+        },
+        {
+            "id": "listas_desordenado",
+            "subtitulo": "Viñetas",
+            "descripcion": [
+                "<i class='fas fa-list-ul'></i> Pude insertar un listado de viñetas seleccionando el texto deseado y presionando sobre el botón."
+            ]
+        },
+        {
+            "id": "subexponente",
+            "subtitulo": "Subindice",
+            "descripcion": [
+                "<i class='fas fa-subscript'></i> Pude insertar texto por debajo de la línea actual de escritura (subindice) seleccionando el texto deseado y presionando sobre este botón."
+            ]
+        },
+        {
+            "id": "exponente",
+            "subtitulo": "Exponente",
+            "descripcion": [
+                "<i class='fas fa-superscript'></i> Pude insertar texto en formato exponencial."
+            ]
+        },
+        {
+            "id": "anadir_sangria",
+            "subtitulo": "Añadir Sangría",
+            "descripcion": [
+                "<i class='fas fa-indent'></i> Pude agregar sangría o incrementar el espaciado izquierdo del parrafo colocando el cursor sobre el parrafo deseado y presionando sobre este botón."
+            ]
+        },
+        {
+            "id": "eliminar_sangria",
+            "subtitulo": "Eliminar Sangría",
+            "descripcion": [
+                "<i class='fas fa-indent'></i> Pude eliminar sangría o disminuir el espaciado izquierdo del parrafo colocando el cursor sobre el parrafo deseado y presionando sobre este botón."
+            ]
+        },
+        {
+            "id": "tipo_encabezado",
+            "subtitulo": "Tipo de Encabezado",
+            "descripcion": [
+                "Pude cambiar el tipo de encabezado desde un Heading-1 hasta un Heading-6 o texto normal.",
+                "El formato Heading, es utilizado para encabezados o subtítulos, secciones y va en decremento de 1 hasta el 6. El cual también indica el nivel de importancia de dicho título."
+            ]
+        },
+        {
+            "id": "color_texto",
+            "subtitulo": "Color del Texto",
+            "descripcion": [
+                "Pude cambiar el color del texto, seleccionado el texto deseado y presionando sobre este botón. Después elija el color que quiera de las opciones mostradas."
+            ]
+        },
+        {
+            "id": "color_fondo_texto",
+            "subtitulo": "Color de Fondo de Texto",
+            "descripcion": [
+                "Pude cambiar el color del fondo del texto o también conocido como resaltado.",
+                "Seleccione el texto deseado y presione sobre este botón. Después elija el color que quiera de las opciones mostradas."
+            ]
+        },
+        {
+            "id": "tipo_fuente",
+            "subtitulo": "Tipo de Letra",
+            "descripcion": [
+                "Pude cambiar el tipo de letra o fuente utilizado para mostrar el texto.",
+                "Seleccione el texto deseado y presione sobre este botón. Después elija el tipo de letra que quiera de las opciones mostradas."
+            ]
+        },
+        {
+            "id": "tipo_fuente",
+            "subtitulo": "Tipo de Letra",
+            "descripcion": [
+                "<div style='background-image: url(barra_herramientas_quill.png); background-position: 0 -900px;'></div>Pude cambiar el tipo de letra o fuente utilizado para mostrar el texto.",
+                "Seleccione el texto deseado y presione sobre este botón. Después elija el tipo de letra que quiera de las opciones mostradas."
+            ]
+        },
+        {
+            "id": "alineacion",
+            "subtitulo": "Alineación del texto",
+            "descripcion": [
+                "<i class='fas fa-align-left'></i> Pude cambiar la alineación del texto entre las opciones: Cargado a la izquierda, cargado a la derecha, centrado o justificado."
+            ]
+        },
+        {
+            "id": "eliminar_formato",
+            "subtitulo": "Eliminación del Formato",
+            "descripcion": [
+                "<i class='fas fa-remove-format'></i> Pude eliminar o quitar todos los cambios del formato que haya hecho sin cambiar el contenido del texto en sí."
+            ]
+        }
+    ]
+}

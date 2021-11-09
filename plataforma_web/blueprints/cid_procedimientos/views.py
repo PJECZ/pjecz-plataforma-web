@@ -173,7 +173,7 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    return render_template("cid_procedimientos/new.jinja2", form=form)
+    return render_template("cid_procedimientos/new.jinja2", form=form, help_quill=help_quill("new"))
 
 
 @cid_procedimientos.route("/cid_procedimientos/edicion/<int:cid_procedimiento_id>", methods=["GET", "POST"])
@@ -537,3 +537,11 @@ def recover(cid_procedimiento_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
+
+
+def help_quill(seccion: str):
+    """Cargar archivo de ayuda"""
+    archivo_ayuda = open("plataforma_web/static/json/help/quill_help.json", "r")
+    data = json.load(archivo_ayuda)
+    archivo_ayuda.close()
+    return render_template("quill_help.jinja2", titulo=data["titulo"], descripcion=data["descripcion"], secciones=data["secciones"], seccion_id=seccion)

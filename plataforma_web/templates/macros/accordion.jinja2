@@ -28,3 +28,18 @@
         </div>
     </div>
 {%- endmacro -%}
+
+{%- macro help_items(id, titulo, descripcion, show="") -%}
+    <div class="accordion-item">
+        <h2 class="accordion-header accordion-color" id="heading_{{id}}">
+        <button class="accordion-button {% if not expanded %}collapsed{% endif %} fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{id}}" aria-controls="collapse_{{id}}">
+            {{ titulo|safe }}
+        </button>
+        </h2>
+        <div id="collapse_{{id}}" class="accordion-collapse collapse {{show}}" aria-labelledby="heading_{{id}}" data-bs-parent="#accordionP">
+        <div class="accordion-body help-body">
+            {{ descripcion|safe }}    
+        </div>
+        </div>
+    </div>
+{%- endmacro -%}
