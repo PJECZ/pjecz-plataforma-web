@@ -13,7 +13,7 @@ class FuncionarioForm(FlaskForm):
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
-    curp = StringField("CURP", validators=[Optional(), Regexp(CURP_REGEXP)])
+    curp = StringField("CURP", validators=[Optional(), Length(min=18, max=18), Regexp(CURP_REGEXP, 0, "CURP inválida")])
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[Optional(), Email()])
     en_funciones = BooleanField("En funciones", validators=[Optional()])

@@ -6,7 +6,7 @@ from datetime import date
 from unidecode import unidecode
 
 CONTRASENA_REGEXP = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,48}$"
-CURP_REGEXP = r"^[A-Z]{4}[0-9]{6}[HM][A-Z]{2}[0-9]{2}[A-Z0-9]{3}[A-Z]{1}$"
+CURP_REGEXP = r"^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$"
 EMAIL_REGEXP = r"^[\w.-]+@[\w.-]+\.\w+$"
 EXPEDIENTE_REGEXP = r"^\d+\/[12]\d\d\d(-[a-zA-Z0-9]+(-[a-zA-Z0-9]+)?)?$"
 TOKEN_REGEXP = r"^[a-zA-Z0-9_.=+-]+$"
