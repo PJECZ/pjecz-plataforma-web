@@ -29,7 +29,7 @@
             {% call f.form_group(form.revision, readonly=true) %}{% endcall %}
             {% call f.form_group(form.seguimiento, readonly=true) %}{% endcall %}
             {% call f.form_group(form.seguimiento_posterior, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.firma, readonly=true) %}{% endcall %}
+            <a href='{{cid_procedimiento.url}}' name="PDF" target="_blank"> Abrir archivo PDF - {{cid_procedimiento.titulo_procedimiento}}</a><br>
             {% call f.form_group(form.aceptar) %}{% endcall %}
             {% call f.form_group(form.rechazar) %}{% endcall %}
         {% endcall %}
