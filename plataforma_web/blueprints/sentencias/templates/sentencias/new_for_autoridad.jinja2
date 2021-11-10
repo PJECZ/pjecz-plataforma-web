@@ -37,4 +37,17 @@
 {% block custom_javascript %}
     {{ f.js_select_materia_materia_tipo_juicio(materias, materias_tipos_juicios, mi_materia=autoridad.materia_id) }}
     {{ f.drop_zone_js() }}
+    <!-- Evitar que la materia y el tipo de juicio sean NO DEFINIDOS -->
+    <script>
+        $('#sentencia_form').submit(function(e) {
+            if ($('#materia').val() == '1') {
+                alert('Debe seleccionar una materia y un tipo de juicio');
+                return false;
+            }
+            if ($('#materia_tipo_juicio').val() == '1') {
+                alert('Debe seleccionar una materia y un tipo de juicio');
+                return false;
+            }
+        });
+    </script>
 {% endblock %}
