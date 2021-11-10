@@ -479,7 +479,7 @@ def accept_reject(cid_procedimiento_id):
     form.seguimiento_posterior.data = original.seguimiento_posterior
     form.elaboro_nombre.data = original.elaboro_nombre
     form.reviso_nombre.data = original.reviso_nombre
-    form.firma.data = original.firma
+    form.url.data = original.url
     return render_template("cid_procedimientos/accept_reject.jinja2", form=form, cid_procedimiento=original)
 
 
