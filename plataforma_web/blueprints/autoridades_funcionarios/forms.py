@@ -12,7 +12,7 @@ from plataforma_web.blueprints.funcionarios.models import Funcionario
 
 def autoridades_opciones():
     """ Autoridades: opciones para select """
-    return Autoridad.query.filter_by(estatus='A').order_by(Autoridad.clave).all()
+    return Autoridad.query.filter_by(es_notaria=False).filter_by(estatus='A').order_by(Autoridad.clave).all()
 
 
 def funcionarios_opciones():
