@@ -115,7 +115,9 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <a href="{{ url_for('autoridades_funcionarios.new_with_autoridad', autoridad_id=autoridad.id) }}" class="btn btn-primary">Agregar</a>
+            {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
+                <a href="{{ url_for('autoridades_funcionarios.new_with_autoridad', autoridad_id=autoridad.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
         {% endcall %}
     {% endif %}
 {% endblock %}
