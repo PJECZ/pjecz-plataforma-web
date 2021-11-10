@@ -55,6 +55,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+            <a href="{{ url_for('autoridades_funcionarios.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
         {% endcall %}
     {% endif %}
 {% endblock %}
