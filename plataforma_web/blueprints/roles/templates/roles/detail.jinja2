@@ -44,7 +44,9 @@
             {% endfor %}
             </tbody>
         </table>
-        <a href="{{ url_for('permisos.new_with_rol', rol_id=rol.id) }}" class="btn btn-primary">Agregar</a>
+        {% if current_user.can_isert('PERMISOS') %}
+            <a href="{{ url_for('permisos.new_with_rol', rol_id=rol.id) }}" class="btn btn-primary">Agregar</a>
+        {% endif %}
     {% endcall %}
     {% call detail.card('Usuarios-Roles') %}
         <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
@@ -73,7 +75,9 @@
             {% endfor %}
             </tbody>
         </table>
-        <a href="{{ url_for('usuarios_roles.new_with_rol', rol_id=rol.id) }}" class="btn btn-primary">Agregar</a>
+        {% if current_user.can_insert('USUARIOS ROLES') %}
+            <a href="{{ url_for('usuarios_roles.new_with_rol', rol_id=rol.id) }}" class="btn btn-primary">Agregar</a>
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
