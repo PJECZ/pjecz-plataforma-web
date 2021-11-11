@@ -16,10 +16,10 @@ class Ventanilla(db.Model, UniversalMixin):
 
     # Clave foránea
     autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    autoridad = db.relationship("Autoridad", back_populates="autoridades")
+    autoridad = db.relationship("Autoridad", back_populates="ventanillas")
 
     # Columnas
-    descripcion = db.Column(db.String(256), nullable=False)
+    descripcion = db.Column(db.String(256), unique=True, nullable=False)
     numero = db.Column(db.Integer(), nullable=False)
 
     # Hijos

@@ -35,7 +35,7 @@ class Turno(db.Model, UniversalMixin):
     ventanilla_id = db.Column(db.Integer, db.ForeignKey("ventanillas.id"), index=True, nullable=False)
     ventanilla = db.relationship("Ventanilla", back_populates="turnos")
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
-    usuario = db.relationship("Usuario", back_populates="bitacoras")
+    usuario = db.relationship("Usuario", back_populates="turnos")
 
     # Columnas
     numero = db.Column(db.Integer(), nullable=False)

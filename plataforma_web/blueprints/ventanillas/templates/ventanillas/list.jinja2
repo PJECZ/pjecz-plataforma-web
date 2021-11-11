@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('TURNOS') %}
+            {{ topbar.button('Turnos', url_for('turnos.list_active'), 'mdi:ticket') }}
+        {% endif %}
         {% if current_user.can_edit('VENTANILLAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('ventanillas.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('ventanillas.list_active')) }}{% endif %}
@@ -38,5 +41,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('ventanillas_datatable') }}
+    {{ list.datatable('ventanillas_datatable') }}
 {% endblock %}
