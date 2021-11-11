@@ -23,7 +23,7 @@ class Ventanilla(db.Model, UniversalMixin):
     numero = db.Column(db.Integer(), nullable=False)
 
     # Hijos
-    turnos = db.relationship("Turno", back_populates="ventanilla")
+    turnos = db.relationship("Turno", back_populates="ventanilla", lazy="noload")
 
     def __repr__(self):
         """Representación"""
