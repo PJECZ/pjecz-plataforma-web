@@ -1,0 +1,32 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Ventanilla{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(ventanilla.descripcion) %}
+        {{ topbar.button_previous('Ventanillas', url_for('ventanillas.list_active')) }}
+        {% if current_user.can_edit('VENTANILLAS') %}
+            {{ topbar.button_edit('Editar', url_for('ventanillas.edit', ventanilla_id=ventanilla.id)) }}
+            {% if ventanilla.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('ventanillas.delete', ventanilla_id=ventanilla.id)) }}{% endif %}
+            {% if ventanilla.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('ventanillas.recover', ventanilla_id=ventanilla.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=ventanilla.estatus) %}
+        {{ detail.label_value_big('Número', ventanilla.numero) }}
+        {{ detail.label_value('Distrito', ventanilla.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', ventanilla.autoridad.descripcion) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('VENTANILLAS') %}
+        {% if ventanilla.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + ventanilla.descripcion + '?') }}{% endif %}
+        {% if ventanilla.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + ventanilla.descripcion + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

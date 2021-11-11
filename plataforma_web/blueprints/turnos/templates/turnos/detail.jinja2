@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Turno{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Turno') }}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {{ detail.label_value_big('Número', turno.numero) }}
+        {{ detail.label_value('Ventanilla', turno.ventanilla.descripcion) }}
+        {{ detail.label_value('Usuario', turno.usuario.email) }}
+        {{ detail.label_value('Atención', turno.atencion) }}
+        {{ detail.label_value('Término', turno.termino) }}
+        {{ detail.label_value('Comentarios', turno.comentarios) }}
+        {{ detail.label_value('Tipo', turno.tipo) }}
+        {{ detail.label_value('Estado', turno.estado) }}
+    {% endcall %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Turnos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('TURNOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('turnos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('turnos.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="turnos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Números</th>
+                    <th>Ventanillas</th>
+                    <th>Usuarios</th>
+                    <th>Tipos</th>
+                    <th>Estados</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for turno in turnos %}
+                <tr>
+                    <td>{{ turno.creado }}</td>
+                    <td><a href="{{ url_for('turnos.detail', turno_id=turno.id) }}">{{ turno.descripcion }}</a></td>
+                    <td>{{ turno.ventanilla.descripcion }}</td>
+                    <td>{{ turno.usuario.email }}</td>
+                    <td>{{ turno.tipo }}</td>
+                    <td>{{ turno.estado }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable_times('turnos_datatable') }}
+{% endblock %}
