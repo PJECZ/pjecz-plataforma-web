@@ -44,7 +44,7 @@
             {% endfor %}
             </tbody>
         </table>
-        {% if current_user.can_isert('PERMISOS') %}
+        {% if current_user.can_insert('PERMISOS') %}
             <a href="{{ url_for('permisos.new_with_rol', rol_id=rol.id) }}" class="btn btn-primary">Agregar</a>
         {% endif %}
     {% endcall %}
