@@ -64,7 +64,7 @@ class Autoridad(db.Model, UniversalMixin):
 
     # Hijos
     audiencias = db.relationship("Audiencia", back_populates="autoridad", lazy="noload")
-    autoridades_funcionarios = db.relationship('AutoridadFuncionario', back_populates='autoridad')
+    autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="autoridad")
     edictos = db.relationship("Edicto", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
@@ -72,6 +72,7 @@ class Autoridad(db.Model, UniversalMixin):
     transcripciones = db.relationship("Transcripcion", back_populates="autoridad", lazy="noload")
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", back_populates="autoridad", lazy="noload")
     usuarios = db.relationship("Usuario", back_populates="autoridad")
+    ventanillas = db.relationship("Ventanilla", back_populates="autoridad")
 
     def __repr__(self):
         """Representación"""
