@@ -17,30 +17,66 @@
         <table id="turnos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Creados</th>
-                    <th>Números</th>
+                    <th>Autoridades</th>
                     <th>Ventanillas</th>
-                    <th>Usuarios</th>
-                    <th>Tipos</th>
+                    <th>Números</th>
                     <th>Estados</th>
+                    <th>Tipos</th>
+                    <th>Usuarios</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for turno in turnos %}
-                <tr>
-                    <td>{{ turno.creado }}</td>
-                    <td><a href="{{ url_for('turnos.detail', turno_id=turno.id) }}">{{ turno.descripcion }}</a></td>
-                    <td>{{ turno.ventanilla.descripcion }}</td>
-                    <td>{{ turno.usuario.email }}</td>
-                    <td>{{ turno.tipo }}</td>
-                    <td>{{ turno.estado }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('turnos_datatable') }}
+    <script>
+        $('#turnos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/turnos/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "autoridad_clave" },
+                { data: "ventanilla_numero" },
+                { data: "detalle" },
+                { data: "estado" },
+                { data: "tipo" },
+                { data: "usuario_email" }
+            ],
+            columnDefs: [
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.numero + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
