@@ -1,0 +1,34 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tesis y Jurisprudencias{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(tesis_jurisprudencia.descripcion) %}
+        {{ topbar.button_previous('Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.list_active')) }}
+        {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
+            {{ topbar.button_edit('Editar', url_for('tesis_jurisprudencias.edit', tesis_jurisprudencias_id=tesis_jurisprudencias.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencia.autoridad_id == current_user.autoridad_id) %}
+            {% if tesis_jurisprudencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('tesis_jurisprudencias.delete', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}{% endif %}
+            {% if tesis_jurisprudencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('tesis_jurisprudencias.recover', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=tesis_jurisprudencias.estatus) %}
+        {{ detail.label_value_big('Descripción', tesis_jurisprudencias.descripcion) }}
+        {{ detail.label_value('Columna 1', tesis_jurisprudencias.columna_1) }}
+        {{ detail.label_value('Columna 2', tesis_jurisprudencias.columna_2) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencias.autoridad_id == current_user.autoridad_id) %}
+        {% if tesis_jurisprudencias.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencias.descripcion + '?') }}{% endif %}
+        {% if tesis_jurisprudencias.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencias.descripcion + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
