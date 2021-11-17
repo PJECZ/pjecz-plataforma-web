@@ -1,6 +1,7 @@
 """
 Funcionarios, modelos
 """
+from enum import unique
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -18,8 +19,8 @@ class Funcionario(db.Model, UniversalMixin):
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256), default="", server_default="")
-    email = db.Column(db.String(256), default="", server_default="")
-    curp = db.Column(db.String(18), index=True, default="", server_default="")
+    email = db.Column(db.String(256), unique=True, index=True)
+    curp = db.Column(db.String(18), unique=True, index=True)
     puesto = db.Column(db.String(256), default="", server_default="")
     en_funciones = db.Column(db.Boolean, nullable=False, default=True)
 
