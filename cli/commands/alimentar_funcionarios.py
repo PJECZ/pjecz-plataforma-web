@@ -5,6 +5,8 @@ from pathlib import Path
 import csv
 import click
 
+from lib.safe_string import safe_string
+
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 
 FUNCIONARIOS_CSV = "seed/funcionarios.csv"
@@ -25,12 +27,12 @@ def alimentar_funcionarios():
         rows = csv.DictReader(puntero)
         for row in rows:
             Funcionario(
-                nombres=row["nombres"],
-                apellido_paterno=row["apellido_paterno"],
-                apellido_materno=row["apellido_materno"],
-                curp=row["curp"],
+                nombres=safe_string(row["nombres"]),
+                apellido_paterno=safe_string(row["apellido_paterno"]),
+                apellido_materno=safe_string(row["apellido_materno"]),
+                curp=safe_string(row["curp"]),
                 email=row["email"],
-                puesto=row["puesto"],
+                puesto=safe_string(row["puesto"]),
                 en_funciones=(int(row["en_funciones"]) == 1),
                 estatus=row["estatus"],
             ).save()
