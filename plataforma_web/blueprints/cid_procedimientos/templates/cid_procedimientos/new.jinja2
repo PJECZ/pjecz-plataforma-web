@@ -2,6 +2,7 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/quill.jinja2' as quill %}
+{% import 'macros/form_plus.jinja2' as fp %}
 
 {% block title %}Nuevo Procedimiento{% endblock %}
 
@@ -87,7 +88,12 @@
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}
-                            {{ quill.div(div_id='registros_quill') }}
+                           {% call fp.form('show_alert', 'add', 'Agregar') %}
+                                {% call fp.input_form('codigo','Codigo','Código') %}{% endcall %}
+                                {% call fp.input_form('nombre','Name','Nombre') %}{% endcall %}
+                                {% call fp.input_form('responsable','Respo','Responsable') %}{% endcall %}
+                                {% call  fp.input_form('retencion','Ret','Tiempo de Retención')%}{% endcall %}
+                            {% endcall %}
                             <div style="display: none;">{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Control de cambios -->
@@ -191,5 +197,63 @@
         $('#registros').val(vacio);
         $('#control_cambios').val(vacio);
         $('#vista_previa').val(vacio);
+    </script>
+    <script>
+      $(document).ready(function(){
+        $(".add_item_btn").click(function(e){
+          e.preventDefault();
+          $("#show_items").prepend(`<div class="row append_item">
+            <div class="col-md-2 mb-3">
+                <div class="form-floating">
+                    <input type="text" name="registro_codigo[]" id="floatingInpuCodigo" class="form-control" placeholder="Código" required>
+                    <label for="floatingInpuCodigo">Código</label>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="form-floating">
+                    <input type="text" name="registro_nombre[]" id="floatingInputName" class="form-control" placeholder="Nombre" required>
+                    <label for="floatingInputName">Nombre</label>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="form-floating">
+                    <input type="text" name="registro_responsable[]" id="floatingInputRespo" class="form-control" placeholder="Responsable" required>
+                    <label for="floatingInputRespo">Responsable</label>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="form-floating">
+                    <input type="text" name="registro_teimpo_retencion[]" id="floatingInputRet" class="form-control" placeholder="Tiempo de Retención" required>
+                    <label for="floatingInputRet">Tiempo Retención</label>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3 d-grid">
+                <button class="btn btn-danger remove_item_btn">Eliminar</button>
+            </div>`);
+        });
+
+        $(document).on('click','.remove_item_btn', function(e){
+          e.preventDefault();
+          let row_item = $(this).parent().parent();
+          row_item.remove();
+        });
+
+        // solicitud ajax para insertar todos los datos del formulario
+        $("#add_form").submit(function(e){
+          e.preventDefault();
+          $("#add_btn").val('Agregando...');
+          $.ajax({
+            url:'',
+            method:'post',
+            data: $(this).serialize(),
+            success: function(response){
+              $("#add_btn").val('Agregar');
+              $("#add_form")[0].reset();
+              $(".append_item").remove();
+              $("#show_alert").html(`<div class="alert alert-success" role="alert">${response}</div>`)
+            }
+          });
+        });
+      });
     </script>
 {% endblock %}

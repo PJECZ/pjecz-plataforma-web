@@ -1,0 +1,129 @@
+{# {% macro form %}
+    <div class="card-body p-4">
+        <div class="row my-4">
+            <div id="show_alert"></div>
+            <form action="#" method="post" id="add_form">
+                <div id="show_items">
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="text" name="registro_codigo[]" id="floatingInpuCodigo" class="form-control" placeholder="Código" required>
+                                <label for="floatingInpuCodigo">Código</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="form-floating">
+                                <input type="text" name="registro_nombre[]" id="floatingInputName" class="form-control" placeholder="Nombre" required>
+                                <label for="floatingInputName">Nombre</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="form-floating">
+                                <input type="text" name="registro_responsable[]" id="floatingInputRespo" class="form-control" placeholder="Responsable" required>
+                                <label for="floatingInputRespo">Responsable</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="text" name="registro_teimpo_retencion[]" id="floatingInputRet" class="form-control" placeholder="Tiempo de Retención" required>
+                                <label for="floatingInputRet">Tiempo Retención</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3 d-grid">
+                            <button class="btn btn-success add_item_btn">Añadir</button>
+                        </div>
+                    </div>
+                <div>
+                <input type="submit" value="Agregar" class="btn btn-primary w-25" id="add_btn">
+            </form>
+        </div>
+    </div>
+{% endmacro %} #}
+
+{%- macro form(id, id_form, value_btn) -%}
+    <div class="card-body p-4">
+        <div id="{{id}}"></div>
+        <form action="#" method="post" id="{{id_form}}_form">
+            <div id="show_items">
+                <div class="row">
+                    {{ caller()}}
+                </div>
+            </div>
+            <button class="btn btn-success add_item_btn">Añadir</button>
+            <input type="submit" value="{{value_btn}}" class="btn btn-primary w-25" id="add_btn">
+        </form>
+    </div>
+{%- endmacro -%}
+
+{%- macro input_form(name, id_nombre, label) -%}
+    <div class="col-md-3 mb-3">
+        <div class="form-floating">
+            <input type="text" name="registro_{{name}}[]" id="floatingInpu{{id_nombre}}" class="form-control" placeholder="{{label}}" required>
+            <label for="floatingInpuCodigo">{{label}}</label>
+        </div>
+        <div class="col-md-2 mb-3 d-grid">
+        {{ caller () }}
+        </div>
+    </div>
+{%- endmacro -%}
+
+{# {%- macro js_function() -%}
+    <script>
+      $(document).ready(function(){
+        $(".add_item_btn").click(function(e){
+          e.preventDefault();
+          $("#show_items").prepend(`<div class="row append_item">
+            <div class="col-md-2 mb-3">
+                <div class="form-floating">
+                    <input type="text" name="registro_codigo[]" id="floatingInpuCodigo" class="form-control" placeholder="Código" required>
+                    <label for="floatingInpuCodigo">Código</label>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="form-floating">
+                    <input type="text" name="registro_nombre[]" id="floatingInputName" class="form-control" placeholder="Nombre" required>
+                    <label for="floatingInputName">Nombre</label>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="form-floating">
+                    <input type="text" name="registro_responsable[]" id="floatingInputRespo" class="form-control" placeholder="Responsable" required>
+                    <label for="floatingInputRespo">Responsable</label>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="form-floating">
+                    <input type="text" name="registro_teimpo_retencion[]" id="floatingInputRet" class="form-control" placeholder="Tiempo de Retención" required>
+                    <label for="floatingInputRet">Tiempo Retención</label>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3 d-grid">
+                <button class="btn btn-danger remove_item_btn">Eliminar</button>
+            </div>`);
+        });
+
+        $(document).on('click','.remove_item_btn', function(e){
+          e.preventDefault();
+          let row_item = $(this).parent().parent();
+          row_item.remove();
+        });
+
+        // solicitud ajax para insertar todos los datos del formulario
+        $("#add_form").submit(function(e){
+          e.preventDefault();
+          $("#add_btn").val('Agregando...');
+          $.ajax({
+            url:'',
+            method:'post',
+            data: $(this).serialize(),
+            success: function(response){
+              $("#add_btn").val('Agregar');
+              $("#add_form")[0].reset();
+              $(".append_item").remove();
+              $("#show_alert").html(`<div class="alert alert-success" role="alert">${response}</div>`)
+            }
+          });
+        });
+      });
+    </script>
+{%- endmacro -%} #}
