@@ -76,13 +76,7 @@ function llenar_desarrollo(contenido) {
 
 // Guardar Registros
 function guardar_registros() {
-    registros = JSON.stringify(registrosQuill.getContents());
-    $('#registros').val(registros);
-}
-
-// Llenar Registros
-function llenar_registros(contenido) {
-    registrosQuill.setContents(contenido);
+    registros = $('#registros').val();
 }
 
 // Guardar Control de Cambios
@@ -124,7 +118,7 @@ function mostrar_vista_previa() {
     let title_desarrollo = "<h3>&nbsp;&nbsp;" + 'Desarrollo' + "</h3>";
     let desarrollo = desarrolloQuill.root.innerHTML;
     let title_registros = "<h3>&nbsp;&nbsp;" + 'Registros' + "</h3>";
-    let registros = registrosQuill.root.innerHTML;
+    let registros = $('#registros').val();
     let title_control_cambios = "<h3>&nbsp;&nbsp;" + 'Control de Cambios' + "</h3>";
     let control_de_cambios = controlCambiosQuill.root.innerHTML;
     html = titulo + title_objetivo + objetivo + title_alcance + alcance + title_documentos + documentos + title_definiciones + definiciones + title_responsabilidades + responsabilidades + title_desarrollo + desarrollo + title_registros + registros + title_control_cambios + control_de_cambios;
