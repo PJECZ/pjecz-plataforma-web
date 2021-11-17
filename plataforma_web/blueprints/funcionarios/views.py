@@ -4,7 +4,7 @@ Funcionarios, vistas
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib.safe_string import safe_message
+from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -64,11 +64,11 @@ def new():
     form = FuncionarioForm()
     if form.validate_on_submit():
         funcionario = Funcionario(
-            nombres=form.nombres.data,
-            apellido_paterno=form.apellido_paterno.data,
-            apellido_materno=form.apellido_materno.data,
-            curp=form.curp.data,
-            puesto=form.puesto.data,
+            nombres=safe_string(form.nombres.data),
+            apellido_paterno=safe_string(form.apellido_paterno.data),
+            apellido_materno=safe_string(form.apellido_materno.data),
+            curp=safe_string(form.curp.data),
+            puesto=safe_string(form.puesto.data),
             email=form.email.data,
             en_funciones=form.en_funciones.data,
         )
@@ -92,11 +92,11 @@ def edit(funcionario_id):
     funcionario = Funcionario.query.get_or_404(funcionario_id)
     form = FuncionarioForm()
     if form.validate_on_submit():
-        funcionario.nombres = form.nombres.data
-        funcionario.apellido_paterno = form.apellido_paterno.data
-        funcionario.apellido_materno = form.apellido_materno.data
-        funcionario.curp = form.curp.data
-        funcionario.puesto = form.puesto.data
+        funcionario.nombres = safe_string(form.nombres.data)
+        funcionario.apellido_paterno = safe_string(form.apellido_paterno.data)
+        funcionario.apellido_materno = safe_string(form.apellido_materno.data)
+        funcionario.curp = safe_string(form.curp.data)
+        funcionario.puesto = safe_string(form.puesto.data)
         funcionario.email = form.email.data
         funcionario.en_funciones = form.en_funciones.data
         funcionario.save()
