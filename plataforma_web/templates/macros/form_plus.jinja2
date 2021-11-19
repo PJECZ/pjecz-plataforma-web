@@ -2,7 +2,7 @@
 {%- macro form_create(id_form, value_btn, method='post') -%}
     <div class="card-body p-4">
         <div id="{{id_div}}"></div>
-        <form action="#" method={{method}} id="{{id_form}}_f">
+        {# <form action="#" method={{method}} id="{{id_form}}_f"> #}
             <div id="show_items">
                 <div class="row">
                     {{ caller()}}
@@ -11,14 +11,14 @@
             {# <div>
                 <input type="submit" value="{{value_btn}}" class="btn btn-primary w-25" id="add_btn">
             </div> #}
-        </form>
+        {# </form> #}
     </div>
 {%- endmacro -%}
 
-{%- macro input_form(num_col, name, id_nombre, label, id_form) -%}
+{%- macro input_form(num_col, name, id_nombre, label) -%}
     <div class="col-md-{{num_col}} mb-3">
         <div class="form-floating">
-            <input type="text" name="registro_{{name}}[]" id="floatingInpu{{id_nombre}}" class="form-control" placeholder="{{label}}" form="{{id_form}}" required>
+            <input type="text" name="registro_{{name}}[]" id="floatingInpu{{id_nombre}}" class="form-control" placeholder="{{label}}" required>
             <label for="floatingInpuCodigo">{{label}}</label>
         </div>
         {{ caller() }}
@@ -29,4 +29,5 @@
     <div class="col-md-2 mb-3 d-grid">
         <button class="btn btn-success add_item_btn">{{btn_name}}</button>
     </div>
+    
 {%- endmacro -%}

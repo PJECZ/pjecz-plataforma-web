@@ -48,7 +48,6 @@
             <!-- Steps Form Panels -->
             <div class="row">
                 <div class="col-lg-12 m-auto">
-                    {% call fp.form_create('#', 'add', 'Agregar')%}{% endcall %}
                     {% call f.form_tag('cid_procedimientos.new', fid='cid_procedimiento_form', css_class='multisteps-form__form') %}
                         <!-- Encabezado -->
                         {% call quill.step_first('Encabezado', next_onclick='javascript:guardar_encabezado()') %}
@@ -89,10 +88,10 @@
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
-                                {% call fp.input_form('2','codigo','Codigo','Código','add_form') %}{% endcall %}
-                                {% call fp.input_form('3','nombre','Name','Nombre','add_form') %}{% endcall %}
-                                {% call fp.input_form('3','responsable','Respo','Responsable','add_form') %}{% endcall %}
-                                {% call fp.input_form('2','retencion','Ret','Tiempo Retención','add_form') %}{% endcall %}
+                                {% call fp.input_form('2','codigo','Codigo','Código') %}{% endcall %}
+                                {% call fp.input_form('3','nombre','Name','Nombre') %}{% endcall %}
+                                {% call fp.input_form('3','responsable','Respo','Responsable') %}{% endcall %}
+                                {% call fp.input_form('2','retencion','Ret','Tiempo Retención') %}{% endcall %}
                                 {{fp.boton('+ Añadir') }}
                             <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
@@ -175,25 +174,25 @@
           $("#show_items").prepend(`<div class="row append_item">
             <div class="col-md-2 mb-3">
                 <div class="form-floating">
-                    <input type="text" name="registro_codigo[]" id="floatingInpuCodigo" class="form-control" placeholder="Código" form="add_form" required>
+                    <input type="text" name="registro_codigo[]" id="floatingInpuCodigo" class="form-control" placeholder="Código" required>
                     <label for="floatingInpuCodigo">Código</label>
                 </div>
             </div>
             <div class="col-md-3 mb-3">
                 <div class="form-floating">
-                    <input type="text" name="registro_nombre[]" id="floatingInputName" class="form-control" placeholder="Nombre" form="add_form" required>
+                    <input type="text" name="registro_nombre[]" id="floatingInputName" class="form-control" placeholder="Nombre" required>
                     <label for="floatingInputName">Nombre</label>
                 </div>
             </div>
             <div class="col-md-3 mb-3">
                 <div class="form-floating">
-                    <input type="text" name="registro_responsable[]" id="floatingInputRespo" class="form-control" placeholder="Responsable" form="add_form" required>
+                    <input type="text" name="registro_responsable[]" id="floatingInputRespo" class="form-control" placeholder="Responsable" required>
                     <label for="floatingInputRespo">Responsable</label>
                 </div>
             </div>
             <div class="col-md-2 mb-3">
                 <div class="form-floating">
-                    <input type="text" name="registro_teimpo_retencion[]" id="floatingInputRet" class="form-control" placeholder="Tiempo de Retención" form="add_form" required>
+                    <input type="text" name="registro_teimpo_retencion[]" id="floatingInputRet" class="form-control" placeholder="Tiempo de Retención" required>
                     <label for="floatingInputRet">Tiempo Retención</label>
                 </div>
             </div>
