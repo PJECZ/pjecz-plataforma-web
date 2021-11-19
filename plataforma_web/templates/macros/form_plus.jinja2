@@ -2,11 +2,11 @@
 {%- macro form_create(id_form, value_btn, method='post') -%}
     <div class="card-body p-4">
         <div id="{{id_div}}"></div>
-            <div id="show_items">
-                <div class="row">
-                    {{ caller()}}
-                </div>
+        <div id="show_items">
+            <div class="row">
+                {{ caller()}}
             </div>
+        </div>
     </div>
 {%- endmacro -%}
 
@@ -24,5 +24,4 @@
     <div class="col-md-2 mb-3 d-grid">
         <button class="btn btn-success add_item_btn">{{btn_name}}</button>
     </div>
-    
 {%- endmacro -%}
