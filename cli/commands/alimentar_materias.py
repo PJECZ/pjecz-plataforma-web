@@ -5,6 +5,8 @@ from pathlib import Path
 import csv
 import click
 
+from lib.safe_string import safe_string
+
 from plataforma_web.blueprints.materias.models import Materia
 
 MATERIAS_CSV = "seed/materias.csv"
@@ -25,7 +27,7 @@ def alimentar_materias():
         rows = csv.DictReader(puntero)
         for row in rows:
             Materia(
-                nombre=row["nombre"],
+                nombre=safe_string(row["nombre"]),
                 estatus=row["estatus"],
             ).save()
             contador += 1

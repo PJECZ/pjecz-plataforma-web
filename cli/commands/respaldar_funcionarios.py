@@ -34,14 +34,14 @@ def respaldar_funcionarios(salida: str = "funcionarios.csv"):
             ]
         )
         for funcionario in funcionarios:
-            autoridades_claves_list = []
+            autoridades_claves = []
             for autoridad_funcionario in funcionario.autoridades_funcionarios:
                 if autoridad_funcionario.estatus == "A":
-                    autoridades_claves_list.append(autoridad_funcionario.autoridad.autoridad_clave)
+                    autoridades_claves.append(autoridad_funcionario.autoridad.clave)
             respaldo.writerow(
                 [
                     funcionario.id,
-                    ",".join(autoridades_claves_list),
+                    ",".join(autoridades_claves),
                     funcionario.nombres,
                     funcionario.apellido_paterno,
                     funcionario.apellido_materno,

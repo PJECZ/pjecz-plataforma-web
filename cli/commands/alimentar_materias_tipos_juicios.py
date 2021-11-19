@@ -5,6 +5,8 @@ from pathlib import Path
 import csv
 import click
 
+from lib.safe_string import safe_string
+
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 
 MATERIAS_TIPOS_JUICIOS_CSV = "seed/materias_tipos_juicios.csv"
@@ -26,7 +28,7 @@ def alimentar_materias_tipos_juicios():
         for row in rows:
             MateriaTipoJuicio(
                 materia_id=int(row["materia_id"]),
-                descripcion=row["descripcion"],
+                descripcion=safe_string(row["descripcion"]),
                 estatus=row["estatus"],
             ).save()
             contador += 1

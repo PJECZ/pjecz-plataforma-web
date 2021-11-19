@@ -4,7 +4,7 @@ Funcionarios, vistas
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib.safe_string import safe_message
+from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -63,25 +63,35 @@ def new():
     """Nuevo Funcionario"""
     form = FuncionarioForm()
     if form.validate_on_submit():
-        funcionario = Funcionario(
-            nombres=form.nombres.data,
-            apellido_paterno=form.apellido_paterno.data,
-            apellido_materno=form.apellido_materno.data,
-            curp=form.curp.data,
-            puesto=form.puesto.data,
-            email=form.email.data,
-            en_funciones=form.en_funciones.data,
-        )
-        funcionario.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo funcionario {funcionario.nombre}"),
-            url=url_for("funcionarios.detail", funcionario_id=funcionario.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        curp = safe_string(form.curp.data)
+        if Funcionario.query.filter_by(curp=curp).first():
+            flash(f"Ya existe un funcionario con la CURP {curp}", "warning")
+            es_valido = False
+        email = form.email.data
+        if Funcionario.query.filter_by(email=email).first():
+            flash(f"Ya existe un funcionario con el email {email}", "warning")
+            es_valido = False
+        if es_valido:
+            funcionario = Funcionario(
+                nombres=safe_string(form.nombres.data),
+                apellido_paterno=safe_string(form.apellido_paterno.data),
+                apellido_materno=safe_string(form.apellido_materno.data),
+                curp=curp,
+                email=email,
+                puesto=safe_string(form.puesto.data),
+                en_funciones=form.en_funciones.data,
+            )
+            funcionario.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo funcionario {funcionario.nombre}"),
+                url=url_for("funcionarios.detail", funcionario_id=funcionario.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("funcionarios/new.jinja2", form=form)
 
 
@@ -92,29 +102,39 @@ def edit(funcionario_id):
     funcionario = Funcionario.query.get_or_404(funcionario_id)
     form = FuncionarioForm()
     if form.validate_on_submit():
-        funcionario.nombres = form.nombres.data
-        funcionario.apellido_paterno = form.apellido_paterno.data
-        funcionario.apellido_materno = form.apellido_materno.data
-        funcionario.curp = form.curp.data
-        funcionario.puesto = form.puesto.data
-        funcionario.email = form.email.data
-        funcionario.en_funciones = form.en_funciones.data
-        funcionario.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f'Editado funcionario {funcionario.nombre}'),
-            url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, 'success')
-        return redirect(bitacora.url)
+        es_valido = True
+        curp = safe_string(form.curp.data)
+        if Funcionario.query.filter_by(curp=curp).first():
+            flash(f"Ya existe un funcionario con la CURP {curp}", "warning")
+            es_valido = False
+        email = form.email.data
+        if Funcionario.query.filter_by(email=email).first():
+            flash(f"Ya existe un funcionario con el email {email}", "warning")
+            es_valido = False
+        if es_valido:
+            funcionario.nombres = safe_string(form.nombres.data)
+            funcionario.apellido_paterno = safe_string(form.apellido_paterno.data)
+            funcionario.apellido_materno = safe_string(form.apellido_materno.data)
+            funcionario.curp = curp
+            funcionario.email = email
+            funcionario.puesto = safe_string(form.puesto.data)
+            funcionario.en_funciones = form.en_funciones.data
+            funcionario.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f'Editado funcionario {funcionario.nombre}'),
+                url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, 'success')
+            return redirect(bitacora.url)
     form.nombres.data = funcionario.nombres
     form.apellido_paterno.data = funcionario.apellido_paterno
     form.apellido_materno.data = funcionario.apellido_materno
     form.curp.data = funcionario.curp
-    form.puesto.data = funcionario.puesto
     form.email.data = funcionario.email
+    form.puesto.data = funcionario.puesto
     form.en_funciones.data = funcionario.en_funciones
     return render_template('funcionarios/edit.jinja2', form=form, funcionario=funcionario)
 
@@ -129,7 +149,7 @@ def delete(funcionario_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f'Eliminado funcionario  {funcionario.nombre}'),
+            descripcion=safe_message(f'Eliminado funcionario {funcionario.nombre}'),
             url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
         )
         bitacora.save()
