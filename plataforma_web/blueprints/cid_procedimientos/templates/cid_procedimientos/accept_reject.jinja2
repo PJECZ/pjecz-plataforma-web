@@ -5,6 +5,8 @@
 {% block title %}Aceptar o Rechazar un Procedimiento{% endblock %}
 
 {% block custom_head %}
+    <!-- font awesom-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         #rechazar { background-color:#B80000; border-color:#B80000; box-sizing: border-box; float: right; }
         #aceptar { box-sizing: border-box; float: left;}
@@ -29,7 +31,9 @@
             {% call f.form_group(form.revision, readonly=true) %}{% endcall %}
             {% call f.form_group(form.seguimiento, readonly=true) %}{% endcall %}
             {% call f.form_group(form.seguimiento_posterior, readonly=true) %}{% endcall %}
-            <a href='{{cid_procedimiento.url}}' name="PDF" target="_blank"> Abrir archivo PDF - {{cid_procedimiento.titulo_procedimiento}}</a><br>
+            <label><strong>Ver archivo PDF antes de aceptar</strong></label>&nbsp;<i class="fas fa-arrow-down"></i><br>
+            <i class="far fa-file-pdf"  style="font-size:20px;"></i> <a href='{{cid_procedimiento.url}}' name="PDF" target="_blank"> Abrir archivo PDF - {{cid_procedimiento.titulo_procedimiento}}</a>&nbsp;<br><br>
+            <div></div>
             {% call f.form_group(form.aceptar) %}{% endcall %}
             {% call f.form_group(form.rechazar) %}{% endcall %}
         {% endcall %}
