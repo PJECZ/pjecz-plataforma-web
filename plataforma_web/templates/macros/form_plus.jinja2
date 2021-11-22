@@ -1,28 +1,63 @@
-{# Se crea formulario donde iran los inputs  #}
-{%- macro form_create(id_form, value_btn, method='post') -%}
-    <div class="card-body p-4">
-        <div id="{{id_div}}"></div>
-        <div id="show_items">
-            <div class="row">
-                {{ caller()}}
+{%- macro div_container() -%}
+    <div class="container container-boxed">
+        <div class="row" >
+            <div id="form-alert1" class="alert alert-danger" role="alert" style="display:none">
+                Todos los datos son requeridos
             </div>
-            
         </div>
+        {{caller()}}
     </div>
 {%- endmacro -%}
 
-{%- macro input_form(num_col, name, id_nombre, label) -%}
-    <div class="col-md-{{num_col}} mb-3">
-        <div class="form-floating">
-            <input type="text" name="registro_{{name}}[]" id="floatingInpu{{id_nombre}}" class="form-control" placeholder="{{label}}" required>
-            <label for="floatingInpuCodigo">{{label}}</label>
+{# Se crea formulario donde iran los inputs  #}
+{%- macro form_create() -%}
+        <div class="row" style="padding:0 0 10px 0;">
+            <div class="card-body">
+                <div class="row">
+                    {{ caller()}}
+                </div>
+            </div>
+        </div>
+{%- endmacro -%}
+
+{%- macro input_form(num_col, name, label) -%}
+    <div class="col-{{num_col}}">
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" name="registro_{{name}}" id="registro_{{name}}" placeholder="{{label}}">
+            <label for="{{name}}">{{label}}</label>
         </div>
         {{ caller() }}
     </div>
 {%- endmacro -%}
 
 {%- macro boton(btn_name) -%}
-    <div class="col-md-2 mb-3 d-grid">
-        <button class="btn btn-success add_item_btn">{{btn_name}}</button>
+    <div class="col-2">
+        <button id="btn_add_reg" class="form-control btn btn-primary">{{btn_name}}</button>
     </div>
+{%- endmacro -%}
+
+{%- macro create_datatable(name_th,name_th2,name_th3,name_th4) -%}
+    <div class="row">
+        <table id="dataTable1" class="table table-striped table-hover" width="100%">
+            <thead>
+                <th>{{name_th}}</th>
+                <th>{{name_th2}}</th>
+                <th>{{name_th3}}</th>
+                <th>{{name_th4}}</th>
+            </thead>
+            <tbody>
+                                        
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row">
+        {{caller()}}
+    </div>
+{%- endmacro -%}
+
+{%- macro btn_datatable(label_delete, label_json) -%}
+    <div class="col-6"><button id="btn_del" class="btn btn-danger w-100">{{label_delete}}</button></div>
+    <div class="col-6"><button id="btn_getjson" class="btn btn-success w-100">{{ label_json }}</button></div>
+    {{caller()}}
 {%- endmacro -%}

@@ -16,6 +16,8 @@
     <style>
         #atras { float: left; box-sizing: border-box; }
         #siguiente { float: right; box-sizing: border-box; }
+        .tActive{ background-color: #1EA6FE; }
+        #dataTable1 > tbody > tr:hover{ cursor:pointer; }
     </style>
 {% endblock %}
 
@@ -88,11 +90,17 @@
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
-                                {% call fp.input_form('2','codigo','Codigo','Código') %}{% endcall %}
-                                {% call fp.input_form('3','nombre','Name','Nombre') %}{% endcall %}
-                                {% call fp.input_form('3','responsable','Respo','Responsable') %}{% endcall %}
-                                {% call fp.input_form('2','retencion','Ret','Tiempo Retención') %}{% endcall %}
-                                {{fp.boton('+ Añadir') }}
+                            {% call fp.div_container() %}
+                                {% call fp.form_create() %}
+                                    {% call fp.input_form('2','codigo','Código') %}{% endcall %}
+                                    {% call fp.input_form('3','nombre','Nombre') %}{% endcall %}
+                                    {% call fp.input_form('3','responsable','Responsable') %}{% endcall %}
+                                    {% call fp.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
+                                    {{fp.boton('Agregar') }}
+                                    {% call fp.create_datatable('Código','Nombre','Responsable','Tiempo de retención') %}{% endcall %}
+                                    {% call fp.btn_datatable('Borrar Datos','Obtener Json') %}{% endcall %}
+                                {% endcall %}
+                            {% endcall %}
                             <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Control de cambios -->
@@ -167,67 +175,65 @@
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
     {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
-    <script>
-      $(document).ready(function(){
-        $(".add_item_btn").click(function(e){
-          e.preventDefault();
-          $("#show_items").prepend(`<div class="row append_item">
-            <div class="col-md-2 mb-3">
-                <div class="form-floating">
-                    <input type="text" name="registro_codigo[]" id="floatingInpuCodigo" class="form-control" placeholder="Código" required>
-                    <label for="floatingInpuCodigo">Código</label>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="form-floating">
-                    <input type="text" name="registro_nombre[]" id="floatingInputName" class="form-control" placeholder="Nombre" required>
-                    <label for="floatingInputName">Nombre</label>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="form-floating">
-                    <input type="text" name="registro_responsable[]" id="floatingInputRespo" class="form-control" placeholder="Responsable" required>
-                    <label for="floatingInputRespo">Responsable</label>
-                </div>
-            </div>
-            <div class="col-md-2 mb-3">
-                <div class="form-floating">
-                    <input type="text" name="registro_teimpo_retencion[]" id="floatingInputRet" class="form-control" placeholder="Tiempo de Retención" required>
-                    <label for="floatingInputRet">Tiempo Retención</label>
-                </div>
-            </div>
-            <div class="col-md-2 mb-3 d-grid">
-                <button class="btn btn-danger remove_item_btn">Eliminar</button>
-            </div>`);
-        });
-
-        $(document).on('click','.remove_item_btn', function(e){
-          e.preventDefault();
-          let row_item = $(this).parent().parent();
-          row_item.remove();
-        });
-
-        // solicitud ajax para insertar todos los datos del formulario
-        $("#add_form").submit(function(e){
-            e.preventDefault();
-            $("#add_btn").val('Agregando...');
-            $.ajax({
-                url:'',
-                method:'post',
-                data: $(this).serialize(),
-                success: function(response){
-                    $("#add_btn").val('Agregar');
-                    $("#add_form")[0].reset();
-                    $(".append_item").remove();
-                    $("#show_alert").html(`<div class="alert alert-success" role="alert">${response}</div>`)
-                }
-            });
-        });
-      });
-    </script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Comieza script para agregar datos a DataTables -->
+    <script>
+      $(document).ready(function() {
+            var tabla = $('#dataTable1').DataTable();
+
+            $("#btn_add_reg").click(function(){
+
+                if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
+                    $("#form-alert1").show();
+                    setTimeout('$("#form-alert1").hide()', 5000);
+                    $("#registro_codigo").focus();
+                }else{
+
+                    tabla.row.add(
+                        [
+                            $("#registro_codigo").val(),
+                            $("#registro_nombre").val(),
+                            $("#registro_responsable").val(),
+                            $("#registro_retencion").val()
+                        ]
+                    ).draw( false );
+
+                    $("#registro_codigo").val("");
+                    $("#registro_nombre").val("");
+                    $("#registro_responsable").val("");
+                    $("#registro_retencion").val("");
+
+                    $("#registro_codigo").focus();
+                
+                }
+            });
+
+            $('#dataTable1 tbody').on( 'click', 'tr', function () {
+                if ( $(this).hasClass('tActive') ) {
+                    $(this).removeClass('tActive');
+                }
+                else {
+                    tabla.$('tr.tActive').removeClass('tActive');
+                    $(this).addClass('tActive');
+                }
+            } );
+        
+            $('#btn_del').click( function () {
+                tabla.row('.tActive').remove().draw( false );
+            } );
+
+
+            $("#btn_getjson").click( function(){ 
+                
+                var datos = JSON.parse(JSON.stringify(tabla.data()).split(',"context":')[0] + "}");
+                
+                console.log(datos);
+
+            });
+        } );
+    </script>
     <script>
         $(document).ready(function(){
             $('#elaboro_email').addClass('js-example-placeholder-single js-states form-control');
