@@ -6,7 +6,7 @@ from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-from lib.safe_string import safe_message
+from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -134,7 +134,7 @@ def new():
             aprobo_email = aprobo.email
         cid_procedimiento = CIDProcedimiento(
             usuario=current_user,
-            titulo_procedimiento=form.titulo_procedimiento.data,
+            titulo_procedimiento=safe_string(form.titulo_procedimiento.data),
             codigo=form.codigo.data,
             revision=form.revision.data,
             fecha=form.fecha.data,
@@ -209,7 +209,7 @@ def edit(cid_procedimiento_id):
         else:
             aprobo_nombre = aprobo.nombre
             aprobo_email = aprobo.email
-        cid_procedimiento.titulo_procedimiento = form.titulo_procedimiento.data
+        cid_procedimiento.titulo_procedimiento = safe_string(form.titulo_procedimiento.data)
         cid_procedimiento.codigo = form.codigo.data
         cid_procedimiento.revision = form.revision.data
         cid_procedimiento.fecha = form.fecha.data
@@ -398,7 +398,7 @@ def accept_reject(cid_procedimiento_id):
         if form.aceptar.data is True:
             # Crear un nuevo registro
             nuevo = CIDProcedimiento(
-                titulo_procedimiento=original.titulo_procedimiento,
+                titulo_procedimiento=safe_string(original.titulo_procedimiento),
                 codigo=original.codigo,
                 revision=original.revision,
                 fecha=original.fecha,

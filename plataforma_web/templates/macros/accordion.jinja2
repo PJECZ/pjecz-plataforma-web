@@ -8,7 +8,7 @@
 
 {# Con este div mandas a llamar a cada item #}
 {%- macro div(accordion_id, estatus="A") -%}
-    <div class="accordion {% if estatus == 'B' %}bg-secondary{% endif %}" id="{{accordion_id}}">
+    <div class="accordion {% if estatus == 'B' %}bg-secondary{% endif %} mb-3" id="{{accordion_id}}">
         {{ caller() }}
     </div>
 {%- endmacro -%}
@@ -38,7 +38,7 @@
         </h2>
         <div id="collapse_{{id}}" class="accordion-collapse collapse {{show}}" aria-labelledby="heading_{{id}}" data-bs-parent="#accordionP">
         <div class="accordion-body help-body">
-            {{ descripcion|safe }}    
+            {{ descripcion|safe }}
         </div>
         </div>
     </div>
