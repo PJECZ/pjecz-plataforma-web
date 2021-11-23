@@ -18,7 +18,7 @@
             {% endif %}
         {% endif %}
         {% if current_user.can_insert('CID FORMATOS') %}
-            {# topbar.button_new('Agregar formato', url_for('cid_formatos.new', cid_procedimiento_id=cid_procedimiento.id)) #}
+            {{ topbar.button_new('Agregar formato', url_for('cid_formatos.new', cid_procedimiento_id=cid_procedimiento.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -74,10 +74,26 @@
             {{ detail.label_value('Autorizó correo', cid_procedimiento.aprobo_email) }}
         {% endcall %}
     {% endcall %}
-    {% if cid_formatos %}
-        {% call detail.card(title='Formatos') %}
-        {% endcall %}
-    {% endif %}
+    {% call detail.card(title='Formatos') %}
+        <table id="formatos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Descripciones</th>
+                    <th>URLs</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for cid_formato in cid_procedimiento.formatos %}
+                {% if cid_formato.estatus == "A" %}
+                <tr>
+                    <td><a href="{{ url_for('cid_formatos.detail', cid_formato_id=cid_formato.id) }}">{{ cid_formato.descripcion }}</a></td>
+                    <td><a href="{{ cid_formato.url }}" target="_blank">PDF</a></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}

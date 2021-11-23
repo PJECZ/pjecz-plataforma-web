@@ -4,22 +4,28 @@
 
 {% block title %}Nuevo Formato{% endblock %}
 
+{% block custom_head %}
+    {{ f.drop_zone_css() }}
+{% endblock %}
+
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Formato') }}
+    {{ topbar.page('Nuevo Formato para ' + cid_procedimiento.codigo ) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
-        {% call f.form_tag('cid_formatos.new', fid='cid_formato_form', **form_kwargs) %}
-            {% call f.form_group(form.procedimiento, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.numero) %}{% endcall %}
+        {% call f.form_tag_multipart('cid_formatos.new', fid='cid_formato_form', **form_kwargs) %}
+            {% call f.form_group(form.procedimiento_titulo, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
-            {% call f.form_group(form.codigo) %}{% endcall %}
-            {% call f.form_group(form.responsable) %}{% endcall %}
-            {% call f.form_group(form.forma) %}{% endcall %}
-            {% call f.form_group(form.tiempo_retencion) %}{% endcall %}
+            {% call f.drop_zone_wrapper() %}
+                {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
+            {% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.drop_zone_js() }}
 {% endblock %}
