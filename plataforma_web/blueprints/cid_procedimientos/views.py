@@ -99,7 +99,6 @@ def detail(cid_procedimiento_id):
         definiciones=str(html.render(cid_procedimiento.definiciones["ops"])),
         responsabilidades=str(html.render(cid_procedimiento.responsabilidades["ops"])),
         desarrollo=str(html.render(cid_procedimiento.desarrollo["ops"])),
-        registros=str(html.render(cid_procedimiento.registros["ops"])),
         control_cambios=str(html.render(cid_procedimiento.control_cambios["ops"])),
         cid_formatos=cid_formatos,
     )

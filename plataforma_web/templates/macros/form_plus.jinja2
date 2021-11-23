@@ -1,7 +1,7 @@
 {%- macro div_container() -%}
     <div class="container container-boxed">
         <div class="row" >
-            <div id="form-alert1" class="alert alert-danger" role="alert" style="display:none">
+            <div id="form-alert1-reg" class="alert alert-danger" role="alert" style="display:none">
                 Todos los datos son requeridos
             </div>
         </div>
@@ -32,7 +32,7 @@
 
 {%- macro boton(btn_name) -%}
     <div class="col-2">
-        <button id="btn_add_reg" class="form-control btn btn-primary">{{btn_name}}</button>
+        <button id="btn_add_reg" type="button" class="form-control btn btn-primary">{{btn_name}}</button>
     </div>
 {%- endmacro -%}
 
@@ -57,7 +57,7 @@
 {%- endmacro -%}
 
 {%- macro btn_datatable(label_delete, label_json) -%}
-    <div class="col-6"><button id="btn_del" class="btn btn-danger w-100">{{label_delete}}</button></div>
+    <div class="col-6"><button id="btn_del_reg" class="btn btn-danger w-100">{{label_delete}}</button></div>
     <div class="col-6"><button id="btn_getjson" class="btn btn-success w-100">{{ label_json }}</button></div>
     {{caller()}}
 {%- endmacro -%}

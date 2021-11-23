@@ -96,7 +96,7 @@
                                     {% call fp.input_form('3','nombre','Nombre') %}{% endcall %}
                                     {% call fp.input_form('3','responsable','Responsable') %}{% endcall %}
                                     {% call fp.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
-                                    {{fp.boton('Agregar') }}
+                                    {{fp.boton('Agregar Registro') }}
                                     {% call fp.create_datatable('Código','Nombre','Responsable','Tiempo de retención') %}{% endcall %}
                                     {% call fp.btn_datatable('Borrar Datos','Obtener Json') %}{% endcall %}
                                 {% endcall %}
@@ -146,7 +146,7 @@
                                     {% call f.form_group(form.aprobo_email) %}{% endcall %}
                                 </div>
                             </div>
-                            <div style="display: none;">{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
+                            <div>{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Vista previa -->
                         <style>.ql-disabled{overflow:auto;}</style>
@@ -186,8 +186,8 @@
             $("#btn_add_reg").click(function(){
 
                 if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
-                    $("#form-alert1").show();
-                    setTimeout('$("#form-alert1").hide()', 5000);
+                    $("#form-alert1-reg").show();
+                    setTimeout('$("#form-alert1-reg").hide()', 5000);
                     $("#registro_codigo").focus();
                 }else{
 
@@ -220,18 +220,18 @@
                 }
             } );
         
-            $('#btn_del').click( function () {
+            $('#btn_del_reg').click( function () {
                 tabla.row('.tActive').remove().draw( false );
             } );
 
 
-            $("#btn_getjson").click( function(){ 
+            //$("#btn_getjson").click( function(){ 
                 
-                var datos = JSON.parse(JSON.stringify(tabla.data()).split(',"context":')[0] + "}");
+            //    var datos = JSON.parse(JSON.stringify(tabla.data()).split(',"context":')[0] + "}");
                 
-                console.log(datos);
+             //   console.log(datos);
 
-            });
+            //});
         } );
     </script>
     <script>

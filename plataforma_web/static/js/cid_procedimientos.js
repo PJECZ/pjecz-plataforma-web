@@ -76,7 +76,10 @@ function llenar_desarrollo(contenido) {
 
 // Guardar Registros
 function guardar_registros() {
-    registros = $('#registros').val();
+    var tabla = $('#dataTable1').DataTable();
+    registros = JSON.parse(JSON.stringify(tabla.data()).split(',"context":')[0] + "}");           
+    console.log(registros);
+    $('#registros').val(registros);
 }
 
 // Guardar Control de Cambios
