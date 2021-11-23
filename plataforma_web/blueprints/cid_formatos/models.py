@@ -1,20 +1,12 @@
 """
 CID Formatos, modelos
 """
-from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class CIDFormato(db.Model, UniversalMixin):
     """ CIDFormato """
-
-    FORMAS = OrderedDict(
-        [
-            ("ELECTRONICO", "Electrónico"),
-            ("PAPEL", "Papel"),
-        ]
-    )
 
     # Nombre de la tabla
     __tablename__ = "cid_formatos"
@@ -27,16 +19,9 @@ class CIDFormato(db.Model, UniversalMixin):
     procedimiento = db.relationship('CIDProcedimiento', back_populates='formatos')
 
     # Columnas
-    numero = db.Column(db.Integer(), nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
-    codigo = db.Column(db.String(16), nullable=False)
-    responsable = db.Column(db.String(128), nullable=False)
-    forma = db.Column(
-        db.Enum(*FORMAS, name="etapas", native_enum=False),
-        index=True,
-        nullable=False,
-    )
-    tiempo_retencion = db.Column(db.String(48), nullable=False)
+    archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
+    url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     # Hijos
     registros = db.relationship('CIDRegistro', back_populates='formato')

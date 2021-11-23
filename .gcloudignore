@@ -1,9 +1,7 @@
 .bashrc
 .env
 .gcloudignore
-.git
 .gitignore
-.vscode
 .DS_Store
 .~lock.*
 *.egg-info/
@@ -13,6 +11,8 @@
 *.sqlite3-journal
 *.session.sql
 __pycache__/
+/.git
+/.vscode
 /cli
 /instance
 /seed
