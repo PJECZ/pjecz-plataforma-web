@@ -24,6 +24,8 @@ cid_formatos = Blueprint("cid_formatos", __name__, template_folder="templates")
 
 MODULO = "CID FORMATOS"
 SUBDIRECTORIO = "cid_formatos"
+TIPOS_ARCHIVOS = ("docx", "pdf", "xlsx", "jpeg", "jpg", "png")
+
 
 @cid_formatos.before_request
 @login_required
@@ -72,7 +74,7 @@ def new(cid_procedimiento_id):
         flash("El procedmiento no es activo.", "warning")
         return redirect(url_for("cid_procedimientos.list_active"))
     # Si viene el formulario
-    form = CIDFormatoForm()
+    form = CIDFormatoForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
         es_valido = True
         # Validar la descripción
@@ -82,9 +84,9 @@ def new(cid_procedimiento_id):
             es_valido = False
         # Validar el archivo
         archivo = request.files["archivo"]
-        archivo_nombre = secure_filename(archivo.filename.lower())
-        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-            flash("No es un archivo PDF.", "warning")
+        archivo_nombre_original = secure_filename(archivo.filename)
+        if "." not in archivo_nombre_original or archivo_nombre_original.rsplit(".", 1)[1].lower() not in TIPOS_ARCHIVOS:
+            flash("No es válio el tipo de archivo. Debe ser " + ", ".join(TIPOS_ARCHIVOS), "warning")
             es_valido = False
         # Si es válido
         if es_valido:
@@ -110,7 +112,7 @@ def new(cid_procedimiento_id):
             blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
             url = blob.public_url
             # Actualizar el registro con el nombre de archivo y la URL
-            cid_formato.archivo = archivo_str
+            cid_formato.archivo = archivo_nombre_original
             cid_formato.url = url
             cid_formato.save()
             # Registrar la acción en la bitácora
