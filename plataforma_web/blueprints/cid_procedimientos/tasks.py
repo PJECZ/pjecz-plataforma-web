@@ -19,6 +19,7 @@ from sendgrid.helpers.mail import Email, To, Content, Mail
 from lib.tasks import set_task_progress, set_task_error
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
+from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
@@ -181,7 +182,6 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     cid_procedimiento.firma = cid_procedimiento.elaborar_firma()
     cid_procedimiento.archivo = archivo
     cid_procedimiento.url = url
-
     if cid_procedimiento.seguimiento == "EN ELABORACION":
         # Primer firma en la cadena
         cid_procedimiento.cadena = 1
@@ -205,6 +205,17 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
 
     # Guardar cambios en archivo, url, firma, cadena, seguimiento y seguimiento_posterior
     cid_procedimiento.save()
+
+    # Duplicar los formatos del procedimiento anterior a éste que es el nuevo
+    if cid_procedimiento.seguimiento == "EN REVISION" or cid_procedimiento.seguimiento == "EN AUTORIZACION":
+        anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
+        for cid_formato in anterior.formatos:
+            CIDFormato(
+                procedimiento=cid_procedimiento,
+                descripcion=cid_formato.descripcion,
+                archivo=cid_formato.archivo,
+                url=cid_formato.url,
+            ).save()
 
     # Preparar SendGrid
     sg = None
