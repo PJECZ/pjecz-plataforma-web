@@ -5,6 +5,7 @@ import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
+from wtforms.fields.core import StringField
 
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -99,6 +100,7 @@ def detail(cid_procedimiento_id):
         definiciones=str(html.render(cid_procedimiento.definiciones["ops"])),
         responsabilidades=str(html.render(cid_procedimiento.responsabilidades["ops"])),
         desarrollo=str(html.render(cid_procedimiento.desarrollo["ops"])),
+        registro=cid_procedimiento.registros,
         control_cambios=str(html.render(cid_procedimiento.control_cambios["ops"])),
         cid_formatos=cid_formatos,
     )

@@ -76,8 +76,8 @@ function llenar_desarrollo(contenido) {
 
 // Guardar Registros
 function guardar_registros() {
-    var tabla = $('#dataTable1').DataTable();
-    registros = JSON.parse(JSON.stringify(tabla.data()).split(',"context":')[0] + "}");           
+    var tabla = $('#registro_dataTable1').DataTable();
+    registros = JSON.stringify(tabla.data()).split(',"context":')[0] + "}";           
     console.log(registros);
     $('#registros').val(registros);
 }
@@ -120,11 +120,9 @@ function mostrar_vista_previa() {
     let responsabilidades = responsabilidadesQuill.root.innerHTML;
     let title_desarrollo = "<h3>&nbsp;&nbsp;" + 'Desarrollo' + "</h3>";
     let desarrollo = desarrolloQuill.root.innerHTML;
-    let title_registros = "<h3>&nbsp;&nbsp;" + 'Registros' + "</h3>";
-    let registros = $('#registros').val();
     let title_control_cambios = "<h3>&nbsp;&nbsp;" + 'Control de Cambios' + "</h3>";
     let control_de_cambios = controlCambiosQuill.root.innerHTML;
-    html = titulo + title_objetivo + objetivo + title_alcance + alcance + title_documentos + documentos + title_definiciones + definiciones + title_responsabilidades + responsabilidades + title_desarrollo + desarrollo + title_registros + registros + title_control_cambios + control_de_cambios;
+    html = titulo + title_objetivo + objetivo + title_alcance + alcance + title_documentos + documentos + title_definiciones + definiciones + title_responsabilidades + responsabilidades + title_desarrollo + desarrollo + title_control_cambios + control_de_cambios;
     document.getElementById('vista_previa_quill').innerHTML = html;
     //document.getElementById('vista_previa').innerHTML = html;
 }

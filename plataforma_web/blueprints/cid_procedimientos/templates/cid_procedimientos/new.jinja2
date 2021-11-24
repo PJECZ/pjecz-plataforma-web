@@ -17,7 +17,7 @@
         #atras { float: left; box-sizing: border-box; }
         #siguiente { float: right; box-sizing: border-box; }
         .tActive{ background-color: #1EA6FE; }
-        #dataTable1 > tbody > tr:hover{ cursor:pointer; }
+        #registro_dataTable1 > tbody > tr:hover{ cursor:pointer; }
     </style>
 {% endblock %}
 
@@ -97,8 +97,20 @@
                                     {% call fp.input_form('3','responsable','Responsable') %}{% endcall %}
                                     {% call fp.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
                                     {{fp.boton('Agregar Registro') }}
-                                    {% call fp.create_datatable('Código','Nombre','Responsable','Tiempo de retención') %}{% endcall %}
-                                    {% call fp.btn_datatable('Borrar Datos','Obtener Json') %}{% endcall %}
+                                      <div class="row">
+                                        <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
+                                            <thead>
+                                                <th>Código</th>
+                                                <th>Nombre</th>
+                                                <th>Responsable</th>
+                                                <th>Tiempo de retención</th>
+                                            </thead>
+                                            <tbody>
+                                                                        
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ fp.btn_datatable('Borrar Datos') }}
                                 {% endcall %}
                             {% endcall %}
                             <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
@@ -181,7 +193,7 @@
     <!-- Comieza script para agregar datos a DataTables -->
     <script>
       $(document).ready(function() {
-            var tabla = $('#dataTable1').DataTable();
+            var tabla = $('#registro_dataTable1').DataTable();
 
             $("#btn_add_reg").click(function(){
 
@@ -210,7 +222,7 @@
                 }
             });
 
-            $('#dataTable1 tbody').on( 'click', 'tr', function () {
+            $('#registro_dataTable1 tbody').on( 'click', 'tr', function () {
                 if ( $(this).hasClass('tActive') ) {
                     $(this).removeClass('tActive');
                 }
@@ -221,17 +233,9 @@
             } );
         
             $('#btn_del_reg').click( function () {
-                tabla.row('.tActive').remove().draw( false );
+                tabla.row('.tActive').remove().draw(false);
             } );
 
-
-            //$("#btn_getjson").click( function(){ 
-                
-            //    var datos = JSON.parse(JSON.stringify(tabla.data()).split(',"context":')[0] + "}");
-                
-             //   console.log(datos);
-
-            //});
         } );
     </script>
     <script>
