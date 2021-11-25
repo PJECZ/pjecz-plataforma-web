@@ -58,9 +58,9 @@
         {% endcall %}
         {% call accordion.item('registro_item', 'Registros', accordion_id, estatus=cid_procedimiento.estatus) %}
             
-            {{ registros }}                   
-            <div class="row">
-                <table id="registro_dataTable1_detail" class="table table-striped table-hover" width="100%">
+            {# {{ registros }}                    #}
+            
+                <table id="registro_dataTable1_detail" class="table table-striped" width="100%">
                     <thead>
                         <th>Código</th>
                         <th>Nombre</th>
@@ -68,9 +68,9 @@
                         <th>Tiempo de retención</th>
                     </thead>
                     <tbody>
+
                     </tbody>
                 </table>
-            </div>
         {% endcall %}
         {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ control_cambios }}
@@ -117,22 +117,18 @@
     {% endif %}
     <script>
         $(document).ready(function(){
-            $('#registro_dataTable1_detail').DataTable({
-                "ajax":{
-                    "url":'view.py',
-                    "dataSrc":""
-                },
-                "columns":[
-                    { "data":'registros'}
-                    //{ "data":'codigo' },
-                    //{ "data":'nombre' },
-                    //{ "data":'responsable' },
-                    //{ "data":'tiempo de retencion' }
-                ]
-                
+            var datos = {{registros}};
+            $('#registro_dataTable1_detail').DataTable({ 
+                data:datos,
+                columns: [
+                    {title:'Código'},
+                    {title:'Nombre'},
+                    {title:'Responsable'},
+                    {title:'Tiempo de retención'}
+                ],
+                searching: false
             });
-            
-            //console.log(data)
+            console.log(datos);
         });
     </script>
 {% endblock %}
