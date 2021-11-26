@@ -117,9 +117,12 @@
     {% endif %}
     <script>
         $(document).ready(function(){
-            var datos = {{registros}};
+            var datos = '{{registros}}';
+            
+            var arr = datos.substr("' ': ");
+            
             $('#registro_dataTable1_detail').DataTable({ 
-                data:datos,
+                data:arr,
                 columns: [
                     {title:'Código'},
                     {title:'Nombre'},
@@ -128,7 +131,8 @@
                 ],
                 searching: false
             });
-            console.log(datos);
+           console.log(arr);
+            
         });
     </script>
 {% endblock %}
