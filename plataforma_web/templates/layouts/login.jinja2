@@ -9,9 +9,11 @@
 {% endblock %}
 
 {% block main %}
-    <main class="form-signin">
-        {% block welcome %}{% endblock %}
-        {{ flash.render() }}
-        {% block content %}{% endblock %}
-    </main>
+    <div class="bg">
+        <main class="form-signin">
+            {% block welcome %}{% endblock %}
+            {{ flash.render() }}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
 {% endblock %}
