@@ -1,0 +1,68 @@
+{%- macro div_container() -%}
+    <div class="container container-boxed">
+        <div class="row" >
+            <div id="form-alert1-reg" class="alert alert-danger" role="alert" style="display:none">
+                Todos los datos son requeridos
+            </div>
+        </div>
+        {{caller()}}
+    </div>
+{%- endmacro -%}
+
+{# Se crea formulario donde iran los inputs  #}
+{%- macro form_create() -%}
+        <div class="row" style="padding:0 0 10px 0;">
+            <div class="card-body">
+                <div class="row">
+                    {{ caller()}}
+                </div>
+            </div>
+        </div>
+{%- endmacro -%}
+
+{%- macro input_form(num_col, name, label) -%}
+    <div class="col-{{num_col}}">
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" name="registro_{{name}}" id="registro_{{name}}" placeholder="{{label}}">
+            <label for="{{name}}">{{label}}</label>
+        </div>
+        {{ caller() }}
+    </div>
+{%- endmacro -%}
+
+{%- macro boton(btn_name) -%}
+    <div class="col-2">
+        <button id="btn_add_reg" type="button" class="form-control btn btn-primary">{{btn_name}}</button>
+    </div>
+{%- endmacro -%}
+
+{%- macro btn_datatable(label, id, class_btn = 'primary', atributos = '') -%}
+    <div class="col-6"><button type="button" id="{{ id }}" class="btn btn-{{ class_btn }} w-100" {{ atributos }}>{{label}}</button></div>
+{%- endmacro -%}
+
+{%- macro modal_edit() -%}
+
+    <div class="modal fade" id="edit_reg_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Editar registro" aria-hidden="true">
+        <div class="modal-dialog" >
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Editar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            
+                <input type="text" class="form-control" id="e_registro_codigo">
+                <input type="text" class="form-control" id="e_registro_nombre">
+                <input type="text" class="form-control" id="e_registro_responsable">
+                <input type="text" class="form-control" id="e_registro_retencion">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="e_updt_btn" data-bs-dismiss="modal" class="btn btn-primary">Actualizar</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+{%- endmacro-%}

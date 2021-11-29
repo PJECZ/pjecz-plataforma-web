@@ -117,21 +117,22 @@
     {% endif %}
     <script>
         $(document).ready(function(){
-            var datos = '{{registros}}';
-            
-            var arr = datos.substr("' ': ");
-            
-            $('#registro_dataTable1_detail').DataTable({ 
-                data:arr,
-                columns: [
-                    {title:'Código'},
-                    {title:'Nombre'},
-                    {title:'Responsable'},
-                    {title:'Tiempo de retención'}
-                ],
-                searching: false
+            var datos = {{registros}};
+            var Arrayfinal = [];
+            Object.keys(datos).forEach(item =>{
+                var tempArr = new Array();
+                
+                datos[item].forEach(a => {
+                    
+                    tempArr.push(a);
+                });
+
+                Arrayfinal.push(tempArr);
             });
-           console.log(arr);
+
+            $("#registro_dataTable1_detail").DataTable({
+                data:Arrayfinal
+            });
             
         });
     </script>

@@ -2,7 +2,8 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/quill.jinja2' as quill %}
-{% import 'macros/form_plus.jinja2' as fp %}
+{% import 'macros/form_registers.jinja2' as fr %}
+
 
 {% block title %}Nuevo Procedimiento{% endblock %}
 
@@ -26,6 +27,7 @@
 {% endblock %}
 
 {% block content %}
+{{ fr.modal_edit() }}
     {% call f.card() %}
         <div><form></form></div>
         <div class="multisteps-form">
@@ -90,27 +92,35 @@
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
-                            {% call fp.div_container() %}
-                                {% call fp.form_create() %}
-                                    {% call fp.input_form('2','codigo','Código') %}{% endcall %}
-                                    {% call fp.input_form('3','nombre','Nombre') %}{% endcall %}
-                                    {% call fp.input_form('3','responsable','Responsable') %}{% endcall %}
-                                    {% call fp.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
-                                    {{fp.boton('Agregar Registro') }}
-                                      <div class="row">
-                                        <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
-                                            <thead>
-                                                <th>Código</th>
-                                                <th>Nombre</th>
-                                                <th>Responsable</th>
-                                                <th>Tiempo de retención</th>
-                                            </thead>
-                                            <tbody>
-                                                                        
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    {{ fp.btn_datatable('Borrar Datos') }}
+                            {% call fr.div_container() %}
+                                {% call fr.form_create() %}
+                                    
+                                        {% call fr.input_form('2','codigo','Código') %}{% endcall %}
+                                        {% call fr.input_form('3','nombre','Nombre') %}{% endcall %}
+                                        {% call fr.input_form('3','responsable','Responsable') %}{% endcall %}
+                                        {% call fr.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
+                                        
+                                        {{fr.boton('Agregar Registro') }}
+                                    
+                                        <div class="row">
+                                            <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
+                                                <thead>
+                                                    <th>Código</th>
+                                                    <th>Nombre</th>
+                                                    <th>Responsable</th>
+                                                    <th>Tiempo de retención</th>
+                                                </thead>
+                                                <tbody>
+                                                                            
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="row">
+                                            {{ fr.btn_datatable('Borrar Datos', 'btn_del_reg', 'danger', '') }}
+                                            {{ fr.btn_datatable('Editar', 'btn_edit_reg', 'info', 'data-bs-toggle="modal" data-bs-target="#edit_reg_modal"') }}
+
+                                        </div>
                                 {% endcall %}
                             {% endcall %}
                             <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
@@ -177,6 +187,9 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    
+    
+   
     <!-- Quill -->
     {{ quill.library() }}
     {{ quill.editor(instance='objetivoQuill', div_id='objetivo_quill') }}
@@ -235,6 +248,27 @@
             $('#btn_del_reg').click( function () {
                 tabla.row('.tActive').remove().draw(false);
             } );
+
+            $('#btn_edit_reg').click( function() {
+                let datos = tabla.row('.tActive').data();
+                $("#e_registro_codigo").val(datos[0]);
+                $("#e_registro_nombre").val(datos[1]);
+                $("#e_registro_responsable").val(datos[2]);
+                $("#e_registro_retencion").val(datos[3]);
+            });
+
+            $("#e_updt_btn").click( function() {
+
+                let newArr = [ 
+                    $("#e_registro_codigo").val(), 
+                    $("#e_registro_nombre").val(), 
+                    $("#e_registro_responsable").val(),
+                    $("#e_registro_retencion").val()
+                ];
+
+                tabla.row('.tActive').data(newArr);
+
+            });
 
         } );
     </script>
