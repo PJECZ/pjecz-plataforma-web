@@ -44,7 +44,7 @@ Debe crear un archivo instance/settings.py que defina su configuración para des
     SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxx'
 
     # Base de datos en SQLLite
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///pjecz_tres_de_tres.sqlite3'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///pjecz_plataforma_web.sqlite3'
 
     # Base de datos MariaDB
     # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://wronguser:badpassword@127.0.0.1/pjecz_plataforma_web'
