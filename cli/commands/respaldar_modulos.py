@@ -21,7 +21,7 @@ def respaldar_modulos(salida: str = "modulos.csv"):
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
-                "id",
+                "modulo_id",
                 "nombre",
                 "nombre_corto",
                 "icono",

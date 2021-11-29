@@ -26,11 +26,13 @@ def alimentar_roles():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            nombre = safe_string(row["nombre"])
+            rol_id = int(row["rol_id"])
+            if rol_id != contador + 1:
+                click.echo(f"  AVISO: rol_id {rol_id} no es consecutivo")
+                continue
             Rol(
-                nombre=nombre,
+                nombre=safe_string(row["nombre"]),
                 estatus=row["estatus"],
             ).save()
-            click.echo(f"  {nombre}")
             contador += 1
     click.echo(f"  {contador} roles alimentados.")
