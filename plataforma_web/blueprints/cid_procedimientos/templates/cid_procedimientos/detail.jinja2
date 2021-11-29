@@ -57,9 +57,6 @@
             {{ desarrollo }}
         {% endcall %}
         {% call accordion.item('registro_item', 'Registros', accordion_id, estatus=cid_procedimiento.estatus) %}
-            
-            {# {{ registros }}                    #}
-            
                 <table id="registro_dataTable1_detail" class="table table-striped" width="100%">
                     <thead>
                         <th>Código</th>
@@ -116,24 +113,21 @@
         {{ modals.custom_javascript_make('Firmar', '¿Está seguro de que quiere firmarlo? Ya no podrá cambiarlo después.') }}
     {% endif %}
     <script>
+        let datos = {{ registros }};
         $(document).ready(function(){
-            var datos = {{registros}};
             var Arrayfinal = [];
             Object.keys(datos).forEach(item =>{
                 var tempArr = new Array();
-                
                 datos[item].forEach(a => {
                     
                     tempArr.push(a);
                 });
-
                 Arrayfinal.push(tempArr);
             });
 
             $("#registro_dataTable1_detail").DataTable({
                 data:Arrayfinal
             });
-            
         });
     </script>
 {% endblock %}

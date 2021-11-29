@@ -2,7 +2,7 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/quill.jinja2' as quill %}
-{% import 'macros/form_registers.jinja2' as fr %}
+{% import 'macros/add_datatable.jinja2' as add_data %}
 
 {% block title %}Editar Procedimiento{% endblock %}
 
@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block content %}
-{{ fr.modal_edit() }}
+{{ add_data.modal_edit() }}
     {% call f.card() %}
         <div><form></form></div>
         <div class="multisteps-form">
@@ -90,13 +90,13 @@
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
-                            {% call fr.div_container() %}
-                                {% call fr.form_create() %}
-                                        {% call fr.input_form('2','codigo','Código') %}{% endcall %}
-                                        {% call fr.input_form('3','nombre','Nombre') %}{% endcall %}
-                                        {% call fr.input_form('3','responsable','Responsable') %}{% endcall %}
-                                        {% call fr.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
-                                        {{fr.boton('Agregar Registro') }}
+                            {% call add_data.div_container() %}
+                                {% call add_data.form_create() %}
+                                        {% call add_data.input_form('2','codigo','Código') %}{% endcall %}
+                                        {% call add_data.input_form('3','nombre','Nombre') %}{% endcall %}
+                                        {% call add_data.input_form('3','responsable','Responsable') %}{% endcall %}
+                                        {% call add_data.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
+                                        {{add_data.boton('Agregar Registro') }}
                                         <div class="row">
                                             <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
                                                 <thead>
@@ -110,10 +110,9 @@
                                                 </tbody>
                                             </table>
                                         </div>
-
                                         <div class="row">
-                                            {{ fr.btn_datatable('Borrar Datos', 'btn_del_reg', 'danger', '') }}
-                                            {{ fr.btn_datatable('Editar', 'btn_edit_reg', 'info', 'data-bs-toggle="modal" data-bs-target="#edit_reg_modal"') }}
+                                            {{ add_data.btn_datatable('Borrar Datos', 'btn_del_reg', 'danger', '') }}
+                                            {{ add_data.btn_datatable('Editar', 'btn_edit_reg', 'info', 'data-bs-toggle="modal" data-bs-target="#edit_reg_modal"') }}
                                         </div>
                                 {% endcall %}
                             {% endcall %}
@@ -184,7 +183,6 @@
     {{ quill.editor(instance='definicionesQuill', div_id='definiciones_quill') }}
     {{ quill.editor(instance='responsabilidadesQuill', div_id='responsabilidades_quill') }}
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
-    
     {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
@@ -199,32 +197,23 @@
             llenar_responsabilidades({{ responsabilidades_json }});
             llenar_desarrollo({{ desarrollo_json }});
             llenar_control_cambios({{ control_cambios_json }});
-
         });
     </script>
     <!-- llenar dataTables registros -->
     <script>
-
+        let datos = {{ registros_json }};
         $(document).ready(function() {
-
-            let datos = {{registros_json}}
             var Arrayfinal = [];
             Object.keys(datos).forEach(item =>{
                 var tempArr = new Array();
-                
                 datos[item].forEach(a => {
-                    
                     tempArr.push(a);
                 });
-
                 Arrayfinal.push(tempArr);
             });
-
             var tabla = $("#registro_dataTable1").DataTable({
                 data:Arrayfinal
             });
-
-            
 
             $('#registro_dataTable1 tbody').on( 'click', 'tr', function () {
                 if ( $(this).hasClass('tActive') ) {
@@ -240,15 +229,12 @@
                 tabla.row('.tActive').remove().draw(false);
             } );
 
-
             $("#btn_add_reg").click(function(){
-
                 if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
                     $("#form-alert1-reg").show();
                     setTimeout('$("#form-alert1-reg").hide()', 5000);
                     $("#registro_codigo").focus();
                 }else{
-
                     tabla.row.add(
                         [
                             $("#registro_codigo").val(),
@@ -264,7 +250,6 @@
                     $("#registro_retencion").val("");
 
                     $("#registro_codigo").focus();
-                
                 }
             });
 
@@ -286,11 +271,8 @@
                 ];
 
                 tabla.row('.tActive').data(newArr);
-
             });
-
         });
-
     </script>
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
