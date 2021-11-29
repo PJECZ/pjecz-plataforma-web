@@ -31,16 +31,20 @@ def alimentar_usuarios():
                 autoridad_clave = row["autoridad_clave"]
                 autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
                 if autoridad is None:
-                    click.echo(f"  Falta la autoridad_clave {autoridad_clave}")
+                    click.echo(f"  AVISO: Falta la autoridad_clave {autoridad_clave}")
                     continue
             elif "autoridad_id" in row:
                 autoridad_id = row["autoridad_id"]
                 autoridad = Autoridad.query.get(autoridad_id)
                 if autoridad is None:
-                    click.echo(f"  Falta la autoridad_id {autoridad_id}")
+                    click.echo(f"  AVISO: Falta la autoridad_id {autoridad_id}")
                     continue
             else:
-                raise Exception("ERROR: No tiene la columna autoridad_clave o autoridad_id")
+                raise Exception("  ERROR: No tiene la columna autoridad_clave o autoridad_id")
+            usuario_id = int(row["usuario_id"])
+            if usuario_id != contador + 1:
+                click.echo(f"  AVISO: usuario_id {usuario_id} no es consecutivo")
+                continue
             Usuario(
                 autoridad=autoridad,
                 email=row["email"],

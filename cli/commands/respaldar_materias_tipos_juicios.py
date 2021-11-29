@@ -19,7 +19,14 @@ def respaldar_materias_tipos_juicios(salida: str = "materias_tipos_juicios.csv")
     materias_tipos_juicios = MateriaTipoJuicio.query.order_by(MateriaTipoJuicio.id).all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["id", "materia_id", "descripcion", "estatus"])
+        respaldo.writerow(
+            [
+                "materia_tipo_juicio_id",
+                "materia_id",
+                "descripcion",
+                "estatus",
+            ]
+        )
         for materia in materias_tipos_juicios:
             respaldo.writerow(
                 [

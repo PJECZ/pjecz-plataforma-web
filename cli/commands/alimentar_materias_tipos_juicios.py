@@ -26,6 +26,10 @@ def alimentar_materias_tipos_juicios():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            materia_tipo_juicio_id = int(row["materia_tipo_juicio_id"])
+            if materia_tipo_juicio_id != contador + 1:
+                click.echo(f"  AVISO: materia_tipo_juicio_id {materia_tipo_juicio_id} no es consecutivo")
+                continue
             MateriaTipoJuicio(
                 materia_id=int(row["materia_id"]),
                 descripcion=safe_string(row["descripcion"]),
