@@ -1,6 +1,7 @@
 """
 Sentencias, tareas para ejecutar en el fondo
 """
+import locale
 import logging
 import os
 import re
@@ -9,12 +10,13 @@ from pathlib import Path
 
 from dateutil.tz import tzlocal
 from google.cloud import storage
-from rq import get_current_job
+import sendgrid
+from sendgrid.helpers.mail import Email, To, Content, Mail
 
+from lib.tasks import set_task_progress, set_task_error
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.sentencias.models import Sentencia
-from plataforma_web.blueprints.tareas.models import Tarea
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 bitacora = logging.getLogger(__name__)
@@ -27,38 +29,56 @@ bitacora.addHandler(empunadura)
 app = create_app()
 app.app_context().push()
 
+locale.setlocale(locale.LC_TIME, "es_MX")
+
 SUBDIRECTORIO = "Sentencias"
 
 
-def set_task_progress(progress: int, mensaje: str = None):
-    """Cambiar el progreso de la tarea"""
-    job = get_current_job()
-    if job:
-        job.meta["progress"] = progress
-        job.save_meta()
-        tarea = Tarea.query.get(job.get_id())
-        if tarea:
-            if progress >= 100:
-                tarea.ha_terminado = True
-            if mensaje is not None:
-                tarea.descripcion = mensaje
-            tarea.save()
+def enviar_reporte():
+    """Enviar via correo electronico el reporte de sentencias"""
 
+    # Fecha
+    fecha = date.today()
 
-def set_task_error(mensaje: str):
-    """Al fallar la tarea debe tomar el mensaje y terminarla"""
-    job = get_current_job()
-    if job:
-        job.meta["progress"] = 100
-        job.save_meta()
-        tarea = Tarea.query.get(job.get_id())
-        if tarea:
-            tarea.ha_terminado = True
-            tarea.descripcion = mensaje
-            tarea.save()
-    bitacora.error(mensaje)
-    bitacora.info("Termina")
-    return mensaje
+    # Momento en que se elabora este reporte
+    momento = datetime.now()
+    momento_str = momento.strftime("%d/%B/%Y %I:%M%p")
+    subject = f"Sentencias del {fecha.strftime('%d/%B/%Y')}"
+
+    # Cabecera
+    bitacora.info("Inicia enviar reporte de %s", momento_str)
+    contenidos = [f"<h1>PJECZ Plataforma Web</h1><h2>{subject}</h2><p>Fecha de elaboración: {momento_str}.<br>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>"]
+
+    # Contenido
+    sentencias = Sentencia.query.order_by(Sentencia.id.desc()).limit(20).all()
+    for sentencia in sentencias:
+        contenidos.append("{}, {}, {}, {}".format(sentencia.fecha, sentencia.expediente, sentencia.detalle, sentencia.archivo))
+    bitacora.info("\n".join(contenidos))
+
+    # Preparar SendGrid
+    sg = None
+    from_email = None
+    api_key = os.environ.get("SENDGRID_API_KEY", "")
+    email_sendgrid = os.environ.get("EMAIL_SENDGRID", "plataforma.web@pjecz.gob.mx")
+    if api_key != "":
+        sg = sendgrid.SendGridAPIClient(api_key=api_key)
+    if email_sendgrid != "":
+        from_email = Email(email_sendgrid)
+
+    # Enviar mensaje via correo electronico
+    if sg:
+        to_email = To("plataforma.web.reportes@pjecz.gob.mx")
+        content = Content("text/html", "<br>".join(contenidos))
+        mail = Mail(from_email, to_email, subject, content)
+        sg.client.mail.send.post(request_body=mail.get())
+    else:
+        bitacora.info("No se envió el reporte de sentencias vía correo electrónico")
+
+    # Terminar tarea
+    set_task_progress(100)
+    mensaje_final = "Termina enviar reporte."
+    bitacora.info(mensaje_final)
+    return mensaje_final
 
 
 def refrescar(autoridad_id: int, usuario_id: int = None):

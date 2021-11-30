@@ -26,6 +26,15 @@ def cli():
 
 
 @click.command()
+def enviar_reporte():
+    """Enviar via correo electronico el reporte de sentencias"""
+    app.task_queue.enqueue(
+        "plataforma_web.blueprints.sentencias.tasks.enviar_reporte",
+    )
+    click.echo("Enviar reporte de sentencias se está ejecutando en el fondo.")
+
+
+@click.command()
 @click.argument("autoridad_clave", type=str)
 def refrescar(autoridad_clave):
     """Rastrear el depósito para agregar o dar de baja"""
@@ -145,6 +154,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
     click.echo(f"Respaldados {contador} sentencias en {ruta.name}")
 
 
+cli.add_command(enviar_reporte)
 cli.add_command(refrescar)
 cli.add_command(refrescar_todos)
 cli.add_command(respaldar)
