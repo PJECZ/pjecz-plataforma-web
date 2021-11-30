@@ -1,17 +1,20 @@
 """
 Sentencias, tareas para ejecutar en el fondo
 """
+import base64
+import csv
+from datetime import datetime, date
 import locale
 import logging
 import os
-import re
-from datetime import datetime, date
 from pathlib import Path
+import random
+import re
 
 from dateutil.tz import tzlocal
 from google.cloud import storage
 import sendgrid
-from sendgrid.helpers.mail import Email, To, Content, Mail
+from sendgrid.helpers.mail import Attachment, ContentId, Disposition, Email, FileContent, FileName, FileType, To, Content, Mail
 
 from lib.tasks import set_task_progress, set_task_error
 from plataforma_web.app import create_app
@@ -45,34 +48,87 @@ def enviar_reporte():
     momento_str = momento.strftime("%d/%B/%Y %I:%M%p")
     subject = f"Sentencias del {fecha.strftime('%d/%B/%Y')}"
 
+    # Definir la ruta al archivo temporal CSV
+    random_hex = "%030x" % random.randrange(16 ** 30)
+    reporte_ruta = Path("/tmp/reporte-sentencias-" + random_hex + ".csv")
+    reporte_archivo = f"reporte-sentencias-{fecha.strftime('%Y-%m-%d')}.csv"
+
     # Cabecera
     bitacora.info("Inicia enviar reporte de %s", momento_str)
     contenidos = [f"<h1>PJECZ Plataforma Web</h1><h2>{subject}</h2><p>Fecha de elaboración: {momento_str}.<br>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>"]
 
     # Contenido
-    sentencias = Sentencia.query.order_by(Sentencia.id.desc()).limit(20).all()
-    for sentencia in sentencias:
-        contenidos.append("{}, {}, {}, {}".format(sentencia.fecha, sentencia.expediente, sentencia.detalle, sentencia.archivo))
-    bitacora.info("\n".join(contenidos))
+    sentencias = Sentencia.query.order_by(Sentencia.id.desc()).limit(50).all()
+    if len(sentencias) == 0:
+        bitacora.warning("No hay sentencias")
+    else:
+        contador = 0
+        with open(reporte_ruta, "w", encoding="utf8") as puntero:
+            reporte = csv.writer(puntero)
+            reporte.writerow(
+                [
+                    "ID",
+                    "Autoridades",
+                    "Fechas",
+                    "Sentencias",
+                    "Expedientes",
+                    "Materias",
+                    "Tipos de Juicios",
+                    "URLs",
+                ]
+            )
+            for sentencia in sentencias:
+                reporte.writerow(
+                    [
+                        sentencia.id,
+                        sentencia.autoridad.clave,
+                        sentencia.fecha,
+                        sentencia.sentencia,
+                        sentencia.expediente,
+                        sentencia.materia_tipo_juicio.materia.nombre,
+                        sentencia.materia_tipo_juicio.descripcion,
+                        sentencia.url,
+                    ]
+                )
+                contador += 1
+        bitacora.info("Se han escrito %d sentencias en el archivo CSV.", contador)
 
     # Preparar SendGrid
     sg = None
     from_email = None
     api_key = os.environ.get("SENDGRID_API_KEY", "")
-    email_sendgrid = os.environ.get("EMAIL_SENDGRID", "plataforma.web@pjecz.gob.mx")
+    email_sendgrid = os.environ.get("EMAIL_SENDGRID", "rrhh.personal@pjecz.gob.mx")
     if api_key != "":
         sg = sendgrid.SendGridAPIClient(api_key=api_key)
     if email_sendgrid != "":
         from_email = Email(email_sendgrid)
 
     # Enviar mensaje via correo electronico
-    if sg:
-        to_email = To("plataforma.web.reportes@pjecz.gob.mx")
+    if sg and contador > 0:
+        # Preparar el mensaje
+        to_email = To("rrhh.personal.reportes@pjecz.gob.mx")
         content = Content("text/html", "<br>".join(contenidos))
         mail = Mail(from_email, to_email, subject, content)
+        # Adjuntar el archivo CSV
+        with open(reporte_ruta, "r", encoding="utf8") as puntero:
+            datos = puntero.read()
+            puntero.close()
+        encoded = base64.b64encode(bytes(datos, "utf8")).decode("utf8")
+        attachment = Attachment()
+        attachment.file_content = FileContent(encoded)
+        attachment.file_type = FileType("text/csv")
+        attachment.file_name = FileName(reporte_archivo)
+        attachment.disposition = Disposition("attachment")
+        attachment.content_id = ContentId("ArchivoCSV")
+        mail.attachment = attachment
+        # Enviar por SendGrid
         sg.client.mail.send.post(request_body=mail.get())
     else:
-        bitacora.info("No se envió el reporte de sentencias vía correo electrónico")
+        bitacora.warning("No se envió el reporte vía correo electrónico")
+
+    # Eliminar el archivo CSV
+    if contador > 0:
+        reporte_ruta.unlink(missing_ok=True)
 
     # Terminar tarea
     set_task_progress(100)
