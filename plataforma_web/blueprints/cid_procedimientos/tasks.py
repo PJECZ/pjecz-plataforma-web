@@ -3,6 +3,7 @@ CID Procedimientos, tareas en el fondo
 
 - crear_pdf: Crear PDF
 """
+import json
 import locale
 import logging
 import os
@@ -106,6 +107,18 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         revision=str(cid_procedimiento.revision),
         fecha=cid_procedimiento.fecha.strftime("%d %b %Y"),
     )
+
+    tabla_registros = json.dumps(cid_procedimiento.registros)
+    renglones = json.loads(tabla_registros)
+    tabla_renglon = ""
+    for renglon in renglones:
+        tabla_renglon = "<tr class='text-center'>"
+        for i in renglones[renglon]:
+            tabla_renglon += "<td>" + i + "</td>"
+        tabla_renglon += "</tr>"
+
+    # resultado = f"<table>{tabla_renglon}</table>"
+
     # Renderizar Body
     pdf_body_plantilla = entorno.get_template("pdf_body.html")
     pdf_body_html = pdf_body_plantilla.render(
@@ -115,7 +128,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         definiciones=html.render(cid_procedimiento.definiciones["ops"]),
         responsabilidades=html.render(cid_procedimiento.responsabilidades["ops"]),
         desarrollo=html.render(cid_procedimiento.desarrollo["ops"]),
-        registros=cid_procedimiento.registros,
+        registros=tabla_renglon,
         control_cambios=html.render(cid_procedimiento.control_cambios["ops"]),
         elaboro_nombre=cid_procedimiento.elaboro_nombre,
         elaboro_puesto=cid_procedimiento.elaboro_puesto,
