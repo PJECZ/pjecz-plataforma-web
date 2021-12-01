@@ -52,7 +52,8 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     entradas_salidas = db.relationship("EntradaSalida", back_populates="usuario", lazy="noload")
     tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
     usuarios_roles = db.relationship("UsuarioRol", back_populates="usuario")
-    turnos = db.relationship('Turno', back_populates='usuario', lazy="noload")
+    turnos = db.relationship("Turno", back_populates="usuario", lazy="noload")
+    soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
 
     @property
     def nombre(self):

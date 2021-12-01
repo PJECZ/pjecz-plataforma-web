@@ -1,7 +1,6 @@
 """
 Funcionarios, modelos
 """
-from enum import unique
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -28,6 +27,7 @@ class Funcionario(db.Model, UniversalMixin):
 
     # Hijos
     autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="funcionario")
+    soportes_tickets = db.relationship("SoporteTicket", back_populates="funcionario")
 
     @property
     def nombre(self):
