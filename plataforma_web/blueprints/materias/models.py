@@ -23,4 +23,4 @@ class Materia(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<Materia>"
+        return f"<Materia {self.nombre}>"

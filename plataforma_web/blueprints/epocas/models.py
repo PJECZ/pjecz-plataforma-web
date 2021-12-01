@@ -22,4 +22,4 @@ class Epoca(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<Epoca>"
+        return f"<Epoca {self.nombre}>"

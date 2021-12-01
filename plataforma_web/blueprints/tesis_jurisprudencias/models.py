@@ -58,11 +58,11 @@ class TesisJurisprudencia(db.Model, UniversalMixin):
     titulo = db.Column(db.String(256), nullable=False)  # Título
     subtitulo = db.Column(db.String(256), nullable=False)  # Subtítulo
     rubro = db.Column(db.String(256), nullable=False)  # Rubro
-    texto = db.Column(db.JSON())  # Texto (En su caso archivo a subir en la plataforma)
-    precedentes = db.Column(db.JSON())  # Precedentes que sustentan las tesis: Medio de impugnación, el número del expediente, nombre del promovente, fecha de aprobación de la resolución, la votación y el nombre del ponente
+    texto = db.Column(db.Text(), nullable=False)  # Texto (En su caso archivo a subir en la plataforma)
+    precedentes = db.Column(db.Text(), nullable=False, default="", server_default="")  # Precedentes que sustentan las tesis: Medio de impugnación, el número del expediente, nombre del promovente, fecha de aprobación de la resolución, la votación y el nombre del ponente
     magistrado_ponente = db.Column(db.String(256), nullable=False)  # Magistrado ponente (Nombre del magistrado ponente)
-    votacion = db.Column(db.String(256), nullable=False)  # Votación con la que fue votada (Número de votos y quienes votaron en sentido afirmativo o negativo)
-    votos_particulares = = db.Column(db.String(256), nullable=False)  # Votos particulares(En su caso relacionar las sentencias que fueron publicadas en el sitio oficial del Poder Judicial)
+    votacion = db.Column(db.String(256), nullable=False, default="", server_default="")  # Votación con la que fue votada (Número de votos y quienes votaron en sentido afirmativo o negativo)
+    votos_particulares = db.Column(db.String(256), nullable=False, default="", server_default="")  # Votos particulares(En su caso relacionar las sentencias que fueron publicadas en el sitio oficial del Poder Judicial)
     aprobacion_fecha = db.Column(db.Date(), nullable=False)  # Fecha en la que fue aprobada (Fecha y hora)
     publicacion_tiempo = db.Column(db.DateTime(), nullable=False)  # Fecha y hora de publicación de la tesis o jurisprudencia
     aplicacion_tiempo = db.Column(db.DateTime(), nullable=False)# Fecha y hora en la que se considera de aplicación obligatoria
