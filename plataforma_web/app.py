@@ -33,6 +33,8 @@ from plataforma_web.blueprints.rep_resultados.views import rep_resultados
 from plataforma_web.blueprints.roles.views import roles
 from plataforma_web.blueprints.sentencias.views import sentencias
 from plataforma_web.blueprints.sistemas.views import sistemas
+from plataforma_web.blueprints.soportes_categorias.views import soportes_categorias
+from plataforma_web.blueprints.soportes_tickets.views import soportes_tickets
 from plataforma_web.blueprints.tareas.views import tareas
 from plataforma_web.blueprints.transcripciones.views import transcripciones
 from plataforma_web.blueprints.turnos.views import turnos
@@ -82,6 +84,8 @@ def create_app():
     app.register_blueprint(roles)
     app.register_blueprint(sentencias)
     app.register_blueprint(sistemas)
+    app.register_blueprint(soportes_categorias)
+    app.register_blueprint(soportes_tickets)
     app.register_blueprint(tareas)
     app.register_blueprint(transcripciones)
     app.register_blueprint(turnos)
