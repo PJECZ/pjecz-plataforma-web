@@ -23,6 +23,8 @@ class Funcionario(db.Model, UniversalMixin):
     email = db.Column(db.String(256), unique=True, index=True)
     puesto = db.Column(db.String(256), default="", server_default="")
     en_funciones = db.Column(db.Boolean, nullable=False, default=True)
+    en_sentencias = db.Column(db.Boolean, nullable=False, default=False)
+    en_soportes = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
     autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="funcionario")

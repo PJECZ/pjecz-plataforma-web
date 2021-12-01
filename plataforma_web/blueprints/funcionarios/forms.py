@@ -17,4 +17,6 @@ class FuncionarioForm(FlaskForm):
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
     en_funciones = BooleanField("En funciones", validators=[Optional()])
+    en_sentencias = BooleanField("En sentencias", validators=[Optional()])
+    en_soportes = BooleanField("En soportes", validators=[Optional()])
     guardar = SubmitField('Guardar')
