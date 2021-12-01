@@ -1,0 +1,19 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Soporte Categoría{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + soporte_categoria.nombre) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'soporte_categoria_id': soporte_categoria.id} %}
+        {% call f.form_tag('soportes_categorias.edit', fid='soporte_categoria_form', **form_kwargs) %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

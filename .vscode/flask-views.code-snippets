@@ -13,8 +13,8 @@
 			"from lib import datatables",
 			"from lib.safe_string import safe_string, safe_message",
 			"",
-			"from plataforma_web.blueprints.abogados.models import Abogado",
 			"from plataforma_web.blueprints.bitacoras.models import Bitacora",
+			"from plataforma_web.blueprints.modulos.models import Modulo",
 			"from plataforma_web.blueprints.permisos.models import Permiso",
 			"from plataforma_web.blueprints.usuarios.decorators import permission_required",
 			"from plataforma_web.blueprints.${3:blueprint}.models import ${4:Clase}",
@@ -193,6 +193,33 @@
 		],
 		"description": "Nuevo registro"
 	},
+	"Flask views new bitacora": {
+		"scope": "python",
+		"prefix": "fviews_new_bitacora",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/nuevo', methods=['GET', 'POST'])",
+			"@permission_required(MODULO, Permiso.CREAR)",
+			"def new():",
+			"\t\"\"\" Nuevo ${2:Modulo} \"\"\"",
+			"\tform = ${3:ClassForm}()",
+			"\tif form.validate_on_submit():",
+			"\t\t${4:instance} = ${5:Class}(${6:nombre_o_descripcion}=safe_string(form.${6:nombre_o_descripcion}.data))",
+			"\t\t${4:instance}.save()",
+			"\t\tbitacora = Bitacora(",
+			"\t\t\tmodulo=Modulo.query.filter_by(nombre=MODULO).first(),",
+			"\t\t\tusuario=current_user,",
+			"\t\t\tdescripcion=safe_message(f\"Nuevo ${2:Modulo} {soporte_categoria.${6:nombre_o_descripcion}}\"),",
+			"\t\t\turl=url_for(\"${1:blueprint}.detail\", ${4:instance}_id=${4:instance}.id),",
+			"\t\t)",
+			"\t\tbitacora.save()",
+			"\t\tflash(bitacora.descripcion, \"success\")",
+			"\t\treturn redirect(bitacora.url)",
+			"\treturn render_template('${1:blueprint}/new.jinja2', form=form)",
+			"",
+			""
+		],
+		"description": "Nuevo registro con bitacora"
+	},
 	"Flask views edit": {
 		"scope": "python",
 		"prefix": "fviews_edit",
@@ -215,6 +242,34 @@
 		],
 		"description": "Editar registro"
 	},
+	"Flask views edit bitacora": {
+		"scope": "python",
+		"prefix": "fviews_edit_bitacora",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/edicion/<int:${2:column_id}>', methods=['GET', 'POST'])",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
+			"def edit(${2:column_id}):",
+			"\t\"\"\" Editar ${3:Modulo} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+			"\tform = ${6:ClassForm}()",
+			"\tif form.validate_on_submit():",
+			"\t\t${4:instance}.${7:nombre_o_descripcion} = safe_string(form.${7:nombre_o_descripcion}.data)",
+			"\t\t${4:instance}.save()",
+			"\t\tbitacora = Bitacora(",
+			"\t\t\tmodulo=Modulo.query.filter_by(nombre=MODULO).first(),",
+			"\t\t\tusuario=current_user,",
+			"\t\t\tdescripcion=safe_message(f\"Editado ${2:Modulo} {soporte_categoria.${6:nombre_o_descripcion}}\"),",
+			"\t\t\turl=url_for(\"${1:blueprint}.detail\", ${4:instance}_id=${4:instance}.id),",
+			"\t\t)",
+			"\t\tbitacora.save()",
+			"\t\tflash(bitacora.descripcion, \"success\")",
+			"\tform.${7:nombre_o_descripcion}.data = ${4:instance}.${7:nombre_o_descripcion}",
+			"\treturn render_template('${1:blueprint}/edit.jinja2', form=form, ${4:instance}=${4:instance})",
+			"",
+			""
+		],
+		"description": "Editar registro con bitacora"
+	},
 	"Flask views delete": {
 		"scope": "python",
 		"prefix": "fviews_delete",
@@ -233,6 +288,31 @@
 		],
 		"description": "Borrar registro"
 	},
+	"Flask views delete bitacora": {
+		"scope": "python",
+		"prefix": "fviews_delete_bitacora",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/eliminar/<int:${2:column_id}>')",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
+			"def delete(${2:column_id}):",
+			"\t\"\"\" Eliminar ${3:Modulo} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+			"\tif ${4:instance}.estatus == 'A':",
+			"\t\t${4:instance}.delete()",
+			"\t\tbitacora = Bitacora(",
+			"\t\t\tmodulo=Modulo.query.filter_by(nombre=MODULO).first(),",
+			"\t\t\tusuario=current_user,",
+			"\t\t\tdescripcion=safe_message(f\"Eliminado ${2:Modulo} {soporte_categoria.${6:nombre_o_descripcion}}\"),",
+			"\t\t\turl=url_for(\"${1:blueprint}.detail\", ${4:instance}_id=${4:instance}.id),",
+			"\t\t)",
+			"\t\tbitacora.save()",
+			"\t\tflash(bitacora.descripcion, \"success\")",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${4:instance}.id))",
+			"",
+			""
+		],
+		"description": "Borrar registro con bitacora"
+	},
 	"Flask views recover": {
 		"scope": "python",
 		"prefix": "fviews_recover",
@@ -250,6 +330,31 @@
 			""
 		],
 		"description": "Recuperar registro"
+	},
+	"Flask views recover bitacora": {
+		"scope": "python",
+		"prefix": "fviews_recover_bitacora",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/recuperar/<int:${2:column_id}>')",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
+			"def recover(${2:column_id}):",
+			"\t\"\"\" Recuperar ${3:Modulo} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+			"\tif ${4:instance}.estatus == 'B':",
+			"\t\t${4:instance}.recover()",
+			"\t\tbitacora = Bitacora(",
+			"\t\t\tmodulo=Modulo.query.filter_by(nombre=MODULO).first(),",
+			"\t\t\tusuario=current_user,",
+			"\t\t\tdescripcion=safe_message(f\"Recuperado ${2:Modulo} {soporte_categoria.${6:nombre_o_descripcion}}\"),",
+			"\t\t\turl=url_for(\"${1:blueprint}.detail\", ${4:instance}_id=${4:instance}.id),",
+			"\t\t)",
+			"\t\tbitacora.save()",
+			"\t\tflash(bitacora.descripcion, \"success\")",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${4:instance}.id))",
+			"",
+			""
+		],
+		"description": "Recuperar registro con bitacora"
 	},
 	"Flask bitacora save": {
 		"scope": "python",
