@@ -9,11 +9,14 @@ from lib.universal_mixin import UniversalMixin
 class SoporteTicket(db.Model, UniversalMixin):
     """SoporteTicket"""
 
-    ESTADOS = OrderedDict([
-        ('ABIERTO', 'Abierto o pendiente'),
-        ('CERRADO', 'Cerrado o terminado'),
-        ('CANCELADO', 'Cancelado'),
-    ])
+    ESTADOS = OrderedDict(
+        [
+            ("ABIERTO", "Abierto o pendiente"),
+            ("TRABAJANDO", "Trabjando"),
+            ("CERRADO", "Cerrado o terminado"),
+            ("CANCELADO", "Cancelado"),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "soportes_tickets"
