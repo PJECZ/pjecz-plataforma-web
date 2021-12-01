@@ -13,7 +13,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_categorias.forms import SoporteCategoriaForm
 
-MODULO = "SOPORTE CATEGORIAS"
+MODULO = "SOPORTES CATEGORIAS"
 
 soportes_categorias = Blueprint("soportes_categorias", __name__, template_folder="templates")
 
