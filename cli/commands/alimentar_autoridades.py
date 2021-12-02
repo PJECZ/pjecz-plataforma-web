@@ -58,5 +58,5 @@ def alimentar_autoridades():
             ).save()
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} autoridades...")
+                click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} autoridades alimentadas.")

@@ -40,4 +40,6 @@ def respaldar_roles_permisos(salida: str = "roles_permisos.csv"):
             renglon.append(rol.estatus)
             respaldo.writerow(renglon)
             contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} roles-permisos en {ruta.name}")
