@@ -30,9 +30,10 @@ def alimentar_autoridades_funcionarios():
     with open(ruta, encoding="utf-8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            funcionario = Funcionario.query.get(row["id"])
+            funcionario_id = int(row["id"])
+            funcionario = Funcionario.query.get(funcionario_id)
             if funcionario is None:
-                click.echo(f"AVISO: No se encontró el funcionario {row['id']}.")
+                click.echo(f"AVISO: No se encontró el funcionario {funcionario_id}.")
                 continue
             if row["autoridades_claves"].strip() == "":
                 continue
@@ -49,5 +50,5 @@ def alimentar_autoridades_funcionarios():
                 ).save()
                 contador += 1
                 if contador % 100 == 0:
-                    click.echo(f"  Van {contador} autoridades-funcionarios...")
+                    click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} autoridades-funcionarios alimentados")

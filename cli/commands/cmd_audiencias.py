@@ -131,7 +131,7 @@ def alimentar(entrada_csv):
             ).save()
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} audiencias...")
+                click.echo(f"  Van {contador}...")
     click.echo(f"{contador} audiencias alimentadas.")
 
 
@@ -212,7 +212,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
             )
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
+                click.echo(f"  Van {contador}...")
     click.echo(f"Respaldados {contador} audiencias en {ruta.name}")
 
 

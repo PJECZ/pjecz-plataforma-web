@@ -11,7 +11,7 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('tesis_jurisprudencias.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('TESIS JURISPRUDENCIAS') %}
-            {{ topbar.button_new('Nuevo Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.new')) }}
+            {# topbar.button_new('Nuevo Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.new')) #}
         {% endif %}
     {% endcall %}
 {% endblock %}

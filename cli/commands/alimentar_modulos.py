@@ -26,15 +26,15 @@ def alimentar_modulos():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            nombre = safe_string(row["nombre"])
             Modulo(
-                nombre=nombre,
+                nombre=safe_string(row["nombre"]),
                 nombre_corto=row["nombre_corto"],
                 icono=row["icono"],
                 ruta=row["ruta"],
                 en_navegacion=row["en_navegacion"] == "1",
                 estatus=row["estatus"],
             ).save()
-            click.echo(f"  {nombre}")
             contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} módulos alimentados.")

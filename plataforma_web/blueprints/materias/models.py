@@ -20,6 +20,7 @@ class Materia(db.Model, UniversalMixin):
     # Hijos
     autoridades = db.relationship("Autoridad", back_populates="materia", lazy="noload")
     materias_tipos_juicios = db.relationship("MateriaTipoJuicio", back_populates="materia")
+    tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="materia", lazy="noload")
 
     def __repr__(self):
         """Representación"""

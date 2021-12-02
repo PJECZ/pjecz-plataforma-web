@@ -14,7 +14,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.tesis_jurisprudencias.models import TesisJurisprudencia
 
-MODULO = "TESIS Y JURISPRUDENCIAS"
+MODULO = "TESIS JURISPRUDENCIAS"
 
 tesis_jurisprudencias = Blueprint("tesis_jurisprudencias", __name__, template_folder="templates")
 

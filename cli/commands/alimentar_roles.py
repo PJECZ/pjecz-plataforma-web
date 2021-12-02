@@ -26,11 +26,11 @@ def alimentar_roles():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            nombre = safe_string(row["nombre"])
             Rol(
-                nombre=nombre,
+                nombre=safe_string(row["nombre"]),
                 estatus=row["estatus"],
             ).save()
-            click.echo(f"  {nombre}")
             contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} roles alimentados.")

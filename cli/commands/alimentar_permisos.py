@@ -52,13 +52,13 @@ def alimentar_permisos():
                     continue
                 if nivel == 0:
                     continue
-                nombre = f"{rol.nombre} puede {Permiso.NIVELES[nivel]} en {modulo.nombre}"
                 Permiso(
                     rol=rol,
                     modulo=modulo,
-                    nombre=nombre,
+                    nombre=f"{rol.nombre} puede {Permiso.NIVELES[nivel]} en {modulo.nombre}",
                     nivel=nivel,
                 ).save()
-                click.echo(f"  {nombre}")
                 contador += 1
+                if contador % 100 == 0:
+                    click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} permisos alimentados.")

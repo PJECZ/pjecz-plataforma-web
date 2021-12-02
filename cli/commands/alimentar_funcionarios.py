@@ -35,4 +35,6 @@ def alimentar_funcionarios():
                 estatus=row["estatus"],
             ).save()
             contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} funcionarios alimentados")

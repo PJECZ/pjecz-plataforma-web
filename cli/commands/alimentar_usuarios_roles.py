@@ -40,12 +40,12 @@ def alimentar_usuarios_roles():
                 if rol is None:
                     click.echo(f"  Falta el rol {rol_str}")
                     continue
-                descripcion = f"{usuario.email} en {rol.nombre}"
                 UsuarioRol(
                     usuario=usuario,
                     rol=rol,
-                    descripcion=descripcion,
+                    descripcion=f"{usuario.email} en {rol.nombre}",
                 ).save()
-                click.echo(f"  {descripcion}")
                 contador += 1
+                if contador % 100 == 0:
+                    click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} usuarios-roles alimentados.")
