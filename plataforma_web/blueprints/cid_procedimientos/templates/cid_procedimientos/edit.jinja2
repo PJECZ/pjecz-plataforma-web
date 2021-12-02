@@ -202,9 +202,9 @@
     <!-- llenar dataTables registros -->
     <script>
         $(document).ready(function() {
-        //let datos = {{ registros_json }};
-        console.log({{ registros_json }});1
-            /*var Arrayfinal = [];
+        let datos = {{ registros_json }};
+        console.log(datos);1
+            var Arrayfinal = [];
             Object.keys(datos).forEach(item =>{
                 var tempArr = new Array();
                 datos[item].forEach(a => {
@@ -214,7 +214,7 @@
             });
             var tabla = $("#registro_dataTable1").DataTable({
                 data:Arrayfinal
-            });*/
+            });
 
             /*$("#btn_add_reg").click(function(){
                 if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
