@@ -13,8 +13,8 @@ body {
   align-items: center;
   padding-top: 40px;
   padding-bottom: 40px;
-  background: linear-gradient(#5c0202, #7a0a0a, #520205);
-  /*background-color: #004360;*/
+  background-color: #004360;
+  /*background: linear-gradient(#5c0202, #7a0a0a, #520205);navidad*/
 }
 
 .form-signin {
