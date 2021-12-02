@@ -22,8 +22,8 @@
             <thead>
                 <tr>
                     <th>Creados</th>
-                    <th>Nombre o descripción</th>
-                    <th>Columna</th>
+                    <th>Títulos</th>
+                    <th>Clases</th>
                 </tr>
             </thead>
         </table>
@@ -31,5 +31,57 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('tesis_jurisprudencias_datatable') }}
+    <script>
+        $('#tesis_jurisprudencias_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/tesis_jurisprudencias/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "creado" },
+                { data: "detalle" },
+                { data: "clase" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.titulo + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
