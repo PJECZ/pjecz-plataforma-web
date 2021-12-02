@@ -30,9 +30,9 @@
     </div>
 {%- endmacro -%}
 
-{%- macro boton(btn_name) -%}
+{%- macro boton(id_btn,btn_name) -%}
     <div class="col-2">
-        <button id="btn_add_reg" type="button" class="form-control btn btn-primary">{{btn_name}}</button>
+        <button id="{{id_btn}}" type="button" class="form-control btn btn-primary">{{btn_name}}</button>
     </div>
 {%- endmacro -%}
 

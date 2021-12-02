@@ -109,15 +109,14 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     )
 
     tabla_registros = json.dumps(cid_procedimiento.registros)
-    renglones = json.loads(tabla_registros)
+    renglones_json = json.loads(tabla_registros)
     tabla_renglon = ""
-    for renglon in renglones:
-        tabla_renglon = "<tr class='text-center'>"
-        for i in renglones[renglon]:
-            tabla_renglon += "<td>" + i + "</td>"
+    for renglon in renglones_json:
+        tabla_renglon += "<tr>"
+        for i in renglones_json[renglon]:
+            tabla_renglon += "<td align='center' style='border-bottom:1px solid #C5C5C5'>" + i + "</td>"
         tabla_renglon += "</tr>"
 
-    # resultado = f"<table>{tabla_renglon}</table>"
 
     # Renderizar Body
     pdf_body_plantilla = entorno.get_template("pdf_body.html")

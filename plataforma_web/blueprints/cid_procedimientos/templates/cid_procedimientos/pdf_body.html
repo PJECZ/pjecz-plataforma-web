@@ -32,6 +32,9 @@
             margin-left: -150px;
             top: 1390px
         }
+        .registros_thead{
+            border-bottom: 1px solid #C5C5C5;
+        }
     </style>
 </head>
 
@@ -63,13 +66,14 @@
 
     <h2>REGISTROS</h2>
     <table id="registro_pdf" class="table table-striped" width="100%">
-        <thead>
+        <thead class="registros_thead">
             <th>Código</th>
             <th>Nombre</th>
             <th>Responsable</th>
             <th>Tiempo de retención</th>
         </thead>
-        <tbody class="text-center">
+        <tbody>
+            <div></div><br>
             {{ registros }}  
         </tbody>
     </table>

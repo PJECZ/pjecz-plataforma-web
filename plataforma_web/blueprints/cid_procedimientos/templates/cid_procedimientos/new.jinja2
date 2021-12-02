@@ -98,7 +98,7 @@
                                         {% call add_data.input_form('3','nombre','Nombre') %}{% endcall %}
                                         {% call add_data.input_form('3','responsable','Responsable') %}{% endcall %}
                                         {% call add_data.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
-                                        {{ add_data.boton('Agregar Registro') }}
+                                        {{ add_data.boton('btn_add_reg','Agregar Registro') }}
                                         <div class="row">
                                             <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
                                                 <thead>
@@ -118,7 +118,7 @@
                                         </div>
                                 {% endcall %}
                             {% endcall %}
-                            <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
+                            <div style="display: none;">{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
@@ -163,7 +163,7 @@
                                     {% call f.form_group(form.aprobo_email) %}{% endcall %}
                                 </div>
                             </div>
-                            <div>{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
+                            <div style="display: none;">{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Vista previa -->
                         <style>.ql-disabled{overflow:auto;}</style>

@@ -96,7 +96,7 @@
                                         {% call add_data.input_form('3','nombre','Nombre') %}{% endcall %}
                                         {% call add_data.input_form('3','responsable','Responsable') %}{% endcall %}
                                         {% call add_data.input_form('2','retencion','Tiempo Retención') %}{% endcall %}
-                                        {{add_data.boton('Agregar Registro') }}
+                                        {{add_data.boton('btn_add_reg','Agregar Registro') }}
                                         <div class="row">
                                             <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
                                                 <thead>
@@ -201,9 +201,10 @@
     </script>
     <!-- llenar dataTables registros -->
     <script>
-        let datos = {{ registros_json }};
         $(document).ready(function() {
-            var Arrayfinal = [];
+        //let datos = {{ registros_json }};
+        console.log({{ registros_json }});1
+            /*var Arrayfinal = [];
             Object.keys(datos).forEach(item =>{
                 var tempArr = new Array();
                 datos[item].forEach(a => {
@@ -213,23 +214,9 @@
             });
             var tabla = $("#registro_dataTable1").DataTable({
                 data:Arrayfinal
-            });
+            });*/
 
-            $('#registro_dataTable1 tbody').on( 'click', 'tr', function () {
-                if ( $(this).hasClass('tActive') ) {
-                    $(this).removeClass('tActive');
-                }
-                else {
-                    tabla.$('tr.tActive').removeClass('tActive');
-                    $(this).addClass('tActive');
-                }
-            } );
-
-            $('#btn_del_reg').click( function () {
-                tabla.row('.tActive').remove().draw(false);
-            } );
-
-            $("#btn_add_reg").click(function(){
+            /*$("#btn_add_reg").click(function(){
                 if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
                     $("#form-alert1-reg").show();
                     setTimeout('$("#form-alert1-reg").hide()', 5000);
@@ -253,6 +240,20 @@
                 }
             });
 
+            $('#registro_dataTable1 tbody').on( 'click', 'tr', function () {
+                if ( $(this).hasClass('tActive') ) {
+                    $(this).removeClass('tActive');
+                }
+                else {
+                    tabla.$('tr.tActive').removeClass('tActive');
+                    $(this).addClass('tActive');
+                }
+            } );
+
+            $('#btn_del_reg').click( function () {
+                tabla.row('.tActive').remove().draw(false);
+            } );
+
             $('#btn_edit_reg').click( function() {
                 let datos = tabla.row('.tActive').data();
                 $("#e_registro_codigo").val(datos[0]);
@@ -271,7 +272,7 @@
                 ];
 
                 tabla.row('.tActive').data(newArr);
-            });
+            });*/
         });
     </script>
     <!-- Select2 bootstrap -->
