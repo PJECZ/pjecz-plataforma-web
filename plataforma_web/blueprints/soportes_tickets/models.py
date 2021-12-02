@@ -27,9 +27,9 @@ class SoporteTicket(db.Model, UniversalMixin):
     # Claves foráneas
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
     usuario = db.relationship("Usuario", back_populates="soportes_tickets")
-    soporte_categoria_id = db.Column(db.Integer, db.ForeignKey("soportes_categorias.id"), index=True, nullable=False)
+    soporte_categoria_id = db.Column(db.Integer, db.ForeignKey("soportes_categorias.id"), index=True, nullable=True)
     soporte_categoria = db.relationship("SoporteCategoria", back_populates="soportes_tickets")
-    funcionario_id = db.Column(db.Integer, db.ForeignKey("funcionarios.id"), index=True, nullable=False)
+    funcionario_id = db.Column(db.Integer, db.ForeignKey("funcionarios.id"), index=True, nullable=True)
     funcionario = db.relationship("Funcionario", back_populates="soportes_tickets")
 
     # Columnas
