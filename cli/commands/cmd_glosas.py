@@ -135,7 +135,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
             )
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
+                click.echo(f"  Van {contador}...")
     click.echo(f"Respaldadas {contador} glosas en {ruta.name}")
 
 

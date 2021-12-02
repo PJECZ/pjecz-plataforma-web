@@ -35,4 +35,6 @@ def respaldar_materias(salida: str = "materias.csv"):
                 ]
             )
             contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} materias en {ruta.name}")
