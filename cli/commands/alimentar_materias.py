@@ -26,6 +26,10 @@ def alimentar_materias():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            materia_id = int(row["materia_id"])
+            if materia_id != contador + 1:
+                click.echo(f"  AVISO: materia_id {materia_id} no es consecutivo")
+                continue
             Materia(
                 nombre=safe_string(row["nombre"]),
                 estatus=row["estatus"],

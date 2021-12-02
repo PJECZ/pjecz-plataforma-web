@@ -19,7 +19,13 @@ def respaldar_materias(salida: str = "materias.csv"):
     materias = Materia.query.order_by(Materia.id).all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["id", "nombre", "estatus"])
+        respaldo.writerow(
+            [
+                "materia_id",
+                "nombre",
+                "estatus",
+            ]
+        )
         for materia in materias:
             respaldo.writerow(
                 [

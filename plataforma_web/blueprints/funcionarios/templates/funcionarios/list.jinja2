@@ -24,6 +24,8 @@
                     <th>Nombres completos</th>
                     <th>Puestos</th>
                     <th>En funciones</th>
+                    <th>En sentencias</th>
+                    <th>En soportes</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +34,8 @@
                     <td><a href="{{ url_for('funcionarios.detail', funcionario_id=funcionario.id) }}">{{ funcionario.nombre }}</a></td>
                     <td>{{ funcionario.puesto }}</td>
                     <td>{% if funcionario.en_funciones %}SI{% endif %}</td>
+                    <td>{% if funcionario.en_sentencias %}SI{% endif %}</td>
+                    <td>{% if funcionario.en_soportes %}SI{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

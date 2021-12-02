@@ -1,7 +1,7 @@
 """
 Funcionarios, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from lib.safe_string import safe_message, safe_string
@@ -81,6 +81,8 @@ def new():
                 email=email,
                 puesto=safe_string(form.puesto.data),
                 en_funciones=form.en_funciones.data,
+                en_sentencias=form.en_sentencias.data,
+                en_soportes=form.en_soportes.data,
             )
             funcionario.save()
             bitacora = Bitacora(
@@ -95,10 +97,10 @@ def new():
     return render_template("funcionarios/new.jinja2", form=form)
 
 
-@funcionarios.route('/funcionarios/edicion/<int:funcionario_id>', methods=['GET', 'POST'])
+@funcionarios.route("/funcionarios/edicion/<int:funcionario_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(funcionario_id):
-    """ Editar Funcionario """
+    """Editar Funcionario"""
     funcionario = Funcionario.query.get_or_404(funcionario_id)
     form = FuncionarioForm()
     if form.validate_on_submit():
@@ -119,15 +121,17 @@ def edit(funcionario_id):
             funcionario.email = email
             funcionario.puesto = safe_string(form.puesto.data)
             funcionario.en_funciones = form.en_funciones.data
+            funcionario.en_sentencias = form.en_sentencias.data
+            funcionario.en_soportes = form.en_soportes.data
             funcionario.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f'Editado funcionario {funcionario.nombre}'),
-                url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
+                descripcion=safe_message(f"Editado funcionario {funcionario.nombre}"),
+                url=url_for("funcionarios.detail", funcionario_id=funcionario.id),
             )
             bitacora.save()
-            flash(bitacora.descripcion, 'success')
+            flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.nombres.data = funcionario.nombres
     form.apellido_paterno.data = funcionario.apellido_paterno
@@ -136,40 +140,42 @@ def edit(funcionario_id):
     form.email.data = funcionario.email
     form.puesto.data = funcionario.puesto
     form.en_funciones.data = funcionario.en_funciones
-    return render_template('funcionarios/edit.jinja2', form=form, funcionario=funcionario)
+    form.en_sentencias.data = funcionario.en_sentencias
+    form.en_soportes.data = funcionario.en_soportes
+    return render_template("funcionarios/edit.jinja2", form=form, funcionario=funcionario)
 
 
-@funcionarios.route('/funcionarios/eliminar/<int:funcionario_id>')
+@funcionarios.route("/funcionarios/eliminar/<int:funcionario_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(funcionario_id):
-    """ Eliminar Funcionario """
+    """Eliminar Funcionario"""
     funcionario = Funcionario.query.get_or_404(funcionario_id)
-    if funcionario.estatus == 'A':
+    if funcionario.estatus == "A":
         funcionario.delete()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f'Eliminado funcionario {funcionario.nombre}'),
-            url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
+            descripcion=safe_message(f"Eliminado funcionario {funcionario.nombre}"),
+            url=url_for("funcionarios.detail", funcionario_id=funcionario.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
-    return redirect(url_for('funcionarios.detail', funcionario_id=funcionario.id))
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
 
 
-@funcionarios.route('/funcionarios/recuperar/<int:funcionario_id>')
+@funcionarios.route("/funcionarios/recuperar/<int:funcionario_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(funcionario_id):
-    """ Recuperar Funcionario """
+    """Recuperar Funcionario"""
     funcionario = Funcionario.query.get_or_404(funcionario_id)
-    if funcionario.estatus == 'B':
+    if funcionario.estatus == "B":
         funcionario.recover()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f'Recuperado {funcionario.nombre}'),
-            url=url_for('funcionarios.detail', funcionario_id=funcionario.id),
+            descripcion=safe_message(f"Recuperado {funcionario.nombre}"),
+            url=url_for("funcionarios.detail", funcionario_id=funcionario.id),
         )
         bitacora.save()
-        flash(bitacora.descripcion, 'success')
-    return redirect(url_for('funcionarios.detail', funcionario_id=funcionario.id))
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))

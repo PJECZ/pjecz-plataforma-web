@@ -3,41 +3,63 @@
 */
 
 html,
-body { height: 100%; color:#FFF; }
+body {
+  height: 100%;
+  color: #fff;
+}
 
 body {
-    display: flex;
+    height: 100%;
+    margin: 0;
     align-items: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
     background-color: #004360;
 }
 
+main {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.bg {
+    background-image: url('https://storage.googleapis.com/pjecz-informatica/static/images/palacio-de-justicia-fondo-1.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+    position: relative;
+}
+
 .form-signin {
-    width: 100%;
-    max-width: 330px;
-    padding: 15px;
-    margin: auto;
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
 }
 
 .form-signin .checkbox {
-    font-weight: 400;
+  font-weight: 400;
 }
 
 .form-signin .form-floating:focus-within {
-    z-index: 2;
+  z-index: 2;
 }
 
 .form-signin input[type="text"] {
-    margin-bottom: -1px;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .form-signin input[type="password"] {
-    margin-bottom: 10px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
-.form-floating > label { color:gray; }
+.form-floating > label {
+  color: gray;
+}

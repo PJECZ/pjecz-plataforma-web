@@ -21,7 +21,7 @@ def respaldar_autoridades(salida: str = "autoridades.csv"):
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
-                "id",
+                "autoridad_id",
                 "distrito_id",
                 "materia_id",
                 "clave",

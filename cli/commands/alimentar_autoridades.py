@@ -29,12 +29,16 @@ def alimentar_autoridades():
             distrito_id = int(row["distrito_id"])
             distrito = Distrito.query.get(distrito_id)
             if distrito is None:
-                click.echo(f"  Falta el distrito {str(distrito_id)}")
+                click.echo(f"  AVISO: Falta el distrito {distrito_id}")
                 continue
             materia_id = int(row["materia_id"])
             materia = Materia.query.get(materia_id)
             if materia is None:
-                click.echo(f"  Falta la materia {str(materia_id)}")
+                click.echo(f"  AVISO: Falta la materia {materia_id}")
+                continue
+            autoridad_id = int(row["autoridad_id"])
+            if autoridad_id != contador + 1:
+                click.echo(f"  AVISO: autoridad_id {autoridad_id} no es consecutivo")
                 continue
             Autoridad(
                 distrito=distrito,

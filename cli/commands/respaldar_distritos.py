@@ -19,7 +19,15 @@ def respaldar_distritos(salida: str = "distritos.csv"):
     distritos = Distrito.query.order_by(Distrito.id).all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["id", "nombre", "nombre_corto", "es_distrito_judicial", "estatus"])
+        respaldo.writerow(
+            [
+                "distrito_id",
+                "nombre",
+                "nombre_corto",
+                "es_distrito_judicial",
+                "estatus",
+            ]
+        )
         for distrito in distritos:
             respaldo.writerow(
                 [

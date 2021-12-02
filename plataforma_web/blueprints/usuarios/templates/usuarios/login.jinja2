@@ -63,6 +63,8 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Script Copos de nieve -->
+    <script src="{{ url_for('static', filename='js/navidad.js') }}"></script>
     <!-- The core Firebase JS SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -70,6 +72,7 @@
     <script src="{{ url_for('static', filename='js/firebase-auth-google.js') }}"></script>
     <script src="{{ url_for('static', filename='js/firebase-auth-microsoft.js') }}"></script>
     <script src="{{ url_for('static', filename='js/firebase-auth.js') }}"></script>
+
     <script>
         /* Firebase configuration */
         const firebaseConfig = {
@@ -92,5 +95,14 @@
                 document.getElementById('access-form-password').style.display = 'inline';
             }
         };
+    </script>
+    <script>
+        $(document).ready(function(){
+        
+            $.fn.snow({
+                minSize:5,
+                maxSize:15
+            });
+        })
     </script>
 {% endblock %}

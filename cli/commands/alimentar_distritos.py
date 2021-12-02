@@ -24,6 +24,10 @@ def alimentar_distritos():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            distrito_id = int(row["distrito_id"])
+            if distrito_id != contador + 1:
+                click.echo(f"  AVISO: distrito_id {distrito_id} no es consecutivo")
+                continue
             Distrito(
                 nombre=row["nombre"],
                 nombre_corto=row["nombre_corto"],

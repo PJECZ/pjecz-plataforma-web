@@ -20,7 +20,10 @@ def respaldar_roles_permisos(salida: str = "roles_permisos.csv"):
     roles = Rol.query.order_by(Rol.id).all()
     modulos = Modulo.query.order_by(Modulo.id).all()
     with open(ruta, "w", encoding="utf8") as puntero:
-        encabezados = ["rol_id", "nombre"]
+        encabezados = [
+            "rol_id",
+            "nombre",
+        ]
         for modulo in modulos:
             encabezados.append(modulo.nombre.lower())
         encabezados.append("estatus")
