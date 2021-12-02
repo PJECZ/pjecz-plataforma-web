@@ -26,6 +26,10 @@ def alimentar_funcionarios():
     with open(ruta, encoding="utf-8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            funcionario_id = int(row["funcionario_id"])
+            if funcionario_id != contador + 1:
+                click.echo(f"  AVISO: funcionario_id {funcionario_id} no es consecutivo")
+                continue
             Funcionario(
                 nombres=safe_string(row["nombres"]),
                 apellido_paterno=safe_string(row["apellido_paterno"]),

@@ -21,7 +21,7 @@ def alimentar_autoridades_funcionarios():
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         return
-    if Funcionario.query.filter_by(estatus="A").count() == 0:
+    if Funcionario.query.count() == 0:
         click.echo("AVISO: Faltan de alimentar los funcionarios")
         return
     click.echo("Alimentando autoridades-funcionarios...")
@@ -30,9 +30,10 @@ def alimentar_autoridades_funcionarios():
     with open(ruta, encoding="utf-8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            funcionario = Funcionario.query.get(row["id"])
+            funcionario_id = int(row["funcionario_id"])
+            funcionario = Funcionario.query.get(funcionario_id)
             if funcionario is None:
-                click.echo(f"AVISO: No se encontró el funcionario {row['id']}.")
+                click.echo(f"  AVISO: No se encontró el funcionario {funcionario_id}.")
                 continue
             if row["autoridades_claves"].strip() == "":
                 continue
@@ -40,7 +41,7 @@ def alimentar_autoridades_funcionarios():
                 autoridad_clave = autoridad_clave.strip()
                 autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
                 if autoridad is None:
-                    click.echo(f"AVISO: No se encontró la autoridad {autoridad_clave}.")
+                    click.echo(f"  AVISO: No se encontró la autoridad {autoridad_clave}.")
                     continue
                 AutoridadFuncionario(
                     autoridad=autoridad,

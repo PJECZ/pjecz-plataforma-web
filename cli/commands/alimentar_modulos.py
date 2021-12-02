@@ -26,6 +26,10 @@ def alimentar_modulos():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            modulo_id = int(row["modulo_id"])
+            if modulo_id != contador + 1:
+                click.echo(f"  AVISO: modulo_id {modulo_id} no es consecutivo")
+                continue
             Modulo(
                 nombre=safe_string(row["nombre"]),
                 nombre_corto=row["nombre_corto"],

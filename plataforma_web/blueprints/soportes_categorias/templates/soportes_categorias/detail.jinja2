@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Soporte Categoría{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(soporte_categoria.nombre) %}
+        {{ topbar.button_previous('Soportes Categorías', url_for('soportes_categorias.list_active')) }}
+        {% if current_user.can_edit('SOPORTES CATEGORIAS') %}
+            {{ topbar.button_edit('Editar', url_for('soportes_categorias.edit', soporte_categoria_id=soporte_categoria.id)) }}
+            {% if soporte_categoria.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('soportes_categorias.delete', soporte_categoria_id=soporte_categoria.id)) }}{% endif %}
+            {% if soporte_categoria.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('soportes_categorias.recover', soporte_categoria_id=soporte_categoria.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=soporte_categoria.estatus) %}
+        {{ detail.label_value_big('Nombre', soporte_categoria.nombre) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('SOPORTES CATEGORIAS') %}
+        {% if soporte_categoria.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + soporte_categoria.nombre + '?') }}{% endif %}
+        {% if soporte_categoria.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + soporte_categoria.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

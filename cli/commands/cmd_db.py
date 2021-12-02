@@ -31,7 +31,7 @@ from cli.commands.respaldar_materias_tipos_juicios import respaldar_materias_tip
 from cli.commands.respaldar_materias import respaldar_materias
 from cli.commands.respaldar_modulos import respaldar_modulos
 from cli.commands.respaldar_roles_permisos import respaldar_roles_permisos
-from cli.commands.respaldar_usuarios import respaldar_usuarios
+from cli.commands.respaldar_usuarios_roles import respaldar_usuarios_roles
 
 app = create_app()
 db.app = app
@@ -93,7 +93,7 @@ def respaldar():
     respaldar_materias()
     respaldar_modulos()
     respaldar_roles_permisos()
-    respaldar_usuarios()
+    respaldar_usuarios_roles()
     click.echo("Termina respaldar.")
 
 

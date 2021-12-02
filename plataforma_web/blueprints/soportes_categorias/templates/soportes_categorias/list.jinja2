@@ -1,0 +1,40 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Soportes Categorías{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('SOPORTES CATEGORIAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('soportes_categorias.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('soportes_categorias.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('SOPORTES CATEGORIAS') %}
+            {{ topbar.button_new('Nuevo Soporte Categoría', url_for('soportes_categorias.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="soportes_categorias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombres</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for soporte_categoria in soportes_categorias %}
+                <tr>
+                    <td><a href="{{ url_for('soportes_categorias.detail', soporte_categoria_id=soporte_categoria.id) }}">{{ soporte_categoria.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('soportes_categorias_datatable') }}
+{% endblock %}
