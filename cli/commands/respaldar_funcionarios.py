@@ -54,5 +54,5 @@ def respaldar_funcionarios(salida: str = "funcionarios.csv"):
             )
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} funcionarios...")
+                click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} en {ruta.name}")

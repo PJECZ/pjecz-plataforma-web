@@ -60,5 +60,5 @@ def alimentar_usuarios():
             ).save()
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} usuarios...")
+                click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} usuarios alimentados con contraseñas aleatorias.")

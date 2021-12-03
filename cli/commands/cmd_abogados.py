@@ -58,7 +58,7 @@ def alimentar(entrada_csv):
             Abogado(**datos).save()
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
+                click.echo(f"  Van {contador}...")
     click.echo(f"{contador} abogados alimentados.")
 
 
@@ -99,7 +99,7 @@ def respaldar(output, desde):
             )
             contador += 1
             if contador % 100 == 0:
-                click.echo(f"  Van {contador} registros...")
+                click.echo(f"  Van {contador}...")
     click.echo(f"Respaldados {contador} abogados en {ruta.name}")
 
 
