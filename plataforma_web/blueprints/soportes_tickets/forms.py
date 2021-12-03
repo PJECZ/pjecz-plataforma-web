@@ -32,7 +32,7 @@ class SoporteTicketEditForm(FlaskForm):
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
     categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[Optional()])
-    tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[Optional()])
+    tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
     estado = SelectField("Estado", choices=SoporteTicket.ESTADOS)
     soluciones = TextAreaField("Solución", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")

@@ -32,10 +32,21 @@ def before_request():
 @soportes_tickets.route("/soportes_tickets")
 def list_active():
     """Listado de TODOS los Soportes Tickets activos"""
-    soportes_tickets_abiertos = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="ABIERTO").all()
-    soportes_tickets_procesando = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="TRABAJANDO").all()
-    soportes_tickets_terminados = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="CERRADO").order_by(SoporteTicket.creado.desc()).limit(50).all()
-    soportes_tickets_cancelados = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="CANCELADO").order_by(SoporteTicket.creado.desc()).limit(50).all()
+    # Query para administradores
+    if current_user.can_admin(MODULO):
+        soportes_tickets_abiertos = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="ABIERTO").all()
+        soportes_tickets_procesando = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="TRABAJANDO").all()
+        soportes_tickets_terminados = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="CERRADO").order_by(SoporteTicket.creado.desc()).limit(50).all()
+        soportes_tickets_cancelados = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="CANCELADO").order_by(SoporteTicket.creado.desc()).limit(50).all()
+
+    # Query para Técnicos
+    elif current_user.can_edit(MODULO) or current_user.can_insert(MODULO):
+        soportes_tickets_abiertos = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="ABIERTO").all()
+        soportes_tickets_procesando = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="TRABAJANDO").filter(SoporteTicket.funcionario_id == current_user.id).all()
+        soportes_tickets_terminados = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="CERRADO").order_by(SoporteTicket.creado.desc()).limit(50).all()
+        soportes_tickets_cancelados = SoporteTicket.query.filter(SoporteTicket.estatus == "A").filter(SoporteTicket.estado=="CANCELADO").order_by(SoporteTicket.creado.desc()).limit(50).all()
+
+    # Query para Usuarios
     return render_template(
         "soportes_tickets/list.jinja2",
         soportes_tickets_abiertos=soportes_tickets_abiertos,
@@ -102,12 +113,27 @@ def edit(soporte_ticket_id):
     return render_template('soportes_tickets/edit.jinja2', form=form, soporte_ticket=soporte_ticket)
 
 
+@soportes_tickets.route('/soportes_tickets/tomar/<int:soporte_ticket_id>', methods=['GET', 'POST'])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def take(soporte_ticket_id):
+    """Tomar Ticket"""
+    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    # FIXME: el id del usuario esta en una tabla diferente al id del funcionario
+    soporte_ticket.funcionario_id = current_user.id
+    soporte_ticket.estado = "TRABAJANDO"
+    soporte_ticket.save()
+    flash(f'Ticket {soporte_ticket.id} asigando.', 'success')
+    return redirect(url_for('soportes_tickets.list_active'))
 
-# Take a open ticket
 
 # Close a ticket
 
 # Cancel a ticket
+
+@soportes_tickets.route('/soportes_tickets/cancelar/<int:soporte_ticket_id>', methods=['GET', 'POST'])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def cancel(soporte_ticket_id):
+    pass
 
 # Delete a ticket
 
