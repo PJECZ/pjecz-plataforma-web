@@ -201,9 +201,8 @@
     </script>
     <!-- llenar dataTables registros -->
     <script>
-        $(document).ready(function() {
         let datos = {{ registros_json }};
-        console.log(datos);1
+        $(document).ready(function() {
             var Arrayfinal = [];
             Object.keys(datos).forEach(item =>{
                 var tempArr = new Array();
@@ -216,7 +215,7 @@
                 data:Arrayfinal
             });
 
-            /*$("#btn_add_reg").click(function(){
+            $("#btn_add_reg").click(function(){
                 if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
                     $("#form-alert1-reg").show();
                     setTimeout('$("#form-alert1-reg").hide()', 5000);
@@ -272,7 +271,7 @@
                 ];
 
                 tabla.row('.tActive').data(newArr);
-            });*/
+            });
         });
     </script>
     <!-- Select2 bootstrap -->
