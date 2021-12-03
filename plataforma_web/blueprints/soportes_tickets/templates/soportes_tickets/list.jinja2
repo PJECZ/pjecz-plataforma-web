@@ -10,8 +10,8 @@
             {# if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('soportes_tickets.list_inactive')) }}{% endif #}
             {# if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('soportes_tickets.list_active')) }}{% endif #}
         {% endif %}
-        {% if current_user.can_insert('SOPORTES TICKETS') %}
-            {# topbar.button_new('Nuevo Soporte Ticket', url_for('soportes_tickets.new')) #}
+        {% if tipo_acceso == 'USUARIO' %}
+            {{ topbar.button_new('Nuevo Soporte Ticket', url_for('soportes_tickets.new', usuario_id=current_user.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -88,7 +88,7 @@
                 <tr>
                     <td>{{ soporte_ticket.creado }}</td>
                     <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=soporte_ticket.id) }}">{{ soporte_ticket.id }}</a></td>
-                    <td>{{ soporte_ticket.resuelto }}</td>
+                    <td>{{ soporte_ticket.resolucion }}</td>
                     <td>{{ soporte_ticket.soporte_categoria.nombre }}</td>
                     <td>{{ soporte_ticket.funcionario.nombre }}</td>
                     <td>{{ soporte_ticket.usuario.nombre }}</td>
@@ -131,4 +131,9 @@
     {{ list.datatable_times('soportes_tickets_procesando_datatable') }}
     {{ list.datatable_times('soportes_tickets_terminados_datatable') }}
     {{ list.datatable_times('soportes_tickets_cancelados_datatable') }}
+    <script>
+    window.setTimeout(function () {
+        window.location.reload();
+    }, 300000);
+    </script>
 {% endblock %}
