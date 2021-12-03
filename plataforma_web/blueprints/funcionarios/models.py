@@ -27,7 +27,8 @@ class Funcionario(db.Model, UniversalMixin):
 
     # Hijos
     autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="funcionario")
-    soportes_tickets = db.relationship("SoporteTicket", back_populates="funcionario")
+    soportes_tickets = db.relationship("SoporteTicket", back_populates="funcionario", lazy="noload")
+    tesis_jurisprudencias = db.relationship('TesisJurisprudencia', back_populates='funcionario', lazy="noload")
 
     @property
     def nombre(self):
