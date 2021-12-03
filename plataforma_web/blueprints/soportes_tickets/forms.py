@@ -3,6 +3,7 @@ Soportes Tickets, formularios
 """
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, SelectField
+from wtforms.fields.core import DateTimeField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
@@ -32,7 +33,7 @@ class SoporteTicketEditForm(FlaskForm):
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
     categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[Optional()])
-    tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[Optional()])
+    tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
     estado = SelectField("Estado", choices=SoporteTicket.ESTADOS)
     soluciones = TextAreaField("Solución", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
@@ -50,7 +51,11 @@ class SoporteTicketTakeForm(FlaskForm):
 class SoporteTicketCloseForm(FlaskForm):
     """Formulario SoporteTicket"""
 
-    # soporte_categoria
+    usuario = StringField("Usuario")  # Read only
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[Optional()])
+    tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
+    estado = SelectField("Estado", choices=SoporteTicket.ESTADOS)
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
-    # soluciones
+    resolucion = DateTimeField("Resolución")
+    soluciones = TextAreaField("Solución", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Resuelto")
