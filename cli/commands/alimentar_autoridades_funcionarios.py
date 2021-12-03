@@ -33,7 +33,7 @@ def alimentar_autoridades_funcionarios():
             funcionario_id = int(row["funcionario_id"])
             funcionario = Funcionario.query.get(funcionario_id)
             if funcionario is None:
-                click.echo(f"AVISO: No se encontró el funcionario {funcionario_id}.")
+                click.echo(f"  AVISO: No se encontró el funcionario {funcionario_id}.")
                 continue
             if row["autoridades_claves"].strip() == "":
                 continue

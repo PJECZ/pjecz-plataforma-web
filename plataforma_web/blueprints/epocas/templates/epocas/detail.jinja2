@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Época{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(epoca.nombre) %}
+        {{ topbar.button_previous('Épocas', url_for('epocas.list_active')) }}
+        {% if current_user.can_edit('EPOCAS') %}
+            {{ topbar.button_edit('Editar', url_for('epocas.edit', epoca_id=epoca.id)) }}
+            {% if epoca.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('epocas.delete', epoca_id=epoca.id)) }}{% endif %}
+            {% if epoca.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('epocas.recover', epoca_id=epoca.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=epoca.estatus) %}
+        {{ detail.label_value('Nombre', epoca.nombre) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('EPOCAS') %}
+        {% if epoca.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + epoca.nombre + '?') }}{% endif %}
+        {% if epoca.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + epoca.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
