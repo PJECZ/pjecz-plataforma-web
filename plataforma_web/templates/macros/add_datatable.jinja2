@@ -1,7 +1,7 @@
-{%- macro div_container() -%}
+{%- macro div_container(id) -%}
     <div class="container container-boxed">
         <div class="row" >
-            <div id="form-alert1-reg" class="alert alert-danger" role="alert" style="display:none">
+            <div id="{{id}}" class="alert alert-danger" role="alert" style="display:none">
                 Todos los datos son requeridos
             </div>
         </div>
@@ -20,10 +20,10 @@
         </div>
 {%- endmacro -%}
 
-{%- macro input_form(num_col, name, label) -%}
+{%- macro input_form(num_col, tipo, name, label, attr="") -%}
     <div class="col-{{num_col}}">
         <div class="form-floating mb-3">
-            <input type="text" class="form-control" name="registro_{{name}}" id="registro_{{name}}" placeholder="{{label}}">
+            <input type="{{tipo}}" class="form-control" name="{{name}}" id="{{name}}" placeholder="{{label}}" {{attr}}>
             <label for="{{name}}">{{label}}</label>
         </div>
         {{ caller() }}
@@ -41,7 +41,6 @@
 {%- endmacro -%}
 
 {%- macro modal_edit() -%}
-
     <div class="modal fade" id="edit_reg_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Editar registro" aria-hidden="true">
         <div class="modal-dialog" >
             <div class="modal-content">
@@ -50,12 +49,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-            
                 <input type="text" class="form-control" id="e_registro_codigo">
                 <input type="text" class="form-control" id="e_registro_nombre">
                 <input type="text" class="form-control" id="e_registro_responsable">
-                <input type="text" class="form-control" id="e_registro_retencion">
-
+                <input type="number" class="form-control" id="e_registro_retencion" min="1">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -64,5 +61,27 @@
             </div>
         </div>
     </div>
+{%- endmacro-%}
 
+{%- macro modal_edit_cambio() -%}
+    <div class="modal fade" id="edit_cambio_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Editar cambio" aria-hidden="true">
+        <div class="modal-dialog" >
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="control_cambio_title">Editar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control" id="e_control_revision">
+                <input type="text" class="form-control" id="e_control_cambio">
+                <input type="text" class="form-control" id="e_control_solicitud">
+                <input type="date" class="form-control" id="e_control_fecha">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="e_updt_control_btn" data-bs-dismiss="modal" class="btn btn-primary">Actualizar</button>
+            </div>
+            </div>
+        </div>
+    </div>
 {%- endmacro-%}

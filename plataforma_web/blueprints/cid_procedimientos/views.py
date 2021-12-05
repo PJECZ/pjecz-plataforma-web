@@ -101,7 +101,7 @@ def detail(cid_procedimiento_id):
         responsabilidades=str(html.render(cid_procedimiento.responsabilidades["ops"])),
         desarrollo=str(html.render(cid_procedimiento.desarrollo["ops"])),
         registros=cid_procedimiento.registros,
-        control_cambios=str(html.render(cid_procedimiento.control_cambios["ops"])),
+        control_cambios=cid_procedimiento.control_cambios,
         cid_formatos=cid_formatos,
     )
 
@@ -138,6 +138,11 @@ def new():
             registros = ""
         else:
             registros = registros_data
+        control = form.control_cambios.data
+        if control is None:
+            control_cambios = ""
+        else:
+            control_cambios = control
         cid_procedimiento = CIDProcedimiento(
             usuario=current_user,
             titulo_procedimiento=safe_string(form.titulo_procedimiento.data),
@@ -160,7 +165,7 @@ def new():
             aprobo_nombre=aprobo_nombre,
             aprobo_puesto=form.aprobo_puesto.data,
             aprobo_email=aprobo_email,
-            control_cambios=form.control_cambios.data,
+            control_cambios=control_cambios,
             cadena=0,
             seguimiento="EN ELABORACION",
             seguimiento_posterior="EN ELABORACION",
@@ -220,6 +225,11 @@ def edit(cid_procedimiento_id):
             registros = ""
         else:
             registros = registros_d
+        control = form.control_cambios.data
+        if control is None:
+            control_cambios = ""
+        else:
+            control_cambios = control
         cid_procedimiento.titulo_procedimiento = safe_string(form.titulo_procedimiento.data)
         cid_procedimiento.codigo = form.codigo.data
         cid_procedimiento.revision = form.revision.data
@@ -240,7 +250,7 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.aprobo_nombre = aprobo_nombre
         cid_procedimiento.aprobo_puesto = form.aprobo_puesto.data
         cid_procedimiento.aprobo_email = aprobo_email
-        cid_procedimiento.control_cambios = form.control_cambios.data
+        cid_procedimiento.control_cambios = control_cambios
         cid_procedimiento.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -331,7 +341,7 @@ def sign_for_maker(cid_procedimiento_id):
     # Validar desarrollo
     desarrollo_es_valido = validate_json_quill_not_empty(cid_procedimiento.desarrollo)
     # Validar control_cambios
-    control_cambios_es_valido = validate_json_quill_not_empty(cid_procedimiento.control_cambios)
+    control_cambios_es_valido = cid_procedimiento.control_cambios
     # Validar registros
     registros_es_valido = cid_procedimiento.registros
     # Validar elaboro

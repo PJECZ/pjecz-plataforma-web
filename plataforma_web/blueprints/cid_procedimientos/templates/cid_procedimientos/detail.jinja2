@@ -71,7 +71,17 @@
                 </table>
         {% endcall %}
         {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id, estatus=cid_procedimiento.estatus) %}
-            {{ control_cambios }}
+            <table id="control_dataTable1_detail" class="table table-striped" width="100%">
+                    <thead>
+                        <th>No. Revisión</th>
+                        <th>Cambios y/o Actualizaciónes</th>
+                        <th>Solicitud de Cambio No.</th>
+                        <th>Fecha</th>
+                    </thead>
+                    <tbody>
+                       
+                    </tbody>
+                </table>
         {% endcall %}
         {% call accordion.item('autorizaciones', 'Autorizaciones', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
@@ -113,6 +123,7 @@
         {% if cid_procedimiento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_procedimiento.titulo_procedimiento + '?') }}{% endif %}
         {{ modals.custom_javascript_make('Firmar', '¿Está seguro de que quiere firmarlo? Ya no podrá cambiarlo después.') }}
     {% endif %}
+    <!-- Detalle Registros -->
     <script>
         let datos = {{ registros }};
         $(document).ready(function(){
@@ -126,6 +137,24 @@
             });
 
             $("#registro_dataTable1_detail").DataTable({
+                data:Arrayfinal
+            });
+        });
+    </script>
+     <!-- Detalle Control de cambios -->
+    <script>
+        let datos_cambio = {{ control_cambios }};
+        $(document).ready(function(){
+            var Arrayfinal = [];
+            Object.keys(datos_cambio).forEach(item =>{
+                var tempArr = new Array();
+                datos_cambio[item].forEach(a => {
+                    tempArr.push(a);
+                });
+                Arrayfinal.push(tempArr);
+            });
+
+            $("#control_dataTable1_detail").DataTable({
                 data:Arrayfinal
             });
         });
