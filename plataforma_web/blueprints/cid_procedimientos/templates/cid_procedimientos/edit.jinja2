@@ -2,6 +2,7 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/quill.jinja2' as quill %}
+{% import 'macros/add_datatable.jinja2' as add_data %}
 
 {% block title %}Editar Procedimiento{% endblock %}
 
@@ -13,6 +14,8 @@
     <style>
         #atras { float: left; box-sizing: border-box; }
         #siguiente { float: right; box-sizing: border-box; }
+        .tActive{ background-color: #1EA6FE; }
+        #registro_dataTable1 > tbody > tr:hover{ cursor:pointer; }
     </style>
 {% endblock %}
 
@@ -21,6 +24,7 @@
 {% endblock %}
 
 {% block content %}
+{{ add_data.modal_edit() }}
     {% call f.card() %}
         <div><form></form></div>
         <div class="multisteps-form">
@@ -85,13 +89,63 @@
                             <div style="display: none;">{% call f.form_group(form.desarrollo, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Registros -->
-                        {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}
-                            {{ quill.div(div_id='registros_quill') }}
-                            <div style="display: none;">{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
+                        {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
+                            {% call add_data.div_container('form-alert1-reg') %}
+                                {% call add_data.form_create() %}
+                                        {% call add_data.input_form('2','text','registro_codigo','Código') %}{% endcall %}
+                                        {% call add_data.input_form('3','text','registro_nombre','Nombre') %}{% endcall %}
+                                        {% call add_data.input_form('3','text','registro_responsable','Responsable') %}{% endcall %}
+                                        {% call add_data.input_form('2','number','registro_retencion','Tiempo Retención','min="1"') %}{% endcall %}
+                                        {{add_data.boton('btn_add_reg','Agregar Registro') }}
+                                        <div class="row">
+                                            <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
+                                                <thead>
+                                                    <th>Código</th>
+                                                    <th>Nombre</th>
+                                                    <th>Responsable</th>
+                                                    <th>Tiempo de retención</th>
+                                                </thead>
+                                                <tbody>
+                                                                            
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row">
+                                            {{ add_data.btn_datatable('Borrar Datos', 'btn_del_reg', 'danger', '') }}
+                                            {{ add_data.btn_datatable('Editar', 'btn_edit_reg', 'info', 'data-bs-toggle="modal" data-bs-target="#edit_reg_modal"') }}
+                                        </div>
+                                {% endcall %}
+                            {% endcall %}
+                            <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
-                            {{ quill.div(div_id='control_cambios_quill') }}
+                             {% call add_data.div_container('form-alert1-camb') %}
+                                {% call add_data.form_create() %}
+                                        {% call add_data.input_form('2','text','control_revision','No. Revision') %}{% endcall %}
+                                        {% call add_data.input_form('3','text','control_cambio','Cambios y/o Actualizaciónes') %}{% endcall %}
+                                        {% call add_data.input_form('3','text','control_solicitud','Solicitud de Cambio No.') %}{% endcall %}
+                                        {% call add_data.input_form('2','date','control_fecha','Fecha') %}{% endcall %}
+                                        {{ add_data.boton('btn_add_cam','Agregar Cambio') }}
+                                        <div class="row">
+                                            <table id="cambio_dataTable1" class="table table-striped table-hover" width="100%">
+                                                <thead>
+                                                    <th>No. Revisión</th>
+                                                    <th>Cambios y/o Actualizaciónes</th>
+                                                    <th>Solicitud de Cambio No.</th>
+                                                    <th>Fecha</th>
+                                                </thead>
+                                                <tbody>
+                                                                      
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row">
+                                            {{ add_data.btn_datatable('Borrar Datos', 'btn_del_cam', 'danger', '') }}
+                                            {{ add_data.btn_datatable('Editar', 'btn_edit_cam', 'info', 'data-bs-toggle="modal" data-bs-target="#edit_cambio_modal"') }}
+                                        </div>
+                                {% endcall %}
+                            {% endcall %}
                             <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                          {% call quill.step('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()', next_onclick='javascript:guardar_autorizaciones()', save_onclick='javascript:guardar_autorizaciones()')%}
@@ -154,10 +208,9 @@
     {{ quill.editor(instance='definicionesQuill', div_id='definiciones_quill') }}
     {{ quill.editor(instance='responsabilidadesQuill', div_id='responsabilidades_quill') }}
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
-    {{ quill.editor(instance='registrosQuill', div_id='registros_quill') }}
-    {{ quill.editor(instance='controlCambiosQuill', div_id='control_cambios_quill') }}
     {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
+    
     <!-- El formulario llena los inputs, sigue sacarles los contenidos para llenar los quill -->
     <script>
         $(document).ready(function(){
@@ -167,8 +220,158 @@
             llenar_definiciones({{ definiciones_json }});
             llenar_responsabilidades({{ responsabilidades_json }});
             llenar_desarrollo({{ desarrollo_json }});
-            llenar_registros({{ registros_json }});
-            llenar_control_cambios({{ control_cambios_json }});
+        });
+    </script>
+    <!-- llenar dataTables registros -->
+    <script>
+        let datos = {{ registros_json }};
+        $(document).ready(function() {
+            var Arrayfinal = [];
+            Object.keys(datos).forEach(item =>{
+                var tempArr = new Array();
+                datos[item].forEach(a => {
+                    tempArr.push(a);
+                });
+                Arrayfinal.push(tempArr);
+            });
+            var tabla = $("#registro_dataTable1").DataTable({
+                data:Arrayfinal
+            });
+
+            $("#btn_add_reg").click(function(){
+                if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
+                    $("#form-alert1-reg").show();
+                    setTimeout('$("#form-alert1-reg").hide()', 5000);
+                    $("#registro_codigo").focus();
+                }else{
+                    tabla.row.add(
+                        [
+                            $("#registro_codigo").val(),
+                            $("#registro_nombre").val(),
+                            $("#registro_responsable").val(),
+                            $("#registro_retencion").val()
+                        ]
+                    ).draw( false );
+
+                    $("#registro_codigo").val("");
+                    $("#registro_nombre").val("");
+                    $("#registro_responsable").val("");
+                    $("#registro_retencion").val("");
+
+                    $("#registro_codigo").focus();
+                }
+            });
+
+            $('#registro_dataTable1 tbody').on( 'click', 'tr', function () {
+                if ( $(this).hasClass('tActive') ) {
+                    $(this).removeClass('tActive');
+                }
+                else {
+                    tabla.$('tr.tActive').removeClass('tActive');
+                    $(this).addClass('tActive');
+                }
+            } );
+
+            $('#btn_del_reg').click( function () {
+                tabla.row('.tActive').remove().draw(false);
+            } );
+
+            $('#btn_edit_reg').click( function() {
+                let datos = tabla.row('.tActive').data();
+                $("#e_registro_codigo").val(datos[0]);
+                $("#e_registro_nombre").val(datos[1]);
+                $("#e_registro_responsable").val(datos[2]);
+                $("#e_registro_retencion").val(datos[3]);
+            });
+
+            $("#e_updt_btn").click( function() {
+
+                let newArr = [ 
+                    $("#e_registro_codigo").val(), 
+                    $("#e_registro_nombre").val(), 
+                    $("#e_registro_responsable").val(),
+                    $("#e_registro_retencion").val()
+                ];
+
+                tabla.row('.tActive').data(newArr);
+            });
+        });
+    </script>
+     <!-- llenar dataTables Control de Cambios -->
+    <script>
+        let datos_cambio = {{ control_cambios_json }};
+        $(document).ready(function(){
+            var Arrayfinal = [];
+            Object.keys(datos_cambio).forEach(item =>{
+                var tempArr = new Array();
+                datos_cambio[item].forEach(a => {
+                    tempArr.push(a);
+                });
+                Arrayfinal.push(tempArr);
+            });
+
+            $("#cambio_dataTable1").DataTable({
+                data:Arrayfinal
+            });
+
+            let tabla_control = $('#cambio_dataTable1').DataTable();
+            $("#btn_add_cam").click(function(){
+                if($("#control_revision").val() === "" || $("#control_cambio").val() === "" || $("#control_solicitud").val() === "" || $("#control_fecha").val() === ""){
+                    $("#form-alert1-camb").show();
+                    setTimeout('$("#form-alert1-camb").hide()', 5000);
+                    $("#control_revision").focus();
+                }else{
+                    tabla_control.row.add(
+                        [
+                            $("#control_revision").val(),
+                            $("#control_cambio").val(),
+                            $("#control_solicitud").val(),
+                            $("#control_fecha").val()
+                        ]
+                    ).draw( false );
+
+                    $("#control_revision").val("");
+                    $("#control_cambio").val("");
+                    $("#control_solicitud").val("");
+                    $("#control_fecha").val("");
+
+                    $("#control_revision").focus();
+                }
+            });
+
+            $('#cambio_dataTable1 tbody').on( 'click', 'tr', function () {
+                if ( $(this).hasClass('tActive') ) {
+                    $(this).removeClass('tActive');
+                }
+                else {
+                    tabla_control.$('tr.tActive').removeClass('tActive');
+                    $(this).addClass('tActive');
+                }
+            } );
+        
+            $('#btn_del_cam').click( function () {
+                tabla_control.row('.tActive').remove().draw(false);
+            } );
+
+            $('#btn_edit_cam').click( function() {
+                let datos_c = tabla_control.row('.tActive').data();
+                $("#e_control_revision").val(datos_c[0]);
+                $("#e_control_cambio").val(datos_C[1]);
+                $("#e_control_solicitud").val(datos_C[2]);
+                $("#e_control_fecha").val(datos_C[3]);
+            });
+
+            $("#e_updt_control_btn").click( function() {
+
+                let newArr = [ 
+                    $("#e_control_revision").val(), 
+                    $("#e_control_cambio").val(), 
+                    $("#e_control_solicitud").val(),
+                    $("#e_control_fecha").val()
+                ];
+
+                tabla_control.row('.tActive').data(newArr);
+            });
         });
     </script>
     <!-- Select2 bootstrap -->

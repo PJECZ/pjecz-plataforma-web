@@ -32,6 +32,10 @@
             margin-left: -150px;
             top: 1390px
         }
+
+        .registros_thead {
+            border-bottom: 1px solid #C5C5C5;
+        }
     </style>
 </head>
 
@@ -62,13 +66,33 @@
     {{ desarrollo }}<br>
 
     <h2>REGISTROS</h2>
-
-    {{ registros }}<br>
-
+    <table id="registro_pdf" class="table table-striped" width="100%">
+        <thead>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Responsable</th>
+            <th>Tiempo de retención</th>
+        </thead>
+        <tbody>
+            <div>&nbsp;</div><br>
+            {{ registros }}
+        </tbody>
+    </table>
+    <br>
     <h2>CONTROL DE CAMBIOS</h2>
-
-    {{ control_cambios }}<br>
-
+    <table id="control_pdf" class="table table-striped" width="100%">
+        <thead>
+            <th>No. Revisión</th>
+            <th>Cambios y/o Actualizaciónes</th>
+            <th>Solicitud de Cambio No.</th>
+            <th>Fecha</th>
+        </thead>
+        <tbody>
+            <div>&nbsp;</div><br>
+            {{ control_cambios }}
+        </tbody>
+    </table>
+    <br>
     <h2>AUTORIZACIONES</h2>
 
     <br>

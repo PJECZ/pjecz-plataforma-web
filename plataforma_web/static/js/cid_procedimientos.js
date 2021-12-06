@@ -76,24 +76,17 @@ function llenar_desarrollo(contenido) {
 
 // Guardar Registros
 function guardar_registros() {
-    registros = JSON.stringify(registrosQuill.getContents());
+    var tabla = $('#registro_dataTable1').DataTable();
+    registros = JSON.stringify(tabla.data()).split(',"context":')[0] + "}";
     $('#registros').val(registros);
-}
-
-// Llenar Registros
-function llenar_registros(contenido) {
-    registrosQuill.setContents(contenido);
 }
 
 // Guardar Control de Cambios
 function guardar_control_cambios() {
-    control_cambios = JSON.stringify(controlCambiosQuill.getContents());
+    var tabla_control = $('#cambio_dataTable1').DataTable();
+    control_cambios = JSON.stringify(tabla_control.data()).split(',"context":')[0] + "}";
     $('#control_cambios').val(control_cambios);
-}
 
-// Llenar Control de Cambios
-function llenar_control_cambios(contenido) {
-    controlCambiosQuill.setContents(contenido);
 }
 
 // Guardar Autorizaciones
@@ -123,11 +116,7 @@ function mostrar_vista_previa() {
     let responsabilidades = responsabilidadesQuill.root.innerHTML;
     let title_desarrollo = "<h3>&nbsp;&nbsp;" + 'Desarrollo' + "</h3>";
     let desarrollo = desarrolloQuill.root.innerHTML;
-    let title_registros = "<h3>&nbsp;&nbsp;" + 'Registros' + "</h3>";
-    let registros = registrosQuill.root.innerHTML;
-    let title_control_cambios = "<h3>&nbsp;&nbsp;" + 'Control de Cambios' + "</h3>";
-    let control_de_cambios = controlCambiosQuill.root.innerHTML;
-    html = titulo + title_objetivo + objetivo + title_alcance + alcance + title_documentos + documentos + title_definiciones + definiciones + title_responsabilidades + responsabilidades + title_desarrollo + desarrollo + title_registros + registros + title_control_cambios + control_de_cambios;
+    html = titulo + title_objetivo + objetivo + title_alcance + alcance + title_documentos + documentos + title_definiciones + definiciones + title_responsabilidades + responsabilidades + title_desarrollo + desarrollo;
     document.getElementById('vista_previa_quill').innerHTML = html;
     //document.getElementById('vista_previa').innerHTML = html;
 }
