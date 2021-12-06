@@ -107,7 +107,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         revision=str(cid_procedimiento.revision),
         fecha=cid_procedimiento.fecha.strftime("%d %b %Y"),
     )
-
+    # ciclo de conversion de json para colocar tabla en PDF Registros
     tabla_registros = json.dumps(cid_procedimiento.registros)
     renglones_json = json.loads(tabla_registros)
     tabla_renglon = ""
@@ -117,6 +117,15 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
             tabla_renglon += "<td align='center' style='border-bottom:1px solid #C5C5C5'>" + i + "</td>"
         tabla_renglon += "</tr>"
 
+    # ciclo de conversion de json para colocar tabla en PDF Control de Cambios
+    tabla_cambios = json.dumps(cid_procedimiento.control_cambios)
+    renglones_cambio_json = json.loads(tabla_cambios)
+    tabla_cambio_renglon = ""
+    for renglon in renglones_cambio_json:
+        tabla_cambio_renglon += "<tr>"
+        for i in renglones_cambio_json[renglon]:
+            tabla_cambio_renglon += "<td align='center' style='border-bottom:1px solid #C5C5C5'>" + i + "</td>"
+        tabla_cambio_renglon += "</tr>"
 
     # Renderizar Body
     pdf_body_plantilla = entorno.get_template("pdf_body.html")
@@ -128,7 +137,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         responsabilidades=html.render(cid_procedimiento.responsabilidades["ops"]),
         desarrollo=html.render(cid_procedimiento.desarrollo["ops"]),
         registros=tabla_renglon,
-        control_cambios=html.render(cid_procedimiento.control_cambios["ops"]),
+        control_cambios=tabla_cambio_renglon,
         elaboro_nombre=cid_procedimiento.elaboro_nombre,
         elaboro_puesto=cid_procedimiento.elaboro_puesto,
         reviso_nombre=cid_procedimiento.reviso_nombre,
