@@ -30,6 +30,8 @@ def respaldar_funcionarios(salida: str = "funcionarios.csv"):
                 "email",
                 "puesto",
                 "en_funciones",
+                "en_sentencias",
+                "en_soportes",
                 "estatus",
             ]
         )
@@ -49,6 +51,8 @@ def respaldar_funcionarios(salida: str = "funcionarios.csv"):
                     funcionario.email,
                     funcionario.puesto,
                     int(funcionario.en_funciones),
+                    int(funcionario.en_sentencias),
+                    int(funcionario.en_soportes),
                     funcionario.estatus,
                 ]
             )
