@@ -36,6 +36,9 @@ def alimentar_usuarios_roles():
                 return
             for rol_str in row["roles"].split(","):
                 rol_str = rol_str.strip().upper()
+                if rol_str == "":
+                    click.echo(f"  AVISO: El usuario {usuario.email} no tiene roles.")
+                    continue
                 rol = Rol.query.filter_by(nombre=rol_str).first()
                 if rol is None:
                     click.echo(f"  AVISO: Falta el rol {rol_str}")
