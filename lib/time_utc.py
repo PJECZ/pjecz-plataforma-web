@@ -53,7 +53,10 @@ def combine_to_utc(tiempo_fecha: date, tiempo_horas_minutos: time, validar_rango
 
 def decombine_to_local(tiempo: datetime):
     """Descombinar un tiempo UTC a la fecha y hora local"""
-    utc = pytz.utc.localize(tiempo)
+    if tiempo.tzinfo is None:
+        utc = pytz.utc.localize(tiempo)
+    else:
+        utc = tiempo.astimezone(ZONA_UTC)
     local = utc.astimezone(ZONA_HORARIA)
     return local.date(), local.time()
 
