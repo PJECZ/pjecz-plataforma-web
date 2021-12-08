@@ -643,14 +643,16 @@ def delete(glosa_id):
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("GLOSAS"):
-            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= glosa.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+            if limite_dt.timestamp() <= glosa.creado.timestamp():
                 glosa.delete()
                 bitacora = delete_success(glosa)
                 flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == glosa.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= glosa.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
+            if limite_dt.timestamp() <= glosa.creado.timestamp():
                 glosa.delete()
                 bitacora = delete_success(glosa)
                 flash(bitacora.descripcion, "success")
@@ -682,14 +684,16 @@ def recover(glosa_id):
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("GLOSAS"):
-            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= glosa.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+            if limite_dt.timestamp() <= glosa.creado.timestamp():
                 glosa.recover()
                 bitacora = recover_success(glosa)
                 flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == glosa.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= glosa.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
+            if limite_dt.timestamp() <= glosa.creado.timestamp():
                 glosa.recover()
                 bitacora = recover_success(glosa)
                 flash(bitacora.descripcion, "success")
