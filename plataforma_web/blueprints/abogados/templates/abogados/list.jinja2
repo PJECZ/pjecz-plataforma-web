@@ -57,6 +57,13 @@
             ],
             columnDefs: [
                 {
+                    targets: 1,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("DD MMM YYYY");
+                    }
+                },
+                {
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
