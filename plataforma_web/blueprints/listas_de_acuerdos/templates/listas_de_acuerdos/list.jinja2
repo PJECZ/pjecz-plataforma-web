@@ -63,7 +63,7 @@
                     targets: 0,
                     type: "date",
                     render: function (data, type, row) {
-                        return moment.utc(data).local().format("DD MMM YYYY");
+                        return moment(data).format("DD MMM YYYY");
                     }
                 },
                 {
