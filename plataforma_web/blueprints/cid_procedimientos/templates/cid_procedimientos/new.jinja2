@@ -19,6 +19,14 @@
         #siguiente { float: right; box-sizing: border-box; }
         .tActive{ background-color: #1EA6FE; }
         #registro_dataTable1 > tbody > tr:hover{ cursor:pointer; }
+        #obj_pop{ z-index:1000 !important; float:left; position:relative; margin-left:120px; margin-top:-440px;}
+        #alcance_pop{ z-index:1000 !important; float:left; position:relative; margin-left:120px; margin-top:-440px;}
+        #docu_pop{ z-index:1000 !important; float:left; position:relative; margin-left:380px; margin-top:-440px;}
+        #def_pop{ z-index:1000 !important; float:left; position:relative; margin-left:180px; margin-top:-440px;}
+        #respo_pop{ z-index:1000 !important; float:left; position:relative; margin-left:260px; margin-top:-440px;}
+        #desar_pop{ z-index:1000 !important; float:left; position:relative; margin-left:180px; margin-top:-440px;}
+        #regis_pop{ z-index:1000 !important; float:left; position:relative; margin-left:180px; margin-top:-370px;}
+        #control_pop{ z-index:1000 !important; float:left; position:relative; margin-left:270px; margin-top:-370px;}
     </style>
 {% endblock %}
 
@@ -28,7 +36,7 @@
 
 {% block content %}
 {{ add_data.modal_edit() }}
-{{add_data.modal_edit_cambio()}}
+{{ add_data.modal_edit_cambio() }}
     {% call f.card() %}
         <div><form></form></div>
         <div class="multisteps-form">
@@ -65,31 +73,37 @@
                         {% call quill.step('Objetivo', back_onclick='javascript:guardar_objetivo()', next_onclick='javascript:guardar_objetivo()', save_onclick='javascript:guardar_objetivo()') %}
                             {{ quill.div(div_id='objetivo_quill') }}
                             <div style="display: none;">{% call f.form_group(form.objetivo, readonly=true) %}{% endcall %}</div>
+                            <div id="obj_pop"><a tabindex="0" class="popover-objetivo" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Step Alcance -->
                         {% call quill.step('Alcance', back_onclick='javascript:guardar_alcance()', next_onclick='javascript:guardar_alcance()', save_onclick='javascript:guardar_alcance()') %}
                             {{ quill.div(div_id='alcance_quill') }}
                             <div style="display: none;">{% call f.form_group(form.alcance, readonly=true) %}{% endcall %}</div>
+                            <div id="alcance_pop"><a tabindex="0" class="popover-alcance" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Step Documentos -->
                         {% call quill.step('Documentos de Referencia', back_onclick='javascript:guardar_documentos()', next_onclick='javascript:guardar_documentos()', save_onclick='javascript:guardar_documentos()') %}
                             {{ quill.div(div_id='documentos_quill') }}
                             <div style="display: none;">{% call f.form_group(form.documentos, readonly=true) %}{% endcall %}</div>
+                            <div id="docu_pop"><a tabindex="0" class="popover-documento" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Step Definiciones -->
                         {% call quill.step('Definiciones', back_onclick='javascript:guardar_definiciones()', next_onclick='javascript:guardar_definiciones()', save_onclick='javascript:guardar_definiciones()') %}
                             {{ quill.div(div_id='definiciones_quill') }}
                             <div style="display: none;">{% call f.form_group(form.definiciones, readonly=true) %}{% endcall %}</div>
+                            <div id="def_pop"><a tabindex="0" class="popover-definiciones" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Responsabilidades -->
                         {% call quill.step('Responsabilidades', back_onclick='javascript:guardar_responsabilidades()', next_onclick='javascript:guardar_responsabilidades()', save_onclick='javascript:guardar_responsabilidades()') %}
                             {{ quill.div(div_id='responsabilidades_quill') }}
                             <div style="display: none;">{% call f.form_group(form.responsabilidades, readonly=true) %}{% endcall %}</div>
+                            <div id="respo_pop"><a tabindex="0" class="popover-respon" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Desarrollo -->
                         {% call quill.step('Desarrollo', back_onclick='javascript:guardar_desarrollo()', next_onclick='javascript:guardar_desarrollo()', save_onclick='javascript:guardar_desarrollo()') %}
                             {{ quill.div(div_id='desarrollo_quill') }}
                             <div style="display: none;">{% call f.form_group(form.desarrollo, readonly=true) %}{% endcall %}</div>
+                            <div id="desar_pop"><a tabindex="0" class="popover-desarrollo" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
@@ -120,6 +134,7 @@
                                 {% endcall %}
                             {% endcall %}
                             <div style="display: none;">{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
+                            <div id="regis_pop"><a tabindex="0" class="popover-registro" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
@@ -150,6 +165,7 @@
                                 {% endcall %}
                             {% endcall %}
                             <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
+                            <div id="control_pop"><a tabindex="0" class="popover-control" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Autorizaciones -->
                         {% call quill.step('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()', next_onclick='javascript:guardar_autorizaciones()', save_onclick='javascript:guardar_autorizaciones()')%}
@@ -371,5 +387,50 @@
         $('#responsabilidades').val(vacio);
         $('#desarrollo').val(vacio);
         $('#vista_previa').val(vacio);
+    </script>
+    <script>
+        $(document).ready(function(){
+            var popover = new bootstrap.Popover(document.querySelector('.popover-objetivo'), {
+                trigger: 'hover',
+                title: 'Objetivo',
+                content: 'Resultado / propósito esperado de las acciones descritas en el documento.' 
+            });
+            var popover = new bootstrap.Popover(document.querySelector('.popover-alcance'), {
+                trigger: 'hover',
+                title: 'Alcance',
+                content: 'El alcance puede incluir la totalidad de la organización, procesos, subprocesos, funciones específicas e identificadas de la organización, secciones específicas e identificadas de la organización.' 
+            });
+            var popover = new bootstrap.Popover(document.querySelector('.popover-documento'), {
+                trigger: 'hover',
+                title: 'Documentos de Referencia',
+                content: 'Documentos que tienen alguna relación con el contenido del documento y que deben tomarse en consideración al ejecutar las acciones descritas.' 
+            });
+            var popover = new bootstrap.Popover(document.querySelector('.popover-definiciones'), {
+                trigger: 'hover',
+                title: 'Definiciones',
+                content: 'Palabras o términos que son utilizados como parte del “lenguaje técnico” o interpretaciones apegadas a lo establecido a la norma de referencia.' 
+            });
+
+            var popover = new bootstrap.Popover(document.querySelector('.popover-respon'), {
+                trigger: 'hover',
+                title: 'Responsabilidades',
+                content: 'Obligación de la que una persona debe responder. Se describen las responsabilidades a cumplir conforme las acciones descritas en el documento.' 
+            });
+            var popover = new bootstrap.Popover(document.querySelector('.popover-desarrollo'), {
+                trigger: 'hover',
+                title: 'Desarrollo',
+                content: 'Pasos secuenciales y lógicos que se siguen para lograr el resultado/propósito (objetivo) del documento. Se recomienda identificar en este apartado los riesgos, los formatos, las variables críticas, los indicadores de medición y los requisitos legales relacionados con las acciones descritas.' 
+            });
+            var popover = new bootstrap.Popover(document.querySelector('.popover-registro'), {
+                trigger: 'hover',
+                title: 'Registros',
+                content: 'Evidencias tangibles que demuestran que las acciones descritas en el documento se ejecutaron congruentemente con lo documentado.' 
+            });
+            var popover = new bootstrap.Popover(document.querySelector('.popover-control'), {
+                trigger: 'hover',
+                title: 'Control de cambios',
+                content: 'Identificación de las modificaciones que ha sufrido el documento a lo largo de su período de implementación.' 
+            });
+        });
     </script>
 {% endblock %}
