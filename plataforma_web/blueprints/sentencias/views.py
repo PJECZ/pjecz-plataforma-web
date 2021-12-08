@@ -746,14 +746,16 @@ def delete(sentencia_id):
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("SENTENCIAS"):
-            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+            if limite_dt.timestamp() <= sentencia.creado.timestamp():
                 sentencia.delete()
                 bitacora = delete_success(sentencia)
                 flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == sentencia.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= sentencia.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
+            if limite_dt.timestamp() <= sentencia.creado.timestamp():
                 sentencia.delete()
                 bitacora = delete_success(sentencia)
                 flash(bitacora.descripcion, "success")
@@ -785,14 +787,16 @@ def recover(sentencia_id):
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("SENTENCIAS"):
-            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= sentencia.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+            if limite_dt.timestamp() <= sentencia.creado.timestamp():
                 sentencia.recover()
                 bitacora = recover_success(sentencia)
                 flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == sentencia.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= sentencia.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
+            if limite_dt.timestamp() <= sentencia.creado.timestamp():
                 sentencia.recover()
                 bitacora = recover_success(sentencia)
                 flash(bitacora.descripcion, "success")
