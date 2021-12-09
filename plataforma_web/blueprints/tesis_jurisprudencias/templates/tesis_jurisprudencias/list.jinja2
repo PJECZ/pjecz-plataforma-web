@@ -7,15 +7,18 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {{ topbar.button_districts('Autoridades', url_for('tesis_jurisprudencias.list_autoridades')) }}
+        {% if current_user.can_view('EPOCAS') %}
+            {{ topbar.button('Epocas', url_for('epocas.list_active'), 'mdi:table-clock') }}
+        {% endif %}
         {% if autoridad %}
             {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_insert('TESIS JURISPRUDENCIAS') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('tesis_jurisprudencias.list_inactive')) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('tesis_jurisprudencias.list_active')) }}{% endif %}
             {% endif %}
             {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
-                {{ topbar.button_new('Nueva Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
+                {{ topbar.button_new('Nueva Tesis o Jurisprudencia', url_for('tesis_jurisprudencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
             {% elif current_user.can_insert('TESIS JURISPRUDENCIAS') and current_user.autoridad_id == autoridad.id %}
-                {{ topbar.button_new('Nueva Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.new')) }}
+                {{ topbar.button_new('Nueva Tesis o Jurisprudencia', url_for('tesis_jurisprudencias.new')) }}
             {% endif %}
         {% endif %}
     {% endcall %}

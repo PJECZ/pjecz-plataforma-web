@@ -19,7 +19,7 @@ def epocas_opciones():
 
 def funcionarios_opciones():
     """Funcionarios: opciones para select"""
-    return Funcionario.query.filter_by(estatus="A").order_by(Funcionario.nombres).all()
+    return Funcionario.query.filter_by(en_tesis_jurisprudencias=True).filter_by(estatus="A").order_by(Funcionario.nombres).all()
 
 
 def materias_opciones():

@@ -24,11 +24,12 @@ class Funcionario(db.Model, UniversalMixin):
     en_funciones = db.Column(db.Boolean, nullable=False, default=True)
     en_sentencias = db.Column(db.Boolean, nullable=False, default=False)
     en_soportes = db.Column(db.Boolean, nullable=False, default=False)
+    en_tesis_jurisprudencias = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
     autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="funcionario")
     soportes_tickets = db.relationship("SoporteTicket", back_populates="funcionario", lazy="noload")
-    tesis_jurisprudencias = db.relationship('TesisJurisprudencia', back_populates='funcionario', lazy="noload")
+    tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="funcionario", lazy="noload")
 
     @property
     def nombre(self):

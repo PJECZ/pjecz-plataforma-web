@@ -38,7 +38,7 @@ def list_active():
             "tesis_jurisprudencias/list_admin.jinja2",
             autoridad=None,
             filtros=json.dumps({"estatus": "A"}),
-            titulo="Tesis Jurisprudencias",
+            titulo="Todas las Tesis y Jurisprudencias",
             estatus="A",
         )
     # Si puede editar o crear glosas ve lo de su autoridad
@@ -48,7 +48,7 @@ def list_active():
             "tesis_jurisprudencias/list.jinja2",
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
-            titulo=f"Tesis Jurisprudencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            titulo=f"Tesis y Jurisprudencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="A",
         )
     # Ninguno de los anteriores
@@ -56,7 +56,7 @@ def list_active():
         "tesis_jurisprudencias/list.jinja2",
         autoridad=None,
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Todas las Tesis Jurisprudencias",
+        titulo="Todas las Tesis y Jurisprudencias",
         estatus="A",
     )
 
@@ -70,7 +70,7 @@ def list_inactive():
             "tesis_jurisprudencias/list_admin.jinja2",
             autoridad=None,
             filtros=json.dumps({"estatus": "A"}),
-            titulo="Tesis Jurisprudencias",
+            titulo="Todas las Tesis y Jurisprudencias inactivas",
             estatus="B",
         )
     # Si puede editar o crear glosas ve lo de su autoridad
@@ -80,7 +80,7 @@ def list_inactive():
             "tesis_jurisprudencias/list.jinja2",
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
-            titulo=f"Tesis Jurisprudencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
+            titulo=f"Tesis y Jurisprudencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="B",
         )
     # Ninguno de los anteriores
@@ -88,7 +88,7 @@ def list_inactive():
         "tesis_jurisprudencias/list.jinja2",
         autoridad=None,
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Todas las Tesis Jurisprudencias",
+        titulo="Todas las Tesis Jurisprudencias inactivas",
         estatus="B",
     )
 

@@ -27,6 +27,7 @@
         {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
         {{ detail.label_value_boolean('En sentencias', funcionario.en_sentencias) }}
         {{ detail.label_value_boolean('En soportes', funcionario.en_soportes) }}
+        {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
     {% endcall %}
     {# Autoridades del funcionario #}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
