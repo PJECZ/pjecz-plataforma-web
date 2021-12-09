@@ -27,17 +27,17 @@ def materias_opciones():
     return Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all()
 
 
-class TesisJurisprudenciaNewForm(FlaskForm):
+class TesisJurisprudenciaForm(FlaskForm):
     """Formulario TesisJurisprudencia"""
 
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
     titulo = StringField("Título", validators=[DataRequired(), Length(max=256)])
     subtitulo = StringField("Subtítulo", validators=[Optional(), Length(max=256)])
     tipo = SelectField("Tipo", choices=TesisJurisprudencia.TIPOS, validators=[DataRequired()])
     estado = SelectField("Estatus", choices=TesisJurisprudencia.ESTADOS, validators=[DataRequired()])
     clave_control = StringField("Clave de control", validators=[DataRequired(), Length(max=24)])
     clase = SelectField("Clase", choices=TesisJurisprudencia.CLASES, validators=[DataRequired()])
-    distrito = StringField("Distrito")  # Read only
-    autoridad = StringField("Autoridad")  # Read only
     instancia = StringField("Instancia", validators=[DataRequired(), Length(max=256)])
     materia = QuerySelectField(query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     rubro = StringField("Rubro", validators=[DataRequired(), Length(max=256)])
@@ -47,31 +47,9 @@ class TesisJurisprudenciaNewForm(FlaskForm):
     aprobacion_fecha = DateField("Fecha de aprobación", validators=[DataRequired()])
     votacion = StringField("Votación", validators=[Optional(), Length(max=256)])
     votos_particulares = StringField("Votos particulares", validators=[Optional(), Length(max=256)])
-    publicacion_tiempo = TimeField("Tiempo de publicación", validators=[DataRequired()])
-    aplicacion_tiempo = TimeField("Tiempo de aplicación", validators=[DataRequired()])
-    epoca = QuerySelectField(query_factory=epocas_opciones, get_label="nombre")
-    guardar = SubmitField("Guardar")
-
-
-class TesisJurisprudenciaEditForm(FlaskForm):
-    """Formulario TesisJurisprudencia"""
-
-    titulo = StringField("Título", validators=[DataRequired(), Length(max=256)])
-    subtitulo = StringField("Subtítulo", validators=[Optional(), Length(max=256)])
-    tipo = SelectField("Tipo", choices=TesisJurisprudencia.TIPOS, validators=[DataRequired()])
-    estado = SelectField("Estatus", choices=TesisJurisprudencia.ESTADOS, validators=[DataRequired()])
-    clave_control = StringField("Clave de control", validators=[DataRequired(), Length(max=24)])
-    clase = SelectField("Clase", choices=TesisJurisprudencia.CLASES, validators=[DataRequired()])
-    instancia = StringField("Instancia", validators=[DataRequired(), Length(max=256)])
-    materia = QuerySelectField(query_factory=materias_opciones, get_label="nombre")
-    rubro = StringField("Rubro", validators=[DataRequired(), Length(max=256)])
-    texto = TextAreaField("Texto", validators=[DataRequired()])
-    precedentes = TextAreaField("Precedentes", validators=[Optional()])
-    funcionario = QuerySelectField(query_factory=funcionarios_opciones, get_label="nombres")
-    aprobacion_fecha = DateField("Fecha de aprobación", validators=[DataRequired()])
-    votacion = StringField("Votación", validators=[Optional(), Length(max=256)])
-    votos_particulares = StringField("Votos particulares", validators=[Optional(), Length(max=256)])
-    publicacion_tiempo = TimeField("Tiempo de publicación", validators=[DataRequired()])
-    aplicacion_tiempo = TimeField("Tiempo de aplicación", validators=[DataRequired()])
+    publicacion_fecha = DateField("Publicación fecha", format="%Y-%m-%d", validators=[DataRequired()])
+    publicacion_horas_minutos = TimeField("Publicación hora:minuto", format="%H:%M", validators=[DataRequired()])
+    aplicacion_fecha = DateField("Aplicación fecha", format="%Y-%m-%d", validators=[DataRequired()])
+    aplicacion_horas_minutos = TimeField("Aplicación hora:minuto", format="%H:%M", validators=[DataRequired()])
     epoca = QuerySelectField(query_factory=epocas_opciones, get_label="nombre")
     guardar = SubmitField("Guardar")
