@@ -304,6 +304,7 @@ def edit(cid_procedimiento_id):
         desarrollo_json=desarrollo_json,
         registros_json=registros_json,
         control_cambios_json=control_cambios_json,
+        help_quill=help_quill("edit"),
     )
 
 
@@ -340,10 +341,11 @@ def sign_for_maker(cid_procedimiento_id):
     responsabilidades_es_valido = validate_json_quill_not_empty(cid_procedimiento.responsabilidades)
     # Validar desarrollo
     desarrollo_es_valido = validate_json_quill_not_empty(cid_procedimiento.desarrollo)
-    # Validar control_cambios
-    control_cambios_es_valido = cid_procedimiento.control_cambios
     # Validar registros
     registros_es_valido = cid_procedimiento.registros
+    # Validar control_cambios
+    control_cambios_es_valido = cid_procedimiento.control_cambios
+
     # Validar elaboro
     elaboro_es_valido = False
     if cid_procedimiento.elaboro_email != "":

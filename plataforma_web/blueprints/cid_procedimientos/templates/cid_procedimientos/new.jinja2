@@ -24,9 +24,9 @@
         #docu_pop{ z-index:1000 !important; float:left; position:relative; margin-left:380px; margin-top:-440px;}
         #def_pop{ z-index:1000 !important; float:left; position:relative; margin-left:180px; margin-top:-440px;}
         #respo_pop{ z-index:1000 !important; float:left; position:relative; margin-left:260px; margin-top:-440px;}
-        #desar_pop{ z-index:1000 !important; float:left; position:relative; margin-left:180px; margin-top:-440px;}
-        #regis_pop{ z-index:1000 !important; float:left; position:relative; margin-left:180px; margin-top:-370px;}
-        #control_pop{ z-index:1000 !important; float:left; position:relative; margin-left:270px; margin-top:-370px;}
+        #desar_pop{ z-index:1000 !important; float:left; position:relative; margin-left:150px; margin-top:-440px;}
+        #regis_pop{ z-index:1000 !important; float:left; position:relative; margin-left:120px; margin-top:-60px;}
+        #control_pop{ z-index:1000 !important; float:left; position:relative; margin-left:250px; margin-top:-60px;}
     </style>
 {% endblock %}
 
@@ -108,6 +108,7 @@
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
                             {% call add_data.div_container('form-alert1-reg') %}
+                                <div id="regis_pop"><a tabindex="0" class="popover-registro" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                                 {% call add_data.form_create() %}
                                         {% call add_data.input_form('2','text','registro_codigo','Código') %}{% endcall %}
                                         {% call add_data.input_form('3','text','registro_nombre','Nombre') %}{% endcall %}
@@ -134,11 +135,11 @@
                                 {% endcall %}
                             {% endcall %}
                             <div style="display: none;">{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
-                            <div id="regis_pop"><a tabindex="0" class="popover-registro" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
                             {% call add_data.div_container('form-alert1-camb') %}
+                                <div id="control_pop"><a tabindex="0" class="popover-control" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                                 {% call add_data.form_create() %}
                                         {% call add_data.input_form('2','text','control_revision','No. Revision') %}{% endcall %}
                                         {% call add_data.input_form('3','text','control_cambio','Cambios y/o Actualizaciónes') %}{% endcall %}
@@ -165,7 +166,6 @@
                                 {% endcall %}
                             {% endcall %}
                             <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
-                            <div id="control_pop"><a tabindex="0" class="popover-control" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Autorizaciones -->
                         {% call quill.step('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()', next_onclick='javascript:guardar_autorizaciones()', save_onclick='javascript:guardar_autorizaciones()')%}
@@ -219,6 +219,7 @@
     {% endcall %}
 {% endblock %}
 
+{# se manda llamar el json de la ayuda  #}
 {% block content_help %} 
     {{ help_quill }}
 {% endblock %}
@@ -388,6 +389,7 @@
         $('#desarrollo').val(vacio);
         $('#vista_previa').val(vacio);
     </script>
+    <!-- En este script se crean los popovers con la información de cada paso en el procedimiento -->
     <script>
         $(document).ready(function(){
             var popover = new bootstrap.Popover(document.querySelector('.popover-objetivo'), {

@@ -1,3 +1,4 @@
+{# Este macro es el div principal que contiene los inputs #}
 {%- macro div_container(id) -%}
     <div class="container container-boxed">
         <div class="row" >
@@ -20,6 +21,7 @@
         </div>
 {%- endmacro -%}
 
+{# Se crean los inputs que quierene que aparenzcan en el formulario #}
 {%- macro input_form(num_col, tipo, name, label, attr="") -%}
     <div class="col-{{num_col}}">
         <div class="form-floating mb-3">
@@ -30,16 +32,19 @@
     </div>
 {%- endmacro -%}
 
+{# Mandamos llamar al botón para agregar los inputs al dataTables #}
 {%- macro boton(id_btn,btn_name) -%}
     <div class="col-2">
         <button id="{{id_btn}}" type="button" class="form-control btn btn-primary">{{btn_name}}</button>
     </div>
 {%- endmacro -%}
 
+{# Creamos los botones de Eliminar y Editar del DataTable #}
 {%- macro btn_datatable(label, id, class_btn = 'primary', atributos = '') -%}
     <div class="col-6"><button type="button" id="{{ id }}" class="btn btn-{{ class_btn }} w-100" {{ atributos }}>{{label}}</button></div>
 {%- endmacro -%}
 
+{# Creamos el modal para cargar los datos de registros #}
 {%- macro modal_edit() -%}
     <div class="modal fade" id="edit_reg_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Editar registro" aria-hidden="true">
         <div class="modal-dialog" >
@@ -67,6 +72,7 @@
     </div>
 {%- endmacro-%}
 
+{# Creamos el modal para cargar los datos de control de cambios #}
 {%- macro modal_edit_cambio() -%}
     <div class="modal fade" id="edit_cambio_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Editar cambio" aria-hidden="true">
         <div class="modal-dialog" >

@@ -46,13 +46,6 @@
             ]
         },
         {
-            "id": "image",
-            "subtitulo": "Insertar una imagen",
-            "descripcion": [
-                "<i class='far fa-image'></i> Permite insertar una imagen en el documento. Solo debe indicar la dirección dentro de su equipo."
-            ]
-        },
-        {
             "id": "link",
             "subtitulo": "Hipervinculo",
             "descripcion": [
@@ -130,14 +123,6 @@
             "subtitulo": "Tipo de Letra",
             "descripcion": [
                 "Pude cambiar el tipo de letra o fuente utilizado para mostrar el texto.",
-                "Seleccione el texto deseado y presione sobre este botón. Después elija el tipo de letra que quiera de las opciones mostradas."
-            ]
-        },
-        {
-            "id": "tipo_fuente",
-            "subtitulo": "Tipo de Letra",
-            "descripcion": [
-                "<div style='background-image: url(barra_herramientas_quill.png); background-position: 0 -900px;'></div>Pude cambiar el tipo de letra o fuente utilizado para mostrar el texto.",
                 "Seleccione el texto deseado y presione sobre este botón. Después elija el tipo de letra que quiera de las opciones mostradas."
             ]
         },
