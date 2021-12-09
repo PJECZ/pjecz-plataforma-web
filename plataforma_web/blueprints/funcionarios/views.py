@@ -83,6 +83,7 @@ def new():
                 en_funciones=form.en_funciones.data,
                 en_sentencias=form.en_sentencias.data,
                 en_soportes=form.en_soportes.data,
+                en_tesis_jurisprudencias=form.en_tesis_jurisprudencias.data,
             )
             funcionario.save()
             bitacora = Bitacora(
@@ -123,6 +124,7 @@ def edit(funcionario_id):
             funcionario.en_funciones = form.en_funciones.data
             funcionario.en_sentencias = form.en_sentencias.data
             funcionario.en_soportes = form.en_soportes.data
+            funcionario.en_tesis_jurisprudencias = form.en_tesis_jurisprudencias.data
             funcionario.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -142,6 +144,7 @@ def edit(funcionario_id):
     form.en_funciones.data = funcionario.en_funciones
     form.en_sentencias.data = funcionario.en_sentencias
     form.en_soportes.data = funcionario.en_soportes
+    form.en_tesis_jurisprudencias.data = funcionario.en_tesis_jurisprudencias
     return render_template("funcionarios/edit.jinja2", form=form, funcionario=funcionario)
 
 
