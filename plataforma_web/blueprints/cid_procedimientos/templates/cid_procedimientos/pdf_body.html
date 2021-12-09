@@ -10,33 +10,10 @@
             margin: 50;
             padding: 4px 10px;
         }
-
-        #divd::before {
-            content: "COPIA NO CONTROLADA";
-            font-size: 30px;
-            font-weight: 600;
-            position: absolute;
-            opacity: 0.3;
-            left: 50%;
-            margin-left: -150px;
-            top: 10px;
-        }
-
-        #divd::after {
-            content: "COPIA NO CONTROLADA";
-            font-size: 30px;
-            font-weight: 600;
-            position: relative;
-            opacity: 0.3;
-            left: 50%;
-            margin-left: -150px;
-            top: 1390px
-        }
     </style>
 </head>
 
 <body>
-    <div id="divd"></div>
     <h2>OBJETIVO</h2>
 
     {{ objetivo }}<br>
@@ -62,13 +39,33 @@
     {{ desarrollo }}<br>
 
     <h2>REGISTROS</h2>
-
-    {{ registros }}<br>
-
+    <table id="registro_pdf" class="table table-striped" width="100%">
+        <thead>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Responsable</th>
+            <th>Tiempo de retención</th>
+        </thead>
+        <tbody>
+            <div>&nbsp;</div><br>
+            {{ registros }}
+        </tbody>
+    </table>
+    <br>
     <h2>CONTROL DE CAMBIOS</h2>
-
-    {{ control_cambios }}<br>
-
+    <table id="control_pdf" class="table table-striped" width="100%">
+        <thead>
+            <th>No. Revisión</th>
+            <th>Cambios y/o Actualizaciónes</th>
+            <th>Solicitud de Cambio No.</th>
+            <th>Fecha</th>
+        </thead>
+        <tbody>
+            <div>&nbsp;</div><br>
+            {{ control_cambios }}
+        </tbody>
+    </table>
+    <br>
     <h2>AUTORIZACIONES</h2>
 
     <br>

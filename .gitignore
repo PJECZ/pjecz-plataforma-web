@@ -6,6 +6,7 @@
 *.egg-info/
 *.log
 *.py[cod]
+*.sql
 *.sqlite3
 *.sqlite3-journal
 *.yaml

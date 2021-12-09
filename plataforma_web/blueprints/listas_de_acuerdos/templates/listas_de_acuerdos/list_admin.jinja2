@@ -77,6 +77,13 @@
                     }
                 },
                 {
+                    targets: 2,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment(data).format("DD MMM YYYY");
+                    }
+                },
+                {
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {

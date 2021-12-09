@@ -29,7 +29,7 @@ listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="
 
 MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
-LIMITE_DIAS = 7  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
+LIMITE_DIAS = 30  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
 LIMITE_ADMINISTRADORES_DIAS = 90
 
 
@@ -592,7 +592,8 @@ def delete(lista_de_acuerdo_id):
         if current_user.can_admin("LISTAS DE ACUERDOS"):
             hoy = datetime.date.today()
             hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+            if limite_dt.timestamp() <= lista_de_acuerdo.creado.timestamp():
                 lista_de_acuerdo.delete()
                 bitacora = delete_success(lista_de_acuerdo)
                 flash(bitacora.descripcion, "success")
@@ -631,7 +632,8 @@ def recover(lista_de_acuerdo_id):
             if current_user.can_admin("LISTAS DE ACUERDOS"):
                 hoy = datetime.date.today()
                 hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-                if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= lista_de_acuerdo.creado:
+                limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+                if limite_dt.timestamp() <= lista_de_acuerdo.creado.timestamp():
                     lista_de_acuerdo.recover()
                     bitacora = recover_success(lista_de_acuerdo)
                     flash(bitacora.descripcion, "success")

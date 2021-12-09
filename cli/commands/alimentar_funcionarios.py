@@ -38,6 +38,8 @@ def alimentar_funcionarios():
                 email=row["email"],
                 puesto=safe_string(row["puesto"]),
                 en_funciones=(int(row["en_funciones"]) == 1),
+                en_sentencias=(int(row["en_sentencias"]) == 1),
+                en_soportes=(int(row["en_soportes"]) == 1),
                 estatus=row["estatus"],
             ).save()
             contador += 1

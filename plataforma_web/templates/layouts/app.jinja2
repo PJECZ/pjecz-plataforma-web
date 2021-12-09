@@ -26,13 +26,12 @@
     <div class="container-fluid h-100">
         <div class="row h-100">
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse pjecz-bg-dark">
-{% call navigation.menu(usuario_email=current_user.email) %}
-    {{ navigation.menu_option('Inicio', '/', 'mdi:view-dashboard') }}
-    {% for modulo in current_user.modulos() %}
-        {{ navigation.menu_option(modulo.nombre_corto, modulo.ruta, modulo.icono) }}
-    {% endfor %}
-{% endcall %}
-                {# include 'layouts/sidebar_navigation.jinja2' #}
+                {% call navigation.menu(usuario_email=current_user.email) %}
+                    {{ navigation.menu_option('Inicio', '/', 'mdi:view-dashboard') }}
+                    {% for modulo in current_user.modulos() %}
+                        {{ navigation.menu_option(modulo.nombre_corto, modulo.ruta, modulo.icono) }}
+                    {% endfor %}
+                {% endcall %}
             </nav>
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 {% block topbar_actions %}{% endblock %}
@@ -43,4 +42,12 @@
             </main>
         </div>
     </div>
+{% endblock %}
+
+{% block template_javascript %}
+    <script>
+        $(document).ready(function() {
+            moment.locale('es-mx'); // Set locale español México
+        });
+    </script>
 {% endblock %}

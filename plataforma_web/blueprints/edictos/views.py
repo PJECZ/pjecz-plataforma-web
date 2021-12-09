@@ -708,14 +708,16 @@ def delete(edicto_id):
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("EDICTOS"):
-            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+            if limite_dt.timestamp() <= edicto.creado.timestamp():
                 edicto.delete()
                 bitacora = delete_success(edicto)
                 flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para eliminar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == edicto.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= edicto.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
+            if limite_dt.timestamp() <= edicto.creado.timestamp():
                 edicto.delete()
                 bitacora = delete_success(edicto)
                 flash(bitacora.descripcion, "success")
@@ -747,14 +749,16 @@ def recover(edicto_id):
         hoy = datetime.date.today()
         hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
         if current_user.can_admin("EDICTOS"):
-            if hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS) <= edicto.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+            if limite_dt.timestamp() <= edicto.creado.timestamp():
                 edicto.recover()
                 bitacora = recover_success(edicto)
                 flash(bitacora.descripcion, "success")
             else:
                 flash(f"No tiene permiso para recuperar si fue creado hace {LIMITE_ADMINISTRADORES_DIAS} días o más.", "warning")
         elif current_user.autoridad_id == edicto.autoridad_id:
-            if hoy_dt + datetime.timedelta(days=-LIMITE_DIAS) <= edicto.creado:
+            limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
+            if limite_dt.timestamp() <= edicto.creado.timestamp():
                 edicto.recover()
                 bitacora = recover_success(edicto)
                 flash(bitacora.descripcion, "success")

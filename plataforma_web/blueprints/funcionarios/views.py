@@ -106,11 +106,11 @@ def edit(funcionario_id):
     if form.validate_on_submit():
         es_valido = True
         curp = safe_string(form.curp.data)
-        if Funcionario.query.filter_by(curp=curp).first():
+        if Funcionario.query.filter_by(curp=curp).filter(Funcionario.id != funcionario_id).first():
             flash(f"Ya existe un funcionario con la CURP {curp}", "warning")
             es_valido = False
         email = form.email.data
-        if Funcionario.query.filter_by(email=email).first():
+        if Funcionario.query.filter_by(email=email).filter(Funcionario.id != funcionario_id).first():
             flash(f"Ya existe un funcionario con el email {email}", "warning")
             es_valido = False
         if es_valido:

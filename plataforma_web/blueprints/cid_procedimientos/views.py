@@ -5,6 +5,7 @@ import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
+from wtforms.fields.core import StringField
 
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -99,8 +100,8 @@ def detail(cid_procedimiento_id):
         definiciones=str(html.render(cid_procedimiento.definiciones["ops"])),
         responsabilidades=str(html.render(cid_procedimiento.responsabilidades["ops"])),
         desarrollo=str(html.render(cid_procedimiento.desarrollo["ops"])),
-        registros=str(html.render(cid_procedimiento.registros["ops"])),
-        control_cambios=str(html.render(cid_procedimiento.control_cambios["ops"])),
+        registros=cid_procedimiento.registros,
+        control_cambios=cid_procedimiento.control_cambios,
         cid_formatos=cid_formatos,
     )
 
@@ -132,6 +133,16 @@ def new():
         else:
             aprobo_nombre = aprobo.nombre
             aprobo_email = aprobo.email
+        registros_data = form.registros.data
+        if registros_data is None:
+            registros = ""
+        else:
+            registros = registros_data
+        control = form.control_cambios.data
+        if control is None:
+            control_cambios = ""
+        else:
+            control_cambios = control
         cid_procedimiento = CIDProcedimiento(
             usuario=current_user,
             titulo_procedimiento=safe_string(form.titulo_procedimiento.data),
@@ -144,7 +155,7 @@ def new():
             definiciones=form.definiciones.data,
             responsabilidades=form.responsabilidades.data,
             desarrollo=form.desarrollo.data,
-            registros=form.registros.data,
+            registros=registros,
             elaboro_nombre=elaboro_nombre,
             elaboro_puesto=form.elaboro_puesto.data,
             elaboro_email=elaboro_email,
@@ -154,7 +165,7 @@ def new():
             aprobo_nombre=aprobo_nombre,
             aprobo_puesto=form.aprobo_puesto.data,
             aprobo_email=aprobo_email,
-            control_cambios=form.control_cambios.data,
+            control_cambios=control_cambios,
             cadena=0,
             seguimiento="EN ELABORACION",
             seguimiento_posterior="EN ELABORACION",
@@ -209,6 +220,16 @@ def edit(cid_procedimiento_id):
         else:
             aprobo_nombre = aprobo.nombre
             aprobo_email = aprobo.email
+        registros_d = form.registros.data
+        if registros_d is None:
+            registros = ""
+        else:
+            registros = registros_d
+        control = form.control_cambios.data
+        if control is None:
+            control_cambios = ""
+        else:
+            control_cambios = control
         cid_procedimiento.titulo_procedimiento = safe_string(form.titulo_procedimiento.data)
         cid_procedimiento.codigo = form.codigo.data
         cid_procedimiento.revision = form.revision.data
@@ -219,7 +240,7 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.definiciones = form.definiciones.data
         cid_procedimiento.responsabilidades = form.responsabilidades.data
         cid_procedimiento.desarrollo = form.desarrollo.data
-        cid_procedimiento.registros = form.registros.data
+        cid_procedimiento.registros = registros
         cid_procedimiento.elaboro_nombre = elaboro_nombre
         cid_procedimiento.elaboro_puesto = form.elaboro_puesto.data
         cid_procedimiento.elaboro_email = elaboro_email
@@ -229,7 +250,7 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.aprobo_nombre = aprobo_nombre
         cid_procedimiento.aprobo_puesto = form.aprobo_puesto.data
         cid_procedimiento.aprobo_email = aprobo_email
-        cid_procedimiento.control_cambios = form.control_cambios.data
+        cid_procedimiento.control_cambios = control_cambios
         cid_procedimiento.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -319,10 +340,10 @@ def sign_for_maker(cid_procedimiento_id):
     responsabilidades_es_valido = validate_json_quill_not_empty(cid_procedimiento.responsabilidades)
     # Validar desarrollo
     desarrollo_es_valido = validate_json_quill_not_empty(cid_procedimiento.desarrollo)
-    # Validar registros
-    registros_es_valido = validate_json_quill_not_empty(cid_procedimiento.registros)
     # Validar control_cambios
-    control_cambios_es_valido = validate_json_quill_not_empty(cid_procedimiento.control_cambios)
+    control_cambios_es_valido = cid_procedimiento.control_cambios
+    # Validar registros
+    registros_es_valido = cid_procedimiento.registros
     # Validar elaboro
     elaboro_es_valido = False
     if cid_procedimiento.elaboro_email != "":
