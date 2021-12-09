@@ -6,7 +6,7 @@
 {% block title %}Tesis y Jurisprudencias{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(tesis_jurisprudencia.descripcion) %}
+    {% call topbar.page_buttons(tesis_jurisprudencia.titulo) %}
         {{ topbar.button_previous('Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.list_active')) }}
         {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
             {{ topbar.button_edit('Editar', url_for('tesis_jurisprudencias.edit', tesis_jurisprudencias_id=tesis_jurisprudencias.id)) }}
@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=tesis_jurisprudencias.estatus) %}
+    {% call detail.card(estatus=tesis_jurisprudencia.estatus) %}
         {{ detail.label_value_big('Título', tesis_jurisprudencia.titulo) }}
         {{ detail.label_value('Subtítulo', tesis_jurisprudencia.subtitulo) }}
         {{ detail.label_value('Distrito', tesis_jurisprudencia.autoridad.distrito.nombre) }}
@@ -45,8 +45,8 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencias.autoridad_id == current_user.autoridad_id) %}
-        {% if tesis_jurisprudencias.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencias.descripcion + '?') }}{% endif %}
-        {% if tesis_jurisprudencias.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencias.descripcion + '?') }}{% endif %}
+    {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencia.autoridad_id == current_user.autoridad_id) %}
+        {% if tesis_jurisprudencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencia.titulo + '?') }}{% endif %}
+        {% if tesis_jurisprudencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencia.titulo + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

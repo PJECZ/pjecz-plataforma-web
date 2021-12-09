@@ -32,9 +32,8 @@
         <table id="tesis_jurisprudencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Creados</th>
-                    <th>Títulos</th>
-                    <th>Clases</th>
+                    <th>Título</th>
+                    <th>Clase</th>
                 </tr>
             </thead>
         </table>
@@ -59,20 +58,12 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "creado" },
                 { data: "detalle" },
                 { data: "clase" }
             ],
             columnDefs: [
                 {
                     targets: 0,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
-                    }
-                },
-                {
-                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.titulo + '</a>';

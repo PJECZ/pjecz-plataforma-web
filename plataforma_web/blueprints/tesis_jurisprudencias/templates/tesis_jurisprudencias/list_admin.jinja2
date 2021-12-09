@@ -37,8 +37,8 @@
                 <tr>
                     <th>Creado</th>
                     <th>Autoridad</th>
-                    <th>Títulos</th>
-                    <th>Clases</th>
+                    <th>Título</th>
+                    <th>Clase</th>
                 </tr>
             </thead>
         </table>
@@ -55,7 +55,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/tesis_jurisprudencias/datatable_json",
+                url: "/tesis_jurisprudencias/datatable_json_admin",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",

@@ -146,7 +146,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(TesisJurisprudencia.creado.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(TesisJurisprudencia.titulo).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -155,7 +155,7 @@ def datatable_json():
             {
                 "detalle": {
                     "titulo": resultado.titulo,
-                    "url": url_for("rep_resultados.detail", rep_resultado_id=resultado.id),
+                    "url": url_for("tesis_jurisprudencias.detail", tesis_jurisprudencia_id=resultado.id),
                 },
                 "clase": resultado.clase,
             }
@@ -175,7 +175,7 @@ def datatable_json_admin():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(TesisJurisprudencia.creado.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(TesisJurisprudencia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -186,7 +186,7 @@ def datatable_json_admin():
                 "autoridad_clave": resultado.autoridad.clave,
                 "detalle": {
                     "titulo": resultado.titulo,
-                    "url": url_for("rep_resultados.detail", rep_resultado_id=resultado.id),
+                    "url": url_for("tesis_jurisprudencias.detail", tesis_jurisprudencia_id=resultado.id),
                 },
                 "clase": resultado.clase,
             }
