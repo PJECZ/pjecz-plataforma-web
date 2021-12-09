@@ -12,14 +12,14 @@
     {% call f.card() %}
         {% set form_kwargs = {'tesis_jurisprudencia_id': tesis_jurisprudencia.id} %}
         {% call f.form_tag('tesis_jurisprudencias.edit', fid='tesis_jurisprudencia_form', **form_kwargs) %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
             {% call f.form_group(form.titulo) %}{% endcall %}
             {% call f.form_group(form.subtitulo) %}{% endcall %}
             {% call f.form_group(form.tipo) %}{% endcall %}
             {% call f.form_group(form.estado) %}{% endcall %}
             {% call f.form_group(form.clave_control) %}{% endcall %}
             {% call f.form_group(form.clase) %}{% endcall %}
-            {% call f.form_group(form.distrito) %}{% endcall %}
-            {% call f.form_group(form.autoridad) %}{% endcall %}
             {% call f.form_group(form.instancia) %}{% endcall %}
             {% call f.form_group(form.materia) %}{% endcall %}
             {% call f.form_group(form.rubro) %}{% endcall %}

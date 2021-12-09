@@ -10,6 +10,9 @@
         {% if current_user.can_view('EPOCAS') %}
             {{ topbar.button('Epocas', url_for('epocas.list_active'), 'mdi:table-clock') }}
         {% endif %}
+        {% if current_user.can_view('FUNCIONARIOS') %}
+            {{ topbar.button('Funcionarios', url_for('funcionarios.list_active'), 'mdi:account') }}
+        {% endif %}
         {% if autoridad %}
             {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
                 {{ topbar.button_new('Nueva Tesis o Jurisprudencia', url_for('tesis_jurisprudencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
@@ -32,6 +35,8 @@
         <table id="tesis_jurisprudencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Creado</th>
+                    <th>Autoridad</th>
                     <th>Títulos</th>
                     <th>Clases</th>
                 </tr>
@@ -58,12 +63,21 @@
                 data: {{ filtros }}
             },
             columns: [
+                { data: "creado" },
+                { data: "autoridad_clave" },
                 { data: "detalle" },
                 { data: "clase" }
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.titulo + '</a>';

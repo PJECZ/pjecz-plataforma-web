@@ -182,6 +182,7 @@ def datatable_json_admin():
         data.append(
             {
                 "creado": resultado.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "autoridad_clave": resultado.autoridad.clave,
                 "detalle": {
                     "titulo": resultado.titulo,
                     "url": url_for("rep_resultados.detail", rep_resultado_id=resultado.id),

@@ -22,13 +22,13 @@
     {% call detail.card(estatus=tesis_jurisprudencias.estatus) %}
         {{ detail.label_value_big('Título', tesis_jurisprudencia.titulo) }}
         {{ detail.label_value('Subtítulo', tesis_jurisprudencia.subtitulo) }}
+        {{ detail.label_value('Distrito', tesis_jurisprudencia.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', tesis_jurisprudencia.autoridad.descripcion) }}
         {{ detail.label_value('Tipo', tesis_jurisprudencia.tipo) }}
         {{ detail.label_value('Estatus', tesis_jurisprudencia.estado) }}
         {{ detail.label_value('Número de registro digital', tesis_jurisprudencia.numero_registro_digital) }}
         {{ detail.label_value('Clave de control', tesis_jurisprudencia.clave_control) }}
         {{ detail.label_value('Tesis o Jurisprudencia', tesis_jurisprudencia.clase) }}
-        {{ detail.label_value('Distrito', tesis_jurisprudencia.autoridad.distrito.nombre) }}
-        {{ detail.label_value('Autoridad', tesis_jurisprudencia.autoridad.descripcion) }}
         {{ detail.label_value('Instancia', tesis_jurisprudencia.instancia) }}
         {{ detail.label_value('Materia', tesis_jurisprudencia.materia) }}
         {{ detail.label_value('Rubro', tesis_jurisprudencia.rubro) }}

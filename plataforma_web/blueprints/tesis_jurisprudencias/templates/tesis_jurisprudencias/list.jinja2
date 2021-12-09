@@ -10,6 +10,9 @@
         {% if current_user.can_view('EPOCAS') %}
             {{ topbar.button('Epocas', url_for('epocas.list_active'), 'mdi:table-clock') }}
         {% endif %}
+        {% if current_user.can_view('FUNCIONARIOS') %}
+            {{ topbar.button('Funcionarios', url_for('funcionarios.list_active'), 'mdi:account') }}
+        {% endif %}
         {% if autoridad %}
             {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_insert('TESIS JURISPRUDENCIAS') and current_user.autoridad_id == autoridad.id) %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('tesis_jurisprudencias.list_inactive')) }}{% endif %}

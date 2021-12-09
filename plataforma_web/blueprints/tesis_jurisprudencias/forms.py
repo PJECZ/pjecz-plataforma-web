@@ -39,11 +39,11 @@ class TesisJurisprudenciaNewForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     instancia = StringField("Instancia", validators=[DataRequired(), Length(max=256)])
-    materia = QuerySelectField(query_factory=materias_opciones, get_label="nombre")
+    materia = QuerySelectField(query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     rubro = StringField("Rubro", validators=[DataRequired(), Length(max=256)])
     texto = TextAreaField("Texto", validators=[DataRequired()])
     precedentes = TextAreaField("Precedentes", validators=[Optional()])
-    funcionario = QuerySelectField(query_factory=funcionarios_opciones, get_label="nombres")
+    funcionario = QuerySelectField(query_factory=funcionarios_opciones, get_label="nombres", validators=[DataRequired()])
     aprobacion_fecha = DateField("Fecha de aprobación", validators=[DataRequired()])
     votacion = StringField("Votación", validators=[Optional(), Length(max=256)])
     votos_particulares = StringField("Votos particulares", validators=[Optional(), Length(max=256)])
