@@ -2,10 +2,10 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Editar Ticket{% endblock %}
+{% block title %}Cerrar Ticket{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar Ticket - ' + soporte_ticket.id | string) }}
+    {{ topbar.page('Cerrar Ticket - ' + soporte_ticket.id | string) }}
 {% endblock %}
 
 {% block content %}
