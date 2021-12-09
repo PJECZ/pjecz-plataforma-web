@@ -99,9 +99,17 @@ def detail(soporte_ticket_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Ticket creado por el usuario"""
+    funcionario = Funcionario.query.get_or_404(1) # Funcionario NO DEFINIDO
     form = SoporteTicketNewForm()
     if form.validate_on_submit():
-        soporte_ticket = SoporteTicket(descripcion=safe_string(form.descripcion.data))
+        soporte_ticket = SoporteTicket(
+            usuario=current_user,
+            soporte_categoria=form.soporte_categoria.data,
+            funcionario=funcionario,
+            descripcion=safe_string(form.descripcion.data),
+            estado="ABIERTO",
+            re
+        )
         soporte_ticket.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
