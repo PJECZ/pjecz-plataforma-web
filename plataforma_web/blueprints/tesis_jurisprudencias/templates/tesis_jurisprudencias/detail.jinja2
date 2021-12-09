@@ -6,29 +6,47 @@
 {% block title %}Tesis y Jurisprudencias{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(tesis_jurisprudencia.descripcion) %}
+    {% call topbar.page_buttons(tesis_jurisprudencia.titulo) %}
         {{ topbar.button_previous('Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.list_active')) }}
         {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
-            {# topbar.button_edit('Editar', url_for('tesis_jurisprudencias.edit', tesis_jurisprudencias_id=tesis_jurisprudencias.id)) #}
+            {{ topbar.button_edit('Editar', url_for('tesis_jurisprudencias.edit', tesis_jurisprudencias_id=tesis_jurisprudencias.id)) }}
         {% endif %}
         {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencia.autoridad_id == current_user.autoridad_id) %}
-            {# if tesis_jurisprudencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('tesis_jurisprudencias.delete', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}{% endif #}
-            {# if tesis_jurisprudencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('tesis_jurisprudencias.recover', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}{% endif #}
+            {% if tesis_jurisprudencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('tesis_jurisprudencias.delete', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}{% endif %}
+            {% if tesis_jurisprudencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('tesis_jurisprudencias.recover', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=tesis_jurisprudencias.estatus) %}
-        {{ detail.label_value_big('Descripción', tesis_jurisprudencias.descripcion) }}
-        {{ detail.label_value('Columna 1', tesis_jurisprudencias.columna_1) }}
-        {{ detail.label_value('Columna 2', tesis_jurisprudencias.columna_2) }}
+    {% call detail.card(estatus=tesis_jurisprudencia.estatus) %}
+        {{ detail.label_value_big('Título', tesis_jurisprudencia.titulo) }}
+        {{ detail.label_value('Subtítulo', tesis_jurisprudencia.subtitulo) }}
+        {{ detail.label_value('Distrito', tesis_jurisprudencia.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', tesis_jurisprudencia.autoridad.descripcion) }}
+        {{ detail.label_value('Tipo', tesis_jurisprudencia.tipo) }}
+        {{ detail.label_value('Estatus', tesis_jurisprudencia.estado) }}
+        {{ detail.label_value('Número de registro digital', tesis_jurisprudencia.numero_registro_digital) }}
+        {{ detail.label_value('Clave de control', tesis_jurisprudencia.clave_control) }}
+        {{ detail.label_value('Tesis o Jurisprudencia', tesis_jurisprudencia.clase) }}
+        {{ detail.label_value('Instancia', tesis_jurisprudencia.instancia) }}
+        {{ detail.label_value('Materia', tesis_jurisprudencia.materia) }}
+        {{ detail.label_value('Rubro', tesis_jurisprudencia.rubro) }}
+        {{ detail.label_value('Texto', tesis_jurisprudencia.texto) }}
+        {{ detail.label_value('Precedentes', tesis_jurisprudencia.precedentes) }}
+        {{ detail.label_value('Magistrado ponente', tesis_jurisprudencia.funcionario.nombre) }}
+        {{ detail.label_value('Fecha de aprobación', tesis_jurisprudencia.aprobacion_fecha) }}
+        {{ detail.label_value('Votación', tesis_jurisprudencia.votacion) }}
+        {{ detail.label_value('Votos particulares', tesis_jurisprudencia.votos_particulares) }}
+        {{ detail.label_value('Fecha y hora de publicación', tesis_jurisprudencia.publicacion_tiempo) }}
+        {{ detail.label_value('Fecha y hora en la que se considera de aplicación obligatoria', tesis_jurisprudencia.aplicacion_tiempo) }}
+        {{ detail.label_value('Época', tesis_jurisprudencia.epoca.nombre) }}
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencias.autoridad_id == current_user.autoridad_id) %}
-        {# if tesis_jurisprudencias.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencias.descripcion + '?') }}{% endif #}
-        {# if tesis_jurisprudencias.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencias.descripcion + '?') }}{% endif #}
+    {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencia.autoridad_id == current_user.autoridad_id) %}
+        {% if tesis_jurisprudencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencia.titulo + '?') }}{% endif %}
+        {% if tesis_jurisprudencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencia.titulo + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

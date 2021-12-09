@@ -19,4 +19,5 @@ class FuncionarioForm(FlaskForm):
     en_funciones = BooleanField("En funciones", validators=[Optional()])
     en_sentencias = BooleanField("En sentencias", validators=[Optional()])
     en_soportes = BooleanField("En soportes", validators=[Optional()])
+    en_tesis_jurisprudencias = BooleanField("En tesis y jurisprudencias", validators=[Optional()])
     guardar = SubmitField('Guardar')

@@ -18,7 +18,7 @@ class Epoca(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
-    tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="epoca")
+    tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="epoca", lazy="noload")
 
     def __repr__(self):
         """Representación"""
