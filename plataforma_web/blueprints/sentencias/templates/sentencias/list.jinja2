@@ -71,6 +71,13 @@
             ],
             columnDefs: [
                 {
+                    targets: 0,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment(data).format("DD MMM YYYY");
+                    }
+                },
+                {
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
