@@ -30,6 +30,9 @@ class Sentencia(db.Model, UniversalMixin):
     archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
     url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
+    # Hijos
+    tesis_jurisprudencias_sentencias = db.relationship('TesisJurisprudenciaSentencia', back_populates='sentencia')
+
     def __repr__(self):
         """Representación"""
         return f"<Sentencia {self.archivo}>"

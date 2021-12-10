@@ -71,6 +71,9 @@ class TesisJurisprudencia(db.Model, UniversalMixin):
     publicacion_tiempo = db.Column(db.DateTime(), nullable=False)  # Fecha y hora de publicación de la tesis o jurisprudencia
     aplicacion_tiempo = db.Column(db.DateTime(), nullable=False)  # Fecha y hora en la que se considera de aplicación obligatoria
 
+    # Hijos a Sentencias
+    tesis_jurisprudencias_sentencias = db.relationship('TesisJurisprudenciaSentencia', back_populates='tesis_jurisprudencia')
+
     @property
     def numero_registro_digital(self):
         """Número de registro digital (Número único por registro)"""
