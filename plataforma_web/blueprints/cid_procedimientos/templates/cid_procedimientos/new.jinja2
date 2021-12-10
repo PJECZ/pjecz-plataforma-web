@@ -19,12 +19,12 @@
         #siguiente { float: right; box-sizing: border-box; }
         .tActive{ background-color: #1EA6FE; }
         #registro_dataTable1 > tbody > tr:hover{ cursor:pointer; }
-        #obj_pop{ z-index:1000 !important; float:left; position:relative; margin-left:120px; margin-top:-440px;}
-        #alcance_pop{ z-index:1000 !important; float:left; position:relative; margin-left:120px; margin-top:-440px;}
-        #docu_pop{ z-index:1000 !important; float:left; position:relative; margin-left:380px; margin-top:-440px;}
-        #def_pop{ z-index:1000 !important; float:left; position:relative; margin-left:180px; margin-top:-440px;}
-        #respo_pop{ z-index:1000 !important; float:left; position:relative; margin-left:260px; margin-top:-440px;}
-        #desar_pop{ z-index:1000 !important; float:left; position:relative; margin-left:150px; margin-top:-440px;}
+        #obj_pop{ z-index:1000 !important; float:left; position:relative; margin-left:120px; margin-top:-60px;}
+        #alcance_pop{ z-index:1000 !important; float:left; position:relative; margin-left:120px; margin-top:-60px;}
+        #docu_pop{ z-index:1000 !important; float:left; position:relative; margin-left:380px; margin-top:-60px;}
+        #def_pop{ z-index:1000 !important; float:left; position:relative; margin-left:180px; margin-top:-60px;}
+        #respo_pop{ z-index:1000 !important; float:left; position:relative; margin-left:260px; margin-top:-60px;}
+        #desar_pop{ z-index:1000 !important; float:left; position:relative; margin-left:150px; margin-top:-60px;}
         #regis_pop{ z-index:1000 !important; float:left; position:relative; margin-left:120px; margin-top:-60px;}
         #control_pop{ z-index:1000 !important; float:left; position:relative; margin-left:250px; margin-top:-60px;}
     </style>
@@ -71,39 +71,39 @@
                         {% endcall %}
                         <!-- Step Objetivo -->
                         {% call quill.step('Objetivo', back_onclick='javascript:guardar_objetivo()', next_onclick='javascript:guardar_objetivo()', save_onclick='javascript:guardar_objetivo()') %}
+                            <div id="obj_pop"><a tabindex="0" class="popover-objetivo" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                             {{ quill.div(div_id='objetivo_quill') }}
                             <div style="display: none;">{% call f.form_group(form.objetivo, readonly=true) %}{% endcall %}</div>
-                            <div id="obj_pop"><a tabindex="0" class="popover-objetivo" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Step Alcance -->
                         {% call quill.step('Alcance', back_onclick='javascript:guardar_alcance()', next_onclick='javascript:guardar_alcance()', save_onclick='javascript:guardar_alcance()') %}
+                            <div id="alcance_pop"><a tabindex="0" class="popover-alcance" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                             {{ quill.div(div_id='alcance_quill') }}
                             <div style="display: none;">{% call f.form_group(form.alcance, readonly=true) %}{% endcall %}</div>
-                            <div id="alcance_pop"><a tabindex="0" class="popover-alcance" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Step Documentos -->
                         {% call quill.step('Documentos de Referencia', back_onclick='javascript:guardar_documentos()', next_onclick='javascript:guardar_documentos()', save_onclick='javascript:guardar_documentos()') %}
+                            <div id="docu_pop"><a tabindex="0" class="popover-documento" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                             {{ quill.div(div_id='documentos_quill') }}
                             <div style="display: none;">{% call f.form_group(form.documentos, readonly=true) %}{% endcall %}</div>
-                            <div id="docu_pop"><a tabindex="0" class="popover-documento" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Step Definiciones -->
                         {% call quill.step('Definiciones', back_onclick='javascript:guardar_definiciones()', next_onclick='javascript:guardar_definiciones()', save_onclick='javascript:guardar_definiciones()') %}
+                            <div id="def_pop"><a tabindex="0" class="popover-definiciones" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                             {{ quill.div(div_id='definiciones_quill') }}
                             <div style="display: none;">{% call f.form_group(form.definiciones, readonly=true) %}{% endcall %}</div>
-                            <div id="def_pop"><a tabindex="0" class="popover-definiciones" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Responsabilidades -->
                         {% call quill.step('Responsabilidades', back_onclick='javascript:guardar_responsabilidades()', next_onclick='javascript:guardar_responsabilidades()', save_onclick='javascript:guardar_responsabilidades()') %}
+                            <div id="respo_pop"><a tabindex="0" class="popover-respon" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                             {{ quill.div(div_id='responsabilidades_quill') }}
                             <div style="display: none;">{% call f.form_group(form.responsabilidades, readonly=true) %}{% endcall %}</div>
-                            <div id="respo_pop"><a tabindex="0" class="popover-respon" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Desarrollo -->
                         {% call quill.step('Desarrollo', back_onclick='javascript:guardar_desarrollo()', next_onclick='javascript:guardar_desarrollo()', save_onclick='javascript:guardar_desarrollo()') %}
+                            <div id="desar_pop"><a tabindex="0" class="popover-desarrollo" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                             {{ quill.div(div_id='desarrollo_quill') }}
                             <div style="display: none;">{% call f.form_group(form.desarrollo, readonly=true) %}{% endcall %}</div>
-                            <div id="desar_pop"><a tabindex="0" class="popover-desarrollo" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
