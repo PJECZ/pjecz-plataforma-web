@@ -1,0 +1,46 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Entidad de Géneros{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('ENTIDAD GENEROS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('entidad_generos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('entidad_generos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('ENTIDAD GENEROS') %}
+            {{ topbar.button_new('Nuevo Entidad', url_for('entidad_generos.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="entidad_generos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Procedimiento</th>
+                    <th>Núm de Empelado</th>
+                    <th>Nombre Actual</th>
+                    <th>Nombre Anterior</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entidad_genero in registros %}
+                <tr>
+                    <td><a href="{{ url_for('entidad_generos.detail', entidad_genero_id=entidad_genero.id) }}">{{ entidad_genero.procedimiento }}</a></td>
+                    <td>{{ entidad_genero.num_empleado }}</td>
+                    <td>{{ entidad_genero.nombre_actual }}</td>
+                    <td>{{ entidad_genero.nombre_anterior }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('entidad_generos_datatable') }}
+{% endblock %}

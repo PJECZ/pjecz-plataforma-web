@@ -1,0 +1,28 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Entidad de Género{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + entidad_genero.nombre_anterior) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'entidad_genero_id': entidad_genero.id} %}
+        {% call f.form_tag('entidad_generos.edit', fid='entidad_genero_form', **form_kwargs) %}
+            {% call f.form_group(form.nombre_anterior) %}{% endcall %}
+            {% call f.form_group(form.nombre_actual) %}{% endcall %}
+            {% call f.form_group(form.fecha_nacimiento) %}{% endcall %}
+            {% call f.form_group(form.lugar_nacimiento) %}{% endcall %}
+            {% call f.form_group(form.genero_anterior) %}{% endcall %}
+            {% call f.form_group(form.genero_actual) %}{% endcall %}
+            {% call f.form_group(form.num_empleado) %}{% endcall %}
+            {% call f.form_group(form.nombre_padre) %}{% endcall %}
+            {% call f.form_group(form.nombre_madre) %}{% endcall %}
+            {% call f.form_group(form.procedimiento) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
