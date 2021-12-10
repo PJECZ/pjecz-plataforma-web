@@ -23,7 +23,7 @@
 
 {# Se crean los inputs que quierene que aparenzcan en el formulario #}
 {%- macro input_form(num_col, tipo, name, label, attr="") -%}
-    <div class="col-{{num_col}}">
+    <div class="d-flex mb-3 col-md-{{num_col}} ">
         <div class="form-floating mb-3">
             <input type="{{tipo}}" class="form-control" name="{{name}}" id="{{name}}" placeholder="{{label}}" {{attr}}>
             <label for="{{name}}">{{label}}</label>
@@ -34,14 +34,14 @@
 
 {# Mandamos llamar al botón para agregar los inputs al dataTables #}
 {%- macro boton(id_btn,btn_name) -%}
-    <div class="col-2">
+    <div class="d-flex mb-3 col-md-2">
         <button id="{{id_btn}}" type="button" class="form-control btn btn-primary">{{btn_name}}</button>
     </div>
 {%- endmacro -%}
 
 {# Creamos los botones de Eliminar y Editar del DataTable #}
 {%- macro btn_datatable(label, id, class_btn = 'primary', atributos = '') -%}
-    <div class="col-6"><button type="button" id="{{ id }}" class="btn btn-{{ class_btn }} w-100" {{ atributos }}>{{label}}</button></div>
+    <div class="col-md-6 d-flex mb-3"><button type="button" id="{{ id }}" class="btn btn-{{ class_btn }} w-100" {{ atributos }}>{{label}}</button></div>
 {%- endmacro -%}
 
 {# Creamos el modal para cargar los datos de registros #}
