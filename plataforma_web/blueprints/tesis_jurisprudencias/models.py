@@ -70,6 +70,9 @@ class TesisJurisprudencia(db.Model, UniversalMixin):
     # Hijos de funcionarios
     tesis_jurisprudencias_funcionarios = db.relationship('TesisJurisprudenciaFuncionario', back_populates='tesis_jurisprudencias')
     
+    # Hijos a Sentencias
+    tesis_jurisprudencias_sentencias = db.relationship('TesisJurisprudenciaSentencia', back_populates='tesis_jurisprudencia')
+
     @property
     def numero_registro_digital(self):
         """Número de registro digital (Número único por registro)"""

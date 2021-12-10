@@ -1,0 +1,34 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Sentencias{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="tesis_jurisprudencias_sentencias_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Sentencias</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sentencia in sentencias %}
+                <tr>
+                    <td>{{ sentencia.creado }}</td>
+                    <td><a href="{{ url_for('tesis_jurisprudencias_sentencias.detail', sentencia_id=sentencia.id) }}">{{ sentencia.expediente }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable_times('tesis_jurisprudencias_sentencias_datatable') }}
+{% endblock %}
