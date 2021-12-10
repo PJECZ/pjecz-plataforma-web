@@ -38,6 +38,7 @@ from plataforma_web.blueprints.soportes_categorias.views import soportes_categor
 from plataforma_web.blueprints.soportes_tickets.views import soportes_tickets
 from plataforma_web.blueprints.tareas.views import tareas
 from plataforma_web.blueprints.tesis_jurisprudencias.views import tesis_jurisprudencias
+from plataforma_web.blueprints.tesis_jurisprudencias_funcionarios.views import tesis_jurisprudencias_funcionarios
 from plataforma_web.blueprints.tesis_jurisprudencias_sentencias.views import tesis_jurisprudencias_sentencias
 from plataforma_web.blueprints.transcripciones.views import transcripciones
 from plataforma_web.blueprints.turnos.views import turnos
@@ -92,6 +93,7 @@ def create_app():
     app.register_blueprint(soportes_tickets)
     app.register_blueprint(tareas)
     app.register_blueprint(tesis_jurisprudencias)
+    app.register_blueprint(tesis_jurisprudencias_funcionarios)
     app.register_blueprint(tesis_jurisprudencias_sentencias)
     app.register_blueprint(transcripciones)
     app.register_blueprint(turnos)

@@ -1,0 +1,34 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Funcionarios{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="tesis_jurisprudencias_funcionarios_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Funcionarios</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for funcionario in funcionarios %}
+                <tr>
+                    <td>{{ funcionario.creado }}</td>
+                    <td><a href="{{ url_for('tesis_jurisprudencias_funcionarios.detail', funcionario_id=funcionario.id) }}">{{ funcionario.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable_times('tesis_jurisprudencias_funcionarios_datatable') }}
+{% endblock %}
