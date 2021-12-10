@@ -68,7 +68,7 @@ class TesisJurisprudencia(db.Model, UniversalMixin):
     aplicacion_tiempo = db.Column(db.DateTime(), nullable=False)  # Fecha y hora en la que se considera de aplicación obligatoria
 
     # Hijos de funcionarios
-    tesis_jurisprudencias_funcionarios = db.relationship('TesisJurisprudenciaFuncionario', back_populates='tesis_jurisprudencia')
+    tesis_jurisprudencias_funcionarios = db.relationship('TesisJurisprudenciaFuncionario', back_populates='tesis_jurisprudencias')
     
     @property
     def numero_registro_digital(self):
