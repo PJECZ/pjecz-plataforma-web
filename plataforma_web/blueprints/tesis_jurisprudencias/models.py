@@ -57,7 +57,6 @@ class TesisJurisprudencia(db.Model, UniversalMixin):
     estado = db.Column(db.Enum(*ESTADOS, name="estados", native_enum=False), index=True, nullable=False)  # Estatus: interrumpir o modificar (Catálogo)
     clave_control = db.Column(db.String(24), nullable=False, default="", server_default="")  # Clave de control (Como se indica en los lineamientos)
     clase = db.Column(db.Enum(*CLASES, name="clases", native_enum=False), index=True, nullable=False)  # Indicar si es Tesis o Jurisprudencia
-    instancia = db.Column(db.String(256), nullable=False, default="", server_default="")  # Instancia
     rubro = db.Column(db.String(256), nullable=False, default="", server_default="")  # Rubro
     texto = db.Column(db.Text(), nullable=False)  # Texto (En su caso archivo a subir en la plataforma)
     precedentes = db.Column(db.Text(), nullable=False)  # Precedentes que sustentan las tesis
@@ -69,7 +68,7 @@ class TesisJurisprudencia(db.Model, UniversalMixin):
 
     # Hijos de funcionarios
     tesis_jurisprudencias_funcionarios = db.relationship('TesisJurisprudenciaFuncionario', back_populates='tesis_jurisprudencias')
-    
+
     # Hijos a Sentencias
     tesis_jurisprudencias_sentencias = db.relationship('TesisJurisprudenciaSentencia', back_populates='tesis_jurisprudencia')
 
