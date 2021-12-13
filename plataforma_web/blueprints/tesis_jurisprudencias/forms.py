@@ -7,7 +7,6 @@ from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from plataforma_web.blueprints.epocas.models import Epoca
-from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.tesis_jurisprudencias.models import TesisJurisprudencia
 
@@ -15,11 +14,6 @@ from plataforma_web.blueprints.tesis_jurisprudencias.models import TesisJurispru
 def epocas_opciones():
     """Epocas: opciones para select"""
     return Epoca.query.filter_by(estatus="A").order_by(Epoca.nombre).all()
-
-
-def funcionarios_opciones():
-    """Funcionarios: opciones para select"""
-    return Funcionario.query.filter_by(en_tesis_jurisprudencias=True).filter_by(estatus="A").order_by(Funcionario.nombres).all()
 
 
 def materias_opciones():
@@ -38,12 +32,10 @@ class TesisJurisprudenciaForm(FlaskForm):
     estado = SelectField("Estatus", choices=TesisJurisprudencia.ESTADOS, validators=[DataRequired()])
     clave_control = StringField("Clave de control", validators=[DataRequired(), Length(max=24)])
     clase = SelectField("Clase", choices=TesisJurisprudencia.CLASES, validators=[DataRequired()])
-    instancia = StringField("Instancia", validators=[DataRequired(), Length(max=256)])
     materia = QuerySelectField(query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     rubro = StringField("Rubro", validators=[DataRequired(), Length(max=256)])
     texto = TextAreaField("Texto", validators=[DataRequired()])
     precedentes = TextAreaField("Precedentes", validators=[Optional()])
-    funcionario = QuerySelectField(query_factory=funcionarios_opciones, get_label="nombres", validators=[DataRequired()])
     aprobacion_fecha = DateField("Fecha de aprobación", validators=[DataRequired()])
     votacion = StringField("Votación", validators=[Optional(), Length(max=256)])
     votos_particulares = StringField("Votos particulares", validators=[Optional(), Length(max=256)])
