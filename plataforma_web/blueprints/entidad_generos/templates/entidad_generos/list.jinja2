@@ -22,7 +22,6 @@
             <thead>
                 <tr>
                     <th>Procedimiento</th>
-                    <th>Núm de Empelado</th>
                     <th>Nombre Actual</th>
                     <th>Nombre Anterior</th>
                 </tr>
@@ -31,7 +30,6 @@
                 {% for entidad_genero in registros %}
                 <tr>
                     <td><a href="{{ url_for('entidad_generos.detail', entidad_genero_id=entidad_genero.id) }}">{{ entidad_genero.procedimiento }}</a></td>
-                    <td>{{ entidad_genero.num_empleado }}</td>
                     <td>{{ entidad_genero.nombre_actual }}</td>
                     <td>{{ entidad_genero.nombre_anterior }}</td>
                 </tr>

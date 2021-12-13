@@ -31,7 +31,6 @@ class EntidadGenero(db.Model, UniversalMixin):
     lugar_nacimiento = db.Column(db.String(256), nullable=True)
     genero_anterior = db.Column(db.Enum(*GENEROS, name="tipo_genero_anterior", native_enum=False), nullable=False)
     genero_actual = db.Column(db.Enum(*GENEROS, name="tipo_genero_actual", native_enum=False), nullable=False)
-    num_empleado = db.Column(db.Integer)
     nombre_padre = db.Column(db.String(256), nullable=True)
     nombre_madre = db.Column(db.String(256), nullable=True)
     procedimiento = db.Column(db.String(256), nullable=False)
