@@ -20,6 +20,7 @@ class TesisJurisprudencia(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(
         [
+            ("ACTIVAR", "ACTIVAR"),
             ("INTERRUMPIR", "Interrumpir"),
             ("MODIFICAR", "Modificar"),
         ]

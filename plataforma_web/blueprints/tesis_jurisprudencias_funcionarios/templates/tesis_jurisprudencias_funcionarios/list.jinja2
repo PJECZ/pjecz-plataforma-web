@@ -5,30 +5,44 @@
 {% block title %}Funcionarios{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page(titulo) }}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('FUNCIONARIOS') %}
+            {{ topbar.button('Funcionarios', url_for('funcionarios.list_active'), 'mdi:gamepad') }}
+        {% endif %}
+        {% if current_user.can_view('TESIS JURISPRUDENCIAS') %}
+            {{ topbar.button('TesisJurisprudencias', url_for('tesis_jurisprudencias.list_active'), 'mdi:gavel') }}
+        {% endif %}
+        {% if current_user.can_edit('TESIS JURISPRUDENCIAS FUNCIONARIO') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('tesis_jurisprudencias_funcionarios.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('tesis_jurisprudencias_funcionarios.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('TESIS JURISPRUDENCIAS FUNCIONARIOS') %}
+            {{ topbar.button_new('Nuevo Tesis-Jurisprudencia-Funcionario', url_for('tesis_jurisprudencias_funcionarios.new_with_tesis')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
+
 
 {% block content %}
     {% call list.card() %}
-        <table id="tesis_jurisprudencias_funcionarios_datatable" class="table display nowrap" style="width:100%">
+        <table id="tesis_jurisprudencias_funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Creados</th>
-                    <th>Funcionarios</th>
+                    <th>Tesis y Jurisprudencia</th>
+                    <th>Descripciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for funcionario in funcionarios %}
+                {% for tesis_funcionario in tesis_jurisprudencias_funcionarios %}
                 <tr>
-                    <td>{{ funcionario.creado }}</td>
-                    <td><a href="{{ url_for('tesis_jurisprudencias_funcionarios.detail', funcionario_id=funcionario.id) }}">{{ funcionario.nombre }}</a></td>
+                    <td>{{ tesis_funcionario.tesis_jurisprudencias.clave_control }}</td>
+                    <td><a href="{{ url_for('tesis_jurisprudencias_funcionarios.detail', tesis_jurisprudencia_funcionario_id=tesis_funcionario.id) }}">{{ tesis_funcionario.funcionario.nombres +' ' + tesis_funcionario.funcionario.apellido_paterno +' ' + tesis_funcionario.funcionario.apellido_materno  }}</a></td> 
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% endcall %}
 {% endblock %}
-
 {% block custom_javascript %}
-    {{ list.datatable_times('tesis_jurisprudencias_funcionarios_datatable') }}
+    {{ list.datatable('tesis_jurisprudencias_funcionarios_datatable') }}
 {% endblock %}
