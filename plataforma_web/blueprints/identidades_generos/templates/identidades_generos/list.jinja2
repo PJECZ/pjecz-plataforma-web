@@ -1,0 +1,93 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Identidades de Géneros{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('IDENTIDADES GENEROS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('identidades_generos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('identidades_generos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('IDENTIDADES GENEROS') %}
+            {{ topbar.button_new('Nueva Identidad de Género', url_for('identidades_generos.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="identidades_generos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre actual</th>
+                    <th>Nombre anterior</th>
+                    <th>Fecha de nacimiento</th>
+                    <th>Lugar de nacimiento</th>
+                    <th>Género anterior</th>
+                    <th>Género actual</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#identidades_generos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/identidades_generos/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "nombre_anterior" },
+                { data: "fecha_nacimiento" },
+                { data: "lugar_nacimiento" },
+                { data: "genero_anterior" },
+                { data: "genero_actual" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre_actual + '</a>';
+                    }
+                },
+                {
+                    targets: 2,
+                    type: "date",
+                    render: function (data, type, row) {
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
+{% endblock %}
