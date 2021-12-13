@@ -9,7 +9,7 @@
     {% call topbar.page_buttons(tesis_jurisprudencia.titulo) %}
         {{ topbar.button_previous('Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.list_active')) }}
         {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
-            {{ topbar.button_edit('Editar', url_for('tesis_jurisprudencias.edit', tesis_jurisprudencias_id=tesis_jurisprudencias.id)) }}
+            {{ topbar.button_edit('Editar', url_for('tesis_jurisprudencias.edit', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}
         {% endif %}
         {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencia.autoridad_id == current_user.autoridad_id) %}
             {% if tesis_jurisprudencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('tesis_jurisprudencias.delete', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}{% endif %}
@@ -29,11 +29,10 @@
         {{ detail.label_value('Número de registro digital', tesis_jurisprudencia.numero_registro_digital) }}
         {{ detail.label_value('Clave de control', tesis_jurisprudencia.clave_control) }}
         {{ detail.label_value('Tesis o Jurisprudencia', tesis_jurisprudencia.clase) }}
-        {{ detail.label_value('Materia', tesis_jurisprudencia.materia) }}
+        {{ detail.label_value('Materia', tesis_jurisprudencia.materia.nombre) }}
         {{ detail.label_value('Rubro', tesis_jurisprudencia.rubro) }}
         {{ detail.label_value('Texto', tesis_jurisprudencia.texto) }}
         {{ detail.label_value('Precedentes', tesis_jurisprudencia.precedentes) }}
-        {{ detail.label_value('Magistrado ponente', tesis_jurisprudencia.funcionario.nombre) }}
         {{ detail.label_value('Fecha de aprobación', tesis_jurisprudencia.aprobacion_fecha) }}
         {{ detail.label_value('Votación', tesis_jurisprudencia.votacion) }}
         {{ detail.label_value('Votos particulares', tesis_jurisprudencia.votos_particulares) }}
