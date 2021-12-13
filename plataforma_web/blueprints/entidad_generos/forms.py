@@ -18,7 +18,6 @@ class EntidadGeneroForm(FlaskForm):
     lugar_nacimiento = StringField("Lugar de Nacimiento", validators=[Optional()])
     genero_anterior = SelectField("Género Anterior", choices=EntidadGenero.GENEROS, validators=[DataRequired()])
     genero_actual = SelectField("Género Actual", choices=EntidadGenero.GENEROS, validators=[DataRequired()])
-    num_empleado = StringField("Número de Empleado", validators=[Optional()])
     nombre_padre = StringField("Nombre del Padre", validators=[Length(max=256)])
     nombre_madre = StringField("Nombre de la Madre", validators=[Length(max=256)])
     procedimiento = StringField("Procedimiento", validators=[DataRequired(), Length(max=256)])

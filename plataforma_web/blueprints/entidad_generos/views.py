@@ -68,7 +68,6 @@ def new():
             lugar_nacimiento=form.lugar_nacimiento.data,
             genero_anterior=form.genero_anterior.data,
             genero_actual=form.genero_actual.data,
-            num_empleado=form.num_empleado.data,
             nombre_padre=form.nombre_padre.data,
             nombre_madre=form.nombre_madre.data,
             procedimiento=form.procedimiento.data,
@@ -100,7 +99,6 @@ def edit(entidad_genero_id):
         entidad_genero.lugar_nacimiento = form.lugar_nacimiento.data
         entidad_genero.genero_anterior = form.genero_anterior.data
         entidad_genero.genero_actual = form.genero_actual.data
-        entidad_genero.num_empleado = form.num_empleado.data
         entidad_genero.nombre_padre = form.nombre_padre.data
         entidad_genero.nombre_madre = form.nombre_madre.data
         entidad_genero.procedimiento = form.procedimiento.data
@@ -113,7 +111,6 @@ def edit(entidad_genero_id):
     form.lugar_nacimiento.data = entidad_genero.lugar_nacimiento
     form.genero_anterior.data = entidad_genero.genero_anterior
     form.genero_actual.data = entidad_genero.genero_actual
-    form.num_empleado.data = entidad_genero.num_empleado
     form.nombre_padre.data = entidad_genero.nombre_padre
     form.nombre_madre.data = entidad_genero.nombre_madre
     form.procedimiento.data = entidad_genero.procedimiento
