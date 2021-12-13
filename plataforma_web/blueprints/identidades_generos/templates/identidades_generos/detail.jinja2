@@ -1,0 +1,39 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Identidad de Género{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons("Identidad de Género") %}
+        {{ topbar.button_previous('Identidad de Género', url_for('identidades_generos.list_active')) }}
+        {% if current_user.can_edit('IDENTIDADES GENEROS') %}
+            {{ topbar.button_edit('Editar', url_for('identidades_generos.edit', identidad_genero_id=identidad_genero.id)) }}
+            {% if identidad_genero.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('identidades_generos.delete', identidad_genero_id=identidad_genero.id)) }}{% endif %}
+            {% if identidad_genero.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('identidades_generos.recover', identidad_genero_id=identidad_genero.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=identidad_genero.estatus) %}
+        {{ detail.label_value('Nombre Actual', identidad_genero.nombre_actual) }}
+        {{ detail.label_value('Nombre Anterior', identidad_genero.nombre_anterior) }}
+        {{ detail.label_value('Fecha Nacimiento', identidad_genero.fecha_nacimiento) }}
+        {{ detail.label_value('Lugar de Nacimiento', identidad_genero.lugar_nacimiento) }}
+        {{ detail.label_value('Género Anterior', identidad_genero.genero_anterior) }}
+        {{ detail.label_value('Género Actual', identidad_genero.genero_actual) }}
+        {{ detail.label_value('Nombre del Padre', identidad_genero.nombre_padre) }}
+        {{ detail.label_value('Nombre del Madre', identidad_genero.nombre_madre) }}
+        {{ detail.label_value('Procedimiento', identidad_genero.procedimiento) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('IDENTIDADES GENEROS') %}
+        {% if identidad_genero.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + identidad_genero.nombre_actual + '?') }}{% endif %}
+        {% if identidad_genero.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + identidad_genero.nombre_actual + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
