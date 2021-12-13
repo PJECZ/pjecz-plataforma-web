@@ -61,7 +61,7 @@
                 <table id="registro_dataTable1_detail" class="table table-striped" width="100%">
                     <thead>
                         <th>Código</th>
-                        <th>Nombre</th>
+                        <th>Nombre registro</th>
                         <th>Responsable</th>
                         <th>Años de retención</th>
                     </thead>
@@ -75,7 +75,7 @@
                     <thead>
                         <th>No. Revisión</th>
                         <th>Cambios y/o Actualizaciónes</th>
-                        <th>Solicitud de Cambio No.</th>
+                        <th>Solicitud de cambio No.</th>
                         <th>Fecha</th>
                     </thead>
                     <tbody>
@@ -125,8 +125,8 @@
     {% endif %}
     <!-- Detalle Registros -->
     <script>
-        let datos = {{ registros }};
         $(document).ready(function(){
+            let datos = {{ registros }};
             var Arrayfinal = [];
             Object.keys(datos).forEach(item =>{
                 var tempArr = new Array();
@@ -143,8 +143,8 @@
     </script>
      <!-- Detalle Control de cambios -->
     <script>
-        let datos_cambio = {{ control_cambios }};
         $(document).ready(function(){
+            let datos_cambio = {{ control_cambios }};
             var Arrayfinal = [];
             Object.keys(datos_cambio).forEach(item =>{
                 var tempArr = new Array();

@@ -54,7 +54,7 @@
                         <button class="multisteps-form__progress-btn" type="button" title="Registros" style="font-size:12px" disabled>Registros</button>
                         <button class="multisteps-form__progress-btn" type="button" title="Control de Cambios" style="font-size:12px" disabled>Control de Cambios</button>
                         <button class="multisteps-form__progress-btn" type="button" title="Autorizaciones" style="font-size:12px" disabled>Autorizaciones</button>
-                        <button class="multisteps-form__progress-btn" type="button" title="Vista previa" style="font-size:12px" disabled>Vista previa</button>
+                        {# <button class="multisteps-form__progress-btn" type="button" title="Vista previa" style="font-size:12px" disabled>Vista previa</button> #}
                     </div>
                 </div>
             </div>
@@ -111,7 +111,7 @@
                                 <div id="regis_pop"><a tabindex="0" class="popover-registro" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                                 {% call add_data.form_create() %}
                                         {% call add_data.input_form('2','text','registro_codigo','Código') %}{% endcall %}
-                                        {% call add_data.input_form('3','text','registro_nombre','Nombre') %}{% endcall %}
+                                        {% call add_data.input_form('3','text','registro_nombre','Nombre registro') %}{% endcall %}
                                         {% call add_data.input_form('3','text','registro_responsable','Responsable') %}{% endcall %}
                                         {% call add_data.input_form('2','number','registro_retencion','Años Retención', 'min="1"') %}{% endcall %}
                                         {{ add_data.boton('btn_add_reg','Agregar Registro') }}
@@ -119,7 +119,7 @@
                                             <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
                                                 <thead>
                                                     <th>Código</th>
-                                                    <th>Nombre Registro</th>
+                                                    <th>Nombre registro</th>
                                                     <th>Responsable</th>
                                                     <th>Años de retención</th>
                                                 </thead>
@@ -151,7 +151,7 @@
                                                 <thead>
                                                     <th>No. Revisión</th>
                                                     <th>Cambios y/o Actualizaciónes</th>
-                                                    <th>Solicitud de Cambio No.</th>
+                                                    <th>Solicitud de cambio No.</th>
                                                     <th>Fecha</th>
                                                 </thead>
                                                 <tbody>
@@ -233,7 +233,7 @@
     {{ quill.editor(instance='definicionesQuill', div_id='definiciones_quill') }}
     {{ quill.editor(instance='responsabilidadesQuill', div_id='responsabilidades_quill') }}
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
-    {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }}
+    {# {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }} #}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -364,6 +364,20 @@
             });
         });
     </script>
+    <!-- Llenar los inputs con JSON vacios -->
+    <script>
+        const vacio = '{"ops":[{"insert":"\n"}]}';
+        const vacio_form = '{}';
+        $('#objetivo').val(vacio);
+        $('#alcance').val(vacio);
+        $('#documentos').val(vacio);
+        $('#definiciones').val(vacio);
+        $('#responsabilidades').val(vacio);
+        $('#desarrollo').val(vacio);
+        $('#registros').val(vacio_form);
+        $('#control_cambios').val(vacio_form);
+        //$('#vista_previa').val(vacio);
+    </script>
     <script>
         $(document).ready(function(){
             $('#elaboro_email').addClass('js-example-placeholder-single js-states form-control');
@@ -377,17 +391,6 @@
                 allowClear: true
             });
         });
-    </script>
-    <!-- Llenar los inputs con JSON vacios -->
-    <script>
-        const vacio = '{"ops":[{"insert":"\n"}]}';
-        $('#objetivo').val(vacio);
-        $('#alcance').val(vacio);
-        $('#documentos').val(vacio);
-        $('#definiciones').val(vacio);
-        $('#responsabilidades').val(vacio);
-        $('#desarrollo').val(vacio);
-        $('#vista_previa').val(vacio);
     </script>
     <!-- En este script se crean los popovers con la información de cada paso en el procedimiento -->
     <script>

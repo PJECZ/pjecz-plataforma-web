@@ -219,7 +219,7 @@ DOMstrings.stepsBar.addEventListener('click', e => {
     // open active panel
     setActivePanel(activeStep);
     // mostrar vista previa del procedimiento
-    mostrar_vista_previa();
+    //mostrar_vista_previa();
 });
 
 // PREV/NEXT BTNS CLICK
@@ -240,7 +240,7 @@ DOMstrings.stepsForm.addEventListener('click', e => {
     }
     setActiveStep(activePanelNum);
     setActivePanel(activePanelNum);
-    mostrar_vista_previa();
+    //mostrar_vista_previa();
 });
 
 // SETTING PROPER FORM HEIGHT ONLOAD
