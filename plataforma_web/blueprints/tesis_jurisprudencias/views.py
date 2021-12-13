@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
-from lib.time_utc import combine_to_utc, decombine_to_local, join_for_message
+from lib.time_utc import combine_to_utc, decombine_to_local
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -210,13 +210,13 @@ def new():
     autoridad = current_user.autoridad
     if autoridad is None or autoridad.estatus != "A":
         flash("El juzgado/autoridad no existe o no es activa.", "warning")
-        return redirect(url_for("listas_de_acuerdos.list_active"))
+        return redirect(url_for("tesis_jurisprudencias.list_active"))
     if not autoridad.distrito.es_distrito_judicial:
         flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
-        return redirect(url_for("listas_de_acuerdos.list_active"))
+        return redirect(url_for("tesis_jurisprudencias.list_active"))
     if not autoridad.es_jurisdiccional:
         flash("El juzgado/autoridad no es jurisdiccional.", "warning")
-        return redirect(url_for("listas_de_acuerdos.list_active"))
+        return redirect(url_for("tesis_jurisprudencias.list_active"))
     # Formulario
     form = TesisJurisprudenciaForm()
     if form.validate_on_submit():
@@ -240,13 +240,11 @@ def new():
                 subtitulo=safe_string(form.subtitulo.data),
                 autoridad=autoridad,
                 epoca=form.epoca.data,
-                funcionario=form.funcionario.data,
                 materia=form.materia.data,
                 tipo=form.tipo.data,
                 estado=form.estado.data,
                 clave_control=safe_string(form.clave_control.data),
                 clase=form.clase.data,
-                instancia=safe_string(form.instancia.data),
                 rubro=safe_string(form.rubro.data),
                 texto=form.texto.data,
                 precedentes=form.precedentes.data,
@@ -279,13 +277,13 @@ def new_for_autoridad(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad is None or autoridad.estatus != "A":
         flash("El juzgado/autoridad no existe o no es activa.", "warning")
-        return redirect(url_for("listas_de_acuerdos.list_active"))
+        return redirect(url_for("tesis_jurisprudencias.list_active"))
     if not autoridad.distrito.es_distrito_judicial:
         flash("El juzgado/autoridad no está en un distrito jurisdiccional.", "warning")
-        return redirect(url_for("listas_de_acuerdos.list_active"))
+        return redirect(url_for("tesis_jurisprudencias.list_active"))
     if not autoridad.es_jurisdiccional:
         flash("El juzgado/autoridad no es jurisdiccional.", "warning")
-        return redirect(url_for("listas_de_acuerdos.list_active"))
+        return redirect(url_for("tesis_jurisprudencias.list_active"))
     # Formulario
     form = TesisJurisprudenciaForm()
     if form.validate_on_submit():
@@ -309,13 +307,11 @@ def new_for_autoridad(autoridad_id):
                 subtitulo=safe_string(form.subtitulo.data),
                 autoridad=autoridad,
                 epoca=form.epoca.data,
-                funcionario=form.funcionario.data,
                 materia=form.materia.data,
                 tipo=form.tipo.data,
                 estado=form.estado.data,
                 clave_control=safe_string(form.clave_control.data),
                 clase=form.clase.data,
-                instancia=safe_string(form.instancia.data),
                 rubro=safe_string(form.rubro.data),
                 texto=form.texto.data,
                 precedentes=form.precedentes.data,
@@ -337,7 +333,11 @@ def new_for_autoridad(autoridad_id):
             return redirect(bitacora.url)
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    return render_template("tesis_jurisprudencias/new.jinja2", form=form)
+    return render_template(
+        "tesis_jurisprudencias/new_for_autoridad.jinja2",
+        form=form,
+        autoridad=autoridad,
+    )
 
 
 @tesis_jurisprudencias.route("/tesis_jurisprudencias/edicion/<int:tesis_jurisprudencia_id>", methods=["GET", "POST"])
@@ -347,51 +347,62 @@ def edit(tesis_jurisprudencia_id):
     tesis_jurisprudencia = TesisJurisprudencia.query.get_or_404(tesis_jurisprudencia_id)
     form = TesisJurisprudenciaForm()
     if form.validate_on_submit():
-        tesis_jurisprudencia.titulo = safe_string(form.titulo.data)
-        tesis_jurisprudencia.subtitulo = safe_string(form.subtitulo.data)
-        tesis_jurisprudencia.epoca = form.epoca.data
-        tesis_jurisprudencia.funcionario = form.funcionario.data
-        tesis_jurisprudencia.materia = form.materia.data
-        tesis_jurisprudencia.tipo = form.tipo.data
-        tesis_jurisprudencia.estado = form.estado.data
-        tesis_jurisprudencia.clave_control = safe_string(form.clave_control.data)
-        tesis_jurisprudencia.clase = form.clase.data
-        tesis_jurisprudencia.instancia = safe_string(form.instancia.data)
-        tesis_jurisprudencia.rubro = safe_string(form.rubro.data)
-        tesis_jurisprudencia.texto = form.texto.data
-        tesis_jurisprudencia.precedentes = form.precedentes.data
-        tesis_jurisprudencia.votacion = safe_string(form.votacion.data)
-        tesis_jurisprudencia.votos_particulares = safe_string(form.votos_particulares.data)
-        tesis_jurisprudencia.aprobacion_fecha = form.aprobacion_fecha.data
-        tesis_jurisprudencia.publicacion_tiempo = form.publicacion_tiempo.data
-        tesis_jurisprudencia.aplicacion_tiempo = form.aplicacion_tiempo.data
-        tesis_jurisprudencia.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado Tesis Jurisprudencia {tesis_jurisprudencia.titulo}"),
-            url=url_for("tesis_jurisprudencias.detail", tesis_jurisprudencia_id=tesis_jurisprudencia.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
+        es_valido = True
+        # Definir tiempo de publicación con fecha y horas:minutos
+        try:
+            publicacion_tiempo = combine_to_utc(form.publicacion_fecha.data, form.publicacion_horas_minutos.data)
+        except ValueError as error:
+            flash(str(error), "warning")
+            es_valido = False
+        # Definir tiempo de publicación con fecha y horas:minutos
+        try:
+            aplicacion_tiempo = combine_to_utc(form.aplicacion_fecha.data, form.aplicacion_horas_minutos.data)
+        except ValueError as error:
+            flash(str(error), "warning")
+            es_valido = False
+        # Guardar si es válido
+        if es_valido:
+            tesis_jurisprudencia.titulo = safe_string(form.titulo.data)
+            tesis_jurisprudencia.subtitulo = safe_string(form.subtitulo.data)
+            tesis_jurisprudencia.epoca = form.epoca.data
+            tesis_jurisprudencia.materia = form.materia.data
+            tesis_jurisprudencia.tipo = form.tipo.data
+            tesis_jurisprudencia.estado = form.estado.data
+            tesis_jurisprudencia.clave_control = safe_string(form.clave_control.data)
+            tesis_jurisprudencia.clase = form.clase.data
+            tesis_jurisprudencia.rubro = safe_string(form.rubro.data)
+            tesis_jurisprudencia.texto = form.texto.data
+            tesis_jurisprudencia.precedentes = form.precedentes.data
+            tesis_jurisprudencia.votacion = safe_string(form.votacion.data)
+            tesis_jurisprudencia.votos_particulares = safe_string(form.votos_particulares.data)
+            tesis_jurisprudencia.aprobacion_fecha = form.aprobacion_fecha.data
+            tesis_jurisprudencia.publicacion_tiempo = publicacion_tiempo
+            tesis_jurisprudencia.aplicacion_tiempo = aplicacion_tiempo
+            tesis_jurisprudencia.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado Tesis Jurisprudencia {tesis_jurisprudencia.titulo}"),
+                url=url_for("tesis_jurisprudencias.detail", tesis_jurisprudencia_id=tesis_jurisprudencia.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
     form.titulo.data = tesis_jurisprudencia.titulo
     form.subtitulo.data = tesis_jurisprudencia.subtitulo
     form.epoca.data = tesis_jurisprudencia.epoca
-    form.funcionario.data = tesis_jurisprudencia.funcionario
     form.materia.data = tesis_jurisprudencia.materia
     form.tipo.data = tesis_jurisprudencia.tipo
     form.estado.data = tesis_jurisprudencia.estado
     form.clave_control.data = tesis_jurisprudencia.clave_control
     form.clase.data = tesis_jurisprudencia.clase
-    form.instancia.data = tesis_jurisprudencia.instancia
     form.rubro.data = tesis_jurisprudencia.rubro
     form.texto.data = tesis_jurisprudencia.texto
     form.precedentes.data = tesis_jurisprudencia.precedentes
     form.votacion.data = tesis_jurisprudencia.votacion
     form.votos_particulares.data = tesis_jurisprudencia.votos_particulares
     form.aprobacion_fecha.data = tesis_jurisprudencia.aprobacion_fecha
-    form.publicacion_tiempo.data = tesis_jurisprudencia.publicacion_tiempo
-    form.aplicacion_tiempo.data = tesis_jurisprudencia.aplicacion_tiempo
+    form.publicacion_fecha.data, form.publicacion_horas_minutos.data = decombine_to_local(tesis_jurisprudencia.publicacion_tiempo)
+    form.aplicacion_fecha.data, form.aplicacion_horas_minutos.data = decombine_to_local(tesis_jurisprudencia.aplicacion_tiempo)
     return render_template("tesis_jurisprudencias/edit.jinja2", form=form, tesis_jurisprudencia=tesis_jurisprudencia)
 
 
