@@ -57,10 +57,10 @@ class TesisJurisprudencia(db.Model, UniversalMixin):
     estado = db.Column(db.Enum(*ESTADOS, name="estados", native_enum=False), index=True, nullable=False)  # Estatus: interrumpir o modificar (Catálogo)
     clave_control = db.Column(db.String(24), nullable=False, default="", server_default="")  # Clave de control (Como se indica en los lineamientos)
     clase = db.Column(db.Enum(*CLASES, name="clases", native_enum=False), index=True, nullable=False)  # Indicar si es Tesis o Jurisprudencia
-    instancia = db.Column(db.String(256), nullable=False, default="", server_default="")  # Instancia
+    # instancia = db.Column(db.String(256), nullable=False, default="", server_default="")  # Instancia
     rubro = db.Column(db.String(256), nullable=False, default="", server_default="")  # Rubro
     texto = db.Column(db.Text(), nullable=False)  # Texto (En su caso archivo a subir en la plataforma)
-    precedentes = db.Column(db.Text(), nullable=False)  # Precedentes que sustentan las tesis
+    # precedentes = db.Column(db.Text(), nullable=False)  # Precedentes que sustentan las tesis
     votacion = db.Column(db.String(256), nullable=False, default="", server_default="")  # Votación con la que fue votada (Número de votos y quienes votaron en sentido afirmativo o negativo)
     votos_particulares = db.Column(db.String(256), nullable=False, default="", server_default="")  # Votos particulares(En su caso relacionar las sentencias que fueron publicadas en el sitio oficial del Poder Judicial)
     aprobacion_fecha = db.Column(db.Date(), nullable=False)  # Fecha en la que fue aprobada (Fecha y hora)

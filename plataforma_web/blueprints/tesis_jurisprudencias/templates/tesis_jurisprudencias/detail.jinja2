@@ -9,7 +9,7 @@
     {% call topbar.page_buttons(tesis_jurisprudencia.titulo) %}
         {{ topbar.button_previous('Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.list_active')) }}
         {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
-            {{ topbar.button_edit('Editar', url_for('tesis_jurisprudencias.edit', tesis_jurisprudencias_id=tesis_jurisprudencias.id)) }}
+            {{ topbar.button_edit('Editar', url_for('tesis_jurisprudencias.edit', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}
         {% endif %}
         {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_edit('TESIS JURISPRUDENCIAS') and tesis_jurisprudencia.autoridad_id == current_user.autoridad_id) %}
             {% if tesis_jurisprudencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('tesis_jurisprudencias.delete', tesis_jurisprudencia_id=tesis_jurisprudencia.id)) }}{% endif %}
@@ -29,18 +29,45 @@
         {{ detail.label_value('Número de registro digital', tesis_jurisprudencia.numero_registro_digital) }}
         {{ detail.label_value('Clave de control', tesis_jurisprudencia.clave_control) }}
         {{ detail.label_value('Tesis o Jurisprudencia', tesis_jurisprudencia.clase) }}
-        {{ detail.label_value('Instancia', tesis_jurisprudencia.instancia) }}
-        {{ detail.label_value('Materia', tesis_jurisprudencia.materia) }}
+        {# {{ detail.label_value('Instancia', tesis_jurisprudencia.instancia) }} #}
+        {{ detail.label_value('Materia', tesis_jurisprudencia.materia.nombre) }}
         {{ detail.label_value('Rubro', tesis_jurisprudencia.rubro) }}
         {{ detail.label_value('Texto', tesis_jurisprudencia.texto) }}
-        {{ detail.label_value('Precedentes', tesis_jurisprudencia.precedentes) }}
-        {{ detail.label_value('Magistrado ponente', tesis_jurisprudencia.funcionario.nombre) }}
+        {# {{ detail.label_value('Precedentes', tesis_jurisprudencia.precedentes) }} #}
+        {# {{ detail.label_value('Magistrado ponente', tesis_jurisprudencia.funcionario.nombre) }} #}
         {{ detail.label_value('Fecha de aprobación', tesis_jurisprudencia.aprobacion_fecha) }}
         {{ detail.label_value('Votación', tesis_jurisprudencia.votacion) }}
         {{ detail.label_value('Votos particulares', tesis_jurisprudencia.votos_particulares) }}
         {{ detail.label_value('Fecha y hora de publicación', tesis_jurisprudencia.publicacion_tiempo) }}
         {{ detail.label_value('Fecha y hora en la que se considera de aplicación obligatoria', tesis_jurisprudencia.aplicacion_tiempo) }}
         {{ detail.label_value('Época', tesis_jurisprudencia.epoca.nombre) }}
+    {% endcall %}
+    {% call detail.card("Magistrados") %}
+        <table id="magistrados_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Magistrado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for tesis_juris_funcionarios in tesis_jurisprudencia.tesis_jurisprudencias_funcionarios %}
+                {% if tesis_juris_funcionarios.estatus == "A" %}
+                <tr>
+                    <td><a href="">{{ tesis_juris_funcionarios.funcionario.nombre }}</a></td>
+                    <td>
+                    {# {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %} #}
+                        {{ modals.button_delete(url=url_for('tesis_jurisprudencias_funcionarios.delete', tesis_jurisprudencia_funcionario_id=tesis_juris_funcionarios.id), id='DeleteTesisFuncionario', message='¿Eliminar ' + tesis_juris_funcionarios.funcionario.nombres + '?') }}
+                    {# {% endif %} #}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {# {% if current_user.can_insert('USUARIOS ROLES') %} #}
+            <a href="{{ url_for('tesis_jurisprudencias_funcionarios.new_with_tesis', tesis_jurisprudencias_id=tesis_jurisprudencia.id) }}" class="btn btn-primary">Agregar</a>
+        {# {% endif %} #}
     {% endcall %}
 {% endblock %}
 
@@ -49,4 +76,6 @@
         {% if tesis_jurisprudencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencia.titulo + '?') }}{% endif %}
         {% if tesis_jurisprudencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencia.titulo + '?') }}{% endif %}
     {% endif %}
+
+    {{ modals.custom_javascript('Eliminar', '¿Eliminar el funcionario de la tesis y jurisprudencia?', 'DeleteTesisFuncionario') }}
 {% endblock %}

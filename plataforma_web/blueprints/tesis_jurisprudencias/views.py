@@ -199,6 +199,7 @@ def datatable_json_admin():
 def detail(tesis_jurisprudencia_id):
     """Detalle de una Tesis Jurisprudencias"""
     tesis_jurisprudencia = TesisJurisprudencia.query.get_or_404(tesis_jurisprudencia_id)
+    print(tesis_jurisprudencia_id)
     return render_template("tesis_jurisprudencias/detail.jinja2", tesis_jurisprudencia=tesis_jurisprudencia)
 
 
@@ -240,16 +241,16 @@ def new():
                 subtitulo=safe_string(form.subtitulo.data),
                 autoridad=autoridad,
                 epoca=form.epoca.data,
-                funcionario=form.funcionario.data,
+                # funcionario=form.funcionario.data,
                 materia=form.materia.data,
                 tipo=form.tipo.data,
                 estado=form.estado.data,
                 clave_control=safe_string(form.clave_control.data),
                 clase=form.clase.data,
-                instancia=safe_string(form.instancia.data),
+                # instancia=safe_string(form.instancia.data),
                 rubro=safe_string(form.rubro.data),
                 texto=form.texto.data,
-                precedentes=form.precedentes.data,
+                # precedentes=form.precedentes.data,
                 votacion=safe_string(form.votacion.data),
                 votos_particulares=safe_string(form.votos_particulares.data),
                 aprobacion_fecha=form.aprobacion_fecha.data,
@@ -309,16 +310,16 @@ def new_for_autoridad(autoridad_id):
                 subtitulo=safe_string(form.subtitulo.data),
                 autoridad=autoridad,
                 epoca=form.epoca.data,
-                funcionario=form.funcionario.data,
+                # funcionario=form.funcionario.data,
                 materia=form.materia.data,
                 tipo=form.tipo.data,
                 estado=form.estado.data,
                 clave_control=safe_string(form.clave_control.data),
                 clase=form.clase.data,
-                instancia=safe_string(form.instancia.data),
+                # instancia=safe_string(form.instancia.data),
                 rubro=safe_string(form.rubro.data),
                 texto=form.texto.data,
-                precedentes=form.precedentes.data,
+                # precedentes=form.precedentes.data,
                 votacion=safe_string(form.votacion.data),
                 votos_particulares=safe_string(form.votos_particulares.data),
                 aprobacion_fecha=form.aprobacion_fecha.data,
@@ -347,51 +348,75 @@ def edit(tesis_jurisprudencia_id):
     tesis_jurisprudencia = TesisJurisprudencia.query.get_or_404(tesis_jurisprudencia_id)
     form = TesisJurisprudenciaForm()
     if form.validate_on_submit():
-        tesis_jurisprudencia.titulo = safe_string(form.titulo.data)
-        tesis_jurisprudencia.subtitulo = safe_string(form.subtitulo.data)
-        tesis_jurisprudencia.epoca = form.epoca.data
-        tesis_jurisprudencia.funcionario = form.funcionario.data
-        tesis_jurisprudencia.materia = form.materia.data
-        tesis_jurisprudencia.tipo = form.tipo.data
-        tesis_jurisprudencia.estado = form.estado.data
-        tesis_jurisprudencia.clave_control = safe_string(form.clave_control.data)
-        tesis_jurisprudencia.clase = form.clase.data
-        tesis_jurisprudencia.instancia = safe_string(form.instancia.data)
-        tesis_jurisprudencia.rubro = safe_string(form.rubro.data)
-        tesis_jurisprudencia.texto = form.texto.data
-        tesis_jurisprudencia.precedentes = form.precedentes.data
-        tesis_jurisprudencia.votacion = safe_string(form.votacion.data)
-        tesis_jurisprudencia.votos_particulares = safe_string(form.votos_particulares.data)
-        tesis_jurisprudencia.aprobacion_fecha = form.aprobacion_fecha.data
-        tesis_jurisprudencia.publicacion_tiempo = form.publicacion_tiempo.data
-        tesis_jurisprudencia.aplicacion_tiempo = form.aplicacion_tiempo.data
-        tesis_jurisprudencia.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado Tesis Jurisprudencia {tesis_jurisprudencia.titulo}"),
-            url=url_for("tesis_jurisprudencias.detail", tesis_jurisprudencia_id=tesis_jurisprudencia.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
+
+        es_valido = True
+        # Definir tiempo de publicación con fecha y horas:minutos
+        try:
+            publicacion_tiempo = combine_to_utc(form.publicacion_fecha.data, form.publicacion_horas_minutos.data)
+        except ValueError as error:
+            flash(str(error), "warning")
+            es_valido = False
+        # Definir tiempo de publicación con fecha y horas:minutos
+        try:
+            aplicacion_tiempo = combine_to_utc(form.aplicacion_fecha.data, form.aplicacion_horas_minutos.data)
+        except ValueError as error:
+            flash(str(error), "warning")
+            es_valido = False
+        # Guardar si es válido
+
+        if es_valido:
+            tesis_jurisprudencia.titulo = safe_string(form.titulo.data)
+            tesis_jurisprudencia.subtitulo = safe_string(form.subtitulo.data)
+            tesis_jurisprudencia.epoca = form.epoca.data
+            # tesis_jurisprudencia.funcionario = form.funcionario.data
+            tesis_jurisprudencia.materia = form.materia.data
+            tesis_jurisprudencia.tipo = form.tipo.data
+            tesis_jurisprudencia.estado = form.estado.data
+            tesis_jurisprudencia.clave_control = safe_string(form.clave_control.data)
+            tesis_jurisprudencia.clase = form.clase.data
+            # tesis_jurisprudencia.instancia = safe_string(form.instancia.data)
+            tesis_jurisprudencia.rubro = safe_string(form.rubro.data)
+            tesis_jurisprudencia.texto = form.texto.data
+            # tesis_jurisprudencia.precedentes = form.precedentes.data
+            tesis_jurisprudencia.votacion = safe_string(form.votacion.data)
+            tesis_jurisprudencia.votos_particulares = safe_string(form.votos_particulares.data)
+            tesis_jurisprudencia.aprobacion_fecha = form.aprobacion_fecha.data
+            tesis_jurisprudencia.publicacion_tiempo = publicacion_tiempo
+            tesis_jurisprudencia.aplicacion_tiempo = aplicacion_tiempo
+            tesis_jurisprudencia.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado Tesis Jurisprudencia {tesis_jurisprudencia.titulo}"),
+                url=url_for("tesis_jurisprudencias.detail", tesis_jurisprudencia_id=tesis_jurisprudencia.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+    
+    form.distrito.data = tesis_jurisprudencia.autoridad.distrito.nombre
+    form.autoridad.data = tesis_jurisprudencia.autoridad.descripcion
     form.titulo.data = tesis_jurisprudencia.titulo
     form.subtitulo.data = tesis_jurisprudencia.subtitulo
     form.epoca.data = tesis_jurisprudencia.epoca
-    form.funcionario.data = tesis_jurisprudencia.funcionario
+    # form.funcionario.data = tesis_jurisprudencia.funcionario
     form.materia.data = tesis_jurisprudencia.materia
     form.tipo.data = tesis_jurisprudencia.tipo
     form.estado.data = tesis_jurisprudencia.estado
     form.clave_control.data = tesis_jurisprudencia.clave_control
     form.clase.data = tesis_jurisprudencia.clase
-    form.instancia.data = tesis_jurisprudencia.instancia
+    # form.instancia.data = tesis_jurisprudencia.instancia
     form.rubro.data = tesis_jurisprudencia.rubro
     form.texto.data = tesis_jurisprudencia.texto
-    form.precedentes.data = tesis_jurisprudencia.precedentes
+    # form.precedentes.data = tesis_jurisprudencia.precedentes
     form.votacion.data = tesis_jurisprudencia.votacion
     form.votos_particulares.data = tesis_jurisprudencia.votos_particulares
     form.aprobacion_fecha.data = tesis_jurisprudencia.aprobacion_fecha
-    form.publicacion_tiempo.data = tesis_jurisprudencia.publicacion_tiempo
-    form.aplicacion_tiempo.data = tesis_jurisprudencia.aplicacion_tiempo
+
+    form.publicacion_fecha.data = tesis_jurisprudencia.publicacion_tiempo
+    form.publicacion_horas_minutos.data = tesis_jurisprudencia.publicacion_tiempo
+    form.aplicacion_fecha.data = tesis_jurisprudencia.aplicacion_tiempo
+    form.aplicacion_horas_minutos.data = tesis_jurisprudencia.aplicacion_tiempo
+    
     return render_template("tesis_jurisprudencias/edit.jinja2", form=form, tesis_jurisprudencia=tesis_jurisprudencia)
 
 
