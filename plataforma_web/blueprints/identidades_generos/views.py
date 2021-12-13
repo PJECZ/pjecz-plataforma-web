@@ -14,7 +14,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.identidades_generos.models import IdentidadGenero
-from plataforma_web.blueprints.identidades_generos.forms import IdentidadGeneroForm
+from plataforma_web.blueprints.identidades_generos.forms import IdentidadGeneroForm, IdentidadGeneroSearchForm
 
 MODULO = "IDENTIDADES GENEROS"
 
@@ -49,6 +49,32 @@ def list_inactive():
         titulo="Entidades de Géneros inactivos",
         estatus="B",
     )
+
+
+@identidades_generos.route("/identidades_generos/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Identidades Géneros"""
+    form_search = IdentidadGeneroSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.nombre_anterior.data:
+            nombre_anterior = safe_string(form_search.nombre_anterior.data)
+            if nombre_anterior != "":
+                busqueda["nombre_anterior"] = nombre_anterior
+                titulos.append("nombre_anterior " + nombre_anterior)
+        if form_search.nombre_actual.data:
+            nombre_actual = safe_string(form_search.nombre_anterior.data)
+            if nombre_actual != "":
+                busqueda["nombre_actual"] = nombre_actual
+                titulos.append("nombre_actual " + nombre_actual)
+        if form_search.lugar_nacimiento.data:
+            lugar_nacimiento = safe_string(form_search.lugar_nacimiento.data)
+            if lugar_nacimiento != "":
+                busqueda["lugar_nacimiento"] = lugar_nacimiento
+                titulos.append("lugar_nacimiento " + lugar_nacimiento)
+        return render_template("identidades_generos/list.jinja2", filtros=json.dumps(busqueda), titulo="Idenitdades registradas con " + ",".join(titulos))
+    return render_template("identidades_generos/search.jinja2", form=form_search)
 
 
 @identidades_generos.route("/identidades_generos/datatable_json", methods=["GET", "POST"])
