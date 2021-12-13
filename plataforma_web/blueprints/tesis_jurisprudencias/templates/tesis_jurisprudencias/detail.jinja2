@@ -40,6 +40,33 @@
         {{ detail.label_value('Fecha y hora en la que se considera de aplicación obligatoria', tesis_jurisprudencia.aplicacion_tiempo) }}
         {{ detail.label_value('Época', tesis_jurisprudencia.epoca.nombre) }}
     {% endcall %}
+    {% call detail.card("Magistrados ponentes") %}
+        <table id="magistrados_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Magistrado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for tesis_juris_funcionarios in tesis_jurisprudencia.tesis_jurisprudencias_funcionarios %}
+                {% if tesis_juris_funcionarios.estatus == "A" %}
+                <tr>
+                    <td><a href="">{{ tesis_juris_funcionarios.funcionario.nombre }}</a></td>
+                    <td>
+                    {# {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %} #}
+                        {{ modals.button_delete(url=url_for('tesis_jurisprudencias_funcionarios.delete', tesis_jurisprudencia_funcionario_id=tesis_juris_funcionarios.id), id='DeleteTesisFuncionario', message='¿Eliminar ' + tesis_juris_funcionarios.funcionario.nombres + '?') }}
+                    {# {% endif %} #}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {# {% if current_user.can_insert('USUARIOS ROLES') %} #}
+            <a href="{{ url_for('tesis_jurisprudencias_funcionarios.new_with_tesis', tesis_jurisprudencias_id=tesis_jurisprudencia.id) }}" class="btn btn-primary">Agregar</a>
+        {# {% endif %} #}
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -47,4 +74,7 @@
         {% if tesis_jurisprudencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencia.titulo + '?') }}{% endif %}
         {% if tesis_jurisprudencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencia.titulo + '?') }}{% endif %}
     {% endif %}
+    {{ modals.custom_javascript('Eliminar', '¿Eliminar el funcionario de la tesis y jurisprudencia?', 'DeleteTesisFuncionario') }}
 {% endblock %}
+
+

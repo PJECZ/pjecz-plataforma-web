@@ -1,0 +1,40 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/modals.jinja2' as modals %}
+
+{% block title %}Entidad de Género{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(entidad_genero.nombre_anterior) %}
+        {{ topbar.button_previous('Listado', url_for('entidad_generos.list_active')) }}
+        {% if current_user.can_admin('ENTIDAD GENEROS') %}
+            {{ topbar.button_edit('Editar', url_for('entidad_generos.edit', entidad_genero_id=entidad_genero.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('ENTIDAD GENEROS') or (current_user.can_edit('ENTIDAD GENEROS') and entidad_genero.autoridad_id == current_user.autoridad_id) %}
+            {% if entidad_genero.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('entidad_generos.delete', entidad_genero_id=entidad_genero.id)) }}{% endif %}
+            {% if entidad_genero.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('entidad_generos.recover', entidad_genero_id=entidad_genero.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=entidad_genero.estatus) %}
+        {{ detail.label_value('Nombre Anterior', entidad_genero.nombre_anterior) }}
+        {{ detail.label_value('Nombre Actual', entidad_genero.nombre_actual) }}
+        {{ detail.label_value('Fecha Nacimiento', entidad_genero.fecha_nacimiento) }}
+        {{ detail.label_value('Lugar de Nacimiento', entidad_genero.lugar_nacimiento) }}
+        {{ detail.label_value('Género Anterior', entidad_genero.genero_anterior) }}
+        {{ detail.label_value('Género Actual', entidad_genero.genero_actual) }}
+        {{ detail.label_value('Nombre del Padre', entidad_genero.nombre_padre) }}
+        {{ detail.label_value('Nombre del Madre', entidad_genero.nombre_madre) }}
+        {{ detail.label_value('Procedimiento', entidad_genero.procedimiento) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('ENTIDAD GENEROS') or (current_user.can_edit('ENTIDAD GENEROS') and entidad_genero.autoridad_id == current_user.autoridad_id) %}
+        {% if entidad_genero.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + entidad_genero.nombre_anterior + '?') }}{% endif %}
+        {% if entidad_genero.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + entidad_genero.nombre_anterior + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
