@@ -112,7 +112,7 @@
                                         {% call add_data.input_form('2','text','registro_codigo','Código') %}{% endcall %}
                                         {% call add_data.input_form('3','text','registro_nombre','Nombre') %}{% endcall %}
                                         {% call add_data.input_form('3','text','registro_responsable','Responsable') %}{% endcall %}
-                                        {% call add_data.input_form('2','number','registro_retencion','Tiempo Retención','min="1"') %}{% endcall %}
+                                        {% call add_data.input_form('2','number','registro_retencion','Años Retención','min="1"') %}{% endcall %}
                                         {{add_data.boton('btn_add_reg','Agregar Registro') }}
                                         <div class="row">
                                             <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
@@ -120,7 +120,7 @@
                                                     <th>Código</th>
                                                     <th>Nombre</th>
                                                     <th>Responsable</th>
-                                                    <th>Tiempo de retención</th>
+                                                    <th>Años de retención</th>
                                                 </thead>
                                                 <tbody>
                                                                             
@@ -444,7 +444,6 @@
                 title: 'Definiciones',
                 content: 'Palabras o términos que son utilizados como parte del “lenguaje técnico” o interpretaciones apegadas a lo establecido a la norma de referencia.' 
             });
-
             var popover = new bootstrap.Popover(document.querySelector('.popover-respon'), {
                 trigger: 'hover',
                 title: 'Responsabilidades',

@@ -113,15 +113,15 @@
                                         {% call add_data.input_form('2','text','registro_codigo','Código') %}{% endcall %}
                                         {% call add_data.input_form('3','text','registro_nombre','Nombre') %}{% endcall %}
                                         {% call add_data.input_form('3','text','registro_responsable','Responsable') %}{% endcall %}
-                                        {% call add_data.input_form('2','number','registro_retencion','Tiempo Retención', 'min="1"') %}{% endcall %}
+                                        {% call add_data.input_form('2','number','registro_retencion','Años Retención', 'min="1"') %}{% endcall %}
                                         {{ add_data.boton('btn_add_reg','Agregar Registro') }}
                                         <div class="row">
                                             <table id="registro_dataTable1" class="table table-striped table-hover" width="100%">
                                                 <thead>
                                                     <th>Código</th>
-                                                    <th>Nombre</th>
+                                                    <th>Nombre Registro</th>
                                                     <th>Responsable</th>
-                                                    <th>Tiempo de retención</th>
+                                                    <th>Años de retención</th>
                                                 </thead>
                                                 <tbody>
                                                                             
@@ -208,10 +208,10 @@
                             <div style="display: none;">{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Vista previa -->
-                        <style>.ql-disabled{overflow:auto;}</style>
+                        {# <style>.ql-disabled{overflow:auto;}</style>
                         {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
                             {{ quill.div(div_id='vista_previa_quill') }}
-                        {% endcall %}
+                        {% endcall %} #}
                     {% endcall %}
                 </div>
             </div>
