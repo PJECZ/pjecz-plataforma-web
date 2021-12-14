@@ -86,12 +86,14 @@ function guardar_control_cambios() {
     var tabla_control = $('#cambio_dataTable1').DataTable();
     control_cambios = JSON.stringify(tabla_control.data()).split(',"context":')[0] + "}";
     $('#control_cambios').val(control_cambios);
+    console.log(control_cambios);
 
 }
 
 // Guardar Autorizaciones
 function guardar_autorizaciones() {
     autorizaciones = $('#autorizaciones').val();
+    console.log('OK Todo bien');
 }
 
 // Guardar Vista Previa

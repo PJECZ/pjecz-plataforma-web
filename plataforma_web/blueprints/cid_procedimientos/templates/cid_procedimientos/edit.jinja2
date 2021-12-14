@@ -166,7 +166,7 @@
                             {% endcall %}
                             <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
-                         {% call quill.step('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()', next_onclick='javascript:guardar_autorizaciones()', save_onclick='javascript:guardar_autorizaciones()')%}
+                         {% call quill.step_last('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()')%}
                             <h4>Elaboró</h4>
                             <div class="row">
                                 <div class="col">
