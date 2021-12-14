@@ -13,13 +13,14 @@
     {% call detail.card() %}
             {{ detail.label_value('Fecha', mensaje.creado) }}
             {{ detail.label_value('Autor', mensaje.autor) }}
-            {{ detail.label_value('Mensaje', mensaje.mensaje) }}
+            {{ detail.label_value('Asunto', mensaje.asunto) }}
+            {{ detail.label_value('Contenido', mensaje.contenido) }}
     {% endcall %}
 
     {% call f.card() %}
     {% set form_kwargs = {'mensaje_id': mensaje.id} %}
         {% call f.form_tag('mensajes.new_response', fid='mensaje_form', **form_kwargs) %}
-            {% call f.form_group(form.autor) %}{% endcall %}
+            {% call f.form_group(form.asunto) %}{% endcall %}
             {% call f.form_group(form.respuesta) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}

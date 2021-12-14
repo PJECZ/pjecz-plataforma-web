@@ -24,7 +24,7 @@
             <thead>
                 <tr>
                     <th>Creado</th>
-                    <th>Autor</th>
+                    <th>Envíado por</th>
                     <th>Asunto</th>
                 </tr>
             </thead>
@@ -48,8 +48,8 @@
             <thead>
                 <tr>
                     <th>Creado</th>
-                    <th>Autor</th>
-                    <th>Respuesta</th>
+                    <th>Envíado Por</th>
+                    <th>Asunto</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,7 +57,7 @@
                 <tr>
                     <td>{{ mensaje.creado }}</td>
                     <td>{{ mensaje.autor }}</td>
-                    <td>{{ mensaje.asunto[:50] }}</td>
+                    <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=mensaje.id) }}">{{ mensaje.asunto[:50] }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

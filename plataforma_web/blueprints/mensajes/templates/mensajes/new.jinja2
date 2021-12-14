@@ -1,6 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/detail.jinja2' as detail %}
 
 {% block title %}Nuevo Mensaje{% endblock %}
 
@@ -9,9 +10,11 @@
 {% endblock %}
 
 {% block content %}
+
     {% call f.card() %}
         {% call f.form_tag('mensajes.new', fid='mensaje_form') %}
-            {% call f.form_group(form.autor) %}{% endcall %}
+            {{ detail.label_value('Autor', current_user.email) }}
+            {% call f.form_group(form.destinatario) %}{% endcall %}
             {% call f.form_group(form.asunto) %}{% endcall %}
             {% call f.form_group(form.contenido) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
