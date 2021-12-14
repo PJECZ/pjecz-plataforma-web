@@ -22,3 +22,12 @@ class IdentidadGeneroForm(FlaskForm):
     nombre_madre = StringField("Nombre de la Madre", validators=[Length(max=256)])
     procedimiento = StringField("Procedimiento", validators=[DataRequired(), Length(max=256)])
     guardar = SubmitField("Guardar")
+
+
+class IdentidadGeneroSearchForm(FlaskForm):
+    """Formulario para buscar Identidades de Géneros"""
+
+    nombre_actual = StringField("Nombre Actual", validators=[Optional(), Length(max=256)])
+    nombre_anterior = StringField("Nombre Anterior", validators=[Optional(), Length(max=256)])
+    lugar_nacimiento = StringField("Lugar de Nacimiento", validators=[Optional(), Length(max=256)])
+    buscar = SubmitField("Buscar")

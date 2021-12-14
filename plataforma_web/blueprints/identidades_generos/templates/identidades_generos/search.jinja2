@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Buscar Idendidades de Géneros{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Buscar Idendidades de Géneros') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('identidades_generos.search', fid='identidades_search_form') %}
+            {% call f.form_group(form.nombre_actual) %}{% endcall %}
+            {% call f.form_group(form.nombre_anterior) %}{% endcall %}
+            {% call f.form_group(form.lugar_nacimiento) %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

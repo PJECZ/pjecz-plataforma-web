@@ -13,6 +13,7 @@
         {% if current_user.can_insert('IDENTIDADES GENEROS') %}
             {{ topbar.button_new('Nueva Identidad de Género', url_for('identidades_generos.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('identidades_generos.search')) }}
     {% endcall %}
 {% endblock %}
 
