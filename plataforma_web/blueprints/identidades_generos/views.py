@@ -58,22 +58,27 @@ def search():
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
+        if form_search.nombre_actual.data:
+            nombre_actual = safe_string(form_search.nombre_actual.data)
+            if nombre_actual != "":
+                busqueda["nombre_actual"] = nombre_actual
+                titulos.append("nombre actual " + nombre_actual)
         if form_search.nombre_anterior.data:
             nombre_anterior = safe_string(form_search.nombre_anterior.data)
             if nombre_anterior != "":
                 busqueda["nombre_anterior"] = nombre_anterior
-                titulos.append("nombre_anterior " + nombre_anterior)
-        if form_search.nombre_actual.data:
-            nombre_actual = safe_string(form_search.nombre_anterior.data)
-            if nombre_actual != "":
-                busqueda["nombre_actual"] = nombre_actual
-                titulos.append("nombre_actual " + nombre_actual)
+                titulos.append("nombre anterior " + nombre_anterior)
         if form_search.lugar_nacimiento.data:
             lugar_nacimiento = safe_string(form_search.lugar_nacimiento.data)
             if lugar_nacimiento != "":
                 busqueda["lugar_nacimiento"] = lugar_nacimiento
-                titulos.append("lugar_nacimiento " + lugar_nacimiento)
-        return render_template("identidades_generos/list.jinja2", filtros=json.dumps(busqueda), titulo="Idenitdades registradas con " + ",".join(titulos))
+                titulos.append("lugar nacimiento " + lugar_nacimiento)
+        return render_template(
+            "identidades_generos/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Idenitdades registradas con " + ",".join(titulos),
+            estatus="A",
+        )
     return render_template("identidades_generos/search.jinja2", form=form_search)
 
 
@@ -88,6 +93,12 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "nombre_actual" in request.form:
+        consulta = consulta.filter(IdentidadGenero.nombre_actual.like("%" + safe_string(request.form["nombre_actual"]) + "%"))
+    if "nombre_anterior" in request.form:
+        consulta = consulta.filter(IdentidadGenero.nombre_anterior.like("%" + safe_string(request.form["nombre_anterior"]) + "%"))
+    if "lugar_nacimiento" in request.form:
+        consulta = consulta.filter(IdentidadGenero.lugar_nacimiento.like("%" + safe_string(request.form["lugar_nacimiento"]) + "%"))
     registros = consulta.order_by(IdentidadGenero.nombre_actual).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

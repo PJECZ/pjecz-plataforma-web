@@ -27,7 +27,7 @@ class IdentidadGeneroForm(FlaskForm):
 class IdentidadGeneroSearchForm(FlaskForm):
     """Formulario para buscar Identidades de Géneros"""
 
-    nombre_anterior = StringField("Nombre Anterior", validators=[Optional(), Length(max=256)])
     nombre_actual = StringField("Nombre Actual", validators=[Optional(), Length(max=256)])
+    nombre_anterior = StringField("Nombre Anterior", validators=[Optional(), Length(max=256)])
     lugar_nacimiento = StringField("Lugar de Nacimiento", validators=[Optional(), Length(max=256)])
     buscar = SubmitField("Buscar")
