@@ -1,0 +1,97 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Mensajes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('MENSAJES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('mensajes.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('mensajes.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('MENSAJES') %}
+            {{ topbar.button_new('Nuevo Mensaje', url_for('mensajes.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    <div>
+    <h2>Nuevos Mensajes</h2>
+    {% call list.card() %}
+        <table id="mensajes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creado</th>
+                    <th>Autor</th>
+                    <th>Asunto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mensaje in nuevos %}
+                <tr>
+                    <td>{{ mensaje.creado }}</td>
+                    <td>{{ mensaje.autor }}</td>
+                    <td><a href="{{ url_for('mensajes.detail', mensaje_id=mensaje.id) }}">{{ mensaje.asunto[:50] }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+    </div>
+    <br />
+    <div>
+    <h2>Nuevas Respuestas</h2>
+    {% call list.card() %}
+        <table id="respuestas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creado</th>
+                    <th>Autor</th>
+                    <th>Respuesta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mensaje in respuestas %}
+                <tr>
+                    <td>{{ mensaje.creado }}</td>
+                    <td>{{ mensaje.autor }}</td>
+                    <td>{{ mensaje.asunto[:50] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+    </div>
+        <br />
+    <div>
+    <h2>Todos los Mensajes</h2>
+    {% call list.card() %}
+        <table id="viejos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creado</th>
+                    <th>Autor</th>
+                    <th>Asunto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mensaje in viejos %}
+                <tr>
+                    <td>{{ mensaje.creado }}</td>
+                    <td>{{ mensaje.autor }}</td>
+                    <td><a href="{{ url_for('mensajes.detail', mensaje_id=mensaje.id) }}">{{ mensaje.asunto[:50] }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable_times('mensajes_datatable') }}
+    {{ list.datatable_times('respuestas_datatable') }}
+    {{ list.datatable_times('viejos_datatable') }}
+{% endblock %}
