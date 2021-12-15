@@ -55,9 +55,9 @@
             <tbody>
                 {% for mensaje in respuestas %}
                 <tr>
-                    <td>{{ mensaje.creado }}</td>
-                    <td>{{ mensaje.autor }}</td>
-                    <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=mensaje.id) }}">{{ mensaje.asunto[:50] }}</a></td>
+                    <td>{{ mensaje.MensajeRespuesta.creado }}</td>
+                    <td>{{ mensaje.Mensaje.autor }}</td>
+                    <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=mensaje.MensajeRespuesta.id) }}">{{ mensaje.MensajeRespuesta.asunto }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

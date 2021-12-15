@@ -5,12 +5,17 @@
 
 {% block title %}Nuevo Mensaje{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+
 {% block topbar_actions %}
     {{ topbar.page('Nuevo Mensaje') }}
 {% endblock %}
 
 {% block content %}
-
     {% call f.card() %}
         {% call f.form_tag('mensajes.new', fid='mensaje_form') %}
             {{ detail.label_value('Autor', current_user.email) }}
@@ -18,6 +23,22 @@
             {% call f.form_group(form.asunto) %}{% endcall %}
             {% call f.form_group(form.contenido) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
+            <a href="{{ url_for('mensajes.list_active') }}" role="button" class="btn btn-secondary btn-cancelar">Cancelar</a>
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#destinatario').addClass('js-example-placeholder-single js-states form-control');
+            $("#destinatario").prop("selectedIndex", -1); // Poner en blanco el select
+            $(".js-example-placeholder-single").select2({
+                placeholder: "Destinatario",
+                allowClear: true
+            });
+        });
+    </script>
 {% endblock %}

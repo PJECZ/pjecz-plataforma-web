@@ -30,7 +30,11 @@
 
 {% block content %}
     {% call detail.card() %}
-        {{ detail.label_value('Autor', mensaje.autor) }}
+        {% if mensaje_con_respuestas %}
+            {{ detail.label_value('Autor', mensaje.autor) }}
+        {% else %}
+            {{ detail.label_value('Autor', mensaje.autor.email) }}
+        {% endif %}
         {{ detail.label_value('Asunto', mensaje.asunto) }}
         {{ detail.label_value('Contenido', mensaje.contenido) }}
     {% endcall %}
