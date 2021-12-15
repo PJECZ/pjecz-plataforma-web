@@ -24,7 +24,7 @@
 {# Se crean los inputs que quierene que aparenzcan en el formulario #}
 {%- macro input_form(num_col, tipo, name, label, attr="") -%}
     <div class="d-flex mb-3 col-md-{{num_col}} ">
-        <div class="form-floating mb-3">
+        <div class="form-floating">
             <input type="{{tipo}}" class="form-control" name="{{name}}" id="{{name}}" placeholder="{{label}}" {{attr}}>
             <label for="{{name}}">{{label}}</label>
         </div>
@@ -35,7 +35,7 @@
 {# Mandamos llamar al botón para agregar los inputs al dataTables #}
 {%- macro boton(id_btn,btn_name) -%}
     <div class="d-flex mb-3 col-md-2">
-        <button id="{{id_btn}}" type="button" class="form-control btn btn-primary">{{btn_name}}</button>
+        <button id="{{id_btn}}" style="float:right; margin-right:15px;" type="button" class="form-control btn btn-primary">{{btn_name}}</button>
     </div>
 {%- endmacro -%}
 

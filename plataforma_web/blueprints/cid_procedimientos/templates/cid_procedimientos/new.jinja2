@@ -133,7 +133,7 @@
                                         </div>
                                 {% endcall %}
                             {% endcall %}
-                            <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
+                            <div style="display: none;">{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
@@ -164,7 +164,7 @@
                                         </div>
                                 {% endcall %}
                             {% endcall %}
-                            <div>{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
+                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Autorizaciones -->
                         {% call quill.step_last('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()')%}
