@@ -24,7 +24,7 @@
 {# Se crean los inputs que quierene que aparenzcan en el formulario #}
 {%- macro input_form(num_col, tipo, name, label, attr="") -%}
     <div class="d-flex mb-3 col-md-{{num_col}} ">
-        <div class="form-floating mb-3">
+        <div class="form-floating">
             <input type="{{tipo}}" class="form-control" name="{{name}}" id="{{name}}" placeholder="{{label}}" {{attr}}>
             <label for="{{name}}">{{label}}</label>
         </div>
@@ -56,7 +56,7 @@
             <div class="modal-body">
                 <label>Código</label>
                 <input type="text" class="form-control" id="e_registro_codigo">
-                <label>Nombre</label>
+                <label>Nombre registro</label>
                 <input type="text" class="form-control" id="e_registro_nombre">
                 <label>Responsable</label>
                 <input type="text" class="form-control" id="e_registro_responsable">
