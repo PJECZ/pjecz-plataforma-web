@@ -133,7 +133,7 @@
                                         </div>
                                 {% endcall %}
                             {% endcall %}
-                            <div style="display: none;">{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
+                            <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
@@ -164,7 +164,7 @@
                                         </div>
                                 {% endcall %}
                             {% endcall %}
-                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
+                            <div>{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                          {% call quill.step_last('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()')%}
                             <h4>Elaboró</h4>
@@ -260,6 +260,13 @@
             var tabla = $("#registro_dataTable1").DataTable({
                 data:Arrayfinal
             });
+            
+            let len = tabla.rows().data();
+            if(len.length === 0){
+                $("#registros").val("{}");
+            }else{
+                $("#registros").val(JSON.stringify(tabla.data()).split(',"context":')[0] + "}");
+            }
 
             $("#btn_add_reg").click(function(){
                 if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
@@ -336,8 +343,17 @@
             $("#cambio_dataTable1").DataTable({
                 data:Arrayfinal
             });
+            
 
             let tabla_control = $('#cambio_dataTable1').DataTable();
+
+            let len = tabla_control.rows().data();
+            if(len.length === 0){
+                $("#control_cambios").val("{}");
+            }else{
+                $("#control_cambios").val(JSON.stringify(tabla_control.data()).split(',"context":')[0] + "}");
+            }
+            
             $("#btn_add_cam").click(function(){
                 if($("#control_revision").val() === "" || $("#control_cambio").val() === "" || $("#control_solicitud").val() === "" || $("#control_fecha").val() === ""){
                     $("#form-alert1-camb").show();
@@ -421,6 +437,7 @@
             });
         });
     </script>
+     
     <!-- En este script se crean los popovers con la información de cada paso en el procedimiento -->
     <script>
         $(document).ready(function(){

@@ -134,7 +134,7 @@
                                         </div>
                                 {% endcall %}
                             {% endcall %}
-                            <div style="display: none;">{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
+                            <div>{% call f.form_group(form.registros, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
@@ -165,7 +165,7 @@
                                         </div>
                                 {% endcall %}
                             {% endcall %}
-                            <div style="display: none;">{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
+                            <div>{% call f.form_group(form.control_cambios, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Autorizaciones -->
                         {% call quill.step_last('Autorizaciones', back_onclick='javascript:guardar_autorizaciones()')%}
@@ -241,6 +241,7 @@
     <script>
       $(document).ready(function() {
             var tabla = $('#registro_dataTable1').DataTable();
+            //$('#registros').val(JSON.stringify(tabla.rows().data()));
             $("#btn_add_reg").click(function(){
                 if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
                     $("#form-alert1-reg").show();
@@ -305,6 +306,7 @@
       $(document).ready(function() {
            /*$("#control_cambios").val("{[]}");*/
             let tabla_control = $('#cambio_dataTable1').DataTable();
+            //$('#control_cambios').val(JSON.stringify(tabla_control.rows().data()));
             $("#btn_add_cam").click(function(){
                 if($("#control_revision").val() === "" || $("#control_cambio").val() === "" || $("#control_solicitud").val() === "" || $("#control_fecha").val() === ""){
                     $("#form-alert1-camb").show();
@@ -366,17 +368,19 @@
     </script>
     <!-- Llenar los inputs con JSON vacios -->
     <script>
-        const vacio = '{"ops":[{"insert":"\n"}]}';
-        const vacio_form = '{}';
-        $('#objetivo').val(vacio);
-        $('#alcance').val(vacio);
-        $('#documentos').val(vacio);
-        $('#definiciones').val(vacio);
-        $('#responsabilidades').val(vacio);
-        $('#desarrollo').val(vacio);
-        $('#registros').val(vacio_form);
-        $('#control_cambios').val(vacio_form);
-        //$('#vista_previa').val(vacio);
+        $(document).ready(function(){
+            const vacio = '{"ops":[{"insert":"\n"}]}';
+            const vacio_form = '{}';
+            $('#objetivo').val(vacio);
+            $('#alcance').val(vacio);
+            $('#documentos').val(vacio);
+            $('#definiciones').val(vacio);
+            $('#responsabilidades').val(vacio);
+            $('#desarrollo').val(vacio);
+            $('#registros').val(vacio_form);
+            $('#control_cambios').val(vacio_form);
+            //$('#vista_previa').val(vacio);
+        });
     </script>
     <script>
         $(document).ready(function(){
