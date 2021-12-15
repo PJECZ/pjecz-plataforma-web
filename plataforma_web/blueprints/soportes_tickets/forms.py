@@ -24,7 +24,7 @@ class SoporteTicketNewForm(FlaskForm):
     """Formulario para que cualquier usuario pueda crear un ticket"""
 
     usuario = StringField("Usuario")  # Read only
-    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=256)])
+    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=1024)])
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
@@ -32,7 +32,7 @@ class SoporteTicketNewForUsuarioForm(FlaskForm):
     """Formulario para que un administrador pueda crear un ticket para otro usuario"""
 
     usuario = StringField("Usuario")  # Read only
-    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=256)])
+    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=1024)])
     categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
@@ -44,7 +44,7 @@ class SoporteTicketEditForm(FlaskForm):
     descripcion = TextAreaField("Descripción del problema")  # Read only
     categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[DataRequired()], allow_blank=True)
-    soluciones = TextAreaField("Solución", validators=[Optional(), Length(max=256)])
+    soluciones = TextAreaField("Solución", validators=[Optional(), Length(max=1024)])
     estado = SelectField("Estado", choices=SoporteTicket.ESTADOS, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
@@ -66,5 +66,5 @@ class SoporteTicketCloseForm(FlaskForm):
     descripcion = TextAreaField("Descripción del problema")  # Read only
     categoria = StringField("Categoría")  # Read only
     tecnico = StringField("Técnico")  # Read only
-    soluciones = TextAreaField("Solución", validators=[DataRequired(), Length(max=256)])
+    soluciones = TextAreaField("Solución", validators=[DataRequired(), Length(max=1024)])
     guardar = SubmitField("Resuelto")

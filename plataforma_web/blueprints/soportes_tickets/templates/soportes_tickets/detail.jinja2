@@ -10,9 +10,6 @@
         {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
         {% if current_user.can_admin('SOPORTES TICKETS') %}
             {{ topbar.button_edit('Editar', url_for('soportes_tickets.edit', soporte_ticket_id=soporte_ticket.id)) }}
-            {% if soporte_ticket.estado != 'CANCELADO' %}
-                {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
-            {% endif %}
         {% endif %}
         {% if funcionario and current_user.can_edit('SOPORTES TICKETS') %}
             {% if soporte_ticket.estado == 'ABIERTO' %}
@@ -24,6 +21,10 @@
             {% if soporte_ticket.estado != 'CANCELADO' %}
                 {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
             {% endif %}
+        {% endif %}
+        {% if current_user.can_admin('SOPORTES TICKETS') %}
+            {% if soporte_ticket.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('soportes_tickets.delete', soporte_ticket_id=soporte_ticket.id)) }}{% endif %}
+            {% if soporte_ticket.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('soportes_tickets.recover', soporte_ticket_id=soporte_ticket.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -49,4 +50,8 @@
 
 {% block custom_javascript %}
     {{ detail.moment_js(moment) }}
+    {% if current_user.can_edit('SOPORTES TICKETS') %}
+        {% if soporte_ticket.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar este ticket?') }}{% endif %}
+        {% if soporte_ticket.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este ticket?') }}{% endif %}
+    {% endif %}
 {% endblock %}

@@ -37,7 +37,7 @@ class SoporteTicket(db.Model, UniversalMixin):
     usuario = db.relationship("Usuario", back_populates="soportes_tickets")
 
     # Columnas
-    descripcion = db.Column(db.String(256), nullable=False)
+    descripcion = db.Column(db.Text, nullable=False)
     estado = db.Column(db.Enum(*ESTADOS, name="estados", native_enum=False), index=True, nullable=False)
     resolucion = db.Column(db.DateTime, nullable=True)
     soluciones = db.Column(db.Text, nullable=True)

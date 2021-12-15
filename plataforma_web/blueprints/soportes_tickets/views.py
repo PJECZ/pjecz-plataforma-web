@@ -57,31 +57,27 @@ def list_active():
     trabajados = SoporteTicket.query.filter_by(estado="TRABAJANDO").filter_by(estatus="A")
     terminados = SoporteTicket.query.filter_by(estado="CERRADO").filter_by(estatus="A")
     cancelados = SoporteTicket.query.filter_by(estado="CANCELADO").filter_by(estatus="A")
-    tipo_acceso = None
     # Consultar el funcionario (si es de soporte) a partir del usuario actual
     funcionario = _get_funcionario_from_current_user()
     # Si es administrador
     if current_user.can_admin(MODULO):
-        tipo_acceso = "ADMINISTRADOR"
+        pass
     # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
     elif current_user.can_insert(MODULO) and funcionario:
         trabajados = trabajados.filter(SoporteTicket.funcionario == funcionario)
         terminados = terminados.filter(SoporteTicket.funcionario == funcionario)
         cancelados = cancelados.filter(SoporteTicket.funcionario == funcionario)
-        tipo_acceso = "TECNICO"
     # Si puede crear tickets, mostramos los suyos
     elif current_user.can_insert(MODULO):
         abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
         trabajados = trabajados.filter(SoporteTicket.usuario == current_user)
         terminados = terminados.filter(SoporteTicket.usuario == current_user)
         cancelados = cancelados.filter(SoporteTicket.usuario == current_user)
-        tipo_acceso = "USUARIO"
     # De lo contrario, solo puede ver tickets abiertos
     else:
         trabajados = None
         terminados = None
         cancelados = None
-        tipo_acceso = "OBSERVADOR"
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
@@ -89,8 +85,7 @@ def list_active():
         trabajados=trabajados.order_by(SoporteTicket.id.desc()).limit(100).all(),
         terminados=terminados.order_by(SoporteTicket.id.desc()).limit(100).all(),
         cancelados=cancelados.order_by(SoporteTicket.id.desc()).limit(100).all(),
-        tipo_acceso=tipo_acceso,
-        titulo="Soportes Tickets",
+        titulo="Tickets",
         estatus="A",
     )
 
@@ -222,7 +217,7 @@ def take(soporte_ticket_id):
         flash("No puede tomar un ticket que no está abierto.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_from_current_user()
-    if funcionario is False:
+    if funcionario is None:
         flash("No puede tomar el ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
     form = SoporteTicketTakeForm()
@@ -260,13 +255,13 @@ def close(soporte_ticket_id):
         flash("No puede cerrar un ticket que no está trabajando.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_from_current_user()
-    if funcionario is False:
+    if funcionario is None:
         flash("No puede cerrar el ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
     form = SoporteTicketCloseForm()
     if form.validate_on_submit():
         ticket.estado = "CERRADO"
-        ticket.soluciones = form.soluciones.data
+        ticket.soluciones = safe_string(form.soluciones.data)
         ticket.resolucion = datetime.now()
         ticket.save()
         bitacora = Bitacora(
