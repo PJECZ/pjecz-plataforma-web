@@ -1,6 +1,9 @@
 {# Card #}
-{%- macro card() -%}
-    <div class="card">
+{%- macro card(title='') -%}
+    <div class="card mb-3">
+        {% if title %}<div class="card-header">
+            {{ title }}
+        </div>{% endif %}
         <div class="card-body">
             {{ caller () }}
         </div>

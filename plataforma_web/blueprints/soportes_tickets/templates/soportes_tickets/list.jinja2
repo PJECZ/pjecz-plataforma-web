@@ -6,131 +6,119 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('SOPORTES TICKETS') %}
-            {# if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('soportes_tickets.list_inactive')) }}{% endif #}
-            {# if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('soportes_tickets.list_active')) }}{% endif #}
+        {% if current_user.can_view('SOPORTES CATEGORIAS') %}
+            {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
-        {% if tipo_acceso == 'USUARIO' %}
-            {{ topbar.button_new('Nuevo Soporte Ticket', url_for('soportes_tickets.new', usuario_id=current_user.id)) }}
+        {% if current_user.can_insert('SOPORTES TICKETS') %}
+            {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call list.card() %}
-        <h3>Tickets Pendientes</h3>
-        <table id="soportes_tickets_abiertos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Creado</th>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Descripción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for soporte_ticket in soportes_tickets_abiertos %}
-                <tr>
-                    <td>{{ soporte_ticket.creado }}</td>
-                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=soporte_ticket.id) }}">{{ soporte_ticket.id }}</a></td>
-                    <td>{{ soporte_ticket.usuario.nombre }}</td>
-                    <td>{{ soporte_ticket.descripcion }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endcall %}
-    <br />
-    {% call list.card() %}
-        <h3>Tickets en Proceso</h3>
-        <table id="soportes_tickets_procesando_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Creado</th>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Categoría</th>
-                    <th>Técnico</th>
-                    <th>Descripción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for soporte_ticket in soportes_tickets_procesando %}
-                <tr>
-                    <td>{{ soporte_ticket.creado }}</td>
-                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=soporte_ticket.id) }}">{{ soporte_ticket.id }}</a></td>
-                    <td>{{ soporte_ticket.usuario.nombre }}</td>
-                    <td>{{ soporte_ticket.soporte_categoria.nombre }}</td>
-                    <td>{{ soporte_ticket.funcionario.nombre }}</td>
-                    <td>{{ soporte_ticket.descripcion }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endcall %}
-    <br />
-    {% call list.card() %}
-        <h3>Tickets Terminados</h3>
-        <table id="soportes_tickets_terminados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Creado</th>
-                    <th>ID</th>
-                    <th>Resuelto</th>
-                    <th>Categoría</th>
-                    <th>Técnico</th>
-                    <th>Usuario</th>
-                    <th>Descripción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for soporte_ticket in soportes_tickets_terminados %}
-                <tr>
-                    <td>{{ soporte_ticket.creado }}</td>
-                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=soporte_ticket.id) }}">{{ soporte_ticket.id }}</a></td>
-                    <td>{{ soporte_ticket.resolucion }}</td>
-                    <td>{{ soporte_ticket.soporte_categoria.nombre }}</td>
-                    <td>{{ soporte_ticket.funcionario.nombre }}</td>
-                    <td>{{ soporte_ticket.usuario.nombre }}</td>
-                    <td>{{ soporte_ticket.descripcion }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endcall %}
-    <br />
-    {% call list.card() %}
-        <h3>Tickets Cancelados</h3>
-        <table id="soportes_tickets_cancelados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Creado</th>
-                    <th>ID</th>
-                    <th>Categoría</th>
-                    <th>Usuario</th>
-                    <th>Descripción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for soporte_ticket in soportes_tickets_cancelados %}
-                <tr>
-                    <td>{{ soporte_ticket.creado }}</td>
-                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=soporte_ticket.id) }}">{{ soporte_ticket.id }}</a></td>
-                    <td>{{ soporte_ticket.soporte_categoria.nombre }}</td>
-                    <td>{{ soporte_ticket.usuario.nombre }}</td>
-                    <td>{{ soporte_ticket.descripcion }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endcall %}
+    {% if abiertos %}
+        {% call list.card('Abiertos') %}
+            <table id="soportes_tickets_abiertos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for abierto in abiertos %}
+                    <tr>
+                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
+                        <td>{{ abierto.usuario.nombre }}</td>
+                        <td>{{ abierto.descripcion | truncate(48) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
+    {% if trabajados %}
+        {% call list.card('Trabajando') %}
+            <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Categoría</th>
+                        <th>Técnico</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trabajado in trabajados %}
+                    <tr>
+                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
+                        <td>{{ trabajado.usuario.nombre }}</td>
+                        <td>{{ trabajado.soporte_categoria.nombre }}</td>
+                        <td>{{ trabajado.funcionario.nombre }}</td>
+                        <td>{{ trabajado.descripcion | truncate(48) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
+    {% if terminados %}
+        {% call list.card('Terminados') %}
+            <table id="soportes_tickets_terminados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Categoría</th>
+                        <th>Técnico</th>
+                        <th>Soluciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for terminado in terminados %}
+                    <tr>
+                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=terminado.id) }}">{{ terminado.id }}</a></td>
+                        <td>{{ terminado.usuario.nombre }}</td>
+                        <td>{{ terminado.soporte_categoria.nombre }}</td>
+                        <td>{{ terminado.funcionario.nombre }}</td>
+                        <td>{{ terminado.soluciones | truncate(48) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
+    {% if cancelados %}
+        {% call list.card('Cancelados') %}
+            <table id="soportes_tickets_cancelados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cancelado in cancelados %}
+                    <tr>
+                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=cancelado.id) }}">{{ cancelado.id }}</a></td>
+                        <td>{{ cancelado.usuario.nombre }}</td>
+                        <td>{{ cancelado.descripcion }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('soportes_tickets_abiertos_datatable') }}
-    {{ list.datatable_times('soportes_tickets_procesando_datatable') }}
-    {{ list.datatable_times('soportes_tickets_terminados_datatable') }}
-    {{ list.datatable_times('soportes_tickets_cancelados_datatable') }}
+    {{ list.datatable('soportes_tickets_abiertos_datatable') }}
+    {{ list.datatable('soportes_tickets_procesando_datatable') }}
+    {{ list.datatable('soportes_tickets_terminados_datatable') }}
+    {{ list.datatable('soportes_tickets_cancelados_datatable') }}
     <script>
     window.setTimeout(function () {
         window.location.reload();
