@@ -54,7 +54,6 @@
                         <button class="multisteps-form__progress-btn" type="button" title="Registros" style="font-size:12px" disabled>Registros</button>
                         <button class="multisteps-form__progress-btn" type="button" title="Control de Cambios" style="font-size:12px" disabled>Control de Cambios</button>
                         <button class="multisteps-form__progress-btn" type="button" title="Autorizaciones" style="font-size:12px" disabled>Autorizaciones</button>
-                        {# <button class="multisteps-form__progress-btn" type="button" title="Vista previa" style="font-size:12px" disabled>Vista previa</button> #}
                     </div>
                 </div>
             </div>
@@ -207,11 +206,6 @@
                             </div>
                             <div style="display: none;">{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
-                        <!-- Vista previa -->
-                        {# <style>.ql-disabled{overflow:auto;}</style>
-                        {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
-                            {{ quill.div(div_id='vista_previa_quill') }}
-                        {% endcall %} #}
                     {% endcall %}
                 </div>
             </div>
@@ -233,7 +227,6 @@
     {{ quill.editor(instance='definicionesQuill', div_id='definiciones_quill') }}
     {{ quill.editor(instance='responsabilidadesQuill', div_id='responsabilidades_quill') }}
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
-    {# {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }} #}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -241,7 +234,6 @@
     <script>
       $(document).ready(function() {
             var tabla = $('#registro_dataTable1').DataTable();
-            //$('#registros').val(JSON.stringify(tabla.rows().data()));
             $("#btn_add_reg").click(function(){
                 if($("#registro_codigo").val() === "" || $("#registro_nombre").val() === "" || $("#registro_responsable").val() === "" || $("#registro_retencion").val() === ""){
                     $("#form-alert1-reg").show();
@@ -304,9 +296,7 @@
      <!-- Comieza script para agregar datos a DataTables de Control de Cambios -->
     <script>
       $(document).ready(function() {
-           /*$("#control_cambios").val("{[]}");*/
             let tabla_control = $('#cambio_dataTable1').DataTable();
-            //$('#control_cambios').val(JSON.stringify(tabla_control.rows().data()));
             $("#btn_add_cam").click(function(){
                 if($("#control_revision").val() === "" || $("#control_cambio").val() === "" || $("#control_solicitud").val() === "" || $("#control_fecha").val() === ""){
                     $("#form-alert1-camb").show();

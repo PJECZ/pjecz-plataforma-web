@@ -35,6 +35,7 @@
 
 {% block content %}
 {{ add_data.modal_edit() }}
+{{ add_data.modal_edit_cambio() }}
     {% call f.card() %}
         <div><form></form></div>
         <div class="multisteps-form">
@@ -52,7 +53,6 @@
                         <button class="multisteps-form__progress-btn" type="button" title="Registros" style="font-size:12px" disabled>Registros</button>
                         <button class="multisteps-form__progress-btn" type="button" title="Control de Cambios" style="font-size:12px" disabled>Control de Cambios</button>
                         <button class="multisteps-form__progress-btn" type="button" title="Autorizaciones" style="font-size:12px" style="font-size:12px" disabled>Autorizaciones</button>
-                        {# <button class="multisteps-form__progress-btn" type="button" title="Vista previa" style="font-size:12px" disabled>Vista previa</button> #}
                     </div>
                 </div>
             </div>
@@ -205,11 +205,6 @@
                             </div>
                             <div style="display: none;">{% call f.form_group(form.autorizaciones, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
-                        <!-- Vista previa -->
-                        {# <style>.ql-disabled{overflow:auto;}</style>
-                        {% call quill.step_last('Vista Previa', back_onclick='javascript:guardar_vista_previa()') %}
-                            {{ quill.div(div_id='vista_previa_quill') }}
-                        {% endcall %} #}
                     {% endcall %}
                 </div>
             </div>
@@ -231,7 +226,6 @@
     {{ quill.editor(instance='definicionesQuill', div_id='definiciones_quill') }}
     {{ quill.editor(instance='responsabilidadesQuill', div_id='responsabilidades_quill') }}
     {{ quill.editor(instance='desarrolloQuill', div_id='desarrollo_quill') }}
-    {# {{ quill.reader(instance='vistaPreviaQuill', div_id='vista_previa_quill') }} #}
     <script type="text/javascript" src="{{ url_for('static', filename='js/cid_procedimientos.js') }}"></script>
     
     <!-- El formulario llena los inputs, sigue sacarles los contenidos para llenar los quill -->
@@ -344,7 +338,6 @@
                 data:Arrayfinal
             });
             
-
             let tabla_control = $('#cambio_dataTable1').DataTable();
 
             let len = tabla_control.rows().data();
@@ -395,9 +388,9 @@
             $('#btn_edit_cam').click( function() {
                 let datos_c = tabla_control.row('.tActive').data();
                 $("#e_control_revision").val(datos_c[0]);
-                $("#e_control_cambio").val(datos_C[1]);
-                $("#e_control_solicitud").val(datos_C[2]);
-                $("#e_control_fecha").val(datos_C[3]);
+                $("#e_control_cambio").val(datos_c[1]);
+                $("#e_control_solicitud").val(datos_c[2]);
+                $("#e_control_fecha").val(datos_c[3]);
             });
 
             $("#e_updt_control_btn").click( function() {

@@ -125,8 +125,8 @@
     {% endif %}
     <!-- Detalle Registros -->
     <script>
+        let datos = {{ registros }};
         $(document).ready(function(){
-            let datos = {{ registros }};
             var Arrayfinal = [];
             Object.keys(datos).forEach(item =>{
                 var tempArr = new Array();
@@ -143,8 +143,8 @@
     </script>
      <!-- Detalle Control de cambios -->
     <script>
+        let datos_cambio = {{ control_cambios }};
         $(document).ready(function(){
-            let datos_cambio = {{ control_cambios }};
             var Arrayfinal = [];
             Object.keys(datos_cambio).forEach(item =>{
                 var tempArr = new Array();

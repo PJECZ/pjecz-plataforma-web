@@ -77,36 +77,23 @@ function llenar_desarrollo(contenido) {
 // Guardar Registros
 function guardar_registros() {
     var tabla = $('#registro_dataTable1').DataTable();
-
     var registros = JSON.parse(JSON.stringify("{}"));
     let datos = tabla.rows().data();
-
     if (datos.length > 0) {
-
-
         registros = JSON.stringify(tabla.data()).split(',"context":')[0] + "}";
-
     }
-
     $('#registros').val(registros);
 }
 
 // Guardar Control de Cambios
 function guardar_control_cambios() {
     var tabla_control = $('#cambio_dataTable1').DataTable();
-
     var control_cambios = JSON.parse(JSON.stringify("{}"));
     let datos = tabla_control.rows().data();
-
-
     if (datos.length > 0) {
-
         control_cambios = JSON.stringify(tabla_control.data()).split(',"context":')[0] + "}";
-
     }
-
     $('#control_cambios').val(control_cambios);
-
 }
 
 // Guardar Autorizaciones
@@ -114,33 +101,6 @@ function guardar_autorizaciones() {
     autorizaciones = $('#autorizaciones').val();
     console.log('OK Todo bien');
 }
-
-// Guardar Vista Previa
-//function guardar_vista_previa() {
-//   console.log('OK Vista Previa');
-//}
-
-// Mostrar Vista Previa
-//function mostrar_vista_previa() {
-//let html = '';
-//$('#vista_previa_div').html('');
-//let titulo = "<h1><center>" + $('#titulo_procedimiento').val() + "</center></h1>";
-//let title_objetivo = "<h3>&nbsp;&nbsp;" + 'Objetivo' + "</h3>";
-//let objetivo = objetivoQuill.root.innerHTML;
-//let title_alcance = "<h3>&nbsp;&nbsp;" + 'Alcance' + "</h3>";
-//let alcance = alcanceQuill.root.innerHTML;
-//let title_documentos = "<h3>&nbsp;&nbsp;" + 'Documentos de Referencia' + "</h3>";
-//let documentos = documentosQuill.root.innerHTML;
-//let title_definiciones = "<h3>&nbsp;&nbsp;" + 'Definiciones' + "</h3>";
-//let definiciones = definicionesQuill.root.innerHTML;
-//let title_responsabilidades = "<h3>&nbsp;&nbsp;" + 'Responsabilidades' + "</h3>";
-//let responsabilidades = responsabilidadesQuill.root.innerHTML;
-//let title_desarrollo = "<h3>&nbsp;&nbsp;" + 'Desarrollo' + "</h3>";
-//let desarrollo = desarrolloQuill.root.innerHTML;
-//html = titulo + title_objetivo + objetivo + title_alcance + alcance + title_documentos + documentos + title_definiciones + definiciones + title_responsabilidades + responsabilidades + title_desarrollo + desarrollo;
-//document.getElementById('vista_previa_quill').innerHTML = html;
-//document.getElementById('vista_previa').innerHTML = html;
-//}
 
 // STEPS
 
@@ -239,8 +199,6 @@ DOMstrings.stepsBar.addEventListener('click', e => {
     setActiveStep(activeStep);
     // open active panel
     setActivePanel(activeStep);
-    // mostrar vista previa del procedimiento
-    //mostrar_vista_previa();
 });
 
 // PREV/NEXT BTNS CLICK
@@ -261,7 +219,6 @@ DOMstrings.stepsForm.addEventListener('click', e => {
     }
     setActiveStep(activePanelNum);
     setActivePanel(activePanelNum);
-    //mostrar_vista_previa();
 });
 
 // SETTING PROPER FORM HEIGHT ONLOAD
