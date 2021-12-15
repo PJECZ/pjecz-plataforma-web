@@ -6,23 +6,23 @@
 {% block title %}Soporte Ticket{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Ticket: ' + soporte_ticket.id | string) %}
-        {{ topbar.button_previous('Soportes Tickets', url_for('soportes_tickets.list_active')) }}
+    {% call topbar.page_buttons('Ticket ' + soporte_ticket.id | string) %}
+        {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
         {% if current_user.can_admin('SOPORTES TICKETS') %}
             {{ topbar.button_edit('Editar', url_for('soportes_tickets.edit', soporte_ticket_id=soporte_ticket.id)) }}
             {% if soporte_ticket.estado != 'CANCELADO' %}
                 {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
             {% endif %}
-            {# if soportes_tickets.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('soportes_tickets.delete', soportes_tickets_id=soportes_tickets.id)) }}{% endif #}
-            {# if soportes_tickets.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('soportes_tickets.recover', soportes_tickets_id=soportes_tickets.id)) }}{% endif #}
         {% endif %}
-        {% if current_user.can_edit('SOPORTES TICKETS') %}
+        {% if funcionario and current_user.can_edit('SOPORTES TICKETS') %}
             {% if soporte_ticket.estado == 'ABIERTO' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
             {% endif %}
             {% if soporte_ticket.estado == 'TRABAJANDO' %}
+                {{ topbar.button_primary('Resolver', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}
+            {% endif %}
+            {% if soporte_ticket.estado != 'CANCELADO' %}
                 {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
-                {{ topbar.button_primary('Resolver', url_for('soportes_tickets.closes', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}
             {% endif %}
         {% endif %}
     {% endcall %}
@@ -30,21 +30,23 @@
 
 {% block content %}
     {% call detail.card(estatus=soporte_ticket.estatus) %}
+        {{ detail.label_value_big('Estado', soporte_ticket.estado) }}
         {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
         {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
-        {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
-        {{ detail.label_value('Estado', soporte_ticket.estado) }}
         {{ detail.label_value('Descripción del Problema', soporte_ticket.descripcion) }}
-        {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
-        {{ detail.label_value('Resolución', moment(soporte_ticket.resolucion).format('llll')) }}
+        {% if soporte_ticket.soporte_categoria_id != 1 %}
+            {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
+        {% endif %}
+        {% if soporte_ticket.funcionario_id != 1 %}
+            {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
+        {% endif %}
+        {% if soporte_ticket.estado == 'CERRADO' %}
+            {{ detail.label_value('Resolución', moment(soporte_ticket.resolucion).format('llll')) }}
+        {% endif %}
         {{ detail.label_value('Soluciones', soporte_ticket.soluciones) }}
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('SOPORTES TICKETS') %}
-        {# if soportes_tickets.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + soportes_tickets.descripcion + '?') }}{% endif #}
-        {# if soportes_tickets.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + soportes_tickets.descripcion + '?') }}{% endif #}
-    {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

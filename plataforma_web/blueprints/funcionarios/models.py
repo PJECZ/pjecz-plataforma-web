@@ -31,7 +31,6 @@ class Funcionario(db.Model, UniversalMixin):
     soportes_tickets = db.relationship("SoporteTicket", back_populates="funcionario", lazy="noload")
     tesis_jurisprudencias_funcionarios = db.relationship('TesisJurisprudenciaFuncionario', back_populates='funcionario')
     
-
     @property
     def nombre(self):
         """Junta nombres, apellido_paterno y apellido materno"""

@@ -10,8 +10,8 @@
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'usuario_id': usuario.id} %}
-        {% call f.form_tag('soportes_tickets.new', fid='soporte_tickets_form', **form_kwargs) %}
+        {% call f.form_tag('soportes_tickets.new', fid='soporte_tickets_form') %}
+            {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}

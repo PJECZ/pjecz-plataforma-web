@@ -7,16 +7,23 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
 from plataforma_web.blueprints.usuarios.models import Usuario
-from plataforma_web.blueprints.funcionarios.models import Funcionario
 
-from .forms import SoporteTicketEditForm, SoporteTicketNewForm, SoporteTicketCloseForm
+from .forms import (
+    SoporteTicketNewForm,
+    SoporteTicketNewForUsuarioForm,
+    SoporteTicketEditForm,
+    SoporteTicketTakeForm,
+    SoporteTicketCloseForm,
+)
 
 MODULO = "SOPORTES TICKETS"
 
@@ -31,8 +38,8 @@ def _get_funcionario_from_current_user():
     if funcionario.estatus != "A":
         return None  # No es activo
     if funcionario.en_soportes is False:
-        return None  # No es soporte
-    return funcionario if funcionario else False
+        return None  # No es de soporte
+    return funcionario
 
 
 @soportes_tickets.before_request
@@ -91,137 +98,251 @@ def list_active():
 @soportes_tickets.route("/soportes_tickets/<int:soporte_ticket_id>")
 def detail(soporte_ticket_id):
     """Detalle de un Soporte Ticket"""
-    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
-    return render_template("soportes_tickets/detail.jinja2", soporte_ticket=soporte_ticket)
+    tickets = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    return render_template(
+        "soportes_tickets/detail.jinja2",
+        soporte_ticket=tickets,
+        funcionario=_get_funcionario_from_current_user(),
+    )
 
 
 @soportes_tickets.route("/soportes_tickets/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Ticket creado por el usuario"""
-    funcionario = Funcionario.query.get_or_404(1) # Funcionario NO DEFINIDO
+    """Cualquier usuario puede crear un ticket"""
+    tecnico_no_definido = Funcionario.query.get_or_404(1)  # El funcionario con id 1 es NO DEFINIDO
+    categoria_no_definida = SoporteCategoria.query.get_or_404(1)  # La categoria con id 1 es NO DEFINIDA
     form = SoporteTicketNewForm()
     if form.validate_on_submit():
-        soporte_ticket = SoporteTicket(
+        ticket = SoporteTicket(
+            funcionario=tecnico_no_definido,
+            soporte_categoria=categoria_no_definida,
             usuario=current_user,
-            soporte_categoria=form.soporte_categoria.data,
-            funcionario=funcionario,
             descripcion=safe_string(form.descripcion.data),
             estado="ABIERTO",
-            re
         )
-        soporte_ticket.save()
+        ticket.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Ticket {soporte_ticket.descripcion}"),
-            url=url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id),
+            descripcion=safe_message(f"Nuevo ticket {ticket.id}"),
+            url=url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    form.usuario.data = current_user.nombre
     return render_template("soportes_tickets/new.jinja2", form=form)
 
 
 @soportes_tickets.route("/soportes_tickets/nuevo/<int:usuario_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.CREAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_usuario(usuario_id):
-    """Nuevo Ticket para un usuario especificado"""
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_from_current_user()
-    if funcionario is None:
-        flash("No puede crear tickets para otros usuarios", "warning")
-        return redirect(url_for("soportes_tickets.list_active"))
-
+    """Solo un administrador puede crear un ticket para otro usuario"""
     usuario = Usuario.query.get_or_404(usuario_id)
-    form = SoporteTicketNewForm()
+    if usuario.estatus != "A":
+        flash("El usuario esta eliminado", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
+    tecnico = _get_funcionario_from_current_user()
+    if tecnico is None:
+        flash("No puede crear tickets; necesita ser funcionario de soporte para hacerlo", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
+    form = SoporteTicketNewForUsuarioForm()
     if form.validate_on_submit():
-        soporte_ticket = SoporteTicket(
+        ticket = SoporteTicket(
+            funcionario=tecnico,
+            soporte_categoria=form.categoria.data,
             usuario=usuario,
-            soporte_categoria=None,
-            funcionario=None,
-            descripcion=form.descripcion.data,
+            descripcion=safe_string(form.descripcion.data),
             estado="ABIERTO",
+            resolucion="",
+            soluciones="",
         )
-        soporte_ticket.save()
-        flash(f"Ticket {soporte_ticket.descripcion} guardado.", "success")
-        return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
-    return render_template("soportes_tickets/new.jinja2", form=form, usuario=usuario)
+        ticket.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo ticket {ticket.id} por {tecnico.nombre}"),
+            url=url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.usuario.data = usuario.nombre
+    return render_template("soportes_tickets/new_for_usuario.jinja2", form=form, usuario=usuario)
 
 
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def edit(soporte_ticket_id):
-    """Editar Ticket"""
-    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    """Solo los administradores pueden editar un ticket"""
+    ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
+    if ticket.estatus != "A":
+        flash("No puede editar un ticket eliminado.", "warning")
+        return redirect(detalle_url)
+    if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
+        flash("No puede editar un ticket que no está abierto o trabajando.", "warning")
+        return redirect(detalle_url)
     form = SoporteTicketEditForm()
     if form.validate_on_submit():
-        soporte_ticket.funcionario = form.tecnico.data
-        soporte_ticket.soporte_categoria = form.categoria.data
-        soporte_ticket.estado = form.estado.data
-        soporte_ticket.soluciones = form.soluciones.data
-        soporte_ticket.save()
-        flash(f"Ticket {soporte_ticket.id} guardado.", "success")
-        return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
-    form.usuario.data = soporte_ticket.usuario.nombre
-    form.categoria.data = soporte_ticket.soporte_categoria
-    form.tecnico.data = soporte_ticket.funcionario
-    form.descripcion.data = soporte_ticket.descripcion
-    form.estado.data = soporte_ticket.estado
-    form.soluciones.data = soporte_ticket.soluciones
-    return render_template("soportes_tickets/edit.jinja2", form=form, soporte_ticket=soporte_ticket)
+        ticket.soporte_categoria = form.categoria.data
+        ticket.funcionario = form.tecnico.data
+        ticket.soluciones = form.soluciones.data
+        ticket.estado = form.estado.data
+        ticket.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado el ticket {ticket.id}"),
+            url=detalle_url,
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.usuario.data = ticket.usuario.nombre
+    form.descripcion.data = ticket.descripcion
+    form.categoria.data = ticket.soporte_categoria
+    form.tecnico.data = ticket.funcionario
+    form.soluciones.data = ticket.soluciones
+    form.estado.data = ticket.estado
+    return render_template("soportes_tickets/edit.jinja2", form=form, soporte_ticket=ticket)
 
 
 @soportes_tickets.route("/soportes_tickets/tomar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def take(soporte_ticket_id):
-    """Tomar Ticket"""
-    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    """Para tomar un ticket este debe estar ABIERTO y ser funcionario de soportes"""
+    ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
+    if ticket.estatus != "A":
+        flash("No puede tomar un ticket eliminado.", "warning")
+        return redirect(detalle_url)
+    if ticket.estado != "ABIERTO":
+        flash("No puede tomar un ticket que no está abierto.", "warning")
+        return redirect(detalle_url)
     funcionario = _get_funcionario_from_current_user()
     if funcionario is False:
-        flash(f"Ticket no asignado. No se encuentra el funcionario con el usuario ID: {current_user.id}.", "warning")
-        return redirect(url_for("soportes_tickets.list_active"))
-    soporte_ticket.funcionario = funcionario
-    soporte_ticket.estado = "TRABAJANDO"
-    soporte_ticket.save()
-    flash(f"Ticket {soporte_ticket.id} tomado.", "success")
-    return redirect(url_for("soportes_tickets.list_active"))
+        flash("No puede tomar el ticket porque no es funcionario de soporte.", "warning")
+        return redirect(detalle_url)
+    form = SoporteTicketTakeForm()
+    if form.validate_on_submit():
+        ticket.soporte_categoria = form.categoria.data
+        ticket.funcionario = funcionario
+        ticket.estado = "TRABAJANDO"
+        ticket.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Tomado el ticket {ticket.id} por {funcionario.nombre}."),
+            url=detalle_url,
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.usuario.data = ticket.usuario.nombre
+    form.descripcion.data = ticket.descripcion
+    form.categoria.data = ticket.soporte_categoria
+    form.tecnico.data = funcionario.nombre
+    return render_template("soportes_tickets/take.jinja2", form=form, soporte_ticket=ticket)
 
 
 @soportes_tickets.route("/soportes_tickets/cerrar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def closes(soporte_ticket_id):
-    """Cerrar Ticket"""
-    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+def close(soporte_ticket_id):
+    """Para cerrar un ticket este debe estar TRABAJANDO y ser funcionario de soportes"""
+    ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
+    if ticket.estatus != "A":
+        flash("No puede cerrar un ticket eliminado.", "warning")
+        return redirect(detalle_url)
+    if ticket.estado != "TRABAJANDO":
+        flash("No puede cerrar un ticket que no está trabajando.", "warning")
+        return redirect(detalle_url)
+    funcionario = _get_funcionario_from_current_user()
+    if funcionario is False:
+        flash("No puede cerrar el ticket porque no es funcionario de soporte.", "warning")
+        return redirect(detalle_url)
     form = SoporteTicketCloseForm()
     if form.validate_on_submit():
-        soporte_ticket.estado = "CERRADO"
-        soporte_ticket.soluciones = form.soluciones.data
-        soporte_ticket.resolucion = form.resolucion.data
-        soporte_ticket.save()
-        flash(f"Ticket {soporte_ticket.id} cerrado.", "success")
-        return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
-    form.usuario.data = soporte_ticket.usuario.nombre
-    form.categoria.data = soporte_ticket.soporte_categoria
-    form.tecnico.data = soporte_ticket.funcionario
-    form.descripcion.data = soporte_ticket.descripcion
-    form.estado.data = soporte_ticket.estado
-    form.resolucion.data = datetime.now()
-    form.soluciones.data = soporte_ticket.soluciones
-    return render_template("soportes_tickets/close.jinja2", form=form, soporte_ticket=soporte_ticket)
+        ticket.estado = "CERRADO"
+        ticket.soluciones = form.soluciones.data
+        ticket.resolucion = datetime.now()
+        ticket.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Cerrado el ticket {ticket.id}."),
+            url=detalle_url,
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.usuario.data = ticket.usuario.nombre
+    form.descripcion.data = ticket.descripcion
+    form.categoria.data = ticket.soporte_categoria.nombre
+    form.tecnico.data = ticket.funcionario.nombre
+    form.soluciones.data = ticket.soluciones
+    return render_template("soportes_tickets/close.jinja2", form=form, soporte_ticket=ticket)
 
 
 @soportes_tickets.route("/soportes_tickets/cancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def cancel(soporte_ticket_id):
-    """Cancelar Ticket"""
+    """Para cancelar un ticket este debe estar ABIERTO o TRABAJANDO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
+    if soporte_ticket.estatus != "A":
+        flash("No puede cancelar un ticket eliminado.", "warning")
+        return redirect(detalle_url)
+    if soporte_ticket.estado not in ("ABIERTO", "TRABAJANDO"):
+        flash("No puede cancelar un ticket que no está abierto o trabajando.", "warning")
+        return redirect(detalle_url)
     soporte_ticket.estado = "CANCELADO"
+    soporte_ticket.resolucion = datetime.now()
     soporte_ticket.save()
-    flash(f"Ticket {soporte_ticket.id} cancelado.", "success")
-    return redirect(url_for("soportes_tickets.list_active"))
+    bitacora = Bitacora(
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+        usuario=current_user,
+        descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id} registro con..."),
+        url=detalle_url,
+    )
+    bitacora.save()
+    flash(bitacora.descripcion, "success")
+    return redirect(bitacora.url)
 
 
-# Delete a ticket
+@soportes_tickets.route("/soportes_tickets/eliminar/<int:soporte_ticket_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def delete(soporte_ticket_id):
+    """Eliminar Ticket"""
+    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    if soporte_ticket.estatus == "A":
+        soporte_ticket.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado Ticket {soporte_ticket.id}"),
+            url=url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
 
-# Recover a ticket
+
+@soportes_tickets.route("/soportes_tickets/recuperar/<int:soporte_ticket_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def recover(soporte_ticket_id):
+    """Recuperar Ticket"""
+    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    if soporte_ticket.estatus == "B":
+        soporte_ticket.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado Ticket {soporte_ticket.id}"),
+            url=url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))

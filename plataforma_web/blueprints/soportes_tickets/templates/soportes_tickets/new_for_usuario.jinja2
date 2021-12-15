@@ -2,20 +2,19 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Tomar Ticket{% endblock %}
+{% block title %}Nuevo Ticket para un usuario{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Tomar Ticket ' + soporte_ticket.id | string) }}
+    {{ topbar.page('Nuevo Ticket para ' + usuario.nombre) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'soporte_ticket_id': soporte_ticket.id} %}
-        {% call f.form_tag('soportes_tickets.take', fid='soporte_ticket_form', **form_kwargs) %}
+        {% set form_kwargs = {'usuario_id': usuario.id} %}
+        {% call f.form_tag('soportes_tickets.new_for_usuario', fid='soporte_ticket_form', **form_kwargs) %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.descripcion, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.categoria) %}{% endcall %}
-            {% call f.form_group(form.tecnico, readonly=true) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

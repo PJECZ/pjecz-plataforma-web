@@ -3,7 +3,6 @@ Soportes Tickets, formularios
 """
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, SelectField
-from wtforms.fields.core import DateTimeField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
@@ -22,32 +21,20 @@ def categorias_opciones():
 
 
 class SoporteTicketNewForm(FlaskForm):
-    """Formulario SoporteTicket"""
+    """Formulario para que cualquier usuario pueda crear un ticket"""
 
+    usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=256)])
-    guardar = SubmitField("Envíar")
+    guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
-class SoporteTicketTakeForm(FlaskForm):
-    """Formulario SoporteTicket"""
+class SoporteTicketNewForUsuarioForm(FlaskForm):
+    """Formulario para que un administrador pueda crear un ticket para otro usuario"""
 
     usuario = StringField("Usuario")  # Read only
-    descripcion = StringField("Descripción del problema")  # Read only
+    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=256)])
     categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
-    guardar = SubmitField("Tomar")
-
-
-class SoporteTicketCloseForm(FlaskForm):
-    """Formulario SoporteTicket"""
-
-    usuario = StringField("Usuario")  # Read only
-    descripcion = StringField("Descripción del problema")  # Read only
-    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[Optional()])
-    tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
-    estado = SelectField("Estado", choices=SoporteTicket.ESTADOS)
-    soluciones = TextAreaField("Solución", validators=[Optional(), Length(max=256)])
-    guardar = SubmitField("Resuelto")
+    guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
 class SoporteTicketEditForm(FlaskForm):
@@ -57,6 +44,27 @@ class SoporteTicketEditForm(FlaskForm):
     descripcion = TextAreaField("Descripción del problema")  # Read only
     categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[DataRequired()], allow_blank=True)
-    estado = SelectField("Estado", choices=SoporteTicket.ESTADOS, validators=[DataRequired()])
     soluciones = TextAreaField("Solución", validators=[Optional(), Length(max=256)])
+    estado = SelectField("Estado", choices=SoporteTicket.ESTADOS, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
+
+
+class SoporteTicketTakeForm(FlaskForm):
+    """Formulario SoporteTicket"""
+
+    usuario = StringField("Usuario")  # Read only
+    descripcion = TextAreaField("Descripción del problema")  # Read only
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
+    tecnico = StringField("Técnico")  # Read only
+    guardar = SubmitField("Tomar")
+
+
+class SoporteTicketCloseForm(FlaskForm):
+    """Formulario SoporteTicket"""
+
+    usuario = StringField("Usuario")  # Read only
+    descripcion = TextAreaField("Descripción del problema")  # Read only
+    categoria = StringField("Categoría")  # Read only
+    tecnico = StringField("Técnico")  # Read only
+    soluciones = TextAreaField("Solución", validators=[DataRequired(), Length(max=256)])
+    guardar = SubmitField("Resuelto")

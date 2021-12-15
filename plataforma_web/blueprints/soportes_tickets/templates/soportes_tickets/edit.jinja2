@@ -2,10 +2,10 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Tomar Ticket{% endblock %}
+{% block title %}Editar Ticket{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Tomar Ticket - ' + soporte_ticket.id | string) }}
+    {{ topbar.page('Editar Ticket ' + soporte_ticket.id | string) }}
 {% endblock %}
 
 {% block content %}
@@ -16,8 +16,8 @@
             {% call f.form_group(form.descripcion, readonly=true) %}{% endcall %}
             {% call f.form_group(form.categoria) %}{% endcall %}
             {% call f.form_group(form.tecnico) %}{% endcall %}
-            {% call f.form_group(form.estado) %}{% endcall %}
             {% call f.form_group(form.soluciones) %}{% endcall %}
+            {% call f.form_group(form.estado) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

@@ -7,14 +7,14 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_view('SOPORTES TICKETS') %}
-            {{ topbar.button('Soportes Tickets', url_for('soportes_tickets.list_active'), 'mdi:tools') }}
+            {{ topbar.button('Tickets', url_for('soportes_tickets.list_active'), 'mdi:tools') }}
         {% endif %}
         {% if current_user.can_edit('SOPORTES CATEGORIAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('soportes_categorias.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('soportes_categorias.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('SOPORTES CATEGORIAS') %}
-            {{ topbar.button_new('Nuevo Soporte Categoría', url_for('soportes_categorias.new')) }}
+            {{ topbar.button_new('Nueva Categoría', url_for('soportes_categorias.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
