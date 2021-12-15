@@ -17,6 +17,7 @@ from plataforma_web.blueprints.cid_formatos.views import cid_formatos
 from plataforma_web.blueprints.cid_registros.views import cid_registros
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.edictos.views import edictos
+from plataforma_web.blueprints.identidades_generos.views import identidades_generos
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.epocas.views import epocas
 from plataforma_web.blueprints.funcionarios.views import funcionarios
@@ -38,6 +39,8 @@ from plataforma_web.blueprints.soportes_categorias.views import soportes_categor
 from plataforma_web.blueprints.soportes_tickets.views import soportes_tickets
 from plataforma_web.blueprints.tareas.views import tareas
 from plataforma_web.blueprints.tesis_jurisprudencias.views import tesis_jurisprudencias
+from plataforma_web.blueprints.tesis_jurisprudencias_funcionarios.views import tesis_jurisprudencias_funcionarios
+from plataforma_web.blueprints.tesis_jurisprudencias_sentencias.views import tesis_jurisprudencias_sentencias
 from plataforma_web.blueprints.transcripciones.views import transcripciones
 from plataforma_web.blueprints.turnos.views import turnos
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
@@ -74,6 +77,7 @@ def create_app():
     app.register_blueprint(epocas)
     app.register_blueprint(funcionarios)
     app.register_blueprint(glosas)
+    app.register_blueprint(identidades_generos)
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(listas_de_acuerdos_acuerdos)
     app.register_blueprint(materias)
@@ -91,6 +95,8 @@ def create_app():
     app.register_blueprint(soportes_tickets)
     app.register_blueprint(tareas)
     app.register_blueprint(tesis_jurisprudencias)
+    app.register_blueprint(tesis_jurisprudencias_funcionarios)
+    app.register_blueprint(tesis_jurisprudencias_sentencias)
     app.register_blueprint(transcripciones)
     app.register_blueprint(turnos)
     app.register_blueprint(usuarios)

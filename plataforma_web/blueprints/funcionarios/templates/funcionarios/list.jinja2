@@ -26,6 +26,7 @@
                     <th>En funciones</th>
                     <th>En sentencias</th>
                     <th>En soportes</th>
+                    <th>En T. y J.</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,6 +37,7 @@
                     <td>{% if funcionario.en_funciones %}SI{% endif %}</td>
                     <td>{% if funcionario.en_sentencias %}SI{% endif %}</td>
                     <td>{% if funcionario.en_soportes %}SI{% endif %}</td>
+                    <td>{% if funcionario.en_tesis_jurisprudencias %}SI{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

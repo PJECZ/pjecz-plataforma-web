@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tesis-Jurisprudencia-Funcionario{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Tesis-Jurisprudencia-Funcionario ' + tesis_jurisprudencia_funcionario.funcionario.nombres + ' ' +  tesis_jurisprudencia_funcionario.funcionario.apellido_paterno + ' ' +  tesis_jurisprudencia_funcionario.funcionario.apellido_materno) %}
+        {{ topbar.button_previous('Tesis-Jurisprudencias-Funcionarios', url_for('tesis_jurisprudencias_funcionarios.list_active')) }}
+        {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
+            {% if tesis_jurisprudencia_funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('tesis_jurisprudencias_funcionarios.delete', tesis_jurisprudencia_funcionario_id=tesis_jurisprudencia_funcionario.id)) }}{% endif %}
+            {% if tesis_jurisprudencia_funcionario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('tesis_jurisprudencias_funcionarios.recover', tesis_jurisprudencia_funcionario_id=tesis_jurisprudencia_funcionario.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=tesis_jurisprudencia_funcionario.estatus) %}
+        {{ detail.label_value('Funcionario', tesis_jurisprudencia_funcionario.funcionario.nombres + ' ' +  tesis_jurisprudencia_funcionario.funcionario.apellido_paterno + ' ' +  tesis_jurisprudencia_funcionario.funcionario.apellido_materno, url_for('funcionarios.detail', funcionario_id=tesis_jurisprudencia_funcionario.funcionario_id)) }}
+        {{ detail.label_value('Tesis y jurisprudencias', tesis_jurisprudencia_funcionario.tesis_jurisprudencias.clave_control, url_for('tesis_jurisprudencias.detail', tesis_jurisprudencia_id=tesis_jurisprudencia_funcionario.tesis_jurisprudencias_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
+        {% if tesis_jurisprudencia_funcionario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencia_funcionario.funcionario.nombres + '?') }}{% endif %}
+        {% if tesis_jurisprudencia_funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencia_funcionario.funcionario.nombres + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

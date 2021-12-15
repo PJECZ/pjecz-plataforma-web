@@ -6,12 +6,23 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('tesis_jurisprudencias.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('tesis_jurisprudencias.list_active')) }}{% endif %}
+        {{ topbar.button_districts('Autoridades', url_for('tesis_jurisprudencias.list_autoridades')) }}
+        {% if current_user.can_view('EPOCAS') %}
+            {{ topbar.button('Epocas', url_for('epocas.list_active'), 'mdi:table-clock') }}
         {% endif %}
-        {% if current_user.can_insert('TESIS JURISPRUDENCIAS') %}
-            {# topbar.button_new('Nuevo Tesis y Jurisprudencia', url_for('tesis_jurisprudencias.new')) #}
+        {% if current_user.can_view('FUNCIONARIOS') %}
+            {{ topbar.button('Funcionarios', url_for('funcionarios.list_active'), 'mdi:account') }}
+        {% endif %}
+        {% if autoridad %}
+            {% if current_user.can_admin('TESIS JURISPRUDENCIAS') or (current_user.can_insert('TESIS JURISPRUDENCIAS') and current_user.autoridad_id == autoridad.id) %}
+                {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('tesis_jurisprudencias.list_inactive')) }}{% endif %}
+                {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('tesis_jurisprudencias.list_active')) }}{% endif %}
+            {% endif %}
+            {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
+                {{ topbar.button_new('Nueva Tesis o Jurisprudencia', url_for('tesis_jurisprudencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
+            {% elif current_user.can_insert('TESIS JURISPRUDENCIAS') and current_user.autoridad_id == autoridad.id %}
+                {{ topbar.button_new('Nueva Tesis o Jurisprudencia', url_for('tesis_jurisprudencias.new')) }}
+            {% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -21,9 +32,8 @@
         <table id="tesis_jurisprudencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Creados</th>
-                    <th>Títulos</th>
-                    <th>Clases</th>
+                    <th>Título</th>
+                    <th>Clase</th>
                 </tr>
             </thead>
         </table>
@@ -48,20 +58,12 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "creado" },
                 { data: "detalle" },
                 { data: "clase" }
             ],
             columnDefs: [
                 {
                     targets: 0,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
-                    }
-                },
-                {
-                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.titulo + '</a>';

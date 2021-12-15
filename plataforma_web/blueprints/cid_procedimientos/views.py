@@ -135,12 +135,12 @@ def new():
             aprobo_email = aprobo.email
         registros_data = form.registros.data
         if registros_data is None:
-            registros = ""
+            registros = {}
         else:
             registros = registros_data
         control = form.control_cambios.data
         if control is None:
-            control_cambios = ""
+            control_cambios = {}
         else:
             control_cambios = control
         cid_procedimiento = CIDProcedimiento(
@@ -222,12 +222,12 @@ def edit(cid_procedimiento_id):
             aprobo_email = aprobo.email
         registros_d = form.registros.data
         if registros_d is None:
-            registros = ""
+            registros = {}
         else:
             registros = registros_d
         control = form.control_cambios.data
         if control is None:
-            control_cambios = ""
+            control_cambios = {}
         else:
             control_cambios = control
         cid_procedimiento.titulo_procedimiento = safe_string(form.titulo_procedimiento.data)
@@ -304,6 +304,7 @@ def edit(cid_procedimiento_id):
         desarrollo_json=desarrollo_json,
         registros_json=registros_json,
         control_cambios_json=control_cambios_json,
+        help_quill=help_quill("edit"),
     )
 
 
@@ -340,10 +341,11 @@ def sign_for_maker(cid_procedimiento_id):
     responsabilidades_es_valido = validate_json_quill_not_empty(cid_procedimiento.responsabilidades)
     # Validar desarrollo
     desarrollo_es_valido = validate_json_quill_not_empty(cid_procedimiento.desarrollo)
-    # Validar control_cambios
-    control_cambios_es_valido = cid_procedimiento.control_cambios
     # Validar registros
     registros_es_valido = cid_procedimiento.registros
+    # Validar control_cambios
+    control_cambios_es_valido = cid_procedimiento.control_cambios
+
     # Validar elaboro
     elaboro_es_valido = False
     if cid_procedimiento.elaboro_email != "":
