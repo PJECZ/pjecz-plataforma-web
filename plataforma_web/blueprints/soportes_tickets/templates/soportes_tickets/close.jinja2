@@ -2,22 +2,20 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Editar Ticket{% endblock %}
+{% block title %}Cerrar Ticket{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar Ticket - ' + soporte_ticket.id | string) }}
+    {{ topbar.page('Cerrar Ticket ' + soporte_ticket.id | string) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'soporte_ticket_id': soporte_ticket.id} %}
-        {% call f.form_tag('soportes_tickets.closes', fid='soporte_ticket_form', **form_kwargs) %}
+        {% call f.form_tag('soportes_tickets.close', fid='soporte_ticket_form', **form_kwargs) %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.tecnico, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.categoria, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.estado, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.resolucion, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.categoria, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tecnico, readonly=true) %}{% endcall %}
             {% call f.form_group(form.soluciones) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
