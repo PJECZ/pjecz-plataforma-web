@@ -1,0 +1,75 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/modals.jinja2' as modals %}
+
+{% block title %}Mensajes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Mensaje') %}
+        {% if mensaje_con_respuestas %}
+            {{ topbar.button_previous('Listado', url_for('mensajes.list_active')) }}
+        {% else %}
+            {{ topbar.button_previous('Mensaje', url_for('mensajes.detail', mensaje_id=mensaje_id)) }}
+        {% endif %}
+        {% if current_user.can_admin('MENSAJES') or current_user.can_edit('MENSAJES') %}
+            {% if mensaje_con_respuestas %}
+                {% if mensaje.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('mensajes.delete', mensaje_id=mensaje_id)) }}{% endif %}
+                {% if mensaje.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('mensajes.recover', mensaje_id=mensaje_id)) }}{% endif %}
+            {% else %}
+                {% if mensaje.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('mensajes.delete_response', mensaje_id=mensaje.id)) }}{% endif %}
+                {% if mensaje.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('mensajes.recover_response', mensaje_id=mensaje.id)) }}{% endif %}
+            {% endif %}
+        {% endif %}
+        {% if current_user.can_insert('MENSAJES') %}
+            {{ topbar.button_new('Responder', url_for('mensajes.new_response', mensaje_id=mensaje_id)) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {% if mensaje_con_respuestas %}
+            {{ detail.label_value('Autor', mensaje.autor) }}
+        {% else %}
+            {{ detail.label_value('Autor', mensaje.autor.email) }}
+        {% endif %}
+        {{ detail.label_value('Asunto', mensaje.asunto) }}
+        {{ detail.label_value('Contenido', mensaje.contenido) }}
+    {% endcall %}
+    {% if mensaje_con_respuestas %}
+        {% call topbar.page_buttons('Respuestas') %}
+        {% endcall %}
+        {% call list.card() %}
+            <table id="respuestas_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Creado</th>
+                        <th>Envíado por</th>
+                        <th>Leído</th>
+                        <th>Asunto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for respuesta in respuestas %}
+                    <tr>
+                        <td>{{ respuesta.creado }}</td>
+                        <td>{{ respuesta.autor }}</td>
+                        <td>{{ respuesta.leido }}</td>
+                        <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=respuesta.id) }}">{{ respuesta.asunto[:50] }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('MENSAJES') or (current_user.can_edit('MENSAJES')) %}
+        {% if mensaje.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar ' + mensaje.asunto + '?') }}{% endif %}
+        {% if mensaje.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar ' + mensaje.asunto + '?') }}{% endif %}
+    {% endif %}
+    {{ list.datatable_times('respuestas_datatable') }}
+{% endblock %}

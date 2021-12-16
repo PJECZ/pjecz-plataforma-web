@@ -54,6 +54,8 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     usuarios_roles = db.relationship("UsuarioRol", back_populates="usuario")
     turnos = db.relationship("Turno", back_populates="usuario", lazy="noload")
     soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
+    mensajes = db.relationship("Mensaje", back_populates="destinatario", lazy="noload")
+    mensajes_respuestas = db.relationship("MensajeRespuesta", back_populates="autor", lazy="noload")
 
     @property
     def nombre(self):

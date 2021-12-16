@@ -1,0 +1,29 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/detail.jinja2' as detail%}
+
+{% block title %}Nueva Respuesta{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nueva Respuesta') }}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+            {{ detail.label_value('Fecha', mensaje.creado) }}
+            {{ detail.label_value('Autor', mensaje.autor) }}
+            {{ detail.label_value('Asunto', mensaje.asunto) }}
+            {{ detail.label_value('Contenido', mensaje.contenido) }}
+    {% endcall %}
+
+    {% call f.card() %}
+    {% set form_kwargs = {'mensaje_id': mensaje.id} %}
+        {% call f.form_tag('mensajes.new_response', fid='mensaje_form', **form_kwargs) %}
+            {% call f.form_group(form.asunto) %}{% endcall %}
+            {% call f.form_group(form.respuesta) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+            <a href="{{ url_for('mensajes.detail', mensaje_id=mensaje_id) }}" role="button" class="btn btn-secondary btn-cancelar">Cancelar</a>
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
