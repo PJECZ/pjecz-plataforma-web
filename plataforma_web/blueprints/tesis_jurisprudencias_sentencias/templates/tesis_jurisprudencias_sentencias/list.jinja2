@@ -5,23 +5,37 @@
 {% block title %}Sentencias{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page(titulo) }}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('SENTENCIAS') %}
+            {{ topbar.button('Sentencias', url_for('sentencias.list_active'), 'mdi:gamepad') }}
+        {% endif %}
+        {% if current_user.can_view('TESIS JURISPRUDENCIAS') %}
+            {{ topbar.button('TesisJurisprudencias', url_for('tesis_jurisprudencias.list_active'), 'mdi:gavel') }}
+        {% endif %}
+        {% if current_user.can_edit('TESIS JURISPRUDENCIAS SENTENCIAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('tesis_jurisprudencias_sentencias.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('tesis_jurisprudencias_sentencias.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('TESIS JURISPRUDENCIAS SENTENCIAS') %}
+            {{ topbar.button_new('Nuevo Tesis-Jurisprudencia-Sentencia', url_for('tesis_jurisprudencias_sentencias.new_with_tesis')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="tesis_jurisprudencias_sentencias_datatable" class="table display nowrap" style="width:100%">
+        <table id="tesis_jurisprudencias_sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Creados</th>
-                    <th>Sentencias</th>
+                    <th>Tesis y Jurisprudencia</th>
+                    <th>Sentencia</th>
                 </tr>
             </thead>
             <tbody>
-                {% for sentencia in sentencias %}
+                {% for tesis_sentencia in tesis_jurisprudencias_sentencias %}
                 <tr>
-                    <td>{{ sentencia.creado }}</td>
-                    <td><a href="{{ url_for('tesis_jurisprudencias_sentencias.detail', sentencia_id=sentencia.id) }}">{{ sentencia.expediente }}</a></td>
+                    <td>{{ tesis_sentencia.tesis_jurisprudencia.clave_control  }}</td>
+                    <td><a href="{{ url_for('tesis_jurisprudencias_sentencias.detail', tesis_jurisprudencia_sentencia_id=tesis_sentencia.id) }}">{{ tesis_sentencia.sentencia.sentencia }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -30,5 +44,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('tesis_jurisprudencias_sentencias_datatable') }}
+    {{ list.datatable('tesis_jurisprudencias_sentencias_datatable') }}
 {% endblock %}

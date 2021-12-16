@@ -70,7 +70,7 @@ def list_inactive():
         return render_template(
             "tesis_jurisprudencias/list_admin.jinja2",
             autoridad=None,
-            filtros=json.dumps({"estatus": "A"}),
+            filtros=json.dumps({"estatus": "B"}),
             titulo="Todas las Tesis y Jurisprudencias inactivas",
             estatus="B",
         )
@@ -80,7 +80,7 @@ def list_inactive():
         return render_template(
             "tesis_jurisprudencias/list.jinja2",
             autoridad=autoridad,
-            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
+            filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
             titulo=f"Tesis y Jurisprudencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="B",
         )
@@ -88,7 +88,7 @@ def list_inactive():
     return render_template(
         "tesis_jurisprudencias/list.jinja2",
         autoridad=None,
-        filtros=json.dumps({"estatus": "A"}),
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Todas las Tesis Jurisprudencias inactivas",
         estatus="B",
     )
