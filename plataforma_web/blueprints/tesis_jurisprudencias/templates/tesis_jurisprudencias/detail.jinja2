@@ -54,8 +54,35 @@
                 <tr>
                     <td><a href="">{{ tesis_juris_funcionarios.funcionario.nombre }}</a></td>
                     <td>
-                    {# {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %} #}
+                    {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
                         {{ modals.button_delete(url=url_for('tesis_jurisprudencias_funcionarios.delete', tesis_jurisprudencia_funcionario_id=tesis_juris_funcionarios.id), id='DeleteTesisFuncionario', message='¿Eliminar ' + tesis_juris_funcionarios.funcionario.nombres + '?') }}
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if current_user.can_insert('TESIS JURISPRUDENCIAS') %}
+            <a href="{{ url_for('tesis_jurisprudencias_funcionarios.new_with_tesis', tesis_jurisprudencias_id=tesis_jurisprudencia.id) }}" class="btn btn-primary">Agregar</a>
+        {% endif %}
+    {% endcall %}
+    {% call detail.card("Precedentes: Sentencias públicas") %}
+        <table id="sentencias_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Sentencia</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for tesis_juris_sentencia in tesis_jurisprudencia.tesis_jurisprudencias_sentencias %}
+                {% if tesis_juris_sentencia.estatus == "A" %}
+                <tr>
+                    <td><a href="">{{ tesis_juris_sentencia.sentencia.sentencia }}</a></td>
+                    <td>
+                    {# {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %} #}
+                        {{ modals.button_delete(url=url_for('tesis_jurisprudencias_sentencias.delete', tesis_jurisprudencia_sentencia_id=tesis_juris_sentencia.id), id='DeleteTesisFuncionario', message='¿Eliminar ' + tesis_juris_sentencia.sentencia.sentencia + '?') }}
                     {# {% endif %} #}
                     </td>
                 </tr>
@@ -64,7 +91,7 @@
             </tbody>
         </table>
         {# {% if current_user.can_insert('USUARIOS ROLES') %} #}
-            <a href="{{ url_for('tesis_jurisprudencias_funcionarios.new_with_tesis', tesis_jurisprudencias_id=tesis_jurisprudencia.id) }}" class="btn btn-primary">Agregar</a>
+            <a href="{{ url_for('tesis_jurisprudencias_sentencias.new_with_tesis', tesis_jurisprudencias_id=tesis_jurisprudencia.id) }}" class="btn btn-primary">Agregar</a>
         {# {% endif %} #}
     {% endcall %}
 {% endblock %}

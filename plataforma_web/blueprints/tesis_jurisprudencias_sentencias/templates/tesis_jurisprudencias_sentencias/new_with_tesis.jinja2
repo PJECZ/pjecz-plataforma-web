@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Agregar sentencias a la tesis y Jurisprudencia{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'tesis_jurisprudencias_id': tesis_jurisprudencia.id} %}
+        {% call f.form_tag('tesis_jurisprudencias_sentencias.new_with_tesis', fid='tesis_jurisprudencia_sentencia_form', **form_kwargs) %}
+            {% call f.form_group(form.sentencia) %}{% endcall %}
+            {% call f.form_group(form.tesis, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
