@@ -29,7 +29,7 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card() %}
+    {% call detail.card('Mensaje') %}
         {% if mensaje_con_respuestas %}
             {{ detail.label_value('Autor', mensaje.autor) }}
         {% else %}
@@ -39,13 +39,10 @@
         {{ detail.label_value('Contenido', mensaje.contenido) }}
     {% endcall %}
     {% if mensaje_con_respuestas %}
-        {% call topbar.page_buttons('Respuestas') %}
-        {% endcall %}
-        {% call list.card() %}
+        {% call list.card('Respuestas') %}
             <table id="respuestas_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Creado</th>
                         <th>Envíado por</th>
                         <th>Leído</th>
                         <th>Asunto</th>
@@ -54,7 +51,6 @@
                 <tbody>
                     {% for respuesta in respuestas %}
                     <tr>
-                        <td>{{ respuesta.creado }}</td>
                         <td>{{ respuesta.autor }}</td>
                         <td>{{ respuesta.leido }}</td>
                         <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=respuesta.id) }}">{{ respuesta.asunto[:50] }}</a></td>
