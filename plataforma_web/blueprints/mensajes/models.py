@@ -20,7 +20,6 @@ class Mensaje(db.Model, UniversalMixin):
 
     # Columnas
     autor = db.Column(db.String(256), nullable=False)
-    #destinatario = db.Column(db.String(256), nullable=False)
     asunto = db.Column(db.String(128), nullable=False)
     contenido = db.Column(db.String(512), nullable=False)
     leido = db.Column(db.Boolean, nullable=False, default=False)
@@ -50,7 +49,6 @@ class MensajeRespuesta(db.Model, UniversalMixin):
     respuesta = db.relationship("Mensaje", back_populates="respuestas")
 
     # Columnas
-    #autor = db.Column(db.String(256), nullable=False)
     asunto = db.Column(db.String(128), nullable=False)
     contenido = db.Column(db.String(512), nullable=False)
     leido = db.Column(db.Boolean, nullable=False, default=False)
