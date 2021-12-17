@@ -14,9 +14,12 @@ class Mensaje(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
+    # Clave foránea
+    destinatario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
+    destinatario = db.relationship("Usuario", back_populates="mensajes")
+
     # Columnas
     autor = db.Column(db.String(256), nullable=False)
-    destinatario = db.Column(db.String(256), nullable=False)
     asunto = db.Column(db.String(128), nullable=False)
     contenido = db.Column(db.String(512), nullable=False)
     leido = db.Column(db.Boolean, nullable=False, default=False)
@@ -40,11 +43,12 @@ class MensajeRespuesta(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
+    autor_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
+    autor = db.relationship("Usuario", back_populates="mensajes_respuestas")
     respuesta_id = db.Column(db.Integer, db.ForeignKey("mensajes.id"), index=True, nullable=False)
     respuesta = db.relationship("Mensaje", back_populates="respuestas")
 
     # Columnas
-    autor = db.Column(db.String(256), nullable=False)
     asunto = db.Column(db.String(128), nullable=False)
     contenido = db.Column(db.String(512), nullable=False)
     leido = db.Column(db.Boolean, nullable=False, default=False)

@@ -17,10 +17,10 @@
             {% if current_user.can_admin('TESIS JURISPRUDENCIAS') %}
                 {{ topbar.button_new('Nueva Tesis o Jurisprudencia', url_for('tesis_jurisprudencias.new_for_autoridad', autoridad_id=autoridad.id)) }}
             {% endif %}
-            {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
+            {# {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('tesis_jurisprudencias.list_autoridad_tesis_jurisprudencias_inactive', autoridad_id=autoridad.id)) }}{% endif %}
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('tesis_jurisprudencias.list_autoridad_tesis_jurisprudencias', autoridad_id=autoridad.id)) }}{% endif %}
-            {% endif %}
+            {% endif %} #}
         {% else %}
             {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
                 {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('tesis_jurisprudencias.list_inactive')) }}{% endif %}

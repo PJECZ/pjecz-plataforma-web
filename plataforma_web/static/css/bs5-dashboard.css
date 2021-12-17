@@ -125,3 +125,8 @@ body {
   border-radius: 0.75rem;
   float: left;
 }
+
+.btn-cancelar {
+  float: right;
+  margin-top: -46px;
+}

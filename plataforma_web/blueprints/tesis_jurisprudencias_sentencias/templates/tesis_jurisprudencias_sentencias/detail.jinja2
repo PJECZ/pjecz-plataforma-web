@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tesis-Jurisprudencia-Sentencia{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Tesis-Jurisprudencia-Sentencias ' + tesis_jurisprudencia_sentencia.sentencia.sentencia + ', Expediente: ' +  tesis_jurisprudencia_sentencia.sentencia.expediente) %}
+            {{ topbar.button_previous('Tesis-Jurisprudencias-Sentencias', url_for('tesis_jurisprudencias_sentencias.list_active')) }}
+            {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
+                {% if tesis_jurisprudencia_sentencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('tesis_jurisprudencias_sentencias.delete', tesis_jurisprudencia_sentencia_id=tesis_jurisprudencia_sentencia.id)) }}{% endif %}
+                {% if tesis_jurisprudencia_sentencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('tesis_jurisprudencias_sentencias.recover', tesis_jurisprudencia_sentencia_id=tesis_jurisprudencia_sentencia.id)) }}{% endif %}
+            {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=tesis_jurisprudencia_sentencia.estatus) %}
+        {{ detail.label_value('Sentencia', tesis_jurisprudencia_sentencia.sentencia.sentencia + ' ' +  tesis_jurisprudencia_sentencia.sentencia.expediente, url_for('sentencias.detail', sentencia_id=tesis_jurisprudencia_sentencia.sentencia.id)) }}
+        {{ detail.label_value('Tesis y jurisprudencias', tesis_jurisprudencia_sentencia.tesis_jurisprudencia.clave_control, url_for('tesis_jurisprudencias.detail', tesis_jurisprudencia_id=tesis_jurisprudencia_sentencia.tesis_jurisprudencia_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('TESIS JURISPRUDENCIAS') %}
+        {% if tesis_jurisprudencia_sentencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + tesis_jurisprudencia_sentencia.sentencia.sentencia + '?') }}{% endif %}
+        {% if tesis_jurisprudencia_sentencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + tesis_jurisprudencia_sentencia.sentencia.sentencia + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
