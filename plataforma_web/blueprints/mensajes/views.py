@@ -38,7 +38,7 @@ def list_active():
     """Listado de Mensajes activos"""
     nuevos_mensajes = Mensaje.query.filter(Mensaje.estatus == "A").filter(Mensaje.leido == False).filter(Mensaje.destinatario == current_user).all()
     respuestas = db.session.query(Mensaje, MensajeRespuesta).filter(MensajeRespuesta.estatus == "A").filter(MensajeRespuesta.leido == False).filter(Mensaje.autor == current_user.email).filter(Mensaje.id == MensajeRespuesta.respuesta_id).all()
-    viejos_mensajes = Mensaje.query.filter(Mensaje.estatus == "A").filter(Mensaje.leido == True).filter(or_(Mensaje.destinatario_id == current_user.id, Mensaje.autor == current_user.email)).limit(500).all()
+    viejos_mensajes = Mensaje.query.filter(Mensaje.estatus == "A").filter(Mensaje.leido == True).filter(or_(Mensaje.destinatario_id == current_user.id, Mensaje.autor == current_user.email)).order_by(Mensaje.creado.desc()).limit(500).all()
     return render_template(
         "mensajes/list.jinja2",
         nuevos=nuevos_mensajes,
