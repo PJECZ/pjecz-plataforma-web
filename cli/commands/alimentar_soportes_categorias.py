@@ -9,4 +9,8 @@ from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 
-MATERIAS_TIPOS_JUICIOS_CSV = "seed/materias_tipos_juicios.csv"
+SOPORTES_CATEGORIAS_CSV = "seed/soportes_categorias.csv"
+
+
+def alimentar_soportes_categorias():
+    """Alimentar soportes categorias"""
