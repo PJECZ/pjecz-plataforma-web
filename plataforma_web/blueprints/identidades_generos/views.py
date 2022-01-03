@@ -34,7 +34,7 @@ def list_active():
     return render_template(
         "identidades_generos/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Entidades de Géneros",
+        titulo="Identidades de Géneros",
         estatus="A",
     )
 
@@ -46,7 +46,7 @@ def list_inactive():
     return render_template(
         "identidades_generos/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="Entidades de Géneros inactivos",
+        titulo="Identidades de Géneros inactivos",
         estatus="B",
     )
 
