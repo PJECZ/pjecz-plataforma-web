@@ -18,8 +18,8 @@
 
 {% block content %}
     {% if nuevos %}
-        {% call list.card('Nuevos Mensajes') %}
-            <table id="mensajes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        {% call list.card('Nuevos') %}
+            <table id="mensajes_nuevos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Envíado por</th>
@@ -38,8 +38,8 @@
         {% endcall %}
     {% endif %}
     {% if respuestas %}
-        {% call list.card('Nuevas Respuestas') %}
-            <table id="respuestas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        {% call list.card('Respuestas') %}
+            <table id="mensajes_respuestas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Envíado Por</th>
@@ -49,7 +49,7 @@
                 <tbody>
                     {% for mensaje in respuestas %}
                     <tr>
-                        <td>{{ mensaje.Mensaje.autor }}</td>
+                        <td>{{ mensaje.mensaje.autor }}</td>
                         <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=mensaje.MensajeRespuesta.id) }}">{{ mensaje.MensajeRespuesta.asunto }}</a></td>
                     </tr>
                     {% endfor %}
@@ -58,8 +58,8 @@
         {% endcall %}
     {% endif %}
     {% if viejos %}
-        {% call list.card('Todos los Mensajes') %}
-            <table id="viejos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        {% call list.card('Archivados') %}
+            <table id="mensajes_viejos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Autor</th>
@@ -81,12 +81,12 @@
 
 {% block custom_javascript %}
     {% if nuevos %}
-        {{ list.datatable('mensajes_datatable') }}
+        {{ list.datatable('mensajes_nuevos_datatable') }}
     {% endif %}
     {% if respuestas %}
-        {{ list.datatable('respuestas_datatable') }}
+        {{ list.datatable('mensajes_respuestas_datatable') }}
     {% endif %}
     {% if viejos %}
-        {{ list.datatable('viejos_datatable') }}
+        {{ list.datatable('mensajes_viejos_datatable') }}
     {% endif %}
 {% endblock %}

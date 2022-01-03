@@ -22,7 +22,6 @@
             {% call f.form_group(form.asunto) %}{% endcall %}
             {% call f.form_group(form.respuesta) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
-            <a href="{{ url_for('mensajes.detail', mensaje_id=mensaje_id) }}" role="button" class="btn btn-secondary btn-cancelar">Cancelar</a>
         {% endcall %}
     {% endcall %}
 {% endblock %}

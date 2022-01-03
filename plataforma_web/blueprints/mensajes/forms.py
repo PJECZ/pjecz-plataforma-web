@@ -20,7 +20,7 @@ class MensajeForm(FlaskForm):
     destinatario = QuerySelectField("Destinatario", query_factory=usuarios_opciones, get_label="email", validators=[DataRequired()])
     asunto = StringField("Asunto", validators=[DataRequired(), Length(max=128)])
     contenido = TextAreaField("Contenido", validators=[DataRequired(), Length(max=512)])
-    guardar = SubmitField("Guardar")
+    enviar = SubmitField("Enviar")
 
 
 class MensajeRespuestaForm(FlaskForm):
