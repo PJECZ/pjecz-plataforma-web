@@ -29,8 +29,7 @@ class Mensaje(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Mensaje> {self.id}"
-
+        return f"<Mensaje {self.id}>"
 
 
 class MensajeRespuesta(db.Model, UniversalMixin):
@@ -55,4 +54,4 @@ class MensajeRespuesta(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Mensaje> {self.id}"
+        return f"<MensajeRespuesta {self.id}>"

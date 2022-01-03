@@ -77,11 +77,16 @@
             </table>
         {% endcall %}
     {% endif %}
-
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('mensajes_datatable') }}
-    {{ list.datatable('respuestas_datatable') }}
-    {{ list.datatable('viejos_datatable') }}
+    {% if nuevos %}
+        {{ list.datatable('mensajes_datatable') }}
+    {% endif %}
+    {% if respuestas %}
+        {{ list.datatable('respuestas_datatable') }}
+    {% endif %}
+    {% if viejos %}
+        {{ list.datatable('viejos_datatable') }}
+    {% endif %}
 {% endblock %}

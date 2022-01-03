@@ -4,9 +4,10 @@ Mensaje, formularios
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length
 
 from plataforma_web.blueprints.usuarios.models import Usuario
+
 
 def usuarios_opciones():
     """Usuarios: opciones para select"""

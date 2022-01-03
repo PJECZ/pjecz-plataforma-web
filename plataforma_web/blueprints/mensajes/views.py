@@ -1,25 +1,18 @@
 """
 Mensajes, vistas
 """
-
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-from lib import datatables
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.extensions import db
 
-
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.mensajes.models import Mensaje, MensajeRespuesta
+from plataforma_web.blueprints.mensajes.forms import MensajeForm, MensajeRespuestaForm
 from plataforma_web.blueprints.usuarios.models import Usuario
-
-
-from .forms import MensajeForm, MensajeRespuestaForm
 
 MODULO = "MENSAJES"
 
@@ -70,7 +63,7 @@ def list_inactive():
 def detail(mensaje_id):
     """Detalle de un Mensajes"""
     mensaje = Mensaje.query.get_or_404(mensaje_id)
-    if mensaje.leido == False:
+    if mensaje.leido is False:
         mensaje.leido = True
         mensaje.save()
     respuestas = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "A").filter(MensajeRespuesta.respuesta_id == mensaje_id).all()
@@ -81,7 +74,7 @@ def detail(mensaje_id):
 def detail_response(mensaje_id):
     """Detalle de un Mensajes"""
     mensaje = MensajeRespuesta.query.get_or_404(mensaje_id)
-    if not mensaje.leido:
+    if mensaje.leido is False:
         mensaje.leido = True
         mensaje.save()
     return render_template("mensajes/detail.jinja2", mensaje_id=mensaje.respuesta_id, mensaje=mensaje, mensaje_con_respuestas=False)
@@ -97,8 +90,8 @@ def new():
         mensaje = Mensaje(
             autor=current_user.email,
             destinatario=destinatario,
-            asunto=form.asunto.data,
-            contenido=form.contenido.data,
+            asunto=safe_string(form.asunto.data),
+            contenido=safe_string(form.contenido.data),
             leido=False,
         )
         mensaje.save()
@@ -117,26 +110,14 @@ def new_response(mensaje_id):
         respuesta = MensajeRespuesta(
             respuesta=mensaje,
             autor=current_user,
-            asunto=form.asunto.data,
-            contenido=form.respuesta.data,
+            asunto=safe_string(form.asunto.data),
+            contenido=safe_string(form.respuesta.data),
             leido=False,
         )
         respuesta.save()
         flash("Respueta envíada correctamente.", "success")
         return redirect(url_for("mensajes.list_active"))
     return render_template("mensajes/new_response.jinja2", mensaje_id=mensaje_id, form=form, mensaje=mensaje)
-
-
-@mensajes.route("/mensajes/eliminar/<int:mensaje_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def delete(mensaje_id):
-    """Eliminar Mensajes"""
-    mensaje = Mensaje.query.get_or_404(mensaje_id)
-    if mensaje.estatus == "A":
-        mensaje.delete()
-        _eliminar_respuestas(mensaje_id)
-        flash(f"Mensaje eliminado.", "success")
-    return redirect(url_for("mensajes.detail", mensaje_id=mensaje.id))
 
 
 def _eliminar_respuestas(mensaje_id):
@@ -147,6 +128,18 @@ def _eliminar_respuestas(mensaje_id):
         respuesta = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "A").filter(MensajeRespuesta.respuesta_id == mensaje_id).first()
 
 
+@mensajes.route("/mensajes/eliminar/<int:mensaje_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(mensaje_id):
+    """Eliminar Mensajes"""
+    mensaje = Mensaje.query.get_or_404(mensaje_id)
+    if mensaje.estatus == "A":
+        mensaje.delete()
+        _eliminar_respuestas(mensaje_id)
+        flash("Mensaje eliminado.", "success")
+    return redirect(url_for("mensajes.detail", mensaje_id=mensaje.id))
+
+
 @mensajes.route("/mensajes/eliminar_respuesta/<int:mensaje_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete_response(mensaje_id):
@@ -154,20 +147,8 @@ def delete_response(mensaje_id):
     mensaje = MensajeRespuesta.query.get_or_404(mensaje_id)
     if mensaje.estatus == "A":
         mensaje.delete()
-        flash(f"Respuesta eliminada.", "success")
+        flash("Respuesta eliminada.", "success")
     return redirect(url_for("mensajes.detail", mensaje_id=mensaje.respuesta_id, mensaje=mensaje, mesaje_con_respuesta=True))
-
-
-@mensajes.route("/mensajes/recuperar/<int:mensaje_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def recover(mensaje_id):
-    """Recuperar Mensjaes"""
-    mensaje = Mensaje.query.get_or_404(mensaje_id)
-    if mensaje.estatus == "B":
-        mensaje.recover()
-        _recuperar_respuestas(mensaje_id)
-        flash(f"Mensaje recuperado.", "success")
-    return redirect(url_for("mensajes.detail", mensaje_id=mensaje.id))
 
 
 def _recuperar_respuestas(mensaje_id):
@@ -178,6 +159,17 @@ def _recuperar_respuestas(mensaje_id):
         respuesta = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "B").filter(MensajeRespuesta.respuesta_id == mensaje_id).first()
 
 
+@mensajes.route("/mensajes/recuperar/<int:mensaje_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(mensaje_id):
+    """Recuperar Mensajes"""
+    mensaje = Mensaje.query.get_or_404(mensaje_id)
+    if mensaje.estatus == "B":
+        mensaje.recover()
+        _recuperar_respuestas(mensaje_id)
+        flash("Mensaje recuperado.", "success")
+    return redirect(url_for("mensajes.detail", mensaje_id=mensaje.id))
+
 
 @mensajes.route("/mensajes/recuperar_respuesta/<int:mensaje_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
@@ -186,5 +178,5 @@ def recover_response(mensaje_id):
     mensaje = MensajeRespuesta.query.get_or_404(mensaje_id)
     if mensaje.estatus == "B":
         mensaje.recover()
-        flash(f"Respuesta recuperada.", "success")
+        flash("Respuesta recuperada.", "success")
     return redirect(url_for("mensajes.detail", mensaje_id=mensaje.respuesta_id))
