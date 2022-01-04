@@ -17,11 +17,12 @@ from plataforma_web.blueprints.cid_formatos.views import cid_formatos
 from plataforma_web.blueprints.cid_registros.views import cid_registros
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.edictos.views import edictos
-from plataforma_web.blueprints.identidades_generos.views import identidades_generos
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.epocas.views import epocas
+from plataforma_web.blueprints.escrituras.views import escrituras
 from plataforma_web.blueprints.funcionarios.views import funcionarios
 from plataforma_web.blueprints.glosas.views import glosas
+from plataforma_web.blueprints.identidades_generos.views import identidades_generos
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_de_acuerdos_acuerdos
 from plataforma_web.blueprints.materias.views import materias
@@ -76,6 +77,7 @@ def create_app():
     app.register_blueprint(edictos)
     app.register_blueprint(entradas_salidas)
     app.register_blueprint(epocas)
+    app.register_blueprint(escrituras)
     app.register_blueprint(funcionarios)
     app.register_blueprint(glosas)
     app.register_blueprint(identidades_generos)

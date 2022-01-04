@@ -1,0 +1,48 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Escrituras{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('ESCRITURAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('escrituras.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('escrituras.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('ESCRITURAS') %}
+            {{ topbar.button_new('Nueva Escritura', url_for('escrituras.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="escrituras_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fechas de envíos</th>
+                    <th>Distritos</th>
+                    <th>Notarías</th>
+                    <th>Expedientes</th>
+                    <th>Etapas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for escritura in escrituras %}
+                <tr>
+                    <td>{{ escritura.envio_fecha }}</td>
+                    <td>{{ escritura.autoridad.distrito.nombre }}</td>
+                    <td>{{ escritura.autoridad.descripcion }}</td>
+                    <td><a href="{{ url_for('escrituras.detail', escritura_id=escritura.id) }}">{{ escritura.expediente }}</a></td>
+                    <td>{{ escritura.etapa }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('escrituras_datatable') }}
+{% endblock %}
