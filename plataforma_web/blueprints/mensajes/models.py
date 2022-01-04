@@ -29,8 +29,7 @@ class Mensaje(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Mensaje> {self.id}"
-
+        return f"<Mensaje {self.id}>"
 
 
 class MensajeRespuesta(db.Model, UniversalMixin):
@@ -42,7 +41,7 @@ class MensajeRespuesta(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
+    # Claves foráneas
     autor_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
     autor = db.relationship("Usuario", back_populates="mensajes_respuestas")
     respuesta_id = db.Column(db.Integer, db.ForeignKey("mensajes.id"), index=True, nullable=False)
@@ -55,4 +54,4 @@ class MensajeRespuesta(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Mensaje> {self.id}"
+        return f"<MensajeRespuesta {self.id}>"

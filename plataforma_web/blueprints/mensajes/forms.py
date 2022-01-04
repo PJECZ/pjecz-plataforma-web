@@ -4,9 +4,10 @@ Mensaje, formularios
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length
 
 from plataforma_web.blueprints.usuarios.models import Usuario
+
 
 def usuarios_opciones():
     """Usuarios: opciones para select"""
@@ -19,7 +20,7 @@ class MensajeForm(FlaskForm):
     destinatario = QuerySelectField("Destinatario", query_factory=usuarios_opciones, get_label="email", validators=[DataRequired()])
     asunto = StringField("Asunto", validators=[DataRequired(), Length(max=128)])
     contenido = TextAreaField("Contenido", validators=[DataRequired(), Length(max=512)])
-    guardar = SubmitField("Guardar")
+    enviar = SubmitField("Enviar")
 
 
 class MensajeRespuestaForm(FlaskForm):

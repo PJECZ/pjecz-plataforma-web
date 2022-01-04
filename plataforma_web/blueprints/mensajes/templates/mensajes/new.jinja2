@@ -7,7 +7,7 @@
 
 {% block custom_head %}
     <!-- Select2 bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block topbar_actions %}
@@ -21,8 +21,7 @@
             {% call f.form_group(form.destinatario) %}{% endcall %}
             {% call f.form_group(form.asunto) %}{% endcall %}
             {% call f.form_group(form.contenido) %}{% endcall %}
-            {% call f.form_group(form.guardar) %}{% endcall %}
-            <a href="{{ url_for('mensajes.list_active') }}" role="button" class="btn btn-secondary btn-cancelar">Cancelar</a>
+            {% call f.form_group(form.enviar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
 {% endblock %}
