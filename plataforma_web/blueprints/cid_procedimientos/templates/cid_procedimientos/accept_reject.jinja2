@@ -8,7 +8,7 @@
     <!-- font awesom-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        #rechazar { background-color:#B80000; border-color:#B80000; box-sizing: border-box; float: right; }
+        #rechazar { background-color:#B80000; border-color:#B80000; box-sizing: border-box; float: right; margin-top:-10px; }
         #aceptar { box-sizing: border-box; float: left;}
     </style>
 {% endblock %}
@@ -36,6 +36,42 @@
             <div></div>
             {% call f.form_group(form.aceptar) %}{% endcall %}
             {% call f.form_group(form.rechazar) %}{% endcall %}
+            {# <div class="form-group mb-2 "><button type="button" id="rechazar" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rechazar_procedimineto_modal">Rechazar</button></div> #}
         {% endcall %}
     {% endcall %}
+    <div class="modal fade" id="rechazar_procedimineto_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="Rechazar procedimiento" aria-hidden="true">
+                <div class="modal-dialog" >
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rechazar_title">Rechazando procedimiento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label>¿Porqué estas rechanzando el procedimiento?</label>&nbsp;<br>
+                        <textarea name="textarea" rows="10" cols="50" id="comentario" class="form-control" placeholder="Escribe.."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="send_rechazar_btn" data-bs-dismiss="modal" class="btn btn-primary">Envíar</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}
+
+{% block custom_javascript %}
+     <script> 
+        $(document).ready(function(){
+            $('#rechazar').attr('type','button');
+            
+            var rechazar = document.querySelector('#rechazar');
+
+            rechazar.setAttribute("data-bs-toggle","modal");
+            rechazar.setAttribute("data-bs-target","#rechazar_procedimineto_modal");
+
+            $('#send_rechazar_btn').click(function(){
+                $("comentario").val();
+            });
+        });
+    </script>
 {% endblock %}

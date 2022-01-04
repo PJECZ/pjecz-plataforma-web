@@ -65,5 +65,6 @@ class CIDProcedimientoAcceptRejectForm(FlaskForm):
     elaboro_nombre = StringField("Remitente Elaboró", validators=[Optional()])
     reviso_nombre = StringField("Remitente Revisó", validators=[Optional()])
     url = StringField("Archivo PDF", validators=[Optional()])
+    rechazar_procedimiento = StringField("Rechazar procedimiento", validators=[Optional()])
     aceptar = SubmitField("Aceptar")
     rechazar = SubmitField("Rechazar")
