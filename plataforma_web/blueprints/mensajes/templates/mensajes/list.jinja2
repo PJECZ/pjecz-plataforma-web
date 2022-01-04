@@ -18,19 +18,21 @@
 
 {% block content %}
     {% if nuevos %}
-        {% call list.card('Nuevos') %}
-            <table id="mensajes_nuevos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        {% call list.card('Nuevos (no leídos)') %}
+            <table id="mensajes_nuevos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Envíado por</th>
+                        <th>Para</th>
                         <th>Asunto</th>
+                        <th>Contenido</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for mensaje in nuevos %}
+                    {% for nuevo in nuevos %}
                     <tr>
-                        <td>{{ mensaje.autor }}</td>
-                        <td><a href="{{ url_for('mensajes.detail', mensaje_id=mensaje.id) }}">{{ mensaje.asunto[:50] }}</a></td>
+                        <td>{{ nuevo.destinatario.nombre }}</td>
+                        <td><a href="{{ url_for('mensajes.detail', mensaje_id=nuevo.id) }}">{{ nuevo.asunto|truncate(32) }}</a></td>
+                        <td>{{ nuevo.contenido|truncate(32) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -39,38 +41,42 @@
     {% endif %}
     {% if respuestas %}
         {% call list.card('Respuestas') %}
-            <table id="mensajes_respuestas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <table id="mensajes_respuestas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Envíado Por</th>
+                        <th>Remitente</th>
                         <th>Asunto</th>
+                        <th>Contenido</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for mensaje in respuestas %}
+                    {% for respuesta in respuestas %}
                     <tr>
-                        <td>{{ mensaje.mensaje.autor }}</td>
-                        <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=mensaje.MensajeRespuesta.id) }}">{{ mensaje.MensajeRespuesta.asunto }}</a></td>
+                        <td>{{ respuesta.mensaje.autor }}</td>
+                        <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=respuesta.MensajeRespuesta.id) }}">{{ respuesta.mensajerespuesta.asunto|truncate(32) }}</a></td>
+                        <td>{{ respuesta.contenido|truncate(32) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% endcall %}
     {% endif %}
-    {% if viejos %}
+    {% if archivados %}
         {% call list.card('Archivados') %}
-            <table id="mensajes_viejos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <table id="mensajes_archivados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Autor</th>
+                        <th>Para</th>
                         <th>Asunto</th>
+                        <th>Contenido</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for mensaje in viejos %}
+                    {% for archivo in archivados %}
                     <tr>
-                        <td>{{ mensaje.autor }}</td>
-                        <td><a href="{{ url_for('mensajes.detail', mensaje_id=mensaje.id) }}">{{ mensaje.asunto[:50] }}</a></td>
+                        <td>{{ archivo.destinatario.nombre }}</td>
+                        <td><a href="{{ url_for('mensajes.detail', mensaje_id=archivo.id) }}">{{ archivo.asunto|truncate(32) }}</a></td>
+                        <td>{{ archivo.contenido|truncate(32) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -86,7 +92,7 @@
     {% if respuestas %}
         {{ list.datatable('mensajes_respuestas_datatable') }}
     {% endif %}
-    {% if viejos %}
-        {{ list.datatable('mensajes_viejos_datatable') }}
+    {% if archivados %}
+        {{ list.datatable('mensajes_archivados_datatable') }}
     {% endif %}
 {% endblock %}

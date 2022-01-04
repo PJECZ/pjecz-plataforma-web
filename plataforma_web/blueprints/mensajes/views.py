@@ -3,7 +3,7 @@ Mensajes, vistas
 """
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 
 from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -29,14 +29,14 @@ def before_request():
 @mensajes.route("/mensajes")
 def list_active():
     """Listado de Mensajes activos"""
-    nuevos_mensajes = Mensaje.query.filter_by(leido=False).filter_by(autor=current_user.email).filter_by(estatus="A").all()
+    nuevos = Mensaje.query.filter_by(leido=False).filter(or_(Mensaje.destinatario == current_user, Mensaje.autor == current_user.email)).filter_by(estatus="A").all()
     respuestas = db.session.query(Mensaje, MensajeRespuesta).filter(MensajeRespuesta.leido == False).filter(Mensaje.autor == current_user.email).filter(Mensaje.id == MensajeRespuesta.respuesta_id).filter_by(estatus="A").all()
-    viejos_mensajes = Mensaje.query.filter(Mensaje.leido == True).filter(or_(Mensaje.destinatario_id == current_user.id, Mensaje.autor == current_user.email)).filter_by(estatus="A").order_by(Mensaje.id.desc()).all()
+    archivados = Mensaje.query.filter_by(leido=True).filter(or_(Mensaje.destinatario == current_user, Mensaje.autor == current_user.email)).filter_by(estatus="A").all()
     return render_template(
         "mensajes/list.jinja2",
-        nuevos=nuevos_mensajes,
+        nuevos=nuevos,
         respuestas=respuestas,
-        viejos=viejos_mensajes,
+        archivados=archivados,
         titulo="Mensajes",
         estatus="A",
     )
@@ -46,38 +46,51 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Mensajes inactivos"""
-    nuevos_mensajes = Mensaje.query.filter(Mensaje.estatus == "B").filter(Mensaje.leido == False).all()
-    respuestas = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "B").filter(MensajeRespuesta.leido == False).all()
-    viejos_mensajes = Mensaje.query.filter(Mensaje.estatus == "B").filter(Mensaje.leido == True).limit(500).all()
+    nuevos = Mensaje.query.filter_by(leido=False).filter(or_(Mensaje.destinatario == current_user, Mensaje.autor == current_user.email)).filter_by(estatus="B").all()
+    respuestas = db.session.query(Mensaje, MensajeRespuesta).filter(MensajeRespuesta.leido == False).filter(Mensaje.autor == current_user.email).filter(Mensaje.id == MensajeRespuesta.respuesta_id).filter_by(estatus="B").all()
+    archivados = Mensaje.query.filter_by(leido=True).filter(or_(Mensaje.destinatario == current_user, Mensaje.autor == current_user.email)).filter_by(estatus="B").all()
     return render_template(
         "mensajes/list.jinja2",
-        nuevos=nuevos_mensajes,
+        nuevos=nuevos,
         respuestas=respuestas,
-        viejos=viejos_mensajes,
-        titulo="Mensajes inactivos",
+        archivados=archivados,
+        titulo="Mensajes eliminados",
         estatus="B",
     )
 
 
 @mensajes.route("/mensajes/<int:mensaje_id>")
 def detail(mensaje_id):
-    """Detalle de un Mensajes"""
+    """Detalle de un Mensaje"""
     mensaje = Mensaje.query.get_or_404(mensaje_id)
-    if mensaje.leido is False:
+    if mensaje.leido is False and mensaje.destinatario.email == current_user.email:
         mensaje.leido = True
         mensaje.save()
+        flash("Este mensaje se ha marcado como leído.", "success")
     respuestas = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "A").filter(MensajeRespuesta.respuesta_id == mensaje_id).all()
-    return render_template("mensajes/detail.jinja2", mensaje_id=mensaje_id, mensaje=mensaje, respuestas=respuestas, mensaje_con_respuestas=True)
+    return render_template(
+        "mensajes/detail.jinja2",
+        mensaje_id=mensaje_id,
+        mensaje=mensaje,
+        respuestas=respuestas,
+        mensaje_con_respuestas=True,
+    )
 
 
 @mensajes.route("/mensajes/respuesta/<int:mensaje_id>")
 def detail_response(mensaje_id):
-    """Detalle de un Mensajes"""
+    """Detalle de una Respuesta"""
     mensaje = MensajeRespuesta.query.get_or_404(mensaje_id)
     if mensaje.leido is False:
         mensaje.leido = True
         mensaje.save()
-    return render_template("mensajes/detail.jinja2", mensaje_id=mensaje.respuesta_id, mensaje=mensaje, mensaje_con_respuestas=False)
+        flash("Este mensaje se ha marcado como leído.", "success")
+    return render_template(
+        "mensajes/detail.jinja2",
+        mensaje_id=mensaje.respuesta_id,
+        mensaje=mensaje,
+        mensaje_con_respuestas=False,
+    )
 
 
 @mensajes.route("/mensajes/nuevo", methods=["GET", "POST"])
