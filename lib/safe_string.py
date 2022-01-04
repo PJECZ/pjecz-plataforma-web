@@ -22,6 +22,8 @@ def safe_string(input_str, max_len=250):
     new_string = re.sub(r"[^a-zA-Z0-9()-]+", " ", unidecode(input_str))
     removed_multiple_spaces = re.sub(r"\s+", " ", new_string)
     final = removed_multiple_spaces.strip().upper()
+    if max_len == 0:
+        return final
     return (final[:max_len] + "...") if len(final) > max_len else final
 
 

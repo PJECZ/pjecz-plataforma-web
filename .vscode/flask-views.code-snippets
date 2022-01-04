@@ -263,6 +263,7 @@
 			"\t\t)",
 			"\t\tbitacora.save()",
 			"\t\tflash(bitacora.descripcion, \"success\")",
+			"\t\treturn redirect(bitacora.url)",
 			"\tform.${7:nombre_o_descripcion}.data = ${4:instance}.${7:nombre_o_descripcion}",
 			"\treturn render_template('${1:blueprint}/edit.jinja2', form=form, ${4:instance}=${4:instance})",
 			"",
