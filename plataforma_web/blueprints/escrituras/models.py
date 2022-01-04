@@ -17,8 +17,8 @@ class Escritura(db.Model, UniversalMixin):
     )
     ETAPAS = OrderedDict(
         [
-            ("PRIMERA", "Primera"),
-            ("SEGUNDA", "Segunda"),
+            ("ENTREGADA", "Entregada"),
+            ("REVISADA", "Revisada"),
         ]
     )
 

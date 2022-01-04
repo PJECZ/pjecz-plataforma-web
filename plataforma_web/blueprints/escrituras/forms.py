@@ -16,20 +16,19 @@ class EscrituraForm(FlaskForm):
     autoridad = StringField("Notaría")  # Read only
     expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     tipo = SelectField("Tipo de procedimiento", choices=Escritura.TIPOS, validators=[DataRequired()])
-    texto = TextAreaField("Texto", validators=[DataRequired()], render_kw={"rows": 20})
+    texto = TextAreaField("Texto", validators=[DataRequired()], render_kw={"rows": 12})
     guardar = SubmitField("Guardar")
 
 
-class EscrituraEditAdminForm(FlaskForm):
+class EscrituraReviewForm(FlaskForm):
     """Formulario para editar Escritura que usan los administradores"""
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Notaría")  # Read only
     aprobacion_fecha = DateField("Fecha de aprobación", validators=[DataRequired()])
-    envio_fecha = DateField("Fecha de envío", validators=[DataRequired()])
     etapa = SelectField("Etapa del procedimiento", choices=Escritura.ETAPAS, validators=[DataRequired()])
-    expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
-    observaciones = StringField("Observaciones", validators=[Optional(), Length(max=256)])
+    expediente = StringField("Expediente")  # Read only
+    observaciones = TextAreaField("Observaciones", validators=[Optional()], render_kw={"rows": 4})
     tipo = SelectField("Tipo de procedimiento", choices=Escritura.TIPOS, validators=[DataRequired()])
-    texto = TextAreaField("Texto", validators=[DataRequired()], render_kw={"rows": 20})
+    texto = TextAreaField("Texto", render_kw={"rows": 12})  # Read only
     guardar = SubmitField("Guardar")

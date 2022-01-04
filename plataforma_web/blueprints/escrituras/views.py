@@ -10,7 +10,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.escrituras.models import Escritura
-from plataforma_web.blueprints.escrituras.forms import EscrituraForm, EscrituraEditAdminForm
+from plataforma_web.blueprints.escrituras.forms import EscrituraForm, EscrituraReviewForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -77,16 +77,16 @@ def new():
         escritura = Escritura(
             autoridad=autoridad,
             envio_fecha=datetime.date.today(),
-            etapa=Escritura.ETAPAS[0],
+            etapa="ENTREGADA",
             expediente=safe_expediente(form.expediente.data),
             tipo=form.tipo.data,
-            texto=safe_string(form.texto.data),
+            texto=safe_string(form.texto.data, 0),
         )
         escritura.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nueva Escritura expediente {escritura.expediente}"),
+            descripcion=safe_message(f"Nueva escritura expediente {escritura.expediente}"),
             url=url_for("escrituras.detail", escritura_id=escritura.id),
         )
         bitacora.save()
@@ -104,55 +104,87 @@ def edit(escritura_id):
     escritura = Escritura.query.get_or_404(escritura_id)
     form = EscrituraForm()
     if form.validate_on_submit():
-        escritura.expediente = safe_string(form.expediente.data)
+        escritura.expediente = safe_expediente(form.expediente.data)
         escritura.tipo = form.tipo.data
-        escritura.texto = safe_string(form.texto.data)
+        escritura.texto = safe_string(form.texto.data, 0)
         escritura.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Editada Escritura expediente {escritura.expediente}"),
+            descripcion=safe_message(f"Editada escritura expediente {escritura.expediente}"),
             url=url_for("escrituras.detail", escritura_id=escritura.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.distrito.data = escritura.autoridad.distrito.nombre
+    form.autoridad.data = escritura.autoridad.descripcion
     form.expediente.data = escritura.expediente
     form.tipo.data = escritura.tipo
     form.texto.data = escritura.texto
     return render_template("escrituras/edit.jinja2", form=form, escritura=escritura)
 
 
-@escrituras.route('/escrituras/eliminar/<int:escritura_id>')
+@escrituras.route("/escrituras/revisar/<int:escritura_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def review(escritura_id):
+    """Revisar Escritura"""
+    escritura = Escritura.query.get_or_404(escritura_id)
+    form = EscrituraReviewForm()
+    if form.validate_on_submit():
+        escritura.aprobacion_fecha = form.aprobacion_fecha.data
+        escritura.etapa = form.etapa.data
+        escritura.observaciones = safe_string(form.observaciones.data, 0)
+        escritura.tipo = form.tipo.data
+        escritura.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Revisada escritura expediente {escritura.expediente}"),
+            url=url_for("escrituras.detail", escritura_id=escritura.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.distrito.data = escritura.autoridad.distrito.nombre
+    form.autoridad.data = escritura.autoridad.descripcion
+    form.expediente.data = escritura.expediente
+    form.tipo.data = escritura.tipo
+    form.texto.data = escritura.texto
+    return render_template("escrituras/review.jinja2", form=form, escritura=escritura)
+
+
+@escrituras.route("/escrituras/eliminar/<int:escritura_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(escritura_id):
-    """ Eliminar Escritura """
+    """Eliminar Escritura"""
     escritura = Escritura.query.get_or_404(escritura_id)
-    if escritura.estatus == 'A':
+    if escritura.estatus == "A":
         escritura.delete()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado Escritura {escritura.expediente}"),
+            descripcion=safe_message(f"Eliminada escritura {escritura.expediente}"),
             url=url_for("escrituras.detail", escritura_id=escritura.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-    return redirect(url_for('escrituras.detail', escritura_id=escritura.id))
+    return redirect(url_for("escrituras.detail", escritura_id=escritura.id))
 
 
-@escrituras.route('/escrituras/recuperar/<int:escritura_id>')
+@escrituras.route("/escrituras/recuperar/<int:escritura_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(escritura_id):
-    """ Recuperar Escritura """
+    """Recuperar Escritura"""
     escritura = Escritura.query.get_or_404(escritura_id)
-    if escritura.estatus == 'B':
+    if escritura.estatus == "B":
         escritura.recover()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Recuperado Escritura {escritura.expediente}"),
+            descripcion=safe_message(f"Recuperada escritura {escritura.expediente}"),
             url=url_for("escrituras.detail", escritura_id=escritura.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-    return redirect(url_for('escrituras.detail', escritura_id=escritura.id))
+    return redirect(url_for("escrituras.detail", escritura_id=escritura.id))

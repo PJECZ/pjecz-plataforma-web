@@ -6,10 +6,13 @@
 {% block title %}Escritura{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(escritura.expediente) %}
+    {% call topbar.page_buttons('Escritura ' + escritura.expediente) %}
         {{ topbar.button_previous('Escrituras', url_for('escrituras.list_active')) }}
-        {% if current_user.can_admin('ESCRITURAS') %}
+        {% if current_user.can_edit('ESCRITURAS') %}
             {{ topbar.button_edit('Editar', url_for('escrituras.edit', escritura_id=escritura.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('ESCRITURAS') %}
+            {{ topbar.button_edit('Revisar', url_for('escrituras.review', escritura_id=escritura.id)) }}
         {% endif %}
         {% if current_user.can_admin('ESCRITURAS') or (current_user.can_edit('ESCRITURAS') and escritura.autoridad_id == current_user.autoridad_id) %}
             {% if escritura.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('escrituras.delete', escritura_id=escritura.id)) }}{% endif %}
