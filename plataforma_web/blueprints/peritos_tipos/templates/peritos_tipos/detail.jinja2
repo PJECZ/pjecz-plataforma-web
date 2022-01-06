@@ -1,0 +1,15 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipo de Perito{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Tipo de Perito') }}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {{ detail.label_value('Tipo de Perito', instancia.nombre) }}
+    {% endcall %}
+{% endblock %}

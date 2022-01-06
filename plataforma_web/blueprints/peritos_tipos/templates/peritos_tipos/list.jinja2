@@ -1,0 +1,32 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipos de Peritos{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="peritos_tipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Tipos de Peritos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for perito_tipo in peritos_tipos %}
+                <tr>
+                    <td><a href="{{ url_for('peritos_tipos.detail', perito_tipo_id=perito_tipo.id) }}">{{ perito_tipo.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('peritos_tipos_datatable') }}
+{% endblock %}
