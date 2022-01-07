@@ -1,16 +1,12 @@
 """
 CID Formatos, vistas
 """
-import datetime
-from pathlib import Path
-
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
-from werkzeug.utils import secure_filename
 
 from lib.safe_string import safe_message, safe_string
+from lib.storage import Storage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -24,7 +20,6 @@ cid_formatos = Blueprint("cid_formatos", __name__, template_folder="templates")
 
 MODULO = "CID FORMATOS"
 SUBDIRECTORIO = "cid_formatos"
-TIPOS_ARCHIVOS = ("docx", "pdf", "xlsx", "jpeg", "jpg", "png")
 
 
 @cid_formatos.before_request
@@ -84,9 +79,14 @@ def new(cid_procedimiento_id):
             es_valido = False
         # Validar el archivo
         archivo = request.files["archivo"]
-        archivo_nombre_original = secure_filename(archivo.filename)
-        if "." not in archivo_nombre_original or archivo_nombre_original.rsplit(".", 1)[1].lower() not in TIPOS_ARCHIVOS:
-            flash("No es válio el tipo de archivo. Debe ser " + ", ".join(TIPOS_ARCHIVOS), "warning")
+        storage = Storage(SUBDIRECTORIO)
+        try:
+            storage.set_content_type(archivo.filename)
+        except NotAllowedExtesionError:
+            flash("Tipo de archivo no permitido.", "warning")
+            es_valido = False
+        except UnknownExtesionError:
+            flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
         # Si es válido
         if es_valido:
@@ -96,25 +96,17 @@ def new(cid_procedimiento_id):
                 descripcion=descripcion,
             )
             cid_formato.save()
-            # Definir el nombre del archivo
-            ahora = datetime.datetime.now()
-            ahora_str = ahora.strftime("%Y-%m-%d-%H%M%S")
-            descripcion_corta_str = descripcion.replace(" ", "-")[:24]
-            id_cifrado = cid_formato.encode_id()
-            archivo_str = f"{ahora_str}-{descripcion_corta_str}-{id_cifrado}.pdf"
-            # Definir la ruta en el deposito
-            ruta_str = str(Path(SUBDIRECTORIO, archivo_str))
-            # Subir el archivo
-            deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
-            storage_client = storage.Client()
-            bucket = storage_client.bucket(deposito)
-            blob = bucket.blob(ruta_str)
-            blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
-            url = blob.public_url
-            # Actualizar el registro con el nombre de archivo y la URL
-            cid_formato.archivo = archivo_nombre_original
-            cid_formato.url = url
-            cid_formato.save()
+            # Subir el archivo a la nube
+            try:
+                storage.set_filename(hashed_id=cid_formato.encode_id(), description=descripcion)
+                storage.upload(archivo.stream.read())
+                cid_formato.archivo = archivo.filename  # Conservar el nombre original
+                cid_formato.url = storage.url
+                cid_formato.save()
+            except NotConfiguredError:
+                flash("No se ha configurado el almacenamiento en la nube.", "warning")
+            except Exception:
+                flash("Error al subir el archivo.", "danger")
             # Registrar la acción en la bitácora
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
