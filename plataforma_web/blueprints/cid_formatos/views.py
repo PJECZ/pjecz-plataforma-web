@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
 from lib.safe_string import safe_message, safe_string
-from lib.storage import Storage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
+from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -79,7 +79,7 @@ def new(cid_procedimiento_id):
             es_valido = False
         # Validar el archivo
         archivo = request.files["archivo"]
-        storage = Storage(SUBDIRECTORIO)
+        storage = GoogleCloudStorage(SUBDIRECTORIO)
         try:
             storage.set_content_type(archivo.filename)
         except NotAllowedExtesionError:

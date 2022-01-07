@@ -3,7 +3,7 @@ Storage
 
 Subir archivos a Google Storage estandarizando el nombre del archivo y la ruta.
 
-Ejemplo
+1) Ejemplo donde se sube un archivo en un formulario web
 
 En una constante defina el directorio en el depósito donde se guardarán los archivos
 
@@ -74,6 +74,37 @@ Tenga en cuenta que...
 - Si la descripción tiene más de 64 caracteres será recortada a esa longitud; puede cambiar este máximo pasando max_length
 - Puede guardar en la base de datos el nombre que se le dio al archivo en el depósito con registro.archivo = storage.filename
 
+2) Ejemplo donde una tarea en el fondo crea un archivo PDF y lo sube a la nube
+
+    # Crear archivo PDF y subirlo a Google Cloud Storage
+    archivo_pdf = None
+    try:
+        archivo_pdf = pdfkit.from_string(pdf_body_html, False, options=wkhtmltopdf_options)
+    except IOError as error:
+        mensaje = set_task_error("No fue posible crear el archivo PDF.")
+        bitacora.warning(mensaje, str(error))
+    if archivo_pdf is not None:
+        storage = GoogleCloudStorage(DEPOSITO_DIR, allowed_extensions=["pdf"])
+        try:
+            storage.set_filename(
+                hashed_id=cid_procedimiento.encode_id(),
+                description=cid_procedimiento.titulo_procedimiento,
+                extension="pdf",
+            )
+            storage.upload(archivo_pdf)
+            cid_procedimiento.archivo = storage.filename
+            cid_procedimiento.url = storage.url
+            cid_procedimiento.save()
+        except NotConfiguredError:
+            mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage porque falta la configuración.")
+            bitacora.warning(mensaje)
+        except (NotAllowedExtesionError, UnknownExtesionError, NoneFilenameError) as error:
+            mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage por un error de tipo de archivo.")
+            bitacora.warning(mensaje, str(error))
+        except Exception:
+            mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage.")
+            bitacora.warning(mensaje)
+
 """
 import datetime
 import re
@@ -102,8 +133,8 @@ class NotConfiguredError(Exception):
     """Exception raised when a environment variable is not configured"""
 
 
-class Storage:
-    """Storage"""
+class GoogleCloudStorage:
+    """Google Cloud Storage"""
 
     EXTENSIONS_MIME_TYPES = {
         "docx": "application/msword",
@@ -148,9 +179,17 @@ class Storage:
         self.extension = extension
         return self.extension
 
-    def set_filename(self, hashed_id: str = "", description: str = "", max_length: int = 64):
+    def set_filename(self, hashed_id: str = "", description: str = "", max_length: int = 64, extension: str = None):
         """Filename standarize, returns the filename"""
         self.filename = None
+        if extension is not None:
+            if extension not in self.allowed_extensions:
+                raise NotAllowedExtesionError
+            try:
+                self.content_type = self.EXTENSIONS_MIME_TYPES[extension]
+            except KeyError as error:
+                raise UnknownExtesionError from error
+            self.extension = extension
         if self.extension is None:
             raise UnknownExtesionError
         description = re.sub(r"[^a-zA-Z0-9()-]+", " ", unidecode(description)).upper()

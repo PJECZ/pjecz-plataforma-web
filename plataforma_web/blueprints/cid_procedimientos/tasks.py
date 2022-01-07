@@ -11,12 +11,12 @@ from pathlib import Path
 import random
 
 from delta import html
-from google.cloud import storage
 from jinja2 import Environment, FileSystemLoader
 import pdfkit
 import sendgrid
 from sendgrid.helpers.mail import Email, To, Content, Mail
 
+from lib.storage import GoogleCloudStorage, NoneFilenameError, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.tasks import set_task_progress, set_task_error
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
@@ -107,7 +107,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         revision=str(cid_procedimiento.revision),
         fecha=cid_procedimiento.fecha.strftime("%d %b %Y"),
     )
-    # ciclo de conversion de json para colocar tabla en PDF Registros
+    # Ciclo de conversion de JSON para colocar tabla en PDF Registros
     tabla_registros = json.dumps(cid_procedimiento.registros)
     renglones_json = json.loads(tabla_registros)
     tabla_renglon = ""
@@ -117,7 +117,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
             tabla_renglon += "<td align='center' style='border-bottom:1px solid #C5C5C5'>" + i + "</td>"
         tabla_renglon += "</tr>"
 
-    # ciclo de conversion de json para colocar tabla en PDF Control de Cambios
+    # Ciclo de conversion de JSON para colocar tabla en PDF Control de Cambios
     tabla_cambios = json.dumps(cid_procedimiento.control_cambios)
     renglones_cambio_json = json.loads(tabla_cambios)
     tabla_cambio_renglon = ""
@@ -172,37 +172,41 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         "footer-html": path_footer,
     }
 
-    # Crear archivo PDF con el apoyo de
-    # - https://pypi.org/project/pdfkit/
-    # - https://wkhtmltopdf.org/downloads.html
-    pdf = None
+    # Crear archivo PDF y subirlo a Google Cloud Storage
+    archivo_pdf = None
     try:
-        pdf = pdfkit.from_string(pdf_body_html, False, options=wkhtmltopdf_options)
+        archivo_pdf = pdfkit.from_string(pdf_body_html, False, options=wkhtmltopdf_options)
     except IOError as error:
-        mensaje = str(error)
-        bitacora.error(mensaje)
-        # return mensaje
-
-    # Subir a Google Storage
-    archivo = ""
-    url = ""
-    cloud_stotage_deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "")
-    if pdf is not None and cloud_stotage_deposito != "":
-        archivo = cid_procedimiento.archivo_pdf()
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(cloud_stotage_deposito)
-        blob = bucket.blob(DEPOSITO_DIR + "/" + archivo)
-        blob.upload_from_string(pdf, content_type="application/pdf")
-        url = blob.public_url
+        mensaje = set_task_error("No fue posible crear el archivo PDF.")
+        bitacora.warning(mensaje, str(error))
+    if archivo_pdf is not None:
+        storage = GoogleCloudStorage(DEPOSITO_DIR, allowed_extensions=["pdf"])
+        try:
+            storage.set_filename(
+                hashed_id=cid_procedimiento.encode_id(),
+                description=cid_procedimiento.titulo_procedimiento,
+                extension="pdf",
+            )
+            storage.upload(archivo_pdf)
+            cid_procedimiento.archivo = storage.filename
+            cid_procedimiento.url = storage.url
+            cid_procedimiento.save()
+        except NotConfiguredError:
+            mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage porque falta la configuración.")
+            bitacora.warning(mensaje)
+        except (NotAllowedExtesionError, UnknownExtesionError, NoneFilenameError) as error:
+            mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage por un error de tipo de archivo.")
+            bitacora.warning(mensaje, str(error))
+        except Exception:
+            mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage.")
+            bitacora.warning(mensaje)
 
     # Eliminar archivos temporales
     path_header.unlink(missing_ok=True)
     path_footer.unlink(missing_ok=True)
 
-    # Actualizar registro
+    # Elaborar firma
     cid_procedimiento.firma = cid_procedimiento.elaborar_firma()
-    cid_procedimiento.archivo = archivo
-    cid_procedimiento.url = url
     if cid_procedimiento.seguimiento == "EN ELABORACION":
         # Primer firma en la cadena
         cid_procedimiento.cadena = 1
@@ -220,15 +224,14 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         cid_procedimiento.seguimiento_posterior = "AUTORIZADO"
     else:
         # Algo anda mal
-        mensaje = set_task_error("El seguimiento no es lo que se esperaba.")
-        bitacora.error(mensaje)
-        return mensaje
+        mensaje = set_task_error("No se pudo definir la cadena de seguimiento.")
+        bitacora.warning(mensaje)
 
-    # Guardar cambios en archivo, url, firma, cadena, seguimiento y seguimiento_posterior
+    # Guardar registro en la base de datos
     cid_procedimiento.save()
 
     # Duplicar los formatos del procedimiento anterior a éste que es el nuevo
-    if cid_procedimiento.seguimiento == "EN REVISION" or cid_procedimiento.seguimiento == "EN AUTORIZACION":
+    if cid_procedimiento.seguimiento == "REVISADO" or cid_procedimiento.seguimiento == "AUTORIZADO":
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
         for cid_formato in anterior.formatos:
             CIDFormato(
@@ -239,17 +242,17 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
             ).save()
 
     # Preparar SendGrid
-    sg = None
+    send_grid = None
     from_email = None
     api_key = os.environ.get("SENDGRID_API_KEY", "")
     email_sendgrid = os.environ.get("EMAIL_SENDGRID", "plataforma.web@pjecz.gob.mx")
     if api_key != "":
-        sg = sendgrid.SendGridAPIClient(api_key=api_key)
+        send_grid = sendgrid.SendGridAPIClient(api_key=api_key)
     if email_sendgrid != "":
         from_email = Email(email_sendgrid)
 
     # Si seguimiento es ELABORADO
-    if sg and cid_procedimiento.seguimiento == "ELABORADO":
+    if send_grid and cid_procedimiento.seguimiento == "ELABORADO":
         # Enviar mensaje para aceptar o rechazar al revisor
         subject = "Solicitud para aceptar o rechazar la revisión de un procedimiento"
         mensaje_plantilla = entorno.get_template("message_accept_reject.html")
@@ -264,10 +267,10 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         to_email = To(cid_procedimiento.reviso_email)
         content = Content("text/html", mensaje_html)
         mail = Mail(from_email, to_email, subject, content)
-        sg.client.mail.send.post(request_body=mail.get())
+        send_grid.client.mail.send.post(request_body=mail.get())
 
     # Si seguimiento es REVISADO
-    if sg and cid_procedimiento.seguimiento == "REVISADO":
+    if send_grid and cid_procedimiento.seguimiento == "REVISADO":
         # Notificar al elaborador que fue revisado
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
         while anterior:
@@ -288,7 +291,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         to_email = To(cid_procedimiento.aprobo_email)
         content = Content("text/html", mensaje_html)
         mail = Mail(from_email, to_email, subject, content)
-        sg.client.mail.send.post(request_body=mail.get())
+        send_grid.client.mail.send.post(request_body=mail.get())
         # Enviar mensaje para informar al elaborador
         subject = "Ya fue revisado el procedimiento"
         mensaje_plantilla = entorno.get_template("message_signed.html")
@@ -300,10 +303,10 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         to_email = To(cid_procedimiento.elaboro_email)
         content = Content("text/html", mensaje_html)
         mail = Mail(from_email, to_email, subject, content)
-        sg.client.mail.send.post(request_body=mail.get())
+        send_grid.client.mail.send.post(request_body=mail.get())
 
     # Si seguimiento es AUTORIZADO
-    if sg and cid_procedimiento.seguimiento == "AUTORIZADO":
+    if send_grid and cid_procedimiento.seguimiento == "AUTORIZADO":
         # Notificar al elaborador y al revisor que fue autorizado
         anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
         while anterior:
@@ -314,7 +317,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         # TODO: Enviar mensaje para informar al revisor
 
     # Terminar tarea
-    mensaje = "Listo " + url
+    mensaje = "Tarea finalizada"
     set_task_progress(100)
     bitacora.info(mensaje)
     return mensaje
