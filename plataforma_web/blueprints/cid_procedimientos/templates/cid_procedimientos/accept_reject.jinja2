@@ -62,15 +62,17 @@
 {% block custom_javascript %}
      <script> 
         $(document).ready(function(){
+            //cambia el tipo del boton
             $('#rechazar').attr('type','button');
-            
-            var rechazar = document.querySelector('#rechazar');
 
+            // agrega atributos al boton de rechazar
+            var rechazar = document.querySelector('#rechazar');
             rechazar.setAttribute("data-bs-toggle","modal");
             rechazar.setAttribute("data-bs-target","#rechazar_procedimineto_modal");
 
+            //el boton de enviar (modal) manda datos al insert
             $('#send_rechazar_btn').click(function(){
-                $("comentario").val();
+                $('#motivo').val($('#comentario').val())
             });
         });
     </script>
