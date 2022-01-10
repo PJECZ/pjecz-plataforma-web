@@ -66,7 +66,7 @@
                         <th>Años de retención</th>
                     </thead>
                     <tbody>
-                       
+
                     </tbody>
                 </table>
         {% endcall %}
@@ -79,7 +79,7 @@
                         <th>Fecha</th>
                     </thead>
                     <tbody>
-                       
+
                     </tbody>
                 </table>
         {% endcall %}
@@ -95,26 +95,28 @@
             {{ detail.label_value('Autorizó correo', cid_procedimiento.aprobo_email) }}
         {% endcall %}
     {% endcall %}
-    {% call detail.card(title='Formatos') %}
-        <table id="formatos_datatable" class="table display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Descripciones</th>
-                    <th>URLs</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for cid_formato in cid_procedimiento.formatos %}
-                {% if cid_formato.estatus == "A" %}
-                <tr>
-                    <td><a href="{{ url_for('cid_formatos.detail', cid_formato_id=cid_formato.id) }}">{{ cid_formato.descripcion }}</a></td>
-                    <td><a href="{{ cid_formato.url }}" target="_blank">PDF</a></td>
-                </tr>
-                {% endif %}
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endcall %}
+    {% if cid_procedimiento.formatos|length > 0 %}
+        {% call detail.card(title='Formatos') %}
+            <table id="formatos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Descripciones</th>
+                        <th>URLs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for cid_formato in cid_procedimiento.formatos %}
+                    {% if cid_formato.estatus == "A" %}
+                    <tr>
+                        <td><a href="{{ url_for('cid_formatos.detail', cid_formato_id=cid_formato.id) }}">{{ cid_formato.descripcion }}</a></td>
+                        <td><a href="{{ cid_formato.url }}" target="_blank">Abrir</a></td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
