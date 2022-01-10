@@ -3,6 +3,9 @@ Storage
 
 Subir archivos a Google Storage estandarizando el nombre del archivo y la ruta.
 
+- Los archivos se nombran como YYYY-MM-DD-description-hashed_id.extension
+- La ruta del archivo en el depósito quedará de la forma /base_directory/year/month/filename
+
 1) Ejemplo donde se sube un archivo en un formulario web
 
 En una constante defina el directorio en el depósito donde se guardarán los archivos
@@ -67,8 +70,6 @@ Defina el nombre guardado en el depósito y suba
 
 Tenga en cuenta que...
 
-- Tendrá el formato YYYY-MM-DD-description-hashed_id.extension
-- La ruta del archivo en el depósito quedará de la forma /base_directory/year/month/filename
 - Si la descripción es texto vacío se usará SIN-DESCRIPCION
 - Si el hashed_id es texto vacio el formato será YYYY-MM-DD-description.extension
 - Si la descripción tiene más de 64 caracteres será recortada a esa longitud; puede cambiar este máximo pasando max_length
@@ -101,9 +102,9 @@ Tenga en cuenta que...
         except (NotAllowedExtesionError, UnknownExtesionError, NoneFilenameError) as error:
             mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage por un error de tipo de archivo.")
             bitacora.warning(mensaje, str(error))
-        except Exception:
+        except Exception as error:
             mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage.")
-            bitacora.warning(mensaje)
+            bitacora.warning(mensaje, str(error))
 
 """
 import datetime
@@ -196,6 +197,7 @@ class GoogleCloudStorage:
         if len(description) > max_length:
             description = description[:max_length]
         description = re.sub(r"\s+", " ", description).strip()
+        description = re.sub(r"\s+", "-", description)
         if description == "":
             description = "SIN-DESCRIPCION"
         upload_date_str = self.upload_date.strftime("%Y-%m-%d")
@@ -206,7 +208,7 @@ class GoogleCloudStorage:
         return self.filename
 
     def upload(self, data):
-        """Storage upload to Google Storage, returns the public URL"""
+        """Upload to the cloud, returns the public URL"""
         self.url = None
         if self.filename is None:
             raise NoneFilenameError

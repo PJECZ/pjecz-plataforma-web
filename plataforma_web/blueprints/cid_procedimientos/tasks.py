@@ -62,7 +62,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
 
     # Poner en bitácora información de arranque
     bitacora.info("Crear PDF de %s", cid_procedimiento.titulo_procedimiento)
-    bitacora.info("Directorio actual: %s", os.getcwd())
+    # bitacora.info("Directorio actual: %s", os.getcwd())
 
     # Juntar las firmas
     elaboro_firma = ""
@@ -191,15 +191,16 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
             cid_procedimiento.archivo = storage.filename
             cid_procedimiento.url = storage.url
             cid_procedimiento.save()
+            bitacora.info("Se ha subido %s a Google Cloud Storage.", cid_procedimiento.archivo)
         except NotConfiguredError:
             mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage porque falta la configuración.")
             bitacora.warning(mensaje)
         except (NotAllowedExtesionError, UnknownExtesionError, NoneFilenameError) as error:
             mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage por un error de tipo de archivo.")
             bitacora.warning(mensaje, str(error))
-        except Exception:
+        except Exception as error:
             mensaje = set_task_error("No fue posible subir el archivo PDF a Google Storage.")
-            bitacora.warning(mensaje)
+            bitacora.warning(mensaje, str(error))
 
     # Eliminar archivos temporales
     path_header.unlink(missing_ok=True)
@@ -230,17 +231,6 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     # Guardar registro en la base de datos
     cid_procedimiento.save()
 
-    # Duplicar los formatos del procedimiento anterior a éste que es el nuevo
-    if cid_procedimiento.seguimiento == "REVISADO" or cid_procedimiento.seguimiento == "AUTORIZADO":
-        anterior = CIDProcedimiento.query.get(cid_procedimiento.anterior_id)
-        for cid_formato in anterior.formatos:
-            CIDFormato(
-                procedimiento=cid_procedimiento,
-                descripcion=cid_formato.descripcion,
-                archivo=cid_formato.archivo,
-                url=cid_formato.url,
-            ).save()
-
     # Preparar SendGrid
     send_grid = None
     from_email = None
@@ -268,6 +258,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         content = Content("text/html", mensaje_html)
         mail = Mail(from_email, to_email, subject, content)
         send_grid.client.mail.send.post(request_body=mail.get())
+        bitacora.info("Se enviado un mensaje a %s para que revise.", cid_procedimiento.reviso_email)
 
     # Si seguimiento es REVISADO
     if send_grid and cid_procedimiento.seguimiento == "REVISADO":
@@ -292,6 +283,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         content = Content("text/html", mensaje_html)
         mail = Mail(from_email, to_email, subject, content)
         send_grid.client.mail.send.post(request_body=mail.get())
+        bitacora.info("Se enviado un mensaje a %s para que autorice.", cid_procedimiento.aprobo_email)
         # Enviar mensaje para informar al elaborador
         subject = "Ya fue revisado el procedimiento"
         mensaje_plantilla = entorno.get_template("message_signed.html")
@@ -304,6 +296,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         content = Content("text/html", mensaje_html)
         mail = Mail(from_email, to_email, subject, content)
         send_grid.client.mail.send.post(request_body=mail.get())
+        bitacora.info("Se enviado un mensaje a %s para informar.", cid_procedimiento.elaboro_email)
 
     # Si seguimiento es AUTORIZADO
     if send_grid and cid_procedimiento.seguimiento == "AUTORIZADO":
