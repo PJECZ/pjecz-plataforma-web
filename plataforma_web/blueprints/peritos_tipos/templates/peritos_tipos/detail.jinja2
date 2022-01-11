@@ -1,15 +1,51 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Tipo de Perito{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Tipo de Perito') }}
+    {% call topbar.page_buttons(perito_tipo.nombre) %}
+        {{ topbar.button_previous('Tipos de Peritos', url_for('peritos_tipos.list_active')) }}
+        {% if current_user.can_edit('PERITOS TIPOS') %}
+            {{ topbar.button_edit('Editar', url_for('peritos_tipos.edit', perito_tipo_id=perito_tipo.id)) }}
+            {% if perito_tipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('peritos_tipos.delete', perito_tipo_id=perito_tipo.id)) }}{% endif %}
+            {% if perito_tipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('peritos_tipos.recover', perito_tipo_id=perito_tipo.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card() %}
-        {{ detail.label_value('Tipo de Perito', instancia.nombre) }}
+    {% call detail.card(estatus=perito_tipo.estatus) %}
+        {{ detail.label_value('Nombre', perito_tipo.nombre) }}
     {% endcall %}
+    {% call detail.card("Peritos") %}
+        <table id="peritos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombres</th>
+                    <th>Distritos</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for perito in perito_tipo.peritos %}
+                {% if perito.estatus == "A" %}
+                <tr>
+                    <td><a href="{{ url_for('peritos.detail', perito_id=perito.perito_id) }}">{{ perito.nombre }}</a></td>
+                    <td>{{ perito.distrito.nombre }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('PERITOS TIPOS') %}
+        {% if perito_tipo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + perito_tipo.nombre + '?') }}{% endif %}
+        {% if perito_tipo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + perito_tipo.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.datatable('peritos_datatable') }}
 {% endblock %}

@@ -1,11 +1,22 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Tipos de Peritos{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page(titulo) }}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('PERITOS') %}
+            {{ topbar.button('Peritos', url_for('peritos.list_active'), 'mdi:clipboard-account') }}
+        {% endif %}
+        {% if current_user.can_edit('PERITOS TIPOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('peritos_tipos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('peritos_tipos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('PERITOS TIPOS') %}
+            {{ topbar.button_new('Nuevo Tipo de Perito', url_for('peritos_tipos.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
