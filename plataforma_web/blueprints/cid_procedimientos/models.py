@@ -59,7 +59,7 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     aprobo_puesto = db.Column(db.String(256), nullable=False, default="", server_default="")
     aprobo_email = db.Column(db.String(256), nullable=False, default="", server_default="")
     control_cambios = db.Column(db.JSON())
-    # motivo = db.Column(db.String(256), nullable=False)
+    motivo_rechazo = db.Column(db.String(256), nullable=True)
 
     # Número en la cadena, empieza en cero cuando quien elabora aun no lo firma
     cadena = db.Column(db.Integer(), nullable=False)

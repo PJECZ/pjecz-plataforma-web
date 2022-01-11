@@ -411,6 +411,9 @@ def accept_reject(cid_procedimiento_id):
     if not original.seguimiento in ["ELABORADO", "REVISADO"]:
         flash("Este procedimiento no puede ser aceptado.", "warning")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+    # if not original.seguimiento in ["RECHAZADO POR REVISOR", "RECHAZADO POR AUTORIZADOR"]:
+    #     flash("Este procedimiento ya fue rechazado.", "warning")
+    #     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
     # Validar que NO haya sido YA aceptado
     if original.seguimiento_posterior in ["EN REVISION", "EN AUTORIZACION"]:
         flash("Este procedimiento ya fue aceptado.", "warning")
@@ -493,8 +496,11 @@ def accept_reject(cid_procedimiento_id):
         # Fue rechazado
         if form.rechazar.data is True:
             # Preguntar porque fue rechazado
-            # rechazar = CIDProcedimiento(motivo=original.motivo)
-            # rechazar.cadena = original.cadena - 1
+            rechazar = CIDProcedimiento.query.get(cid_procedimiento_id)
+            rechazar.motivo_rechazo = form.motivo_rechazo.data
+            rechazar.cadena = original.cadena + 1
+            rechazar.seguimiento = "RECHAZADO POR REVISOR"
+            rechazar.save()
             flash("Usted ha rechazado revisar/autorizar este procedimiento.", "success")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
     form.titulo_procedimiento.data = original.titulo_procedimiento
