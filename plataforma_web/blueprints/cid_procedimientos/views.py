@@ -483,6 +483,15 @@ def accept_reject(cid_procedimiento_id):
                 anterior = CIDProcedimiento.query.get(cid_procedimiento_id)
                 anterior.seguimiento_posterior = "EN AUTORIZACION"
                 anterior.save()
+            # Duplicar los formatos del procedimiento anterior a éste que es el nuevo
+            if original.seguimiento == "ELABORADO" or original.seguimiento == "REVISADO":
+                for cid_formato in anterior.formatos:
+                    CIDFormato(
+                        procedimiento=nuevo,
+                        descripcion=cid_formato.descripcion,
+                        archivo=cid_formato.archivo,
+                        url=cid_formato.url,
+                    ).save()
             # Bitacora
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),

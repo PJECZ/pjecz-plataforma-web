@@ -37,7 +37,7 @@ def list_active():
         nuevos=nuevos,
         respuestas=respuestas,
         archivados=archivados,
-        titulo="Mensajes",
+        titulo="Comunicaciones",
         estatus="A",
     )
 
@@ -54,7 +54,7 @@ def list_inactive():
         nuevos=nuevos,
         respuestas=respuestas,
         archivados=archivados,
-        titulo="Mensajes eliminados",
+        titulo="Comunicaciones eliminadas",
         estatus="B",
     )
 

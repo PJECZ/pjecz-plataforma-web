@@ -89,13 +89,6 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     # Hijos
     formatos = db.relationship("CIDFormato", back_populates="procedimiento")
 
-    def archivo_pdf(self):
-        """Nombre del archivo PDF"""
-        if self.id is None or self.creado is None:
-            raise ValueError("No se puede definir el nombre del archivo PDF porque no se ha guardado o consultado")
-        # Tiempo + ID Hash
-        return self.creado.strftime("%Y%m%d-%H%M%S") + "-" + self.encode_id() + ".pdf"
-
     def elaborar_firma(self):
         """Generate a hash representing the current sample state"""
         if self.id is None or self.creado is None:
