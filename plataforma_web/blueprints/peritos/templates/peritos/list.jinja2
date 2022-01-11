@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('PERITOS TIPOS') %}
+            {{ topbar.button('Tipos de Peritos', url_for('peritos_tipos.list_active'), 'mdi:fishbowl') }}
+        {% endif %}
         {% if current_user.can_edit('PERITOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('peritos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('peritos.list_active')) }}{% endif %}
@@ -50,8 +53,8 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "tipo" },
-                { data: "distrito" }
+                { data: "perito_tipo_nombre" },
+                { data: "distrito_nombre" }
             ],
             columnDefs: [
                 {

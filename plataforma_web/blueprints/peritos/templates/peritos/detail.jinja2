@@ -20,7 +20,7 @@
     {% call detail.card(estatus=perito.estatus) %}
         {{ detail.label_value_big('Nombre', perito.nombre) }}
         {{ detail.label_value('Distrito', perito.distrito.nombre) }}
-        {{ detail.label_value('Tipo', perito.tipo) }}
+        {{ detail.label_value('Tipo', perito.perito_tipo.nombre, url_for('peritos_tipos.detail', perito_tipo_id=perito.perito_tipo_id)) }}
         {{ detail.label_value('Domicilio', perito.domicilio) }}
         {{ detail.label_value('Teléfono fijo', perito.telefono_fijo) }}
         {{ detail.label_value('Teléfono celular', perito.telefono_celular) }}

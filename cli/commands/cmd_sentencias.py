@@ -121,6 +121,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
+                "sentencia_id",
                 "autoridad_clave",
                 "materia_tipo_juicio",
                 "sentencia",
@@ -136,6 +137,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
         for sentencia in sentencias:
             respaldo.writerow(
                 [
+                    sentencia.id,
                     sentencia.autoridad.clave,
                     sentencia.materia_tipo_juicio.descripcion,
                     sentencia.sentencia,
