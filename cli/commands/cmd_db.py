@@ -19,6 +19,7 @@ from cli.commands.alimentar_funcionarios import alimentar_funcionarios
 from cli.commands.alimentar_materias import alimentar_materias
 from cli.commands.alimentar_materias_tipos_juicios import alimentar_materias_tipos_juicios
 from cli.commands.alimentar_modulos import alimentar_modulos
+from cli.commands.alimentar_peritos_tipos import alimentar_peritos_tipos
 from cli.commands.alimentar_permisos import alimentar_permisos
 from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_usuarios import alimentar_usuarios
@@ -30,6 +31,7 @@ from cli.commands.respaldar_funcionarios import respaldar_funcionarios
 from cli.commands.respaldar_materias_tipos_juicios import respaldar_materias_tipos_juicios
 from cli.commands.respaldar_materias import respaldar_materias
 from cli.commands.respaldar_modulos import respaldar_modulos
+from cli.commands.respaldar_peritos_tipos import respaldar_peritos_tipos
 from cli.commands.respaldar_roles_permisos import respaldar_roles_permisos
 from cli.commands.respaldar_usuarios_roles import respaldar_usuarios_roles
 
@@ -72,6 +74,7 @@ def alimentar():
     alimentar_usuarios_roles()
     alimentar_funcionarios()
     alimentar_autoridades_funcionarios()
+    alimentar_peritos_tipos()
     click.echo("Termina alimentar.")
 
 
@@ -94,6 +97,7 @@ def respaldar():
     respaldar_modulos()
     respaldar_roles_permisos()
     respaldar_usuarios_roles()
+    respaldar_peritos_tipos()
     click.echo("Termina respaldar.")
 
 
