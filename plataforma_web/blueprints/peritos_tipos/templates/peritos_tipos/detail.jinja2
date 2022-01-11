@@ -32,7 +32,7 @@
             {% for perito in perito_tipo.peritos %}
                 {% if perito.estatus == "A" %}
                 <tr>
-                    <td><a href="{{ url_for('peritos.detail', perito_id=perito.perito_id) }}">{{ perito.nombre }}</a></td>
+                    <td><a href="{{ url_for('peritos.detail', perito_id=perito.id) }}">{{ perito.nombre }}</a></td>
                     <td>{{ perito.distrito.nombre }}</td>
                 </tr>
                 {% endif %}
