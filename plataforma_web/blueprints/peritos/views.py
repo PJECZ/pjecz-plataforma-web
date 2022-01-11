@@ -12,6 +12,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.peritos.models import Perito
+from plataforma_web.blueprints.peritos_tipos.models import PeritoTipo
 from plataforma_web.blueprints.peritos.forms import PeritoForm, PeritoSearchForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
@@ -65,9 +66,10 @@ def search():
         if form_search.nombre.data:
             busqueda["nombre"] = safe_string(form_search.nombre.data)
             titulos.append("nombre " + busqueda["nombre"])
-        if form_search.tipo.data:
-            busqueda["tipo"] = safe_string(form_search.tipo.data)
-            titulos.append("tipo " + busqueda["tipo"])
+        if form_search.perito_tipo.data:
+            perito_tipo = form_search.perito_tipo.data
+            busqueda["perito_tipo_id"] = perito_tipo.id
+            titulos.append(perito_tipo.nombre)
         return render_template(
             "peritos/list.jinja2",
             filtros=json.dumps(busqueda),
@@ -94,8 +96,10 @@ def datatable_json():
             consulta = consulta.filter(Perito.distrito == distrito)
     if "nombre" in request.form:
         consulta = consulta.filter(Perito.nombre.like("%" + safe_string(request.form["nombre"]) + "%"))
-    if "tipo" in request.form:
-        consulta = consulta.filter_by(tipo=safe_string(request.form["tipo"]))
+    if "perito_tipo_id" in request.form:
+        perito = PeritoTipo.query.get(request.form["perito_tipo_id"])
+        if perito:
+            consulta = consulta.filter(Perito.perito_tipo == perito)
     registros = consulta.order_by(Perito.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -107,8 +111,8 @@ def datatable_json():
                     "nombre": perito.nombre,
                     "url": url_for("peritos.detail", perito_id=perito.id),
                 },
-                "tipo": perito.tipo,
-                "distrito": perito.distrito.nombre,
+                "perito_tipo_nombre": perito.perito_tipo.nombre,
+                "distrito_nombre": perito.distrito.nombre,
             }
         )
     # Entregar JSON
@@ -130,7 +134,7 @@ def new():
     if form.validate_on_submit():
         perito = Perito(
             distrito=form.distrito.data,
-            tipo=form.tipo.data,
+            perito_tipo=form.perito_tipo.data,
             nombre=safe_string(form.nombre.data),
             domicilio=safe_string(form.domicilio.data),
             telefono_fijo=safe_string(form.telefono_fijo.data),
@@ -143,7 +147,7 @@ def new():
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo perito {perito.nombre}, tipo {perito.tipo} en {perito.distrito.nombre}"),
+            descripcion=safe_message(f"Nuevo perito {perito.nombre}, tipo {perito.perito_tipo.nombre} en {perito.distrito.nombre}"),
             url=url_for("peritos.detail", perito_id=perito.id),
         )
         bitacora.save()
@@ -160,7 +164,7 @@ def edit(perito_id):
     form = PeritoForm()
     if form.validate_on_submit():
         perito.distrito = form.distrito.data
-        perito.tipo = form.tipo.data
+        perito.perito_tipo = form.perito_tipo.data
         perito.nombre = safe_string(form.nombre.data)
         perito.domicilio = safe_string(form.domicilio.data)
         perito.telefono_fijo = safe_string(form.telefono_fijo.data)
@@ -179,7 +183,7 @@ def edit(perito_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.distrito.data = perito.distrito
-    form.tipo.data = perito.tipo
+    form.perito_tipo.data = perito.perito_tipo
     form.nombre.data = perito.nombre
     form.domicilio.data = perito.domicilio
     form.telefono_fijo.data = perito.telefono_fijo
