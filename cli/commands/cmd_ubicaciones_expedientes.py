@@ -113,10 +113,18 @@ def respaldar(autoridad_id, autoridad_clave, output):
     ubicaciones_expedientes = ubicaciones_expedientes.all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["autoridad_clave", "expediente", "ubicacion"])
+        respaldo.writerow(
+            [
+                "ubicacion_expediente_id",
+                "autoridad_clave",
+                "expediente",
+                "ubicacion",
+            ]
+        )
         for ubicacion_expediente in ubicaciones_expedientes:
             respaldo.writerow(
                 [
+                    ubicacion_expediente.id,
                     ubicacion_expediente.autoridad.clave,
                     ubicacion_expediente.expediente,
                     ubicacion_expediente.ubicacion,

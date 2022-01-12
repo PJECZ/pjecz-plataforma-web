@@ -112,6 +112,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
+                "glosa_id",
                 "autoridad_clave",
                 "fecha",
                 "tipo_juicio",
@@ -124,6 +125,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
         for glosa in glosas:
             respaldo.writerow(
                 [
+                    glosa.id,
                     glosa.autoridad.clave,
                     glosa.fecha,
                     glosa.tipo_juicio,

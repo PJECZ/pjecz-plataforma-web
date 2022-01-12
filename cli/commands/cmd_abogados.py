@@ -87,10 +87,11 @@ def respaldar(output, desde):
     abogados = abogados.order_by(Abogado.fecha).all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
-        respaldo.writerow(["numero", "nombre", "libro", "fecha"])
+        respaldo.writerow(["abogado_id", "numero", "nombre", "libro", "fecha"])
         for abogado in abogados:
             respaldo.writerow(
                 [
+                    abogado.id,
                     abogado.numero,
                     abogado.nombre,
                     abogado.libro,

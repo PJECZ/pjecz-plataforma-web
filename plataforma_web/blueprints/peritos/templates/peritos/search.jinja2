@@ -15,7 +15,7 @@
         {% call f.form_tag('peritos.search', fid='perito_search_form') %}
             {% call f.form_group(form.distrito) %}{% endcall %}
             {% call f.form_group(form.nombre) %}{% endcall %}
-            {% call f.form_group(form.tipo) %}{% endcall %}
+            {% call f.form_group(form.perito_tipo) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     {% endcall %}
@@ -23,6 +23,6 @@
 
 {% block custom_javascript %}
     <script>
-        $("#tipo").prop("selectedIndex", -1); // Poner en blanco el select Tipo
+        $("#perito_tipo").prop("selectedIndex", -1); // Poner en blanco el select Tipo
     </script>
 {% endblock %}

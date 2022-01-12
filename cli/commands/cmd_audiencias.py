@@ -175,6 +175,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
+                "audiencia_id"
                 "autoridad_clave",
                 "tiempo",
                 "tipo_audiencia",
@@ -194,6 +195,7 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
         for audiencia in audiencias:
             respaldo.writerow(
                 [
+                    audiencia.id,
                     audiencia.autoridad.clave,
                     utc_to_local_str(audiencia.tiempo),
                     audiencia.tipo_audiencia,
