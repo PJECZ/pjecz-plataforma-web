@@ -261,7 +261,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         bitacora.info("Se enviado un mensaje a %s para que revise.", cid_procedimiento.reviso_email)
 
     # Si seguimiento es Rechazado por revisor
-    if sg and cid_procedimiento.seguimiento == "RECHAZADO POR REVISOR":
+    if send_grid and cid_procedimiento.seguimiento == "RECHAZADO POR REVISOR":
         subject = "Solicitud de procedimiento rechazado"
         mensaje_plantilla = entorno.get_template("message_reject.html")
         mensaje_html = mensaje_plantilla.render(
@@ -274,10 +274,10 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         to_email = To(cid_procedimiento.elaboro_email)
         content = Content("text/html", mensaje_html)
         mail = Mail(from_email, to_email, subject, content)
-        sg.client.mail.send.post(request_body=mail.get())
+        send_grid.client.mail.send.post(request_body=mail.get())
 
     # Si seguimiento es Rechazado por autorizador
-    if sg and cid_procedimiento.seguimiento == "RECHAZADO POR AUTORIZADOR":
+    if send_grid and cid_procedimiento.seguimiento == "RECHAZADO POR AUTORIZADOR":
         subject = "Solicitud de procedimiento rechazado"
         mensaje_plantilla = entorno.get_template("message_reject.html")
         mensaje_html = mensaje_plantilla.render(
@@ -290,7 +290,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         to_email = To(cid_procedimiento.reviso_email)
         content = Content("text/html", mensaje_html)
         mail = Mail(from_email, to_email, subject, content)
-        sg.client.mail.send.post(request_body=mail.get())
+        send_grid.client.mail.send.post(request_body=mail.get())
 
     # Si seguimiento es REVISADO
     if send_grid and cid_procedimiento.seguimiento == "REVISADO":

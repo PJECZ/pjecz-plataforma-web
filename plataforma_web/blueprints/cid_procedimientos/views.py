@@ -508,7 +508,10 @@ def accept_reject(cid_procedimiento_id):
             rechazar = CIDProcedimiento.query.get(cid_procedimiento_id)
             rechazar.motivo_rechazo = form.motivo_rechazo.data
             rechazar.cadena = original.cadena + 1
-            rechazar.seguimiento = "RECHAZADO POR REVISOR"
+            if rechazar.seguimiento == "ELABORADO":
+                rechazar.seguimiento = "RECHAZADO POR REVISOR"
+            elif rechazar.seguimiento == "REVISADO":
+                rechazar.seguimiento = "RECHAZADO POR AUTORIZADOR"
             rechazar.save()
             flash("Usted ha rechazado revisar/autorizar este procedimiento.", "success")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
