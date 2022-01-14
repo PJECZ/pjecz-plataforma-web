@@ -10,7 +10,13 @@ import click
 
 from lib.safe_string import safe_string
 
+from plataforma_web.app import create_app
+from plataforma_web.extensions import db
+
 from plataforma_web.blueprints.peritos_tipos.models import PeritoTipo
+
+app = create_app()
+db.app = app
 
 
 @click.group()
