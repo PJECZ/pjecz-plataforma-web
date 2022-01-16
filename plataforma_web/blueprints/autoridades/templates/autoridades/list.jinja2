@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('DISTRITOS') %}
+        {% if current_user.can_view('DISTRITOS') %}
             {{ topbar.button_districts('Distritos', url_for('distritos.list_active')) }}
         {% endif %}
         {% if current_user.can_edit('AUTORIDADES') %}
@@ -27,7 +27,8 @@
                     <th>Claves</th>
                     <th>Distritos</th>
                     <th>Descripciones</th>
-                    <th>Desc. cortas</th>
+                    <th>Órganos Jurisdiccionales</th>
+                    <th>Materias</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,8 +36,9 @@
                 <tr>
                     <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
                     <td>{{ autoridad.distrito.nombre_corto }}</td>
-                    <td>{{ autoridad.descripcion }}</td>
-                    <td>{{ autoridad.descripcion_corta }}</td>
+                    <td>{{ autoridad.descripcion|truncate(64) }}</td>
+                    <td>{{ autoridad.organo_jurisdiccional }}</td>
+                    <td>{{ autoridad.materia.nombre }}</td>
                 </tr>
             {% endfor %}
             </tbody>
