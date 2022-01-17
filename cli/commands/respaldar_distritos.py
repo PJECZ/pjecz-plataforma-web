@@ -41,4 +41,4 @@ def respaldar_distritos(salida: str = "distritos.csv"):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"  {contador} distritos en {ruta.name}")
+    click.echo(f"  {contador} en {ruta.name}")

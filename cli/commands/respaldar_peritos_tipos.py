@@ -21,7 +21,7 @@ def respaldar_peritos_tipos(salida: str = "peritos_tipos.csv"):
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
-                "materia_id",
+                "perito_tipo_id",
                 "nombre",
                 "estatus",
             ]
@@ -37,4 +37,4 @@ def respaldar_peritos_tipos(salida: str = "peritos_tipos.csv"):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"  {contador} peritos_tipos en {ruta.name}")
+    click.echo(f"  {contador} en {ruta.name}")

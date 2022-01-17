@@ -1,37 +1,37 @@
 """
-Respaldar Materias
+Respaldar soportes categorias
 """
 from pathlib import Path
 import csv
 import click
 
-from plataforma_web.blueprints.materias.models import Materia
+from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 
 
-def respaldar_materias(salida: str = "materias.csv"):
-    """Respaldar Materias a un archivo CSV"""
+def respaldar_soportes_categorias(salida: str = "soportes_categorias.csv"):
+    """Respaldar categorias de soportes a un archivo CSV"""
     ruta = Path(salida)
     if ruta.exists():
         click.echo(f"AVISO: {salida} existe, no voy a sobreescribirlo.")
         return
-    click.echo("Respaldando materias...")
+    click.echo("Respaldando tipos de peritos...")
     contador = 0
-    materias = Materia.query.order_by(Materia.id).all()
+    soportes_categorias = SoporteCategoria.query.order_by(SoporteCategoria.id).all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(
             [
-                "materia_id",
+                "soporte_categoria_id",
                 "nombre",
                 "estatus",
             ]
         )
-        for materia in materias:
+        for soporte_categoria in soportes_categorias:
             respaldo.writerow(
                 [
-                    materia.id,
-                    materia.nombre,
-                    materia.estatus,
+                    soporte_categoria.id,
+                    soporte_categoria.nombre,
+                    soporte_categoria.estatus,
                 ]
             )
             contador += 1

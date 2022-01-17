@@ -1,6 +1,7 @@
 """
 Peritos
 
+- alimentar: Alimentar desde un archivo CSV
 - respaldar: Respaldar a un archivo CSV
 """
 from datetime import datetime
