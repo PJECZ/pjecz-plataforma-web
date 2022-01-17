@@ -14,7 +14,7 @@
         {% call f.form_tag('peritos.edit', fid='perito_form', **form_kwargs) %}
             {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.distrito) %}{% endcall %}
-            {% call f.form_group(form.tipo) %}{% endcall %}
+            {% call f.form_group(form.perito_tipo) %}{% endcall %}
             {% call f.form_group(form.domicilio) %}{% endcall %}
             {% call f.form_group(form.telefono_fijo) %}{% endcall %}
             {% call f.form_group(form.telefono_celular) %}{% endcall %}

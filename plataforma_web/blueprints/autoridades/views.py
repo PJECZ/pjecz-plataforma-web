@@ -14,6 +14,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.edictos.models import Edicto
+from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
@@ -270,6 +271,7 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    form.materia.data = Materia.query.get(1)  # Materia NO DEFINIDO
     return render_template("autoridades/new.jinja2", form=form)
 
 

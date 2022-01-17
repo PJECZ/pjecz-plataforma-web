@@ -49,4 +49,4 @@ def respaldar_modulos(salida: str = "modulos.csv"):
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"  {contador} módulos en {ruta.name}")
+    click.echo(f"  {contador} en {ruta.name}")
