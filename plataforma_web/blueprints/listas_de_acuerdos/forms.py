@@ -4,7 +4,15 @@ Listas de Acuerdos, formularios
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import DateField, SelectField, StringField, SubmitField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length
+
+from plataforma_web.blueprints.materias.models import Materia
+
+
+def materias_opciones():
+    """Materias: opciones para select"""
+    return Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all()
 
 
 class ListaDeAcuerdoNewForm(FlaskForm):
@@ -14,6 +22,18 @@ class ListaDeAcuerdoNewForm(FlaskForm):
     autoridad = StringField("Autoridad")  # Read only
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción")  # Read only
+    archivo = FileField("Archivo PDF", validators=[FileRequired()])
+    guardar = SubmitField("Guardar")
+
+
+class ListaDeAcuerdoMateriaNewForm(FlaskForm):
+    """Formulario para nueva Lista de Acuerdo de una Materia"""
+
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
+    fecha = DateField("Fecha", validators=[DataRequired()])
+    descripcion = StringField("Descripción")  # Read only
+    materia = QuerySelectField("Materia", query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 

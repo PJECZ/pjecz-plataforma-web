@@ -19,9 +19,10 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
-from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm, ListaDeAcuerdoSearchAdminForm
+from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoMateriaNewForm, ListaDeAcuerdoEditForm, ListaDeAcuerdoSearchForm, ListaDeAcuerdoSearchAdminForm
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.models import ListaDeAcuerdoAcuerdo
+from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -369,14 +370,26 @@ def new():
     else:
         limite_dt = hoy_dt
 
+    # Decidir entre formulario sin materia o con materia
+    if autoridad.organo_jurisdiccional == "JUZGADO DE PRIMERA INSTANCIA" or autoridad.organo_jurisdiccional == "TRIBUNAL DE CONCILIACION Y ARBITRAJE":
+        con_materia = False
+        form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
+    else:
+        con_materia = True
+        form = ListaDeAcuerdoMateriaNewForm(CombinedMultiDict((request.files, request.form)))
+
     # Si viene el formulario
-    form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        descripcion = safe_string(form.descripcion.data)
         archivo = request.files["archivo"]
+
+        # Definir descripcion
+        if con_materia:
+            descripcion = safe_string(f"LISTA DE ACUERDOS {form.materia.data.nombre}")
+        else:
+            descripcion = "LISTA DE ACUERDOS"
 
         # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
@@ -396,11 +409,12 @@ def new():
             return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
-        anterior_borrada = False
-        anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter_by(estatus="A").first()
-        if anterior_lista_de_acuerdo:
-            anterior_lista_de_acuerdo.delete()
-            anterior_borrada = True
+        if con_materia is False:
+            anterior_borrada = False
+            anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter_by(estatus="A").first()
+            if anterior_lista_de_acuerdo:
+                anterior_lista_de_acuerdo.delete()
+                anterior_borrada = True
 
         # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
@@ -441,6 +455,13 @@ def new():
     form.autoridad.data = autoridad.descripcion
     form.descripcion.data = "LISTA DE ACUERDOS"
     form.fecha.data = hoy
+
+    # Mostrar formulario donde puede elegir la materia
+    if con_materia:
+        form.materia.data = Materia.query.get(1)  # NO DEFINIDO
+        return render_template("listas_de_acuerdos/new_materia.jinja2", form=form, mi_limite_dias=mi_limite_dias)
+
+    # Mostrar formulario sin materia
     return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
 
