@@ -32,6 +32,7 @@ MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
 LIMITE_DIAS = 30  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
 LIMITE_ADMINISTRADORES_DIAS = 90
+ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/acuses/<id_hashed>")
@@ -371,12 +372,10 @@ def new():
         limite_dt = hoy_dt
 
     # Decidir entre formulario sin materia o con materia
-    if autoridad.organo_jurisdiccional == "JUZGADO DE PRIMERA INSTANCIA" or autoridad.organo_jurisdiccional == "TRIBUNAL DE CONCILIACION Y ARBITRAJE":
-        con_materia = False
-        form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
-    else:
-        con_materia = True
+    if autoridad.organo_jurisdiccional in ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA:
         form = ListaDeAcuerdoMateriaNewForm(CombinedMultiDict((request.files, request.form)))
+    else:
+        form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
 
     # Si viene el formulario
     if form.validate_on_submit():
@@ -386,10 +385,11 @@ def new():
         archivo = request.files["archivo"]
 
         # Definir descripcion
-        if con_materia:
-            descripcion = safe_string(f"LISTA DE ACUERDOS {form.materia.data.nombre}")
-        else:
-            descripcion = "LISTA DE ACUERDOS"
+        descripcion = "LISTA DE ACUERDOS"
+        if autoridad.organo_jurisdiccional in ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA:
+            materia = form.materia.data
+            if materia.id != 1:  # NO DEFINIDO
+                descripcion = safe_string(f"LISTA DE ACUERDOS {materia.nombre}")
 
         # Validar fecha
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
@@ -409,7 +409,7 @@ def new():
             return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
-        if con_materia is False:
+        if autoridad.organo_jurisdiccional not in ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA:
             anterior_borrada = False
             anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter_by(estatus="A").first()
             if anterior_lista_de_acuerdo:
