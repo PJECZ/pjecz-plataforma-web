@@ -134,27 +134,42 @@ def new():
     """Nuevo Identidad de Género"""
     form = IdentidadGeneroForm()
     if form.validate_on_submit():
-        identidad_genero = IdentidadGenero(
-            nombre_anterior=safe_string(form.nombre_anterior.data),
-            nombre_actual=safe_string(form.nombre_actual.data),
-            fecha_nacimiento=form.fecha_nacimiento.data,
-            lugar_nacimiento=safe_string(form.lugar_nacimiento.data),
-            genero_anterior=form.genero_anterior.data,
-            genero_actual=form.genero_actual.data,
-            nombre_padre=safe_string(form.nombre_padre.data),
-            nombre_madre=safe_string(form.nombre_madre.data),
-            procedimiento=safe_expediente(form.procedimiento.data),
-        )
-        identidad_genero.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nueva identidad de género {identidad_genero.procedimiento}"),
-            url=url_for("identidades_generos.detail", identidad_genero_id=identidad_genero.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        nombre_anterior = safe_string(form.nombre_anterior.data)
+        if nombre_anterior == "":
+            flash("No es válido el nombre anterior.", "warning")
+            es_valido = False
+        nombre_actual = safe_string(form.nombre_actual.data)
+        if nombre_actual == "":
+            flash("No es válido el nombre actual.", "warning")
+            es_valido = False
+        try:
+            procedimiento = safe_expediente(form.procedimiento.data)
+        except (IndexError, ValueError):
+            flash("No es válido el Procedimiento.", "warning")
+            es_valido = False
+        if es_valido:
+            identidad_genero = IdentidadGenero(
+                nombre_anterior=nombre_anterior,
+                nombre_actual=nombre_actual,
+                fecha_nacimiento=form.fecha_nacimiento.data,
+                lugar_nacimiento=safe_string(form.lugar_nacimiento.data),
+                genero_anterior=form.genero_anterior.data,
+                genero_actual=form.genero_actual.data,
+                nombre_padre=safe_string(form.nombre_padre.data),
+                nombre_madre=safe_string(form.nombre_madre.data),
+                procedimiento=procedimiento,
+            )
+            identidad_genero.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nueva identidad de género {identidad_genero.procedimiento}"),
+                url=url_for("identidades_generos.detail", identidad_genero_id=identidad_genero.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("identidades_generos/new.jinja2", form=form)
 
 
@@ -165,25 +180,40 @@ def edit(identidad_genero_id):
     identidad_genero = IdentidadGenero.query.get_or_404(identidad_genero_id)
     form = IdentidadGeneroForm()
     if form.validate_on_submit():
-        identidad_genero.nombre_anterior = safe_string(form.nombre_anterior.data)
-        identidad_genero.nombre_actual = safe_string(form.nombre_actual.data)
-        identidad_genero.fecha_nacimiento = form.fecha_nacimiento.data
-        identidad_genero.lugar_nacimiento = safe_string(form.lugar_nacimiento.data)
-        identidad_genero.genero_anterior = form.genero_anterior.data
-        identidad_genero.genero_actual = form.genero_actual.data
-        identidad_genero.nombre_padre = safe_string(form.nombre_padre.data)
-        identidad_genero.nombre_madre = safe_string(form.nombre_madre.data)
-        identidad_genero.procedimiento = safe_expediente(form.procedimiento.data)
-        identidad_genero.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado identidad de género {identidad_genero.nombre_actual}"),
-            url=url_for("identidades_generos.detail", identidad_genero_id=identidad_genero.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        nombre_anterior = safe_string(form.nombre_anterior.data)
+        if nombre_anterior == "":
+            flash("No es válido el nombre anterior.", "warning")
+            es_valido = False
+        nombre_actual = safe_string(form.nombre_actual.data)
+        if nombre_actual == "":
+            flash("No es válido el nombre actual.", "warning")
+            es_valido = False
+        try:
+            procedimiento = safe_expediente(form.procedimiento.data)
+        except (IndexError, ValueError):
+            flash("No es válido el Procedimiento.", "warning")
+            es_valido = False
+        if es_valido:
+            identidad_genero.nombre_anterior = nombre_anterior
+            identidad_genero.nombre_actual = nombre_actual
+            identidad_genero.fecha_nacimiento = form.fecha_nacimiento.data
+            identidad_genero.lugar_nacimiento = safe_string(form.lugar_nacimiento.data)
+            identidad_genero.genero_anterior = form.genero_anterior.data
+            identidad_genero.genero_actual = form.genero_actual.data
+            identidad_genero.nombre_padre = safe_string(form.nombre_padre.data)
+            identidad_genero.nombre_madre = safe_string(form.nombre_madre.data)
+            identidad_genero.procedimiento = procedimiento
+            identidad_genero.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado identidad de género {identidad_genero.nombre_actual}"),
+                url=url_for("identidades_generos.detail", identidad_genero_id=identidad_genero.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.nombre_anterior.data = identidad_genero.nombre_anterior
     form.nombre_actual.data = identidad_genero.nombre_actual
     form.fecha_nacimiento.data = identidad_genero.fecha_nacimiento
