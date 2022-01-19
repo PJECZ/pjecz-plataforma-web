@@ -9,7 +9,6 @@
     {% call topbar.page_buttons('Lista de Acuerdos') %}
         {% if current_user.can_admin('LISTAS DE ACUERDOS') %}
             {{ topbar.button_previous('Listas de Acuerdos de ' + lista_de_acuerdo.autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=lista_de_acuerdo.autoridad_id)) }}
-            {{ topbar.button_edit('Editar', url_for('listas_de_acuerdos.edit', lista_de_acuerdo_id=lista_de_acuerdo.id)) }}
         {% else %}
             {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
         {% endif %}

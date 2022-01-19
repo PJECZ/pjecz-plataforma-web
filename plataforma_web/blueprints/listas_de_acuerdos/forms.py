@@ -21,7 +21,6 @@ class ListaDeAcuerdoNewForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     fecha = DateField("Fecha", validators=[DataRequired()])
-    descripcion = StringField("Descripción")  # Read only
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
@@ -32,7 +31,6 @@ class ListaDeAcuerdoMateriaNewForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     fecha = DateField("Fecha", validators=[DataRequired()])
-    descripcion = StringField("Descripción")  # Read only
     materia = QuerySelectField("Materia", query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")

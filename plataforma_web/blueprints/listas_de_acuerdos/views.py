@@ -372,7 +372,8 @@ def new():
         limite_dt = hoy_dt
 
     # Decidir entre formulario sin materia o con materia
-    if autoridad.organo_jurisdiccional in ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA:
+    con_materia = autoridad.organo_jurisdiccional in ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA
+    if con_materia:
         form = ListaDeAcuerdoMateriaNewForm(CombinedMultiDict((request.files, request.form)))
     else:
         form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
@@ -386,7 +387,7 @@ def new():
 
         # Definir descripcion
         descripcion = "LISTA DE ACUERDOS"
-        if autoridad.organo_jurisdiccional in ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA:
+        if con_materia:
             materia = form.materia.data
             if materia.id != 1:  # NO DEFINIDO
                 descripcion = safe_string(f"LISTA DE ACUERDOS {materia.nombre}")
@@ -397,11 +398,6 @@ def new():
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
-        # Validar descripcion, porque safe_string puede resultar vacío
-        if descripcion == "":
-            flash("La descripción es incorrecta.", "warning")
-            return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
-
         # Validar archivo
         archivo_nombre = secure_filename(archivo.filename.lower())
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
@@ -409,7 +405,7 @@ def new():
             return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
-        if autoridad.organo_jurisdiccional not in ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA:
+        if con_materia is False:
             anterior_borrada = False
             anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter_by(estatus="A").first()
             if anterior_lista_de_acuerdo:
@@ -459,10 +455,9 @@ def new():
     # Mostrar formulario donde puede elegir la materia
     if con_materia:
         form.materia.data = Materia.query.get(1)  # NO DEFINIDO
-        return render_template("listas_de_acuerdos/new_materia.jinja2", form=form, mi_limite_dias=mi_limite_dias)
 
     # Mostrar formulario sin materia
-    return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
+    return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias, con_materia=con_materia)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/nuevo/<int:autoridad_id>", methods=["GET", "POST"])
@@ -493,13 +488,18 @@ def new_for_autoridad(autoridad_id):
     hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
     limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
 
+    # Decidir entre formulario sin materia o con materia
+    con_materia = autoridad.organo_jurisdiccional in ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA
+    if con_materia:
+        form = ListaDeAcuerdoMateriaNewForm(CombinedMultiDict((request.files, request.form)))
+    else:
+        form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
+
     # Si viene el formulario
-    form = ListaDeAcuerdoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
 
         # Tomar valores del formulario
         fecha = form.fecha.data
-        descripcion = safe_string(form.descripcion.data)
         archivo = request.files["archivo"]
 
         # Validar fecha
@@ -509,22 +509,17 @@ def new_for_autoridad(autoridad_id):
             form.fecha.data = hoy
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
-        # Validar descripcion, porque safe_string puede resultar vacío
-        if descripcion == "":
-            flash("La descripción es incorrecta.", "warning")
-            return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
-
         # Validar archivo
         if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
             flash("No es un archivo PDF.", "warning")
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
-        # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
-        anterior_borrada = False
-        anterior_lista_de_acuerdo = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == autoridad).filter(ListaDeAcuerdo.fecha == fecha).filter_by(estatus="A").first()
-        if anterior_lista_de_acuerdo:
-            anterior_lista_de_acuerdo.delete()
-            anterior_borrada = True
+        # Definir descripcion
+        descripcion = "LISTA DE ACUERDOS"
+        if con_materia:
+            materia = form.materia.data
+            if materia.id != 1:  # NO DEFINIDO
+                descripcion = safe_string(f"LISTA DE ACUERDOS {materia.nombre}")
 
         # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
@@ -563,33 +558,8 @@ def new_for_autoridad(autoridad_id):
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
-    form.descripcion.data = "LISTA DE ACUERDOS"
     form.fecha.data = hoy
-    return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
-
-
-@listas_de_acuerdos.route("/listas_de_acuerdos/edicion/<int:lista_de_acuerdo_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
-def edit(lista_de_acuerdo_id):
-    """Editar Lista de Acuerdos"""
-    lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(lista_de_acuerdo_id)
-    form = ListaDeAcuerdoEditForm()
-    if form.validate_on_submit():
-        lista_de_acuerdo.fecha = form.fecha.data
-        lista_de_acuerdo.descripcion = safe_string(form.descripcion.data)
-        lista_de_acuerdo.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editada la lista de acuerdos del {lista_de_acuerdo.fecha.strftime('%Y-%m-%d')} de {lista_de_acuerdo.autoridad.clave}"),
-            url=url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    form.fecha.data = lista_de_acuerdo.fecha
-    form.descripcion.data = lista_de_acuerdo.descripcion
-    return render_template("listas_de_acuerdos/edit.jinja2", form=form, lista_de_acuerdo=lista_de_acuerdo)
+    return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad, con_materia=con_materia)
 
 
 def delete_success(lista_de_acuerdo):
