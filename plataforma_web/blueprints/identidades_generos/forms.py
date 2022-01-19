@@ -4,8 +4,9 @@ Identidades Generos, formularios
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.fields.core import DateField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length, Optional, Regexp
 
+from lib.safe_string import EXPEDIENTE_REGEXP
 from plataforma_web.blueprints.identidades_generos.models import IdentidadGenero
 
 
@@ -20,7 +21,7 @@ class IdentidadGeneroForm(FlaskForm):
     genero_actual = SelectField("Género Actual", choices=IdentidadGenero.GENEROS, validators=[DataRequired()])
     nombre_padre = StringField("Nombre del Padre", validators=[Length(max=256)])
     nombre_madre = StringField("Nombre de la Madre", validators=[Length(max=256)])
-    procedimiento = StringField("Procedimiento", validators=[DataRequired(), Length(max=256)])
+    procedimiento = StringField("Procedimiento", validators=[DataRequired(), Length(max=256), Regexp(EXPEDIENTE_REGEXP)])
     guardar = SubmitField("Guardar")
 
 

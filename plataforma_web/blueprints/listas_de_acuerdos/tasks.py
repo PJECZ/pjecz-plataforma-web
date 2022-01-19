@@ -38,7 +38,7 @@ app = create_app()
 app.app_context().push()
 db.app = app
 
-locale.setlocale(locale.LC_TIME, "es_MX")
+locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 
 SUBDIRECTORIO = "Listas de Acuerdos"
 
