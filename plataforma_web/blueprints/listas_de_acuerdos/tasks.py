@@ -12,6 +12,7 @@ from datetime import datetime, date
 from pathlib import Path
 
 from dateutil.tz import tzlocal
+from dotenv import load_dotenv
 from google.cloud import storage
 from hashids import Hashids
 import pandas as pd
@@ -26,6 +27,8 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.usuarios.models import Usuario
+
+load_dotenv()  # Take environment variables from .env
 
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
@@ -74,8 +77,14 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     total_en_bd = len(listas_de_acuerdos)
     bitacora.info("- Tiene %d registros en la base de datos", total_en_bd)
 
+    # Obtener el nombre del deposito
+    deposito = os.getenv("CLOUD_STORAGE_DEPOSITO", "")
+    if deposito == "":
+        mensaje = "Falta la variable de entorno CLOUD_STORAGE_DEPOSITO"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
     # Obtener archivos en el depósito
-    deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "pjecz-pruebas")
     bucket = storage.Client().get_bucket(deposito)
     subdirectorio = f"{SUBDIRECTORIO}/{autoridad.directorio_listas_de_acuerdos}"
     blobs = list(bucket.list_blobs(prefix=subdirectorio))
@@ -90,8 +99,13 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     # Precompilar expresión regular para hashid
     hashid_regexp = re.compile("[0-9a-zA-Z]{8}")
 
-    # Para descifrar los hash ids
-    hashids = Hashids(salt=os.environ.get("SALT", "Esta es una muy mala cadena aleatoria"), min_length=8)
+    # Obtener el HASH para descifrar los IDs
+    salt = os.getenv("SALT", "")
+    if salt == "":
+        mensaje = "Falta la variable de entorno SALT"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    hashids = Hashids(salt=salt, min_length=8)
 
     # Iniciar la tarea y contadores
     set_task_progress(0)
@@ -255,28 +269,37 @@ def enviar_reporte(fecha: date = None):
         bitacora.info("- En %s hay %s", distrito_row["nombre"], cantidad)
         total += cantidad
 
+    # Agregar el total a la bitacora
+    bitacora.info("Total %s", str(total))
+
     # Pie del mensaje
     contenidos.append("<p>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>")
 
-    # Preparar SendGrid
-    sg = None
-    from_email = None
-    api_key = os.environ.get("SENDGRID_API_KEY", "")
-    email_sendgrid = os.environ.get("EMAIL_SENDGRID", "plataforma.web@pjecz.gob.mx")
-    if api_key != "":
-        sg = sendgrid.SendGridAPIClient(api_key=api_key)
-    if email_sendgrid != "":
-        from_email = Email(email_sendgrid)
-
     # Enviar mensaje via correo electronico
-    if sg:
-        to_email = To("plataforma.web.reportes@pjecz.gob.mx")
-        content = Content("text/html", "<br>".join(contenidos))
-        mail = Mail(from_email, to_email, subject, content)
-        sg.client.mail.send.post(request_body=mail.get())
+    api_key = os.getenv("SENDGRID_API_KEY", "")
+    if api_key == "":
+        mensaje = "No se pudo enviar el reporte de listas de acuerdos porque no esta definida la variable de entorno SENDGRID_API_KEY"
+        bitacora.warning(mensaje)
+        return set_task_error(mensaje)
+    sendgrid_client = sendgrid.SendGridAPIClient(api_key=api_key)
+    from_str = os.getenv("SENDGRID_FROM_EMAIL", "")
+    if from_str == "":
+        mensaje = "No se pudo enviar el reporte de listas de acuerdos porque no esta definida la variable de entorno SENDGRID_FROM_EMAIL"
+        bitacora.warning(mensaje)
+        return set_task_error(mensaje)
+    from_email = Email(from_str)
+    to_str = os.getenv("SENDGRID_TO_EMAIL_REPORTES", "")
+    if to_str == "":
+        mensaje = "No se pudo enviar el reporte de listas de acuerdos porque no esta definida la variable de entorno SENDGRID_TO_EMAIL_REPORTES"
+        bitacora.warning(mensaje)
+        return set_task_error(mensaje)
+    to_email = To(to_str)
+    content = Content("text/html", "<br>".join(contenidos))
+    mail = Mail(from_email, to_email, subject, content)
+    sendgrid_client.client.mail.send.post(request_body=mail.get())
 
     # Terminar tarea
     set_task_progress(100)
-    mensaje_final = "Total " + str(total)
+    mensaje_final = "Terminado satisfactoriamente"
     bitacora.info(mensaje_final)
     return mensaje_final
