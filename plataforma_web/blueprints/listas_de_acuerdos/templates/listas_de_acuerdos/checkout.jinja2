@@ -10,7 +10,7 @@
         </div>
         <div class="py-2">
             <p>
-                Fecha {{ lista_de_acuerdo.creado }}<br>
+                Fecha {{ moment(lista_de_acuerdo.creado).format('llll') }}<br>
                 ID LA{{ lista_de_acuerdo.id }}<br>
                 <strong>{{ lista_de_acuerdo.autoridad.descripcion }}</strong><br>
                 <strong>{{ lista_de_acuerdo.autoridad.distrito.nombre }}</strong>

@@ -20,7 +20,7 @@ class ListaDeAcuerdoNewForm(FlaskForm):
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
-    fecha = DateField("Fecha", validators=[DataRequired()])
+    fecha = DateField("Fecha (si ya existe otra con la misma fecha, será reemplazada)", validators=[DataRequired()])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
@@ -30,17 +30,9 @@ class ListaDeAcuerdoMateriaNewForm(FlaskForm):
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
-    fecha = DateField("Fecha", validators=[DataRequired()])
-    materia = QuerySelectField("Materia", query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
+    fecha = DateField("Fecha (si ya existe otra con la misma fecha, será reemplazada)", validators=[DataRequired()])
+    materia = QuerySelectField("Materia (para subir más de una lista por dia; deje en NO DEFINIDO cuando sea mixta)", query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
-    guardar = SubmitField("Guardar")
-
-
-class ListaDeAcuerdoEditForm(FlaskForm):
-    """Formulario para editar Lista de Acuerdo"""
-
-    fecha = DateField("Fecha", validators=[DataRequired()])
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     guardar = SubmitField("Guardar")
 
 
