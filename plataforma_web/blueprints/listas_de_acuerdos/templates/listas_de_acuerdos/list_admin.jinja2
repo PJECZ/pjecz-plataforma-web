@@ -49,7 +49,6 @@
         $('#listas_de_acuerdos_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
@@ -68,6 +67,7 @@
                 { data: "detalle" },
                 { data: "archivo" }
             ],
+            order: [[ 0, "desc" ]],
             columnDefs: [
                 {
                     targets: 0,

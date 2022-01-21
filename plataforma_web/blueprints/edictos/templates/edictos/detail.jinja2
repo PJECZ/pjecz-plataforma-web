@@ -30,7 +30,7 @@
         {{ detail.label_value_big('Descripción', edicto.descripcion) }}
         {{ detail.label_value('Distrito', edicto.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', edicto.autoridad.descripcion) }}
-        {{ detail.label_value('Fecha', edicto.fecha) }}
+        {{ detail.label_value('Fecha', moment(edicto.fecha).format("DD MMM YYYY")) }}
         {{ detail.label_value('Expediente', edicto.expediente) }}
         {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
         {{ detail.label_value_new_tab('Archivo PDF', edicto.archivo, edicto.url) }}

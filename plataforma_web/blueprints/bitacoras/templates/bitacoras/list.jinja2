@@ -34,7 +34,6 @@
         $('#bitacoras_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
@@ -51,6 +50,7 @@
                 { data: "usuario" },
                 { data: "vinculo" }
             ],
+            order: [[ 0, "desc" ]],
             columnDefs: [
                 {
                     targets: 0,
