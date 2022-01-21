@@ -4,7 +4,15 @@ Listas de Acuerdos, formularios
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import DateField, SelectField, StringField, SubmitField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length
+
+from plataforma_web.blueprints.materias.models import Materia
+
+
+def materias_opciones():
+    """Materias: opciones para select"""
+    return Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all()
 
 
 class ListaDeAcuerdoNewForm(FlaskForm):
@@ -12,17 +20,19 @@ class ListaDeAcuerdoNewForm(FlaskForm):
 
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
-    fecha = DateField("Fecha", validators=[DataRequired()])
-    descripcion = StringField("Descripción")  # Read only
+    fecha = DateField("Fecha (si ya existe otra con la misma fecha, será reemplazada)", validators=[DataRequired()])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
 
-class ListaDeAcuerdoEditForm(FlaskForm):
-    """Formulario para editar Lista de Acuerdo"""
+class ListaDeAcuerdoMateriaNewForm(FlaskForm):
+    """Formulario para nueva Lista de Acuerdo de una Materia"""
 
-    fecha = DateField("Fecha", validators=[DataRequired()])
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
+    fecha = DateField("Fecha (si ya existe otra con la misma fecha, será reemplazada)", validators=[DataRequired()])
+    materia = QuerySelectField("Materia (para subir más de una lista por dia; deje en NO DEFINIDO cuando sea mixta)", query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
+    archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
 
 

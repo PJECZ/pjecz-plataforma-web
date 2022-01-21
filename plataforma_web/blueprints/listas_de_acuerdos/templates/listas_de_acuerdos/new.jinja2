@@ -22,7 +22,9 @@
             {% else %}
                 {% call f.form_group(form.fecha, readonly=true) %}{% endcall %}
             {% endif %}
-            {% call f.form_group(form.descripcion, readonly=true) %}{% endcall %}
+            {% if con_materia %}
+                {% call f.form_group(form.materia) %}{% endcall %}
+            {% endif %}
             {% call f.drop_zone_wrapper() %}
                 {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}
             {% endcall %}

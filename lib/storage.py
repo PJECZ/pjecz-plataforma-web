@@ -16,6 +16,7 @@ Valide la descripción o los textos que formarán parte del nombre del archivo
 
     # Si viene el formulario
     form = CIDFormatoForm(CombinedMultiDict((request.files, request.form)))
+    es_valido = True
     if form.validate_on_submit():
         es_valido = True
         # Validar la descripción
@@ -117,6 +118,7 @@ from flask import current_app
 from google.cloud import storage
 from werkzeug.utils import secure_filename
 
+from .time_to_text import mes_en_palabra
 
 class NotAllowedExtesionError(Exception):
     """Exception raised when the extension is not allowed"""
@@ -145,7 +147,7 @@ class GoogleCloudStorage:
         "png": "image/png",
     }
 
-    def __init__(self, base_directory: str, upload_date: date = None, allowed_extensions: list = None):
+    def __init__(self, base_directory: str, upload_date: date = None, allowed_extensions: list = None, month_in_word: bool = False):
         """Storage constructor"""
         self.base_directory = base_directory
         if upload_date is None:
@@ -156,6 +158,7 @@ class GoogleCloudStorage:
             self.allowed_extensions = self.EXTENSIONS_MIME_TYPES.keys()
         else:
             self.allowed_extensions = allowed_extensions
+        self.month_in_word = month_in_word
         self.extension = None
         self.filename = None
         self.url = None
@@ -215,7 +218,10 @@ class GoogleCloudStorage:
         if self.content_type is None:
             raise UnknownExtesionError
         year_str = self.upload_date.strftime("%Y")
-        month_str = self.upload_date.strftime("%m")
+        if self.month_in_word:
+            month_str = mes_en_palabra(self.upload_date.month)
+        else:
+            month_str = self.upload_date.strftime("%m")
         path_str = str(Path(self.base_directory, year_str, month_str, self.filename))
         try:
             bucket_name = current_app.config["CLOUD_STORAGE_DEPOSITO"]
