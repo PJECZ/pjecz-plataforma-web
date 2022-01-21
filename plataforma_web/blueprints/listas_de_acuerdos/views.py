@@ -380,22 +380,14 @@ def new():
     if form.validate_on_submit():
         es_valido = True
 
-        # Tomar valores del formulario
-        fecha = form.fecha.data
-        archivo = request.files["archivo"]
-
-        # Definir descripcion
-        descripcion = "LISTA DE ACUERDOS"
-        if con_materia:
-            materia = form.materia.data
-            if materia.id != 1:  # NO DEFINIDO
-                descripcion = safe_string(f"LISTA DE ACUERDOS {materia.nombre}")
-
         # Validar fecha
-        if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            flash(f"La fecha no debe ser del futuro ni anterior a {mi_limite_dias} días.", "warning")
-            form.fecha.data = hoy
-            es_valido = False
+        if mi_limite_dias > 0:
+            fecha = form.fecha.data
+            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+                flash(f"La fecha no debe ser del futuro ni anterior a {mi_limite_dias} días.", "warning")
+                es_valido = False
+        else:
+            fecha = hoy
 
         # Validar archivo
         gcstorage = GoogleCloudStorage(
@@ -404,6 +396,7 @@ def new():
             allowed_extensions=["pdf"],
             month_in_word=True,
         )
+        archivo = request.files["archivo"]
         try:
             gcstorage.set_content_type(archivo.filename)
         except NotAllowedExtesionError:
@@ -413,9 +406,16 @@ def new():
             flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
 
-        # No es válido, por lo que se vuelve a mostrar el formulario
+        # No es válido, entonces se vuelve a mostrar el formulario
         if es_valido is False:
             return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias, con_materia=con_materia)
+
+        # Definir descripcion
+        descripcion = "LISTA DE ACUERDOS"
+        if con_materia:
+            materia = form.materia.data
+            if materia.id != 1:  # NO DEFINIDO
+                descripcion = safe_string(f"LISTA DE ACUERDOS {materia.nombre}")
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
         anterior_borrada = False
@@ -450,7 +450,7 @@ def new():
             flash("Error al subir el archivo.", "danger")
             es_exitoso = False
 
-        # Si se sube con exito, actualizar el registro y mostrar el detalle
+        # Si se sube con exito, actualizar el registro con la URL del archivo y mostrar el detalle
         if es_exitoso:
             lista_de_acuerdo.archivo = gcstorage.filename
             lista_de_acuerdo.url = gcstorage.url
@@ -459,7 +459,7 @@ def new():
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
 
-    # Prellenado de los campos
+    # Llenar de los campos del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
