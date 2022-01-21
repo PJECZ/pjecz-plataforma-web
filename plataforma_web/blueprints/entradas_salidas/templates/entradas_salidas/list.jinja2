@@ -34,7 +34,6 @@
         $('#entradas_salidas_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
@@ -51,6 +50,7 @@
                 { data: "tipo" },
                 { data: "usuario" },
             ],
+            order: [[ 0, "desc" ]],
             columnDefs: [
                 {
                     targets: 0,

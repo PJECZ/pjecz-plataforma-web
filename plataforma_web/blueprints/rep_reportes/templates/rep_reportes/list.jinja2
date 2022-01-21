@@ -38,7 +38,6 @@
         $('#rep_reportes_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
@@ -58,6 +57,7 @@
                 { data: "programado" },
                 { data: "progreso" }
             ],
+            order: [[ 0, "desc" ]],
             columnDefs: [
                 {
                     targets: [0, 2, 3, 4],

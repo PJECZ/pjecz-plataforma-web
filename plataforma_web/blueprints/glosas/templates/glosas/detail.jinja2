@@ -30,7 +30,7 @@
         {{ detail.label_value_big('Descripción', glosa.descripcion) }}
         {{ detail.label_value('Distrito', glosa.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', glosa.autoridad.descripcion) }}
-        {{ detail.label_value('Fecha', glosa.fecha) }}
+        {{ detail.label_value('Fecha', moment(glosa.fecha).format("DD MMM YYYY")) }}
         {{ detail.label_value('Tipo de juicio', glosa.tipo_juicio) }}
         {{ detail.label_value('Expediente', glosa.expediente) }}
         {{ detail.label_value_new_tab('Archivo PDF', glosa.archivo, glosa.url) }}
