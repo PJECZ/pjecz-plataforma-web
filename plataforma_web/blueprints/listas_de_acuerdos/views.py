@@ -415,7 +415,7 @@ def new():
 
         # No es válido, por lo que se vuelve a mostrar el formulario
         if es_valido is False:
-            return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias)
+            return render_template("listas_de_acuerdos/new.jinja2", form=form, mi_limite_dias=mi_limite_dias, con_materia=con_materia)
 
         # Si existe una lista de acuerdos de la misma fecha, dar de baja la antigua
         anterior_borrada = False
@@ -546,7 +546,7 @@ def new_for_autoridad(autoridad_id):
 
         # No es válido, por lo que se vuelve a mostrar el formulario
         if es_valido is False:
-            return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+            return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad, con_materia=con_materia)
 
         # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
