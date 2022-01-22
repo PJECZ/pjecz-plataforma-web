@@ -268,7 +268,7 @@ def datatable_json():
     for sentencia in registros:
         data.append(
             {
-                "fecha": sentencia.fecha.strftime("%Y-%m-%d"),
+                "fecha": sentencia.fecha.strftime("%Y-%m-%d 00:00:00"),
                 "detalle": {
                     "sentencia": sentencia.sentencia,
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -327,7 +327,7 @@ def datatable_json_admin():
             {
                 "creado": sentencia.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": sentencia.autoridad.clave,
-                "fecha": sentencia.fecha.strftime("%Y-%m-%d"),
+                "fecha": sentencia.fecha.strftime("%Y-%m-%d 00:00:00"),
                 "detalle": {
                     "sentencia": sentencia.sentencia,
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
