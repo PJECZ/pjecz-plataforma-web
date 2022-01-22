@@ -146,6 +146,7 @@
 			"\t\tdata.append(",
 			"\t\t\t{",
 			"\t\t\t\t'creado': resultado.creado.strftime('%Y-%m-%d %H:%M:%S'),",
+			"\t\t\t\t'fecha': resultado.fecha.strftime('%Y-%m-%d 00:00:00'),",
 			"\t\t\t\t'detalle': {",
 			"\t\t\t\t\t'descripcion': resultado.descripcion,",
 			"\t\t\t\t\t'url': url_for('rep_resultados.detail', rep_resultado_id=resultado.id),",
