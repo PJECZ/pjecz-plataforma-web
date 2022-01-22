@@ -389,13 +389,15 @@ def new():
         else:
             fecha = hoy
 
-        # Validar archivo
+        # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
         gcstorage = GoogleCloudStorage(
-            base_directory=SUBDIRECTORIO,
+            base_directory=f"{SUBDIRECTORIO}/{autoridad.directorio_listas_de_acuerdos}",
             upload_date=fecha,
             allowed_extensions=["pdf"],
             month_in_word=True,
         )
+
+        # Validar archivo
         archivo = request.files["archivo"]
         try:
             gcstorage.set_content_type(archivo.filename)
@@ -511,30 +513,22 @@ def new_for_autoridad(autoridad_id):
     if form.validate_on_submit():
         es_valido = True
 
-        # Tomar valores del formulario
-        fecha = form.fecha.data
-        archivo = request.files["archivo"]
-
-        # Definir descripcion
-        descripcion = "LISTA DE ACUERDOS"
-        if con_materia:
-            materia = form.materia.data
-            if materia.id != 1:  # NO DEFINIDO
-                descripcion = safe_string(f"LISTA DE ACUERDOS {materia.nombre}")
-
         # Validar fecha
+        fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_ADMINISTRADORES_DIAS} días.", "warning")
-            form.fecha.data = hoy
             es_valido = False
 
-        # Validar archivo
+        # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
         gcstorage = GoogleCloudStorage(
-            base_directory=SUBDIRECTORIO,
+            base_directory=f"{SUBDIRECTORIO}/{autoridad.directorio_listas_de_acuerdos}",
             upload_date=fecha,
             allowed_extensions=["pdf"],
             month_in_word=True,
         )
+
+        # Validar archivo
+        archivo = request.files["archivo"]
         try:
             gcstorage.set_content_type(archivo.filename)
         except NotAllowedExtesionError:
@@ -544,9 +538,16 @@ def new_for_autoridad(autoridad_id):
             flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
 
-        # No es válido, por lo que se vuelve a mostrar el formulario
+        # No es válido, entonces se vuelve a mostrar el formulario
         if es_valido is False:
             return render_template("listas_de_acuerdos/new_for_autoridad.jinja2", form=form, autoridad=autoridad, con_materia=con_materia)
+
+        # Definir descripcion
+        descripcion = "LISTA DE ACUERDOS"
+        if con_materia:
+            materia = form.materia.data
+            if materia.id != 1:  # NO DEFINIDO
+                descripcion = safe_string(f"LISTA DE ACUERDOS {materia.nombre}")
 
         # Insertar registro
         lista_de_acuerdo = ListaDeAcuerdo(
