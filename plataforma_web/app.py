@@ -15,6 +15,7 @@ from plataforma_web.blueprints.bitacoras.views import bitacoras
 from plataforma_web.blueprints.cid_procedimientos.views import cid_procedimientos
 from plataforma_web.blueprints.cid_formatos.views import cid_formatos
 from plataforma_web.blueprints.cid_registros.views import cid_registros
+from plataforma_web.blueprints.cit_clientes.views import cit_clientes
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
@@ -74,6 +75,7 @@ def create_app():
     app.register_blueprint(cid_procedimientos)
     app.register_blueprint(cid_formatos)
     app.register_blueprint(cid_registros)
+    app.register_blueprint(cit_clientes)
     app.register_blueprint(distritos)
     app.register_blueprint(edictos)
     app.register_blueprint(entradas_salidas)

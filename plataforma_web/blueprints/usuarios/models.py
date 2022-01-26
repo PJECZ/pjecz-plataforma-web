@@ -38,8 +38,8 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     # Columnas
     email = db.Column(db.String(256), nullable=False, unique=True, index=True)
     contrasena = db.Column(db.String(256), nullable=False)
-    nombres = db.Column(db.String(256), nullable=False)
-    apellido_paterno = db.Column(db.String(256), nullable=False)
+    nombres = db.Column(db.String(256), nullable=True)
+    apellido_paterno = db.Column(db.String(256), nullable=True)
     apellido_materno = db.Column(db.String(256), default="", server_default="")
     curp = db.Column(db.String(18), default="", server_default="")
     puesto = db.Column(db.String(256), default="", server_default="")

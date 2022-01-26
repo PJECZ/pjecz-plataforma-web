@@ -1,0 +1,37 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Cliente ' + cliente.email) %}
+        {{ topbar.button_previous('Clientes', url_for('cit_clientes.list_active')) }}
+        {% if current_user.can_edit('CIT_CLIENTES') %}
+            {{ topbar.button_edit('Editar', url_for('cit_clientes.edit', cliente_id=cliente_id.id)) }}
+            {% if usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cit_clientes.delete', cliente_id=cliente.id)) }}{% endif %}
+            {% if usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cit_clientes.recover', cliente_id=cliente.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=cliente.estatus) %}
+        {{ detail.label_value_big('Nombre', cliente.nombre) }}
+        {{ detail.label_value('CURP', cliente.curp) }}
+        {{ detail.label_value('e-mail', cliente.email) }}
+        {{ detail.label_value('Teléfono', cliente.telefono_celular) }}
+        {{ detail.label_value('Creado', moment(cliente.creado).format('llll')) }}
+        {{ detail.label_value('Renovación', moment(cliente.renovacion_fecha).format('llll')) }}
+        {{ detail.label_value('Cuenta Vereficada', cliente.hash) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('CIT_CLIENTES') %}
+        {% if usuario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cliente.nombre + '?') }}{% endif %}
+        {% if usuario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cliente.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

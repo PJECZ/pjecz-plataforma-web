@@ -1,0 +1,39 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('CIT CLIENTES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_clientes.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_clientes.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="cit_clientes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>e-mail</th>
+                    <th>Nombre Completo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td><a href="{{ url_for('cit_clientes.detail', cliente_id=cliente.id) }}">{{ cliente.email }}</a></td>
+                    <td>{{ cliente.nombre }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('cit_clientes_datatable') }}
+{% endblock %}
