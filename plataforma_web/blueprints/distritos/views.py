@@ -61,7 +61,11 @@ def new():
     """Nuevo Distrito"""
     form = DistritoForm()
     if form.validate_on_submit():
-        distrito = Distrito(nombre=form.nombre.data)
+        distrito = Distrito(
+            nombre=form.nombre.data.strip(),
+            nombre_corto=form.nombre_corto.data.strip(),
+            es_distrito_judicial=form.es_distrito_judicial.data,
+        )
         distrito.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -82,7 +86,9 @@ def edit(distrito_id):
     distrito = Distrito.query.get_or_404(distrito_id)
     form = DistritoForm()
     if form.validate_on_submit():
-        distrito.nombre = form.nombre.data
+        distrito.nombre = form.nombre.data.strip()
+        distrito.nombre_corto = form.nombre_corto.data.strip()
+        distrito.es_distrito_judicial = form.es_distrito_judicial.data
         distrito.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -94,6 +100,8 @@ def edit(distrito_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.nombre.data = distrito.nombre
+    form.nombre_corto.data = distrito.nombre_corto
+    form.es_distrito_judicial.data = distrito.es_distrito_judicial
     return render_template("distritos/edit.jinja2", form=form, distrito=distrito)
 
 
