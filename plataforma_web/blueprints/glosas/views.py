@@ -262,7 +262,7 @@ def datatable_json():
     for glosa in registros:
         data.append(
             {
-                "fecha": glosa.fecha.strftime("%Y-%m-%d"),
+                "fecha": glosa.fecha.strftime("%Y-%m-%d 00:00:00"),
                 "detalle": {
                     "descripcion": glosa.descripcion,
                     "url": url_for("glosas.detail", glosa_id=glosa.id),
@@ -317,7 +317,7 @@ def datatable_json_admin():
             {
                 "creado": glosa.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": glosa.autoridad.clave,
-                "fecha": glosa.fecha.strftime("%Y-%m-%d"),
+                "fecha": glosa.fecha.strftime("%Y-%m-%d 00:00:00"),
                 "detalle": {
                     "descripcion": glosa.descripcion,
                     "url": url_for("glosas.detail", glosa_id=glosa.id),

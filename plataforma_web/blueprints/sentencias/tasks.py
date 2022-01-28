@@ -12,6 +12,7 @@ import random
 import re
 
 from dateutil.tz import tzlocal
+from dotenv import load_dotenv
 from google.cloud import storage
 import sendgrid
 from sendgrid.helpers.mail import Attachment, ContentId, Disposition, Email, FileContent, FileName, FileType, To, Content, Mail
@@ -21,6 +22,8 @@ from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.sentencias.models import Sentencia
 from plataforma_web.blueprints.usuarios.models import Usuario
+
+load_dotenv()  # Take environment variables from .env
 
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
@@ -93,20 +96,30 @@ def enviar_reporte():
                 contador += 1
         bitacora.info("Se han escrito %d sentencias en el archivo CSV.", contador)
 
-    # Preparar SendGrid
-    sg = None
-    from_email = None
-    api_key = os.environ.get("SENDGRID_API_KEY", "")
-    email_sendgrid = os.environ.get("EMAIL_SENDGRID", "rrhh.personal@pjecz.gob.mx")
-    if api_key != "":
-        sg = sendgrid.SendGridAPIClient(api_key=api_key)
-    if email_sendgrid != "":
-        from_email = Email(email_sendgrid)
-
-    # Enviar mensaje via correo electronico
-    if sg and contador > 0:
-        # Preparar el mensaje
-        to_email = To("rrhh.personal.reportes@pjecz.gob.mx")
+    # Si no hay contenido, no enviar nada
+    if contador == 0:
+        mensaje = "No se va enviar nada porque no hay sentencias."
+        bitacora.info(mensaje)
+    else:
+        # Preparar el mensaje para manadr con SendGrid
+        api_key = os.getenv("SENDGRID_API_KEY", "")
+        if api_key == "":
+            mensaje = "No se pudo enviar el reporte de listas de acuerdos porque no esta definida la variable de entorno SENDGRID_API_KEY"
+            bitacora.warning(mensaje)
+            return set_task_error(mensaje)
+        sendgrid_client = sendgrid.SendGridAPIClient(api_key=api_key)
+        from_str = os.getenv("SENDGRID_FROM_EMAIL", "")
+        if from_str == "":
+            mensaje = "No se pudo enviar el reporte de listas de acuerdos porque no esta definida la variable de entorno SENDGRID_FROM_EMAIL"
+            bitacora.warning(mensaje)
+            return set_task_error(mensaje)
+        from_email = Email(from_str)
+        to_str = os.getenv("SENDGRID_TO_EMAIL_REPORTES", "")
+        if to_str == "":
+            mensaje = "No se pudo enviar el reporte de listas de acuerdos porque no esta definida la variable de entorno SENDGRID_TO_EMAIL_REPORTES"
+            bitacora.warning(mensaje)
+            return set_task_error(mensaje)
+        to_email = To(to_str)
         content = Content("text/html", "<br>".join(contenidos))
         mail = Mail(from_email, to_email, subject, content)
         # Adjuntar el archivo CSV
@@ -121,18 +134,14 @@ def enviar_reporte():
         attachment.disposition = Disposition("attachment")
         attachment.content_id = ContentId("ArchivoCSV")
         mail.attachment = attachment
-        # Enviar por SendGrid
-        sg.client.mail.send.post(request_body=mail.get())
-    else:
-        bitacora.warning("No se envió el reporte vía correo electrónico")
-
-    # Eliminar el archivo CSV
-    if contador > 0:
+        # Enviar el mensaje
+        sendgrid_client.client.mail.send.post(request_body=mail.get())
+        # Eliminar el archivo CSV
         reporte_ruta.unlink(missing_ok=True)
 
     # Terminar tarea
     set_task_progress(100)
-    mensaje_final = "Termina enviar reporte."
+    mensaje_final = "Terminado satisfactoriamente"
     bitacora.info(mensaje_final)
     return mensaje_final
 

@@ -271,7 +271,7 @@ def datatable_json():
     for edicto in registros:
         data.append(
             {
-                "fecha": edicto.fecha.strftime("%Y-%m-%d"),
+                "fecha": edicto.fecha.strftime("%Y-%m-%d 00:00:00"),
                 "detalle": {
                     "descripcion": edicto.descripcion,
                     "url": url_for("edictos.detail", edicto_id=edicto.id),
@@ -330,7 +330,7 @@ def datatable_json_admin():
             {
                 "creado": edicto.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": edicto.autoridad.clave,
-                "fecha": edicto.fecha.strftime("%Y-%m-%d"),
+                "fecha": edicto.fecha.strftime("%Y-%m-%d 00:00:00"),
                 "detalle": {
                     "descripcion": edicto.descripcion,
                     "url": url_for("edictos.detail", edicto_id=edicto.id),

@@ -115,7 +115,7 @@ def datatable_json():
     for abogado in registros:
         data.append(
             {
-                "fecha": abogado.fecha.strftime("%Y-%m-%d"),
+                "fecha": abogado.fecha.strftime("%Y-%m-%d 00:00:00"),
                 "numero": abogado.numero,
                 "libro": abogado.libro,
                 "detalle": {

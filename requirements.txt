@@ -25,6 +25,7 @@ pylint-flask-sqlalchemy
 PyMySQL
 pylint
 python-dateutil
+python-dotenv
 pytz
 quill-delta[html]
 rq

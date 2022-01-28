@@ -41,7 +41,6 @@
         $('#ubicaciones_expedientes_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
@@ -58,6 +57,7 @@
                 { data: "detalle" },
                 { data: "ubicacion" }
             ],
+            order: [[ 0, "desc" ]],
             columnDefs: [
                 {
                     targets: 0,

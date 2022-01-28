@@ -74,8 +74,8 @@ def datatable_json():
                     "descripcion": grafica.descripcion,
                     "url": url_for("rep_graficas.detail", rep_grafica_id=grafica.id),
                 },
-                "desde": grafica.desde.strftime("%Y-%m-%d"),
-                "hasta": grafica.hasta.strftime("%Y-%m-%d"),
+                "desde": grafica.desde.strftime("%Y-%m-%d 00:00:00"),
+                "hasta": grafica.hasta.strftime("%Y-%m-%d 00:00:00"),
                 "corte": grafica.corte,
             }
         )
