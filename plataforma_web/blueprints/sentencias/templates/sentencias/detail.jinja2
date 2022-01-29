@@ -17,8 +17,10 @@
         {% elif current_user.can_insert('SENTENCIAS') and current_user.autoridad_id == sentencia.autoridad_id %}
             {{ topbar.button_upload('Subir', url_for('sentencias.new')) }}
         {% endif %}
-        {% if current_user.can_admin('SENTENCIAS') or (current_user.can_edit('SENTENCIAS') and sentencia.autoridad_id == current_user.autoridad_id) %}
+        {% if current_user.can_admin('SENTENCIAS') %}
             {{ topbar.button_edit('Editar', url_for('sentencias.edit', sentencia_id=sentencia.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('SENTENCIAS') or (current_user.can_edit('SENTENCIAS') and sentencia.autoridad_id == current_user.autoridad_id) %}
             {% if sentencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('sentencias.delete', sentencia_id=sentencia.id)) }}{% endif %}
             {% if sentencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('sentencias.recover', sentencia_id=sentencia.id)) }}{% endif %}
         {% endif %}
