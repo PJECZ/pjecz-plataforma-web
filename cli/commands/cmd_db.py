@@ -25,7 +25,6 @@ from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_soportes_categorias import alimentar_soportes_categorias
 from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
-from cli.commands.alimentar_citas_clientes import alimentar_citas_clientes
 
 from cli.commands.respaldar_autoridades import respaldar_autoridades
 from cli.commands.respaldar_distritos import respaldar_distritos
@@ -79,7 +78,6 @@ def alimentar():
     alimentar_autoridades_funcionarios()
     alimentar_peritos_tipos()
     alimentar_soportes_categorias()
-    alimentar_citas_clientes()
     click.echo("Termina alimentar.")
 
 
