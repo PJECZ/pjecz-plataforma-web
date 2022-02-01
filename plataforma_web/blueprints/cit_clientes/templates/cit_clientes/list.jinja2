@@ -10,6 +10,7 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_clientes.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_clientes.list_active')) }}{% endif %}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('cit_clientes.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -22,18 +23,54 @@
                     <th>Nombre Completo</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for cliente in clientes %}
-                <tr>
-                    <td><a href="{{ url_for('cit_clientes.detail', cliente_id=cliente.id) }}">{{ cliente.email }}</a></td>
-                    <td>{{ cliente.nombre }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('cit_clientes_datatable') }}
+        <script>
+        $('#cit_clientes_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/cit_clientes/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "email" },
+                { data: "nombre_completo" },
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
