@@ -1,0 +1,38 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Equipos{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+    {% if current_user.can_edit('INV EQUIPOS') %}
+        {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_equipos.list_inactive')) }}{% endif %}
+        {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_equipos.list_active')) }}{% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creados</th>
+                    <th>Equipos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipos in inv_equipos %}
+                <tr>
+                    <td>{{ equipos.creado }}</td>
+                    <td><a href="{{ url_for('inv_equipos.detail', equipos_id=equipos.id) }}">{{ equipos.adquisicion_fecha }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable_times('inv_equipos_datatable') }}
+{% endblock %}

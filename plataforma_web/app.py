@@ -50,7 +50,7 @@ from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_
 from plataforma_web.blueprints.usuarios.views import usuarios
 from plataforma_web.blueprints.usuarios_roles.views import usuarios_roles
 from plataforma_web.blueprints.ventanillas.views import ventanillas
-
+from plataforma_web.blueprints.inv_equipos.views import inv_equipos
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 
@@ -109,6 +109,7 @@ def create_app():
     app.register_blueprint(usuarios_roles)
     app.register_blueprint(ubicaciones_expedientes)
     app.register_blueprint(ventanillas)
+    app.register_blueprint(inv_equipos)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)
