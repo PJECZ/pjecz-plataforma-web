@@ -2,26 +2,27 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Clientes{% endblock %}
+{% block title %}Citas{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('CIT CLIENTES') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_clientes.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_clientes.list_active')) }}{% endif %}
+        {% if current_user.can_edit('CIT CITAS') %}
+            {#% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_citas.list_inactive')) }}{% endif %#}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_citas.list_active')) }}{% endif %}
+            {{ topbar.button_primary('Clientes', url_for('cit_clientes.list_active'), 'mdi:account-tie') }}
+            {{ topbar.button('Días Inhábiles', url_for('cit_dias_inhabiles.list_active'), 'mdi:calendar-remove') }}
         {% endif %}
-        {{ topbar.button_previous('Citas', url_for('cit_citas.list_active')) }}
-        {{ topbar.button_search('Buscar', url_for('cit_clientes.search')) }}
+        {#{ topbar.button_search('Buscar', url_for('cit_citas.search')) }#}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="cit_clientes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="cit_citas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>e-mail</th>
-                    <th>Nombre Completo</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
                 </tr>
             </thead>
         </table>
@@ -29,8 +30,8 @@
 {% endblock %}
 
 {% block custom_javascript %}
-        <script>
-        $('#cit_clientes_datatable').DataTable({
+        <script>/*
+        $('#cit_citas_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -38,7 +39,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/cit_clientes/datatable_json",
+                url: "/cit_citas/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
@@ -72,6 +73,6 @@
                     sPrevious: "Anterior"
                 }
             }
-        });
+        });*/
     </script>
 {% endblock %}
