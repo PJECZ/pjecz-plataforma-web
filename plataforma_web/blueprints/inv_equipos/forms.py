@@ -7,7 +7,7 @@ from wtforms import DateField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional
 
 
-class InvEquiposForm(FlaskForm):
+class INVEquiposForm(FlaskForm):
     """Formulario InvEquipos"""
 
     adquisicion_fecha = DateField("Fecha de adquisición", validators=[DataRequired()])

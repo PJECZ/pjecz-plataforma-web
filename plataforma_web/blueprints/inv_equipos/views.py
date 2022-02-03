@@ -14,7 +14,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_equipos.models import INVEquipos
 
-from plataforma_web.blueprints.inv_equipos.forms import InvEquiposForm
+from plataforma_web.blueprints.inv_equipos.forms import INVEquiposForm
 
 MODULO = "INV EQUIPOS"
 
@@ -51,20 +51,20 @@ def list_inactive():
     )
 
 
-@inv_equipos.route("/inv_equipos/<int:inv_equipos_id>")
-def detail(inv_equipos_id):
+@inv_equipos.route("/inv_equipos/<int:equipo_id>")
+def detail(equipo_id):
     """Detalle de un Equipos"""
-    equipos = INVEquipos.query.get_or_404(inv_equipos_id)
-    return render_template("inv_equipos/detail.jinja2", equipos=equipos)
+    equipo = INVEquipos.query.get_or_404(equipo_id)
+    return render_template("inv_equipos/detail.jinja2", equipo=equipo)
 
 
 @inv_equipos.route("/inv_equipos/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Equipos"""
-    form = InvEquiposForm()
+    form = INVEquiposForm()
     if form.validate_on_submit():
-        equipos = INVEquipos(
+        equipo = INVEquipos(
             adquisicion_fecha=form.adquisicion_fecha.data,
             numero_serie=form.numero_serie.data,
             numero_inventario=form.numero_inventario.data,
@@ -75,7 +75,90 @@ def new():
             numero_switch=form.numero_switch.data,
             numero_puerto=form.numero_puerto.data,
         )
-        equipos.save()
-        flash(f"Equipos {equipos.equipos} guardado.", "success")
-        return redirect(url_for("inv_equipos.detail", equipo_id=equipos.id))
+        equipo.save()
+        flash(f"Equipos {equipo.descripcion} guardado.", "success")
+        return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
     return render_template("inv_equipos/new.jinja2", form=form)
+
+
+@inv_equipos.route("/inv_equipos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Equipos"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = INVEquipos.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(INVEquipos.creado.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "numero_inventario": {
+                    "descripcion": resultado.numero_inventario,
+                    "url": url_for("inv_equipos.detail", equipo_id=resultado.id),
+                },
+                "numero_serie": resultado.numero_serie,
+                "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d 00:00:00"),
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
+
+
+@inv_equipos.route("/inv_equipos/edicion/<int:equipo_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(equipo_id):
+    """Editar Equipos"""
+    equipo = INVEquipos.query.get_or_404(equipo_id)
+    form = INVEquiposForm()
+    if form.validate_on_submit():
+        equipo.adquisicion_fecha = form.adquisicion_fecha.data
+        equipo.numero_serie = form.numero_serie.data
+        equipo.numero_invenatario = form.numero_inventario.data
+        equipo.descripcion = form.descripcion.data
+        equipo.direccion_ip = form.direccion_ip.data
+        equipo.direccion_mac = form.direccion_mac.data
+        equipo.numero_nodo = form.numero_nodo.data
+        equipo.numero_switch = form.numero_switch.data
+        equipo.numero_puerto = form.numero_puerto.data
+        equipo.save()
+        flash(f"Equipos {equipo.descripcion} guardado.", "success")
+        return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+    form.adquisicion_fecha.data = equipo.adquisicion_fecha
+    form.numero_serie.data = equipo.numero_serie
+    form.numero_inventario.data = equipo.numero_inventario
+    form.descripcion.data = equipo.descripcion
+    form.direccion_ip.data = equipo.direccion_ip
+    form.direccion_mac.data = equipo.direccion_mac
+    form.numero_nodo.data = equipo.numero_nodo
+    form.numero_switch.data = equipo.numero_switch
+    form.numero_puerto.data = equipo.numero_puerto
+    return render_template("inv_equipos/edit.jinja2", form=form, equipo=equipo)
+
+
+@inv_equipos.route("/inv_equipos/eliminar/<int:equipo_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(equipo_id):
+    """Eliminar Equipos"""
+    equipo = INVEquipos.query.get_or_404(equipo_id)
+    if equipo.estatus == "A":
+        equipo.delete()
+        flash(f"Equipos {equipo.numero_inventario} eliminado.", "success")
+    return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+
+
+@inv_equipos.route("/inv_equipos/recuperar/<int:equipo_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(equipo_id):
+    """Recuperar Equipos"""
+    equipo = INVEquipos.query.get_or_404(equipo_id)
+    if equipo.estatus == "B":
+        equipo.recover()
+        flash(f"Equipos {equipo.numero_inventario} recuperado.", "success")
+    return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))

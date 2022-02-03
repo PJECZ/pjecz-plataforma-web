@@ -5,11 +5,16 @@
 {% block title %}Equipos{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page(titulo) }}
-    {% if current_user.can_edit('INV EQUIPOS') %}
-        {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_equipos.list_inactive')) }}{% endif %}
-        {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_equipos.list_active')) }}{% endif %}
-    {% endif %}
+    {% call topbar.page_buttons(titulo) %}
+        {#{ topbar.page(titulo) }#}
+        {% if current_user.can_edit('INV EQUIPOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_equipos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_equipos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('INV EQUIPOS') %}
+            {{ topbar.button_new('Nuevo Equipo', url_for('inv_equipos.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
@@ -17,22 +22,62 @@
         <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Creados</th>
-                    <th>Equipos</th>
+                    <th>Numero Inventario</th>
+                    <th>Numero Serie</th>
+                    <th>Adquisicion Fecha</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for equipos in inv_equipos %}
-                <tr>
-                    <td>{{ equipos.creado }}</td>
-                    <td><a href="{{ url_for('inv_equipos.detail', equipos_id=equipos.id) }}">{{ equipos.adquisicion_fecha }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
+            
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('inv_equipos_datatable') }}
+   <script>
+        $('#inv_equipos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/inv_equipos/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "numero_inventario" },
+                { data: "numero_serie" },
+                { data: "adquisicion_fecha" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
+
 {% endblock %}
