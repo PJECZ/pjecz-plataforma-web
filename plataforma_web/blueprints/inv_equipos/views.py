@@ -1,6 +1,10 @@
 """
 INVENTARIOS EQUIPOS, vistas
 """
+
+from datetime import date
+from dateutil.relativedelta import relativedelta
+
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -17,6 +21,7 @@ from plataforma_web.blueprints.inv_equipos.models import INVEquipos
 from plataforma_web.blueprints.inv_equipos.forms import INVEquiposForm
 
 MODULO = "INV EQUIPOS"
+MESES_FUTUROS = 12  # Un año a futuro, para las fechas
 
 inv_equipos = Blueprint("inv_equipos", __name__, template_folder="templates")
 
@@ -63,21 +68,30 @@ def detail(equipo_id):
 def new():
     """Nuevo Equipos"""
     form = INVEquiposForm()
+    validacion = False
     if form.validate_on_submit():
-        equipo = INVEquipos(
-            adquisicion_fecha=form.adquisicion_fecha.data,
-            numero_serie=form.numero_serie.data,
-            numero_inventario=form.numero_inventario.data,
-            descripcion=form.descripcion.data,
-            direccion_ip=form.direccion_ip.data,
-            direccion_mac=form.direccion_mac.data,
-            numero_nodo=form.numero_nodo.data,
-            numero_switch=form.numero_switch.data,
-            numero_puerto=form.numero_puerto.data,
-        )
-        equipo.save()
-        flash(f"Equipos {equipo.descripcion} guardado.", "success")
-        return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+        try:
+            _validar_fecha(form.adquisicion_fecha.data)
+            validacion = True
+        except Exception as err:
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
+            validacion = False
+
+        if validacion:
+            equipo = INVEquipos(
+                adquisicion_fecha=form.adquisicion_fecha.data,
+                numero_serie=form.numero_serie.data,
+                numero_inventario=form.numero_inventario.data,
+                descripcion=form.descripcion.data,
+                direccion_ip=form.direccion_ip.data,
+                direccion_mac=form.direccion_mac.data,
+                numero_nodo=form.numero_nodo.data,
+                numero_switch=form.numero_switch.data,
+                numero_puerto=form.numero_puerto.data,
+            )
+            equipo.save()
+            flash(f"Equipos {equipo.descripcion} guardado.", "success")
+            return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
     return render_template("inv_equipos/new.jinja2", form=form)
 
 
@@ -117,19 +131,28 @@ def edit(equipo_id):
     """Editar Equipos"""
     equipo = INVEquipos.query.get_or_404(equipo_id)
     form = INVEquiposForm()
+    validacion = False
     if form.validate_on_submit():
-        equipo.adquisicion_fecha = form.adquisicion_fecha.data
-        equipo.numero_serie = form.numero_serie.data
-        equipo.numero_invenatario = form.numero_inventario.data
-        equipo.descripcion = form.descripcion.data
-        equipo.direccion_ip = form.direccion_ip.data
-        equipo.direccion_mac = form.direccion_mac.data
-        equipo.numero_nodo = form.numero_nodo.data
-        equipo.numero_switch = form.numero_switch.data
-        equipo.numero_puerto = form.numero_puerto.data
-        equipo.save()
-        flash(f"Equipos {equipo.descripcion} guardado.", "success")
-        return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+        try:
+            validar_fecha(form.adquisicion_fecha.data)
+            validacion = True
+        except Exception as err:
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
+            validacion = False
+
+        if validacion:
+            equipo.adquisicion_fecha = form.adquisicion_fecha.data
+            equipo.numero_serie = form.numero_serie.data
+            equipo.numero_invenatario = form.numero_inventario.data
+            equipo.descripcion = form.descripcion.data
+            equipo.direccion_ip = form.direccion_ip.data
+            equipo.direccion_mac = form.direccion_mac.data
+            equipo.numero_nodo = form.numero_nodo.data
+            equipo.numero_switch = form.numero_switch.data
+            equipo.numero_puerto = form.numero_puerto.data
+            equipo.save()
+            flash(f"Equipos {equipo.descripcion} guardado.", "success")
+            return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
     form.adquisicion_fecha.data = equipo.adquisicion_fecha
     form.numero_serie.data = equipo.numero_serie
     form.numero_inventario.data = equipo.numero_inventario
@@ -140,6 +163,16 @@ def edit(equipo_id):
     form.numero_switch.data = equipo.numero_switch
     form.numero_puerto.data = equipo.numero_puerto
     return render_template("inv_equipos/edit.jinja2", form=form, equipo=equipo)
+
+
+def validar_fecha(fecha):
+    """Validar Fecha"""
+    if fecha < date.today():
+        raise Exception("La fecha no puede ser pasada.")
+    fecha_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
+    if fecha > fecha_futura:
+        raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {fecha_futura}")
+    return True
 
 
 @inv_equipos.route("/inv_equipos/eliminar/<int:equipo_id>")

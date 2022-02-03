@@ -25,11 +25,11 @@ class INVEquipos(db.Model, UniversalMixin):
 
     # Columnas
     adquisicion_fecha = db.Column(db.Date(), nullable=False)
-    numero_serie = db.Column(db.String())
+    numero_serie = db.Column(db.String(256))
     numero_inventario = db.Column(db.Integer())
     descripcion = db.Column(db.String(256))
-    direccion_ip = db.Column(db.String())
-    direccion_mac = db.Column(db.String())
+    direccion_ip = db.Column(db.String(256))
+    direccion_mac = db.Column(db.String(256))
     numero_nodo = db.Column(db.Integer())
     numero_switch = db.Column(db.Integer())
     numero_puerto = db.Column(db.Integer())
