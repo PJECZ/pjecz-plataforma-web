@@ -10,8 +10,8 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_dias_inhabiles.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_dias_inhabiles.list_active')) }}{% endif %}
         {% endif %}
+            {{ topbar.button_new('Nuevo Día Inhábil', url_for('cit_dias_inhabiles.new')) }}
             {{ topbar.button_previous('Citas', url_for('cit_citas.list_active')) }}
-            {{ topbar.button_primary('Nuevo Día Inhábil', url_for('cit_dias_inhabiles.new'), 'mdi:calendar-plus') }}
     {% endcall %}
 {% endblock %}
 

@@ -10,7 +10,8 @@
             {#% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_citas.list_inactive')) }}{% endif %#}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_citas.list_active')) }}{% endif %}
             {{ topbar.button_primary('Clientes', url_for('cit_clientes.list_active'), 'mdi:account-tie') }}
-            {{ topbar.button('Días Inhábiles', url_for('cit_dias_inhabiles.list_active'), 'mdi:calendar-remove') }}
+            {{ topbar.button_primary('Servicios', url_for('cit_servicios.list_active'), 'mdi:account-wrench') }}
+            {{ topbar.button_primary('Días Inhábiles', url_for('cit_dias_inhabiles.list_active'), 'mdi:calendar-remove') }}
         {% endif %}
         {#{ topbar.button_search('Buscar', url_for('cit_citas.search')) }#}
     {% endcall %}

@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Servicio{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' +  servicio.clave ) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'servicio_id': servicio.id} %}
+        {% call f.form_tag('cit_servicios.edit', fid='servicio_id_form', **form_kwargs) %}
+            {% call f.form_group(form.clave) %}{% endcall %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.solicitar_expedientes) %}{% endcall %}
+            {% call f.form_group(form.duracion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
