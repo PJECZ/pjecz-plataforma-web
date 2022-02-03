@@ -1,0 +1,34 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Marcas{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="inv_marcas_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    
+                    <th>Marcas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for marca in marcas %}
+                <tr>
+                    
+                    <td><a href="{{ url_for('inv_marcas.detail', marca_id=marca.id) }}">{{ marca.nombre }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable_times('inv_marcas_datatable') }}
+{% endblock %}
