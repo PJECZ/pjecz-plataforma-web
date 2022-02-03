@@ -19,12 +19,12 @@ db.app = app
 
 @click.group()
 def cli():
-    """Citas Clientes"""
+    """Citas"""
 
 @click.command()
 @click.argument("entrada_csv")
-def alimentar(entrada_csv):
-    """Alimentar Clientes de las Citas"""
+def alimentar_clientes(entrada_csv):
+    """Alimentar Clientes de las Citas <<archivo.csv>>"""
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -66,7 +66,7 @@ def alimentar(entrada_csv):
 
 @click.command()
 @click.option("--output", default="citas_clientes.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(output):
+def respaldar_clientes(output):
     """Respaldar a un archivo CSV"""
     ruta = Path(output)
     if ruta.exists():
@@ -114,5 +114,5 @@ def respaldar(output):
     click.echo(f"Respaldados {contador} en {ruta.name}")
 
 
-cli.add_command(alimentar)
-cli.add_command(respaldar)
+cli.add_command(alimentar_clientes)
+cli.add_command(respaldar_clientes)
