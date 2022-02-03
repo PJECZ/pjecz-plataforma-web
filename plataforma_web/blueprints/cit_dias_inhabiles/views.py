@@ -2,7 +2,8 @@
 CITAS Días Inhábiles, vistas
 """
 
-from datetime import date, datetime
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
@@ -11,7 +12,6 @@ from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-from plataforma_web.extensions import pwd_context
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -20,6 +20,7 @@ from plataforma_web.blueprints.cit_dias_inhabiles.models import CITDiaInhabil
 from plataforma_web.blueprints.cit_dias_inhabiles.forms import CITDiasInhabilesForm
 
 MODULO = "CIT DIAS INHABILES"
+MESES_FUTUROS = 12  # Un año a futuro, para las fechas
 
 cit_dias_inhabiles = Blueprint("cit_dias_inhabiles", __name__, template_folder="templates")
 
@@ -66,21 +67,30 @@ def detail(dia_inhabil_id):
 def new():
     """Nuevo CITAS_Cliente"""
     form = CITDiasInhabilesForm()
+    validacion = False
     if form.validate_on_submit():
-        dia_inhabil = CITDiaInhabil(
-            fecha=form.fecha.data,
-            descripcion=form.descripcion.data,
-        )
-        dia_inhabil.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo Día Inhábil {dia_inhabil.fecha}"),
-            url=url_for("cit_dias_inhabiles.detail", dia_inhabil_id=dia_inhabil.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        try:
+            _validar_fecha(form.fecha.data)
+            validacion = True
+        except Exception as err:
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
+            validacion = False
+
+        if validacion:
+            dia_inhabil = CITDiaInhabil(
+                fecha=form.fecha.data,
+                descripcion=form.descripcion.data,
+            )
+            dia_inhabil.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo Día Inhábil {dia_inhabil.fecha}"),
+                url=url_for("cit_dias_inhabiles.detail", dia_inhabil_id=dia_inhabil.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("cit_dias_inhabiles/new.jinja2", form=form)
 
 
@@ -91,22 +101,41 @@ def edit(dia_inhabil_id):
     """Editar Cliente, solo al escribir la contraseña se cambia"""
     dia_inhabil = CITDiaInhabil.query.get_or_404(dia_inhabil_id)
     form = CITDiasInhabilesForm()
+    validacion = False
     if form.validate_on_submit():
-        dia_inhabil.fecha = form.fecha.data
-        dia_inhabil.descripcion = form.descripcion.data
-        dia_inhabil.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado Día Inhábil {dia_inhabil.fecha}"),
-            url=url_for("cit_dias_inhabiles.detail", dia_inhabil_id=dia_inhabil.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+
+        try:
+            _validar_fecha(form.fecha.data)
+            validacion = True
+        except Exception as err:
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
+            validacion = False
+
+        if validacion:
+            dia_inhabil.fecha = form.fecha.data
+            dia_inhabil.descripcion = form.descripcion.data
+            dia_inhabil.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado Día Inhábil {dia_inhabil.fecha}"),
+                url=url_for("cit_dias_inhabiles.detail", dia_inhabil_id=dia_inhabil.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.fecha.data = dia_inhabil.fecha
     form.descripcion.data = dia_inhabil.descripcion
     return render_template("cit_dias_inhabiles/edit.jinja2", form=form, dia_inhabil=dia_inhabil)
+
+
+def _validar_fecha(fecha):
+    if fecha < date.today():
+        raise Exception("La fecha no puede estar en el pasado.")
+    fecha_max_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
+    if fecha > fecha_max_futura:
+        raise Exception(f"La fecha es muy futura, lo máximo permitido es: {fecha_max_futura}")
+    return True
 
 
 @cit_dias_inhabiles.route("/cit_dias_inhabiles/eliminar/<int:dia_inhabil_id>")
