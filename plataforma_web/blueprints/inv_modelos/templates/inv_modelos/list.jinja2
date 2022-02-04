@@ -1,0 +1,43 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Modelos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {{ topbar.button_previous('Inventarios', url_for('inv_inventarios.list_active')) }}
+        {% if current_user.can_edit('INV MODELOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_modelos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_modelos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('INV MODELOS') %}
+            {{ topbar.button_new('Nuevo Modelo', url_for('inv_modelos.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="inv_modelos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripcion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for modelo in modelos %}
+                <tr>
+                    <td>{ modelo.marca.nombre }</td>
+                    <td><a href="{{ url_for('inv_modelos.detail', modelo_id=modelo.id) }}">{{ modelo.descripcion }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable_times('inv_modelos_datatable') }}
+{% endblock %}

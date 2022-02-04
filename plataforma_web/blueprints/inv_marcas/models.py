@@ -1,6 +1,7 @@
 """
 Inventarios Marcas, modelos
 """
+
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -20,6 +21,7 @@ class INVMarcas(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
+    modelos = db.relationship("INVModelos", back_populates="marca")
 
     def __repr__(self):
         """Representación"""

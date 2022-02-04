@@ -18,14 +18,9 @@ MODULO = "INV INVENTARIOS"
 inv_inventarios = Blueprint("inv_inventarios", __name__, template_folder="templates")
 
 
-@inv_inventarios.before_request
+@inv_inventarios.route("/inv_inventarios")
 @login_required
 @permission_required(MODULO, Permiso.VER)
-def before_request():
-    """Permiso por defecto"""
-
-
-@inv_inventarios.route("/inv_inventarios")
 def list_active():
     """Listado de Inventarios activos"""
     activos = None  # Clase.query.filter(Clase.estatus == 'A').all()

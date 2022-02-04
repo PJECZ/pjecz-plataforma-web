@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {#{ topbar.page(titulo) }#}
+        {{ topbar.button_previous('Inventarios', url_for('inv_inventarios.list_active')) }}
         {% if current_user.can_edit('INV EQUIPOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_equipos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_equipos.list_active')) }}{% endif %}

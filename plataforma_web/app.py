@@ -53,6 +53,7 @@ from plataforma_web.blueprints.ventanillas.views import ventanillas
 from plataforma_web.blueprints.inv_inventarios.views import inv_inventarios
 from plataforma_web.blueprints.inv_equipos.views import inv_equipos
 from plataforma_web.blueprints.inv_marcas.views import inv_marcas
+from plataforma_web.blueprints.inv_modelos.views import inv_modelos
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 
@@ -114,6 +115,7 @@ def create_app():
     app.register_blueprint(inv_inventarios)
     app.register_blueprint(inv_equipos)
     app.register_blueprint(inv_marcas)
+    app.register_blueprint(inv_modelos)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)

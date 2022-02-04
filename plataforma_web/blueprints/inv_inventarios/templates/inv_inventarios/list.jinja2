@@ -7,9 +7,10 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('INV INVENTARIOS') %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_citas.list_active')) }}{% endif %}
+            {% if estatus == 'A' %}{{ topbar.button_list_active('Activos', url_for('inv_inventarios.list_active')) }}{% endif %}
             {{ topbar.button_primary('Equipos', url_for('inv_equipos.list_active'), 'mdi:desktop-classic') }}
-            {{ topbar.button_primary('Marcas', url_for('inv_marcas.list_active'), 'mdi:bookmark-outline') }}
+            {{ topbar.button_primary('Marcas', url_for('inv_marcas.list_active'), 'mdi:bookmark') }}
+            {{ topbar.button_primary('Modelos', url_for('inv_modelos.list_active'), 'mdi:chart-bubble') }}
         {% endif %}
         
     {% endcall %}
@@ -20,8 +21,8 @@
         <table id="cit_citas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
+                    <th>Numero inventario</th>
+                    <th>Usuario</th>
                 </tr>
             </thead>
         </table>

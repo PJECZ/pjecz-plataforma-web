@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Marcas{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Marca:  ' + marca.nombre) %}
+        {{ topbar.button_previous('Marcas', url_for('inv_marcas.list_active')) }}
+        {% if current_user.can_edit('INV MARCAS') %}
+            {{ topbar.button_edit('Editar', url_for('inv_marcas.edit', marca_id=marca.id)) }}
+            {% if marca.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_marcas.delete', marca_id=marca.id)) }}{% endif %}
+            {% if marca.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_marcas.recover', marca_id=marca.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {{ detail.label_value('Marca', marca.nombre) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('INV MARCAS') %}
+        {% if marca.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + marca.nombre + '?') }}{% endif %}
+        {% if marca.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + marca.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

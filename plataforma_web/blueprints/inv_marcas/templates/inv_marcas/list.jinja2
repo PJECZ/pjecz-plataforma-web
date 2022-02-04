@@ -1,26 +1,33 @@
 {% extends 'layouts/app.jinja2' %}
-{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Marcas{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page(titulo) }}
+    {% call topbar.page_buttons(titulo) %}
+        {{ topbar.button_previous('Inventarios', url_for('inv_inventarios.list_active')) }}
+        {% if current_user.can_edit('INV MARCAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_marcas.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_marcas.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('INV MARCAS') %}
+            {{ topbar.button_new('Nueva Marca', url_for('inv_marcas.new')) }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="inv_marcas_datatable" class="table display nowrap" style="width:100%">
+        <table id="inv_marcas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    
-                    <th>Marcas</th>
+                    <th>Nombre</th>
                 </tr>
             </thead>
             <tbody>
                 {% for marca in marcas %}
                 <tr>
-                    
                     <td><a href="{{ url_for('inv_marcas.detail', marca_id=marca.id) }}">{{ marca.nombre }}</a></td>
                 </tr>
                 {% endfor %}
@@ -30,5 +37,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('inv_marcas_datatable') }}
+    {{ list.datatable('inv_marcas_datatable') }}
 {% endblock %}

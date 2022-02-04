@@ -1,0 +1,15 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Modelos{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Modelos') }}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {{ detail.label_value_big('Modelos', modelo.descripcion) }}
+    {% endcall %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Modelos{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Modelos') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {# {% set form_kwargs = {'marca_id': marca.id}%} #}
+        {% call f.form_tag('inv_modelos.new', fid='modelo_form') %}
+            {# {% call f.form_group(form.nombre, redonly=true) %}{% endcall %} #}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

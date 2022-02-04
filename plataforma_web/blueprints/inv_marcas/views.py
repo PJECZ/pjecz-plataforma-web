@@ -14,25 +14,22 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_marcas.models import INVMarcas
 
+from plataforma_web.blueprints.inv_marcas.forms import INVMarcasForm
+
 MODULO = "INV MARCAS"
 
 inv_marcas = Blueprint("inv_marcas", __name__, template_folder="templates")
 
 
-@inv_marcas.before_request
+@inv_marcas.route("/inv_marcas")
 @login_required
 @permission_required(MODULO, Permiso.VER)
-def before_request():
-    """Permiso por defecto"""
-
-
-@inv_marcas.route("/inv_marcas")
 def list_active():
     """Listado de Marcas activos"""
-    marcas_activos = INVMarcas.query.filter(INVMarcas.estatus == "A").all()
+    activos = INVMarcas.query.filter(INVMarcas.estatus == "A").all()
     return render_template(
         "inv_marcas/list.jinja2",
-        modelo=marcas_activos,
+        marcas=activos,
         titulo="Marcas",
         estatus="A",
     )
@@ -42,10 +39,10 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Marcas inactivos"""
-    marcas_inactivos = INVMarcas.query.filter(INVMarcas.estatus == "B").all()
+    inactivos = INVMarcas.query.filter(INVMarcas.estatus == "B").all()
     return render_template(
         "inv_marcas/list.jinja2",
-        modelos=marcas_inactivos,
+        marcas=inactivos,
         titulo="Marcas inactivos",
         estatus="B",
     )
@@ -56,3 +53,79 @@ def detail(marca_id):
     """Detalle de un Marcas"""
     marca = INVMarcas.query.get_or_404(marca_id)
     return render_template("inv_marcas/detail.jinja2", marca=marca)
+
+
+@inv_marcas.route("/inv_marcas/nuevo", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.CREAR)
+def new():
+    """Nuevo Marcas"""
+    form = INVMarcasForm()
+    validacion = False
+    if form.validate_on_submit():
+        try:
+            _validar_form(form)
+            validacion = True
+        except Exception as err:
+            flash(f"Nombre de la marca incorrecto. {str(err)}", "warning")
+            validacion = False
+
+        if validacion:
+            marca = INVMarcas(nombre=form.nombre.data)
+            marca.save()
+            flash(f"Marcas {marca.nombre} guardado.", "success")
+            return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
+    return render_template("inv_marcas/new.jinja2", form=form)
+
+
+@inv_marcas.route("/inv_marcas/edicion/<int:marca_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(marca_id):
+    """Editar Marcas"""
+    marca = INVMarcas.query.get_or_404(marca_id)
+    form = INVMarcasForm()
+    validacion = False
+    if form.validate_on_submit():
+        try:
+            _validar_form(form, True)
+            validacion = True
+        except Exception as err:
+            flash(f"Actualización de la marca incorrecta. {str(err)}", "warning")
+            validacion = False
+
+        if validacion:
+            marca.nombre = form.nombre.data
+            marca.save()
+            flash(f"Marcas {marca.nombre} guardado.", "success")
+            return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
+    form.nombre.data = marca.nombre
+    return render_template("inv_marcas/edit.jinja2", form=form, marca=marca)
+
+
+def _validar_form(form, same=False):
+    if not same:
+        nombre_existente = INVMarcas.query.filter(INVMarcas.nombre == form.nombre.data).first()
+        if nombre_existente:
+            raise Exception("El nombre ya esta regsitrado")
+    return True
+
+
+@inv_marcas.route("/inv_marcas/eliminar/<int:marca_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(marca_id):
+    """Eliminar Marcas"""
+    marca = INVMarcas.query.get_or_404(marca_id)
+    if marca.estatus == "A":
+        marca.delete()
+        flash(f"Marcas {marca.nombre} eliminado.", "success")
+    return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
+
+
+@inv_marcas.route("/inv_marcas/recuperar/<int:marca_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(marca_id):
+    """Recuperar Marcas"""
+    marca = INVMarcas.query.get_or_404(marca_id)
+    if marca.estatus == "B":
+        marca.recover()
+        flash(f"Marcas {marca.nombre} recuperado.", "success")
+    return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
