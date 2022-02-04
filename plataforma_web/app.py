@@ -21,6 +21,7 @@ from plataforma_web.blueprints.cit_expedientes.views import cit_expedientes
 from plataforma_web.blueprints.cit_dias_inhabiles.views import cit_dias_inhabiles
 from plataforma_web.blueprints.cit_servicios.views import cit_servicios
 from plataforma_web.blueprints.distritos.views import distritos
+from plataforma_web.blueprints.domicilios.views import domicilios
 from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.epocas.views import epocas
@@ -85,6 +86,7 @@ def create_app():
     app.register_blueprint(cit_dias_inhabiles)
     app.register_blueprint(cit_servicios)
     app.register_blueprint(distritos)
+    app.register_blueprint(domicilios)
     app.register_blueprint(edictos)
     app.register_blueprint(entradas_salidas)
     app.register_blueprint(epocas)

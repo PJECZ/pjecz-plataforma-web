@@ -9,7 +9,7 @@
     {% call topbar.page_buttons('Cliente ' + cliente.email) %}
         {{ topbar.button_previous('Clientes', url_for('cit_clientes.list_active')) }}
         {% if current_user.can_edit('CIT_CLIENTES') %}
-            {{ topbar.button_edit('Editar', url_for('cit_clientes.edit', cliente_id=cliente_id.id)) }}
+            {{ topbar.button_edit('Editar', url_for('cit_clientes.edit', cliente_id=cliente.id)) }}
             {% if usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cit_clientes.delete', cliente_id=cliente.id)) }}{% endif %}
             {% if usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cit_clientes.recover', cliente_id=cliente.id)) }}{% endif %}
         {% endif %}
