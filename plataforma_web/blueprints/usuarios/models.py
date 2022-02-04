@@ -90,6 +90,18 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
                         modulos_nombres.append(permiso.modulo.nombre)
         return sorted(modulos, key=lambda x: x.nombre_corto)
 
+    def permissions(self):
+        """Entrega un diccionario con todos los permisos"""
+        todos = {}
+        for usuario_rol in self.usuarios_roles:
+            if usuario_rol.estatus == "A":
+                for permiso in usuario_rol.rol.permisos:
+                    if permiso.estatus == "A":
+                        etiqueta = permiso.modulo.nombre
+                        if etiqueta not in todos or permiso.nivel > todos[etiqueta]:
+                            todos[etiqueta] = permiso.nivel
+        return todos
+
     def can(self, module, permission):
         """¿Tiene permiso?"""
         if isinstance(module, str):
