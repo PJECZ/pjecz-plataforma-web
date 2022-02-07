@@ -5,11 +5,19 @@
 {% block title %}Modelos{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Modelos') }}
+    {% call topbar.page_buttons('Modelo:  ' + modelo.descripcion) %}
+        {{ topbar.button_previous('Modelos', url_for('inv_modelos.list_active')) }}
+        {% if current_user.can_edit('INV MODELOS') %}
+            {{ topbar.button_edit('Editar', url_for('inv_modelos.edit', modelo_id=modelo.id)) }}
+            {% if modelo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_modelos.delete', modelo_id=modelo.id)) }}{% endif %}
+            {% if modelo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_modelos.recover', modelo_id=modelo.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call detail.card() %}
-        {{ detail.label_value_big('Modelos', modelo.descripcion) }}
+        {{ detail.label_value('Marca', modelo.marca.nombre) }}
+        {{ detail.label_value('Modelos', modelo.descripcion) }}
     {% endcall %}
 {% endblock %}

@@ -61,39 +61,80 @@ def detail(modelo_id):
     return render_template("inv_modelos/detail.jinja2", modelo=modelo)
 
 
-# @inv_modelos.route("/inv_modelos/nuevo/", methods=["GET", "POST"])
-# @permission_required(MODULO, Permiso.CREAR)
-# def new():
-#     """Nuevo Modelos"""
-#     # marca = INVMarcas.query.get_or_404(marca_id)
-#     # if marca.estatus != "A":
-#     #     flash("El nombre no esta activo.", "warning")
-#     #     return redirect(url_for("inv_marcas.list_active"))
-#     # si viene el formulario
-#     form = INVModelosForm(CombinedMultiDict((request.files, request.form)))
-#     if form.validate_on_submit():
-#         es_valido = True
-#         # validar la descripcion
-#         descripcion = safe_string(form.descripcion.data)
-#         if descripcion == "":
-#             flash("La descripción es requerida.", "warning")
-#             es_valido = False
-#         if es_valido:
-#             modelo = INVModelos(descripcion=descripcion)
-#             modelo.save()
-#             flash(f"Modelos {modelo.descripcion} guardado.", "success")
-#             return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
-#     return render_template("inv_modelos/new.jinja2", form=form)
-
-
 @inv_modelos.route("/inv_modelos/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Modelos"""
     form = INVModelosForm()
+    validacion = False
     if form.validate_on_submit():
-        modelo = INVModelos(descripcion=form.descripcion.data)
-        modelo.save()
-        flash(f"Modelos {modelo.desceipcion} guardado.", "success")
-        return redirect(url_for("inv_modelos.detail", descripcion=modelo.id))
+        try:
+            _validar_form(form)
+            validacion = True
+        except Exception as err:
+            flash(f"Creación de la descripcion incorrecta. {str(err)}", "warning")
+            validacion = False
+        if validacion:
+            modelo = INVModelos(marca=form.nombre.data, descripcion=form.descripcion.data)
+            modelo.save()
+            flash(f"Modelos {modelo.descripcion} guardado.", "success")
+            return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
     return render_template("inv_modelos/new.jinja2", form=form)
+
+
+@inv_modelos.route("/inv_modelos/edicion/<int:modelo_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(modelo_id):
+    """Editar Modelo"""
+    modelo = INVModelos.query.get_or_404(modelo_id)
+    form = INVModelosForm()
+    validacion = False
+    if form.validate_on_submit():
+        try:
+            _validar_form(form, True)
+            validacion = True
+        except Exception as err:
+            flash(f"Actualización incorrecta. {str(err)}", "warning")
+            validacion = False
+
+        if validacion:
+            modelo.marca = form.nombre.data
+            modelo.descripcion = form.descripcion.data
+            modelo.save()
+            flash(f"Modelo {modelo.descripcion} guardado.", "success")
+            return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
+    form.nombre.data = modelo.marca
+    form.descripcion.data = modelo.descripcion
+    return render_template("inv_modelos/edit.jinja2", form=form, modelo=modelo)
+
+
+def _validar_form(form, same=False):
+    if not same:
+        # nombre_existente = INVModelos.query.filter(INVModelos.marca == form.nombre.data).first()
+        # if nombre_existente:
+        #     raise Exception("El nombre ya se encuentra en uso.")
+        descripcion_existente = INVModelos.query.filter(INVModelos.descripcion == form.descripcion.data).first()
+        if descripcion_existente:
+            raise Exception("La descripcion ya esta en uso. ")
+
+
+@inv_modelos.route("/inv_modelos/eliminar/<int:modelo_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(modelo_id):
+    """Eliminar Modelo"""
+    modelo = INVModelos.query.get_or_404(modelo_id)
+    if modelo.estatus == "A":
+        modelo.delete()
+        flash(f"Modelo {modelo.descripcion} eliminado.", "success")
+    return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
+
+
+@inv_modelos.route("/inv_modelos/recuperar/<int:modelo_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(modelo_id):
+    """Recuperar Modelo"""
+    modelo = INVModelos.query.get_or_404(modelo_id)
+    if modelo.estatus == "B":
+        modelo.recover()
+        flash(f"Modelo {modelo.descripcion} recuperado.", "success")
+    return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))

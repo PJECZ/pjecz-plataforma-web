@@ -29,7 +29,7 @@
             <tbody>
                 {% for modelo in modelos %}
                 <tr>
-                    <td>{ modelo.marca.nombre }</td>
+                    <td>{{ modelo.marca.nombre }}</td>
                     <td><a href="{{ url_for('inv_modelos.detail', modelo_id=modelo.id) }}">{{ modelo.descripcion }}</a></td>
                 </tr>
                 {% endfor %}
@@ -39,5 +39,5 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('inv_modelos_datatable') }}
+    {{ list.datatable('inv_modelos_datatable') }}
 {% endblock %}
