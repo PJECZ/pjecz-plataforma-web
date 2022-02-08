@@ -21,6 +21,7 @@
             <thead>
                 <tr>
                     <th>Expediente</th>
+                    <th>Cita</th>
                 </tr>
             </thead>
         </table>
@@ -46,11 +47,18 @@
             },
             columns: [
                 { data: "expediente" },
-                //{ data: "cita" },
+                { data: "cita" },
             ],
             columnDefs: [
                 {
                     targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';

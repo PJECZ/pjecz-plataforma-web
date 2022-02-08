@@ -24,6 +24,7 @@
         {{ detail.label_value('Teléfono', cliente.telefono) }}
         {{ detail.label_value('Creado', moment(cliente.creado).format('llll')) }}
         {{ detail.label_value('Renovación', moment(cliente.renovacion_fecha).format('ll')) }}
+        {{ detail.label_value('Domicilio', cliente.domicilio.calle) }}
         {{ detail.label_value('Cuenta Vereficada', cliente.hash) }}
     {% endcall %}
 {% endblock %}

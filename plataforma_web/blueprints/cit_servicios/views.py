@@ -2,7 +2,7 @@
 CITAS Días Inhábiles, vistas
 """
 
-from datetime import date, datetime, timedelta
+import datetime
 from dateutil.relativedelta import relativedelta
 
 from flask import Blueprint, flash, redirect, request, render_template, url_for
@@ -59,6 +59,7 @@ def detail(servicio_id):
     """Detalle de un Servicio"""
     servicio = CITServicio.query.get_or_404(servicio_id)
     return render_template("cit_servicios/detail.jinja2", servicio=servicio)
+
 
 @cit_servicios.route("/cit_servicios/nuevo", methods=["GET", "POST"])
 @login_required
@@ -134,16 +135,16 @@ def edit(servicio_id):
     return render_template("cit_servicios/edit.jinja2", form=form, servicio=servicio)
 
 
-def _validar(form, same = False):
+def _validar(form, same=False):
     if not same:
         clave_existente = CITServicio.query.filter(CITServicio.clave == form.clave.data).first()
         if clave_existente:
             raise Exception("La clave ya se encuentra en uso.")
-    min_duracion = datetime.strptime("00:15", "%H:%M")
+    min_duracion = datetime.time(0, 15, 0)
     if form.duracion.data < min_duracion:
         min_duracion = min_duracion.strftime("%H:%M")
         raise Exception(f"La duración del servicio es muy poco, lo mínimno permitido son: {min_duracion}")
-    max_duracion = datetime.strptime("08:00", "%H:%M")
+    max_duracion = datetime.time(8, 0, 0)
     if form.duracion.data > max_duracion:
         max_duracion = max_duracion.strftime("%H:%M")
         raise Exception(f"La duración del servicio es mucho, lo máximo permitido son: {max_duracion}")

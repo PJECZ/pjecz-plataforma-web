@@ -61,6 +61,7 @@ def detail(expediente_id):
     expediente = CITExpediente.query.get_or_404(expediente_id)
     return render_template("cit_expedientes/detail.jinja2", expediente=expediente)
 
+
 @cit_expedientes.route("/cit_expedientes/buscar", methods=["GET", "POST"])
 def search():
     """Buscar un Expediente"""
@@ -113,6 +114,11 @@ def datatable_json():
                     "id": expediente.id,
                     "url": url_for("cit_expedientes.detail", expediente_id=expediente.id),
                     "descripcion": expediente.expediente,
+                },
+                "cita": {
+                    "id": expediente.cita_id,
+                    "url": url_for("cit_citas.detail", cita_id=expediente.cita_id),
+                    "descripcion": expediente.cita_id,
                 },
             }
         )

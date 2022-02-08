@@ -60,6 +60,7 @@ def detail(oficina_id):
     oficina = Oficina.query.get_or_404(oficina_id)
     return render_template("oficinas/detail.jinja2", oficina=oficina)
 
+
 @oficinas.route("/oficinas/nuevo", methods=["GET", "POST"])
 @login_required
 @permission_required(MODULO, Permiso.CREAR)
@@ -84,6 +85,8 @@ def new():
                 apertura=form.apertura.data,
                 cierre=form.cierre.data,
                 limite_personas=form.limite_personas.data,
+                domicilio=form.domicilio.data,
+                distrito=form.distrito.data,
             )
             oficina.save()
             bitacora = Bitacora(
@@ -143,13 +146,13 @@ def edit(oficina_id):
     return render_template("oficinas/edit.jinja2", form=form, oficina=oficina)
 
 
-def _validar(form, same = False):
+def _validar(form, same=False):
     if not same:
         clave_existente = Oficina.query.filter(Oficina.clave == form.clave.data).first()
         if clave_existente:
             raise Exception("La clave ya se encuentra en uso.")
-    min_horario = datetime.time(5,0,0)
-    max_horario = datetime.time(18,0,0)
+    min_horario = datetime.time(5, 0, 0)
+    max_horario = datetime.time(18, 0, 0)
     min_horario_str = min_horario.strftime("%H:%M")
     max_horario_str = max_horario.strftime("%H:%M")
     if form.apertura.data < min_horario or form.apertura.data > max_horario:

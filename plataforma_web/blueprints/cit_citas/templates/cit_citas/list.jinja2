@@ -22,8 +22,10 @@
         <table id="cit_citas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
+                    <th>ID</th>
+                    <th>Horario</th>
+                    <th>Servicio</th>
+                    <th>Estado</th>
                 </tr>
             </thead>
         </table>
@@ -31,7 +33,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-        <script>/*
+        <script>
         $('#cit_citas_datatable').DataTable({
             processing: true,
             serverSide: true,
@@ -48,15 +50,17 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "email" },
-                { data: "nombre_completo" },
+                { data: "id" },
+                { data: "horario" },
+                { data: "servicio" },
+                { data: "estado" },
             ],
             columnDefs: [
                 {
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 }
             ],
@@ -74,6 +78,6 @@
                     sPrevious: "Anterior"
                 }
             }
-        });*/
+        });
     </script>
 {% endblock %}
