@@ -2,6 +2,7 @@
 Funcionarios, tareas para ejecutar en el fondo
 
 - enviar_reporte: Enviar via correo electronico el reporte de funcionarios
+- sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
 import locale
 import logging
@@ -33,6 +34,23 @@ db.app = app
 locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 
 
+def enviar_reporte():
+    """Enviar reporte de funcionarios via correo electronico"""
+
+    # Iniciar
+    bitacora.info("Inicia enviar reporte")
+
+    # Consultar
+    funcionarios = db.session.query(Funcionario)
+    bitacora.info("Total: %s", funcionarios.count())
+
+    # Terminar
+    set_task_progress(100)
+    mensaje_final = "Terminado enviar reporte satisfactoriamente"
+    bitacora.info(mensaje_final)
+    return mensaje_final
+
+
 def sincronizar():
     """Sincronizar funcionarios con la API de RRHH Personal"""
 
@@ -56,39 +74,57 @@ def sincronizar():
     token = response.json()["access_token"]
     bitacora.info("Token recibido")
 
-    # Consultar
-    response = requests.get(
-        url=f"{base_url}/v1/personas",
-        headers={"authorization": f"Bearer {token}"},
-    )
-    if response.status_code != 200:
-        mensaje = f"Fallo la consulta de funcionarios con error {response.status_code}"
-        set_task_error(mensaje)
-        bitacora.error(mensaje)
-        return
-    data = response.json()
-    bitacora.info("Personas consultadas, total: %s", data["total"])
-    items = data["items"]
+    # Bucle de consultas a la API
+    limit = 200
+    offset = 0
+    total = None
+    funcionarios_presentes_contador = 0
+    personas_nuevas_contador = 0
+    personas_omitidas_contador = 0
+    while True:
+        # Consultar
+        bitacora.info("Consultando desde el registro %s", offset)
+        response = requests.get(
+            url=f"{base_url}/v1/personas",
+            headers={"authorization": f"Bearer {token}"},
+            params={"limit": limit, "offset": offset},
+        )
+        if response.status_code != 200:
+            mensaje = f"Fallo la consulta de funcionarios con error {response.status_code}"
+            set_task_error(mensaje)
+            bitacora.error(mensaje)
+            return
+        data = response.json()
+        if total is None:
+            total = data["total"]
+            bitacora.info("Total: %d", total)
+        # Comparar
+        for persona_datos in data["items"]:
+            curp = persona_datos["curp"]
+            funcionario = Funcionario.query.filter_by(curp=curp).first()
+            if funcionario is None:
+                if persona_datos["email"] == "":
+                    personas_omitidas_contador += 1
+                else:
+                    personas_nuevas_contador += 1
+                    # Funcionario(
+                    #    nombres=persona_datos["nombres"],
+                    #    apellido_paterno=persona_datos["apellido_paterno"],
+                    #    apellido_materno=persona_datos["apellido_materno"],
+                    #    curp=curp,
+                    # ).save()
+            else:
+                funcionarios_presentes_contador += 1
+        # Saltar
+        if offset + limit >= total:
+            break
+        offset += limit
 
     # Terminar
+    bitacora.info("Total de Funcionarios presentes: %s", funcionarios_presentes_contador)
+    bitacora.info("Total de Personas omitidas: %s", personas_omitidas_contador)
+    bitacora.info("Total de Personas nuevas: %s", personas_nuevas_contador)
     set_task_progress(100)
     mensaje_final = "Terminado sincronizar satisfactoriamente"
     bitacora.info(mensaje_final)
     return
-
-
-def enviar_reporte():
-    """Enviar reporte de funcionarios via correo electronico"""
-
-    # Iniciar
-    bitacora.info("Inicia enviar reporte")
-
-    # Consultar
-    funcionarios = db.session.query(Funcionario)
-    bitacora.info("Funcionarios, total: %s", funcionarios.count())
-
-    # Terminar
-    set_task_progress(100)
-    mensaje_final = "Terminado enviar reporte satisfactoriamente"
-    bitacora.info(mensaje_final)
-    return mensaje_final
