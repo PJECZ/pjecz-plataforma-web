@@ -30,7 +30,7 @@
 {% block content %}
     {% call detail.card(estatus=lista_de_acuerdo.estatus) %}
         {{ detail.label_value_big('Descripción', lista_de_acuerdo.descripcion) }}
-        {{ detail.label_value('Fecha', moment(lista_de_acuerdo.fecha).format("DD MMM YYYY")) }}
+        {{ detail.label_value('Fecha', moment(lista_de_acuerdo.fecha, local=True).format('DD/MMM/YYYY')) }}
         {{ detail.label_value('Distrito', lista_de_acuerdo.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', lista_de_acuerdo.autoridad.descripcion) }}
         {{ detail.label_value_new_tab('Archivo PDF', lista_de_acuerdo.archivo, lista_de_acuerdo.url) }}
