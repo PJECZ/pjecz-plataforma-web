@@ -1,0 +1,31 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Redes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Red:  ' + red.nombre) %}
+        {{ topbar.button_previous('Red', url_for('inv_redes.list_active')) }}
+        {% if current_user.can_edit('INV REDES') %}
+            {{ topbar.button_edit('Editar', url_for('inv_redes.edit', red_id=red.id)) }}
+            {% if red.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_redes.delete', red_id=red.id)) }}{% endif %}
+            {% if red.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_redes.recover', red_id=red.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {{ detail.label_value('Nombre', red.nombre) }}
+        {{ detail.label_value('Tipo', red.tipo) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('INV REDES') %}
+        {% if red.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + red.nombre + '?') }}{% endif %}
+        {% if red.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + red.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

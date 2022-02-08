@@ -2,17 +2,17 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Modelos{% endblock %}
+{% block title %}Editar Categoria{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Modelos') }}
+    {{ topbar.page('Editar ' + categoria.nombre) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('inv_modelos.new', fid='modelo_form') %}
-            {% call f.form_group(form.nombre, redonly=true) %}{% endcall %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
+        {% set form_kwargs = {'categoria_id': categoria.id} %}
+        {% call f.form_tag('inv_categorias.edit', fid='categoria_form', **form_kwargs) %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

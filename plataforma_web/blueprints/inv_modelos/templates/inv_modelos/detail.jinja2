@@ -21,3 +21,11 @@
         {{ detail.label_value('Modelos', modelo.descripcion) }}
     {% endcall %}
 {% endblock %}
+
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('INV MODELOS') %}
+        {% if modelo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + modelo.descripcion + '?') }}{% endif %}
+        {% if modelo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + modelo.descripcion + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

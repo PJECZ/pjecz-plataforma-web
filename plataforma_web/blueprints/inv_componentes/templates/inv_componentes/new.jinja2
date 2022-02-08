@@ -2,17 +2,20 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Modelos{% endblock %}
+{% block title %}Nuevo Componente{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Modelos') }}
+    {{ topbar.page('Nuevo Componente') }}
 {% endblock %}
+
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('inv_modelos.new', fid='modelo_form') %}
+        {% call f.form_tag('inv_componentes.new', fid='componente_form') %}
             {% call f.form_group(form.nombre, redonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.cantidad) %}{% endcall %}
+            {% call f.form_group(form.version) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
