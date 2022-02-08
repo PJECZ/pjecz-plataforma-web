@@ -18,8 +18,8 @@ class INVEquipos(db.Model, UniversalMixin):
     # Clave foránea
     # inv_custodia_id = db.Column(db.Integer, db.ForeignKey('inv_custodia.id'), index=True, nullable=False)
     # inv_custodia_id = db.relationship('InvCustodia', back_populates='inv_equipos ')
-    # inv_modelo_id = db.Column(db.Integer, db.ForeignKey('inv_modelo.id'), index=True, nullable=False)
-    # inv_modelo_id = db.relationship('InvModelo', back_populates='inv_equipos ')
+    # modelo_id = db.Column(db.Integer, db.ForeignKey('inv_modelos.id'), index=True, nullable=False)
+    # modelo = db.relationship('INVModelos', back_populates='equipos ')
     # inv_red_id = db.Column(db.Integer, db.ForeignKey('inv_red.id'), index=True, nullable=False)
     # inv_red_id = db.relationship('InvRed', back_populates='inv_equipos ')
 
@@ -35,7 +35,7 @@ class INVEquipos(db.Model, UniversalMixin):
     numero_puerto = db.Column(db.Integer())
 
     # Hijos
-    # plural_hijos = db.relationship("Clase_hijo", back_populates="singular_esta_clase")
+    # componentes = db.relationship("INVComponentes", back_populates="equipo")
 
     def __repr__(self):
         """Representación"""
