@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nueva Custodia{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nueva Custodia') }}
+{% endblock %}
+
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('inv_componentes.new', fid='componente_form') %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.curp) %}{% endcall %}
+            {% call f.form_group(form.nombre_completo) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}custodias{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Custodia: ' + custodia.nombre_completo) %}
+        {{ topbar.button_previous('Custodias', url_for('inv_custodias.list_active')) }}
+        {% if current_user.can_edit('INV custodiaS') %}
+            {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', custodia_id=custodia.id)) }}
+            {% if custodia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_custodias.delete', custodia_id=custodia.id)) }}{% endif %}
+            {% if custodia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_custodias.recover', custodia_id=custodia.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=custodia.estatus) %}
+        {{ detail.label_value('Fecha', custodia.fecha) }}
+        {{ detail.label_value('CURP', custodia.curp) }}
+        {{ detail.label_value('Nombre completo', custodia.nombre_completo) }}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('INV CUSTODIAS') %}
+        {% if custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + custodia.nombre_completo + '?') }}{% endif %}
+        {% if custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + custodia.nombre_completo + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
