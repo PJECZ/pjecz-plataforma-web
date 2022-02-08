@@ -1,5 +1,5 @@
 """
-Componentes, formularios
+Custodias, formularios
 """
 
 from flask_wtf import FlaskForm
@@ -9,27 +9,25 @@ from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 
-# from plataforma_web.blueprints.usuarios.models import Usuarios
+# from plataforma_web.blueprints.usuarios.models import Usuario
 
 # from plataforma_web.blueprints.oficinas.models import oficinas
 
 
 # def usuarios_opciones():
 #     """Seleccionar el usuario para select"""
-#     return Usuarios.query.filter_by(estatus="A").order_by(Usuarios.nombre).all()
+#     return Usuario.query.filter_by(estatus="A").order_by(Usuario.id).all()
 
 
-# def equipos_opciones():
+# def oficina_opciones():
 #     """Seleccionar la oficina para select"""
-#     return oficinas.query.filter_by(estatus="A").order_by(oficinas.nombre).all()
+#     return Oficina.query.filter_by(estatus="A").order_by(Oficina.nombre).all()
 
 
-class INVCustodiasForm(FlaskForm):
-    """Formulario INVCustodias"""
+class INVCustodiaForm(FlaskForm):
+    """Formulario INVCustodia"""
 
-    # nombre = QuerySelectField(label="Nombre Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
-    # nombre = QuerySelectField(label="Nombre Equipo", query_factory=equipos_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
-    fecha = DateField("Descripción", validators=[DataRequired()])
+    nombre_completo = StringField("Nombre completo", validators=[DataRequired(), Length(max=250)])
+    fecha = DateField("Fecha", validators=[DataRequired()])
     curp = StringField("CURP", validators=[DataRequired(), Length(max=50)])
-    nombre_completo = StringField("Nombre completo", validators=[DataRequired(), Length(max=512)])
     guardar = SubmitField("Guardar")

@@ -9,11 +9,6 @@
         {% if current_user.can_edit('INV INVENTARIOS') %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_inventarios.list_active')) }}{% endif %}
             {{ topbar.button_primary('Equipos', url_for('inv_equipos.list_active'), 'mdi:desktop-classic') }}
-            {{ topbar.button_primary('Marcas', url_for('inv_marcas.list_active'), 'mdi:bookmark') }}
-            {{ topbar.button_primary('Modelos', url_for('inv_modelos.list_active'), 'mdi:chart-bubble') }}
-            {{ topbar.button_primary('Redes', url_for('inv_redes.list_active'), 'mdi:access-point-network') }}
-            {{ topbar.button_primary('Componentes', url_for('inv_componentes.list_active'), 'mdi:video-input-component') }}
-            {{ topbar.button_primary('Categorías', url_for('inv_categorias.list_active'), 'mdi:shape') }}
         {% endif %}
         
     {% endcall %}

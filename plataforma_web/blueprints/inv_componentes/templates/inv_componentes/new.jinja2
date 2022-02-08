@@ -11,9 +11,9 @@
 
 {% block content %}
     {% call f.card() %}
+        {% set form_kwargs = {'equipo_id': equipo.id} %}  
         {% call f.form_tag('inv_componentes.new', fid='componente_form') %}
             {% call f.form_group(form.nombre, redonly=true) %}{% endcall %}
-            {# {% call f.form_group(form., redonly=true) %}{% endcall %} #}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.cantidad) %}{% endcall %}
             {% call f.form_group(form.version) %}{% endcall %}

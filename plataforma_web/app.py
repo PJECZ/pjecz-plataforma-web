@@ -57,6 +57,7 @@ from plataforma_web.blueprints.inv_modelos.views import inv_modelos
 from plataforma_web.blueprints.inv_redes.views import inv_redes
 from plataforma_web.blueprints.inv_componentes.views import inv_componentes
 from plataforma_web.blueprints.inv_categorias.views import inv_categorias
+from plataforma_web.blueprints.inv_custodias.views import inv_custodias
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -123,6 +124,7 @@ def create_app():
     app.register_blueprint(inv_redes)
     app.register_blueprint(inv_componentes)
     app.register_blueprint(inv_categorias)
+    app.register_blueprint(inv_custodias)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)

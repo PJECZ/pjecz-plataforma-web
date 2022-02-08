@@ -16,9 +16,9 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_custodias.models import INVCustodias
+from plataforma_web.blueprints.inv_custodias.models import INVCustodia
 
-from plataforma_web.blueprints.inv_custodias.forms import INVCustodiasForm
+from plataforma_web.blueprints.inv_custodias.forms import INVCustodiaForm
 
 MODULO = "INV CUSTODIAS"
 MESES_FUTUROS = 12  # Un año a futuro, para las fechas
@@ -56,10 +56,10 @@ def list_inactive():
     )
 
 
-@inv_custodias.route("/inv_custodias/<int:custodias_id>")
-def detail(custodias_id):
+@inv_custodias.route("/inv_custodias/<int:custodia_id>")
+def detail(custodia_id):
     """Detalle de un Custodias"""
-    custodia = INVCustodias.query.get_or_404(custodias_id)
+    custodia = INVCustodia.query.get_or_404(custodia_id)
     return render_template("inv_custodias/detail.jinja2", custodia=custodia)
 
 
@@ -67,25 +67,25 @@ def detail(custodias_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Custodia"""
-    form = INVCustodiasForm()
-    validacion = False
+    form = INVCustodiaForm()
+    # validacion = False
     if form.validate_on_submit():
         try:
             _validar_form(form)
             validacion = True
         except Exception as err:
-            flash(f"La descripcion es incorrecta: {str(err)}", "warning")
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
 
         if validacion:
-            custodia = INVCustodias(
+            custodia = INVCustodia(
                 fecha=form.fecha.data,
                 curp=form.curp.data,
                 nombre_completo=form.nombre_completo.data,
             )
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-            return redirect(url_for("inv_custodias.detail", custodias_id=custodia.id))
+            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     return render_template("inv_custodias/new.jinja2", form=form)
 
 
@@ -95,12 +95,13 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
-    consulta = INVCustodias.query
+    consulta = INVCustodia.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(INVCustodias.creado.desc()).offset(start).limit(rows_per_page).all()
+
+    registros = consulta.order_by(INVCustodia.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -109,9 +110,9 @@ def datatable_json():
             {
                 "nombre_completo": {
                     "descripcion": resultado.nombre_completo,
-                    "url": url_for("inv_custodias.detail", custodias_id=resultado.id),
+                    "url": url_for("inv_custodias.detail", custodia_id=resultado.id),
                 },
-                "fecha": resultado.fecha,
+                "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                 "curp": resultado.curp,
             }
         )
@@ -119,19 +120,19 @@ def datatable_json():
     return datatables.output(draw, total, data)
 
 
-@inv_custodias.route("/inv_custodias/edicion/<int:custodias_id>", methods=["GET", "POST"])
+@inv_custodias.route("/inv_custodias/edicion/<int:custodia_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def edit(custodias_id):
+def edit(custodia_id):
     """Editar Custodias"""
-    custodia = INVCustodias.query.get_or_404(custodias_id)
-    form = INVCustodiasForm()
+    custodia = INVCustodia.query.get_or_404(custodia_id)
+    form = INVCustodiaForm()
     validacion = False
     if form.validate_on_submit():
         try:
             _validar_form(form, True)
             validacion = True
         except Exception as err:
-            flash(f"El custodia es incorrecto: {str(err)}", "warning")
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
 
         if validacion:
@@ -140,52 +141,47 @@ def edit(custodias_id):
             custodia.nombre_completo = form.nombre_completo.data
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-            return redirect(url_for("inv_custodias.detail", custodias_id=custodia.id))
+            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.fecha.data = custodia.fecha
     form.curp.data = custodia.curp
     form.nombre_completo.data = custodia.nombre_completo
     return render_template("inv_custodias/edit.jinja2", form=form, custodia=custodia)
 
 
-def _validar_form(fecha, form, same=False):
+def _validar_form(form, same=False):
     if not same:
-        curp_existente = INVCustodias.query.filter(INVCustodias.curp == form.curp.data).first()
+        curp_existente = INVCustodia.query.filter(INVCustodia.curp == form.curp.data).first()
         if curp_existente:
             raise Exception("La CURP ya esta en uso.")
-        if fecha < date.today():
-            raise Exception("La fecha no puede ser pasada.")
-        fecha_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
-        if fecha > fecha_futura:
-            raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {fecha_futura}")
     return True
 
 
 # def _validar_fecha(fecha):
 #     if fecha < date.today():
 #         raise Exception("La fecha no puede ser pasada.")
-#         fecha_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
-#         if fecha > fecha_futura:
-#             raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {fecha_futura}")
+#     fecha_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
+#     if fecha > fecha_futura:
+#         raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {fecha_futura}")
 #     return True
 
 
-@inv_custodias.route("/inv_custodias/eliminar/<int:custodias_id>")
+@inv_custodias.route("/inv_custodias/eliminar/<int:custodia_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def delete(custodias_id):
+def delete(custodia_id):
     """Eliminar Custodias"""
-    custodia = INVCustodias.query.get_or_404(custodias_id)
+    custodia = INVCustodia.query.get_or_404(custodia_id)
     if custodia.estatus == "A":
         custodia.delete()
         flash(f"Custodias {custodia.descripcion} eliminado.", "success")
-    return redirect(url_for("inv_custodias.detail", custodias_id=custodia.id))
+    return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
 
 
-@inv_custodias.route("/inv_custodias/recuperar/<int:custodias_id>")
+@inv_custodias.route("/inv_custodias/recuperar/<int:custodia_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def recover(custodias_id):
+def recover(custodia_id):
     """Recuperar Custodias"""
-    custodia = INVCustodias.query.get_or_404(custodias_id)
+    custodia = INVCustodia.query.get_or_404(custodia_id)
     if custodia.estatus == "B":
         custodia.recover()
         flash(f"Custodias {custodia.descripcion} recuperado.", "success")
-    return redirect(url_for("inv_custodias.detail", custodias_id=custodia.id))
+    return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))

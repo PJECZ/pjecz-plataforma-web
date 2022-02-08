@@ -6,8 +6,8 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional
 
 
-class INVCategoriasForm(FlaskForm):
-    """Formulario INVCategorias"""
+class INVCategoriaForm(FlaskForm):
+    """Formulario INVCategoria"""
 
     nombre = StringField("Nombre", validators=[DataRequired(), Length(max=512)])
     guardar = SubmitField("Guardar")

@@ -2,7 +2,7 @@
 {% import 'macros/list.jinja2' as list with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Custodia{% endblock %}
+{% block title %}Custodias{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
@@ -12,7 +12,7 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_custodias.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('INV CUSTODIAS') %}
-            {{ topbar.button_new('Nuevo Custodia', url_for('inv_custodias.new')) }}
+            {{ topbar.button_new('Nueva Custodia', url_for('inv_custodias.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -22,9 +22,9 @@
         <table id="inv_custodias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Nombre completo</th>
                     <th>Fecha</th>
                     <th>CURP</th>
-                    <th>NOmbre completo</th>
                 </tr>
             </thead>
             

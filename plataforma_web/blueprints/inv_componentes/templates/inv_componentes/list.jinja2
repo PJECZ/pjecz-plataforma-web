@@ -12,7 +12,8 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_componentes.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('INV COMPONENTES') %}
-            {{ topbar.button_new('Nuevo Componente', url_for('inv_componentes.new')) }}
+            {# {{ topbar.button_new('Nuevo Componente', url_for('inv_componentes.new')) }} #}
+            {{ topbar.button_primary('Categorías', url_for('inv_categorias.list_active'), 'mdi:shape') }}
         {% endif %}
     {% endcall %}
 {% endblock %}

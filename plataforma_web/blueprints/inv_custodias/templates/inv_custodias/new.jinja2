@@ -11,10 +11,10 @@
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('inv_componentes.new', fid='componente_form') %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.curp) %}{% endcall %}
+        {% call f.form_tag('inv_custodias.new', fid='custodia_form') %}
             {% call f.form_group(form.nombre_completo) %}{% endcall %}
+            {% call f.form_group(form.curp, redonly=true) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

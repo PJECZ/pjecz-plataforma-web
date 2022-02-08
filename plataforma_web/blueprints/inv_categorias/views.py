@@ -12,9 +12,9 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_categorias.models import INVCategorias
+from plataforma_web.blueprints.inv_categorias.models import INVCategoria
 
-from plataforma_web.blueprints.inv_categorias.forms import INVCategoriasForm
+from plataforma_web.blueprints.inv_categorias.forms import INVCategoriaForm
 
 MODULO = "INV CATEGORIAS"
 
@@ -26,7 +26,7 @@ inv_categorias = Blueprint("inv_categorias", __name__, template_folder="template
 @permission_required(MODULO, Permiso.VER)
 def list_active():
     """Listado de Categorias activos"""
-    activos = INVCategorias.query.filter(INVCategorias.estatus == "A").all()
+    activos = INVCategoria.query.filter(INVCategoria.estatus == "A").all()
     return render_template(
         "inv_categorias/list.jinja2",
         categorias=activos,
@@ -39,7 +39,7 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Categorias inactivos"""
-    inactivos = INVCategorias.query.filter(INVCategorias.estatus == "B").all()
+    inactivos = INVCategoria.query.filter(INVCategoria.estatus == "B").all()
     return render_template(
         "inv_categorias/list.jinja2",
         categorias=inactivos,
@@ -51,7 +51,7 @@ def list_inactive():
 @inv_categorias.route("/inv_categorias/<int:categoria_id>")
 def detail(categoria_id):
     """Detalle de un Categorias"""
-    categoria = INVCategorias.query.get_or_404(categoria_id)
+    categoria = INVCategoria.query.get_or_404(categoria_id)
     return render_template("inv_categorias/detail.jinja2", categoria=categoria)
 
 
@@ -59,7 +59,7 @@ def detail(categoria_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Categoria"""
-    form = INVCategoriasForm()
+    form = INVCategoriaForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -70,7 +70,7 @@ def new():
             validacion = False
 
         if validacion:
-            categoria = INVCategorias(nombre=form.nombre.data)
+            categoria = INVCategoria(nombre=form.nombre.data)
             categoria.save()
             flash(f"Categorias {categoria.nombre} guardado.", "success")
             return redirect(url_for("inv_categorias.detail", categoria_id=categoria.id))
@@ -81,8 +81,8 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(categoria_id):
     """Editar Categoria"""
-    categoria = INVCategorias.query.get_or_404(categoria_id)
-    form = INVCategoriasForm()
+    categoria = INVCategoria.query.get_or_404(categoria_id)
+    form = INVCategoriaForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -103,7 +103,7 @@ def edit(categoria_id):
 
 def _validar_form(form, same=False):
     if not same:
-        nombre_existente = INVCategorias.query.filter(INVCategorias.nombre == form.nombre.data).first()
+        nombre_existente = INVCategoria.query.filter(INVCategoria.nombre == form.nombre.data).first()
         if nombre_existente:
             raise Exception("El nombre ya esta regsitrado.")
     return True
@@ -113,7 +113,7 @@ def _validar_form(form, same=False):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(categoria_id):
     """Eliminar Categorias"""
-    categoria = INVCategorias.query.get_or_404(categoria_id)
+    categoria = INVCategoria.query.get_or_404(categoria_id)
     if categoria.estatus == "A":
         categoria.delete()
         flash(f"Categorias {categoria.nombre} eliminado.", "success")
@@ -124,7 +124,7 @@ def delete(categoria_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(categoria_id):
     """Recuperar Categorias"""
-    categoria = INVCategorias.query.get_or_404(categoria_id)
+    categoria = INVCategoria.query.get_or_404(categoria_id)
     if categoria.estatus == "B":
         categoria.recover()
         flash(f"Categorias {categoria.nombre} recuperado.", "success")
