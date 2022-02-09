@@ -14,6 +14,7 @@
         {% if funcionario and current_user.can_edit('SOPORTES TICKETS') %}
             {% if soporte_ticket.estado == 'ABIERTO' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
+                {{ topbar.button_primary('Categorizar', url_for('soportes_tickets.categorize', soporte_ticket_id=soporte_ticket.id), 'mdi:order-bool-descending') }}
             {% endif %}
             {% if soporte_ticket.estado == 'TRABAJANDO' %}
                 {{ topbar.button_primary('Resolver', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}

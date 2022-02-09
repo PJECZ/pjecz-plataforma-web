@@ -22,6 +22,7 @@ from .forms import (
     SoporteTicketNewForUsuarioForm,
     SoporteTicketEditForm,
     SoporteTicketTakeForm,
+    SoporteTicketCategorizeForm,
     SoporteTicketCloseForm,
 )
 
@@ -271,7 +272,41 @@ def release(soporte_ticket_id):
     bitacora.save()
     flash(bitacora.descripcion, "success")
     return redirect(bitacora.url)
-    return render_template("soportes_tickets/detail.jinja2", soporte_ticket_id=ticket.id)
+
+
+@soportes_tickets.route("/soportes_tickets/categorizar/<int:soporte_ticket_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def categorize(soporte_ticket_id):
+    """Para categorizar un ticket este debe estar ABIERTO y ser funcionario de soportes"""
+    ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
+    if ticket.estatus != "A":
+        flash("No puede categorizar un ticket eliminado.", "warning")
+        return redirect(detalle_url)
+    if ticket.estado is ("ABIERTO", "TRABAJANDO"):
+        flash("No puede categorizar un ticket que no está abierto o trabajando.", "warning")
+        return redirect(detalle_url)
+    funcionario = _get_funcionario_from_current_user()
+    if funcionario is None:
+        flash("No puede tomar el ticket porque no es funcionario de soporte.", "warning")
+        return redirect(detalle_url)
+    form = SoporteTicketCategorizeForm()
+    if form.validate_on_submit():
+        ticket.soporte_categoria = form.categoria.data
+        ticket.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Categorizado el ticket {ticket.id} a {ticket.soporte_categoria.nombre} por {funcionario.nombre}."),
+            url=detalle_url,
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.usuario.data = ticket.usuario.nombre
+    form.descripcion.data = ticket.descripcion
+    form.categoria.data = ticket.soporte_categoria
+    return render_template("soportes_tickets/categorize.jinja2", form=form, soporte_ticket=ticket)
 
 
 @soportes_tickets.route("/soportes_tickets/cerrar/<int:soporte_ticket_id>", methods=["GET", "POST"])
