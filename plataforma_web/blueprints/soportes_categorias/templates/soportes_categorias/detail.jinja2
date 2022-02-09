@@ -19,6 +19,7 @@
 {% block content %}
     {% call detail.card(estatus=soporte_categoria.estatus) %}
         {{ detail.label_value_big('Nombre', soporte_categoria.nombre) }}
+        {{ detail.label_value('Instrucciones', soporte_categoria.instrucciones) }}
     {% endcall %}
 {% endblock %}
 
