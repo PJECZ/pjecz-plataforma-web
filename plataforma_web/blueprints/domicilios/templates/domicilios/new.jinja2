@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Domicilio{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Domicilio') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('domicilios.new', fid='domicilios_form') %}
+            {% call f.form_group(form.colonia) %}{% endcall %}
+            {% call f.form_group(form.calle) %}{% endcall %}
+            {% call f.form_group(form.cp) %}{% endcall %}
+            {% call f.form_group(form.num_ext) %}{% endcall %}
+            {% call f.form_group(form.num_int) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

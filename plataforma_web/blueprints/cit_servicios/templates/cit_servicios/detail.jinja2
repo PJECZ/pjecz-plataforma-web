@@ -1,0 +1,33 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Servicio{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Servicio: ' + servicio.clave) %}
+        {{ topbar.button_previous('Servicios', url_for('cit_servicios.list_active')) }}
+        {% if current_user.can_edit('CIT SERVICIOS') %}
+            {{ topbar.button_edit('Editar', url_for('cit_servicios.edit', servicio_id=servicio.id)) }}
+            {% if servicio.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cit_servicios.delete', servicio_id=servicio.id)) }}{% endif %}
+            {% if servicio.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cit_servicios.recover', servicio_id=servicio.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=servicio.estatus) %}
+        {{ detail.label_value_big('Clave', servicio.clave) }}
+        {{ detail.label_value('Nombre', servicio.nombre) }}
+        {{ detail.label_value_boolean('Solicitar Expedientes', servicio.solicitar_expedientes) }}
+        {{ detail.label_value('Duración', servicio.duracion.strftime("%H:%M")) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('CIT SERVICIOS') %}
+        {% if servicio.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar ' + servicio.clave + '?') }}{% endif %}
+        {% if servicio.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar ' + servicio.clave + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

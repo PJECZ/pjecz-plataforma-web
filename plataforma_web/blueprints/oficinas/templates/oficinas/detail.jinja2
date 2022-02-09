@@ -1,0 +1,37 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Oficina{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Oficina: ' + oficina.clave) %}
+        {{ topbar.button_previous('Oficinas', url_for('oficinas.list_active')) }}
+        {% if current_user.can_edit('OFICINAS') %}
+            {{ topbar.button_edit('Editar', url_for('oficinas.edit', oficina_id=oficina.id)) }}
+            {% if oficina.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('oficinas.delete', oficina_id=oficina.id)) }}{% endif %}
+            {% if oficina.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('oficinas.recover', oficina_id=oficina.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=oficina.estatus) %}
+        {{ detail.label_value_big('Clave', oficina.clave) }}
+        {{ detail.label_value('Descripción Corta', oficina.descripcion_corta) }}
+        {{ detail.label_value('Descripción', oficina.descripcion) }}
+        {{ detail.label_value_boolean('Juridiccional', oficina.es_juridiccional) }}
+        {{ detail.label_value('Horario', oficina.apertura.strftime("%H:%M") + ' — ' + oficina.cierre.strftime("%H:%M")) }}
+        {{ detail.label_value('Límite de Personas', oficina.limite_personas) }}
+        {{ detail.label_value('Distrito', oficina.distrito.nombre) }}
+        {{ detail.label_value('Domicilio', oficina.domicilio.calle) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('OFICINAS') %}
+        {% if oficina.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar ' + oficina.clave + '?') }}{% endif %}
+        {% if oficina.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar ' + oficina.clave + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

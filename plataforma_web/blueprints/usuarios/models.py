@@ -91,21 +91,35 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
                         modulos_nombres.append(permiso.modulo.nombre)
         return sorted(modulos, key=lambda x: x.nombre_corto)
 
-    def can(self, module, permission):
-        """¿Tiene permiso?"""
-        if isinstance(module, str):
-            modulo = Modulo.query.filter_by(nombre=module.upper()).filter_by(estatus="A").first()
-            if modulo is None:
-                return False
-        elif isinstance(module, Modulo) is False:
-            return False
-        maximo = 0
+    def permissions(self):
+        """Entrega un diccionario con todos los permisos"""
+        todos = {}
         for usuario_rol in self.usuarios_roles:
             if usuario_rol.estatus == "A":
                 for permiso in usuario_rol.rol.permisos:
-                    if permiso.estatus == "A" and permiso.modulo == modulo and permiso.nivel > maximo:
-                        maximo = permiso.nivel
-        return maximo >= permission
+                    if permiso.estatus == "A":
+                        etiqueta = permiso.modulo.nombre
+                        if etiqueta not in todos or permiso.nivel > todos[etiqueta]:
+                            todos[etiqueta] = permiso.nivel
+        return todos
+
+    def can(self, module, permission):
+        """¿Tiene permiso?"""
+        if isinstance(module, str):
+            this_module = Modulo.query.filter_by(nombre=module.upper()).filter_by(estatus="A").first()
+            if this_module is None:
+                return False
+        elif isinstance(module, Modulo):
+            this_module = module
+        else:
+            return False
+        max_permission = 0
+        for usuario_rol in self.usuarios_roles:
+            if usuario_rol.estatus == "A":
+                for permiso in usuario_rol.rol.permisos:
+                    if permiso.estatus == "A" and permiso.modulo == this_module and permiso.nivel > max_permission:
+                        max_permission = permiso.nivel
+        return max_permission >= int(permission)
 
     def can_view(self, module):
         """¿Tiene permiso para ver?"""
