@@ -7,6 +7,7 @@ import click
 from lib.pwgen import generar_contrasena
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.extensions import pwd_context
 
@@ -27,6 +28,7 @@ def alimentar_usuarios():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
+            # Validar autoridad
             if "autoridad_clave" in row:
                 autoridad_clave = row["autoridad_clave"]
                 autoridad = Autoridad.query.filter_by(clave=autoridad_clave).first()
@@ -41,12 +43,24 @@ def alimentar_usuarios():
                     continue
             else:
                 raise Exception("  ERROR: No tiene la columna autoridad_clave o autoridad_id")
+            # Validar oficina
+            if "oficina_id" in row:
+                oficina_id = row["oficina_id"]
+                oficina = Oficina.query.get(oficina_id)
+                if oficina is None:
+                    click.echo(f"  AVISO: Falta la oficina_id {oficina_id}")
+                    continue
+            else:
+                oficina = Oficina.query.get(1)  # Oficina NO DEFINIDO
+            # Validar consecutivo
             usuario_id = int(row["usuario_id"])
             if usuario_id != contador + 1:
                 click.echo(f"  AVISO: usuario_id {usuario_id} no es consecutivo")
                 continue
+            # Insertar
             Usuario(
                 autoridad=autoridad,
+                oficina=oficina,
                 email=row["email"],
                 nombres=row["nombres"],
                 apellido_paterno=row["apellido_paterno"],

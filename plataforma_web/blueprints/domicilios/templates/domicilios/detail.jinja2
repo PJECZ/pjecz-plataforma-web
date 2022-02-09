@@ -18,11 +18,13 @@
 
 {% block content %}
     {% call detail.card(estatus=domicilio.estatus) %}
-        {{ detail.label_value('Colonia', domicilio.colonia) }}
+        {{ detail.label_value('Estado', domicilio.estado) }}
+        {{ detail.label_value('Municipio', domicilio.municipio) }}
         {{ detail.label_value('Calle', domicilio.calle) }}
-        {{ detail.label_value('CP', domicilio.cp) }}
-        {{ detail.label_value('Núm. Exterior', domicilio.num_ext) }}
-        {{ detail.label_value('Núm. Interior', domicilio.num_int) }}
+        {{ detail.label_value('No. Exterior', domicilio.num_ext) }}
+        {{ detail.label_value('No. Interior', domicilio.num_int) }}
+        {{ detail.label_value('Colonia', domicilio.colonia) }}
+        {{ detail.label_value('C.P.', domicilio.cp) }}
     {% endcall %}
 {% endblock %}
 
