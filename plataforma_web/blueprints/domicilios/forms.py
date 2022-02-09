@@ -12,10 +12,10 @@ class DomicilioForm(FlaskForm):
     estado = StringField("Estado", validators=[DataRequired(), Length(max=64)])
     municipio = StringField("Estado", validators=[DataRequired(), Length(max=64)])
     calle = StringField("Calle", validators=[DataRequired(), Length(max=256)])
-    num_ext = IntegerField("Núm. Exterior", validators=[Optional()])
+    num_ext = IntegerField("Núm. Exterior", validators=[DataRequired()])
     num_int = IntegerField("Núm. Interior", validators=[Optional()])
     colonia = StringField("Colonia", validators=[DataRequired(), Length(max=256)])
-    cp = IntegerField('CP', validators=[Optional()])
+    cp = IntegerField('CP', validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 

@@ -1,8 +1,8 @@
 """
 Alimentar Oficinas
 """
+from datetime import datetime
 from pathlib import Path
-from time import strptime
 import csv
 import click
 
@@ -34,11 +34,12 @@ def alimentar_oficinas():
             Oficina(
                 domicilio_id=int(row["domicilio_id"]),
                 distrito_id=int(row["distrito_id"]),
+                clave=safe_string(row["clave"]),
                 descripcion=safe_string(row["descripcion"], max_len=512),
                 descripcion_corta=safe_string(row["descripcion_corta"], max_len=64),
                 es_juridiccional=bool(row["es_juridiccional"]),
-                apertura=strptime(row["apertura"], "%H:%M:%S"),
-                cierre=strptime(row["cierre"], "%H:%M:%S"),
+                apertura=datetime.strptime(row["apertura"], "%H:%M:%S"),
+                cierre=datetime.strptime(row["cierre"], "%H:%M:%S"),
                 limite_personas=int(row["limite_personas"]),
                 estatus=row["estatus"],
             ).save()

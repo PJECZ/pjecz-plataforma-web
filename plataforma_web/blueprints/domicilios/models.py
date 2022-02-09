@@ -19,13 +19,18 @@ class Domicilio(db.Model, UniversalMixin):
     municipio = db.Column(db.String(64), nullable=False)
     calle = db.Column(db.String(256), nullable=False)
     num_ext = db.Column(db.String(24), nullable=False, default="", server_default="")
-    num_int = db.Column(db.String(24), nullable=False, default="", server_default="")
+    num_int = db.Column(db.String(24), default="", server_default="")
     colonia = db.Column(db.String(256), nullable=False, default="", server_default="")
     cp = db.Column(db.Integer())
 
     # Hijos
     cit_clientes = db.relationship("CitCliente", back_populates="domicilio")
     oficinas = db.relationship("Oficina", back_populates="domicilio")
+
+    @property
+    def completo(self):
+        """Junta todos los campos en una cadena"""
+        return f"{self.calle} No. {self.num_ext} {self.num_int} Col. {self.colonia}, {self.municipio} {self.estado}, C.P. {self.cp}"
 
     def __repr__(self):
         """Representación"""
