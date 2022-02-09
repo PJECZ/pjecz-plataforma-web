@@ -16,12 +16,12 @@ class INVEquipos(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    # inv_custodia_id = db.Column(db.Integer, db.ForeignKey('inv_custodia.id'), index=True, nullable=False)
-    # inv_custodia_id = db.relationship('InvCustodia', back_populates='inv_equipos ')
-    # modelo_id = db.Column(db.Integer, db.ForeignKey('inv_modelos.id'), index=True, nullable=False)
-    # modelo = db.relationship('INVModelos', back_populates='equipos ')
-    # inv_red_id = db.Column(db.Integer, db.ForeignKey('inv_red.id'), index=True, nullable=False)
-    # inv_red_id = db.relationship('InvRed', back_populates='inv_equipos ')
+    # custodia_id = db.Column(db.Integer, db.ForeignKey('inv_custodia.id'), index=True, nullable=False)
+    # custodia_id = db.relationship('InvCustodia', back_populates='equipos')
+    modelo_id = db.Column(db.Integer, db.ForeignKey("inv_modelos.id"), index=True, nullable=False)
+    modelo = db.relationship("INVModelos", back_populates="equipos")
+    # red_id = db.Column(db.Integer, db.ForeignKey('inv_red.id'), index=True, nullable=False)
+    # red = db.relationship('InvRed', back_populates='equipos ')
 
     # Columnas
     adquisicion_fecha = db.Column(db.Date(), nullable=False)
@@ -35,7 +35,7 @@ class INVEquipos(db.Model, UniversalMixin):
     numero_puerto = db.Column(db.Integer())
 
     # Hijos
-    componente = db.relationship("INVComponente", back_populates="equipo")
+    componentes = db.relationship("INVComponente", back_populates="equipo")
 
     def __repr__(self):
         """Representación"""

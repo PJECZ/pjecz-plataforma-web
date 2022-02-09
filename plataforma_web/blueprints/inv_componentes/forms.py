@@ -11,7 +11,7 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from plataforma_web.blueprints.inv_categorias.models import INVCategoria
 
-from plataforma_web.blueprints.inv_equipos.models import INVEquipos
+# from plataforma_web.blueprints.inv_equipos.models import INVEquipos
 
 
 def categorias_opciones():

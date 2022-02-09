@@ -18,6 +18,8 @@
 
 {% block content %}
     {% call detail.card(estatus=custodia.estatus) %}
+        {{ detail.label_value('Usuario', custodia.usuario.nombres) }}
+        {# {{ detail.label_value('Curp', custodia.usuario.curp) }} #}
         {{ detail.label_value('Nombre completo', custodia.nombre_completo) }}
         {{ detail.label_value('Fecha', custodia.fecha) }}
         {{ detail.label_value('CURP', custodia.curp) }}

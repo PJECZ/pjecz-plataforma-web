@@ -21,7 +21,7 @@ class INVCategoria(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
-    componente = db.relationship("INVComponente", back_populates="categoria")
+    componentes = db.relationship("INVComponente", back_populates="categoria")
 
     def __repr__(self):
         """Representación"""

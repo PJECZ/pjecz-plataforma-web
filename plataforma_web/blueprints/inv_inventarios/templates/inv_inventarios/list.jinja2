@@ -9,6 +9,7 @@
         {% if current_user.can_edit('INV INVENTARIOS') %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_inventarios.list_active')) }}{% endif %}
             {{ topbar.button_primary('Equipos', url_for('inv_equipos.list_active'), 'mdi:desktop-classic') }}
+            {{ topbar.button('Categorías', url_for('inv_categorias.list_active'),'mdi:car-wrench') }}
         {% endif %}
         
     {% endcall %}
@@ -23,6 +24,16 @@
                     <th>Usuario</th>
                 </tr>
             </thead>
+            <tbody>
+                    {% for equipo in Equipos %}
+                        {% if componente.estatus == "A" %}
+                        <tr>
+                            <td><a href="{{ url_for('inv_componentes.detail', componente_id=componente.id) }}">{{ componente.descripcion }}</a></td>
+                            
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
         </table>
     {% endcall %}
 {% endblock %}

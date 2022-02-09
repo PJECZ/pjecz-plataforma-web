@@ -84,6 +84,7 @@ def new(equipo_id):
         if validacion:
             componente = INVComponente(
                 categoria=form.nombre.data,
+                equipo=equipo,
                 descripcion=form.descripcion.data,
                 cantidad=form.cantidad.data,
                 version=form.version.data,
@@ -91,7 +92,7 @@ def new(equipo_id):
             componente.save()
             flash(f"Componentes {componente.descripcion} guardado.", "success")
             return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
-    return render_template("inv_componentes/new.jinja2", form=form)
+    return render_template("inv_componentes/new.jinja2", form=form, equipo=equipo)
 
 
 @inv_componentes.route("/inv_componentes/datatable_json", methods=["GET", "POST"])

@@ -11,12 +11,14 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
+from plataforma_web.blueprints.inv_componentes.models import INVComponente
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_equipos.models import INVEquipos
+from plataforma_web.blueprints.inv_componentes.models import INVComponente
 
 from plataforma_web.blueprints.inv_equipos.forms import INVEquiposForm
 
@@ -60,7 +62,8 @@ def list_inactive():
 def detail(equipo_id):
     """Detalle de un Equipos"""
     equipo = INVEquipos.query.get_or_404(equipo_id)
-    return render_template("inv_equipos/detail.jinja2", equipo=equipo)
+    componentes = INVComponente.query.filter(INVComponente.equipo_id == equipo_id)
+    return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes)
 
 
 @inv_equipos.route("/inv_equipos/nuevo", methods=["GET", "POST"])

@@ -22,6 +22,7 @@ class INVModelos(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
+    equipos = db.relationship("INVEquipos", back_populates="modelo")
 
     def __repr__(self):
         """Representación"""

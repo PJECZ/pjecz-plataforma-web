@@ -31,9 +31,9 @@
         {{ detail.label_value('Número switch', equipo.numero_switch) }}
         {{ detail.label_value('Número puerto', equipo.numero_puerto) }}
     {% endcall %}
-    {% if equipo.componente|length > 0 %}
+    {% if componentes %}
         {% call detail.card(title='Componentes') %}
-            <table id="componente_datatable" class="table display nowrap" style="width:100%">
+            <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Descripciones</th>
@@ -42,14 +42,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for componente in cid_procedimiento.componente %}
-                    {% if componente.estatus == "A" %}
-                    <tr>
-                        <td><a href="{{ url_for('inv_componentes.detail', componente_id=componente.id) }}">{{ componente.descripcion }}</a></td>
-                        {# <td><a href="{{ componente.url }}" target="_blank">Abrir</a></td> #}
-                    </tr>
-                    {% endif %}
-                {% endfor %}
+                    {% for componente in componentes %}
+                        {% if componente.estatus == "A" %}
+                        <tr>
+                            <td><a href="{{ url_for('inv_componentes.detail', componente_id=componente.id) }}">{{ componente.descripcion }}</a></td>
+                            
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
                 </tbody>
             </table>
         {% endcall %}

@@ -17,6 +17,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_custodias.models import INVCustodia
+from plataforma_web.blueprints.usuarios.models import Usuario
 
 from plataforma_web.blueprints.inv_custodias.forms import INVCustodiaForm
 
@@ -36,11 +37,13 @@ def before_request():
 @inv_custodias.route("/inv_custodias")
 def list_active():
     """Listado de Custodias activos"""
+    # usuario = Usuario.query.filter(usuario_id=current_user.id)
     return render_template(
         "inv_custodias/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
         titulo="Custodias",
         estatus="A",
+        # usuario=usuario,
     )
 
 
@@ -67,8 +70,9 @@ def detail(custodia_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Custodia"""
+    # usuario = Usuario.query.filter(Usuario.usuario_id == usuario_id)
     form = INVCustodiaForm()
-    # validacion = False
+    validacion = False
     if form.validate_on_submit():
         try:
             _validar_form(form)
@@ -82,10 +86,16 @@ def new():
                 fecha=form.fecha.data,
                 curp=form.curp.data,
                 nombre_completo=form.nombre_completo.data,
+                usuario=current_user,
+                # curp=usuario.curp,
+                # usuario=usuario,
+                # nombre_completo=usuario.nombres,
             )
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+    # form.usuario.curp = usuario.curp
+    # form.usuario.nombre_completo = usuario.nombres
     return render_template("inv_custodias/new.jinja2", form=form)
 
 
