@@ -20,9 +20,13 @@
         <table id="domicilios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Colonia</th>
+                    <th>Estado</th>
+                    <th>Municipio</th>
                     <th>Calle</th>
-                    <th>CP</th>
+                    <th>No. Ext.</th>
+                    <th>No. Int.</th>
+                    <th>Colonia</th>
+                    <th>C.P.</th>
                 </tr>
             </thead>
         </table>
@@ -47,13 +51,17 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "colonia" },
+                { data: "estado" },
+                { data: "municipio" },
                 { data: "calle" },
+                { data: "num_ext" },
+                { data: "num_int" },
+                { data: "colonia" },
                 { data: "cp" },
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';
