@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Buscar Expedientes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Buscar Expedientes') %}
+        {{ topbar.button_previous('Expedientes', url_for('cit_expedientes.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('cit_expedientes.search', fid='cit_expedientes_search_form') %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
