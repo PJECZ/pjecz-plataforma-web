@@ -10,6 +10,7 @@ import os
 import requests
 
 from dotenv import load_dotenv
+from sqlalchemy import or_
 
 from lib.tasks import set_task_progress, set_task_error
 
@@ -41,7 +42,7 @@ def enviar_reporte():
     bitacora.info("Inicia enviar reporte")
 
     # Consultar
-    funcionarios = db.session.query(Funcionario)
+    funcionarios = db.session.query(Funcionario).filter_by(estatus="A")
     bitacora.info("Total: %s", funcionarios.count())
 
     # Terminar
@@ -75,14 +76,14 @@ def sincronizar():
     bitacora.info("Token recibido")
 
     # Bucle de consultas a la API
-    limit = 200
+    limit = 50
     offset = 0
     total = None
     funcionarios_presentes_contador = 0
     personas_nuevas_contador = 0
     personas_omitidas_contador = 0
     while True:
-        # Consultar
+        # Llamar a la API
         bitacora.info("Consultando desde el registro %s", offset)
         response = requests.get(
             url=f"{base_url}/v1/personas",
@@ -101,20 +102,22 @@ def sincronizar():
         # Comparar
         for persona_datos in data["items"]:
             curp = persona_datos["curp"]
-            funcionario = Funcionario.query.filter_by(curp=curp).first()
-            if funcionario is None:
-                if persona_datos["email"] == "":
-                    personas_omitidas_contador += 1
-                else:
+            email = persona_datos["email"]
+            if curp != "" and email != "":
+                funcionario = Funcionario.query.filter(or_(Funcionario.curp == curp, Funcionario.email == email)).first()
+                if funcionario is None:
                     personas_nuevas_contador += 1
-                    # Funcionario(
-                    #    nombres=persona_datos["nombres"],
-                    #    apellido_paterno=persona_datos["apellido_paterno"],
-                    #    apellido_materno=persona_datos["apellido_materno"],
-                    #    curp=curp,
-                    # ).save()
+                    Funcionario(
+                        nombres=persona_datos["nombres"],
+                        apellido_paterno=persona_datos["apellido_primero"],
+                        apellido_materno=persona_datos["apellido_segundo"],
+                        curp=curp,
+                        email=email,
+                    ).save()
+                else:
+                    funcionarios_presentes_contador += 1
             else:
-                funcionarios_presentes_contador += 1
+                personas_omitidas_contador += 1
         # Saltar
         if offset + limit >= total:
             break
