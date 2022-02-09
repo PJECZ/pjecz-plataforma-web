@@ -23,7 +23,7 @@ class CITCliente(db.Model, UniversalMixin):
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256), default="", server_default="")
     curp = db.Column(db.String(18), unique=True, nullable=True)
-    telefono = db.Column(db.String(64))
+    telefono = db.Column(db.String(64), default="", server_default="")
     email = db.Column(db.String(256), nullable=False, unique=True, index=True)
     contrasena = db.Column(db.String(256), nullable=False)
     hash = db.Column(db.String(32), nullable=False, default="", server_default="")
