@@ -1,25 +1,19 @@
 """
-CITAS Clientes, vistas
+Cit Clientes, vistas
 """
-
-from datetime import date, datetime
 import json
 
-from flask import Blueprint, flash, redirect, request, render_template, url_for
-from flask_login import current_user, login_required
-from lib import datatables
+from flask import Blueprint, request, render_template, url_for
+from flask_login import login_required
 
+from lib import datatables
 from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
-from plataforma_web.extensions import pwd_context
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.cit_clientes.models import CITCliente
-
-from plataforma_web.blueprints.cit_clientes.forms import CITClienteSearchForm
+from plataforma_web.blueprints.cit_clientes.models import CitCliente
+from plataforma_web.blueprints.cit_clientes.forms import CitClienteSearchForm
 
 MODULO = "CIT CLIENTES"
 RENOVACION_CONTRASENA_DIAS = 360
@@ -32,7 +26,7 @@ cit_clientes = Blueprint("cit_clientes", __name__, template_folder="templates")
 @permission_required(MODULO, Permiso.VER)
 def list_active():
     """Listado de Cliente activos"""
-    activos = CITCliente.query.filter(CITCliente.estatus == "A").all()
+    activos = CitCliente.query.filter(CitCliente.estatus == "A").all()
     return render_template(
         "cit_clientes/list.jinja2",
         clientes=activos,
@@ -47,7 +41,7 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Cliente inactivos"""
-    inactivos = CITCliente.query.filter(CITCliente.estatus == "B").all()
+    inactivos = CitCliente.query.filter(CitCliente.estatus == "B").all()
     return render_template(
         "cit_clientes/list.jinja2",
         clientes=inactivos,
@@ -62,17 +56,17 @@ def list_inactive():
 @permission_required(MODULO, Permiso.VER)
 def detail(cliente_id):
     """Detalle de un Cliente"""
-    cliente = CITCliente.query.get_or_404(cliente_id)
+    cliente = CitCliente.query.get_or_404(cliente_id)
     return render_template("cit_clientes/detail.jinja2", cliente=cliente)
+
 
 @cit_clientes.route("/cit_clientes/buscar", methods=["GET", "POST"])
 def search():
     """Buscar un Cliente"""
-    form_search = CITClienteSearchForm()
+    form_search = CitClienteSearchForm()
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
-
         # Nombres
         if form_search.nombres.data:
             busqueda["nombres"] = form_search.nombres.data
@@ -91,14 +85,12 @@ def search():
         if form_search.email.data:
             busqueda["email"] = form_search.email.data
             titulos.append("email " + busqueda["email"])
-
         # Mostrar resultados
         return render_template(
             "cit_clientes/list.jinja2",
             filtros=json.dumps(busqueda),
             titulo="Clientes con " + ", ".join(titulos),
         )
-
     return render_template("cit_clientes/search.jinja2", form=form_search)
 
 
@@ -108,23 +100,22 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
-    consulta = CITCliente.query
+    consulta = CitCliente.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
     if "nombres" in request.form:
-        consulta = consulta.filter(CITCliente.nombres.like("%" + safe_string(request.form["nombres"]) + "%"))
+        consulta = consulta.filter(CitCliente.nombres.like("%" + safe_string(request.form["nombres"]) + "%"))
     if "apellido_paterno" in request.form:
-        consulta = consulta.filter(CITCliente.apellido_paterno.like("%" + safe_string(request.form["apellido_paterno"]) + "%"))
+        consulta = consulta.filter(CitCliente.apellido_paterno.like("%" + safe_string(request.form["apellido_paterno"]) + "%"))
     if "apellido_materno" in request.form:
-        consulta = consulta.filter(CITCliente.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
+        consulta = consulta.filter(CitCliente.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
     if "curp" in request.form:
-        consulta = consulta.filter(CITCliente.curp.like("%" + safe_string(request.form["curp"]) + "%"))
+        consulta = consulta.filter(CitCliente.curp.like("%" + safe_string(request.form["curp"]) + "%"))
     if "email" in request.form:
-        consulta = consulta.filter(CITCliente.email.like("%" + request.form["email"] + "%"))
-
-    registros = consulta.order_by(CITCliente.email.desc()).offset(start).limit(rows_per_page).all()
+        consulta = consulta.filter(CitCliente.email.like("%" + request.form["email"] + "%"))
+    registros = consulta.order_by(CitCliente.email.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
