@@ -30,8 +30,7 @@ class Oficina(db.Model, UniversalMixin):
     limite_personas = db.Column(db.Integer(), nullable=False)
 
     # Hijos
-    citas = db.relationship("Cita", back_populates="oficina", lazy="noload")
-    usuarios = db.relationship("Usuario", back_populates="oficina")
+    cit_citas = db.relationship('CitCita', back_populates='oficina', lazy='noload')
 
     def __repr__(self):
         """Representación"""

@@ -24,7 +24,7 @@ class Domicilio(db.Model, UniversalMixin):
     cp = db.Column(db.Integer())
 
     # Hijos
-    clientes = db.relationship("CITCliente", back_populates="domicilio")
+    cit_clientes = db.relationship("CitCliente", back_populates="domicilio")
     oficinas = db.relationship("Oficina", back_populates="domicilio")
 
     def __repr__(self):
