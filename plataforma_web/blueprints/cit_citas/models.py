@@ -1,14 +1,13 @@
 """
-CITAS Citas, modelos
+Citas Citas, modelos
 """
 from collections import OrderedDict
-
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class CITCita(db.Model, UniversalMixin):
-    """CITCita"""
+class CitCita(db.Model, UniversalMixin):
+    """CitCita"""
 
     ESTADOS = OrderedDict(
         [
@@ -25,13 +24,11 @@ class CITCita(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
-    servicio_id = db.Column(db.Integer, db.ForeignKey("cit_servicios.id"), index=True, nullable=False)
-    servicio = db.relationship("CITServicio", back_populates="servicios")
-    cliente_id = db.Column(db.Integer, db.ForeignKey("cit_clientes.id"), index=True, nullable=False)
-    cliente = db.relationship("CITCliente", back_populates="clientes")
-    oficina_id = db.Column(db.Integer, db.ForeignKey("oficinas.id"), index=True, nullable=False)
-    oficina = db.relationship("Oficina", back_populates="oficinas")
+    # Claves foráneas
+    cit_cliente_id = db.Column(db.Integer, db.ForeignKey('cit_clientes.id'), index=True, nullable=False)
+    cit_cliente = db.relationship('CitCliente', back_populates='cit_citas')
+    oficina_id = db.Column(db.Integer, db.ForeignKey('oficinas.id'), index=True, nullable=False)
+    oficina = db.relationship('Oficina', back_populates='cit_citas')
 
     # Columnas
     inicio_tiempo = db.Column(db.DateTime(), nullable=False)
@@ -40,8 +37,8 @@ class CITCita(db.Model, UniversalMixin):
     estado = db.Column(db.Enum(*ESTADOS, name="tipos_estados", native_enum=False))
 
     # Hijos
-    expedientes = db.relationship("CITExpediente", back_populates="cita")
+    cit_citas_expedientes = db.relationship('CitCitaExpediente', back_populates='cit_cita')
 
     def __repr__(self):
         """Representación"""
-        return "<Cit_Citas>"
+        return "<CitCita>"

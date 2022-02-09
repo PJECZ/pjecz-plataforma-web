@@ -1,25 +1,17 @@
 """
-CITAS, vistas
+Citas, vistas
 """
-
-from datetime import datetime
 import json
 
-from flask import Blueprint, flash, redirect, request, render_template, url_for
-from flask_login import current_user, login_required
+from flask import Blueprint, request, render_template, url_for
+from flask_login import login_required
 from lib import datatables
-
-from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.cit_citas.models import CITCita
-from plataforma_web.blueprints.cit_expedientes.models import CITExpediente
-
-# from plataforma_web.blueprints.cit_clientes.forms import CITClienteSearchForm
+from plataforma_web.blueprints.cit_citas.models import CitCita
+from plataforma_web.blueprints.cit_citas_expedientes.models import CitCitaExpediente
 
 MODULO = "CIT CITAS"
 
@@ -31,7 +23,7 @@ cit_citas = Blueprint("cit_citas", __name__, template_folder="templates")
 @permission_required(MODULO, Permiso.VER)
 def list_active():
     """Listado de Citas activas"""
-    activos = CITCita.query.filter(CITCita.estatus == "A").all()
+    activos = CitCita.query.filter(CitCita.estatus == "A").all()
     return render_template(
         "cit_citas/list.jinja2",
         citas=activos,
@@ -46,7 +38,7 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Cliente inactivos"""
-    inactivos = CITCita.query.filter(CITCita.estatus == "B").all()
+    inactivos = CitCita.query.filter(CitCita.estatus == "B").all()
     return render_template(
         "cit_clientes/list.jinja2",
         clientes=inactivos,
@@ -61,8 +53,8 @@ def list_inactive():
 @permission_required(MODULO, Permiso.VER)
 def detail(cita_id):
     """Detalle de una Cita"""
-    cita = CITCita.query.get_or_404(cita_id)
-    expedientes = CITExpediente.query.filter(CITExpediente.cita == cita).all()
+    cita = CitCita.query.get_or_404(cita_id)
+    expedientes = CitCitaExpediente.query.filter(CitCitaExpediente.cita == cita).all()
     return render_template("cit_citas/detail.jinja2", cita=cita, expedientes=expedientes)
 
 
@@ -72,13 +64,13 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
-    consulta = CITCita.query
+    consulta = CitCita.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
 
-    registros = consulta.order_by(CITCita.inicio_tiempo.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(CitCita.inicio_tiempo.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []

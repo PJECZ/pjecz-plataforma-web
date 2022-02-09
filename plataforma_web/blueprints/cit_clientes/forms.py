@@ -1,12 +1,12 @@
 """
-CITAS Clientes, formularios
+Cit Clientes, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, Length, Optional, Email
+from wtforms import StringField, SubmitField
+from wtforms.validators import Length, Optional, Email
 
 
-class CITClienteSearchForm(FlaskForm):
+class CitClienteSearchForm(FlaskForm):
     """Formulario para buscar Clientes"""
 
     nombres = StringField("Nombres", validators=[Optional(), Length(max=256)])
