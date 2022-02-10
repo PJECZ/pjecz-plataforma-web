@@ -44,7 +44,7 @@ class SoporteTicket(db.Model, UniversalMixin):
     soluciones = db.Column(db.Text, nullable=True)
 
     # Hijos
-    soportes_tickets = db.relationship('SoporteAdjunto', back_populates='soporte_ticket')
+    soportes_adjuntos = db.relationship('SoporteAdjunto', back_populates='soporte_ticket')
 
     def __repr__(self):
         """Representación"""

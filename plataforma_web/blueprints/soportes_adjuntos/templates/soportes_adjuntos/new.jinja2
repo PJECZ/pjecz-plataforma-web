@@ -9,15 +9,15 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Anexar Archivo a Ticket ' + soporte_ticket.id | string) }}
+    {{ topbar.page('Anexar Archivo al Ticket ' + soporte_ticket.id | string) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'soporte_ticket_id': soporte_ticket.id} %}
-        {% call f.form_tag('soportes_tickets.new', fid='soporte_ticket_form', **form_kwargs) %}
+        {% call f.form_tag_multipart('soportes_adjuntos.new', fid='soporte_adjunto_form', **form_kwargs) %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.problema, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.problema, readonly=true, rows=5) %}{% endcall %}
             {% call f.form_group(form.categoria, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.drop_zone_wrapper() %}

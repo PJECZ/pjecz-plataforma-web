@@ -2,6 +2,7 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
 
 {% block title %}Soporte Ticket{% endblock %}
 
@@ -52,7 +53,7 @@
 
     {% if archivos %}
         {% call list.card('Archivos Adjuntos') %}
-            <table id="soportes_tickets_archivos_datatable" class="table display nowrap" style="width:100%">
+            <table id="soportes_archivos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -62,8 +63,8 @@
                 <tbody>
                     {% for archivo in archivos %}
                     <tr>
-                        <td><a href="{{ url_for('soportes_tickets.files', soporte_ticket_archivo_id=archivo.id) }}">{{ archivo.nombre }}</a></td>
-                        <td>{{ abierto.descripcion | truncate(48) }}</td>
+                        <td><a href="{{ url_for('soportes_adjuntos.detail', soporte_adjunto_id=archivo.id) }}">{{ archivo.archivo }}</a></td>
+                        <td>{{ archivo.descripcion | truncate(48) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -78,4 +79,5 @@
         {% if soporte_ticket.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar este ticket?') }}{% endif %}
         {% if soporte_ticket.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este ticket?') }}{% endif %}
     {% endif %}
+    {{ list.datatable('soportes_archivos_datatable') }}
 {% endblock %}

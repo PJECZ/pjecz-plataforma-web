@@ -1,0 +1,37 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Soporte Adjunto{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Ticket ' + soporte_adjunto.soporte_ticket.id | string) %}
+        {{ topbar.button_previous('Ticket detalle', url_for('soportes_tickets.detail', soporte_ticket_id=soporte_adjunto.soporte_ticket.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=soporte_adjunto.estatus) %}
+        {{ detail.label_value('Creado', moment(soporte_adjunto.creado).format('llll')) }}
+        {{ detail.label_value('Usuario', soporte_adjunto.soporte_ticket.usuario.nombre) }}
+        {{ detail.label_value('Descripción del Problema', soporte_adjunto.soporte_ticket.descripcion) }}
+        {% if soporte_adjunto.soporte_ticket.soporte_categoria_id != 1 %}
+            {{ detail.label_value('Categoría', soporte_adjunto.soporte_ticket.soporte_categoria.nombre) }}
+        {% endif %}
+        {{ detail.label_value('Archivo', soporte_adjunto.archivo) }}
+        {{ detail.label_value('Descripción', soporte_adjunto.descripcion) }}
+        {{ detail.label_value('URL', soporte_adjunto.url) }}
+        {% if soporte_adjunto.url.rsplit(".", 1)[1].lower() == "png" %}
+            {{ detail.label_value('Imágen previa') }}
+            <a href="{{ soporte_adjunto.url }}"><img src="{{ soporte_adjunto.url }}" style="max-width: 500px; height: auto;"/></a>
+        {% endif %}
+        {% if soporte_adjunto.archivo.rsplit(".", 1)[1].lower() == "pdf" %}
+            {{ detail.label_value('Vista previa') }}
+            <object data="{{ soporte_adjunto.url }}" type="application/pdf" width="100%" height="600"></object>
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
