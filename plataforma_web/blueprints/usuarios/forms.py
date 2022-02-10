@@ -4,12 +4,19 @@ Usuarios, formularios
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, PasswordField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from lib.safe_string import CONTRASENA_REGEXP
 
+from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 CONTRASENA_MENSAJE = "De 8 a 48 caracteres con al menos una mayúscula, una minúscula y un número. No acentos, ni eñe."
+
+
+def oficinas_opciones():
+    """Oficinas: opciones para select"""
+    return Oficina.query.filter_by(estatus="A").order_by(Oficina.descripcion).all()
 
 
 class AccesoForm(FlaskForm):
@@ -28,6 +35,7 @@ class UsuarioFormNew(FlaskForm):
 
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    oficina = QuerySelectField(query_factory=oficinas_opciones, get_label="descripcion")
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
@@ -52,6 +60,7 @@ class UsuarioFormEdit(FlaskForm):
 
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    oficina = QuerySelectField(query_factory=oficinas_opciones, get_label="descripcion")
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])

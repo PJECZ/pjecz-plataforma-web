@@ -1,11 +1,9 @@
 """
 Oficinas, vistas
 """
-
 import datetime
-from dateutil.relativedelta import relativedelta
 
-from flask import Blueprint, flash, redirect, request, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from lib.safe_string import safe_message, safe_string
@@ -56,7 +54,7 @@ def list_inactive():
 @login_required
 @permission_required(MODULO, Permiso.VER)
 def detail(oficina_id):
-    """Detalle de un Servicio"""
+    """Detalle de una Oficina"""
     oficina = Oficina.query.get_or_404(oficina_id)
     return render_template("oficinas/detail.jinja2", oficina=oficina)
 
@@ -65,7 +63,7 @@ def detail(oficina_id):
 @login_required
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Servicio"""
+    """Nueva Oficina"""
     form = OficinaForm()
     validacion = False
     if form.validate_on_submit():
@@ -75,13 +73,12 @@ def new():
         except Exception as err:
             flash(f"Creación de la nueva Oficina incorrecta. {str(err)}", "warning")
             validacion = False
-
         if validacion:
             oficina = Oficina(
                 clave=safe_string(form.clave.data),
-                descripcion_corta=form.descripcion_corta.data,
-                descripcion=form.descripcion.data,
-                es_juridiccional=form.es_juridiccional.data,
+                descripcion_corta=safe_string(form.descripcion_corta.data),
+                descripcion=safe_string(form.descripcion.data),
+                es_jurisdiccional=form.es_jurisdiccional.data == 1,
                 apertura=form.apertura.data,
                 cierre=form.cierre.data,
                 limite_personas=form.limite_personas.data,
@@ -110,19 +107,17 @@ def edit(oficina_id):
     form = OficinaForm()
     validacion = False
     if form.validate_on_submit():
-
         try:
             _validar(form, True)
             validacion = True
         except Exception as err:
             flash(f"Actualización incorrecta de la oficina. {str(err)}", "warning")
             validacion = False
-
         if validacion:
             oficina.clave = safe_string(form.clave.data)
             oficina.descripcion_corta = safe_string(form.descripcion_corta.data)
             oficina.descripcion = safe_string(form.descripcion.data)
-            oficina.es_juridiccional = form.es_juridiccional.data
+            oficina.es_jurisdiccional = form.es_jurisdiccional.data == 1
             oficina.apertura = form.apertura.data
             oficina.cierre = form.cierre.data
             oficina.limite_personas = form.limite_personas.data
@@ -139,7 +134,7 @@ def edit(oficina_id):
     form.clave.data = oficina.clave
     form.descripcion_corta.data = oficina.descripcion_corta
     form.descripcion.data = oficina.descripcion
-    form.es_juridiccional.data = oficina.es_juridiccional
+    form.es_jurisdiccional.data = oficina.es_jurisdiccional
     form.apertura.data = oficina.apertura
     form.cierre.data = oficina.cierre
     form.limite_personas.data = oficina.limite_personas

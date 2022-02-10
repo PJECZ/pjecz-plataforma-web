@@ -19,11 +19,12 @@
 {% block content %}
     {% call detail.card(estatus=usuario.estatus) %}
         {{ detail.label_value_big('Nombre', usuario.nombre) }}
-        {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
-        {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
+        {{ detail.label_value('Puesto', usuario.puesto) }}
         {{ detail.label_value('CURP', usuario.curp) }}
         {{ detail.label_value('e-mail', usuario.email) }}
-        {{ detail.label_value('Puesto', usuario.puesto) }}
+        {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
+        {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
+        {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
         {{ detail.label_value('Teléfono celular', usuario.telefono_celular) }}
         {{ detail.label_value('Workspace', usuario.workspace) }}
         {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
