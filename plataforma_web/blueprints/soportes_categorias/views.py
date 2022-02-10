@@ -65,6 +65,7 @@ def new():
     if form.validate_on_submit():
         soporte_categoria = SoporteCategoria(
             nombre=safe_string(form.nombre.data),
+            rol = form.rol.data,
             instrucciones=safe_string(form.instrucciones.data, max_len=2048),
             )
         soporte_categoria.save()
@@ -88,6 +89,7 @@ def edit(soporte_categoria_id):
     form = SoporteCategoriaForm()
     if form.validate_on_submit():
         soporte_categoria.nombre = safe_string(form.nombre.data)
+        soporte_categoria.rol = form.rol.data
         soporte_categoria.instrucciones = safe_string(form.instrucciones.data, max_len=2048)
         soporte_categoria.save()
         bitacora = Bitacora(
@@ -100,6 +102,7 @@ def edit(soporte_categoria_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.nombre.data = soporte_categoria.nombre
+    form.rol.data = soporte_categoria.rol
     form.instrucciones.data = soporte_categoria.instrucciones
     return render_template("soportes_categorias/edit.jinja2", form=form, soporte_categoria=soporte_categoria)
 
