@@ -21,7 +21,7 @@
         {{ detail.label_value('Archivo', soporte_adjunto.archivo) }}
         {{ detail.label_value('Descripción', soporte_adjunto.descripcion) }}
         {{ detail.label_value('URL', soporte_adjunto.url) }}
-        {% if soporte_adjunto.url.rsplit(".", 1)[1].lower() == "png" %}
+        {% if soporte_adjunto.url.rsplit(".", 1)[1].lower() in ("png", "jpg", "jpeg") %}
             {{ detail.label_value('Imágen previa') }}
             <a href="{{ soporte_adjunto.url }}"><img src="{{ soporte_adjunto.url }}" style="max-width: 500px; height: auto;"/></a>
         {% endif %}

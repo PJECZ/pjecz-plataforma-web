@@ -22,7 +22,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.soportes_adjuntos.forms import SoporteAdjuntoNewForm
 
 MODULO = "SOPORTES ADJUNTOS"
-SUBDIRECTORIO = "cit_archivos"
+SUBDIRECTORIO = "soportes_adjuntos"
 
 soportes_adjuntos = Blueprint("soportes_adjuntos", __name__, template_folder="templates")
 
