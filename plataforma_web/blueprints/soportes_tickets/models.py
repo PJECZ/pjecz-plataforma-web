@@ -14,6 +14,7 @@ class SoporteTicket(db.Model, UniversalMixin):
             ("ABIERTO", "Abierto o pendiente"),
             ("TRABAJANDO", "Trabjando"),
             ("CERRADO", "Cerrado o terminado"),
+            ("NO RESUELTO", "No resuelto"),
             ("CANCELADO", "Cancelado"),
         ]
     )

@@ -16,6 +16,7 @@ class SoporteCategoria(db.Model, UniversalMixin):
 
     # Columnas
     nombre = db.Column(db.String(256), unique=True, nullable=False)
+    instrucciones = db.Column(db.Text())
 
     # Hijos
     soportes_tickets = db.relationship("SoporteTicket", back_populates="soporte_categoria")

@@ -59,6 +59,14 @@ class SoporteTicketTakeForm(FlaskForm):
     guardar = SubmitField("Tomar")
 
 
+class SoporteTicketCategorizeForm(FlaskForm):
+    """Formulario SoporteTicket"""
+
+    usuario = StringField("Usuario")  # Read only
+    descripcion = TextAreaField("Descripción del problema")  # Read only
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
+    guardar = SubmitField("Categorizar")
+
 class SoporteTicketCloseForm(FlaskForm):
     """Formulario SoporteTicket"""
 
