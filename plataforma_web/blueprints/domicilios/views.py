@@ -95,20 +95,28 @@ def new():
     """Nuevo Domicilio"""
     form = DomicilioForm()
     if form.validate_on_submit():
-        domicilio = Domicilio()
-        domicilio.estado = safe_string(form.estado.data, max_len=64)
-        domicilio.municipio = safe_string(form.municipio.data, max_len=64)
-        domicilio.calle = safe_string(form.calle.data, max_len=256)
-        domicilio.num_ext = safe_string(form.num_ext.data, max_len=24)
-        domicilio.num_int = safe_string(form.num_int.data, max_len=24)
-        domicilio.colonia = safe_string(form.colonia.data, max_len=256)
-        domicilio.cp = form.cp.data
-        domicilio.completo = f"{domicilio.calle} No. {domicilio.num_ext} {domicilio.num_int} Col. {domicilio.colonia}, {domicilio.municipio} {domicilio.estado}, C.P. {domicilio.cp}"
-        domicilio.save()
+        estado = safe_string(form.estado.data, max_len=64)
+        municipio = safe_string(form.municipio.data, max_len=64)
+        calle = safe_string(form.calle.data, max_len=256)
+        num_ext = safe_string(form.num_ext.data, max_len=24)
+        num_int = safe_string(form.num_int.data, max_len=24)
+        colonia = safe_string(form.colonia.data, max_len=256)
+        cp = form.cp.data
+        completo = f"{calle} #{num_ext} {num_int}, {colonia}, {municipio}, {estado}, C.P. {cp}"
+        domicilio = Domicilio(
+            estado=estado,
+            municipio=municipio,
+            calle=calle,
+            num_ext=num_ext,
+            num_int=num_int,
+            colonia=colonia,
+            cp=cp,
+            completo=completo,
+        ).save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Domicilio {domicilio.calle}"),
+            descripcion=safe_message(f"Nuevo Domicilio {completo}"),
             url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()
@@ -132,12 +140,12 @@ def edit(domicilio_id):
         domicilio.num_int = safe_string(form.num_int.data, max_len=24)
         domicilio.colonia = safe_string(form.colonia.data, max_len=256)
         domicilio.cp = form.cp.data
-        domicilio.completo = f"{domicilio.calle} No. {domicilio.num_ext} {domicilio.num_int} Col. {domicilio.colonia}, {domicilio.municipio} {domicilio.estado}, C.P. {domicilio.cp}"
+        domicilio.completo = f"{domicilio.calle} #{domicilio.num_ext} {domicilio.num_int}, {domicilio.colonia}, {domicilio.municipio}, {domicilio.estado}, C.P. {domicilio.cp}"
         domicilio.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Editado el Domicilio {domicilio.calle}"),
+            descripcion=safe_message(f"Editado el Domicilio {domicilio.completo}"),
             url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()

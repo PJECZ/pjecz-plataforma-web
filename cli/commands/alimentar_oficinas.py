@@ -6,7 +6,7 @@ from pathlib import Path
 import csv
 import click
 
-from lib.safe_string import safe_string
+from lib.safe_string import safe_clave, safe_string
 
 from plataforma_web.blueprints.oficinas.models import Oficina
 
@@ -34,7 +34,7 @@ def alimentar_oficinas():
             Oficina(
                 domicilio_id=int(row["domicilio_id"]),
                 distrito_id=int(row["distrito_id"]),
-                clave=safe_string(row["clave"]),
+                clave=safe_clave(row["clave"]),
                 descripcion=safe_string(row["descripcion"], max_len=512),
                 descripcion_corta=safe_string(row["descripcion_corta"], max_len=64),
                 es_jurisdiccional=bool(row["es_jurisdiccional"]),
