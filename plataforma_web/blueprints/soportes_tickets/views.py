@@ -283,7 +283,7 @@ def categorize(soporte_ticket_id):
     if ticket.estatus != "A":
         flash("No puede categorizar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado is ("ABIERTO", "TRABAJANDO"):
+    if ticket.estado in ("ABIERTO", "TRABAJANDO"):
         flash("No puede categorizar un ticket que no está abierto o trabajando.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_from_current_user()

@@ -168,6 +168,7 @@ def new():
             contrasena = pwd_context.hash(form.contrasena.data)
         usuario = Usuario(
             autoridad=autoridad,
+            oficina=form.oficina.data,
             nombres=form.nombres.data,
             apellido_paterno=form.apellido_paterno.data,
             apellido_materno=form.apellido_materno.data,
@@ -201,6 +202,7 @@ def edit(usuario_id):
     form = UsuarioFormEdit()
     if form.validate_on_submit():
         usuario.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        usuario.oficina = form.oficina.data
         usuario.nombres = form.nombres.data
         usuario.apellido_paterno = form.apellido_paterno.data
         usuario.apellido_materno = form.apellido_materno.data
@@ -222,6 +224,7 @@ def edit(usuario_id):
         return redirect(bitacora.url)
     form.distrito.data = usuario.autoridad.distrito
     form.autoridad.data = usuario.autoridad
+    form.oficina.data = usuario.oficina
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno

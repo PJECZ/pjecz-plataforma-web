@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('OFICINAS') %}
+            {{ topbar.button('Oficinas', url_for('oficinas.list_active'), 'mdi:store') }}
+        {% endif %}
         {% if current_user.can_edit('DOMICILIOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('domicilios.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('domicilios.list_active')) }}{% endif %}

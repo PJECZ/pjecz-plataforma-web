@@ -24,7 +24,7 @@ class Oficina(db.Model, UniversalMixin):
     clave = db.Column(db.String(32), unique=True, nullable=False)
     descripcion = db.Column(db.String(512), nullable=False)
     descripcion_corta = db.Column(db.String(64), nullable=False)
-    es_juridiccional = db.Column(db.Boolean(), nullable=False)
+    es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
     apertura = db.Column(db.Time(), nullable=False)
     cierre = db.Column(db.Time(), nullable=False)
     limite_personas = db.Column(db.Integer(), nullable=False)

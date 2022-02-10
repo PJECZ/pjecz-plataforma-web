@@ -1,13 +1,12 @@
 """
 Domicilios, vistas
 """
-
 import json
 
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
-from lib import datatables
 
+from lib import datatables
 from lib.safe_string import safe_string, safe_message
 
 from plataforma_web.blueprints.permisos.models import Permiso
@@ -96,15 +95,15 @@ def new():
     """Nuevo Domicilio"""
     form = DomicilioForm()
     if form.validate_on_submit():
-        domicilio = Domicilio(
-            estado=safe_string(form.estado.data),
-            municipio=safe_string(form.municipio.data),
-            calle=safe_string(form.calle.data),
-            num_ext=form.num_ext.data,
-            num_int=form.num_int.data,
-            colonia=safe_string(form.colonia.data),
-            cp=form.cp.data,
-        )
+        domicilio = Domicilio()
+        domicilio.estado = safe_string(form.estado.data, max_len=64)
+        domicilio.municipio = safe_string(form.municipio.data, max_len=64)
+        domicilio.calle = safe_string(form.calle.data, max_len=256)
+        domicilio.num_ext = safe_string(form.num_ext.data, max_len=24)
+        domicilio.num_int = safe_string(form.num_int.data, max_len=24)
+        domicilio.colonia = safe_string(form.colonia.data, max_len=256)
+        domicilio.cp = form.cp.data
+        domicilio.completo = f"{domicilio.calle} No. {domicilio.num_ext} {domicilio.num_int} Col. {domicilio.colonia}, {domicilio.municipio} {domicilio.estado}, C.P. {domicilio.cp}"
         domicilio.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -126,13 +125,14 @@ def edit(domicilio_id):
     domicilio = Domicilio.query.get_or_404(domicilio_id)
     form = DomicilioForm()
     if form.validate_on_submit():
-        domicilio.estado = safe_string(form.estado.data)
-        domicilio.municipio = safe_string(form.municipio.data)
-        domicilio.calle = safe_string(form.calle.data)
-        domicilio.num_ext = form.num_ext.data
-        domicilio.num_int = form.num_int.data
-        domicilio.colonia = safe_string(form.colonia.data)
+        domicilio.estado = safe_string(form.estado.data, max_len=64)
+        domicilio.municipio = safe_string(form.municipio.data, max_len=64)
+        domicilio.calle = safe_string(form.calle.data, max_len=256)
+        domicilio.num_ext = safe_string(form.num_ext.data, max_len=24)
+        domicilio.num_int = safe_string(form.num_int.data, max_len=24)
+        domicilio.colonia = safe_string(form.colonia.data, max_len=256)
         domicilio.cp = form.cp.data
+        domicilio.completo = f"{domicilio.calle} No. {domicilio.num_ext} {domicilio.num_int} Col. {domicilio.colonia}, {domicilio.municipio} {domicilio.estado}, C.P. {domicilio.cp}"
         domicilio.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),

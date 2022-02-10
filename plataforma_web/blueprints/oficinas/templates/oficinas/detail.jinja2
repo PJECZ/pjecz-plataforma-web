@@ -6,7 +6,7 @@
 {% block title %}Oficina{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Oficina: ' + oficina.clave) %}
+    {% call topbar.page_buttons(oficina.descripcion) %}
         {{ topbar.button_previous('Oficinas', url_for('oficinas.list_active')) }}
         {% if current_user.can_edit('OFICINAS') %}
             {{ topbar.button_edit('Editar', url_for('oficinas.edit', oficina_id=oficina.id)) }}
