@@ -64,10 +64,21 @@
             ],
             columnDefs: [
                 {
+                    targets: [0, 1, 5],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.length > 16 ? data.substr(0, 16) + '…' : data;
+                    }
+                },
+                {
                     targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        if (data.descripcion.length > 48) {
+                            return '<a href="' + data.url + '">' + data.descripcion.substr(0, 48) + '…' + '</a>';
+                        } else {
+                            return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        }
                     }
                 }
             ],
