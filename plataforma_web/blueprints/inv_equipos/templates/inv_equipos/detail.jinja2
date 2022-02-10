@@ -21,6 +21,8 @@
 
 {% block content %}
     {% call detail.card(estatus=equipo.estatus) %}
+        {{ detail.label_value('Modelo', equipo.modelo.descripcion) }}
+        {{ detail.label_value('Nombre Red', equipo.red.nombre) }}
         {{ detail.label_value('Número Inventario', equipo.numero_inventario) }}
         {{ detail.label_value('Número serie', equipo.numero_serie) }}
         {{ detail.label_value('Adquisicion Fecha', equipo.adquisicion_fecha) }}
@@ -46,7 +48,8 @@
                         {% if componente.estatus == "A" %}
                         <tr>
                             <td><a href="{{ url_for('inv_componentes.detail', componente_id=componente.id) }}">{{ componente.descripcion }}</a></td>
-                            
+                            <td>{{ componente.cantidad }}</td>
+                            <td>{{ componente.version }}</td> 
                         </tr>
                         {% endif %}
                     {% endfor %}

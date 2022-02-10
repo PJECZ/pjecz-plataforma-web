@@ -19,7 +19,7 @@ class INVComponente(db.Model, UniversalMixin):
     categoria_id = db.Column(db.Integer, db.ForeignKey("inv_categorias.id"), index=True, nullable=False)
     categoria = db.relationship("INVCategoria", back_populates="componentes")
     equipo_id = db.Column(db.Integer, db.ForeignKey("inv_equipos.id"), index=True, nullable=False)
-    equipo = db.relationship("INVEquipos", back_populates="componentes")
+    equipo = db.relationship("INVEquipo", back_populates="componentes")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)

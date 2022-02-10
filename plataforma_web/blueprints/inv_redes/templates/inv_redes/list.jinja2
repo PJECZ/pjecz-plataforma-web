@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button_previous('Inventarios', url_for('inv_inventarios.list_active')) }}
+        {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
         {% if current_user.can_edit('INV REDES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_redes.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_redes.list_active')) }}{% endif %}

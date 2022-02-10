@@ -17,10 +17,10 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_equipos.models import INVEquipos
+from plataforma_web.blueprints.inv_equipos.models import INVEquipo
 from plataforma_web.blueprints.inv_componentes.models import INVComponente
 
-from plataforma_web.blueprints.inv_equipos.forms import INVEquiposForm
+from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
 
 MODULO = "INV EQUIPOS"
 MESES_FUTUROS = 12  # Un año a futuro, para las fechas
@@ -61,8 +61,9 @@ def list_inactive():
 @inv_equipos.route("/inv_equipos/<int:equipo_id>")
 def detail(equipo_id):
     """Detalle de un Equipos"""
-    equipo = INVEquipos.query.get_or_404(equipo_id)
+    equipo = INVEquipo.query.get_or_404(equipo_id)
     componentes = INVComponente.query.filter(INVComponente.equipo_id == equipo_id)
+    # modelos = INVModelo.query.filter(INVModelo.equipo_id == equipo_id)
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes)
 
 
@@ -70,7 +71,7 @@ def detail(equipo_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Equipos"""
-    form = INVEquiposForm()
+    form = INVEquipoForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -81,7 +82,9 @@ def new():
             validacion = False
 
         if validacion:
-            equipo = INVEquipos(
+            equipo = INVEquipo(
+                modelo=form.modelo.data,
+                red=form.nombre_red.data,
                 adquisicion_fecha=form.adquisicion_fecha.data,
                 numero_serie=form.numero_serie.data,
                 numero_inventario=form.numero_inventario.data,
@@ -104,12 +107,12 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
-    consulta = INVEquipos.query
+    consulta = INVEquipo.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(INVEquipos.creado.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(INVEquipo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -132,8 +135,8 @@ def datatable_json():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(equipo_id):
     """Editar Equipos"""
-    equipo = INVEquipos.query.get_or_404(equipo_id)
-    form = INVEquiposForm()
+    equipo = INVEquipo.query.get_or_404(equipo_id)
+    form = INVEquipoForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -182,7 +185,7 @@ def validar_fecha(fecha):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(equipo_id):
     """Eliminar Equipos"""
-    equipo = INVEquipos.query.get_or_404(equipo_id)
+    equipo = INVEquipo.query.get_or_404(equipo_id)
     if equipo.estatus == "A":
         equipo.delete()
         flash(f"Equipos {equipo.numero_inventario} eliminado.", "success")
@@ -193,7 +196,7 @@ def delete(equipo_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(equipo_id):
     """Recuperar Equipos"""
-    equipo = INVEquipos.query.get_or_404(equipo_id)
+    equipo = INVEquipo.query.get_or_404(equipo_id)
     if equipo.estatus == "B":
         equipo.recover()
         flash(f"Equipos {equipo.numero_inventario} recuperado.", "success")

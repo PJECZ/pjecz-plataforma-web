@@ -18,7 +18,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_componentes.models import INVComponente
 from plataforma_web.blueprints.inv_componentes.forms import INVComponenteForm
-from plataforma_web.blueprints.inv_equipos.models import INVEquipos
+from plataforma_web.blueprints.inv_equipos.models import INVEquipo
 
 MODULO = "INV COMPONENTES"
 
@@ -67,7 +67,7 @@ def detail(componente_id):
 def new(equipo_id):
     """Nuevo Componentes"""
     # Validar equipo
-    equipo = INVEquipos.query.get_or_404(equipo_id)
+    equipo = INVEquipo.query.get_or_404(equipo_id)
     if equipo.estatus != "A":
         flash("El equipo no es activo.", "warning")
         return redirect(url_for("inv_equipos.list_active"))

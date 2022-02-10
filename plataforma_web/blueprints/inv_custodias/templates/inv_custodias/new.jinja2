@@ -4,6 +4,11 @@
 
 {% block title %}Nueva Custodia{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Nueva Custodia') }}
 {% endblock %}
@@ -13,8 +18,7 @@
     {% call f.card() %}
         {# {% set form_kwargs = {'usuario_id': usuario.id} %}   #}
         {% call f.form_tag('inv_custodias.new', fid='custodia_form') %}
-            {% call f.form_group(form.usuario, redonly=true) %}{% endcall %}
-            {# {% call f.form_group(form.curp_user, redonly=true) %}{% endcall %} #}
+            {% call f.form_group(form.usuario) %}{% endcall %}
             {% call f.form_group(form.nombre_completo) %}{% endcall %}
             {% call f.form_group(form.curp) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
@@ -22,3 +26,19 @@
         {% endcall %}
     {% endcall %}
 {% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    {# Mandamos llamar la funcion para hacer el select2 poder buscar en el select#}
+    <script>
+        $(document).ready(function() {
+            $('#usuario').addClass('js-example-placeholder-single js-states form-control');
+            $('#usuario').prop("selectedIndex", -1); //poner en blanco el select
+            $(".js-example-placeholder-single").select2({
+                placeholder: "Nombre del Usuario",
+                allowClear: true
+            });
+        });
+    </script>
+{% endblock%}

@@ -13,9 +13,9 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_modelos.models import INVModelos
-from plataforma_web.blueprints.inv_modelos.forms import INVModelosForm
-from plataforma_web.blueprints.inv_marcas.models import INVMarcas
+from plataforma_web.blueprints.inv_modelos.models import INVModelo
+from plataforma_web.blueprints.inv_modelos.forms import INVModeloForm
+from plataforma_web.blueprints.inv_marcas.models import INVMarca
 
 MODULO = "INV MODELOS"
 
@@ -32,10 +32,10 @@ def before_request():
 @inv_modelos.route("/inv_modelos")
 def list_active():
     """Listado de Modelos activos"""
-    # activos = INVModelos.query.filter(INVModelos.estatus == "A").all()
+    # activos = INVModelo.query.filter(INVModelo.estatus == "A").all()
     return render_template(
         "inv_modelos/list.jinja2",
-        modelos=INVModelos.query.filter_by(estatus="A").all(),
+        modelos=INVModelo.query.filter_by(estatus="A").all(),
         titulo="Modelos",
         estatus="A",
     )
@@ -45,10 +45,10 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Modelos inactivos"""
-    # inactivos = INVModelos.query.filter(INVModelos.estatus == "B").all()
+    # inactivos = INVModelo.query.filter(INVModelo.estatus == "B").all()
     return render_template(
         "inv_modelos/list.jinja2",
-        modelos=INVModelos.query.filter_by(estatus="B").all(),
+        modelos=INVModelo.query.filter_by(estatus="B").all(),
         titulo="Modelos inactivos",
         estatus="B",
     )
@@ -57,7 +57,7 @@ def list_inactive():
 @inv_modelos.route("/inv_modelos/<int:modelo_id>")
 def detail(modelo_id):
     """Detalle de un Modelos"""
-    modelo = INVModelos.query.get_or_404(modelo_id)
+    modelo = INVModelo.query.get_or_404(modelo_id)
     return render_template("inv_modelos/detail.jinja2", modelo=modelo)
 
 
@@ -65,7 +65,7 @@ def detail(modelo_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Modelos"""
-    form = INVModelosForm()
+    form = INVModeloForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -75,7 +75,7 @@ def new():
             flash(f"Creación de la descripcion incorrecta. {str(err)}", "warning")
             validacion = False
         if validacion:
-            modelo = INVModelos(marca=form.nombre.data, descripcion=form.descripcion.data)
+            modelo = INVModelo(marca=form.nombre.data, descripcion=form.descripcion.data)
             modelo.save()
             flash(f"Modelos {modelo.descripcion} guardado.", "success")
             return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
@@ -86,8 +86,8 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(modelo_id):
     """Editar Modelo"""
-    modelo = INVModelos.query.get_or_404(modelo_id)
-    form = INVModelosForm()
+    modelo = INVModelo.query.get_or_404(modelo_id)
+    form = INVModeloForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -110,10 +110,10 @@ def edit(modelo_id):
 
 def _validar_form(form, same=False):
     if not same:
-        # nombre_existente = INVModelos.query.filter(INVModelos.marca == form.nombre.data).first()
+        # nombre_existente = INVModelo.query.filter(INVModelo.marca == form.nombre.data).first()
         # if nombre_existente:
         #     raise Exception("El nombre ya se encuentra en uso.")
-        descripcion_existente = INVModelos.query.filter(INVModelos.descripcion == form.descripcion.data).first()
+        descripcion_existente = INVModelo.query.filter(INVModelo.descripcion == form.descripcion.data).first()
         if descripcion_existente:
             raise Exception("La descripcion ya esta en uso. ")
 
@@ -122,7 +122,7 @@ def _validar_form(form, same=False):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(modelo_id):
     """Eliminar Modelo"""
-    modelo = INVModelos.query.get_or_404(modelo_id)
+    modelo = INVModelo.query.get_or_404(modelo_id)
     if modelo.estatus == "A":
         modelo.delete()
         flash(f"Modelo {modelo.descripcion} eliminado.", "success")
@@ -133,7 +133,7 @@ def delete(modelo_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(modelo_id):
     """Recuperar Modelo"""
-    modelo = INVModelos.query.get_or_404(modelo_id)
+    modelo = INVModelo.query.get_or_404(modelo_id)
     if modelo.estatus == "B":
         modelo.recover()
         flash(f"Modelo {modelo.descripcion} recuperado.", "success")

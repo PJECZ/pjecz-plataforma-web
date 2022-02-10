@@ -70,7 +70,7 @@ def detail(custodia_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Custodia"""
-    # usuario = Usuario.query.filter(Usuario.usuario_id == usuario_id)
+    usuario = Usuario.query.filter(Usuario.id).all
     form = INVCustodiaForm()
     validacion = False
     if form.validate_on_submit():
@@ -78,7 +78,7 @@ def new():
             _validar_form(form)
             validacion = True
         except Exception as err:
-            flash(f"La fecha es incorrecta: {str(err)}", "warning")
+            flash(f"Verificar datos incorrectos: {str(err)}", "warning")
             validacion = False
 
         if validacion:
@@ -86,10 +86,8 @@ def new():
                 fecha=form.fecha.data,
                 curp=form.curp.data,
                 nombre_completo=form.nombre_completo.data,
-                usuario=current_user,
-                # curp=usuario.curp,
-                # usuario=usuario,
-                # nombre_completo=usuario.nombres,
+                usuario=form.usuario.data,
+                # usuario=current_user,
             )
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
@@ -149,12 +147,14 @@ def edit(custodia_id):
             custodia.fecha = form.fecha.data
             custodia.curp = form.curp.data
             custodia.nombre_completo = form.nombre_completo.data
+            custodia.usuario = form.usuario.data
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.fecha.data = custodia.fecha
     form.curp.data = custodia.curp
     form.nombre_completo.data = custodia.nombre_completo
+    form.usuario.data = custodia.usuario
     return render_template("inv_custodias/edit.jinja2", form=form, custodia=custodia)
 
 
@@ -163,6 +163,9 @@ def _validar_form(form, same=False):
         curp_existente = INVCustodia.query.filter(INVCustodia.curp == form.curp.data).first()
         if curp_existente:
             raise Exception("La CURP ya esta en uso.")
+        nombre_existente = INVCustodia.query.filter(INVCustodia.nombre_completo == form.nombre_completo.data).first()
+        if nombre_existente:
+            raise Exception("El nombre ya esta en uso.")
     return True
 
 

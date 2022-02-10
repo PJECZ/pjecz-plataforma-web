@@ -21,6 +21,7 @@ class INVRedes(db.Model, UniversalMixin):
     tipo = db.Column(db.String(256), nullable=False)
 
     # Hijos
+    equipos = db.relationship("INVEquipo", back_populates="red")
 
     def __repr__(self):
         """Representación"""

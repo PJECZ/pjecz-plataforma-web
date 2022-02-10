@@ -4,6 +4,11 @@
 
 {% block title %}Nuevo Equipos{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+   
 {% block topbar_actions %}
     {{ topbar.page('Nuevo Equipo') }}
 {% endblock %}
@@ -12,6 +17,8 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('inv_equipos.new', fid='equipo_form') %}
+            {% call f.form_group(form.modelo) %}{% endcall %}
+            {% call f.form_group(form.nombre_red) %}{% endcall %}
             {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}
             {% call f.form_group(form.numero_serie) %}{% endcall %}
             {% call f.form_group(form.numero_inventario) %}{% endcall %}
@@ -25,3 +32,14 @@
         {% endcall %}
     {% endcall %}
 {% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            /*$('#red').addClass('js-example-placeholder-single js-states form-control'); #*/
+            $('#red').prop("selectedIndex", -1); //poner en blanco el select
+        });
+    </script>
+{% endblock%}
