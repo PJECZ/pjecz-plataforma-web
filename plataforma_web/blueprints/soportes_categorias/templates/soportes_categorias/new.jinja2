@@ -12,7 +12,8 @@
     {% call f.card() %}
         {% call f.form_tag('soportes_categorias.new', fid='soporte_categoria_form') %}
             {% call f.form_group(form.nombre) %}{% endcall %}
-            {% call f.form_group(form.instrucciones) %}{% endcall %}
+            {% call f.form_group(form.rol) %}{% endcall %}
+            {% call f.form_group(form.instrucciones, rows=7) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

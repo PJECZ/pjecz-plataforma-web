@@ -7,6 +7,7 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
+from plataforma_web.blueprints.soportes_adjuntos.models import SoporteAdjunto
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -95,9 +96,11 @@ def list_active():
 def detail(soporte_ticket_id):
     """Detalle de un Soporte Ticket"""
     tickets = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    archivos = SoporteAdjunto.query.filter(SoporteAdjunto.soporte_ticket_id == soporte_ticket_id).all()
     return render_template(
         "soportes_tickets/detail.jinja2",
         soporte_ticket=tickets,
+        archivos=archivos,
         funcionario=_get_funcionario_from_current_user(),
     )
 

@@ -25,14 +25,16 @@
             <thead>
                 <tr>
                     <th>Nombres</th>
-                    <th>Instruccinones</th>
+                    <th>Atendido por</th>
+                    <th>Instrucciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for soporte_categoria in soportes_categorias %}
                 <tr>
                     <td><a href="{{ url_for('soportes_categorias.detail', soporte_categoria_id=soporte_categoria.id) }}">{{ soporte_categoria.nombre }}</a></td>
-                    <td>{{ soporte_categoria.instrucciones | truncate(64) }}</td>
+                    <td>{{ soporte_categoria.rol.nombre }}</td>
+                    <td>{% if soporte_categoria.instrucciones %}Sí{% else %}No{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
