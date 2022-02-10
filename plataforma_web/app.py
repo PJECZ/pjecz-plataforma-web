@@ -17,9 +17,8 @@ from plataforma_web.blueprints.cid_formatos.views import cid_formatos
 from plataforma_web.blueprints.cid_registros.views import cid_registros
 from plataforma_web.blueprints.cit_citas.view import cit_citas
 from plataforma_web.blueprints.cit_clientes.views import cit_clientes
-from plataforma_web.blueprints.cit_expedientes.views import cit_expedientes
+from plataforma_web.blueprints.cit_citas_expedientes.views import cit_citas_expedientes
 from plataforma_web.blueprints.cit_dias_inhabiles.views import cit_dias_inhabiles
-from plataforma_web.blueprints.cit_servicios.views import cit_servicios
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.domicilios.views import domicilios
 from plataforma_web.blueprints.edictos.views import edictos
@@ -83,10 +82,9 @@ def create_app():
     app.register_blueprint(cid_formatos)
     app.register_blueprint(cid_registros)
     app.register_blueprint(cit_citas)
+    app.register_blueprint(cit_citas_expedientes)
     app.register_blueprint(cit_clientes)
-    app.register_blueprint(cit_expedientes)
     app.register_blueprint(cit_dias_inhabiles)
-    app.register_blueprint(cit_servicios)
     app.register_blueprint(distritos)
     app.register_blueprint(domicilios)
     app.register_blueprint(edictos)

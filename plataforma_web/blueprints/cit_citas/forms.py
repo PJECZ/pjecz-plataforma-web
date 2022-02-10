@@ -1,12 +1,12 @@
 """
-CITAS Citas, formularios
+Citas Citas, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, DateTimeField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms import SubmitField, DateTimeField
+from wtforms.validators import Optional
 
 
-class CITCitaSearchForm(FlaskForm):
+class CitCitaSearchForm(FlaskForm):
     """Formulario para buscar Citas"""
 
     inicio_tiempo = DateTimeField("Tiempo de inicio", validators=[Optional()])

@@ -26,13 +26,13 @@ class OficinaForm(FlaskForm):
     """Formulario Oficina"""
 
     clave = StringField("Clave", validators=[DataRequired(), Length(max=32)])
-    descripcion = StringField("Descripción", validators=[Optional(), Length(max=512)])
-    descripcion_corta = StringField("Descripción Corta", validators=[Optional(), Length(max=64)])
-    es_juridiccional = BooleanField("Juridiccional")
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
+    descripcion_corta = StringField("Descripción Corta", validators=[DataRequired(), Length(max=64)])
+    es_juridiccional = BooleanField("Juridiccional", validators=[Optional()])
     distrito = QuerySelectField("Distrito", query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
     domicilio = QuerySelectField("Domicilio", query_factory=domicilios_opciones, get_label="calle", validators=[DataRequired()])
     apertura = TimeField("Horario de apertura", validators=[DataRequired()], format="%H:%M")
     cierre = TimeField("Horario de cierre", validators=[DataRequired()], format="%H:%M")
-    limite_personas = IntegerField("Límite de personas", validators=[Optional()])
+    limite_personas = IntegerField("Límite de personas", validators=[DataRequired()])
 
     guardar = SubmitField("Guardar")
