@@ -32,7 +32,7 @@
                 {% for soporte_categoria in soportes_categorias %}
                 <tr>
                     <td><a href="{{ url_for('soportes_categorias.detail', soporte_categoria_id=soporte_categoria.id) }}">{{ soporte_categoria.nombre }}</a></td>
-                    <td>{{ soporte_categoria.instrucciones }}</td>
+                    <td>{{ soporte_categoria.instrucciones | truncate(64) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

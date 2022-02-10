@@ -65,7 +65,7 @@ def new():
     if form.validate_on_submit():
         soporte_categoria = SoporteCategoria(
             nombre=safe_string(form.nombre.data),
-            instrucciones=safe_string(form.instrucciones.data),
+            instrucciones=safe_string(form.instrucciones.data, max_len=2048),
             )
         soporte_categoria.save()
         bitacora = Bitacora(
@@ -88,7 +88,7 @@ def edit(soporte_categoria_id):
     form = SoporteCategoriaForm()
     if form.validate_on_submit():
         soporte_categoria.nombre = safe_string(form.nombre.data)
-        soporte_categoria.instrucciones = safe_string(form.instrucciones.data)
+        soporte_categoria.instrucciones = safe_string(form.instrucciones.data, max_len=2048)
         soporte_categoria.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
