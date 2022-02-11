@@ -73,7 +73,7 @@ def _validar_fecha(fecha):
 @login_required
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo CITAS_Cliente"""
+    """Nuevo Citas Cliente"""
     form = CitDiasInhabilesForm()
     validacion = False
     if form.validate_on_submit():

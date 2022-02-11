@@ -7,7 +7,7 @@ from wtforms.validators import DataRequired, Length, Optional
 
 
 class CitDiasInhabilesForm(FlaskForm):
-    """Formulario CITDíasInhabiles"""
+    """Formulario CitDíasInhabiles"""
 
     fecha = DateField("Fecha", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=512)])
