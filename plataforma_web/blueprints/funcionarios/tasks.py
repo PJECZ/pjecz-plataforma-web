@@ -43,7 +43,7 @@ def enviar_reporte():
 
     # Consultar
     funcionarios = db.session.query(Funcionario).filter_by(estatus="A")
-    bitacora.info("Total: %s", funcionarios.count())
+    bitacora.info("Hay %s funcionarios activos", funcionarios.count())
 
     # Terminar
     set_task_progress(100)

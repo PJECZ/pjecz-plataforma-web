@@ -20,6 +20,7 @@ from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.oficinas.models import Oficina
+from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
@@ -49,7 +50,7 @@ def enviar_reporte():
 
     # Consultar
     usuarios = db.session.query(Usuario).filter_by(estatus="A")
-    bitacora.info("Total: %s", usuarios.count())
+    bitacora.info("Hay %s usuarios activos", usuarios.count())
 
     # Terminar
     set_task_progress(100)
@@ -81,7 +82,7 @@ def sincronizar():
         return
 
     # Definir rol SOPORTE USUARIO
-    rol_soporte_usuario = Usuario.query.filter_by(nombre="SOPORTE USUARIO").first()
+    rol_soporte_usuario = Rol.query.filter_by(nombre="SOPORTE USUARIO").first()
     if rol_soporte_usuario is None:
         mensaje = "No se encontró el rol SOPORTE USUARIO"
         set_task_error(mensaje)
@@ -152,6 +153,7 @@ def sincronizar():
                     UsuarioRol(
                         rol=rol_soporte_usuario,
                         usuario=usuario,
+                        descripcion=f"{usuario.email} en {rol_soporte_usuario.nombre}",
                     ).save()
                     usuarios_insertados_contador += 1
                 else:
