@@ -13,11 +13,10 @@
         {% set form_kwargs = {'soporte_ticket_id': soporte_ticket.id} %}
         {% call f.form_tag('soportes_tickets.edit', fid='soporte_ticket_form', **form_kwargs) %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.descripcion, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.categoria) %}{% endcall %}
-            {% call f.form_group(form.tecnico) %}{% endcall %}
-            {% call f.form_group(form.soluciones) %}{% endcall %}
-            {% call f.form_group(form.estado) %}{% endcall %}
+            {% call f.form_group(form.descripcion, rows=6) %}{% endcall %}
+            {% call f.form_group(form.categoria, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tecnico, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.estado, readonly=true) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

@@ -71,10 +71,7 @@ def list_active():
         cancelados = cancelados.filter(SoporteTicket.funcionario == funcionario)
     # Si puede crear tickets, mostramos los suyos
     elif current_user.can_insert(MODULO):
-        if funcionario and funcionario.en_soportes:
-            abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
-        else:
-            abiertos = None
+        abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
         trabajados = trabajados.filter(SoporteTicket.usuario == current_user)
         terminados = terminados.filter(SoporteTicket.usuario == current_user)
         cancelados = cancelados.filter(SoporteTicket.usuario == current_user)
@@ -178,9 +175,8 @@ def new_for_usuario(usuario_id):
 
 
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(soporte_ticket_id):
-    """Solo los administradores pueden editar un ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
@@ -191,10 +187,7 @@ def edit(soporte_ticket_id):
         return redirect(detalle_url)
     form = SoporteTicketEditForm()
     if form.validate_on_submit():
-        ticket.soporte_categoria = form.categoria.data
-        ticket.funcionario = form.tecnico.data
-        ticket.soluciones = form.soluciones.data
-        ticket.estado = form.estado.data
+        ticket.descripcion = form.descripcion.data
         ticket.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -207,9 +200,8 @@ def edit(soporte_ticket_id):
         return redirect(bitacora.url)
     form.usuario.data = ticket.usuario.nombre
     form.descripcion.data = ticket.descripcion
-    form.categoria.data = ticket.soporte_categoria
-    form.tecnico.data = ticket.funcionario
-    form.soluciones.data = ticket.soluciones
+    form.categoria.data = ticket.soporte_categoria.nombre
+    form.tecnico.data = ticket.funcionario.nombre
     form.estado.data = ticket.estado
     return render_template("soportes_tickets/edit.jinja2", form=form, soporte_ticket=ticket)
 
