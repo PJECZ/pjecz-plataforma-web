@@ -9,7 +9,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Ticket ' + soporte_ticket.id | string) %}
         {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
-        {% if current_user.can_edit('SOPORTES TICKETS') %}
+        {% if current_user.can_edit('SOPORTES TICKETS') and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO')  %}
             {{ topbar.button_edit('Editar', url_for('soportes_tickets.edit', soporte_ticket_id=soporte_ticket.id)) }}
         {% endif %}
         {% if soporte_ticket.estado == 'ABIERTO' or soporte_ticket.estado == 'TRABAJANDO' %}
@@ -24,7 +24,7 @@
                 {{ topbar.button_primary('Resolver', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}
                 {{ modals.button_modal('Soltar', url_for('soportes_tickets.release', soporte_ticket_id=soporte_ticket.id), 'soltar', 'mdi:stop-circle-outline', '¿Deseas soltar el Ticket?') }}
             {% endif %}
-            {% if soporte_ticket.estado != 'CANCELADO' %}
+            {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
                 {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
             {% endif %}
         {% endif %}

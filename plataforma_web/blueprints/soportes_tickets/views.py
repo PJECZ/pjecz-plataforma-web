@@ -4,6 +4,7 @@ Soportes Tickets, vistas
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import func
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
@@ -71,7 +72,11 @@ def list_active():
         cancelados = cancelados.filter(SoporteTicket.funcionario == funcionario)
     # Si puede crear tickets, mostramos los suyos
     elif current_user.can_insert(MODULO):
-        abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
+        # Si es un funcionario de soportes pude ver listado de tickets abiertos
+        if funcionario and funcionario.en_soportes:
+            pass
+        else:
+            abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
         trabajados = trabajados.filter(SoporteTicket.usuario == current_user)
         terminados = terminados.filter(SoporteTicket.usuario == current_user)
         cancelados = cancelados.filter(SoporteTicket.usuario == current_user)

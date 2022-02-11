@@ -18,7 +18,7 @@
 {% block content %}
     {% if abiertos %}
         {% call list.card('Abiertos') %}
-            <table id="soportes_tickets_abiertos_datatable" class="table display nowrap" style="width:100%">
+            <table id="soportes_tickets_abiertos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -45,7 +45,7 @@
     {% if trabajados %}
         {% call list.card('Trabajando') %}
             {% if current_user.can_insert('SOPORTES CATEGORIAS') %}
-                <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%">
+                <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -67,8 +67,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            {% else %}}
-                <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%">
+            {% else %}
+                <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -95,7 +95,7 @@
     {% endif %}
     {% if terminados %}
         {% call list.card('Terminados') %}
-            <table id="soportes_tickets_terminados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <table id="soportes_tickets_terminados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%; background-color:#eafaf1;">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -121,7 +121,7 @@
     {% endif %}
     {% if cancelados %}
         {% call list.card('Cancelados') %}
-            <table id="soportes_tickets_cancelados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <table id="soportes_tickets_cancelados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%; background-color:#fdedec;">
                 <thead>
                     <tr>
                         <th>ID</th>
