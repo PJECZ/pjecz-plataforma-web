@@ -4,6 +4,7 @@ Soportes Tickets, vistas
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import func
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
@@ -71,7 +72,11 @@ def list_active():
         cancelados = cancelados.filter(SoporteTicket.funcionario == funcionario)
     # Si puede crear tickets, mostramos los suyos
     elif current_user.can_insert(MODULO):
-        abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
+        # Si es un funcionario de soportes pude ver listado de tickets abiertos
+        if funcionario and funcionario.en_soportes:
+            pass
+        else:
+            abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
         trabajados = trabajados.filter(SoporteTicket.usuario == current_user)
         terminados = terminados.filter(SoporteTicket.usuario == current_user)
         cancelados = cancelados.filter(SoporteTicket.usuario == current_user)
@@ -80,10 +85,13 @@ def list_active():
         trabajados = None
         terminados = None
         cancelados = None
+
+    if abiertos is not None:
+        abiertos=abiertos.order_by(SoporteTicket.id.desc()).limit(100).all()
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
-        abiertos=abiertos.order_by(SoporteTicket.id.desc()).limit(100).all(),
+        abiertos=abiertos,
         trabajados=trabajados.order_by(SoporteTicket.id.desc()).limit(100).all(),
         terminados=terminados.order_by(SoporteTicket.id.desc()).limit(100).all(),
         cancelados=cancelados.order_by(SoporteTicket.id.desc()).limit(100).all(),
@@ -172,9 +180,8 @@ def new_for_usuario(usuario_id):
 
 
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit(soporte_ticket_id):
-    """Solo los administradores pueden editar un ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
@@ -185,10 +192,7 @@ def edit(soporte_ticket_id):
         return redirect(detalle_url)
     form = SoporteTicketEditForm()
     if form.validate_on_submit():
-        ticket.soporte_categoria = form.categoria.data
-        ticket.funcionario = form.tecnico.data
-        ticket.soluciones = form.soluciones.data
-        ticket.estado = form.estado.data
+        ticket.descripcion = form.descripcion.data
         ticket.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -201,9 +205,8 @@ def edit(soporte_ticket_id):
         return redirect(bitacora.url)
     form.usuario.data = ticket.usuario.nombre
     form.descripcion.data = ticket.descripcion
-    form.categoria.data = ticket.soporte_categoria
-    form.tecnico.data = ticket.funcionario
-    form.soluciones.data = ticket.soluciones
+    form.categoria.data = ticket.soporte_categoria.nombre
+    form.tecnico.data = ticket.funcionario.nombre
     form.estado.data = ticket.estado
     return render_template("soportes_tickets/edit.jinja2", form=form, soporte_ticket=ticket)
 
@@ -286,7 +289,7 @@ def categorize(soporte_ticket_id):
     if ticket.estatus != "A":
         flash("No puede categorizar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado in ("ABIERTO", "TRABAJANDO"):
+    if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
         flash("No puede categorizar un ticket que no está abierto o trabajando.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_from_current_user()

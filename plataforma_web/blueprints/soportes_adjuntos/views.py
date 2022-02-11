@@ -68,10 +68,14 @@ def new(soporte_ticket_id):
     if ticket.estatus != "A":
         flash("No puede adjuntar un archivo a un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado in ("ABIERTO", "TRABAJANDO"):
+    if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
         flash("No puede adjuntar un archivo a un ticket que no está abierto o trabajando.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_from_current_user()
+    if funcionario:
+        funcionario_nombre = funcionario.nombre
+    else:
+        funcionario_nombre = current_user.email
     form = SoporteAdjuntoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
         es_valido = True
@@ -114,7 +118,7 @@ def new(soporte_ticket_id):
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Subida de archivo {cit_archivo.archivo} al ticket {ticket.id} por {funcionario.nombre}."),
+                descripcion=safe_message(f"Subida de archivo {cit_archivo.archivo} al ticket {ticket.id} por {funcionario_nombre}."),
                 url=detalle_url,
             )
             bitacora.save()
