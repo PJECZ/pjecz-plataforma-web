@@ -10,7 +10,7 @@ import click
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
-from plataforma_web.blueprints.cit_clientes.models import CITCliente
+from plataforma_web.blueprints.cit_clientes.models import CitCliente
 from plataforma_web.blueprints.cit_clientes.views import RENOVACION_CONTRASENA_DIAS
 
 app = create_app()
@@ -19,7 +19,7 @@ db.app = app
 
 @click.group()
 def cli():
-    """CIT Clientes"""
+    """Citas Clientes"""
 
 @click.command()
 @click.argument("entrada_csv")
@@ -41,11 +41,11 @@ def alimentar(entrada_csv):
             if len(curp) == 0:
                 click.echo("!  CURP Vacía")
                 continue
-            cliente = CITCliente.query.filter(CITCliente.curp==curp).first()
+            cliente = CitCliente.query.filter(CitCliente.curp==curp).first()
             if cliente:
                 click.echo(f"!  CURP repetida {curp}")
                 continue
-            CITCliente(
+            CitCliente(
                 id = int(row["id"]),
                 nombres=row["nombres"],
                 apellido_paterno=row["apellido_paterno"],
@@ -72,9 +72,8 @@ def respaldar(output):
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
-
     contador = 0
-    clientes = CITCliente.query.filter_by(estatus="A").all()
+    clientes = CitCliente.query.filter_by(estatus="A").all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(

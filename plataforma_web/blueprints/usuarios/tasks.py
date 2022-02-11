@@ -12,6 +12,7 @@ import requests
 from dotenv import load_dotenv
 from sqlalchemy import or_
 
+from lib.pwgen import generar_contrasena
 from lib.tasks import set_task_progress, set_task_error
 
 from plataforma_web.app import create_app
@@ -20,6 +21,9 @@ from plataforma_web.extensions import db
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
+
+from plataforma_web.extensions import pwd_context
 
 load_dotenv()  # Take environment variables from .env
 
@@ -76,6 +80,14 @@ def sincronizar():
         bitacora.error(mensaje)
         return
 
+    # Definir rol SOPORTE USUARIO
+    rol_soporte_usuario = Usuario.query.filter_by(nombre="SOPORTE USUARIO").first()
+    if rol_soporte_usuario is None:
+        mensaje = "No se encontró el rol SOPORTE USUARIO"
+        set_task_error(mensaje)
+        bitacora.error(mensaje)
+        return
+
     # Iniciar sesion
     base_url = os.getenv("RRHH_PERSONAL_API_URL")
     username = os.getenv("RRHH_PERSONAL_API_USERNAME")
@@ -124,15 +136,22 @@ def sincronizar():
             if curp != "" and email != "" and email.endswith("@coahuila.gob.mx"):
                 usuario = Usuario.query.filter(or_(Usuario.curp == curp, Usuario.email == email)).first()
                 if usuario is None:
-                    Usuario(
+                    usuario = Usuario(
                         autoridad=autoridad_no_definido,
                         oficina=oficina_no_definido,
+                        email=email,
                         nombres=persona_datos["nombres"],
                         apellido_paterno=persona_datos["apellido_primero"],
                         apellido_materno=persona_datos["apellido_segundo"],
                         curp=curp,
-                        email=email,
-                        contrasena="",
+                        puesto="ND",
+                        telefono_celular="ND",
+                        workspace="COAHUILA",
+                        contrasena=pwd_context.hash(generar_contrasena()),
+                    ).save()
+                    UsuarioRol(
+                        rol=rol_soporte_usuario,
+                        usuario=usuario,
                     ).save()
                     usuarios_insertados_contador += 1
                 else:
@@ -144,8 +163,8 @@ def sincronizar():
             break
         offset += limit
     # Terminar
-    bitacora.info("Se han insertado %s funcionarios", usuarios_insertados_contador)
-    bitacora.info("Hay %s personas ya presentes en funcionarios, se omiten", usuarios_presentes_contador)
+    bitacora.info("Se han insertado %s usuarios", usuarios_insertados_contador)
+    bitacora.info("Hay %s personas ya presentes en usuarios, se omiten", usuarios_presentes_contador)
     bitacora.info("En %s personas no hay CURP o email coahuila.gob.mx", personas_omitidas_contador)
     set_task_progress(100)
     mensaje_final = "Terminado sincronizar satisfactoriamente"

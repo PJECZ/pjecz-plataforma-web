@@ -2,6 +2,8 @@
 Usuarios
 
 - nueva_contrasena: Cambiar contraseña de un usuario
+- enviar_reporte: Enviar via correo electronico el reporte de usuarios
+- sincronizar: Sincronizar usuarios con la API de RRHH Personal
 """
 import click
 
@@ -18,6 +20,13 @@ db.app = app
 @click.group()
 def cli():
     """Usuarios"""
+
+
+@click.command()
+def enviar_reporte():
+    """Enviar via correo electronico el reporte"""
+    app.task_queue.enqueue("plataforma_web.blueprints.usuarios.tasks.enviar_reporte")
+    click.echo("Enviar reporte se está ejecutando en el fondo.")
 
 
 @click.command()
@@ -38,4 +47,13 @@ def nueva_contrasena(email):
     click.echo(f"Se ha cambiado la contraseña de {email} en usuarios")
 
 
+@click.command()
+def sincronizar():
+    """Sincronizar con RRHH Personal"""
+    app.task_queue.enqueue("plataforma_web.blueprints.usuarios.tasks.sincronizar")
+    click.echo("Sincronizar se está ejecutando en el fondo.")
+
+
+cli.add_command(enviar_reporte)
 cli.add_command(nueva_contrasena)
+cli.add_command(sincronizar)
