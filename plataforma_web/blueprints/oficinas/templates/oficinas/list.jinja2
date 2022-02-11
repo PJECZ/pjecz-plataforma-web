@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('DOMICILIOS') %}
+            {{ topbar.button('Domicilios', url_for('domicilios.list_active'), 'mdi:map-marker') }}
+        {% endif %}
         {% if current_user.can_edit('OFICINAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('oficinas.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('oficinas.list_active')) }}{% endif %}
@@ -21,6 +24,7 @@
                 <tr>
                     <th>Clave</th>
                     <th>Descripción Corta</th>
+                    <th>Domicilio</th>
                     <th>Horario</th>
                 </tr>
             </thead>
@@ -29,6 +33,7 @@
                 <tr>
                     <td><a href="{{ url_for('oficinas.detail', oficina_id=oficina.id) }}">{{ oficina.clave }}</a></td>
                     <td>{{ oficina.descripcion_corta }}</td>
+                    <td>{{ oficina.domicilio.completo | truncate(64) }}</td>
                     <td>{{ oficina.apertura.strftime("%H:%M") }} — {{ oficina.cierre.strftime("%H:%M") }}</td>
                 </tr>
                 {% endfor %}

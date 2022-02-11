@@ -14,6 +14,7 @@ class SoporteTicket(db.Model, UniversalMixin):
             ("ABIERTO", "Abierto o pendiente"),
             ("TRABAJANDO", "Trabjando"),
             ("CERRADO", "Cerrado o terminado"),
+            ("NO RESUELTO", "No resuelto"),
             ("CANCELADO", "Cancelado"),
         ]
     )
@@ -41,6 +42,9 @@ class SoporteTicket(db.Model, UniversalMixin):
     estado = db.Column(db.Enum(*ESTADOS, name="estados", native_enum=False), index=True, nullable=False)
     resolucion = db.Column(db.DateTime, nullable=True)
     soluciones = db.Column(db.Text, nullable=True)
+
+    # Hijos
+    soportes_adjuntos = db.relationship('SoporteAdjunto', back_populates='soporte_ticket')
 
     def __repr__(self):
         """Representación"""

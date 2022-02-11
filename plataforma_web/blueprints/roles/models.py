@@ -20,6 +20,7 @@ class Rol(db.Model, UniversalMixin):
     # Hijos
     permisos = db.relationship('Permiso', back_populates='rol')
     usuarios_roles = db.relationship("UsuarioRol", back_populates="rol")
+    soportes_categorias_roles = db.relationship("SoporteCategoria", back_populates="rol")
 
     def __repr__(self):
         """Representación"""

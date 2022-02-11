@@ -1,14 +1,12 @@
 """
 Oficinas, vistas
 """
-
 import datetime
-from dateutil.relativedelta import relativedelta
 
-from flask import Blueprint, flash, redirect, request, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_clave, safe_message, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -56,7 +54,7 @@ def list_inactive():
 @login_required
 @permission_required(MODULO, Permiso.VER)
 def detail(oficina_id):
-    """Detalle de un Servicio"""
+    """Detalle de una Oficina"""
     oficina = Oficina.query.get_or_404(oficina_id)
     return render_template("oficinas/detail.jinja2", oficina=oficina)
 
@@ -65,23 +63,18 @@ def detail(oficina_id):
 @login_required
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Servicio"""
+    """Nueva Oficina"""
     form = OficinaForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar(form)
-            validacion = True
-        except Exception as err:
-            flash(f"Creación de la nueva Oficina incorrecta. {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
+        clave = safe_clave(form.clave.data)
+        if Oficina.query.filter(Oficina.clave == clave).first():
+            flash("La clave ya está en uso. Debe de ser única.", "warning")
+        else:
             oficina = Oficina(
-                clave=safe_string(form.clave.data),
-                descripcion_corta=form.descripcion_corta.data,
-                descripcion=form.descripcion.data,
-                es_juridiccional=form.es_juridiccional.data,
+                clave=clave,
+                descripcion_corta=safe_string(form.descripcion_corta.data),
+                descripcion=safe_string(form.descripcion.data),
+                es_jurisdiccional=form.es_jurisdiccional.data == 1,
                 apertura=form.apertura.data,
                 cierre=form.cierre.data,
                 limite_personas=form.limite_personas.data,
@@ -108,21 +101,18 @@ def edit(oficina_id):
     """Editar Oficina"""
     oficina = Oficina.query.get_or_404(oficina_id)
     form = OficinaForm()
-    validacion = False
     if form.validate_on_submit():
-
-        try:
-            _validar(form, True)
-            validacion = True
-        except Exception as err:
-            flash(f"Actualización incorrecta de la oficina. {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
+        clave = safe_clave(form.clave.data)
+        # Validar que la clave este disponible
+        if oficina.clave != clave and Oficina.query.filter(Oficina.clave == clave).first():
+            flash("La clave ya está en uso. Debe de ser única.", "warning")
+        else:
+            oficina.distrito = form.distrito.data
+            oficina.domicilio = form.domicilio.data
             oficina.clave = safe_string(form.clave.data)
             oficina.descripcion_corta = safe_string(form.descripcion_corta.data)
             oficina.descripcion = safe_string(form.descripcion.data)
-            oficina.es_juridiccional = form.es_juridiccional.data
+            oficina.es_jurisdiccional = form.es_jurisdiccional.data == 1
             oficina.apertura = form.apertura.data
             oficina.cierre = form.cierre.data
             oficina.limite_personas = form.limite_personas.data
@@ -136,30 +126,16 @@ def edit(oficina_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
+    form.distrito.data = oficina.distrito
+    form.domicilio.data = oficina.domicilio
     form.clave.data = oficina.clave
     form.descripcion_corta.data = oficina.descripcion_corta
     form.descripcion.data = oficina.descripcion
-    form.es_juridiccional.data = oficina.es_juridiccional
+    form.es_jurisdiccional.data = oficina.es_jurisdiccional
     form.apertura.data = oficina.apertura
     form.cierre.data = oficina.cierre
     form.limite_personas.data = oficina.limite_personas
     return render_template("oficinas/edit.jinja2", form=form, oficina=oficina)
-
-
-def _validar(form, same=False):
-    if not same:
-        clave_existente = Oficina.query.filter(Oficina.clave == form.clave.data).first()
-        if clave_existente:
-            raise Exception("La clave ya se encuentra en uso.")
-    min_horario = datetime.time(5, 0, 0)
-    max_horario = datetime.time(18, 0, 0)
-    min_horario_str = min_horario.strftime("%H:%M")
-    max_horario_str = max_horario.strftime("%H:%M")
-    if form.apertura.data < min_horario or form.apertura.data > max_horario:
-        raise Exception(f"El horario de apertura se encuentra fuera de lo permitido, el rango permitido es de: {min_horario_str} a {max_horario_str}")
-    if form.cierre.data < min_horario or form.cierre.data > max_horario:
-        raise Exception(f"El horario de cierre se encuentra fuera de lo permitido, el rango permitido es de: {min_horario_str} a {max_horario_str}")
-    return True
 
 
 @oficinas.route("/oficinas/eliminar/<int:oficina_id>")

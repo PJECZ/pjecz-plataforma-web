@@ -1,12 +1,12 @@
 """
-CITAS Clientes, modelos
+Cit Clientes, modelos
 """
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class CITCliente(db.Model, UniversalMixin):
-    """CITClientes"""
+class CitCliente(db.Model, UniversalMixin):
+    """CitCliente"""
 
     # Nombre de la tabla
     __tablename__ = "cit_clientes"
@@ -16,21 +16,21 @@ class CITCliente(db.Model, UniversalMixin):
 
     # Clave foránea
     domicilio_id = db.Column(db.Integer, db.ForeignKey("domicilios.id"), index=True, nullable=False)
-    domicilio = db.relationship("Domicilio", back_populates="clientes")
+    domicilio = db.relationship("Domicilio", back_populates="cit_clientes")
 
     # Columnas
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256), default="", server_default="")
-    curp = db.Column(db.String(18), unique=True, nullable=True)
-    telefono = db.Column(db.String(64))
-    email = db.Column(db.String(256), nullable=False, unique=True, index=True)
+    curp = db.Column(db.String(18), unique=True, nullable=False)
+    telefono = db.Column(db.String(64), default="", server_default="")
+    email = db.Column(db.String(256), unique=True, nullable=False)
     contrasena = db.Column(db.String(256), nullable=False)
-    hash = db.Column(db.String(32), nullable=False, default="", server_default="")
+    hash = db.Column(db.String(32), default="", server_default="")
     renovacion_fecha = db.Column(db.Date(), nullable=False)
 
     # Hijos
-    clientes = db.relationship("CITCita", back_populates="cliente")
+    cit_citas = db.relationship("CitCita", back_populates="cit_cliente")
 
     @property
     def nombre(self):
@@ -39,4 +39,4 @@ class CITCliente(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<Cit_Clientes>"
+        return "<CitCliente>"

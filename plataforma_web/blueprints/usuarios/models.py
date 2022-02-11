@@ -31,9 +31,11 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer(), primary_key=True)
 
-    # Clave foránea
+    # Claves foráneas
     autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
     autoridad = db.relationship("Autoridad", back_populates="usuarios")
+    oficina_id = db.Column(db.Integer, db.ForeignKey('oficinas.id'), index=True, nullable=False)
+    oficina = db.relationship('Oficina', back_populates='usuarios')
 
     # Columnas
     email = db.Column(db.String(256), nullable=False, unique=True, index=True)

@@ -14,17 +14,18 @@ class Domicilio(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
-
     # Columnas
-    colonia = db.Column(db.String(256), nullable=False)
+    estado = db.Column(db.String(64), nullable=False)
+    municipio = db.Column(db.String(64), nullable=False)
     calle = db.Column(db.String(256), nullable=False)
+    num_ext = db.Column(db.String(24), nullable=False, default="", server_default="")
+    num_int = db.Column(db.String(24), default="", server_default="")
+    colonia = db.Column(db.String(256), nullable=False, default="", server_default="")
     cp = db.Column(db.Integer())
-    num_ext = db.Column(db.Integer())
-    num_int = db.Column(db.Integer())
+    completo = db.Column(db.String(1024), nullable=False, default="", server_default="")
 
     # Hijos
-    clientes = db.relationship("CITCliente", back_populates="domicilio")
+    cit_clientes = db.relationship("CitCliente", back_populates="domicilio")
     oficinas = db.relationship("Oficina", back_populates="domicilio")
 
     def __repr__(self):

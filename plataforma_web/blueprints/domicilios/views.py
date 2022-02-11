@@ -1,13 +1,12 @@
 """
 Domicilios, vistas
 """
-
 import json
 
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
-from lib import datatables
 
+from lib import datatables
 from lib.safe_string import safe_string, safe_message
 
 from plataforma_web.blueprints.permisos.models import Permiso
@@ -70,7 +69,6 @@ def search():
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
-
         # Búsqueda por campos
         if form_search.calle.data:
             busqueda["calle"] = form_search.calle.data
@@ -81,14 +79,12 @@ def search():
         if form_search.cp.data:
             busqueda["cp"] = form_search.cp.data
             titulos.append("cp " + str(busqueda["cp"]))
-
         # Mostrar resultados
         return render_template(
             "domicilios/list.jinja2",
             filtros=json.dumps(busqueda),
             titulo="Domicilios con " + ", ".join(titulos),
         )
-
     return render_template("domicilios/search.jinja2", form=form_search)
 
 
@@ -99,18 +95,28 @@ def new():
     """Nuevo Domicilio"""
     form = DomicilioForm()
     if form.validate_on_submit():
+        estado = safe_string(form.estado.data, max_len=64)
+        municipio = safe_string(form.municipio.data, max_len=64)
+        calle = safe_string(form.calle.data, max_len=256)
+        num_ext = safe_string(form.num_ext.data, max_len=24)
+        num_int = safe_string(form.num_int.data, max_len=24)
+        colonia = safe_string(form.colonia.data, max_len=256)
+        cp = form.cp.data
+        completo = f"{calle} #{num_ext} {num_int}, {colonia}, {municipio}, {estado}, C.P. {cp}"
         domicilio = Domicilio(
-            colonia=safe_string(form.colonia.data),
-            calle=safe_string(form.calle.data),
-            cp=form.cp.data,
-            num_ext=form.num_ext.data,
-            num_int=form.num_int.data,
-        )
-        domicilio.save()
+            estado=estado,
+            municipio=municipio,
+            calle=calle,
+            num_ext=num_ext,
+            num_int=num_int,
+            colonia=colonia,
+            cp=cp,
+            completo=completo,
+        ).save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Domicilio {domicilio.calle}"),
+            descripcion=safe_message(f"Nuevo Domicilio {completo}"),
             url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()
@@ -127,26 +133,31 @@ def edit(domicilio_id):
     domicilio = Domicilio.query.get_or_404(domicilio_id)
     form = DomicilioForm()
     if form.validate_on_submit():
-        domicilio.colonia = safe_string(form.colonia.data)
-        domicilio.calle = safe_string(form.calle.data)
+        domicilio.estado = safe_string(form.estado.data, max_len=64)
+        domicilio.municipio = safe_string(form.municipio.data, max_len=64)
+        domicilio.calle = safe_string(form.calle.data, max_len=256)
+        domicilio.num_ext = safe_string(form.num_ext.data, max_len=24)
+        domicilio.num_int = safe_string(form.num_int.data, max_len=24)
+        domicilio.colonia = safe_string(form.colonia.data, max_len=256)
         domicilio.cp = form.cp.data
-        domicilio.num_ext = form.num_ext.data
-        domicilio.num_int = form.num_int.data
+        domicilio.completo = f"{domicilio.calle} #{domicilio.num_ext} {domicilio.num_int}, {domicilio.colonia}, {domicilio.municipio}, {domicilio.estado}, C.P. {domicilio.cp}"
         domicilio.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Editado el Domicilio {domicilio.calle}"),
+            descripcion=safe_message(f"Editado el Domicilio {domicilio.completo}"),
             url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    form.colonia.data = domicilio.colonia
+    form.estado.data = domicilio.estado
+    form.municipio.data = domicilio.municipio
     form.calle.data = domicilio.calle
-    form.cp.data = domicilio.cp
     form.num_ext.data = domicilio.num_ext
     form.num_int.data = domicilio.num_int
+    form.colonia.data = domicilio.colonia
+    form.cp.data = domicilio.cp
     return render_template("domicilios/edit.jinja2", form=form, domicilio=domicilio)
 
 
@@ -193,21 +204,18 @@ def datatable_json():
     """DataTable JSON para listado de clientes"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
-
     # Consultar
     consulta = Domicilio.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-
     if "calle" in request.form:
         consulta = consulta.filter(Domicilio.calle.like("%" + safe_string(request.form["calle"]) + "%"))
     if "colonia" in request.form:
         consulta = consulta.filter(Domicilio.colonia.like("%" + safe_string(request.form["colonia"]) + "%"))
     if "cp" in request.form:
         consulta = consulta.filter(Domicilio.cp.like("%" + safe_string(request.form["cp"]) + "%"))
-
     registros = consulta.order_by(Domicilio.calle.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -215,12 +223,16 @@ def datatable_json():
     for domicilio in registros:
         data.append(
             {
-                "colonia": domicilio.colonia,
+                "estado": domicilio.estado,
+                "municipio": domicilio.municipio,
                 "calle": {
                     "id": domicilio.id,
                     "url": url_for("domicilios.detail", domicilio_id=domicilio.id),
                     "descripcion": domicilio.calle,
                 },
+                "num_ext": domicilio.num_ext,
+                "num_int": domicilio.num_int,
+                "colonia": domicilio.colonia,
                 "cp": domicilio.cp,
             }
         )
