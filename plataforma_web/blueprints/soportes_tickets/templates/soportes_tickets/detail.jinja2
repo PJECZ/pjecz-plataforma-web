@@ -42,6 +42,7 @@
         {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
         {{ detail.label_value('Descripción del Problema', soporte_ticket.descripcion) }}
         {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
+        {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave + ' - ' + soporte_ticket.usuario.oficina.descripcion) }}
         {% if soporte_ticket.funcionario_id != 1 %}
             {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
         {% endif %}
@@ -78,6 +79,7 @@
     {% if current_user.can_edit('SOPORTES TICKETS') %}
         {% if soporte_ticket.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar este ticket?') }}{% endif %}
         {% if soporte_ticket.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este ticket?') }}{% endif %}
+        {#{ modals.custom_javascript_recover('Solar', '¿Desea soltar este ticket?') }#}
     {% endif %}
     {{ list.datatable('soportes_archivos_datatable') }}
 {% endblock %}
