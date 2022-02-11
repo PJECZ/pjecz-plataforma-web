@@ -71,7 +71,10 @@ def list_active():
         cancelados = cancelados.filter(SoporteTicket.funcionario == funcionario)
     # Si puede crear tickets, mostramos los suyos
     elif current_user.can_insert(MODULO):
-        abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
+        if funcionario and funcionario.en_soportes:
+            abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
+        else:
+            abiertos = None
         trabajados = trabajados.filter(SoporteTicket.usuario == current_user)
         terminados = terminados.filter(SoporteTicket.usuario == current_user)
         cancelados = cancelados.filter(SoporteTicket.usuario == current_user)
@@ -80,10 +83,13 @@ def list_active():
         trabajados = None
         terminados = None
         cancelados = None
+
+    if abiertos is not None:
+        abiertos=abiertos.order_by(SoporteTicket.id.desc()).limit(100).all()
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
-        abiertos=abiertos.order_by(SoporteTicket.id.desc()).limit(100).all(),
+        abiertos=abiertos,
         trabajados=trabajados.order_by(SoporteTicket.id.desc()).limit(100).all(),
         terminados=terminados.order_by(SoporteTicket.id.desc()).limit(100).all(),
         cancelados=cancelados.order_by(SoporteTicket.id.desc()).limit(100).all(),

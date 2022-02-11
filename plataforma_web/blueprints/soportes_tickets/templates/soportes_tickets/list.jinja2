@@ -23,6 +23,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Usuario</th>
+                        <th>Categoría</th>
                         <th>Oficina</th>
                         <th>Descripción</th>
                     </tr>
@@ -32,6 +33,7 @@
                     <tr>
                         <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
                         <td>{{ abierto.usuario.nombre }}</td>
+                        <td>{{ abierto.soporte_categoria.nombre }}</td>
                         <td>{{ abierto.usuario.oficina.clave }}</td>
                         <td>{{ abierto.descripcion | truncate(48) }}</td>
                     </tr>
@@ -42,28 +44,53 @@
     {% endif %}
     {% if trabajados %}
         {% call list.card('Trabajando') %}
-            <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Categoría</th>
-                        <th>Técnico</th>
-                        <th>Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for trabajado in trabajados %}
-                    <tr>
-                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
-                        <td>{{ trabajado.usuario.nombre }}</td>
-                        <td>{{ trabajado.soporte_categoria.nombre }}</td>
-                        <td>{{ trabajado.funcionario.nombre }}</td>
-                        <td>{{ trabajado.descripcion | truncate(48) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if current_user.can_insert('SOPORTES CATEGORIAS') %}
+                <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Oficina</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trabajado in trabajados %}
+                        <tr>
+                            <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
+                            <td>{{ trabajado.usuario.nombre }}</td>
+                            <td>{{ trabajado.usuario.oficina.clave }}</td>
+                            <td>{{ trabajado.soporte_categoria.nombre }}</td>
+                            <td>{{ trabajado.descripcion | truncate(48) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}}
+                <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Categoría</th>
+                            <th>Técnico</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trabajado in trabajados %}
+                        <tr>
+                            <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
+                            <td>{{ trabajado.usuario.nombre }}</td>
+                            <td>{{ trabajado.soporte_categoria.nombre }}</td>
+                            <td>{{ trabajado.funcionario.nombre }}</td>
+                            <td>{{ trabajado.descripcion | truncate(48) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         {% endcall %}
     {% endif %}
     {% if terminados %}
