@@ -41,9 +41,7 @@
         {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
         {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
         {{ detail.label_value('Descripción del Problema', soporte_ticket.descripcion) }}
-        {% if soporte_ticket.soporte_categoria_id != 1 %}
-            {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
-        {% endif %}
+        {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
         {% if soporte_ticket.funcionario_id != 1 %}
             {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
         {% endif %}
