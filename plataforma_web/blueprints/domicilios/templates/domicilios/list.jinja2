@@ -1,0 +1,101 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Domicilios{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('OFICINAS') %}
+            {{ topbar.button('Oficinas', url_for('oficinas.list_active'), 'mdi:store') }}
+        {% endif %}
+        {% if current_user.can_edit('DOMICILIOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('domicilios.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('domicilios.list_active')) }}{% endif %}
+        {% endif %}
+            {{ topbar.button_new('Nuevo Domicilio', url_for('domicilios.new')) }}
+        {{ topbar.button_search('Buscar', url_for('domicilios.search')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="domicilios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Estado</th>
+                    <th>Municipio</th>
+                    <th>Calle</th>
+                    <th>No. Ext.</th>
+                    <th>No. Int.</th>
+                    <th>Colonia</th>
+                    <th>C.P.</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+        <script>
+        $('#domicilios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/domicilios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "estado" },
+                { data: "municipio" },
+                { data: "calle" },
+                { data: "num_ext" },
+                { data: "num_int" },
+                { data: "colonia" },
+                { data: "cp" },
+            ],
+            columnDefs: [
+                {
+                    targets: [0, 1, 5],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.length > 16 ? data.substr(0, 16) + '…' : data;
+                    }
+                },
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.descripcion.length > 48) {
+                            return '<a href="' + data.url + '">' + data.descripcion.substr(0, 48) + '…' + '</a>';
+                        } else {
+                            return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        }
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
+{% endblock %}

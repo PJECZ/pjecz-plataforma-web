@@ -1,0 +1,77 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('CIT CLIENTES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_clientes.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_clientes.list_active')) }}{% endif %}
+        {% endif %}
+        {{ topbar.button_search('Buscar', url_for('cit_clientes.search')) }}
+        {{ topbar.button_previous('Citas', url_for('cit_citas.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="cit_clientes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>e-mail</th>
+                    <th>Nombre Completo</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+        <script>
+        $('#cit_clientes_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/cit_clientes/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "email" },
+                { data: "nombre_completo" },
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
+{% endblock %}

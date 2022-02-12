@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Expedientes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Expediente ' + expediente.expediente) %}
+        {{ topbar.button_previous('Expedientes', url_for('cit_expedientes.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=expediente.estatus) %}
+        {{ detail.label_value_big('Expediente', expediente.expediente) }}
+        {{ detail.label_value('Cita', expediente.cita_id, url_for('cit_citas.detail', cita_id=expediente.cita_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+{% endblock %}

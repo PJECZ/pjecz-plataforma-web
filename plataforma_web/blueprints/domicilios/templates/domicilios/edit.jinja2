@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Domicilio{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' +  domicilio.calle ) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'domicilio_id': domicilio.id} %}
+        {% call f.form_tag('domicilios.edit', fid='domicilio_id_form', **form_kwargs) %}
+            {% call f.form_group(form.estado) %}{% endcall %}
+            {% call f.form_group(form.municipio) %}{% endcall %}
+            {% call f.form_group(form.calle) %}{% endcall %}
+            {% call f.form_group(form.num_ext) %}{% endcall %}
+            {% call f.form_group(form.num_int) %}{% endcall %}
+            {% call f.form_group(form.colonia) %}{% endcall %}
+            {% call f.form_group(form.cp) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
