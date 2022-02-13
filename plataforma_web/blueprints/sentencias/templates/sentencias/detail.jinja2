@@ -32,9 +32,9 @@
         {{ detail.label_value_big('Sentencia', sentencia.sentencia) }}
         {{ detail.label_value('Distrito', sentencia.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', sentencia.autoridad.descripcion) }}
-        {{ detail.label_value('Fecha de la sentencia', moment(sentencia.sentencia_fecha).format("DD MMM YYYY")) }}
+        {{ detail.label_value('Fecha de la sentencia', moment(sentencia.sentencia_fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Expediente', sentencia.expediente) }}
-        {{ detail.label_value('Fecha de publicación', moment(sentencia.fecha).format("DD MMM YYYY")) }}
+        {{ detail.label_value('Fecha de publicación', moment(sentencia.fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Materia', sentencia.materia_tipo_juicio.materia.nombre) }}
         {{ detail.label_value('Tipo de Juicio', sentencia.materia_tipo_juicio.descripcion) }}
         {{ detail.label_value('Descripción', sentencia.descripcion) }}

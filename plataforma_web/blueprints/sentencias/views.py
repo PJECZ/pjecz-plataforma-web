@@ -199,7 +199,7 @@ def search():
         except (IndexError, ValueError):
             flash("Expediente incorrecto.", "warning")
             fallo_validacion = True
-        # Es paridad de genero
+        # Es perspectiva de genero
         # Fecha de publicacion
         if form_search.fecha_desde.data:
             busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
@@ -511,10 +511,12 @@ def new():
                 flash(bitacora.descripcion, "success")
                 return redirect(bitacora.url)
 
-    # Prellenado de los campos
+    # Llenar de los campos del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
+
+    # Mostrar formulario
     return render_template(
         "sentencias/new.jinja2",
         form=form,
@@ -658,10 +660,12 @@ def new_for_autoridad(autoridad_id):
                 flash(bitacora.descripcion, "success")
                 return redirect(bitacora.url)
 
-    # Prellenado de los campos
+    # Llenar de los campos del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
+
+    # Mostrar formulario
     return render_template(
         "sentencias/new_for_autoridad.jinja2",
         form=form,
@@ -738,12 +742,15 @@ def edit(sentencia_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
 
+    # Llenar de los campos del formulario
     form.sentencia.data = sentencia.sentencia
     form.sentencia_fecha.data = sentencia.sentencia_fecha
     form.expediente.data = sentencia.expediente
     form.fecha.data = sentencia.fecha
     form.descripcion.data = sentencia.descripcion
     form.es_perspectiva_genero.data = sentencia.es_perspectiva_genero
+
+    # Mostrar formulario
     return render_template(
         "sentencias/edit.jinja2",
         form=form,
