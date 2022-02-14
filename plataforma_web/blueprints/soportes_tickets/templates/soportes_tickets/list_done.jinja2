@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('SOPORTES CATEGORIAS') %}
+            {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
+        {% endif %}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
             {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
             {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
@@ -16,34 +19,36 @@
 {% endblock %}
 
 {% block content %}
-    {% if terminados %}
-        {% call list.card('Terminados') %}
-            <table id="soportes_tickets_terminados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%; background-color:#eafaf1;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Categoría</th>
-                        <th>Técnico</th>
-                        <th>Soluciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for terminado in terminados %}
-                    <tr>
-                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=terminado.id) }}">{{ terminado.id }}</a></td>
-                        <td>{{ terminado.usuario.nombre | truncate(50) }}</td>
-                        <td>{{ terminado.soporte_categoria.nombre | truncate(50) }}</td>
-                        <td>{{ terminado.funcionario.nombre }}</td>
-                        <td>{{ terminado.soluciones | truncate(48) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    {% endif %}
+    {% call list.card('Terminados') %}
+        <table id="soportes_tickets_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%; background-color:#eafaf1;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Oficina</th>
+                    <th>Categoría</th>
+                    <th>Descripción</th>
+                    <th>Técnico</th>
+                    <th>Soluciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for terminado in terminados %}
+                <tr>
+                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=terminado.id) }}">{{ terminado.id }}</a></td>
+                    <td>{{ terminado.usuario.nombre | truncate(24) }}</td>
+                    <td>{{ terminado.usuario.oficina.clave }}</td>
+                    <td>{{ terminado.soporte_categoria.nombre | truncate(48) }}</td>
+                    <td>{{ terminado.descripcion | truncate(24) }}</td>
+                    <td>{{ terminado.funcionario.nombre | truncate(24) }}</td>
+                    <td>{{ terminado.soluciones | truncate(24) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('soportes_tickets_cancelados_datatable') }}
+    {{ list.datatable('soportes_tickets_datatable') }}
 {% endblock %}
