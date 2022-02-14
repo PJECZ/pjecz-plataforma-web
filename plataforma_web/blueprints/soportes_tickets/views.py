@@ -78,12 +78,12 @@ def list_active():
     else:
         trabajados = None
     if abiertos is not None:
-        abiertos=abiertos.order_by(SoporteTicket.id.desc()).limit(100).all()
+        abiertos=abiertos.order_by(SoporteTicket.id.asc()).limit(100).all()
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
         abiertos=abiertos,
-        trabajados=trabajados.order_by(SoporteTicket.id.desc()).limit(100).all(),
+        trabajados=trabajados.order_by(SoporteTicket.id.asc()).limit(100).all(),
         titulo="Tickets",
         estatus="A",
     )
@@ -110,7 +110,7 @@ def list_done():
     # Entregar
     return render_template(
         "soportes_tickets/list_done.jinja2",
-        terminados=terminados.order_by(SoporteTicket.id.desc()).limit(100).all(),
+        terminados=terminados.order_by(SoporteTicket.id.asc()).limit(100).all(),
         titulo="Tickets Terminados",
         estatus="A",
     )
@@ -137,7 +137,7 @@ def list_cancel():
     # Entregar
     return render_template(
         "soportes_tickets/list_cancel.jinja2",
-        cancelados=cancelados.order_by(SoporteTicket.id.desc()).limit(100).all(),
+        cancelados=cancelados.order_by(SoporteTicket.id.asc()).limit(100).all(),
         titulo="Tickets Cancelados",
         estatus="A",
     )
@@ -164,7 +164,7 @@ def list_no_resolve():
     # Entregar
     return render_template(
         "soportes_tickets/list_no_resolve.jinja2",
-        tickets=tickets.order_by(SoporteTicket.id.desc()).limit(100).all(),
+        tickets=tickets.order_by(SoporteTicket.id.asc()).limit(100).all(),
         titulo="Tickets No Resueltos",
         estatus="A",
     )
@@ -191,11 +191,15 @@ def new():
     categoria_no_definida = SoporteCategoria.query.get_or_404(1)  # La categoria con id 1 es NO DEFINIDA
     form = SoporteTicketNewForm()
     if form.validate_on_submit():
+        descripcion = safe_string(form.descripcion.data)
+        clasificacion = safe_string(form.clasificacion.data)
+        if clasificacion != "OTRO":
+            descripcion=f"[{clasificacion}] {descripcion}"
         ticket = SoporteTicket(
             funcionario=tecnico_no_definido,
             soporte_categoria=categoria_no_definida,
             usuario=current_user,
-            descripcion="[" + form.clasificacion.data + '] : ' + safe_string(form.descripcion.data),
+            descripcion=descripcion,
             estado="ABIERTO",
         )
         ticket.save()
