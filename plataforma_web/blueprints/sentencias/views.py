@@ -3,17 +3,15 @@ Sentencias, vistas
 """
 import datetime
 import json
-from pathlib import Path
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
-from werkzeug.utils import secure_filename
 
 from lib import datatables
 from lib.safe_string import safe_expediente, safe_message, safe_sentencia, safe_string
-from lib.time_to_text import dia_mes_ano, mes_en_palabra
+from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
+from lib.time_to_text import dia_mes_ano
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -34,19 +32,19 @@ LIMITE_DIAS = 3650  # 10 años
 LIMITE_ADMINISTRADORES_DIAS = 3650  # 10 años
 
 
+@sentencias.before_request
+@login_required
+@permission_required(MODULO, Permiso.VER)
+def before_request():
+    """Permiso por defecto"""
+
+
 @sentencias.route("/sentencias/acuses/<id_hashed>")
 def checkout(id_hashed):
     """Acuse"""
     sentencia = Sentencia.query.get_or_404(Sentencia.decode_id(id_hashed))
     dia, mes, ano = dia_mes_ano(sentencia.creado)
     return render_template("sentencias/checkout.jinja2", sentencia=sentencia, dia=dia, mes=mes.upper(), ano=ano)
-
-
-@sentencias.before_request
-@login_required
-@permission_required(MODULO, Permiso.VER)
-def before_request():
-    """Permiso por defecto"""
 
 
 @sentencias.route("/sentencias")
@@ -201,7 +199,7 @@ def search():
         except (IndexError, ValueError):
             flash("Expediente incorrecto.", "warning")
             fallo_validacion = True
-        # Es paridad de genero
+        # Es perspectiva de genero
         # Fecha de publicacion
         if form_search.fecha_desde.data:
             busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
@@ -385,12 +383,7 @@ def new_success(sentencia):
 @sentencias.route("/sentencias/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Sentencia como juzgado"""
-
-    # Para validar las fechas
-    hoy = datetime.date.today()
-    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
+    """Subir Sentencia como juzgado"""
 
     # Validar autoridad
     autoridad = current_user.autoridad
@@ -406,6 +399,11 @@ def new():
     if autoridad.directorio_sentencias is None or autoridad.directorio_sentencias == "":
         flash("El juzgado/autoridad no tiene directorio para sentencias.", "warning")
         return redirect(url_for("sentencias.list_active"))
+
+    # Para validar las fechas
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_DIAS)
 
     # Si viene el formulario
     form = SentenciaNewForm(CombinedMultiDict((request.files, request.form)))
@@ -447,14 +445,28 @@ def new():
         # Tomar perspectiva de género
         es_perspectiva_genero = form.es_perspectiva_genero.data  # Boleano
 
+        # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
+        gcstorage = GoogleCloudStorage(
+            base_directory=f"{SUBDIRECTORIO}/{autoridad.directorio_sentencias}",
+            upload_date=fecha,
+            allowed_extensions=["pdf"],
+            month_in_word=True,
+        )
+
         # Validar archivo
         archivo = request.files["archivo"]
-        archivo_nombre = secure_filename(archivo.filename.lower())
-        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-            flash("No es un archivo PDF.", "warning")
+        try:
+            gcstorage.set_content_type(archivo.filename)
+        except NotAllowedExtesionError:
+            flash("Tipo de archivo no permitido.", "warning")
+            es_valido = False
+        except UnknownExtesionError:
+            flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
 
+        # Si es valido
         if es_valido:
+
             # Insertar registro
             sentencia = Sentencia(
                 autoridad=autoridad,
@@ -468,40 +480,43 @@ def new():
             )
             sentencia.save()
 
-            # Elaborar nombre del archivo y ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
-            ano_str = fecha.strftime("%Y")
-            mes_str = mes_en_palabra(fecha.month)
-            fecha_str = fecha.strftime("%Y-%m-%d")
-            sentencia_str = sentencia_input.replace("/", "-")
-            expediente_str = expediente.replace("/", "-")
+            # El nombre del archivo contiene FECHA/SENTENCIA/EXPEDIENTE/PERSPECTIVA_GENERO/HASH
+            nombre_elementos = []
+            nombre_elementos.append(sentencia_input.replace("/", "-"))
+            nombre_elementos.append(expediente.replace("/", "-"))
             if es_perspectiva_genero:
-                archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-G-{sentencia.encode_id()}.pdf"
-            else:
-                archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
-            ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_sentencias, ano_str, mes_str, archivo_str))
+                nombre_elementos.append("G")
 
-            # Subir el archivo
-            deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
-            storage_client = storage.Client()
-            bucket = storage_client.bucket(deposito)
-            blob = bucket.blob(ruta_str)
-            blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
-            url = blob.public_url
+            # Subir a Google Cloud Storage
+            es_exitoso = True
+            try:
+                gcstorage.set_filename(
+                    hashed_id=sentencia.encode_id(),
+                    description="-".join(nombre_elementos),
+                )
+                gcstorage.upload(archivo.stream.read())
+            except NotConfiguredError:
+                flash("Error al subir el archivo porque falla la configuración.", "danger")
+                es_exitoso = False
+            except Exception:
+                flash("Error al subir el archivo.", "danger")
+                es_exitoso = False
 
-            # Actualizar el nombre del archivo y el url
-            sentencia.archivo = archivo_str
-            sentencia.url = url
-            sentencia.save()
+            # Si se sube con exito, actualizar el registro con la URL del archivo y mostrar el detalle
+            if es_exitoso:
+                sentencia.archivo = gcstorage.filename
+                sentencia.url = gcstorage.url
+                sentencia.save()
+                bitacora = new_success(sentencia)
+                flash(bitacora.descripcion, "success")
+                return redirect(bitacora.url)
 
-            # Mostrar mensaje de éxito e ir al detalle
-            bitacora = new_success(sentencia)
-            flash(bitacora.descripcion, "success")
-            return redirect(bitacora.url)
-
-    # Prellenado de los campos
+    # Llenar de los campos del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
+
+    # Mostrar formulario
     return render_template(
         "sentencias/new.jinja2",
         form=form,
@@ -515,11 +530,6 @@ def new():
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def new_for_autoridad(autoridad_id):
     """Subir Sentencia para una autoridad dada"""
-
-    # Para validar las fechas
-    hoy = datetime.date.today()
-    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
 
     # Validar autoridad
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -539,6 +549,11 @@ def new_for_autoridad(autoridad_id):
         flash("El juzgado/autoridad no tiene directorio para edictos.", "warning")
         return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
+    # Para validar las fechas
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    limite_dt = hoy_dt + datetime.timedelta(days=-LIMITE_ADMINISTRADORES_DIAS)
+
     # Si viene el formulario
     form = SentenciaNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
@@ -579,14 +594,28 @@ def new_for_autoridad(autoridad_id):
         # Tomar perspectiva de género
         es_perspectiva_genero = form.es_perspectiva_genero.data  # Boleano
 
+        # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
+        gcstorage = GoogleCloudStorage(
+            base_directory=f"{SUBDIRECTORIO}/{autoridad.directorio_sentencias}",
+            upload_date=fecha,
+            allowed_extensions=["pdf"],
+            month_in_word=True,
+        )
+
         # Validar archivo
         archivo = request.files["archivo"]
-        archivo_nombre = secure_filename(archivo.filename.lower())
-        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-            flash("No es un archivo PDF.", "warning")
+        try:
+            gcstorage.set_content_type(archivo.filename)
+        except NotAllowedExtesionError:
+            flash("Tipo de archivo no permitido.", "warning")
+            es_valido = False
+        except UnknownExtesionError:
+            flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
 
+        # Si es valido
         if es_valido:
+
             # Insertar registro
             sentencia = Sentencia(
                 autoridad=autoridad,
@@ -600,40 +629,43 @@ def new_for_autoridad(autoridad_id):
             )
             sentencia.save()
 
-            # Elaborar nombre del archivo y ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
-            ano_str = fecha.strftime("%Y")
-            mes_str = mes_en_palabra(fecha.month)
-            fecha_str = fecha.strftime("%Y-%m-%d")
-            sentencia_str = sentencia_input.replace("/", "-")
-            expediente_str = expediente.replace("/", "-")
+            # El nombre del archivo contiene FECHA/SENTENCIA/EXPEDIENTE/PERSPECTIVA_GENERO/HASH
+            nombre_elementos = []
+            nombre_elementos.append(sentencia_input.replace("/", "-"))
+            nombre_elementos.append(expediente.replace("/", "-"))
             if es_perspectiva_genero:
-                archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-{sentencia.encode_id()}.pdf"
-            else:
-                archivo_str = f"{fecha_str}-{sentencia_str}-{expediente_str}-G-{sentencia.encode_id()}.pdf"
-            ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_sentencias, ano_str, mes_str, archivo_str))
+                nombre_elementos.append("G")
 
-            # Subir el archivo
-            deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
-            storage_client = storage.Client()
-            bucket = storage_client.bucket(deposito)
-            blob = bucket.blob(ruta_str)
-            blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
-            url = blob.public_url
+            # Subir a Google Cloud Storage
+            es_exitoso = True
+            try:
+                gcstorage.set_filename(
+                    hashed_id=sentencia.encode_id(),
+                    description="-".join(nombre_elementos),
+                )
+                gcstorage.upload(archivo.stream.read())
+            except NotConfiguredError:
+                flash("Error al subir el archivo porque falla la configuración.", "danger")
+                es_exitoso = False
+            except Exception:
+                flash("Error al subir el archivo.", "danger")
+                es_exitoso = False
 
-            # Actualizar el nombre del archivo y el url
-            sentencia.archivo = archivo_str
-            sentencia.url = url
-            sentencia.save()
+            # Si se sube con exito, actualizar el registro y mostrar el detalle
+            if es_exitoso:
+                sentencia.archivo = gcstorage.filename
+                sentencia.url = gcstorage.url
+                sentencia.save()
+                bitacora = new_success(sentencia)
+                flash(bitacora.descripcion, "success")
+                return redirect(bitacora.url)
 
-            # Mostrar mensaje de éxito e ir al detalle
-            bitacora = new_success(sentencia)
-            flash(bitacora.descripcion, "success")
-            return redirect(bitacora.url)
-
-    # Prellenado de los campos
+    # Llenar de los campos del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
     form.fecha.data = hoy
+
+    # Mostrar formulario
     return render_template(
         "sentencias/new_for_autoridad.jinja2",
         form=form,
@@ -644,7 +676,7 @@ def new_for_autoridad(autoridad_id):
 
 
 @sentencias.route("/sentencias/edicion/<int:sentencia_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def edit(sentencia_id):
     """Editar Sentencia"""
 
@@ -710,12 +742,15 @@ def edit(sentencia_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
 
+    # Llenar de los campos del formulario
     form.sentencia.data = sentencia.sentencia
     form.sentencia_fecha.data = sentencia.sentencia_fecha
     form.expediente.data = sentencia.expediente
     form.fecha.data = sentencia.fecha
     form.descripcion.data = sentencia.descripcion
     form.es_perspectiva_genero.data = sentencia.es_perspectiva_genero
+
+    # Mostrar formulario
     return render_template(
         "sentencias/edit.jinja2",
         form=form,
