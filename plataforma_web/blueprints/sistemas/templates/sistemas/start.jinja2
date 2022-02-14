@@ -4,6 +4,14 @@
 
 {% block title %}Inicio{% endblock %}
 
+{% block custom_head %}
+    <style>
+        .img-support{ height:auto; width:500px; }
+        .box { align-items: center; display: flex; justify-content: center; }
+        .btn-ticket{ display:inline-block; }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Inicio') }}
 {% endblock %}
@@ -11,10 +19,23 @@
 {% block content %}
     {# Plataforma Web #}
     {% call start.card() %}
-        <h1>Plataforma Web</h1>
-        <p class="lead">Sistema para administrar el contenido del sitio web <a href="https://www.pjecz.gob.mx" target="_blank">www.pjecz.gob.mx</a>.</p>
-        <hr class="my-4">
-        <p><strong>Poder Judicial del Estado de Coahuila de Zaragoza</strong></p>
+        <h1 class="text-center">Plataforma Web</h1>
+        <br />
+        <div class="row bg-color" >
+            <div class="box col-8 col-md-8 mb-2 align-middle" >
+                <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
+            </div>
+            <div class="col-4 col-sm-4 mb-2 align-self-center">
+                <h4>¿Necesitas soporte técnico?</h4>
+                <span class="col-6 col-sm-6 mx-auto">
+                    <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket">Crear un nuevo ticket</a>
+                </span>
+                <span class="col-6 col-sm-6 mx-auto">
+                    <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket" >Mis tickets</a>
+                </span>
+                
+            </div>
+        </div>
     {% endcall %}
     {# Tarjetas #}
     <div id="tarjetas" class="row">

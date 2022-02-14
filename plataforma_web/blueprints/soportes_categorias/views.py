@@ -63,21 +63,25 @@ def new():
     """Nuevo Soporte Categoria"""
     form = SoporteCategoriaForm()
     if form.validate_on_submit():
-        soporte_categoria = SoporteCategoria(
-            nombre=safe_string(form.nombre.data),
-            rol = form.rol.data,
-            instrucciones=safe_string(form.instrucciones.data, max_len=2048),
+        nombre = safe_string(form.nombre.data)
+        if SoporteCategoria.query.filter_by(nombre=nombre).first() is not None:
+            flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        else:
+            soporte_categoria = SoporteCategoria(
+                nombre=nombre,
+                rol=form.rol.data,
+                instrucciones=safe_string(form.instrucciones.data, max_len=2048),
             )
-        soporte_categoria.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo soporte categoria {soporte_categoria.nombre}"),
-            url=url_for("soportes_categorias.detail", soporte_categoria_id=soporte_categoria.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+            soporte_categoria.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo soporte categoria {soporte_categoria.nombre}"),
+                url=url_for("soportes_categorias.detail", soporte_categoria_id=soporte_categoria.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("soportes_categorias/new.jinja2", form=form)
 
 
