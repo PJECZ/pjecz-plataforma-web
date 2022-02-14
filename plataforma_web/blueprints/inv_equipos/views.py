@@ -12,6 +12,7 @@ from flask_login import current_user, login_required
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.inv_componentes.models import INVComponente
+from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -63,8 +64,9 @@ def detail(equipo_id):
     """Detalle de un Equipos"""
     equipo = INVEquipo.query.get_or_404(equipo_id)
     componentes = INVComponente.query.filter(INVComponente.equipo_id == equipo_id)
+    fotos = INVEquipoFoto.query.filter(INVEquipoFoto.equipo_id == equipo_id).all()
     # modelos = INVModelo.query.filter(INVModelo.equipo_id == equipo_id)
-    return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes)
+    return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
 @inv_equipos.route("/inv_equipos/nuevo", methods=["GET", "POST"])

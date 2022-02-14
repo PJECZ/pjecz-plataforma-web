@@ -2,21 +2,21 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Formato{% endblock %}
+{% block title %}Nueva Foto del Equipo{% endblock %}
 
 {% block custom_head %}
     {{ f.drop_zone_css() }}
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Formato para ' + cid_procedimiento.codigo ) }}
+    {{ topbar.page('Nueva Foto del Equipo ' + equipo_foto.id | string ) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
-        {% call f.form_tag_multipart('cid_formatos.new', fid='cid_formato_form', **form_kwargs) %}
-            {% call f.form_group(form.procedimiento_titulo, readonly=true) %}{% endcall %}
+        {% set form_kwargs = {'equipo_id': equipo.id} %}
+        {% call f.form_tag_multipart('inv_equipos_fotos.new', fid='equipo_foto_form', **form_kwargs) %}
+            {% call f.form_group(form.numero_inventario, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.drop_zone_wrapper() %}
                 {% call f.form_group(form.archivo, class="dropzone") %}{% endcall %}

@@ -8,6 +8,9 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Equipo: N° ' + equipo.numero_inventario | string) %}
         {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
+        {% if current_user.can_insert('INV EQUIPOS FOTOS') %}
+            {{ topbar.button('Subir Foto', url_for('inv_equipos_fotos.new', equipo_id=equipo.id)) }}
+        {% endif %}
         {% if current_user.can_edit('INV EQUIPOS') %}
             {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', equipo_id=equipo.id)) }}
             {% if equipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos.delete', equipo_id=equipo.id)) }}{% endif %}

@@ -19,5 +19,5 @@ class INVModeloForm(FlaskForm):
     """Formulario INVModelo"""
 
     nombre = QuerySelectField(label="Nombre Marca", query_factory=marcas_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
     guardar = SubmitField("Guardar")

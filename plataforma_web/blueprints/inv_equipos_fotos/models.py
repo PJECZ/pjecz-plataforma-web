@@ -15,10 +15,11 @@ class INVEquipoFoto(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    # equipo_id = db.Column(db.Integer, db.ForeignKey('inv_equipos.id'), index=True, nullable=False)
-    # equipo = db.relationship('INVEquipo', back_populates='fotos')
+    equipo_id = db.Column(db.Integer, db.ForeignKey("inv_equipos.id"), index=True, nullable=False)
+    equipo = db.relationship("INVEquipo", back_populates="fotos")
 
     # Columnas
+    descripcion = db.Column(db.String(256), nullable=False)
     archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
     url = db.Column(db.String(512), nullable=False, default="", server_default="")
 

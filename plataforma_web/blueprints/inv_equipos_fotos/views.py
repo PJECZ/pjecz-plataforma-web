@@ -29,32 +29,9 @@ def before_request():
     """Permiso por defecto"""
 
 
-@inv_equipos_fotos.route("/inv_equipos_fotos")
-def list_active():
-    """Listado de INV EQUIPOS FOTOS activos"""
-    return render_template(
-        "inv_equipos_fotos/list.jinja2",
-        inv_equipos_fotos=INVEquipoFoto.query.filter_by(estatus="A").all(),
-        titulo="Fotos",
-        estatus="A",
-    )
-
-
-@inv_equipos_fotos.route("/inv_equipos_fotos/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_inactive():
-    """Listado de INV EQUIPOS FOTOS inactivos"""
-    return render_template(
-        "inv_equipos_fotos/list.jinja2",
-        inv_equipos_fotos=INVEquipoFoto.query.filter_by(estatus="B").all(),
-        titulo="Fotos inactivos",
-        estatus="B",
-    )
-
-
 @inv_equipos_fotos.route("/inv_equipos_fotos/<int:equipo_foto_id>")
 def detail(equipo_foto_id):
-    """Detalle de un CID Formato"""
+    """Detalle de un INV Equipos Fotos"""
     equipo_foto = INVEquipoFoto.query.get_or_404(equipo_foto_id)
     return render_template("inv_equipos_fotos/detail.jinja2", equipo_foto=equipo_foto)
 
@@ -62,7 +39,7 @@ def detail(equipo_foto_id):
 @inv_equipos_fotos.route("/inv_equipos_fotos/nuevo/<int:equipo_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new(equipo_id):
-    """Nuevo CID Formato"""
+    """Adjuntar INV Equipos Fotos"""
     # Validar procedimiento
     equipo = INVEquipo.query.get_or_404(equipo_id)
     if equipo.estatus != "A":
@@ -72,6 +49,11 @@ def new(equipo_id):
     form = INVEquipoFotoForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
         es_valido = True
+        # Validar la descripción
+        descripcion = safe_string(form.descripcion.data)
+        if descripcion == "":
+            flash("La descripción es requerida.", "warning")
+            es_valido = False
         # Validar el archivo
         archivo = request.files["archivo"]
         storage = GoogleCloudStorage(SUBDIRECTORIO)
@@ -88,7 +70,7 @@ def new(equipo_id):
             # Insertar el registro, para obtener el ID
             equipo_foto = INVEquipoFoto(
                 equipo=equipo,
-                archivo=archivo,
+                descripcion=descripcion,
             )
             equipo_foto.save()
             # Subir el archivo a la nube
@@ -106,71 +88,13 @@ def new(equipo_id):
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Nuevo formato {equipo_foto.descripcion}"),
+                descripcion=safe_message(f"Subida de foto {equipo_foto.descripcion}"),
                 url=url_for("inv_equipos_fotos.detail", equipo_foto_id=equipo_foto.id),
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     # Mostrar formulario
-    form.procedimiento_titulo.data = equipo.titulo_procedimiento  # Read only
+    form.equipo.data = equipo.numero_inventario  # Read only
+    form.equipo.data = equipo.descripcion  # Read only
     return render_template("inv_equipos_fotos/new.jinja2", form=form, equipo=equipo)
-
-
-@inv_equipos_fotos.route("/inv_equipos_fotos/edicion/<int:equipo_foto_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
-def edit(equipo_foto_id):
-    """Editar CID Formato"""
-    equipo_foto = INVEquipoFoto.query.get_or_404(equipo_foto_id)
-    form = INVEquipoFotoForm()
-    if form.validate_on_submit():
-        equipo_foto.descripcion = safe_string(form.descripcion.data)
-        equipo_foto.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado el formato {equipo_foto.descripcion}"),
-            url=url_for("inv_equipos_fotos.detail", equipo_foto_id=equipo_foto.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    form.procedimiento_titulo.data = equipo_foto.procedimiento.titulo_procedimiento  # Read only
-    form.descripcion.data = equipo_foto.descripcion
-    return render_template("inv_equipos_fotos/edit.jinja2", form=form, equipo_foto=equipo_foto)
-
-
-@inv_equipos_fotos.route("/inv_equipos_fotos/eliminar/<int:equipo_foto_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def delete(equipo_foto_id):
-    """Eliminar CID Formato"""
-    equipo_foto = INVEquipoFoto.query.get_or_404(equipo_foto_id)
-    if equipo_foto.estatus == "A":
-        equipo_foto.delete()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Eliminado el formato {equipo_foto.descripcion}"),
-            url=url_for("inv_equipos_fotos.detail", equipo_foto_id=equipo_foto.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-    return redirect(url_for("inv_equipos_fotos.detail", equipo_foto_id=equipo_foto_id))
-
-
-@inv_equipos_fotos.route("/inv_equipos_fotos/recuperar/<int:equipo_foto_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def recover(equipo_foto_id):
-    """Recuperar CID Formato"""
-    equipo_foto = INVEquipoFoto.query.get_or_404(equipo_foto_id)
-    if equipo_foto.estatus == "B":
-        equipo_foto.recover()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Recuperado el formato {equipo_foto.descripcion}"),
-            url=url_for("inv_equipos_fotos.detail", equipo_foto_id=equipo_foto.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-    return redirect(url_for("inv_equipos_fotos.detail", equipo_foto_id=equipo_foto_id))

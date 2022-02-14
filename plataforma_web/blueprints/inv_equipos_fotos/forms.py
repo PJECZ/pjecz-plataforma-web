@@ -1,5 +1,5 @@
 """
-CID Formatos, formularios
+INV Equipo Foto, formularios
 """
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
@@ -7,10 +7,10 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 
-class CIDFormatoForm(FlaskForm):
-    """Formulario CID Formato"""
+class INVEquipoFotoForm(FlaskForm):
+    """Formulario  INVEquipoFoto"""
 
-    procedimiento_titulo = StringField("Procedimiento")  # Read only
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
+    equipo = StringField("Equipo")  # Read only
+    descripcion = StringField("Descripcion", validators=[DataRequired(), Length(max=512)])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")

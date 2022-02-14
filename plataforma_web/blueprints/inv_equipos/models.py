@@ -36,7 +36,7 @@ class INVEquipo(db.Model, UniversalMixin):
 
     # Hijos
     componentes = db.relationship("INVComponente", back_populates="equipo")
-    # fotos = db.relationship("INVEquipoFoto", back_populates="equipo")
+    fotos = db.relationship("INVEquipoFoto", back_populates="equipo")
 
     def __repr__(self):
         """Representación"""
