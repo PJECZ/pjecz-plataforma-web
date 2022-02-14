@@ -24,9 +24,12 @@
                 {{ topbar.button_primary('Resolver', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}
                 {{ modals.button_modal('Soltar', url_for('soportes_tickets.release', soporte_ticket_id=soporte_ticket.id), 'soltar', 'mdi:stop-circle-outline', '¿Deseas soltar el Ticket?') }}
             {% endif %}
-            {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
-                {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
+            {% if soporte_ticket.estado != 'NO RESUELTO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
+                {{ topbar.button_danger('No Resuelto', url_for('soportes_tickets.no_resolve', soporte_ticket_id=soporte_ticket.id), 'mdi:message-alert') }}
             {% endif %}
+        {% endif %}
+        {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
+            {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
         {% endif %}
         {% if current_user.can_admin('SOPORTES TICKETS') %}
             {% if soporte_ticket.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('soportes_tickets.delete', soporte_ticket_id=soporte_ticket.id)) }}{% endif %}
