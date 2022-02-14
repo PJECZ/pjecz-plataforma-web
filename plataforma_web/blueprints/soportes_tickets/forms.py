@@ -67,6 +67,7 @@ class SoporteTicketCategorizeForm(FlaskForm):
     categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Categorizar")
 
+
 class SoporteTicketCloseForm(FlaskForm):
     """Formulario SoporteTicket"""
 
