@@ -19,6 +19,16 @@ class SoporteTicket(db.Model, UniversalMixin):
         ]
     )
 
+    CLASIFICACIONES = OrderedDict(
+        [
+            ("PAIIJ", "PAIIJ"),
+            ("SIGE", "SIGE"),
+            ("RED", "RED"),
+            ("PC", "PC"),
+            ("OTRO", "OTRO"),
+        ]
+    )
+
     # Nombre de la tabla
     __tablename__ = "soportes_tickets"
 

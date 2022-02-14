@@ -195,7 +195,7 @@ def new():
             funcionario=tecnico_no_definido,
             soporte_categoria=categoria_no_definida,
             usuario=current_user,
-            descripcion=safe_string(form.descripcion.data),
+            descripcion="[" + form.clasificacion.data + '] : ' + safe_string(form.descripcion.data),
             estado="ABIERTO",
         )
         ticket.save()
@@ -263,7 +263,7 @@ def edit(soporte_ticket_id):
         return redirect(detalle_url)
     form = SoporteTicketEditForm()
     if form.validate_on_submit():
-        ticket.descripcion = form.descripcion.data
+        ticket.descripcion = safe_string(form.descripcion.data)
         ticket.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
