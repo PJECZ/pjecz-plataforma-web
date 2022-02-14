@@ -32,8 +32,8 @@
                     {% for terminado in terminados %}
                     <tr>
                         <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=terminado.id) }}">{{ terminado.id }}</a></td>
-                        <td>{{ terminado.usuario.nombre }}</td>
-                        <td>{{ terminado.soporte_categoria.nombre }}</td>
+                        <td>{{ terminado.usuario.nombre | truncate(50) }}</td>
+                        <td>{{ terminado.soporte_categoria.nombre | truncate(50) }}</td>
                         <td>{{ terminado.funcionario.nombre }}</td>
                         <td>{{ terminado.soluciones | truncate(48) }}</td>
                     </tr>

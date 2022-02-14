@@ -35,8 +35,8 @@
                     {% for abierto in abiertos %}
                     <tr>
                         <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
-                        <td>{{ abierto.usuario.nombre }}</td>
-                        <td>{{ abierto.soporte_categoria.nombre }}</td>
+                        <td>{{ abierto.usuario.nombre | truncate(50) }}</td>
+                        <td>{{ abierto.soporte_categoria.nombre | truncate(50) }}</td>
                         <td>{{ abierto.usuario.oficina.clave }}</td>
                         <td>{{ abierto.descripcion | truncate(48) }}</td>
                     </tr>
@@ -62,9 +62,9 @@
                         {% for trabajado in trabajados %}
                         <tr>
                             <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
-                            <td>{{ trabajado.usuario.nombre }}</td>
+                            <td>{{ trabajado.usuario.nombre | truncate(50) }}</td>
                             <td>{{ trabajado.usuario.oficina.clave }}</td>
-                            <td>{{ trabajado.soporte_categoria.nombre }}</td>
+                            <td>{{ trabajado.soporte_categoria.nombre | truncate(50) }}</td>
                             <td>{{ trabajado.descripcion | truncate(48) }}</td>
                         </tr>
                         {% endfor %}
