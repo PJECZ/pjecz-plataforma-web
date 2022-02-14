@@ -2,7 +2,7 @@
 Soportes Tickets, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, SelectField
+from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
@@ -25,6 +25,7 @@ class SoporteTicketNewForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=1024)])
+    clasificacion = RadioField("Clasificación", choices=SoporteTicket.CLASIFICACIONES, default='OTRO')
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 

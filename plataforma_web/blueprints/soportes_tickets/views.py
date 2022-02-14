@@ -195,7 +195,7 @@ def new():
             funcionario=tecnico_no_definido,
             soporte_categoria=categoria_no_definida,
             usuario=current_user,
-            descripcion=safe_string(form.descripcion.data),
+            descripcion="[" + form.clasificacion.data + '] : ' + safe_string(form.descripcion.data),
             estado="ABIERTO",
         )
         ticket.save()
