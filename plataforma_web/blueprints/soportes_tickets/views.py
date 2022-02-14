@@ -51,6 +51,7 @@ def _get_funcionario_from_current_user():
 def before_request():
     """Permiso por defecto"""
 
+
 @soportes_tickets.route("/soportes_tickets")
 def list_active():
     """Listado de TODOS los Soportes Tickets activos"""
@@ -76,7 +77,6 @@ def list_active():
     # De lo contrario, solo puede ver tickets abiertos
     else:
         trabajados = None
-
     if abiertos is not None:
         abiertos=abiertos.order_by(SoporteTicket.id.desc()).limit(100).all()
     # Entregar
@@ -107,7 +107,6 @@ def list_done():
     # De lo contrario, solo puede ver tickets abiertos
     else:
         terminados = None
-
     # Entregar
     return render_template(
         "soportes_tickets/list_done.jinja2",
@@ -135,7 +134,6 @@ def list_cancel():
     # De lo contrario, solo puede ver tickets abiertos
     else:
         cancelados = None
-
     # Entregar
     return render_template(
         "soportes_tickets/list_cancel.jinja2",
@@ -163,7 +161,6 @@ def list_no_resolve():
     # De lo contrario, solo puede ver tickets abiertos
     else:
         tickets = None
-
     # Entregar
     return render_template(
         "soportes_tickets/list_no_resolve.jinja2",
@@ -255,6 +252,7 @@ def new_for_usuario(usuario_id):
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(soporte_ticket_id):
+    """Editar un ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
@@ -430,7 +428,7 @@ def close(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/no_resolve/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def no_resolve(soporte_ticket_id):
-    """Para cerrar un ticket este debe estar TRABAJANDO y ser funcionario de soportes"""
+    """Para 'no resuelto' un ticket este debe estar TRABAJANDO y ser funcionario de soportes"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
@@ -443,7 +441,6 @@ def no_resolve(soporte_ticket_id):
     if funcionario is None:
         flash("No puede pasar a no resuelto el ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
-
     ticket.estado = "NO RESUELTO"
     ticket.resolucion = datetime.now()
     ticket.save()
@@ -456,8 +453,6 @@ def no_resolve(soporte_ticket_id):
     bitacora.save()
     flash(bitacora.descripcion, "success")
     return redirect(bitacora.url)
-    return render_template("soportes_tickets/detail.jinja2", soporte_ticket=ticket)
-
 
 
 @soportes_tickets.route("/soportes_tickets/cancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])
