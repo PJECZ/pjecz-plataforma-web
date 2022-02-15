@@ -80,19 +80,6 @@ def list_active():
     if abiertos is not None:
         abiertos=abiertos.order_by(SoporteTicket.id.asc()).limit(100).all()
 
-    # Agrega las categorías de soporte en las cuales hay ticket y el usuario pertence.
-    categorias= {}
-    abiertos_admin = []
-    # for usuario_rol in current_user.usuarios_roles:
-    #     if usuario_rol.estatus == "A":
-    #         lista_abiertos = []
-    #         for abierto in abiertos:
-    #             if abierto.soporte_categoria.rol_id == usuario_rol.rol.id:
-    #                 lista_abiertos.append(abierto)
-    #                 categorias[usuario_rol.rol.nombre] = lista_abiertos
-    #             else:
-    #                 abiertos_admin.append(abierto)
-
     # Extraemos los roles del usuario
     roles = []
     for usuario_rol in current_user.usuarios_roles:
@@ -100,6 +87,7 @@ def list_active():
             roles.append(usuario_rol.rol.id)
 
     # Separamos en dos diferentes listas por categoría pertenecientes al usuario y todos los demás
+    categorias= {}
     abiertos_en_rol = []
     abiertos_todos = []
     for abierto in abiertos:
