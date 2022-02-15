@@ -61,12 +61,12 @@ def enviar_reporte():
 
 
 def estandarizar():
-    """Estandarizar que los nombres esten en mayusculas"""
+    """Estandarizar nombres, apellidos y puestos en mayusculas"""
 
     # Iniciar
     bitacora.info("Inicia estandarizar")
 
-    # Consultar
+    # Consultar y estandarizar
     contador = 0
     usuarios = db.session.query(Usuario).filter_by(estatus="A")
     for usuario in usuarios:
@@ -87,7 +87,7 @@ def estandarizar():
 
     # Terminar
     set_task_progress(100)
-    mensaje_final = f"Terminado estandarizar satisfactoriamente: {contador} usuarios actualizados"
+    mensaje_final = f"Terminado estandarizar satisfactoriamente con {contador} usuarios actualizados"
     bitacora.info(mensaje_final)
     return mensaje_final
 
