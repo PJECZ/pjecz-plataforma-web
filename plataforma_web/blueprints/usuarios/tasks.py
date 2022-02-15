@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from sqlalchemy import or_
 
 from lib.pwgen import generar_contrasena
+from lib.safe_string import safe_string
 from lib.tasks import set_task_progress, set_task_error
 
 from plataforma_web.app import create_app
@@ -55,6 +56,38 @@ def enviar_reporte():
     # Terminar
     set_task_progress(100)
     mensaje_final = "Terminado enviar reporte satisfactoriamente"
+    bitacora.info(mensaje_final)
+    return mensaje_final
+
+
+def estandarizar():
+    """Estandarizar nombres, apellidos y puestos en mayusculas"""
+
+    # Iniciar
+    bitacora.info("Inicia estandarizar")
+
+    # Consultar y estandarizar
+    contador = 0
+    usuarios = db.session.query(Usuario).filter_by(estatus="A")
+    for usuario in usuarios:
+        nombres = safe_string(usuario.nombres)
+        apellido_paterno = safe_string(usuario.apellido_paterno)
+        apellido_materno = safe_string(usuario.apellido_materno)
+        puesto = safe_string(usuario.puesto)
+        if puesto == "":
+            puesto = "ND"
+        if nombres != usuario.nombres or apellido_paterno != usuario.apellido_paterno or apellido_materno != usuario.apellido_materno or puesto != usuario.puesto:
+            usuario.nombres = nombres
+            usuario.apellido_paterno = apellido_paterno
+            usuario.apellido_materno = apellido_materno
+            usuario.puesto = puesto
+            db.session.add(usuario)
+            db.session.commit()
+            contador += 1
+
+    # Terminar
+    set_task_progress(100)
+    mensaje_final = f"Terminado estandarizar satisfactoriamente con {contador} usuarios actualizados"
     bitacora.info(mensaje_final)
     return mensaje_final
 
