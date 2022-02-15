@@ -19,6 +19,16 @@ class SoporteTicket(db.Model, UniversalMixin):
         ]
     )
 
+    CLASIFICACIONES = OrderedDict(
+        [
+            ("PC", "PC"),
+            ("RED", "Red"),
+            ("PAIIJ", "PAIIJ"),
+            ("SIGE", "SIGE"),
+            ("OTRO", "Otro"),
+        ]
+    )
+
     # Nombre de la tabla
     __tablename__ = "soportes_tickets"
 
@@ -44,7 +54,7 @@ class SoporteTicket(db.Model, UniversalMixin):
     soluciones = db.Column(db.Text, nullable=True)
 
     # Hijos
-    soportes_adjuntos = db.relationship('SoporteAdjunto', back_populates='soporte_ticket')
+    soportes_adjuntos = db.relationship("SoporteAdjunto", back_populates="soporte_ticket")
 
     def __repr__(self):
         """Representación"""

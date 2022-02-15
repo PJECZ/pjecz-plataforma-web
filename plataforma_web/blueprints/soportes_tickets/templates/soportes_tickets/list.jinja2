@@ -10,9 +10,9 @@
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
-            {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
-            {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
             {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
+            {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
+            {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
     {% endcall %}
@@ -26,8 +26,8 @@
                     <tr>
                         <th>ID</th>
                         <th>Usuario</th>
-                        <th>Categoría</th>
                         <th>Oficina</th>
+                        <th>Categoría</th>
                         <th>Descripción</th>
                     </tr>
                 </thead>
@@ -35,9 +35,9 @@
                     {% for abierto in abiertos %}
                     <tr>
                         <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
-                        <td>{{ abierto.usuario.nombre }}</td>
-                        <td>{{ abierto.soporte_categoria.nombre }}</td>
+                        <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
                         <td>{{ abierto.usuario.oficina.clave }}</td>
+                        <td>{{ abierto.soporte_categoria.nombre | truncate(48) }}</td>
                         <td>{{ abierto.descripcion | truncate(48) }}</td>
                     </tr>
                     {% endfor %}
@@ -47,8 +47,7 @@
     {% endif %}
     {% if trabajados %}
         {% call list.card('Trabajando') %}
-            {% if current_user.can_insert('SOPORTES CATEGORIAS') %}
-                <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
+                <table id="soportes_tickets_trabajando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -56,56 +55,29 @@
                             <th>Oficina</th>
                             <th>Categoría</th>
                             <th>Descripción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for trabajado in trabajados %}
-                        <tr>
-                            <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
-                            <td>{{ trabajado.usuario.nombre }}</td>
-                            <td>{{ trabajado.usuario.oficina.clave }}</td>
-                            <td>{{ trabajado.soporte_categoria.nombre }}</td>
-                            <td>{{ trabajado.descripcion | truncate(48) }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Categoría</th>
                             <th>Técnico</th>
-                            <th>Descripción</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for trabajado in trabajados %}
                         <tr>
                             <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
-                            <td>{{ trabajado.usuario.nombre }}</td>
-                            <td>{{ trabajado.soporte_categoria.nombre }}</td>
-                            <td>{{ trabajado.funcionario.nombre }}</td>
-                            <td>{{ trabajado.descripcion | truncate(48) }}</td>
+                            <td>{{ trabajado.usuario.nombre | truncate(24) }}</td>
+                            <td>{{ trabajado.usuario.oficina.clave }}</td>
+                            <td>{{ trabajado.soporte_categoria.nombre | truncate(48) }}</td>
+                            <td>{{ trabajado.descripcion | truncate(32) }}</td>
+                            <td>{{ trabajado.funcionario.nombre | truncate(24) }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            {% endif %}
         {% endcall %}
     {% endif %}
-
 {% endblock %}
 
 {% block custom_javascript %}
     {{ list.datatable('soportes_tickets_abiertos_datatable') }}
-    {{ list.datatable('soportes_tickets_procesando_datatable') }}
-    {{ list.datatable('soportes_tickets_terminados_datatable') }}
-    <script>
-    window.setTimeout(function () {
-        window.location.reload();
-    }, 300000);
-    </script>
+    {{ list.datatable('soportes_tickets_trabajando_datatable') }}
+    <!-- Refrescar esta página -->
+    <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
 {% endblock %}
