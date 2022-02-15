@@ -30,6 +30,13 @@ def enviar_reporte():
 
 
 @click.command()
+def estandarizar():
+    """Estandarizar que los nombres esten en mayusculas"""
+    app.task_queue.enqueue("plataforma_web.blueprints.usuarios.tasks.estandarizar")
+    click.echo("Estandarizar se está ejecutando en el fondo.")
+
+
+@click.command()
 @click.argument("email", type=str)
 def nueva_contrasena(email):
     """Cambiar contraseña de un usuario"""
@@ -55,5 +62,6 @@ def sincronizar():
 
 
 cli.add_command(enviar_reporte)
+cli.add_command(estandarizar)
 cli.add_command(nueva_contrasena)
 cli.add_command(sincronizar)
