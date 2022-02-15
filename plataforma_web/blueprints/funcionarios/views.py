@@ -1,15 +1,17 @@
 """
 Funcionarios, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib import datatables
 from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.funcionarios.models import Funcionario
-from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm
+from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioSearchForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -27,12 +29,44 @@ def before_request():
 
 @funcionarios.route("/funcionarios")
 def list_active():
-    """Listado de Funcionarios activos"""
-    funcionarios_activos = Funcionario.query.filter(Funcionario.estatus == "A").all()
+    """Listado de Funcionarios activos y en funciones"""
     return render_template(
         "funcionarios/list.jinja2",
-        funcionarios=funcionarios_activos,
-        titulo="Funcionarios",
+        filtros=json.dumps({"estatus": "A", "en_funciones": True}),
+        titulo="Funcionarios en funciones",
+        estatus="A",
+    )
+
+
+@funcionarios.route("/funcionarios/en_sentencias")
+def list_active_en_sentencias():
+    """Listado de Funcionarios activos y en sentencias"""
+    return render_template(
+        "funcionarios/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "en_sentencias": True}),
+        titulo="Funcionarios en sentencias",
+        estatus="A",
+    )
+
+
+@funcionarios.route("/funcionarios/en_soportes")
+def list_active_en_soportes():
+    """Listado de Funcionarios activos y en soportes"""
+    return render_template(
+        "funcionarios/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "en_soportes": True}),
+        titulo="Funcionarios en soportes",
+        estatus="A",
+    )
+
+
+@funcionarios.route("/funcionarios/en_tesis_jurisprudencias")
+def list_active_en_tesis_jurisprudencias():
+    """Listado de Funcionarios activos y en tesis y jurisprudencias"""
+    return render_template(
+        "funcionarios/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "en_tesis_jurisprudencias": True}),
+        titulo="Funcionarios en tesis y jurisprudencias",
         estatus="A",
     )
 
@@ -41,13 +75,97 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Funcionarios inactivos"""
-    funcionarios_inactivos = Funcionario.query.filter(Funcionario.estatus == "B").all()
     return render_template(
         "funcionarios/list.jinja2",
-        funcionarios=funcionarios_inactivos,
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Funcionarios inactivos",
         estatus="B",
     )
+
+
+@funcionarios.route("/funcionarios/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Funcionarios"""
+    form_search = FuncionarioSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.nombres.data:
+            nombres = safe_string(form_search.nombres.data)
+            if nombres != "":
+                busqueda["nombres"] = nombres
+                titulos.append("nombres " + nombres)
+        if form_search.apellido_paterno.data:
+            apellido_paterno = safe_string(form_search.apellido_paterno.data)
+            if apellido_paterno != "":
+                busqueda["apellido_paterno"] = apellido_paterno
+                titulos.append("apellido_paterno " + apellido_paterno)
+        if form_search.apellido_materno.data:
+            apellido_materno = safe_string(form_search.apellido_materno.data)
+            if apellido_materno != "":
+                busqueda["apellido_materno"] = apellido_materno
+                titulos.append("apellido_materno " + apellido_materno)
+        if form_search.curp.data:
+            curp = safe_string(form_search.curp.data)
+            if curp != "":
+                busqueda["curp"] = curp
+                titulos.append("curp " + curp)
+        return render_template(
+            "funcionarios/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Funcionarios con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("funcionarios/search.jinja2", form=form_search)
+
+
+@funcionarios.route("/funcionarios/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Funcionarios"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = Funcionario.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "nombres" in request.form:
+        consulta = consulta.filter(Funcionario.nombres.like("%" + safe_string(request.form["nombres"]) + "%"))
+    if "apellido_paterno" in request.form:
+        consulta = consulta.filter(Funcionario.apellido_paterno.like("%" + safe_string(request.form["apellido_paterno"]) + "%"))
+    if "apellido_materno" in request.form:
+        consulta = consulta.filter(Funcionario.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
+    if "curp" in request.form:
+        consulta = consulta.filter(Funcionario.curp == safe_string(request.form["curp"]))
+    if "en_funciones" in request.form and request.form["en_funciones"] == "true":
+        consulta = consulta.filter(Funcionario.en_funciones == True)
+    if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
+        consulta = consulta.filter(Funcionario.en_sentencias == True)
+    if "en_soportes" in request.form and request.form["en_soportes"] == "true":
+        consulta = consulta.filter(Funcionario.en_soportes == True)
+    if "en_tesis_jurisprudencias" in request.form and request.form["en_tesis_jurisprudencias"] == "true":
+        consulta = consulta.filter(Funcionario.en_tesis_jurisprudencias == True)
+    registros = consulta.order_by(Funcionario.creado.asc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "id": resultado.id,
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
+                },
+                "curp": resultado.curp,
+                "email": resultado.email,
+                "puesto": resultado.puesto,
+                "en_funciones": resultado.en_funciones,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @funcionarios.route("/funcionarios/<int:funcionario_id>")
