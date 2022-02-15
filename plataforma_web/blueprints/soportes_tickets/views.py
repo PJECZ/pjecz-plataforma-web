@@ -79,10 +79,48 @@ def list_active():
         trabajados = None
     if abiertos is not None:
         abiertos=abiertos.order_by(SoporteTicket.id.asc()).limit(100).all()
+
+    # Agrega las categorías de soporte en las cuales hay ticket y el usuario pertence.
+    categorias= {}
+    abiertos_admin = []
+    # for usuario_rol in current_user.usuarios_roles:
+    #     if usuario_rol.estatus == "A":
+    #         lista_abiertos = []
+    #         for abierto in abiertos:
+    #             if abierto.soporte_categoria.rol_id == usuario_rol.rol.id:
+    #                 lista_abiertos.append(abierto)
+    #                 categorias[usuario_rol.rol.nombre] = lista_abiertos
+    #             else:
+    #                 abiertos_admin.append(abierto)
+
+    # Extraemos los roles del usuario
+    roles = []
+    for usuario_rol in current_user.usuarios_roles:
+        if usuario_rol.estatus == "A":
+            roles.append(usuario_rol.rol.id)
+
+    # Separamos en dos diferentes listas por categoría pertenecientes al usuario y todos los demás
+    abiertos_en_rol = []
+    abiertos_todos = []
+    for abierto in abiertos:
+        if abierto.soporte_categoria.rol_id in roles:
+            # Pertence a uno de sus roles
+            if abierto.soporte_categoria.rol.nombre not in categorias:
+                categorias[abierto.soporte_categoria.rol.nombre] = []
+                abiertos_en_rol = []
+            else:
+                abiertos_en_rol = categorias[abierto.soporte_categoria.rol.nombre]
+            abiertos_en_rol.append(abierto)
+            categorias[abierto.soporte_categoria.rol.nombre] = abiertos_en_rol
+        else:
+            # Pertenecen al rol de Admin
+            abiertos_todos.append(abierto)
+
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
-        abiertos=abiertos,
+        categorias=categorias,
+        abiertos_admin=abiertos_todos,
         trabajados=trabajados.order_by(SoporteTicket.id.asc()).limit(100).all(),
         titulo="Tickets",
         estatus="A",

@@ -19,9 +19,9 @@
 {% endblock %}
 
 {% block content %}
-    {% if abiertos %}
-        {% call list.card('Abiertos') %}
-            <table id="soportes_tickets_abiertos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+    {% for categoria in categorias %}
+        {% call list.card('Abiertos - ' + categoria ) %}
+            <table id="{{categoria.lower().replace(' ', '')}}_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -32,7 +32,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for abierto in abiertos %}
+                    {% for abierto in categorias[categoria] %}
                     <tr>
                         <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
                         <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
@@ -44,7 +44,34 @@
                 </tbody>
             </table>
         {% endcall %}
-    {% endif %}
+    {% endfor %}
+    <!-- Mostrar todos los abiertos a los de rol administrador -->
+    {% if current_user.can_admin('SOPORTES TICKETS')%}
+            {% call list.card('Abiertos - TODOS' ) %}
+                <table id="soportes_tickets_abiertos_todos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Oficina</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for abierto in abiertos_admin %}
+                        <tr>
+                            <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
+                            <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
+                            <td>{{ abierto.usuario.oficina.clave }}</td>
+                            <td>{{ abierto.soporte_categoria.nombre | truncate(48) }}</td>
+                            <td>{{ abierto.descripcion | truncate(48) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endcall %}
+        {% endif %}
     {% if trabajados %}
         {% call list.card('Trabajando') %}
                 <table id="soportes_tickets_trabajando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
@@ -76,7 +103,10 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('soportes_tickets_abiertos_datatable') }}
+    {% for categoria in categorias %}
+        {{ list.datatable( categoria.lower().replace(' ', '') + "_datatable") }}
+    {% endfor %}
+    {{ list.datatable('soportes_tickets_abiertos_todos_datatable') }}
     {{ list.datatable('soportes_tickets_trabajando_datatable') }}
     <!-- Refrescar esta página -->
     <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
