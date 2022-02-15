@@ -1,0 +1,24 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}INV Foto{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Equipo ' + foto.equipo.id | string) %}
+        {{ topbar.button_previous('Equipo detalle', url_for('inv_equipos.detail', equipo_id=foto.equipo.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=foto.estatus) %}
+        {{ detail.label_value('Archivo', foto.archivo) }}
+        {{ detail.label_value('Descripción', foto.descripcion) }}
+        {{ detail.label_value('URL', foto.url) }}
+        {% if foto.url.rsplit(".", 1)[1].lower() in ("png", "jpg", "jpeg") %}
+            {{ detail.label_value('Imágen previa') }}
+            <a href="{{ foto.url }}"><img src="{{ foto.url }}" style="max-width: 500px; height: auto;"/></a>
+        {% endif %}
+        
+    {% endcall %}
+{% endblock %}

@@ -70,7 +70,7 @@ def new():
             validacion = False
 
         if validacion:
-            marca = INVMarca(nombre=form.nombre.data)
+            marca = INVMarca(nombre=safe_string(form.nombre.data))
             marca.save()
             flash(f"Marcas {marca.nombre} guardado.", "success")
             return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
@@ -93,7 +93,7 @@ def edit(marca_id):
             validacion = False
 
         if validacion:
-            marca.nombre = form.nombre.data
+            marca.nombre = safe_string(form.nombre.data)
             marca.save()
             flash(f"Marcas {marca.nombre} guardado.", "success")
             return redirect(url_for("inv_marcas.detail", marca_id=marca.id))

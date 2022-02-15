@@ -11,8 +11,7 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
-from plataforma_web.blueprints.inv_componentes.models import INVComponente
-from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
+
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -20,6 +19,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_equipos.models import INVEquipo
 from plataforma_web.blueprints.inv_componentes.models import INVComponente
+from plataforma_web.blueprints.inv_fotos.models import INVFoto
 
 from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
 
@@ -63,9 +63,8 @@ def list_inactive():
 def detail(equipo_id):
     """Detalle de un Equipos"""
     equipo = INVEquipo.query.get_or_404(equipo_id)
-    componentes = INVComponente.query.filter(INVComponente.equipo_id == equipo_id)
-    fotos = INVEquipoFoto.query.filter(INVEquipoFoto.equipo_id == equipo_id).all()
-    # modelos = INVModelo.query.filter(INVModelo.equipo_id == equipo_id)
+    componentes = INVComponente.query.filter(INVComponente.equipo_id == equipo_id).all()
+    fotos = INVFoto.query.filter(INVFoto.equipo_id == equipo_id).all()
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
@@ -90,7 +89,7 @@ def new():
                 adquisicion_fecha=form.adquisicion_fecha.data,
                 numero_serie=form.numero_serie.data,
                 numero_inventario=form.numero_inventario.data,
-                descripcion=form.descripcion.data,
+                descripcion=safe_string(form.descripcion.data),
                 direccion_ip=form.direccion_ip.data,
                 direccion_mac=form.direccion_mac.data,
                 numero_nodo=form.numero_nodo.data,
@@ -153,7 +152,7 @@ def edit(equipo_id):
             equipo.numero_serie = form.numero_serie.data
             equipo.numero_invenatario = form.numero_inventario.data
             equipo.descripcion = form.descripcion.data
-            equipo.direccion_ip = form.direccion_ip.data
+            equipo.direccion_ip = safe_string(form.direccion_ip.data)
             equipo.direccion_mac = form.direccion_mac.data
             equipo.numero_nodo = form.numero_nodo.data
             equipo.numero_switch = form.numero_switch.data

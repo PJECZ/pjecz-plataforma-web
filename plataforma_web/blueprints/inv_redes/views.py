@@ -74,7 +74,7 @@ def new():
             flash(f"Nombre de la red incorrecto. {str(err)}", "warning")
             validacion = False
         if validacion:
-            red = INVRedes(nombre=form.nombre.data, tipo=form.tipo.data)
+            red = INVRedes(nombre=safe_string(form.nombre.data), tipo=safe_string(form.tipo.data))
             red.save()
             flash(f"Red {red.nombre} guardado.", "success")
             return redirect(url_for("inv_redes.detail", red_id=red.id))
@@ -88,8 +88,8 @@ def edit(red_id):
     red = INVRedes.query.get_or_404(red_id)
     form = INVRedesForm()
     if form.validate_on_submit():
-        red.nombre = form.nombre.data
-        red.tipo = form.tipo.data
+        red.nombre = safe_string(form.nombre.data)
+        red.tipo = safe_string(form.tipo.data)
         red.save()
         flash(f"Red {red.nombre} guardado.", "success")
         return redirect(url_for("inv_redes.detail", red_id=red.id))

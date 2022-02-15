@@ -84,8 +84,8 @@ def new():
         if validacion:
             custodia = INVCustodia(
                 fecha=form.fecha.data,
-                curp=form.curp.data,
-                nombre_completo=form.nombre_completo.data,
+                curp=safe_string(form.curp.data),
+                nombre_completo=safe_string(form.nombre_completo.data),
                 usuario=form.usuario.data,
                 # usuario=current_user,
             )
@@ -145,8 +145,8 @@ def edit(custodia_id):
 
         if validacion:
             custodia.fecha = form.fecha.data
-            custodia.curp = form.curp.data
-            custodia.nombre_completo = form.nombre_completo.data
+            custodia.curp = safe_string(form.curp.data)
+            custodia.nombre_completo = safe_string(form.nombre_completo.data)
             custodia.usuario = form.usuario.data
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")

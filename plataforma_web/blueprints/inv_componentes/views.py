@@ -85,7 +85,7 @@ def new(equipo_id):
             componente = INVComponente(
                 categoria=form.nombre.data,
                 equipo=equipo,
-                descripcion=form.descripcion.data,
+                descripcion=safe_string(form.descripcion.data),
                 cantidad=form.cantidad.data,
                 version=form.version.data,
             )
@@ -146,14 +146,14 @@ def edit(componente_id):
 
         if validacion:
             componente.categoria = form.nombre.data
-            componente.descripcion = form.descripcion.data
+            componente.descripcion = safe_string(form.descripcion.data)
             componente.cantidad = form.cantidad.data
             componente.version = form.version.data
             componente.save()
             flash(f"Componentes {componente.descripcion} guardado.", "success")
             return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
     form.nombre.data = componente.categoria
-    form.descripcion.data = componente.descripcion
+    form.descripcion.data = safe_string(componente.descripcion)
     form.cantidad.data = componente.cantidad
     form.version.data = componente.version
     return render_template("inv_componentes/edit.jinja2", form=form, componente=componente)

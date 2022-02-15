@@ -70,7 +70,7 @@ def new():
             validacion = False
 
         if validacion:
-            categoria = INVCategoria(nombre=form.nombre.data)
+            categoria = INVCategoria(nombre=safe_string(form.nombre.data))
             categoria.save()
             flash(f"Categorias {categoria.nombre} guardado.", "success")
             return redirect(url_for("inv_categorias.detail", categoria_id=categoria.id))
@@ -93,7 +93,7 @@ def edit(categoria_id):
             validacion = False
 
         if validacion:
-            categoria.nombre = form.nombre.data
+            categoria.nombre = safe_string(form.nombre.data)
             categoria.save()
             flash(f"Categorias {categoria.nombre} guardado.", "success")
             return redirect(url_for("inv_categorias.detail", categoria_id=categoria.id))

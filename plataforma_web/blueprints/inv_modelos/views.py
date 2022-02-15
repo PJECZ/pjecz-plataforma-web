@@ -75,7 +75,7 @@ def new():
             flash(f"Creación de la descripcion incorrecta. {str(err)}", "warning")
             validacion = False
         if validacion:
-            modelo = INVModelo(marca=form.nombre.data, descripcion=form.descripcion.data)
+            modelo = INVModelo(marca=form.nombre.data, descripcion=safe_string(form.descripcion.data))
             modelo.save()
             flash(f"Modelos {modelo.descripcion} guardado.", "success")
             return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
