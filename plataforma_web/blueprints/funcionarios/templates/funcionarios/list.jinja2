@@ -65,14 +65,18 @@
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        if (data.nombre.length > 32) {
+                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 32) + '…' + '</a>';
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
                     }
                 },
                 {
-                    targets: 4,
+                    targets: [3, 4],
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
                     }
                 }
             ],

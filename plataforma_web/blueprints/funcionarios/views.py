@@ -99,17 +99,27 @@ def search():
             apellido_paterno = safe_string(form_search.apellido_paterno.data)
             if apellido_paterno != "":
                 busqueda["apellido_paterno"] = apellido_paterno
-                titulos.append("apellido_paterno " + apellido_paterno)
+                titulos.append("apellido paterno " + apellido_paterno)
         if form_search.apellido_materno.data:
             apellido_materno = safe_string(form_search.apellido_materno.data)
             if apellido_materno != "":
                 busqueda["apellido_materno"] = apellido_materno
-                titulos.append("apellido_materno " + apellido_materno)
+                titulos.append("apellido materno " + apellido_materno)
         if form_search.curp.data:
             curp = safe_string(form_search.curp.data)
             if curp != "":
                 busqueda["curp"] = curp
-                titulos.append("curp " + curp)
+                titulos.append("CURP " + curp)
+        if form_search.puesto.data:
+            puesto = safe_string(form_search.puesto.data)
+            if puesto != "":
+                busqueda["puesto"] = puesto
+                titulos.append("puesto " + puesto)
+        if form_search.email.data:
+            email = safe_string(form_search.email.data, to_uppercase=False)
+            if email != "":
+                busqueda["email"] = email
+                titulos.append("e-mail " + email)
         return render_template(
             "funcionarios/list.jinja2",
             filtros=json.dumps(busqueda),
@@ -137,7 +147,11 @@ def datatable_json():
     if "apellido_materno" in request.form:
         consulta = consulta.filter(Funcionario.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
     if "curp" in request.form:
-        consulta = consulta.filter(Funcionario.curp == safe_string(request.form["curp"]))
+        consulta = consulta.filter(Funcionario.curp.like("%" + safe_string(request.form["curp"]) + "%"))
+    if "puesto" in request.form:
+        consulta = consulta.filter(Funcionario.puesto.like("%" + safe_string(request.form["puesto"]) + "%"))
+    if "email" in request.form:
+        consulta = consulta.filter(Funcionario.email.like("%" + safe_string(request.form["email"], to_uppercase=False) + "%"))
     if "en_funciones" in request.form and request.form["en_funciones"] == "true":
         consulta = consulta.filter(Funcionario.en_funciones == True)
     if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
@@ -146,7 +160,7 @@ def datatable_json():
         consulta = consulta.filter(Funcionario.en_soportes == True)
     if "en_tesis_jurisprudencias" in request.form and request.form["en_tesis_jurisprudencias"] == "true":
         consulta = consulta.filter(Funcionario.en_tesis_jurisprudencias == True)
-    registros = consulta.order_by(Funcionario.creado.asc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Funcionario.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
