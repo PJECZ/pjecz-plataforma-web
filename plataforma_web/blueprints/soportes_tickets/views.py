@@ -79,10 +79,37 @@ def list_active():
         trabajados = None
     if abiertos is not None:
         abiertos=abiertos.order_by(SoporteTicket.id.asc()).limit(100).all()
+
+    # Extraemos los roles del usuario
+    current_user_roles_id = []
+    for usuario_rol in current_user.usuarios_roles:
+        if usuario_rol.estatus == "A":
+            current_user_roles_id.append(usuario_rol.rol.id)
+
+    # Separamos en diferentes listas (por categoría) y todos los demás
+    listas_por_categorias= {}
+    lista_abiertos_en_rol = []
+    lista_abiertos_todos = []
+    for ticket_abierto in abiertos:
+        # El ticket pertenece a uno de sus roles
+        if ticket_abierto.soporte_categoria.rol_id in current_user_roles_id:
+            # Clasificamos cada ticket (categoría) en una lista independiente
+            if ticket_abierto.soporte_categoria.rol.nombre not in listas_por_categorias:
+                listas_por_categorias[ticket_abierto.soporte_categoria.rol.nombre] = []
+                lista_abiertos_en_rol = []
+            else:
+                lista_abiertos_en_rol = listas_por_categorias[ticket_abierto.soporte_categoria.rol.nombre]
+            lista_abiertos_en_rol.append(ticket_abierto)
+            listas_por_categorias[ticket_abierto.soporte_categoria.rol.nombre] = lista_abiertos_en_rol
+        else:
+            # Pertenecen al rol de Admin
+            lista_abiertos_todos.append(ticket_abierto)
+
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
-        abiertos=abiertos,
+        listas_por_categorias=listas_por_categorias,
+        lista_abiertos_todos=lista_abiertos_todos,
         trabajados=trabajados.order_by(SoporteTicket.id.asc()).limit(100).all(),
         titulo="Tickets",
         estatus="A",
