@@ -19,9 +19,9 @@
 {% endblock %}
 
 {% block content %}
-    {% for categoria in categorias %}
-        {% call list.card('Abiertos - ' + categoria ) %}
-            <table id="{{categoria.lower().replace(' ', '')}}_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+    {% for lista in listas_por_categorias %}
+        {% call list.card('Abiertos - ' + lista ) %}
+            <table id="{{lista.lower().replace(' ', '')}}_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -32,7 +32,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for abierto in categorias[categoria] %}
+                    {% for abierto in listas_por_categorias[lista] %}
                     <tr>
                         <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
                         <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
@@ -59,7 +59,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for abierto in abiertos_admin %}
+                        {% for abierto in lista_abiertos_todos %}
                         <tr>
                             <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
                             <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
@@ -103,8 +103,8 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% for categoria in categorias %}
-        {{ list.datatable( categoria.lower().replace(' ', '') + "_datatable") }}
+    {% for lista in listas_por_categorias %}
+        {{ list.datatable( lista.lower().replace(' ', '') + "_datatable") }}
     {% endfor %}
     {{ list.datatable('soportes_tickets_abiertos_todos_datatable') }}
     {{ list.datatable('soportes_tickets_trabajando_datatable') }}
