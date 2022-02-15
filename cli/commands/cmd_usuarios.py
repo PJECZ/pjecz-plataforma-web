@@ -31,7 +31,7 @@ def enviar_reporte():
 
 @click.command()
 def estandarizar():
-    """Estandarizar que los nombres esten en mayusculas"""
+    """Estandarizar nombres, apellidos y puestos en mayusculas"""
     app.task_queue.enqueue("plataforma_web.blueprints.usuarios.tasks.estandarizar")
     click.echo("Estandarizar se está ejecutando en el fondo.")
 
