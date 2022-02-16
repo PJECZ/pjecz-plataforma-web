@@ -6,11 +6,11 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class INVFoto(db.Model, UniversalMixin):
-    """INVFoto"""
+class INVEquipoFoto(db.Model, UniversalMixin):
+    """INVEquipoFoto"""
 
     # Nombre de la tabla
-    __tablename__ = "inv_fotos"
+    __tablename__ = "inv_equipos_fotos"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -26,4 +26,4 @@ class INVFoto(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<INVFoto>"
+        return "<INVEquipoFoto>"

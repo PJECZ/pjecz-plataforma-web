@@ -18,8 +18,8 @@
         {% if current_user.can_insert('INV COMPONENTES') %}
             {{ topbar.button_new('Agregar componentes', url_for('inv_componentes.new', equipo_id=equipo.id)) }}
         {% endif %}
-        {% if current_user.can_insert('INV FOTOS') %}
-            {{ topbar.button('Subir Foto', url_for('inv_fotos.new', equipo_id=equipo.id), 'mdi:file-upload') }}
+        {% if current_user.can_insert('INV EQUIPOS FOTOS') %}
+            {{ topbar.button('Subir Foto', url_for('inv_equipos_fotos.new', equipo_id=equipo.id), 'mdi:file-upload') }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -76,7 +76,7 @@
                 <tbody>
                     {% for foto in fotos %}
                         <tr>
-                            <td><a href="{{ url_for('inv_fotos.detail', foto_id=foto.id) }}">{{ foto.archivo }}</a></td>
+                            <td><a href="{{ url_for('inv_equipos_fotos.detail', equipo_foto_id=foto.id) }}">{{ foto.archivo }}</a></td>
                             <td>{{ foto.dequipo_escripcion | truncate(48) }}</td>
                         </tr>
                     {% endfor %}

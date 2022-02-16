@@ -19,7 +19,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_equipos.models import INVEquipo
 from plataforma_web.blueprints.inv_componentes.models import INVComponente
-from plataforma_web.blueprints.inv_fotos.models import INVFoto
+from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
 
 from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
 
@@ -64,7 +64,7 @@ def detail(equipo_id):
     """Detalle de un Equipos"""
     equipo = INVEquipo.query.get_or_404(equipo_id)
     componentes = INVComponente.query.filter(INVComponente.equipo_id == equipo_id).all()
-    fotos = INVFoto.query.filter(INVFoto.equipo_id == equipo_id).all()
+    fotos = INVEquipoFoto.query.filter(INVEquipoFoto.equipo_id == equipo_id).all()
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
@@ -151,8 +151,8 @@ def edit(equipo_id):
             equipo.adquisicion_fecha = form.adquisicion_fecha.data
             equipo.numero_serie = form.numero_serie.data
             equipo.numero_invenatario = form.numero_inventario.data
-            equipo.descripcion = form.descripcion.data
-            equipo.direccion_ip = safe_string(form.direccion_ip.data)
+            equipo.descripcion = safe_string(form.descripcion.data)
+            equipo.direccion_ip = form.direccion_ip.data
             equipo.direccion_mac = form.direccion_mac.data
             equipo.numero_nodo = form.numero_nodo.data
             equipo.numero_switch = form.numero_switch.data
@@ -163,7 +163,7 @@ def edit(equipo_id):
     form.adquisicion_fecha.data = equipo.adquisicion_fecha
     form.numero_serie.data = equipo.numero_serie
     form.numero_inventario.data = equipo.numero_inventario
-    form.descripcion.data = equipo.descripcion
+    form.descripcion.data = safe_string(equipo.descripcion)
     form.direccion_ip.data = equipo.direccion_ip
     form.direccion_mac.data = equipo.direccion_mac
     form.numero_nodo.data = equipo.numero_nodo

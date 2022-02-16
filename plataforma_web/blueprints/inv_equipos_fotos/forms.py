@@ -7,7 +7,7 @@ from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length
 
 
-class INVFotoNewForm(FlaskForm):
+class INVEquipoFotoNewForm(FlaskForm):
     """Formulario para subir archivos"""
 
     equipo = StringField("Descripción del archivo")  # read only

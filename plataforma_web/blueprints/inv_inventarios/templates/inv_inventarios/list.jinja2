@@ -10,7 +10,6 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_inventarios.list_active')) }}{% endif %}
             {{ topbar.button_primary('Equipos', url_for('inv_equipos.list_active'), 'mdi:desktop-classic') }}
             {{ topbar.button('Categorías', url_for('inv_categorias.list_active'),'mdi:car-wrench') }}
-            {# {{ topbar.button('Subir Foto', url_for('inv_fotos.new'), 'mdi:file-upload') }} #}
         {% endif %}
         
     {% endcall %}
