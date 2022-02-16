@@ -147,10 +147,21 @@ def estandarizar():
     # Iniciar
     bitacora.info("Inicia estandarizar")
 
+    # Tomar rol SOPORTE USUARIO
+    rol = Rol.query.filter_by(nombre="SOPORTE USUARIO").first()
+    if rol is None:
+        mensaje = "No se encontró el rol SOPORTE USUARIO"
+        set_task_error(mensaje)
+        bitacora.error(mensaje)
+        return
+
     # Consultar y estandarizar
     contador = 0
-    usuarios = db.session.query(Usuario).filter_by(estatus="A")
+    usuarios_actualizados_contador = 0
+    usuarios_rol_contador = 0
+    usuarios = Usuario.query.filter_by(estatus="A")
     for usuario in usuarios:
+        # Estandarizar campos
         nombres = safe_string(usuario.nombres)
         apellido_paterno = safe_string(usuario.apellido_paterno)
         apellido_materno = safe_string(usuario.apellido_materno)
@@ -162,13 +173,35 @@ def estandarizar():
             usuario.apellido_paterno = apellido_paterno
             usuario.apellido_materno = apellido_materno
             usuario.puesto = puesto
-            db.session.add(usuario)
-            db.session.commit()
-            contador += 1
+            usuario.save()
+            usuarios_actualizados_contador += 1
+        # Saltar si el correo electronico no es coahuila.gob.mx
+        if usuario.email.endswith("@coahuila.gob.mx"):
+            continue
+        # Que tenga el rol SOPORTE USUARIO
+        if usuario.usuarios_roles is None:
+            UsuarioRol(usuario=usuario, rol=rol, descripcion=f"{usuario.email} en {rol.nombre}").save()
+            usuarios_rol_contador += 1
+        else:
+            tiene_ese_rol = False
+            for usuario_rol in usuario.usuarios_roles:
+                if usuario_rol.rol == rol:
+                    tiene_ese_rol = True
+                    if usuario_rol.rol.estatus != "A":
+                        usuario_rol.rol.estatus = "A"
+                        usuario_rol.rol.save()
+                        usuarios_rol_contador += 1
+            if not tiene_ese_rol:
+                UsuarioRol(usuario=usuario, rol=rol, descripcion=f"{usuario.email} en {rol.nombre}").save()
+                usuarios_rol_contador += 1
+        # Incrementar contador
+        contador += 1
+        if contador % 100 == 0:
+            bitacora.info("Procesados %d", contador)
 
     # Terminar
     set_task_progress(100)
-    mensaje_final = f"Terminado estandarizar satisfactoriamente con {contador} usuarios actualizados"
+    mensaje_final = f"Terminado estandarizar con {usuarios_actualizados_contador} usuarios actualizados y {usuarios_rol_contador} roles insertados o actualizados"
     bitacora.info(mensaje_final)
     return mensaje_final
 
