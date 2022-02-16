@@ -9,6 +9,7 @@ from flask_login import current_user
 from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
+from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.sentencias.models import Sentencia
 
 sistemas = Blueprint("sistemas", __name__, template_folder="templates")
@@ -127,6 +128,7 @@ def listas_de_acuerdos_json():
             "url": url_for("listas_de_acuerdos.list_active"),
             "style": estilo,
         }
+
     # Listado
     listas_de_acuerdos = ListaDeAcuerdo.query.filter(ListaDeAcuerdo.autoridad == current_user.autoridad).filter_by(estatus="A")
     for lista_de_acuerdo in listas_de_acuerdos.order_by(ListaDeAcuerdo.fecha.desc()).limit(TARJETAS_LIMITE_REGISTROS).all():
@@ -194,6 +196,17 @@ def sentencias_json():
         "url": url_for("sentencias.list_active"),
         "style": estilo,
     }
+
+
+@sistemas.route("/inicio/soporte_categorias")
+def lista_usuarios_categorias():
+    """categoria de usuarios"""
+    soporte_usuario = SoporteCategoria.query.filter(SoporteCategoria.nombre == current_user.soporte_categoria)
+    # traer los roles de los usuarios
+    current_user_roles_id = []
+    for usuario_rol in soporte_usuario:
+        if usuario_rol.estatus == "A":
+            current_user_roles_id.append(usuario_rol.rol.id)
 
 
 @sistemas.route("/")

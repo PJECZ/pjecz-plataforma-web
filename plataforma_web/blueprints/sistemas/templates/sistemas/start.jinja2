@@ -7,6 +7,7 @@
 {% block custom_head %}
     <style>
         .img-support{ height:auto; width:500px; }
+        .img-support-us{ height:auto; width:300px; }
         .box { align-items: center; display: flex; justify-content: center; }
         .btn-ticket{ display:inline-block; }
     </style>
@@ -21,21 +22,32 @@
     {% call start.card() %}
         <h1 class="text-center">Plataforma Web</h1>
         <br />
-        <div class="row bg-color" >
-            <div class="box col-8 col-md-8 mb-2 align-middle" >
-                <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
+        {% if current_user.lista_usuarios_categorias != "SOPORTE USUARIO"%}
+            <div class="row bg-color" >
+                <div class="box col-8 col-md-8 mb-2 align-middle" >
+                    <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
+                </div>
+                <div class="col-4 col-sm-4 mb-2 align-self-center">
+                    <h4>¿Necesitas soporte técnico?</h4>
+                    <span class="col-6 col-sm-6 mx-auto">
+                        <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket">Crear un nuevo ticket</a>
+                    </span>
+                    <span class="col-6 col-sm-6 mx-auto">
+                        <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket" >Mis tickets</a>
+                    </span>
+                </div>
             </div>
-            <div class="col-4 col-sm-4 mb-2 align-self-center">
-                <h4>¿Necesitas soporte técnico?</h4>
-                <span class="col-6 col-sm-6 mx-auto">
-                    <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket">Crear un nuevo ticket</a>
-                </span>
-                <span class="col-6 col-sm-6 mx-auto">
-                    <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket" >Mis tickets</a>
-                </span>
-                
+        {% endif%}
+        {% if current_user.lista_usuarios_categorias == "SOPORTE USUARIO"%}
+            <div class="row bg-color" >
+                <div class="box col-8 col-md-8 mb-2 align-middle" >
+                    <img src="{{ url_for('static', filename='images/robotica-png-2.png') }}" class="img-fluid img-support-us"/>
+                </div>
+                <div class="col-4 col-sm-4 mb-2 align-self-center">
+                    <h4>Bienvenido al sistema</h4> 
+                </div>
             </div>
-        </div>
+        {% endif%}
     {% endcall %}
     {# Tarjetas #}
     <div id="tarjetas" class="row">
