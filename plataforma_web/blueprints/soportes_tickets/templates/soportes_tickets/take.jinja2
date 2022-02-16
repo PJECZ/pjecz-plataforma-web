@@ -33,6 +33,11 @@
         $(document).ready(function(){
             $('#categoria').addClass('js-example-placeholder-single js-states form-control');
             $("#categoria").prop("selectedIndex", -1);
+            $('#categoria option').each(function() {
+                if($(this).text() == '{{soporte_ticket.soporte_categoria.nombre}}') {
+                    $("#categoria").val( $(this).val() );
+                }
+            });
             $(".js-example-placeholder-single").select2({
                 placeholder: "Categoría",
                 allowClear: true
