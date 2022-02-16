@@ -1,18 +1,20 @@
 """
 Usuarios, vistas
 """
+import json
 import os
 import re
 
 import google.auth.transport.requests
 import google.oauth2.id_token
-from flask import Blueprint, flash, redirect, request, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
+from lib import datatables
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
-from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_message
+from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_message, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
@@ -23,7 +25,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioFormNew, UsuarioFormEdit
+from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioNewForm, UsuarioEditForm, UsuarioSearchForm
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 HTTP_REQUEST = google.auth.transport.requests.Request()
@@ -122,10 +124,9 @@ def profile():
 @permission_required(MODULO, Permiso.VER)
 def list_active():
     """Listado de Usuarios activos"""
-    usuarios_activos = Usuario.query.filter(Usuario.estatus == "A").all()
     return render_template(
         "usuarios/list.jinja2",
-        usuarios=usuarios_activos,
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Usuarios",
         estatus="A",
     )
@@ -136,13 +137,105 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Usuarios inactivos"""
-    usuarios_inactivos = Usuario.query.filter(Usuario.estatus == "B").all()
     return render_template(
         "usuarios/list.jinja2",
-        usuarios=usuarios_inactivos,
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Usuarios inactivos",
         estatus="B",
     )
+
+
+@usuarios.route("/usuarios/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Usuarios"""
+    form_search = UsuarioSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.nombres.data:
+            nombres = safe_string(form_search.nombres.data)
+            if nombres != "":
+                busqueda["nombres"] = nombres
+                titulos.append("nombres " + nombres)
+        if form_search.apellido_paterno.data:
+            apellido_paterno = safe_string(form_search.apellido_paterno.data)
+            if apellido_paterno != "":
+                busqueda["apellido_paterno"] = apellido_paterno
+                titulos.append("apellido paterno " + apellido_paterno)
+        if form_search.apellido_materno.data:
+            apellido_materno = safe_string(form_search.apellido_materno.data)
+            if apellido_materno != "":
+                busqueda["apellido_materno"] = apellido_materno
+                titulos.append("apellido materno " + apellido_materno)
+        if form_search.curp.data:
+            curp = safe_string(form_search.curp.data)
+            if curp != "":
+                busqueda["curp"] = curp
+                titulos.append("CURP " + curp)
+        if form_search.puesto.data:
+            puesto = safe_string(form_search.puesto.data)
+            if puesto != "":
+                busqueda["puesto"] = puesto
+                titulos.append("puesto " + puesto)
+        if form_search.email.data:
+            email = safe_string(form_search.email.data, to_uppercase=False)
+            if email != "":
+                busqueda["email"] = email
+                titulos.append("e-mail " + email)
+        return render_template(
+            "usuarios/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Usuarios con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("usuarios/search.jinja2", form=form_search)
+
+
+@usuarios.route("/usuarios/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Usuarios"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = Usuario.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "nombres" in request.form:
+        consulta = consulta.filter(Usuario.nombres.like("%" + safe_string(request.form["nombres"]) + "%"))
+    if "apellido_paterno" in request.form:
+        consulta = consulta.filter(Usuario.apellido_paterno.like("%" + safe_string(request.form["apellido_paterno"]) + "%"))
+    if "apellido_materno" in request.form:
+        consulta = consulta.filter(Usuario.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
+    if "curp" in request.form:
+        consulta = consulta.filter(Usuario.curp.like("%" + safe_string(request.form["curp"]) + "%"))
+    if "puesto" in request.form:
+        consulta = consulta.filter(Usuario.puesto.like("%" + safe_string(request.form["puesto"]) + "%"))
+    if "email" in request.form:
+        consulta = consulta.filter(Usuario.email.like("%" + safe_string(request.form["email"], to_uppercase=False) + "%"))
+    registros = consulta.order_by(Usuario.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "id": resultado.id,
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.id),
+                },
+                "curp": resultado.curp,
+                "email": resultado.email,
+                "puesto": resultado.puesto,
+                "autoridad_clave": resultado.autoridad.clave,
+                "oficina_clave": resultado.oficina.clave,
+                "workspace": resultado.workspace,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @usuarios.route("/usuarios/<int:usuario_id>")
@@ -159,7 +252,7 @@ def detail(usuario_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo usuario"""
-    form = UsuarioFormNew()
+    form = UsuarioNewForm()
     if form.validate_on_submit():
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         if form.contrasena.data == "":
@@ -168,6 +261,7 @@ def new():
             contrasena = pwd_context.hash(form.contrasena.data)
         usuario = Usuario(
             autoridad=autoridad,
+            oficina=form.oficina.data,
             nombres=form.nombres.data,
             apellido_paterno=form.apellido_paterno.data,
             apellido_materno=form.apellido_materno.data,
@@ -198,9 +292,10 @@ def new():
 def edit(usuario_id):
     """Editar Usuario, solo al escribir la contraseña se cambia"""
     usuario = Usuario.query.get_or_404(usuario_id)
-    form = UsuarioFormEdit()
+    form = UsuarioEditForm()
     if form.validate_on_submit():
         usuario.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        usuario.oficina = form.oficina.data
         usuario.nombres = form.nombres.data
         usuario.apellido_paterno = form.apellido_paterno.data
         usuario.apellido_materno = form.apellido_materno.data
@@ -222,6 +317,7 @@ def edit(usuario_id):
         return redirect(bitacora.url)
     form.distrito.data = usuario.autoridad.distrito
     form.autoridad.data = usuario.autoridad
+    form.oficina.data = usuario.oficina
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno

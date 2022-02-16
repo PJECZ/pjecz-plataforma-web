@@ -33,19 +33,19 @@ LIMITE_ADMINISTRADORES_DIAS = 90
 ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
 
 
+@listas_de_acuerdos.before_request
+@login_required
+@permission_required(MODULO, Permiso.VER)
+def before_request():
+    """Permiso por defecto"""
+
+
 @listas_de_acuerdos.route("/listas_de_acuerdos/acuses/<id_hashed>")
 def checkout(id_hashed):
     """Acuse"""
     lista_de_acuerdo = ListaDeAcuerdo.query.get_or_404(ListaDeAcuerdo.decode_id(id_hashed))
     dia, mes, ano = dia_mes_ano(lista_de_acuerdo.creado)
     return render_template("listas_de_acuerdos/checkout.jinja2", lista_de_acuerdo=lista_de_acuerdo, dia=dia, mes=mes.upper(), ano=ano)
-
-
-@listas_de_acuerdos.before_request
-@login_required
-@permission_required(MODULO, Permiso.VER)
-def before_request():
-    """Permiso por defecto"""
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos")

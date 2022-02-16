@@ -2,7 +2,7 @@
 Soportes Tickets, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, SelectField
+from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
@@ -25,6 +25,7 @@ class SoporteTicketNewForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=1024)])
+    clasificacion = RadioField("Clasificación", choices=SoporteTicket.CLASIFICACIONES, default='OTRO')
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
@@ -42,10 +43,9 @@ class SoporteTicketEditForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
-    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
-    tecnico = QuerySelectField(label="Técnico", query_factory=tecnicos_opciones, get_label="nombre", validators=[DataRequired()], allow_blank=True)
-    soluciones = TextAreaField("Solución", validators=[Optional(), Length(max=1024)])
-    estado = SelectField("Estado", choices=SoporteTicket.ESTADOS, validators=[DataRequired()])
+    categoria = StringField(label="Categoría")  # Read only
+    tecnico = StringField(label="Técnico")  # Read only
+    estado = StringField("Estado")  # Read only
     guardar = SubmitField("Guardar")
 
 
@@ -57,6 +57,15 @@ class SoporteTicketTakeForm(FlaskForm):
     categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     tecnico = StringField("Técnico")  # Read only
     guardar = SubmitField("Tomar")
+
+
+class SoporteTicketCategorizeForm(FlaskForm):
+    """Formulario SoporteTicket"""
+
+    usuario = StringField("Usuario")  # Read only
+    descripcion = TextAreaField("Descripción del problema")  # Read only
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
+    guardar = SubmitField("Categorizar")
 
 
 class SoporteTicketCloseForm(FlaskForm):

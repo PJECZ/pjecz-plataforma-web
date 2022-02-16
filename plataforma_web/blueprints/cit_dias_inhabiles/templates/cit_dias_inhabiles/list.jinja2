@@ -1,0 +1,41 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Días Inhábiles{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('CIT DIAS INHABILES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_dias_inhabiles.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_dias_inhabiles.list_active')) }}{% endif %}
+        {% endif %}
+            {{ topbar.button_new('Nuevo Día Inhábil', url_for('cit_dias_inhabiles.new')) }}
+            {{ topbar.button_previous('Citas', url_for('cit_citas.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="cit_dias_inhabiles_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dia_inhabil in dias_inhabiles %}
+                <tr>
+                    <td><a href="{{ url_for('cit_dias_inhabiles.detail', dia_inhabil_id=dia_inhabil.id) }}">{{ dia_inhabil.fecha }}</a></td>
+                    <td>{{ dia_inhabil.descripcion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('cit_dias_inhabiles_datatable') }}
+{% endblock %}

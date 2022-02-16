@@ -8,6 +8,7 @@ import click
 from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
+from plataforma_web.blueprints.roles.models import Rol
 
 SOPORTES_CATEGORIAS_CSV = "seed/soportes_categorias.csv"
 
@@ -30,9 +31,19 @@ def alimentar_soportes_categorias():
             if soporte_categoria_id != contador + 1:
                 click.echo(f"  AVISO: soporte_categoria_id {soporte_categoria_id} no es consecutivo")
                 continue
+            # Validar Rol
+            if "rol_id" in row:
+                rol_id = row["rol_id"]
+                rol = Rol.query.get(rol_id)
+                if rol is None:
+                    click.echo(f"  AVISO: Falta la rol_id {rol_id}")
+                    continue
+            else:
+                rol = Rol.query.get(2)  # Rol SOPORTE TECNICO
             SoporteCategoria(
                 nombre=safe_string(row["nombre"]),
                 estatus=row["estatus"],
+                rol=rol,
             ).save()
             contador += 1
             if contador % 100 == 0:

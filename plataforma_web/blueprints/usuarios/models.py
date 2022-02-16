@@ -31,9 +31,11 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer(), primary_key=True)
 
-    # Clave foránea
+    # Claves foráneas
     autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
     autoridad = db.relationship("Autoridad", back_populates="usuarios")
+    oficina_id = db.Column(db.Integer, db.ForeignKey("oficinas.id"), index=True, nullable=False)
+    oficina = db.relationship("Oficina", back_populates="usuarios")
 
     # Columnas
     email = db.Column(db.String(256), nullable=False, unique=True, index=True)
@@ -50,17 +52,52 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="usuario", lazy="noload")
     entradas_salidas = db.relationship("EntradaSalida", back_populates="usuario", lazy="noload")
-    tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
-    usuarios_roles = db.relationship("UsuarioRol", back_populates="usuario")
-    turnos = db.relationship("Turno", back_populates="usuario", lazy="noload")
-    soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
     mensajes = db.relationship("Mensaje", back_populates="destinatario", lazy="noload")
     mensajes_respuestas = db.relationship("MensajeRespuesta", back_populates="autor", lazy="noload")
+    soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
+    tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
+    turnos = db.relationship("Turno", back_populates="usuario", lazy="noload")
+    usuarios_roles = db.relationship("UsuarioRol", back_populates="usuario")
+
+    # Propiedades
+    modulos_menu_principal_consultados = []
+    permisos_consultados = {}
 
     @property
     def nombre(self):
         """Junta nombres, apellido_paterno y apellido materno"""
         return self.nombres + " " + self.apellido_paterno + " " + self.apellido_materno
+
+    @property
+    def modulos_menu_principal(self):
+        """Elaborar listado con los modulos ordenados para el menu principal"""
+        if len(self.modulos_menu_principal_consultados) > 0:
+            return self.modulos_menu_principal_consultados
+        modulos = []
+        modulos_nombres = []
+        for usuario_rol in self.usuarios_roles:
+            if usuario_rol.estatus == "A":
+                for permiso in usuario_rol.rol.permisos:
+                    if permiso.modulo.nombre not in modulos_nombres and permiso.estatus == "A" and permiso.nivel > 0 and permiso.modulo.en_navegacion:
+                        modulos.append(permiso.modulo)
+                        modulos_nombres.append(permiso.modulo.nombre)
+        self.modulos_menu_principal_consultados = sorted(modulos, key=lambda x: x.nombre_corto)
+        return self.modulos_menu_principal_consultados
+
+    @property
+    def permisos(self):
+        """Entrega un diccionario con todos los permisos"""
+        if len(self.permisos_consultados) > 0:
+            return self.permisos_consultados
+        self.permisos_consultados = {}
+        for usuario_rol in self.usuarios_roles:
+            if usuario_rol.estatus == "A":
+                for permiso in usuario_rol.rol.permisos:
+                    if permiso.estatus == "A":
+                        etiqueta = permiso.modulo.nombre
+                        if etiqueta not in self.permisos_consultados or permiso.nivel > self.permisos_consultados[etiqueta]:
+                            self.permisos_consultados[etiqueta] = permiso.nivel
+        return self.permisos_consultados
 
     @classmethod
     def find_by_identity(cls, identity):
@@ -78,49 +115,27 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
             return pwd_context.verify(password, self.contrasena)
         return True
 
-    def modulos(self):
-        """Elaborar listado con modulos para el menu principal"""
-        modulos = []
-        modulos_nombres = []
-        for usuario_rol in self.usuarios_roles:
-            if usuario_rol.estatus == "A":
-                for permiso in usuario_rol.rol.permisos:
-                    if permiso.estatus == "A" and permiso.nivel > 0 and permiso.modulo.en_navegacion and permiso.modulo.nombre not in modulos_nombres:
-                        modulos.append(permiso.modulo)
-                        modulos_nombres.append(permiso.modulo.nombre)
-        return sorted(modulos, key=lambda x: x.nombre_corto)
-
-    def can(self, module, permission):
+    def can(self, modulo_nombre: str, permission: int):
         """¿Tiene permiso?"""
-        if isinstance(module, str):
-            modulo = Modulo.query.filter_by(nombre=module.upper()).filter_by(estatus="A").first()
-            if modulo is None:
-                return False
-        elif isinstance(module, Modulo) is False:
-            return False
-        maximo = 0
-        for usuario_rol in self.usuarios_roles:
-            if usuario_rol.estatus == "A":
-                for permiso in usuario_rol.rol.permisos:
-                    if permiso.estatus == "A" and permiso.modulo == modulo and permiso.nivel > maximo:
-                        maximo = permiso.nivel
-        return maximo >= permission
+        if modulo_nombre in self.permisos:
+            return self.permisos[modulo_nombre] >= permission
+        return False
 
-    def can_view(self, module):
+    def can_view(self, modulo_nombre: str):
         """¿Tiene permiso para ver?"""
-        return self.can(module, Permiso.VER)
+        return self.can(modulo_nombre, Permiso.VER)
 
-    def can_edit(self, module):
+    def can_edit(self, modulo_nombre: str):
         """¿Tiene permiso para editar?"""
-        return self.can(module, Permiso.MODIFICAR)
+        return self.can(modulo_nombre, Permiso.MODIFICAR)
 
-    def can_insert(self, module):
+    def can_insert(self, modulo_nombre: str):
         """¿Tiene permiso para agregar?"""
-        return self.can(module, Permiso.CREAR)
+        return self.can(modulo_nombre, Permiso.CREAR)
 
-    def can_admin(self, module):
+    def can_admin(self, modulo_nombre: str):
         """¿Tiene permiso para administrar?"""
-        return self.can(module, Permiso.ADMINISTRAR)
+        return self.can(modulo_nombre, Permiso.ADMINISTRAR)
 
     def launch_task(self, nombre, descripcion, *args, **kwargs):
         """Arrancar tarea"""

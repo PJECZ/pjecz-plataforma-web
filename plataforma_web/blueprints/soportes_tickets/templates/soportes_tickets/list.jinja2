@@ -10,118 +10,104 @@
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
+            {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
+            {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
+            {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% if abiertos %}
-        {% call list.card('Abiertos') %}
-            <table id="soportes_tickets_abiertos_datatable" class="table display nowrap" style="width:100%">
+    {% for lista in listas_por_categorias %}
+        {% call list.card('Abiertos - ' + lista ) %}
+            <table id="{{lista.lower().replace(' ', '')}}_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Usuario</th>
+                        <th>Oficina</th>
+                        <th>Categoría</th>
                         <th>Descripción</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for abierto in abiertos %}
+                    {% for abierto in listas_por_categorias[lista] %}
                     <tr>
                         <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
-                        <td>{{ abierto.usuario.nombre }}</td>
+                        <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
+                        <td>{{ abierto.usuario.oficina.clave }}</td>
+                        <td>{{ abierto.soporte_categoria.nombre | truncate(48) }}</td>
                         <td>{{ abierto.descripcion | truncate(48) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% endcall %}
-    {% endif %}
+    {% endfor %}
+    <!-- Mostrar todos los abiertos a los de rol administrador -->
+    {% if current_user.can_admin('SOPORTES TICKETS')%}
+            {% call list.card('Abiertos - TODOS' ) %}
+                <table id="soportes_tickets_abiertos_todos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Oficina</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for abierto in lista_abiertos_todos %}
+                        <tr>
+                            <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
+                            <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
+                            <td>{{ abierto.usuario.oficina.clave }}</td>
+                            <td>{{ abierto.soporte_categoria.nombre | truncate(48) }}</td>
+                            <td>{{ abierto.descripcion | truncate(48) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endcall %}
+        {% endif %}
     {% if trabajados %}
         {% call list.card('Trabajando') %}
-            <table id="soportes_tickets_procesando_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Categoría</th>
-                        <th>Técnico</th>
-                        <th>Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for trabajado in trabajados %}
-                    <tr>
-                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
-                        <td>{{ trabajado.usuario.nombre }}</td>
-                        <td>{{ trabajado.soporte_categoria.nombre }}</td>
-                        <td>{{ trabajado.funcionario.nombre }}</td>
-                        <td>{{ trabajado.descripcion | truncate(48) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    {% endif %}
-    {% if terminados %}
-        {% call list.card('Terminados') %}
-            <table id="soportes_tickets_terminados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Categoría</th>
-                        <th>Técnico</th>
-                        <th>Soluciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for terminado in terminados %}
-                    <tr>
-                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=terminado.id) }}">{{ terminado.id }}</a></td>
-                        <td>{{ terminado.usuario.nombre }}</td>
-                        <td>{{ terminado.soporte_categoria.nombre }}</td>
-                        <td>{{ terminado.funcionario.nombre }}</td>
-                        <td>{{ terminado.soluciones | truncate(48) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    {% endif %}
-    {% if cancelados %}
-        {% call list.card('Cancelados') %}
-            <table id="soportes_tickets_cancelados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cancelado in cancelados %}
-                    <tr>
-                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=cancelado.id) }}">{{ cancelado.id }}</a></td>
-                        <td>{{ cancelado.usuario.nombre }}</td>
-                        <td>{{ cancelado.descripcion }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                <table id="soportes_tickets_trabajando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Oficina</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Técnico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trabajado in trabajados %}
+                        <tr>
+                            <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
+                            <td>{{ trabajado.usuario.nombre | truncate(24) }}</td>
+                            <td>{{ trabajado.usuario.oficina.clave }}</td>
+                            <td>{{ trabajado.soporte_categoria.nombre | truncate(48) }}</td>
+                            <td>{{ trabajado.descripcion | truncate(32) }}</td>
+                            <td>{{ trabajado.funcionario.nombre | truncate(24) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
         {% endcall %}
     {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('soportes_tickets_abiertos_datatable') }}
-    {{ list.datatable('soportes_tickets_procesando_datatable') }}
-    {{ list.datatable('soportes_tickets_terminados_datatable') }}
-    {{ list.datatable('soportes_tickets_cancelados_datatable') }}
-    <script>
-    window.setTimeout(function () {
-        window.location.reload();
-    }, 300000);
-    </script>
+    {% for lista in listas_por_categorias %}
+        {{ list.datatable( lista.lower().replace(' ', '') + "_datatable") }}
+    {% endfor %}
+    {{ list.datatable('soportes_tickets_abiertos_todos_datatable') }}
+    {{ list.datatable('soportes_tickets_trabajando_datatable') }}
+    <!-- Refrescar esta página -->
+    <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
 {% endblock %}

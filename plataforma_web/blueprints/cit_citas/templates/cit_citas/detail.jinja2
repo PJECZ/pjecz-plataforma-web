@@ -1,0 +1,56 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Cita{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Cita ' + cita.id | string) %}
+        {{ topbar.button_previous('citas', url_for('cit_citas.list_active')) }}
+        {% if current_user.can_edit('CIT CITAS') %}
+            {#{ topbar.button_edit('Editar', url_for('cit_citas.edit', cita_id=cita.id)) }#}
+            {% if cita.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cit_citas.delete', cita_id=cita.id)) }}{% endif %}
+            {% if cita.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cit_citas.recover', cita_id=cita.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=cita.estatus) %}
+        {{ detail.label_value_big('Id', cita.id) }}
+        {{ detail.label_value('Inicia', moment(cita.inicio_tiempo).format('llll')) }}
+        {{ detail.label_value('Finaliza', moment(cita.termino_tiempo).format('llll')) }}
+        {{ detail.label_value('Notas', cita.notas) }}
+        {{ detail.label_value('Estado', cita.estado) }}
+        {{ detail.label_value('Servicio', cita.servicio.nombre, url_for('cit_servicios.detail', servicio_id=cita.servicio.id)) }}
+        {{ detail.label_value('Cliente', cita.cliente.nombre, url_for('cit_clientes.detail', cliente_id=cita.cliente.id)) }}
+    {% endcall %}
+    {% if expedientes %}
+    {% call detail.card('Expedientes') %}
+        <table id="cit_expedientes_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Expediente</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for expediente in expedientes %}
+                <tr>
+                    <td><a href="{{ url_for('cit_expedientes.detail', expediente_id=expediente.id) }}">{{ expediente.expediente }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('CIT CITAS') %}
+        {% if cita.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cita.nombre + '?') }}{% endif %}
+        {% if cita.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cita.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+    {{ detail.datatable('cit_expedientes_datatable') }}
+{% endblock %}

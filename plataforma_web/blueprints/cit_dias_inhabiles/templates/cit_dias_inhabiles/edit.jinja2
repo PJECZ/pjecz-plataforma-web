@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Día Inhábil{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' +  dia_inhabil.fecha | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'dia_inhabil_id': dia_inhabil.id} %}
+        {% call f.form_tag('cit_dias_inhabiles.edit', fid='dia_inhabil_id_form', **form_kwargs) %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

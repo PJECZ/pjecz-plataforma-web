@@ -13,6 +13,8 @@
         {% set form_kwargs = {'soporte_categoria_id': soporte_categoria.id} %}
         {% call f.form_tag('soportes_categorias.edit', fid='soporte_categoria_form', **form_kwargs) %}
             {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.rol) %}{% endcall %}
+            {% call f.form_group(form.instrucciones, rows=7) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

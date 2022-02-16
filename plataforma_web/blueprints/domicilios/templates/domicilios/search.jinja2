@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Buscar Domicilios{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Buscar Domicilios') %}
+        {{ topbar.button_previous('Domicilios', url_for('domicilios.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('domicilios.search', fid='domicilios_search_form') %}
+            {% call f.form_group(form.calle) %}{% endcall %}
+            {% call f.form_group(form.colonia) %}{% endcall %}
+            {% call f.form_group(form.cp) %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

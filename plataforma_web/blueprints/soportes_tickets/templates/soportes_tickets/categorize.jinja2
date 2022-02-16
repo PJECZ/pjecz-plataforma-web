@@ -1,0 +1,41 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Categorizar Ticket{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Categorizar Ticket ' + soporte_ticket.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'soporte_ticket_id': soporte_ticket.id} %}
+        {% call f.form_tag('soportes_tickets.categorize', fid='soporte_ticket_form', **form_kwargs) %}
+            {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.descripcion, readonly=true, rows=6) %}{% endcall %}
+            {% call f.form_group(form.categoria) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#categoria').addClass('js-example-placeholder-single js-states form-control');
+            $("#categoria").prop("selectedIndex", -1);
+            $(".js-example-placeholder-single").select2({
+                placeholder: "Categoría",
+                allowClear: true
+            });
+        });
+    </script>
+{% endblock %}

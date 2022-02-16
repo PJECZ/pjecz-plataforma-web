@@ -15,7 +15,12 @@ from plataforma_web.blueprints.bitacoras.views import bitacoras
 from plataforma_web.blueprints.cid_procedimientos.views import cid_procedimientos
 from plataforma_web.blueprints.cid_formatos.views import cid_formatos
 from plataforma_web.blueprints.cid_registros.views import cid_registros
+from plataforma_web.blueprints.cit_citas.view import cit_citas
+from plataforma_web.blueprints.cit_clientes.views import cit_clientes
+from plataforma_web.blueprints.cit_citas_expedientes.views import cit_citas_expedientes
+from plataforma_web.blueprints.cit_dias_inhabiles.views import cit_dias_inhabiles
 from plataforma_web.blueprints.distritos.views import distritos
+from plataforma_web.blueprints.domicilios.views import domicilios
 from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.epocas.views import epocas
@@ -29,6 +34,7 @@ from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.mensajes.views import mensajes
 from plataforma_web.blueprints.modulos.views import modulos
+from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.peritos_tipos.views import peritos_tipos
 from plataforma_web.blueprints.permisos.views import permisos
@@ -40,6 +46,7 @@ from plataforma_web.blueprints.sentencias.views import sentencias
 from plataforma_web.blueprints.sistemas.views import sistemas
 from plataforma_web.blueprints.soportes_categorias.views import soportes_categorias
 from plataforma_web.blueprints.soportes_tickets.views import soportes_tickets
+from plataforma_web.blueprints.soportes_adjuntos.views import soportes_adjuntos
 from plataforma_web.blueprints.tareas.views import tareas
 from plataforma_web.blueprints.tesis_jurisprudencias.views import tesis_jurisprudencias
 from plataforma_web.blueprints.tesis_jurisprudencias_funcionarios.views import tesis_jurisprudencias_funcionarios
@@ -74,7 +81,12 @@ def create_app():
     app.register_blueprint(cid_procedimientos)
     app.register_blueprint(cid_formatos)
     app.register_blueprint(cid_registros)
+    app.register_blueprint(cit_citas)
+    app.register_blueprint(cit_citas_expedientes)
+    app.register_blueprint(cit_clientes)
+    app.register_blueprint(cit_dias_inhabiles)
     app.register_blueprint(distritos)
+    app.register_blueprint(domicilios)
     app.register_blueprint(edictos)
     app.register_blueprint(entradas_salidas)
     app.register_blueprint(epocas)
@@ -88,6 +100,7 @@ def create_app():
     app.register_blueprint(materias_tipos_juicios)
     app.register_blueprint(mensajes)
     app.register_blueprint(modulos)
+    app.register_blueprint(oficinas)
     app.register_blueprint(peritos)
     app.register_blueprint(peritos_tipos)
     app.register_blueprint(permisos)
@@ -99,6 +112,7 @@ def create_app():
     app.register_blueprint(sistemas)
     app.register_blueprint(soportes_categorias)
     app.register_blueprint(soportes_tickets)
+    app.register_blueprint(soportes_adjuntos)
     app.register_blueprint(tareas)
     app.register_blueprint(tesis_jurisprudencias)
     app.register_blueprint(tesis_jurisprudencias_funcionarios)

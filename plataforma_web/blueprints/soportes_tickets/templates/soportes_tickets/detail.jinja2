@@ -2,25 +2,42 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
 
 {% block title %}Soporte Ticket{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Ticket ' + soporte_ticket.id | string) %}
-        {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
-        {% if current_user.can_admin('SOPORTES TICKETS') %}
+        {% if soporte_ticket.estado == 'CANCELADO' %}
+            {{ topbar.button_previous('Tickets cancelados', url_for('soportes_tickets.list_cancel')) }}
+        {% elif soporte_ticket.estado == 'CERRADO' %}
+            {{ topbar.button_previous('Tickets cerrados', url_for('soportes_tickets.list_done')) }}
+        {% elif soporte_ticket.estado == 'NO RESUELTO' %}
+            {{ topbar.button_previous('Tickets no resuletos', url_for('soportes_tickets.list_no_resolve')) }}
+        {% else %}
+            {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
+        {% endif %}
+        {% if current_user.can_edit('SOPORTES TICKETS') and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO')  %}
             {{ topbar.button_edit('Editar', url_for('soportes_tickets.edit', soporte_ticket_id=soporte_ticket.id)) }}
+        {% endif %}
+        {% if soporte_ticket.estado == 'ABIERTO' or soporte_ticket.estado == 'TRABAJANDO' %}
+            {{ topbar.button('Adjuntar Archivo', url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id), 'mdi:file-upload-outline') }}
         {% endif %}
         {% if funcionario and current_user.can_edit('SOPORTES TICKETS') %}
             {% if soporte_ticket.estado == 'ABIERTO' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
+                {{ topbar.button_primary('Categorizar', url_for('soportes_tickets.categorize', soporte_ticket_id=soporte_ticket.id), 'mdi:order-bool-descending') }}
             {% endif %}
-            {% if soporte_ticket.estado == 'TRABAJANDO' %}
+            {% if soporte_ticket.estado == 'TRABAJANDO' or soporte_ticket.estado == 'NO RESUELTO' %}
                 {{ topbar.button_primary('Resolver', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}
+                {{ modals.button_modal('Soltar', url_for('soportes_tickets.release', soporte_ticket_id=soporte_ticket.id), 'soltar', 'mdi:stop-circle-outline', '¿Deseas soltar el Ticket?') }}
             {% endif %}
-            {% if soporte_ticket.estado != 'CANCELADO' %}
-                {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
+            {% if soporte_ticket.estado != 'NO RESUELTO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
+                {{ modals.button_modal('No Resuelto', url_for('soportes_tickets.no_resolve', soporte_ticket_id=soporte_ticket.id), 'no_resuelto', 'mdi:message-alert', '¿Deseas marcar este Ticket como No Resuelto?') }}
             {% endif %}
+        {% endif %}
+        {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
+            {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
         {% endif %}
         {% if current_user.can_admin('SOPORTES TICKETS') %}
             {% if soporte_ticket.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('soportes_tickets.delete', soporte_ticket_id=soporte_ticket.id)) }}{% endif %}
@@ -35,9 +52,8 @@
         {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
         {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
         {{ detail.label_value('Descripción del Problema', soporte_ticket.descripcion) }}
-        {% if soporte_ticket.soporte_categoria_id != 1 %}
-            {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
-        {% endif %}
+        {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
+        {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave + ' - ' + soporte_ticket.usuario.oficina.descripcion) }}
         {% if soporte_ticket.funcionario_id != 1 %}
             {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
         {% endif %}
@@ -46,6 +62,27 @@
         {% endif %}
         {{ detail.label_value('Soluciones', soporte_ticket.soluciones) }}
     {% endcall %}
+
+    {% if archivos %}
+        {% call list.card('Archivos Adjuntos') %}
+            <table id="soportes_archivos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for archivo in archivos %}
+                    <tr>
+                        <td><a href="{{ url_for('soportes_adjuntos.detail', soporte_adjunto_id=archivo.id) }}">{{ archivo.archivo }}</a></td>
+                        <td>{{ archivo.descripcion | truncate(48) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -53,5 +90,8 @@
     {% if current_user.can_edit('SOPORTES TICKETS') %}
         {% if soporte_ticket.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar este ticket?') }}{% endif %}
         {% if soporte_ticket.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este ticket?') }}{% endif %}
+        {{ modals.custom_javascript('Soltar', '¿Desea soltar este ticket?', 'soltar') }}
+        {{ modals.custom_javascript('No Resuleto', '¿Deseas marcar como "No Resuelto" este ticket?', 'no_resuelto') }}
     {% endif %}
+    {{ list.datatable('soportes_archivos_datatable') }}
 {% endblock %}

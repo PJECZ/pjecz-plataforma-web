@@ -1,0 +1,48 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Soportes Tickets{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('SOPORTES CATEGORIAS') %}
+            {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
+        {% endif %}
+        {% if current_user.can_insert('SOPORTES TICKETS') %}
+            {{ topbar.button_primary('Abiertos y Trabajando', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
+            {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
+            {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
+            {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card('Cancelados') %}
+        <table id="soportes_tickets_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%; background-color:#fdedec;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Oficina</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cancelado in cancelados %}
+                <tr>
+                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=cancelado.id) }}">{{ cancelado.id }}</a></td>
+                    <td>{{ cancelado.usuario.nombre | truncate(48) }}</td>
+                    <td>{{ cancelado.usuario.oficina.clave }}</td>
+                    <td>{{ cancelado.descripcion | truncate(48) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('soportes_tickets_datatable') }}
+{% endblock %}

@@ -19,6 +19,7 @@
         {% if current_user.can_insert('USUARIOS') %}
             {{ topbar.button_new('Nuevo Usuario', url_for('usuarios.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('usuarios.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -27,26 +28,79 @@
         <table id="usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>ID</th>
+                    <th>Nombres Completos</th>
+                    <th>CURP</th>
                     <th>e-mail</th>
-                    <th>Nombre Completo</th>
+                    <th>Puesto</th>
                     <th>Autoridad</th>
-                    <th>Workspace</th>
+                    <th>Oficina</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr>
-                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
-                    <td>{{ usuario.nombre }}</td>
-                    <td>{{ usuario.autoridad.clave }}</td>
-                    <td>{{ usuario.workspace }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('usuarios_datatable') }}
+    <script>
+        $('#usuarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/usuarios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "id" },
+                { data: "detalle" },
+                { data: "curp" },
+                { data: "email" },
+                { data: "puesto" },
+                { data: "autoridad_clave" },
+                { data: "oficina_clave" }
+            ],
+            columnDefs: [
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.nombre.length > 24) {
+                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 24) + '…' + '</a>';
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: [3, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

@@ -4,6 +4,14 @@
 
 {% block title %}Nuevo Ticket{% endblock %}
 
+{% block custom_head %}
+    <style>
+        .radiobutton_inline {
+            display: flex;
+        }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Nuevo Ticket') }}
 {% endblock %}
@@ -12,7 +20,8 @@
     {% call f.card() %}
         {% call f.form_tag('soportes_tickets.new', fid='soporte_tickets_form') %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.descripcion, rows=7) %}{% endcall %}
+            {% call f.form_group(form.clasificacion, css_class="radiobutton_inline") %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

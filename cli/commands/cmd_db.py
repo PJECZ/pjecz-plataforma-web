@@ -15,10 +15,12 @@ from plataforma_web.extensions import db
 from cli.commands.alimentar_autoridades import alimentar_autoridades
 from cli.commands.alimentar_autoridades_funcionarios import alimentar_autoridades_funcionarios
 from cli.commands.alimentar_distritos import alimentar_distritos
+from cli.commands.alimentar_domicilios import alimentar_domicilios
 from cli.commands.alimentar_funcionarios import alimentar_funcionarios
 from cli.commands.alimentar_materias import alimentar_materias
 from cli.commands.alimentar_materias_tipos_juicios import alimentar_materias_tipos_juicios
 from cli.commands.alimentar_modulos import alimentar_modulos
+from cli.commands.alimentar_oficinas import alimentar_oficinas
 from cli.commands.alimentar_peritos_tipos import alimentar_peritos_tipos
 from cli.commands.alimentar_permisos import alimentar_permisos
 from cli.commands.alimentar_roles import alimentar_roles
@@ -28,10 +30,12 @@ from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
 
 from cli.commands.respaldar_autoridades import respaldar_autoridades
 from cli.commands.respaldar_distritos import respaldar_distritos
+from cli.commands.respaldar_domicilios import respaldar_domicilios
 from cli.commands.respaldar_funcionarios import respaldar_funcionarios
 from cli.commands.respaldar_materias_tipos_juicios import respaldar_materias_tipos_juicios
 from cli.commands.respaldar_materias import respaldar_materias
 from cli.commands.respaldar_modulos import respaldar_modulos
+from cli.commands.respaldar_oficinas import respaldar_oficinas
 from cli.commands.respaldar_peritos_tipos import respaldar_peritos_tipos
 from cli.commands.respaldar_roles_permisos import respaldar_roles_permisos
 from cli.commands.respaldar_soportes_categorias import respaldar_soportes_categorias
@@ -72,6 +76,8 @@ def alimentar():
     alimentar_permisos()
     alimentar_distritos()
     alimentar_autoridades()
+    alimentar_domicilios()
+    alimentar_oficinas()
     alimentar_usuarios()
     alimentar_usuarios_roles()
     alimentar_funcionarios()
@@ -94,12 +100,14 @@ def respaldar():
     """Respaldar"""
     respaldar_autoridades()
     respaldar_distritos()
+    respaldar_domicilios()
     respaldar_funcionarios()
     respaldar_materias_tipos_juicios()
     respaldar_materias()
     respaldar_modulos()
     respaldar_roles_permisos()
     respaldar_usuarios_roles()
+    respaldar_oficinas()
     respaldar_peritos_tipos()
     respaldar_soportes_categorias()
     click.echo("Termina respaldar.")
