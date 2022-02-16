@@ -23,6 +23,13 @@ def cli():
 
 
 @click.command()
+def definir_oficinas():
+    """Definir las oficinas a partir de una relacion entre email y oficina"""
+    app.task_queue.enqueue("plataforma_web.blueprints.usuarios.tasks.definir_oficinas")
+    click.echo("Definir oficinas se está ejecutando en el fondo.")
+
+
+@click.command()
 def enviar_reporte():
     """Enviar via correo electronico el reporte"""
     app.task_queue.enqueue("plataforma_web.blueprints.usuarios.tasks.enviar_reporte")
@@ -61,6 +68,7 @@ def sincronizar():
     click.echo("Sincronizar se está ejecutando en el fondo.")
 
 
+cli.add_command(definir_oficinas)
 cli.add_command(enviar_reporte)
 cli.add_command(estandarizar)
 cli.add_command(nueva_contrasena)
