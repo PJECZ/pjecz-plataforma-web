@@ -331,6 +331,9 @@ def take(soporte_ticket_id):
         return redirect(detalle_url)
     form = SoporteTicketTakeForm()
     if form.validate_on_submit():
+        if form.categoria.data.id == 1:
+            flash("Por favor eliga una categoría diferente a NO DEFINIDO", "warning")
+            return redirect(detalle_url)
         ticket.soporte_categoria = form.categoria.data
         ticket.funcionario = funcionario
         ticket.estado = "TRABAJANDO"
