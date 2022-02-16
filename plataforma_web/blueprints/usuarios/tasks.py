@@ -1,7 +1,9 @@
 """
 Usuarios, tareas para ejecutar en el fondo
 
+- definir_oficinas: Definir las oficinas a partir de una relacion entre email y oficina
 - enviar_reporte: Enviar via correo electronico el reporte de usuarios
+- estandarizar: Estandarizar nombres, apellidos y puestos en mayusculas
 - sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
 import csv
@@ -54,7 +56,7 @@ def definir_oficinas():
     bitacora.info("Inicia definir oficinas")
 
     # Tomar oficina NO DEFINIDO
-    oficina_no_definido = db.session.query(Oficina).filter_by(clave="ND").first()
+    oficina_no_definido = Oficina.query.filter_by(clave="ND").first()
     if oficina_no_definido is None:
         mensaje = "No se encontró la oficina NO DEFINIDO"
         set_task_error(mensaje)
@@ -63,14 +65,14 @@ def definir_oficinas():
 
     # Definir las equivalencias entre distrito_nombre y la oficina
     oficinas_relacion_distritos_nombres = {
-        "ACUÑA": db.session.query(Oficina).filter_by(clave="DACU").first(),
-        "MONCLOVA": db.session.query(Oficina).filter_by(clave="DMON").first(),
-        "PARRAS": db.session.query(Oficina).filter_by(clave="DPAR").first(),
-        "PIEDRAS NEGRAS": db.session.query(Oficina).filter_by(clave="DRGR").first(),
-        "SABINAS": db.session.query(Oficina).filter_by(clave="DSAB").first(),
-        "SALTILLO": db.session.query(Oficina).filter_by(clave="DSAL").first(),
-        "SAN PEDRO": db.session.query(Oficina).filter_by(clave="DSPC").first(),
-        "TORREON": db.session.query(Oficina).filter_by(clave="DTOR").first(),
+        "ACUÑA": Oficina.query.filter_by(clave="DACU").first(),
+        "MONCLOVA": Oficina.query.filter_by(clave="DMON").first(),
+        "PARRAS": Oficina.query.filter_by(clave="DPAR").first(),
+        "PIEDRAS NEGRAS": Oficina.query.filter_by(clave="DRGR").first(),
+        "SABINAS": Oficina.query.filter_by(clave="DSAB").first(),
+        "SALTILLO": Oficina.query.filter_by(clave="DSAL").first(),
+        "SAN PEDRO": Oficina.query.filter_by(clave="DSPC").first(),
+        "TORREON": Oficina.query.filter_by(clave="DTOR").first(),
     }
     for distrito_nombre, oficina in oficinas_relacion_distritos_nombres.items():
         if oficina is None:
@@ -100,7 +102,7 @@ def definir_oficinas():
         for row in rows:
             email = row["email"].strip().lower()
             distrito_nombre = row["distrito"].strip().upper()
-            usuario = db.session.query(Usuario).filter_by(email=email).first()
+            usuario = Usuario.query.filter_by(email=email).first()
             if usuario is None:
                 emails_no_encontrados += 1
                 bitacora.warning("No se encontró el email %s", email)
@@ -108,8 +110,7 @@ def definir_oficinas():
                 if usuario.oficina == oficina_no_definido:
                     if distrito_nombre in oficinas_relacion_distritos_nombres:
                         usuario.oficina = oficinas_relacion_distritos_nombres[distrito_nombre]
-                        db.session.add(usuario)
-                        db.session.commit()
+                        usuario.save()
                         usuarios_cambiados_contador += 1
                 else:
                     usuarios_sin_cambios_contador += 1
@@ -131,7 +132,7 @@ def enviar_reporte():
     bitacora.info("Inicia enviar reporte")
 
     # Consultar
-    usuarios = db.session.query(Usuario).filter_by(estatus="A")
+    usuarios = Usuario.query.filter_by(estatus="A")
     bitacora.info("Hay %s usuarios activos", usuarios.count())
 
     # Terminar
