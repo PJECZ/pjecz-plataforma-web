@@ -32,7 +32,7 @@
             <tbody>
                 {% for soporte_categoria in soportes_categorias %}
                 <tr>
-                    <td><a href="{{ url_for('soportes_categorias.detail', soporte_categoria_id=soporte_categoria.id) }}">{{ soporte_categoria.nombre }}</a></td>
+                    <td><a href="{{ url_for('soportes_categorias.detail', soporte_categoria_id=soporte_categoria.id) }}">{{ soporte_categoria.nombre | truncate(50) }}</a></td>
                     <td>{{ soporte_categoria.rol.nombre }}</td>
                     <td>{% if soporte_categoria.instrucciones %}Sí{% else %}No{% endif %}</td>
                 </tr>

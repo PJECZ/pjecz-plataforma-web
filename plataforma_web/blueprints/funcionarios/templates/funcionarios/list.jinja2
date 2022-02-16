@@ -6,13 +6,17 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {{ topbar.button_list_active('En funciones', url_for('funcionarios.list_active')) }}
+        {{ topbar.button_list_active('En sentencias', url_for('funcionarios.list_active_en_sentencias')) }}
+        {{ topbar.button_list_active('En soportes', url_for('funcionarios.list_active_en_soportes')) }}
+        {{ topbar.button_list_active('En tesis y jurisprudencias', url_for('funcionarios.list_active_en_tesis_jurisprudencias')) }}
         {% if current_user.can_edit('FUNCIONARIOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('funcionarios.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('funcionarios.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('FUNCIONARIOS') %}
             {{ topbar.button_new('Nuevo Funcionario', url_for('funcionarios.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('funcionarios.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -21,30 +25,75 @@
         <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Nombres completos</th>
-                    <th>email</th>
-                    <th>En funciones</th>
-                    <th>En sentencias</th>
-                    <th>En soportes</th>
-                    <th>En T. y J.</th>
+                    <th>CURP</th>
+                    <th>e-mail</th>
+                    <th>Puesto</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for funcionario in funcionarios %}
-                <tr>
-                    <td><a href="{{ url_for('funcionarios.detail', funcionario_id=funcionario.id) }}">{{ funcionario.nombre }}</a></td>
-                    <td>{{ funcionario.email }}</td>
-                    <td>{% if funcionario.en_funciones %}SI{% endif %}</td>
-                    <td>{% if funcionario.en_sentencias %}SI{% endif %}</td>
-                    <td>{% if funcionario.en_soportes %}SI{% endif %}</td>
-                    <td>{% if funcionario.en_tesis_jurisprudencias %}SI{% endif %}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('funcionarios_datatable') }}
+    <script>
+        $('#funcionarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/funcionarios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "id" },
+                { data: "detalle" },
+                { data: "curp" },
+                { data: "email" },
+                { data: "puesto" }
+            ],
+            columnDefs: [
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.nombre.length > 32) {
+                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 32) + '…' + '</a>';
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: [3, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

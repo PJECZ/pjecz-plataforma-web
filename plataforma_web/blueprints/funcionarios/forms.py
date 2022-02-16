@@ -9,7 +9,8 @@ from lib.safe_string import CURP_REGEXP
 
 
 class FuncionarioForm(FlaskForm):
-    """ Formulario Funcionario """
+    """Formulario Funcionario"""
+
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
@@ -20,4 +21,16 @@ class FuncionarioForm(FlaskForm):
     en_sentencias = BooleanField("En sentencias", validators=[Optional()])
     en_soportes = BooleanField("En soportes", validators=[Optional()])
     en_tesis_jurisprudencias = BooleanField("En tesis y jurisprudencias", validators=[Optional()])
-    guardar = SubmitField('Guardar')
+    guardar = SubmitField("Guardar")
+
+
+class FuncionarioSearchForm(FlaskForm):
+    """Formulario de búsqueda de Funcionarios"""
+
+    nombres = StringField("Nombres", validators=[Optional(), Length(max=256)])
+    apellido_paterno = StringField("Apellido paterno", validators=[Optional(), Length(max=256)])
+    apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
+    curp = StringField("CURP", validators=[Optional(), Length(max=18)])
+    puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
+    email = StringField("e-mail", validators=[Optional(), Length(max=256)])
+    buscar = SubmitField("Buscar")
