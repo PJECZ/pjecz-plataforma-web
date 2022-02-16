@@ -4,11 +4,13 @@ Usuarios, tareas para ejecutar en el fondo
 - enviar_reporte: Enviar via correo electronico el reporte de usuarios
 - sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
+import csv
 import locale
 import logging
 import os
-import requests
+from pathlib import Path
 
+import requests
 from dotenv import load_dotenv
 from sqlalchemy import or_
 
@@ -41,6 +43,85 @@ app.app_context().push()
 db.app = app
 
 locale.setlocale(locale.LC_TIME, "es_MX.utf8")
+
+USUARIOS_EMAILS_DISTRITOS_CSV = "seed/usuarios_emails_distritos.csv"
+
+
+def definir_oficinas():
+    """Definir las oficinas a partir de una relacion entre email y oficina"""
+
+    # Iniciar
+    bitacora.info("Inicia definir oficinas")
+
+    # Tomar oficina NO DEFINIDO
+    oficina_no_definido = db.session.query(Oficina).filter_by(clave="ND").first()
+    if oficina_no_definido is None:
+        mensaje = "No se encontró la oficina NO DEFINIDO"
+        set_task_error(mensaje)
+        bitacora.error(mensaje)
+        return
+
+    # Definir las equivalencias entre distrito_nombre y la oficina
+    oficinas_relacion_distritos_nombres = {
+        "ACUÑA": db.session.query(Oficina).filter_by(clave="DACU").first(),
+        "MONCLOVA": db.session.query(Oficina).filter_by(clave="DMON").first(),
+        "PARRAS": db.session.query(Oficina).filter_by(clave="DPAR").first(),
+        "PIEDRAS NEGRAS": db.session.query(Oficina).filter_by(clave="DRGR").first(),
+        "SABINAS": db.session.query(Oficina).filter_by(clave="DSAB").first(),
+        "SALTILLO": db.session.query(Oficina).filter_by(clave="DSAL").first(),
+        "SAN PEDRO": db.session.query(Oficina).filter_by(clave="DSPC").first(),
+        "TORREON": db.session.query(Oficina).filter_by(clave="DTOR").first(),
+    }
+    for distrito_nombre, oficina in oficinas_relacion_distritos_nombres.items():
+        if oficina is None:
+            mensaje = "No se encontró la oficina para el distrito %s" % distrito_nombre
+            set_task_error(mensaje)
+            bitacora.error(mensaje)
+            return
+
+    # Cargar archivo CSV
+    ruta = Path(USUARIOS_EMAILS_DISTRITOS_CSV)
+    if not ruta.exists():
+        mensaje = "No se encontró {ruta.name}"
+        set_task_error(mensaje)
+        bitacora.error(mensaje)
+        return
+    if not ruta.is_file():
+        mensaje = "No es un archivo {ruta.name}"
+        set_task_error(mensaje)
+        bitacora.error(mensaje)
+        return
+    contador = 0
+    usuarios_cambiados_contador = 0
+    usuarios_sin_cambios_contador = 0
+    emails_no_encontrados = 0
+    with open(ruta, encoding="utf8") as puntero:
+        rows = csv.DictReader(puntero)
+        for row in rows:
+            email = row["email"].strip().lower()
+            distrito_nombre = row["distrito"].strip().upper()
+            usuario = db.session.query(Usuario).filter_by(email=email).first()
+            if usuario is None:
+                emails_no_encontrados += 1
+                bitacora.warning("No se encontró el email %s", email)
+            else:
+                if usuario.oficina == oficina_no_definido:
+                    if distrito_nombre in oficinas_relacion_distritos_nombres:
+                        usuario.oficina = oficinas_relacion_distritos_nombres[distrito_nombre]
+                        db.session.add(usuario)
+                        db.session.commit()
+                        usuarios_cambiados_contador += 1
+                else:
+                    usuarios_sin_cambios_contador += 1
+            contador += 1
+            if contador % 100 == 0:
+                bitacora.info("Procesados %d", contador)
+
+    # Terminar
+    set_task_progress(100)
+    mensaje_final = f"Terminado definir oficinas satisfactoriamente con {contador} usuarios actualizados"
+    bitacora.info(mensaje_final)
+    return mensaje_final
 
 
 def enviar_reporte():
