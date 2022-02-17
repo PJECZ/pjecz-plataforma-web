@@ -203,9 +203,6 @@ def sentencias_json():
 @sistemas.route("/")
 def start():
     """Página inicial"""
-    # current_rol = UsuarioRol.query.filter(UsuarioRol.rol_id).filter(UsuarioRol.usuario_id)
-    # print(current_rol)
-
     if current_user.is_authenticated:
         return render_template("sistemas/start.jinja2")
     return redirect("/login")

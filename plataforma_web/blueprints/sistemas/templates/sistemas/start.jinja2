@@ -22,7 +22,7 @@
     {% call start.card() %}
         <h1 class="text-center">Plataforma Web</h1>
         <br />
-        {# {% if  current_user.can_edit('ROLES') != "SOPORTE USUARIO"%} #}
+        {# Cambio de pantalla si no tiene privilegios para crear tickets #}
         {% if  current_user.can_edit("SOPORTES TICKETS")%}
             <div class="row" >
                 <div class="box col-8 col-md-8 mb-2 align-middle" >
@@ -38,7 +38,6 @@
                     </span>
                 </div>
             </div>
-        {# {% endif %} #}
         {% else %}
             <div class="row" >
                 <div class="box col-6 col-md-6 mb-2 align-middle" >
@@ -46,8 +45,8 @@
                 </div>
                 <div class="col-6 col-sm-6 mb-2 align-self-center align-middle">
                     <h4>Bienvenido al sistema</h4> 
-                    <p>Note que ha ingresado con una cuenta que <strong>NO ES PERSONAL.</strong> </p>
-                    <p>Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx </p>
+                    <p>Note que ha ingresado con una cuenta que <strong>no es personal.</strong> </p>
+                    <p>Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx . </p>
                 </div>
             </div>
         {% endif%}
