@@ -8,7 +8,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Ticket ' + soporte_ticket.id | string) %}
-        {% if soporte_ticket.estado == 'CANCELADO' %}
+        {% if soporte_ticket.estado == 'CANCELADO' and current_user.can_admin('SOPORTES USUARIOS') %}
             {{ topbar.button_previous('Tickets cancelados', url_for('soportes_tickets.list_cancel')) }}
         {% elif soporte_ticket.estado == 'CERRADO' %}
             {{ topbar.button_previous('Tickets cerrados', url_for('soportes_tickets.list_done')) }}
