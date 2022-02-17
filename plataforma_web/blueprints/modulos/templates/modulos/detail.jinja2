@@ -28,29 +28,15 @@
         <table id="permisos_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Roles</th>
+                    <th>Nombres</th>
+                    <th>Modulos</th>
                     <th>Niveles</th>
-                    <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for permiso in modulo.permisos %}
-                {% if permiso.estatus == "A" %}
-                <tr>
-                    <td><a href="{{ url_for('roles.detail', rol_id=permiso.rol_id) }}">{{ permiso.rol.nombre }}</a></td>
-                    <td><a href="{{ url_for('permisos.detail', permiso_id=permiso.id) }}">{{ permiso.nivel_descrito }}</a></td>
-                    <td>
-                    {% if current_user.can_edit('permisos') %}
-                        {{ list.button_edit(url=url_for('permisos.edit', permiso_id=permiso.id)) }}
-                        {{ modals.button_delete(url=url_for('permisos.delete', permiso_id=permiso.id), id='DeletePermiso', message='¿Eliminar ' + permiso.nombre + '?') }}
-                    {% endif %}
-                    </td>
-                </tr>
-                {% endif %}
-            {% endfor %}
-            </tbody>
         </table>
+        {% if current_user.can_insert('PERMISOS') %}
         <a href="{{ url_for('permisos.new_with_modulo', modulo_id=modulo.id) }}" class="btn btn-primary">Agregar</a>
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -59,6 +45,51 @@
         {% if modulo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + modulo.nombre + '?') }}{% endif %}
         {% if modulo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', 'Recuperar a ' + modulo.nombre + '?') }}{% endif %}
     {% endif %}
-    {{ detail.datatable('permisos_datatable') }}
     {{ modals.custom_javascript('Eliminar', '¿Eliminar ese permiso del rol?', 'DeletePermiso') }}
+    <script>
+        $('#permisos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/permisos/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {"estatus": "A", "modulo_id": {{ modulo.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "modulo_nombre" },
+                { data: "nivel" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
