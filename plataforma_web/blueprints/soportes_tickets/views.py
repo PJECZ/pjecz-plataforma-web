@@ -140,7 +140,7 @@ def list_user():
     # Entregar
     return render_template(
         "soportes_tickets/list_user.jinja2",
-        tickets=tickets,
+        tickets=tickets.order_by(SoporteTicket.id.asc()).limit(100).all(),
         titulo="Tickets",
         estatus="A",
     )
