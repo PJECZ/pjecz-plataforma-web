@@ -214,6 +214,8 @@ def datatable_json():
         consulta = consulta.filter(Usuario.puesto.like("%" + safe_string(request.form["puesto"]) + "%"))
     if "email" in request.form:
         consulta = consulta.filter(Usuario.email.like("%" + safe_string(request.form["email"], to_uppercase=False) + "%"))
+    if "oficina_id" in request.form:
+        consulta = consulta.filter_by(oficina_id=request.form["oficina_id"])
     registros = consulta.order_by(Usuario.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -226,7 +228,6 @@ def datatable_json():
                     "nombre": resultado.nombre,
                     "url": url_for("usuarios.detail", usuario_id=resultado.id),
                 },
-                "curp": resultado.curp,
                 "email": resultado.email,
                 "puesto": resultado.puesto,
                 "autoridad_clave": resultado.autoridad.clave,

@@ -8,7 +8,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Ticket ' + soporte_ticket.id | string) %}
-        {% if soporte_ticket.estado == 'CANCELADO' %}
+        {% if soporte_ticket.estado == 'CANCELADO' and current_user.can_admin('SOPORTES USUARIOS') %}
             {{ topbar.button_previous('Tickets cancelados', url_for('soportes_tickets.list_cancel')) }}
         {% elif soporte_ticket.estado == 'CERRADO' %}
             {{ topbar.button_previous('Tickets cerrados', url_for('soportes_tickets.list_done')) }}
@@ -37,7 +37,10 @@
             {% endif %}
         {% endif %}
         {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
-            {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
+            {{ modals.button_modal('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'cancelar', 'mdi:cancel', '¿Desesas cancelar el Ticket?') }}
+        {% endif %}
+        {% if soporte_ticket.estado == 'CANCELADO' %}
+            {{ modals.button_modal('Descancelar', url_for('soportes_tickets.uncancel', soporte_ticket_id=soporte_ticket.id), 'descancelar', 'mdi:cancel', '¿Deseas descancelar el Ticket?') }}
         {% endif %}
         {% if current_user.can_admin('SOPORTES TICKETS') %}
             {% if soporte_ticket.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('soportes_tickets.delete', soporte_ticket_id=soporte_ticket.id)) }}{% endif %}
@@ -92,6 +95,8 @@
         {% if soporte_ticket.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este ticket?') }}{% endif %}
         {{ modals.custom_javascript('Soltar', '¿Desea soltar este ticket?', 'soltar') }}
         {{ modals.custom_javascript('No Resuleto', '¿Deseas marcar como "No Resuelto" este ticket?', 'no_resuelto') }}
+        {{ modals.custom_javascript('Sí Cancelar', '¿Deseas cancelar este ticket?', 'cancelar') }}
+        {{ modals.custom_javascript('Descancelar', '¿Deseas descancelar este ticket?', 'descancelar') }}
     {% endif %}
     {{ list.datatable('soportes_archivos_datatable') }}
 {% endblock %}

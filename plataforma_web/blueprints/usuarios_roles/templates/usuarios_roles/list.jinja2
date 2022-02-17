@@ -19,9 +19,6 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('usuarios_roles.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('usuarios_roles.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('USUARIOS ROLES') %}
-            {{ topbar.button_new('Nuevo Usuario-Rol', url_for('usuarios_roles.new')) }}
-        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -30,20 +27,71 @@
         <table id="usuarios_roles_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Descripciones</th>
+                    <th>ID</th>
+                    <th>Nombres completos</th>
+                    <th>Puestos</th>
+                    <th>e-mails</th>
+                    <th>Roles</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for usuario_rol in usuarios_roles %}
-                <tr>
-                    <td><a href="{{ url_for('usuarios_roles.detail', usuario_rol_id=usuario_rol.id) }}">{{ usuario_rol.descripcion }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('usuarios_roles_datatable') }}
+    <script>
+        $('#usuarios_roles_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/usuarios_roles/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "usuario_nombre" },
+                { data: "usuario_puesto" },
+                { data: "usuario_email" },
+                { data: "rol_nombre" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: [1, 2, 3],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

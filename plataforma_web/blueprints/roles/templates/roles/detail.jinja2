@@ -22,68 +22,31 @@
         <table id="permisos_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Nombres</th>
                     <th>Modulos</th>
-                    <th>Permisos</th>
-                    <th>Acciones</th>
+                    <th>Niveles</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for permiso in rol.permisos %}
-                {% if permiso.estatus == "A" and permiso.modulo.estatus == "A" %}
-                <tr>
-                    <td><a href="{{ url_for('modulos.detail', modulo_id=permiso.modulo_id) }}">{{ permiso.modulo.nombre }}</a></td>
-                    <td><a href="{{ url_for('permisos.detail', permiso_id=permiso.id) }}">{{ permiso.nivel_descrito }}</a></td>
-                    <td>
-                    {% if current_user.can_edit('PERMISOS') %}
-                        {{ list.button_edit(url=url_for('permisos.edit', permiso_id=permiso.id)) }}
-                        {{ modals.button_delete(url=url_for('permisos.delete', permiso_id=permiso.id), id='DeletePermiso', message='¿Eliminar ' + permiso.nombre + '?') }}
-                    {% endif %}
-                    </td>
-                </tr>
-                {% endif %}
-            {% endfor %}
-            </tbody>
         </table>
         {% if current_user.can_insert('PERMISOS') %}
-            <a href="{{ url_for('permisos.new_with_rol', rol_id=rol.id) }}" class="btn btn-primary">Agregar</a>
+        <a href="{{ url_for('permisos.new_with_rol', rol_id=rol.id) }}" class="btn btn-primary">Agregar</a>
         {% endif %}
     {% endcall %}
-    {% call detail.card('Usuarios-Roles') %}
-        <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
+    {% call detail.card('Usuarios') %}
+        <table id="usuarios_roles_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>e-mail</th>
-                    <th>Nombres</th>
+                    <th>ID</th>
+                    <th>Nombres completos</th>
                     <th>Puestos</th>
-                    <th>Acciones</th>
+                    <th>e-mail</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for usuario_rol in rol.usuarios_roles %}
-                {% if usuario_rol.estatus == "A" and usuario_rol.usuario.estatus == "A" %}
-                <tr>
-                    <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario_rol.usuario_id) }}">{{ usuario_rol.usuario.email }}</a></td>
-                    <td>{{ usuario_rol.usuario.nombre }}</td>
-                    <td>{{ usuario_rol.usuario.puesto }}</td>
-                    <td>
-                    {% if current_user.can_edit('USUARIOS ROLES') %}
-                        {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteUsuarioRol', message='¿Eliminar ' + usuario_rol.usuario.nombre + '?') }}
-                    {% endif %}
-                    </td>
-                </tr>
-                {% endif %}
-            {% endfor %}
-            </tbody>
         </table>
-        {% if current_user.can_insert('USUARIOS ROLES') %}
-            <a href="{{ url_for('usuarios_roles.new_with_rol', rol_id=rol.id) }}" class="btn btn-primary">Agregar</a>
-        {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ detail.datatable('permisos_datatable') }}
-    {{ detail.datatable('usuarios_datatable') }}
     {% if current_user.can_edit('ROLES') %}
         {% if rol.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rol.nombre + '?') }}{% endif %}
         {% if rol.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + rol.nombre + '?') }}{% endif %}
@@ -94,4 +57,104 @@
     {% if current_user.can_edit('USUARIOS ROLES') %}
         {{ modals.custom_javascript('Eliminar', '¿Eliminar ese usuario del rol?', 'DeleteUsuarioRol') }}
     {% endif %}
+    <script>
+        $('#permisos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/permisos/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {"estatus": "A", "rol_id": {{ rol.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "modulo_nombre" },
+                { data: "nivel" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
+    <script>
+        $('#usuarios_roles_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/usuarios_roles/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {"estatus": "A", "rol_id": {{ rol.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "usuario_nombre" },
+                { data: "usuario_puesto" },
+                { data: "usuario_email" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: [1, 2, 3],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
