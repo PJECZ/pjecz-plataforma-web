@@ -27,6 +27,19 @@
         {{ detail.label_value('Límite de Personas', oficina.limite_personas) }}
         {{ detail.label_value_boolean('Juridiccional', oficina.es_juridiccional) }}
     {% endcall %}
+    {% call detail.card('Usuarios') %}
+        <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>IDs</th>
+                    <th>Nombres Completos</th>
+                    <th>e-mail</th>
+                    <th>Puesto</th>
+                    <th>Autoridad</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -34,4 +47,63 @@
         {% if oficina.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar ' + oficina.clave + '?') }}{% endif %}
         {% if oficina.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar ' + oficina.clave + '?') }}{% endif %}
     {% endif %}
+    <script>
+        $('#usuarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/usuarios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {"estatus": "A", "oficina_id": {{ oficina.id }}},
+            },
+            columns: [
+                { data: "id" },
+                { data: "detalle" },
+                { data: "email" },
+                { data: "puesto" },
+                { data: "autoridad_clave" }
+            ],
+            columnDefs: [
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.nombre.length > 32) {
+                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 32) + '…' + '</a>';
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: [2, 3],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
