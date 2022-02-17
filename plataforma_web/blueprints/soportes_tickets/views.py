@@ -507,7 +507,35 @@ def cancel(soporte_ticket_id):
     bitacora = Bitacora(
         modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
-        descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id} registro con..."),
+        descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id}."),
+        url=detalle_url,
+    )
+    bitacora.save()
+    flash(bitacora.descripcion, "success")
+    return redirect(bitacora.url)
+
+
+@soportes_tickets.route("/soportes_tickets/descancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def uncancel(soporte_ticket_id):
+    """Para descancelar un ticket este debe estar CANCELADO y ser funcionario de soportes"""
+    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
+    if soporte_ticket.estatus != "A":
+        flash("No se puede descancelar un ticket eliminado.", "warning")
+        return redirect(detalle_url)
+    if soporte_ticket.estado != "CANCELADO":
+        flash("No se puede descancelar un ticket que no este en estado de CANCELADO.", "warning")
+        return redirect(detalle_url)
+    if soporte_ticket.funcionario_id is 1:  # Si su funcionario es NO DEFINIDO pasa a ABIERTO
+        soporte_ticket.estado = "ABIERTO"
+    else:
+        soporte_ticket.estado = "TRABAJANDO"
+    soporte_ticket.save()
+    bitacora = Bitacora(
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+        usuario=current_user,
+        descripcion=safe_message(f"El Ticket {soporte_ticket.id} ha sido descancelado."),
         url=detalle_url,
     )
     bitacora.save()
