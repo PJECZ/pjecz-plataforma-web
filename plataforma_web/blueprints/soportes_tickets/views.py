@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import func
 
 from lib import datatables
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_message, safe_string, safe_text
 from plataforma_web.blueprints.soportes_adjuntos.models import SoporteAdjunto
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -54,9 +54,10 @@ def before_request():
 
 @soportes_tickets.route("/soportes_tickets")
 def list_active():
+    """Listado de Tickets"""
+    
     if current_user.can_admin(MODULO):
         return list_soport()
-
     return list_user()
 
 
@@ -127,10 +128,13 @@ def list_soport():
 @soportes_tickets.route("/soportes_tickets/usuario")
 def list_user():
     """Listado de TODOS los Tickets activos para un usuario"""
+
     # Inicializar las tablas a mandar a la plantilla
     tickets = SoporteTicket.query.filter_by(estatus="A")
+
     # Consultar el funcionario (si es de soporte) a partir del usuario actual
     funcionario = _get_funcionario_from_current_user()
+
     # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
     if current_user.can_insert(MODULO) and funcionario:
         tickets = tickets.filter(SoporteTicket.funcionario == funcionario)
@@ -252,7 +256,7 @@ def new():
     categoria_no_definida = SoporteCategoria.query.get_or_404(1)  # La categoria con id 1 es NO DEFINIDA
     form = SoporteTicketNewForm()
     if form.validate_on_submit():
-        descripcion = safe_string(form.descripcion.data)
+        descripcion = safe_text(form.descripcion.data)
         clasificacion = safe_string(form.clasificacion.data)
         if clasificacion != "OTRO":
             descripcion=f"[{clasificacion}] {descripcion}"
@@ -295,7 +299,7 @@ def new_for_usuario(usuario_id):
             funcionario=tecnico,
             soporte_categoria=form.categoria.data,
             usuario=usuario,
-            descripcion=safe_string(form.descripcion.data),
+            descripcion=safe_text(form.descripcion.data),
             estado="ABIERTO",
             resolucion="",
             soluciones="",
@@ -352,7 +356,7 @@ def edit(soporte_ticket_id):
         return redirect(detalle_url)
     form = SoporteTicketEditForm()
     if form.validate_on_submit():
-        ticket.descripcion = safe_string(form.descripcion.data)
+        ticket.descripcion = safe_text(form.descripcion.data)
         ticket.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -497,7 +501,7 @@ def close(soporte_ticket_id):
     form = SoporteTicketCloseForm()
     if form.validate_on_submit():
         ticket.estado = "CERRADO"
-        ticket.soluciones = safe_string(form.soluciones.data)
+        ticket.soluciones = safe_text(form.soluciones.data)
         ticket.resolucion = datetime.now()
         ticket.save()
         bitacora = Bitacora(
@@ -563,6 +567,7 @@ def cancel(soporte_ticket_id):
         flash("No puede cancelar un ticket que no está abierto o trabajando.", "warning")
         return redirect(detalle_url)
     soporte_ticket.estado = "CANCELADO"
+    soporte_ticket.soluciones = ""
     soporte_ticket.resolucion = datetime.now()
     soporte_ticket.save()
     bitacora = Bitacora(
@@ -588,7 +593,7 @@ def uncancel(soporte_ticket_id):
     if soporte_ticket.estado != "CANCELADO":
         flash("No se puede descancelar un ticket que no este en estado de CANCELADO.", "warning")
         return redirect(detalle_url)
-    if soporte_ticket.funcionario_id is 1:  # Si su funcionario es NO DEFINIDO pasa a ABIERTO
+    if soporte_ticket.funcionario_id == 1:  # Si su funcionario es NO DEFINIDO pasa a ABIERTO
         soporte_ticket.estado = "ABIERTO"
     else:
         soporte_ticket.estado = "TRABAJANDO"
