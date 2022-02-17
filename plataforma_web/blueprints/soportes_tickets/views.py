@@ -70,7 +70,8 @@ def list_soport():
         "soportes_tickets/list.jinja2",
         filtros_abiertos_categorizados=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "CATEGORIZADOS"}),
         filtros_abiertos_todos=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "TODOS"}),
-        filtros_trabajando=json.dumps({"estatus": "A", "estado": "TRABAJANDO"}),
+        filtros_trabajando_mios=json.dumps({"estatus": "A", "estado": "TRABAJANDO", "soporte_tickets_trabajando": "MIOS"}),
+        filtros_trabajando_todos=json.dumps({"estatus": "A", "estado": "TRABAJANDO", "soporte_tickets_trabajando": "TODOS"}),
         titulo="Tickets",
         estatus="A",
     )
@@ -157,7 +158,6 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.estatus=="")
 
     if "soportes_tickets_abiertos" in request.form:
-        funcionario = _get_funcionario_from_current_user()
         # Extraemos los roles del usuario
         current_user_roles_id = []
         for usuario_rol in current_user.usuarios_roles:
@@ -167,6 +167,13 @@ def datatable_json():
             consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(current_user_roles_id))
         else: # TODOS
             consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(current_user_roles_id))
+
+    if "soporte_tickets_trabajando" in request.form:
+        funcionario = _get_funcionario_from_current_user()
+        if request.form["soporte_tickets_trabajando"] == "MIOS":
+            consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
+        else: # TODOS
+            consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
 
     if consulta is None:
         return datatables.output(draw, 0, [])
