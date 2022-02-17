@@ -18,7 +18,7 @@ class Rol(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
-    permisos = db.relationship('Permiso', back_populates='rol')
+    permisos = db.relationship("Permiso", back_populates="rol")
     usuarios_roles = db.relationship("UsuarioRol", back_populates="rol")
     soportes_categorias_roles = db.relationship("SoporteCategoria", back_populates="rol")
 
