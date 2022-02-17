@@ -1,0 +1,60 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Soportes Tickets{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_insert('SOPORTES TICKETS') %}
+            {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card('Tickets') %}
+        <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Oficina</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                {% if ticket.estado == "ABIERTO" %}
+                    <tr style="background-color:#fef9e7;">
+                {% elif ticket.estado == "TRABAJANDO" %}
+                    <tr style="background-color:#ebf5fb;">
+                {% elif ticket.estado == "CANCELADO" %}
+                    <tr style="background-color:#fdedec;">
+                {% elif ticket.estado == "NO RESUELTO" %}
+                    <tr style="background-color:#f5eef8 ;">
+                {% elif ticket.estado == "CERRADO" %}
+                    <tr style="background-color:#eafaf1;">
+                {% else %}
+                    <tr>
+                {% endif %}
+                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=ticket.id) }}">{{ ticket.id }}</a></td>
+                    <td>{{ ticket.usuario.nombre | truncate(24) }}</td>
+                    <td>{{ ticket.usuario.oficina.clave }}</td>
+                    <td>{{ ticket.soporte_categoria.nombre | truncate(48) }}</td>
+                    <td>{{ ticket.estado }}</td>
+                    <td>{{ ticket.descripcion | truncate(48) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('soportes_tickets_datatable') }}
+    <!-- Refrescar esta página -->
+    <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
+{% endblock %}
