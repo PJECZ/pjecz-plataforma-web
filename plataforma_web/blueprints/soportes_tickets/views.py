@@ -55,54 +55,20 @@ def before_request():
 
 @soportes_tickets.route("/soportes_tickets")
 def list_active():
-    if current_user.can_admin(MODULO):
+    funcionario = _get_funcionario_from_current_user()
+    if funcionario:
         return list_soport()
-
     return list_user()
 
 
 @soportes_tickets.route("/soportes_tickets/soporte")
 def list_soport():
     """Listado de TODOS los Soportes Tickets activos"""
-    # Inicializar las tablas a mandar a la plantilla
-    abiertos = SoporteTicket.query.filter_by(estado="ABIERTO").filter_by(estatus="A")
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_from_current_user()
-    # Si es administrador
-    if current_user.can_admin(MODULO):
-        pass
-    # Si puede crear tickets, mostramos los suyos
-    elif current_user.can_insert(MODULO):
-        # Si es un funcionario de soportes pude ver listado de tickets abiertos
-        if funcionario and funcionario.en_soportes:
-            pass
-        else:
-            abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
-    if abiertos is not None:
-        abiertos=abiertos.order_by(SoporteTicket.id.asc()).limit(100).all()
-
-    # Extraemos los roles del usuario
-    current_user_roles_id = []
-    for usuario_rol in current_user.usuarios_roles:
-        if usuario_rol.estatus == "A":
-            current_user_roles_id.append(usuario_rol.rol.id)
-
-    # Identificamos las listas (por categoría) que tengan almenos un ticket
-    listas_activas_por_categorias_nombre_ids = {}
-    tickets_abiertos_por_categoria_ids = []
-    for ticket_abierto in abiertos:
-        # El ticket pertenece a uno de sus roles
-        if ticket_abierto.soporte_categoria.rol_id in current_user_roles_id:
-            listas_activas_por_categorias_nombre_ids[ticket_abierto.soporte_categoria.rol.nombre] = ticket_abierto.soporte_categoria.rol_id
-            tickets_abiertos_por_categoria_ids.append(ticket_abierto.soporte_categoria.rol_id)
-            break
-
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
-        listas_activas_por_categorias_nombre_ids=listas_activas_por_categorias_nombre_ids,
-        filtros_abiertos_categorizados=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_categorias_ids": tickets_abiertos_por_categoria_ids}),
-        filtros_abiertos_todos=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_categorias_ids": [0, 17, 38]}),
+        filtros_abiertos_categorizados=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "CATEGORIZADOS"}),
+        filtros_abiertos_todos=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "TODOS"}),
         filtros_trabajando=json.dumps({"estatus": "A", "estado": "TRABAJANDO"}),
         titulo="Tickets",
         estatus="A",
@@ -121,7 +87,6 @@ def list_user():
         tickets = tickets.filter(SoporteTicket.funcionario == funcionario)
     else:
         tickets = tickets.filter(SoporteTicket.usuario == current_user)
-
     # Entregar
     return render_template(
         "soportes_tickets/list_user.jinja2",
@@ -167,53 +132,35 @@ def list_no_resolve():
 @soportes_tickets.route("/soportes_tickets/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Tickets Terminados"""
+
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
+
     # Consultar
     consulta = SoporteTicket.query
     if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
+        consulta = consulta.filter(SoporteTicket.estatus==request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus="A")
-    if "estado" in request.form:
-        consulta = consulta.filter_by(estado=request.form["estado"])
-    else:
-        consulta = consulta.filter_by(estatus="")
-    if "soportes_categorias_ids[]" in request.form:
-        current_user_roles_id = []
-        current_user_roles_id.append(request.form["soportes_categorias_ids[]"])
-        if current_user_roles_id[0] == 0:
-            pass
-        else:
-            consulta = consulta.filter(SoporteTicket.soporte_categoria_id.in_(current_user_roles_id))
+        consulta = consulta.filter(SoporteTicket.estatus=="A")
 
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_from_current_user()
-    # Si es administrador
-    if current_user.can_admin(MODULO):
-        pass
-    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    elif current_user.can_insert(MODULO) and funcionario:
-        consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
-    # Si puede crear tickets, mostramos los suyos
-    elif current_user.can_insert(MODULO):
-        consulta = consulta.filter(SoporteTicket.usuario == current_user)
-    # De lo contrario, solo puede ver tickets abiertos
+    if "estado" in request.form:
+        consulta = consulta.filter(SoporteTicket.estado==request.form["estado"])
     else:
-        consulta = None
+        consulta = consulta.filter(SoporteTicket.estatus=="")
+
+    if "soportes_tickets_abiertos" in request.form:
+        # Extraemos los roles del usuario
+        current_user_roles_id = []
+        for usuario_rol in current_user.usuarios_roles:
+            if usuario_rol.estatus == "A":
+                current_user_roles_id.append(usuario_rol.rol.id)
+        if request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
+            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(current_user_roles_id))
+        else: # TODOS
+            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(current_user_roles_id))
 
     registros = consulta.order_by(SoporteTicket.id.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-
-    # if current_user_roles_id:
-    #     lista_abiertos = []
-    #     for ticket_abierto in registros:
-    #         # Para todos los abiertos
-    #         if ticket_abierto.soporte_categoria.rol_id not in current_user_roles_id:
-    #             lista_abiertos.append(ticket_abierto)
-
-    #     registros = lista_abiertos
-    #     total = len(registros)
 
     # Elaborar datos para DataTable
     data = []
@@ -235,6 +182,7 @@ def datatable_json():
                 "soluciones": resultado.soluciones,
             }
         )
+
     # Entregar JSON
     return datatables.output(draw, total, data)
 
