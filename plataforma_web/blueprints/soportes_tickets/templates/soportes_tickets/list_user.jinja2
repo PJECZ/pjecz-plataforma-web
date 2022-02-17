@@ -54,7 +54,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('soportes_tickets_datatable') }}
+    {{ list.datatable('soportes_tickets_datatable', order="desc") }}
     <!-- Refrescar esta página -->
     <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
 {% endblock %}

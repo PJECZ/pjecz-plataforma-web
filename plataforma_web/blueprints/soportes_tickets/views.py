@@ -1,6 +1,7 @@
 """
 Soportes Tickets, vistas
 """
+from calendar import c
 import json
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -94,7 +95,7 @@ def list_user():
     # Entregar
     return render_template(
         "soportes_tickets/list_user.jinja2",
-        tickets=tickets.order_by(SoporteTicket.id.asc()).limit(100).all(),
+        tickets=tickets.order_by(SoporteTicket.id.desc()).limit(100).all(),
         titulo="Tickets",
         estatus="A",
     )
@@ -127,7 +128,7 @@ def list_no_resolve():
     """Listado de tickets No resueltos"""
     return render_template(
         "soportes_tickets/list_no_resolve.jinja2",
-        filtros=json.dumps({"estatus": "A", "estado": "NO RESUELTOS"}),
+        filtros=json.dumps({"estatus": "A", "estado": "NO RESUELTO"}),
         titulo="Tickets No Resueltos",
         estatus="A",
     )
@@ -149,10 +150,15 @@ def datatable_json():
 
     if "estado" in request.form:
         consulta = consulta.filter(SoporteTicket.estado==request.form["estado"])
+        if request.form["estado"] in ("TERMINADO", "CANCELADO", "NO RESUELTO", "CERRADO"):
+            consulta = consulta.order_by(SoporteTicket.id.desc())
+        else:
+            consulta = consulta.order_by(SoporteTicket.id.asc())
     else:
         consulta = consulta.filter(SoporteTicket.estatus=="")
 
     if "soportes_tickets_abiertos" in request.form:
+        funcionario = _get_funcionario_from_current_user()
         # Extraemos los roles del usuario
         current_user_roles_id = []
         for usuario_rol in current_user.usuarios_roles:
@@ -163,8 +169,11 @@ def datatable_json():
         else: # TODOS
             consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(current_user_roles_id))
 
-    registros = consulta.order_by(SoporteTicket.id.asc()).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
+    if consulta is None:
+        return datatables.output(draw, 0, [])
+    else:
+        registros = consulta.offset(start).limit(rows_per_page).all()
+        total = consulta.count()
 
     # Elaborar datos para DataTable
     data = []
@@ -287,8 +296,7 @@ def _expulsar_usuario(ticket):
         return False
     # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
     elif current_user.can_insert(MODULO) and funcionario:
-        if ticket.funcionario == funcionario:
-            return False
+        return False
     # Si puede crear tickets, mostramos los suyos
     elif current_user.can_insert(MODULO):
         if ticket.usuario == current_user:

@@ -35,7 +35,7 @@
     {% endcall %}
 
     <!-- Mostrar todos los abiertos a los de rol administrador -->
-    {% if current_user.can_admin('SOPORTES TICKETS')%}
+    {% if current_user.can_edit('SOPORTES TICKETS')%}
             {% call list.card('Abiertos - TODOS' ) %}
                 <table id="soportes_tickets_abiertos_todos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
                     <thead>
