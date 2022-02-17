@@ -1,15 +1,23 @@
 """
 Permisos, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib import datatables
 from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.forms import (
+    PermisoNewForm,
+    PermisoNewWithModuloForm,
+    PermisoNewWithRolForm,
+    PermisoEditForm,
+)
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.permisos.forms import PermisoNewForm, PermisoNewWithModuloForm, PermisoNewWithRolForm, PermisoEditForm
 from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -30,7 +38,7 @@ def list_active():
     """Listado de Permisos activos"""
     return render_template(
         "permisos/list.jinja2",
-        permisos=Permiso.query.filter_by(estatus="A").all(),
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Permisos",
         estatus="A",
     )
@@ -42,10 +50,45 @@ def list_inactive():
     """Listado de Permisos inactivos"""
     return render_template(
         "permisos/list.jinja2",
-        permisos=Permiso.query.filter_by(estatus="B").all(),
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Permisos inactivos",
         estatus="B",
     )
+
+
+@permisos.route("/permisos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Permisos"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = Permiso.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "modulo_id" in request.form:
+        consulta = consulta.filter_by(modulo_id=request.form["modulo_id"])
+    if "rol_id" in request.form:
+        consulta = consulta.filter_by(rol_id=request.form["rol_id"])
+    registros = consulta.order_by(Permiso.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("permisos.detail", permiso_id=resultado.id),
+                },
+                "nivel": resultado.nivel_descrito,
+                "modulo_nombre": resultado.modulo.nombre,
+                "rol_nombre": resultado.rol.nombre,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @permisos.route("/permisos/<int:permiso_id>")
@@ -53,38 +96,6 @@ def detail(permiso_id):
     """Detalle de un Permiso"""
     permiso = Permiso.query.get_or_404(permiso_id)
     return render_template("permisos/detail.jinja2", permiso=permiso)
-
-
-@permisos.route("/permisos/nuevo", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.CREAR)
-def new():
-    """Nuevo Permiso"""
-    form = PermisoNewForm()
-    if form.validate_on_submit():
-        modulo = form.modulo.data
-        rol = form.rol.data
-        nivel = form.nivel.data
-        nombre = f"{rol.nombre} puede {Permiso.NIVELES[nivel]} en {modulo.nombre}"
-        if Permiso.query.filter(Permiso.modulo == modulo).filter(Permiso.rol == rol).first() is not None:
-            flash(f"CONFLICTO: Ya existe {nombre}. Mejor recupere el registro.", "warning")
-            return redirect(url_for("permisos.list_inactive"))
-        permiso = Permiso(
-            modulo=modulo,
-            rol=rol,
-            nombre=nombre,
-            nivel=nivel,
-        )
-        permiso.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo permiso {nombre}"),
-            url=url_for("permisos.detail", permiso_id=permiso.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    return render_template("permisos/new.jinja2", form=form, titulo="Nuevo Permiso")
 
 
 @permisos.route("/permisos/nuevo_con_rol/<int:rol_id>", methods=["GET", "POST"])

@@ -24,7 +24,9 @@ class AccesoForm(FlaskForm):
 
     siguiente = HiddenField()
     identidad = StringField("Correo electrónico o usuario", validators=[Optional(), Length(8, 256)])
-    contrasena = PasswordField("Contraseña", validators=[Optional(), Length(8, 48), Regexp(CONTRASENA_REGEXP, 0, CONTRASENA_MENSAJE)])
+    contrasena = PasswordField(
+        "Contraseña", validators=[Optional(), Length(8, 48), Regexp(CONTRASENA_REGEXP, 0, CONTRASENA_MENSAJE)]
+    )
     email = StringField("Correo electrónico", validators=[Optional(), Email()])
     token = StringField("Token", validators=[Optional()])
     guardar = SubmitField("Guardar")
