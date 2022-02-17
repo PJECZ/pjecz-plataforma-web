@@ -19,32 +19,21 @@
 {% endblock %}
 
 {% block content %}
-    {% for lista in listas_por_categorias %}
-        {% call list.card('Abiertos - ' + lista ) %}
-            <table id="{{lista.lower().replace(' ', '')}}_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Oficina</th>
-                        <th>Categoría</th>
-                        <th>Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for abierto in listas_por_categorias[lista] %}
-                    <tr>
-                        <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
-                        <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
-                        <td>{{ abierto.usuario.oficina.clave }}</td>
-                        <td>{{ abierto.soporte_categoria.nombre | truncate(48) }}</td>
-                        <td>{{ abierto.descripcion | truncate(48) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    {% endfor %}
+
+    {% call list.card('Abiertos - Categorizados') %}
+        <table id="soportes_tickets_abiertos_categorizados_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Oficina</th>
+                    <th>Categoría</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+
     <!-- Mostrar todos los abiertos a los de rol administrador -->
     {% if current_user.can_admin('SOPORTES TICKETS')%}
             {% call list.card('Abiertos - TODOS' ) %}
@@ -58,21 +47,10 @@
                             <th>Descripción</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for abierto in lista_abiertos_todos %}
-                        <tr>
-                            <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=abierto.id) }}">{{ abierto.id }}</a></td>
-                            <td>{{ abierto.usuario.nombre | truncate(24) }}</td>
-                            <td>{{ abierto.usuario.oficina.clave }}</td>
-                            <td>{{ abierto.soporte_categoria.nombre | truncate(48) }}</td>
-                            <td>{{ abierto.descripcion | truncate(48) }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
                 </table>
             {% endcall %}
         {% endif %}
-    {% if trabajados %}
+
         {% call list.card('Trabajando') %}
                 <table id="soportes_tickets_trabajando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
                     <thead>
@@ -85,29 +63,96 @@
                             <th>Técnico</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for trabajado in trabajados %}
-                        <tr>
-                            <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=trabajado.id) }}">{{ trabajado.id }}</a></td>
-                            <td>{{ trabajado.usuario.nombre | truncate(24) }}</td>
-                            <td>{{ trabajado.usuario.oficina.clave }}</td>
-                            <td>{{ trabajado.soporte_categoria.nombre | truncate(48) }}</td>
-                            <td>{{ trabajado.descripcion | truncate(32) }}</td>
-                            <td>{{ trabajado.funcionario.nombre | truncate(24) }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
                 </table>
         {% endcall %}
-    {% endif %}
+
 {% endblock %}
 
 {% block custom_javascript %}
-    {% for lista in listas_por_categorias %}
-        {{ list.datatable( lista.lower().replace(' ', '') + "_datatable") }}
-    {% endfor %}
-    {{ list.datatable('soportes_tickets_abiertos_todos_datatable') }}
-    {{ list.datatable('soportes_tickets_trabajando_datatable') }}
-    <!-- Refrescar esta página -->
+    <!-- Refrescar esta página TODO: Cambiar a SocketIO -->
     <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
+
+    <script>
+        // configuración general para el datatable
+        let datatable_config = {
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/soportes_tickets/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: ""
+            },
+            columns: [
+                { data: "id" },
+                { data: "usuario" },
+                { data: "oficina" },
+                { data: "categoria" },
+                { data: "descripcion" },
+                { data: "tecnico" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                    }
+                },
+                {
+                    targets: [1, 3, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        }
+
+        // Datatables para tickets en trabajando
+        datatable_config['ajax']['data'] = {{ filtros_trabajando }};
+        $('#soportes_tickets_trabajando_datatable').DataTable(datatable_config);
+
+        // Datatable para tickets abiertos por categoría
+        datatable_config['columns'] = [
+                { data: "id" },
+                { data: "usuario" },
+                { data: "oficina" },
+                { data: "categoria" },
+                { data: "descripcion" }
+            ];
+        datatable_config['ajax']['data'] = {{ filtros_abiertos_categorizados }};
+        $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
+
+        // Datatables para tickets abietos todos
+        datatable_config['ajax']['data'] = {{ filtros_abiertos_todos }};
+        $('#soportes_tickets_abiertos_todos_datatable').DataTable(datatable_config);
+    </script>
 {% endblock %}
