@@ -27,6 +27,7 @@ from .forms import (
     SoporteTicketTakeForm,
     SoporteTicketCategorizeForm,
     SoporteTicketCloseForm,
+    SoporteTicketCancelForm,
 )
 
 MODULO = "SOPORTES TICKETS"
@@ -540,19 +541,28 @@ def cancel(soporte_ticket_id):
     if soporte_ticket.estado not in ("ABIERTO", "TRABAJANDO"):
         flash("No puede cancelar un ticket que no está abierto o trabajando.", "warning")
         return redirect(detalle_url)
-    soporte_ticket.estado = "CANCELADO"
-    soporte_ticket.soluciones = ""
-    soporte_ticket.resolucion = datetime.now()
-    soporte_ticket.save()
-    bitacora = Bitacora(
-        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-        usuario=current_user,
-        descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id}."),
-        url=detalle_url,
-    )
-    bitacora.save()
-    flash(bitacora.descripcion, "success")
-    return redirect(bitacora.url)
+
+    form = SoporteTicketCancelForm()
+    if form.validate_on_submit():
+        soporte_ticket.estado = "CANCELADO"
+        soporte_ticket.soluciones = safe_string(form.soluciones.data)
+        soporte_ticket.resolucion = datetime.now()
+        soporte_ticket.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id}."),
+            url=detalle_url,
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.usuario.data = soporte_ticket.usuario.nombre
+    form.descripcion.data = soporte_ticket.descripcion
+    form.categoria.data = soporte_ticket.soporte_categoria.nombre
+    form.tecnico.data = soporte_ticket.funcionario.nombre
+    form.soluciones.data = soporte_ticket.soluciones
+    return render_template("soportes_tickets/cancel.jinja2", form=form, soporte_ticket=soporte_ticket)
 
 
 @soportes_tickets.route("/soportes_tickets/descancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])

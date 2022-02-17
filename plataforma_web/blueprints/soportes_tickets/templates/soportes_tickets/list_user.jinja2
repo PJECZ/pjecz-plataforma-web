@@ -18,11 +18,10 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Oficina</th>
                     <th>Categoría</th>
                     <th>Estado</th>
                     <th>Descripción</th>
+                    <th>Solución/Cancelación</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,11 +40,10 @@
                     <tr>
                 {% endif %}
                     <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=ticket.id) }}">{{ ticket.id }}</a></td>
-                    <td>{{ ticket.usuario.nombre | truncate(24) }}</td>
-                    <td>{{ ticket.usuario.oficina.clave }}</td>
                     <td>{{ ticket.soporte_categoria.nombre | truncate(48) }}</td>
                     <td>{{ ticket.estado }}</td>
                     <td>{{ ticket.descripcion | truncate(48) }}</td>
+                    <td>{%if ticket.soluciones %}{{ ticket.soluciones | truncate(48)}}{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -55,6 +53,6 @@
 
 {% block custom_javascript %}
     {{ list.datatable('soportes_tickets_datatable', order="desc") }}
-    <!-- Refrescar esta página -->
+    <!-- Refrescar esta página TODO: Aplicar SocketIO -->
     <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
 {% endblock %}
