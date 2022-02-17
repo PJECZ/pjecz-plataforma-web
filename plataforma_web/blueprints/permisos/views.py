@@ -11,12 +11,7 @@ from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.permisos.forms import (
-    PermisoNewForm,
-    PermisoNewWithModuloForm,
-    PermisoNewWithRolForm,
-    PermisoEditForm,
-)
+from plataforma_web.blueprints.permisos.forms import PermisoNewWithModuloForm, PermisoNewWithRolForm, PermisoEditForm
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios.decorators import permission_required
