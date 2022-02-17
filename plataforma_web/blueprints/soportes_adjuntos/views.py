@@ -58,11 +58,33 @@ def detail(soporte_adjunto_id):
     )
 
 
+def _expulsar_usuario(ticket):
+    """Expulsar al usuario normal de un ticket"""
+    # Consultar el funcionario (si es de soporte) a partir del usuario actual
+    funcionario = _get_funcionario_from_current_user()
+    # Si es administrador
+    if current_user.can_admin(MODULO):
+        return False
+    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
+    elif current_user.can_insert(MODULO) and funcionario:
+        if ticket.funcionario == funcionario:
+            return False
+    # Si puede crear tickets, mostramos los suyos
+    elif current_user.can_insert(MODULO):
+        if ticket.usuario == current_user:
+            return False
+    # De lo contrario, solo puede ver tickets abiertos
+    return True
+
+
 @soportes_adjuntos.route("/soportes_adjuntos/nuevo/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new(soporte_ticket_id):
     """Adjuntar Archivos al Ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    if _expulsar_usuario(ticket):
+        flash("No tiene permisos para ver ese ticket.", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
     #archivo = SoporteTicketFile
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
