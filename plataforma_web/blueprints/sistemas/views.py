@@ -9,7 +9,7 @@ from flask_login import current_user
 from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
-from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
+from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 from plataforma_web.blueprints.sentencias.models import Sentencia
 
 sistemas = Blueprint("sistemas", __name__, template_folder="templates")
@@ -41,7 +41,9 @@ def audiencias_json():
     # Listado
     audiencias = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="A")
     desde = datetime.now()  # Desde este momento
-    for audiencia in audiencias.filter(Audiencia.tiempo >= desde).order_by(Audiencia.tiempo).limit(TARJETAS_LIMITE_REGISTROS).all():
+    for audiencia in (
+        audiencias.filter(Audiencia.tiempo >= desde).order_by(Audiencia.tiempo).limit(TARJETAS_LIMITE_REGISTROS).all()
+    ):
         listado.append(
             {
                 "tiempo": audiencia.tiempo.strftime("%Y-%m-%d %H:%M"),
@@ -198,20 +200,12 @@ def sentencias_json():
     }
 
 
-@sistemas.route("/inicio/soporte_categorias")
-def lista_usuarios_categorias():
-    """categoria de usuarios"""
-    soporte_usuario = SoporteCategoria.query.filter(SoporteCategoria.nombre == current_user.soporte_categoria)
-    # traer los roles de los usuarios
-    current_user_roles_id = []
-    for usuario_rol in soporte_usuario:
-        if usuario_rol.estatus == "A":
-            current_user_roles_id.append(usuario_rol.rol.id)
-
-
 @sistemas.route("/")
 def start():
     """Página inicial"""
+    # current_rol = UsuarioRol.query.filter(UsuarioRol.rol_id).filter(UsuarioRol.usuario_id)
+    # print(current_rol)
+
     if current_user.is_authenticated:
         return render_template("sistemas/start.jinja2")
     return redirect("/login")

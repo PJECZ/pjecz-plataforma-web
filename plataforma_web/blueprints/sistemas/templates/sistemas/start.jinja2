@@ -7,7 +7,7 @@
 {% block custom_head %}
     <style>
         .img-support{ height:auto; width:500px; }
-        .img-support-us{ height:auto; width:300px; }
+        .img-support-us{ height:auto; width:400px; }
         .box { align-items: center; display: flex; justify-content: center; }
         .btn-ticket{ display:inline-block; }
     </style>
@@ -22,8 +22,9 @@
     {% call start.card() %}
         <h1 class="text-center">Plataforma Web</h1>
         <br />
-        {% if current_user.lista_usuarios_categorias != "SOPORTE USUARIO"%}
-            <div class="row bg-color" >
+        {# {% if  current_user.can_edit('ROLES') != "SOPORTE USUARIO"%} #}
+        {% if  current_user.can_edit("SOPORTES TICKETS")%}
+            <div class="row" >
                 <div class="box col-8 col-md-8 mb-2 align-middle" >
                     <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
                 </div>
@@ -37,14 +38,16 @@
                     </span>
                 </div>
             </div>
-        {% endif%}
-        {% if current_user.lista_usuarios_categorias == "SOPORTE USUARIO"%}
-            <div class="row bg-color" >
-                <div class="box col-8 col-md-8 mb-2 align-middle" >
-                    <img src="{{ url_for('static', filename='images/robotica-png-2.png') }}" class="img-fluid img-support-us"/>
+        {# {% endif %} #}
+        {% else %}
+            <div class="row" >
+                <div class="box col-6 col-md-6 mb-2 align-middle" >
+                    <img src="{{ url_for('static', filename='images/soporte_2.png') }}" class="img-fluid img-support-us"/>
                 </div>
-                <div class="col-4 col-sm-4 mb-2 align-self-center">
+                <div class="col-6 col-sm-6 mb-2 align-self-center align-middle">
                     <h4>Bienvenido al sistema</h4> 
+                    <p>Note que ha ingresado con una cuenta que <strong>NO ES PERSONAL.</strong> </p>
+                    <p>Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx </p>
                 </div>
             </div>
         {% endif%}
