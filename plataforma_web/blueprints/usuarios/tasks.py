@@ -159,7 +159,7 @@ def estandarizar():
     # Consultar y estandarizar
     contador = 0
     usuarios_actualizados_contador = 0
-    usuarios_rol_contador = 0
+    usuarios_roles_contador = 0
     usuarios = Usuario.query.filter_by(estatus="A")
     for usuario in usuarios:
         # Estandarizar campos
@@ -169,7 +169,12 @@ def estandarizar():
         puesto = safe_string(usuario.puesto)
         if puesto == "":
             puesto = "ND"
-        if nombres != usuario.nombres or apellido_paterno != usuario.apellido_paterno or apellido_materno != usuario.apellido_materno or puesto != usuario.puesto:
+        if (
+            nombres != usuario.nombres
+            or apellido_paterno != usuario.apellido_paterno
+            or apellido_materno != usuario.apellido_materno
+            or puesto != usuario.puesto
+        ):
             usuario.nombres = nombres
             usuario.apellido_paterno = apellido_paterno
             usuario.apellido_materno = apellido_materno
@@ -182,7 +187,7 @@ def estandarizar():
         # Que tenga el rol SOPORTE USUARIO
         if usuario.usuarios_roles is None:
             UsuarioRol(usuario=usuario, rol=rol, descripcion=f"{usuario.email} en {rol.nombre}").save()
-            usuarios_rol_contador += 1
+            usuarios_roles_contador += 1
         else:
             tiene_ese_rol = False
             for usuario_rol in usuario.usuarios_roles:
@@ -191,18 +196,24 @@ def estandarizar():
                     if usuario_rol.rol.estatus != "A":
                         usuario_rol.rol.estatus = "A"
                         usuario_rol.rol.save()
-                        usuarios_rol_contador += 1
+                        usuarios_roles_contador += 1
             if not tiene_ese_rol:
-                UsuarioRol(usuario=usuario, rol=rol, descripcion=f"{usuario.email} en {rol.nombre}").save()
-                usuarios_rol_contador += 1
+                UsuarioRol(
+                    usuario=usuario,
+                    rol=rol,
+                    descripcion=f"{usuario.email} en {rol.nombre}",
+                ).save()
+                usuarios_roles_contador += 1
         # Incrementar contador
         contador += 1
         if contador % 100 == 0:
             bitacora.info("Procesados %d", contador)
 
     # Terminar
+    bitacora.info("Se actualizaron %d usuarios", usuarios_actualizados_contador)
+    bitacora.info("Se insertaron o actualizaron %d usuarios_roles", usuarios_roles_contador)
     set_task_progress(100)
-    mensaje_final = f"Terminado estandarizar con {usuarios_actualizados_contador} usuarios actualizados y {usuarios_rol_contador} roles insertados o actualizados"
+    mensaje_final = f"Terminado estandarizar satisfactoriamente"
     bitacora.info(mensaje_final)
     return mensaje_final
 
@@ -314,7 +325,7 @@ def sincronizar():
         offset += limit
     # Terminar
     bitacora.info("Se han insertado %s usuarios", usuarios_insertados_contador)
-    bitacora.info("Hay %s personas ya presentes en usuarios, se omiten", usuarios_presentes_contador)
+    bitacora.info("Hay %s personas ya presentes, se omiten", usuarios_presentes_contador)
     bitacora.info("En %s personas no hay CURP o email coahuila.gob.mx", personas_omitidas_contador)
     set_task_progress(100)
     mensaje_final = "Terminado sincronizar satisfactoriamente"

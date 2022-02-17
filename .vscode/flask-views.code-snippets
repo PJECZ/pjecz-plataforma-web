@@ -138,7 +138,7 @@
 			"\t\tconsulta = consulta.filter_by(estatus=request.form['estatus'])",
 			"\telse:",
 			"\t\tconsulta = consulta.filter_by(estatus='A')",
-			"\tregistros = consulta.order_by(${3:Class}.creado.desc()).offset(start).limit(rows_per_page).all()",
+			"\tregistros = consulta.order_by(${3:Class}.id.desc()).offset(start).limit(rows_per_page).all()",
 			"\ttotal = consulta.count()",
 			"\t# Elaborar datos para DataTable",
 			"\tdata = []",

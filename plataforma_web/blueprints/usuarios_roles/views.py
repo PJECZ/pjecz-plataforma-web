@@ -1,19 +1,21 @@
 """
 Usuarios Roles, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib import datatables
 from lib.safe_string import safe_message
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.roles.models import Rol
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
-from plataforma_web.blueprints.usuarios_roles.forms import UsuarioRolForm, UsuarioRolWithRolForm, UsuarioRolWithUsuarioForm
+from plataforma_web.blueprints.usuarios_roles.forms import UsuarioRolWithUsuarioForm
 
 MODULO = "USUARIOS ROLES"
 
@@ -30,11 +32,10 @@ def before_request():
 @usuarios_roles.route("/usuarios_roles")
 def list_active():
     """Listado de Usuarios Roles activos"""
-    usuarios_roles_activos = UsuarioRol.query.filter(UsuarioRol.estatus == "A").all()
     return render_template(
         "usuarios_roles/list.jinja2",
-        usuarios_roles=usuarios_roles_activos,
-        titulo="Usuarios-Roles",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Usuarios Roles",
         estatus="A",
     )
 
@@ -43,13 +44,48 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Usuarios Roles inactivos"""
-    usuarios_roles_inactivos = UsuarioRol.query.filter(UsuarioRol.estatus == "B").all()
     return render_template(
         "usuarios_roles/list.jinja2",
-        usuarios_roles=usuarios_roles_inactivos,
-        titulo="Usuarios-Roles inactivos",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Usuarios Roles inactivos",
         estatus="B",
     )
+
+
+@usuarios_roles.route("/usuarios_roles/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Usuarios Roles"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = UsuarioRol.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "usuario_id" in request.form:
+        consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
+    if "rol_id" in request.form:
+        consulta = consulta.filter_by(rol_id=request.form["rol_id"])
+    registros = consulta.order_by(UsuarioRol.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("rep_resultados.detail", rep_resultado_id=resultado.id),
+                },
+                "usuario_nombre": resultado.usuario.nombre,
+                "usuario_puesto": resultado.usuario.puesto,
+                "usuario_email": resultado.usuario.email,
+                "rol_nombre": resultado.rol.nombre,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @usuarios_roles.route("/usuarios_roles/<int:usuario_rol_id>")
@@ -57,72 +93,6 @@ def detail(usuario_rol_id):
     """Detalle de un Usuario Rol"""
     usuario_rol = UsuarioRol.query.get_or_404(usuario_rol_id)
     return render_template("usuarios_roles/detail.jinja2", usuario_rol=usuario_rol)
-
-
-@usuarios_roles.route("/usuarios_roles/nuevo", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.CREAR)
-def new():
-    """Nuevo Usuario-Rol"""
-    form = UsuarioRolForm()
-    if form.validate_on_submit():
-        rol = form.rol.data
-        usuario = form.usuario.data
-        descripcion = f"{usuario.email} en {rol.nombre}"
-        if UsuarioRol.query.filter(UsuarioRol.rol == rol).filter(UsuarioRol.usuario == usuario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
-            return redirect(url_for("usuarios_roles.list_inactive"))
-        usuario_rol = UsuarioRol(
-            rol=rol,
-            usuario=usuario,
-            descripcion=descripcion,
-        )
-        usuario_rol.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo usuario-rol {usuario_rol.descripcion}"),
-            url=url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    return render_template("usuarios_roles/new.jinja2", form=form, titulo="Nuevo Usuario-Rol")
-
-
-@usuarios_roles.route("/usuarios_roles/nuevo_con_rol/<int:rol_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.CREAR)
-def new_with_rol(rol_id):
-    """Nuevo Usuario-Rol con Rol"""
-    rol = Rol.query.get_or_404(rol_id)
-    form = UsuarioRolWithRolForm()
-    if form.validate_on_submit():
-        usuario = form.usuario.data
-        descripcion = f"{usuario.email} en {rol.nombre}"
-        if UsuarioRol.query.filter(UsuarioRol.rol == rol).filter(UsuarioRol.usuario == usuario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}. Mejor recupere el registro.", "warning")
-            return redirect(url_for("usuarios_roles.list_inactive"))
-        usuario_rol = UsuarioRol(
-            rol=rol,
-            usuario=usuario,
-            descripcion=descripcion,
-        )
-        usuario_rol.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo usuario-rol {usuario_rol.descripcion}"),
-            url=url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    form.rol.data = rol.nombre
-    return render_template(
-        "usuarios_roles/new_with_rol.jinja2",
-        form=form,
-        rol=rol,
-        titulo=f"Agregar usuario al rol {rol.nombre}",
-    )
 
 
 @usuarios_roles.route("/usuarios_roles/nuevo_con_usuario/<int:usuario_id>", methods=["GET", "POST"])

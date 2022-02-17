@@ -19,9 +19,6 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('permisos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('permisos.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('PERMISOS') %}
-            {{ topbar.button_new('Nuevo Permiso', url_for('permisos.new')) }}
-        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -30,20 +27,60 @@
         <table id="permisos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Permisos</th>
+                    <th>Nombres</th>
+                    <th>Modulos</th>
+                    <th>Niveles</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for permiso in permisos %}
-                <tr>
-                    <td><a href="{{ url_for('permisos.detail', permiso_id=permiso.id) }}">{{ permiso.nombre }}</a></td>
-                </tr>
-            {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('permisos_datatable') }}
+    <script>
+        $('#permisos_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/permisos/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "modulo_nombre" },
+                { data: "nivel" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
