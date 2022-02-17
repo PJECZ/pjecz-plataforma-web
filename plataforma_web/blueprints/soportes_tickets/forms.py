@@ -15,6 +15,7 @@ def tecnicos_opciones():
     """Seleccionar Funcionario: opciones para select"""
     return Funcionario.query.filter_by(estatus="A").order_by(Funcionario.nombres).filter_by(en_soportes=True).all()
 
+
 def categorias_opciones():
     """Seleccionar la categoría para select"""
     return SoporteCategoria.query.filter_by(estatus="A").order_by(SoporteCategoria.nombre).all()
@@ -24,8 +25,8 @@ class SoporteTicketNewForm(FlaskForm):
     """Formulario para que cualquier usuario pueda crear un ticket"""
 
     usuario = StringField("Usuario")  # Read only
-    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=1024)])
-    clasificacion = RadioField("Clasificación", choices=SoporteTicket.CLASIFICACIONES, default='OTRO')
+    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
+    clasificacion = RadioField("Clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO")
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
@@ -33,16 +34,18 @@ class SoporteTicketNewForUsuarioForm(FlaskForm):
     """Formulario para que un administrador pueda crear un ticket para otro usuario"""
 
     usuario = StringField("Usuario")  # Read only
-    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=1024)])
-    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
-    guardar = SubmitField("Solicitar soporte al personal de Informática")
+    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
+    categoria = QuerySelectField(
+        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
+    )
+    guardar = SubmitField("Guardar como abierto")
 
 
 class SoporteTicketEditForm(FlaskForm):
     """Formulario SoporteTicket"""
 
     usuario = StringField("Usuario")  # Read only
-    descripcion = TextAreaField("Descripción del problema")  # Read only
+    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
     categoria = StringField(label="Categoría")  # Read only
     tecnico = StringField(label="Técnico")  # Read only
     estado = StringField("Estado")  # Read only
@@ -54,7 +57,9 @@ class SoporteTicketTakeForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
-    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
+    categoria = QuerySelectField(
+        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
+    )
     tecnico = StringField("Técnico")  # Read only
     guardar = SubmitField("Tomar")
 
@@ -64,7 +69,9 @@ class SoporteTicketCategorizeForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
-    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
+    categoria = QuerySelectField(
+        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
+    )
     guardar = SubmitField("Categorizar")
 
 
@@ -76,4 +83,4 @@ class SoporteTicketCloseForm(FlaskForm):
     categoria = StringField("Categoría")  # Read only
     tecnico = StringField("Técnico")  # Read only
     soluciones = TextAreaField("Solución", validators=[DataRequired(), Length(max=1024)])
-    guardar = SubmitField("Resuelto")
+    guardar = SubmitField("Cerrar")

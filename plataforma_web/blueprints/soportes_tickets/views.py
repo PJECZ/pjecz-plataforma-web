@@ -1,13 +1,14 @@
 """
 Soportes Tickets, vistas
 """
+import json
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func
 
 from lib import datatables
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_message, safe_string, safe_text
 from plataforma_web.blueprints.soportes_adjuntos.models import SoporteAdjunto
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -54,63 +55,46 @@ def before_request():
 
 @soportes_tickets.route("/soportes_tickets")
 def list_active():
-    """Listado de TODOS los Soportes Tickets activos"""
-    # Inicializar las tablas a mandar a la plantilla
-    abiertos = SoporteTicket.query.filter_by(estado="ABIERTO").filter_by(estatus="A")
-    trabajados = SoporteTicket.query.filter_by(estado="TRABAJANDO").filter_by(estatus="A")
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
+    """Listado de Tickets"""
     funcionario = _get_funcionario_from_current_user()
-    # Si es administrador
-    if current_user.can_admin(MODULO):
-        pass
-    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    elif current_user.can_insert(MODULO) and funcionario:
-        trabajados = trabajados.filter(SoporteTicket.funcionario == funcionario)
-    # Si puede crear tickets, mostramos los suyos
-    elif current_user.can_insert(MODULO):
-        # Si es un funcionario de soportes pude ver listado de tickets abiertos
-        if funcionario and funcionario.en_soportes:
-            pass
-        else:
-            abiertos = abiertos.filter(SoporteTicket.usuario == current_user)
-        trabajados = trabajados.filter(SoporteTicket.usuario == current_user)
-    # De lo contrario, solo puede ver tickets abiertos
-    else:
-        trabajados = None
-    if abiertos is not None:
-        abiertos=abiertos.order_by(SoporteTicket.id.asc()).limit(100).all()
+    if funcionario:
+        return list_soport()
+    return list_user()
 
-    # Extraemos los roles del usuario
-    current_user_roles_id = []
-    for usuario_rol in current_user.usuarios_roles:
-        if usuario_rol.estatus == "A":
-            current_user_roles_id.append(usuario_rol.rol.id)
 
-    # Separamos en diferentes listas (por categoría) y todos los demás
-    listas_por_categorias= {}
-    lista_abiertos_en_rol = []
-    lista_abiertos_todos = []
-    for ticket_abierto in abiertos:
-        # El ticket pertenece a uno de sus roles
-        if ticket_abierto.soporte_categoria.rol_id in current_user_roles_id:
-            # Clasificamos cada ticket (categoría) en una lista independiente
-            if ticket_abierto.soporte_categoria.rol.nombre not in listas_por_categorias:
-                listas_por_categorias[ticket_abierto.soporte_categoria.rol.nombre] = []
-                lista_abiertos_en_rol = []
-            else:
-                lista_abiertos_en_rol = listas_por_categorias[ticket_abierto.soporte_categoria.rol.nombre]
-            lista_abiertos_en_rol.append(ticket_abierto)
-            listas_por_categorias[ticket_abierto.soporte_categoria.rol.nombre] = lista_abiertos_en_rol
-        else:
-            # Pertenecen al rol de Admin
-            lista_abiertos_todos.append(ticket_abierto)
-
+@soportes_tickets.route("/soportes_tickets/soporte")
+def list_soport():
+    """Listado de TODOS los Soportes Tickets activos"""
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
-        listas_por_categorias=listas_por_categorias,
-        lista_abiertos_todos=lista_abiertos_todos,
-        trabajados=trabajados.order_by(SoporteTicket.id.asc()).limit(100).all(),
+        filtros_abiertos_categorizados=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "CATEGORIZADOS"}),
+        filtros_abiertos_todos=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "TODOS"}),
+        filtros_trabajando=json.dumps({"estatus": "A", "estado": "TRABAJANDO"}),
+        titulo="Tickets",
+        estatus="A",
+    )
+
+
+@soportes_tickets.route("/soportes_tickets/usuario")
+def list_user():
+    """Listado de TODOS los Tickets activos para un usuario"""
+
+    # Inicializar las tablas a mandar a la plantilla
+    tickets = SoporteTicket.query.filter_by(estatus="A")
+
+    # Consultar el funcionario (si es de soporte) a partir del usuario actual
+    funcionario = _get_funcionario_from_current_user()
+
+    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
+    if current_user.can_insert(MODULO) and funcionario:
+        tickets = tickets.filter(SoporteTicket.funcionario == funcionario)
+    else:
+        tickets = tickets.filter(SoporteTicket.usuario == current_user)
+    # Entregar
+    return render_template(
+        "soportes_tickets/list_user.jinja2",
+        tickets=tickets.order_by(SoporteTicket.id.asc()).limit(100).all(),
         titulo="Tickets",
         estatus="A",
     )
@@ -119,25 +103,9 @@ def list_active():
 @soportes_tickets.route("/soportes_tickets/terminados")
 def list_done():
     """Listado de tickets Terminados"""
-    terminados = SoporteTicket.query.filter_by(estado="CERRADO").filter_by(estatus="A")
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_from_current_user()
-    # Si es administrador
-    if current_user.can_admin(MODULO):
-        pass
-    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    elif current_user.can_insert(MODULO) and funcionario:
-        terminados = terminados.filter(SoporteTicket.funcionario == funcionario)
-    # Si puede crear tickets, mostramos los suyos
-    elif current_user.can_insert(MODULO):
-        terminados = terminados.filter(SoporteTicket.usuario == current_user)
-    # De lo contrario, solo puede ver tickets abiertos
-    else:
-        terminados = None
-    # Entregar
     return render_template(
         "soportes_tickets/list_done.jinja2",
-        terminados=terminados.order_by(SoporteTicket.id.asc()).limit(100).all(),
+        filtros=json.dumps({"estatus": "A", "estado": "CERRADO"}),
         titulo="Tickets Terminados",
         estatus="A",
     )
@@ -146,25 +114,9 @@ def list_done():
 @soportes_tickets.route("/soportes_tickets/cancelados")
 def list_cancel():
     """Listado de tickets Cancelados"""
-    cancelados = SoporteTicket.query.filter_by(estado="CANCELADO").filter_by(estatus="A")
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_from_current_user()
-    # Si es administrador
-    if current_user.can_admin(MODULO):
-        pass
-    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    elif current_user.can_insert(MODULO) and funcionario:
-        cancelados = cancelados.filter(SoporteTicket.funcionario == funcionario)
-    # Si puede crear tickets, mostramos los suyos
-    elif current_user.can_insert(MODULO):
-        cancelados = cancelados.filter(SoporteTicket.usuario == current_user)
-    # De lo contrario, solo puede ver tickets abiertos
-    else:
-        cancelados = None
-    # Entregar
     return render_template(
         "soportes_tickets/list_cancel.jinja2",
-        cancelados=cancelados.order_by(SoporteTicket.id.asc()).limit(100).all(),
+        filtros=json.dumps({"estatus": "A", "estado": "CANCELADO"}),
         titulo="Tickets Cancelados",
         estatus="A",
     )
@@ -173,38 +125,84 @@ def list_cancel():
 @soportes_tickets.route("/soportes_tickets/no_resueltos")
 def list_no_resolve():
     """Listado de tickets No resueltos"""
-    tickets = SoporteTicket.query.filter_by(estado="NO RESUELTO").filter_by(estatus="A")
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_from_current_user()
-    # Si es administrador
-    if current_user.can_admin(MODULO):
-        pass
-    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    elif current_user.can_insert(MODULO) and funcionario:
-        tickets = tickets.filter(SoporteTicket.funcionario == funcionario)
-    # Si puede crear tickets, mostramos los suyos
-    elif current_user.can_insert(MODULO):
-        tickets = tickets.filter(SoporteTicket.usuario == current_user)
-    # De lo contrario, solo puede ver tickets abiertos
-    else:
-        tickets = None
-    # Entregar
     return render_template(
         "soportes_tickets/list_no_resolve.jinja2",
-        tickets=tickets.order_by(SoporteTicket.id.asc()).limit(100).all(),
+        filtros=json.dumps({"estatus": "A", "estado": "NO RESUELTOS"}),
         titulo="Tickets No Resueltos",
         estatus="A",
     )
 
 
+@soportes_tickets.route("/soportes_tickets/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Tickets Terminados"""
+
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+
+    # Consultar
+    consulta = SoporteTicket.query
+    if "estatus" in request.form:
+        consulta = consulta.filter(SoporteTicket.estatus==request.form["estatus"])
+    else:
+        consulta = consulta.filter(SoporteTicket.estatus=="A")
+
+    if "estado" in request.form:
+        consulta = consulta.filter(SoporteTicket.estado==request.form["estado"])
+    else:
+        consulta = consulta.filter(SoporteTicket.estatus=="")
+
+    if "soportes_tickets_abiertos" in request.form:
+        # Extraemos los roles del usuario
+        current_user_roles_id = []
+        for usuario_rol in current_user.usuarios_roles:
+            if usuario_rol.estatus == "A":
+                current_user_roles_id.append(usuario_rol.rol.id)
+        if request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
+            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(current_user_roles_id))
+        else: # TODOS
+            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(current_user_roles_id))
+
+    registros = consulta.order_by(SoporteTicket.id.asc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "id": {
+                    "id": resultado.id,
+                    "url": url_for("soportes_tickets.detail", soporte_ticket_id=resultado.id),
+                },
+                "usuario": resultado.usuario.nombre,
+                "oficina": {
+                    "clave": resultado.usuario.oficina.clave,
+                    "nombre": resultado.usuario.oficina.descripcion_corta,
+                },
+                "categoria": resultado.soporte_categoria.nombre,
+                "descripcion": resultado.descripcion,
+                "tecnico": resultado.funcionario.nombre,
+                "soluciones": resultado.soluciones,
+            }
+        )
+
+    # Entregar JSON
+    return datatables.output(draw, total, data)
+
+
 @soportes_tickets.route("/soportes_tickets/<int:soporte_ticket_id>")
 def detail(soporte_ticket_id):
     """Detalle de un Soporte Ticket"""
-    tickets = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    if _expulsar_usuario(ticket):
+        flash("No tiene permisos para ver ese ticket.", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
+
     archivos = SoporteAdjunto.query.filter(SoporteAdjunto.soporte_ticket_id == soporte_ticket_id).all()
     return render_template(
         "soportes_tickets/detail.jinja2",
-        soporte_ticket=tickets,
+        soporte_ticket=ticket,
         archivos=archivos,
         funcionario=_get_funcionario_from_current_user(),
     )
@@ -218,7 +216,7 @@ def new():
     categoria_no_definida = SoporteCategoria.query.get_or_404(1)  # La categoria con id 1 es NO DEFINIDA
     form = SoporteTicketNewForm()
     if form.validate_on_submit():
-        descripcion = safe_string(form.descripcion.data)
+        descripcion = safe_text(form.descripcion.data)
         clasificacion = safe_string(form.clasificacion.data)
         if clasificacion != "OTRO":
             descripcion=f"[{clasificacion}] {descripcion}"
@@ -261,7 +259,7 @@ def new_for_usuario(usuario_id):
             funcionario=tecnico,
             soporte_categoria=form.categoria.data,
             usuario=usuario,
-            descripcion=safe_string(form.descripcion.data),
+            descripcion=safe_text(form.descripcion.data),
             estado="ABIERTO",
             resolucion="",
             soluciones="",
@@ -280,11 +278,35 @@ def new_for_usuario(usuario_id):
     return render_template("soportes_tickets/new_for_usuario.jinja2", form=form, usuario=usuario)
 
 
+def _expulsar_usuario(ticket):
+    """Expulsar al usuario normal de un ticket"""
+    # Consultar el funcionario (si es de soporte) a partir del usuario actual
+    funcionario = _get_funcionario_from_current_user()
+    # Si es administrador
+    if current_user.can_admin(MODULO):
+        return False
+    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
+    elif current_user.can_insert(MODULO) and funcionario:
+        if ticket.funcionario == funcionario:
+            return False
+    # Si puede crear tickets, mostramos los suyos
+    elif current_user.can_insert(MODULO):
+        if ticket.usuario == current_user:
+            return False
+    # De lo contrario, solo puede ver tickets abiertos
+    return True
+
+
+
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(soporte_ticket_id):
     """Editar un ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    if _expulsar_usuario(ticket):
+        flash("No tiene permisos para ver ese ticket.", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
+
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
         flash("No puede editar un ticket eliminado.", "warning")
@@ -294,7 +316,7 @@ def edit(soporte_ticket_id):
         return redirect(detalle_url)
     form = SoporteTicketEditForm()
     if form.validate_on_submit():
-        ticket.descripcion = safe_string(form.descripcion.data)
+        ticket.descripcion = safe_text(form.descripcion.data)
         ticket.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -439,7 +461,7 @@ def close(soporte_ticket_id):
     form = SoporteTicketCloseForm()
     if form.validate_on_submit():
         ticket.estado = "CERRADO"
-        ticket.soluciones = safe_string(form.soluciones.data)
+        ticket.soluciones = safe_text(form.soluciones.data)
         ticket.resolucion = datetime.now()
         ticket.save()
         bitacora = Bitacora(
@@ -494,6 +516,9 @@ def no_resolve(soporte_ticket_id):
 def cancel(soporte_ticket_id):
     """Para cancelar un ticket este debe estar ABIERTO o TRABAJANDO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    if _expulsar_usuario(soporte_ticket):
+        flash("No tiene permisos para ver ese ticket.", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
     if soporte_ticket.estatus != "A":
         flash("No puede cancelar un ticket eliminado.", "warning")
@@ -502,12 +527,41 @@ def cancel(soporte_ticket_id):
         flash("No puede cancelar un ticket que no está abierto o trabajando.", "warning")
         return redirect(detalle_url)
     soporte_ticket.estado = "CANCELADO"
+    soporte_ticket.soluciones = ""
     soporte_ticket.resolucion = datetime.now()
     soporte_ticket.save()
     bitacora = Bitacora(
         modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
-        descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id} registro con..."),
+        descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id}."),
+        url=detalle_url,
+    )
+    bitacora.save()
+    flash(bitacora.descripcion, "success")
+    return redirect(bitacora.url)
+
+
+@soportes_tickets.route("/soportes_tickets/descancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def uncancel(soporte_ticket_id):
+    """Para descancelar un ticket este debe estar CANCELADO y ser funcionario de soportes"""
+    soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
+    if soporte_ticket.estatus != "A":
+        flash("No se puede descancelar un ticket eliminado.", "warning")
+        return redirect(detalle_url)
+    if soporte_ticket.estado != "CANCELADO":
+        flash("No se puede descancelar un ticket que no este en estado de CANCELADO.", "warning")
+        return redirect(detalle_url)
+    if soporte_ticket.funcionario_id == 1:  # Si su funcionario es NO DEFINIDO pasa a ABIERTO
+        soporte_ticket.estado = "ABIERTO"
+    else:
+        soporte_ticket.estado = "TRABAJANDO"
+    soporte_ticket.save()
+    bitacora = Bitacora(
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+        usuario=current_user,
+        descripcion=safe_message(f"El Ticket {soporte_ticket.id} ha sido descancelado."),
         url=detalle_url,
     )
     bitacora.save()

@@ -149,7 +149,7 @@
 			"\t\t\t\t'fecha': resultado.fecha.strftime('%Y-%m-%d 00:00:00'),",
 			"\t\t\t\t'detalle': {",
 			"\t\t\t\t\t'descripcion': resultado.descripcion,",
-			"\t\t\t\t\t'url': url_for('rep_resultados.detail', rep_resultado_id=resultado.id),",
+			"\t\t\t\t\t'url': url_for('${1:blueprint}.detail', ${4:instance}_id=resultado.id),",
 			"\t\t\t\t},",
 			"\t\t\t}",
 			"\t\t)",
