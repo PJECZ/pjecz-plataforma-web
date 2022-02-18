@@ -13,6 +13,7 @@
             {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
             {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
             {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
+            {#{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }#}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
     {% endcall %}
@@ -83,6 +84,8 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Refrescar esta página TODO: Aplicar SocketIO -->
+    <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
     <script>
         // configuración general para el datatable
         let datatable_config = {
@@ -149,10 +152,10 @@
 
         // Datatables para tickets en trabajando MIOS
         datatable_config['ajax']['data'] = {{ filtros_trabajando_mios }};
-        let lista_trabajando_mios = $('#soportes_tickets_trabajando_mios_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_trabajando_mios_datatable').DataTable(datatable_config);
         // Datatables para tickets en trabajando TODOS
         datatable_config['ajax']['data'] = {{ filtros_trabajando_todos }};
-        let lista_trabajando_todos = $('#soportes_tickets_trabajando_todos_datatable').DataTable(datatable_config)
+        $('#soportes_tickets_trabajando_todos_datatable').DataTable(datatable_config)
 
         // Datatable para tickets abiertos por categoría
         datatable_config['columns'] = [
@@ -163,18 +166,10 @@
                 { data: "descripcion" }
             ];
         datatable_config['ajax']['data'] = {{ filtros_abiertos_categorizados }};
-        let lista_abiertos_mios = $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
 
         // Datatables para tickets abietos todos
         datatable_config['ajax']['data'] = {{ filtros_abiertos_todos }};
-        let lista_abiertos_todos = $('#soportes_tickets_abiertos_todos_datatable').DataTable(datatable_config);
-
-        /* Refrescar esta tabla cada 30 seg. TODO: Aplicar SocketIO */
-        setInterval( function () {
-            lista_trabajando_mios.ajax.reload();
-            lista_trabajando_todos.ajax.reload();
-            lista_abiertos_mios.ajax.reload();
-            lista_abiertos_todos.ajax.reload();
-        }, 30000 );
+        $('#soportes_tickets_abiertos_todos_datatable').DataTable(datatable_config);
     </script>
 {% endblock %}

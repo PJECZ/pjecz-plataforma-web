@@ -33,6 +33,13 @@ class Oficina(db.Model, UniversalMixin):
     cit_citas = db.relationship("CitCita", back_populates="oficina", lazy="noload")
     usuarios = db.relationship("Usuario", back_populates="oficina")
 
+
+    @property
+    def clave_nombre(self):
+        """Regresa la clave - descripcion corta"""
+        return f"{self.clave} — {self.descripcion_corta}"
+
+
     def __repr__(self):
         """Representación"""
         return f"<Oficina> {self.clave}"
