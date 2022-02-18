@@ -29,10 +29,8 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <!-- Refrescar esta página TODO: Aplicar SocketIO -->
-    <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
     <script>
-        $('#soportes_tickets_datatable').DataTable({
+        let table = $('#soportes_tickets_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -106,5 +104,10 @@
                 }
             }
         });
+
+        /* Refrescar esta tabla cada 30 seg. TODO: Aplicar SocketIO */
+        setInterval( function () {
+            table.ajax.reload();
+        }, 30000 );
     </script>
 {% endblock %}

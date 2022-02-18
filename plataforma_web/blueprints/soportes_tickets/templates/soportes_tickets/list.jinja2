@@ -83,9 +83,6 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <!-- Refrescar esta página TODO: Cambiar a SocketIO -->
-    <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
-
     <script>
         // configuración general para el datatable
         let datatable_config = {
@@ -152,10 +149,10 @@
 
         // Datatables para tickets en trabajando MIOS
         datatable_config['ajax']['data'] = {{ filtros_trabajando_mios }};
-        $('#soportes_tickets_trabajando_mios_datatable').DataTable(datatable_config);
+        let lista_trabajando_mios = $('#soportes_tickets_trabajando_mios_datatable').DataTable(datatable_config);
         // Datatables para tickets en trabajando TODOS
         datatable_config['ajax']['data'] = {{ filtros_trabajando_todos }};
-        $('#soportes_tickets_trabajando_todos_datatable').DataTable(datatable_config)
+        let lista_trabajando_todos = $('#soportes_tickets_trabajando_todos_datatable').DataTable(datatable_config)
 
         // Datatable para tickets abiertos por categoría
         datatable_config['columns'] = [
@@ -166,10 +163,18 @@
                 { data: "descripcion" }
             ];
         datatable_config['ajax']['data'] = {{ filtros_abiertos_categorizados }};
-        $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
+        let lista_abiertos_mios = $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
 
         // Datatables para tickets abietos todos
         datatable_config['ajax']['data'] = {{ filtros_abiertos_todos }};
-        $('#soportes_tickets_abiertos_todos_datatable').DataTable(datatable_config);
+        let lista_abiertos_todos = $('#soportes_tickets_abiertos_todos_datatable').DataTable(datatable_config);
+
+        /* Refrescar esta tabla cada 30 seg. TODO: Aplicar SocketIO */
+        setInterval( function () {
+            lista_trabajando_mios.ajax.reload();
+            lista_trabajando_todos.ajax.reload();
+            lista_abiertos_mios.ajax.reload();
+            lista_abiertos_todos.ajax.reload();
+        }, 30000 );
     </script>
 {% endblock %}
