@@ -7,6 +7,7 @@
 {% block custom_head %}
     <style>
         .img-support{ height:auto; width:500px; }
+        .img-support-us{ height:auto; width:400px; }
         .box { align-items: center; display: flex; justify-content: center; }
         .btn-ticket{ display:inline-block; }
     </style>
@@ -21,21 +22,34 @@
     {% call start.card() %}
         <h1 class="text-center">Plataforma Web</h1>
         <br />
-        <div class="row bg-color" >
-            <div class="box col-8 col-md-8 mb-2 align-middle" >
-                <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
+        {# Cambio de pantalla si no tiene privilegios para crear tickets #}
+        {% if  current_user.can_edit("SOPORTES TICKETS")%}
+            <div class="row" >
+                <div class="box col-8 col-md-8 mb-2 align-middle" >
+                    <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
+                </div>
+                <div class="col-4 col-sm-4 mb-2 align-self-center">
+                    <h4>¿Necesitas soporte técnico?</h4>
+                    <span class="col-6 col-sm-6 mx-auto">
+                        <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket">Crear un nuevo ticket</a>
+                    </span>
+                    <span class="col-6 col-sm-6 mx-auto">
+                        <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket" >Mis tickets</a>
+                    </span>
+                </div>
             </div>
-            <div class="col-4 col-sm-4 mb-2 align-self-center">
-                <h4>¿Necesitas soporte técnico?</h4>
-                <span class="col-6 col-sm-6 mx-auto">
-                    <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket">Crear un nuevo ticket</a>
-                </span>
-                <span class="col-6 col-sm-6 mx-auto">
-                    <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket" >Mis tickets</a>
-                </span>
-                
+        {% else %}
+            <div class="row" >
+                <div class="box col-6 col-md-6 mb-2 align-middle" >
+                    <img src="{{ url_for('static', filename='images/soporte_2.png') }}" class="img-fluid img-support-us"/>
+                </div>
+                <div class="col-6 col-sm-6 mb-2 align-self-center align-middle">
+                    <h4>Bienvenido al sistema</h4> 
+                    <p>Note que ha ingresado con una cuenta que <strong>no es personal.</strong> </p>
+                    <p>Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx . </p>
+                </div>
             </div>
-        </div>
+        {% endif%}
     {% endcall %}
     {# Tarjetas #}
     <div id="tarjetas" class="row">
