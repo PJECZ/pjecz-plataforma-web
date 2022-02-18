@@ -26,18 +26,20 @@
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
-    <p>* Antes de enviar un ticket, lea las instrucciones del tipo de problema que presenta, y redacte conforme a las indicacciones descritas.</p>
-    {% call list.card('Instrucciones') %}
-        <table id="instrucciones_datatable" class="table display nowrap" style="width:100%;">
-            <thead>
-                <tr>
-                    <th>Categoría</th>
-                    <th>Atendido por</th>
-                    <th>Instrucciones</th>
-                </tr>
-            </thead>
-        </table>
-    {% endcall %}
+    {% if current_user.can_view("SOPORTES CATEGORIAS") %}
+        <p>* Antes de enviar un ticket, lea las instrucciones del tipo de problema que presenta, y redacte conforme a las indicacciones descritas.</p>
+        {% call list.card('Instrucciones') %}
+            <table id="instrucciones_datatable" class="table display nowrap" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Atendido por</th>
+                        <th>Instrucciones</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
