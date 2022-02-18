@@ -81,22 +81,10 @@ def list_soport():
 @soportes_tickets.route("/soportes_tickets/usuario")
 def list_user():
     """Listado de TODOS los Tickets activos para un usuario"""
-
-    # Inicializar las tablas a mandar a la plantilla
-    tickets = SoporteTicket.query.filter_by(estatus="A")
-
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_from_current_user()
-
-    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    if current_user.can_insert(MODULO) and funcionario:
-        tickets = tickets.filter(SoporteTicket.funcionario == funcionario)
-    else:
-        tickets = tickets.filter(SoporteTicket.usuario == current_user)
     # Entregar
     return render_template(
         "soportes_tickets/list_user.jinja2",
-        tickets=tickets.order_by(SoporteTicket.id.desc()).limit(100).all(),
+        filtros=json.dumps({"estatus": "A", "usuario_normal": True}),
         titulo="Tickets",
         estatus="A",
     )
@@ -149,14 +137,17 @@ def datatable_json():
     else:
         consulta = consulta.filter(SoporteTicket.estatus=="A")
 
-    if "estado" in request.form:
-        consulta = consulta.filter(SoporteTicket.estado==request.form["estado"])
-        if request.form["estado"] in ("TERMINADO", "CANCELADO", "NO RESUELTO", "CERRADO"):
-            consulta = consulta.order_by(SoporteTicket.id.desc())
-        else:
-            consulta = consulta.order_by(SoporteTicket.id.asc())
+    if "usuario_normal" in request.form:
+        consulta = consulta.filter(SoporteTicket.usuario == current_user).order_by(SoporteTicket.id.desc())
     else:
-        consulta = consulta.filter(SoporteTicket.estatus=="")
+        if "estado" in request.form:
+            consulta = consulta.filter(SoporteTicket.estado==request.form["estado"])
+            if request.form["estado"] in ("TERMINADO", "CANCELADO", "NO RESUELTO", "CERRADO"):
+                consulta = consulta.order_by(SoporteTicket.id.desc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.id.asc())
+        else:
+            consulta = consulta.filter(SoporteTicket.estatus=="")
 
     if "soportes_tickets_abiertos" in request.form:
         # Extraemos los roles del usuario
@@ -200,6 +191,7 @@ def datatable_json():
                 "descripcion": resultado.descripcion,
                 "tecnico": resultado.funcionario.nombre,
                 "soluciones": resultado.soluciones,
+                "estado": resultado.estado,
             }
         )
 
@@ -254,7 +246,11 @@ def new():
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.usuario.data = current_user.nombre
-    return render_template("soportes_tickets/new.jinja2", form=form)
+    return render_template(
+        "soportes_tickets/new.jinja2",
+        form=form,
+        filtros=json.dumps({"estatus": "A", "instrucciones": True}),
+    )
 
 
 @soportes_tickets.route("/soportes_tickets/nuevo/<int:usuario_id>", methods=["GET", "POST"])

@@ -63,7 +63,11 @@
         {% if soporte_ticket.estado == 'CERRADO' %}
             {{ detail.label_value('Resolución', moment(soporte_ticket.resolucion).format('llll')) }}
         {% endif %}
-        {{ detail.label_value('Soluciones', soporte_ticket.soluciones) }}
+        {% if soporte_ticket.estado == 'CANCELADO' %}
+            {{ detail.label_value('Motivo', soporte_ticket.soluciones) }}
+        {% else %}
+            {{ detail.label_value('Soluciones', soporte_ticket.soluciones) }}
+        {% endif %}
     {% endcall %}
 
     {% if archivos %}

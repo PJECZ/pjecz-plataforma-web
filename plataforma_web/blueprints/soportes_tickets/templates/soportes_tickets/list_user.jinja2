@@ -24,35 +24,90 @@
                     <th>Solución/Cancelación</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for ticket in tickets %}
-                {% if ticket.estado == "ABIERTO" %}
-                    <tr style="background-color:#fef9e7;">
-                {% elif ticket.estado == "TRABAJANDO" %}
-                    <tr style="background-color:#ebf5fb;">
-                {% elif ticket.estado == "CANCELADO" %}
-                    <tr style="background-color:#fdedec;">
-                {% elif ticket.estado == "NO RESUELTO" %}
-                    <tr style="background-color:#f5eef8 ;">
-                {% elif ticket.estado == "CERRADO" %}
-                    <tr style="background-color:#eafaf1;">
-                {% else %}
-                    <tr>
-                {% endif %}
-                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=ticket.id) }}">{{ ticket.id }}</a></td>
-                    <td>{{ ticket.soporte_categoria.nombre | truncate(48) }}</td>
-                    <td>{{ ticket.estado }}</td>
-                    <td>{{ ticket.descripcion | truncate(48) }}</td>
-                    <td>{%if ticket.soluciones %}{{ ticket.soluciones | truncate(48)}}{% endif %}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('soportes_tickets_datatable', order="desc") }}
-    <!-- Refrescar esta página TODO: Aplicar SocketIO -->
-    <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
+    <script>
+        let table = $('#soportes_tickets_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            deferRender: true,
+            ajax: {
+                url: "/soportes_tickets/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "id" },
+                { data: "categoria" },
+                { data: "estado" },
+                { data: "descripcion" },
+                { data: "soluciones" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<strong>' + data + '</strong>';
+                    }
+                },
+                {
+                    targets: [1, 3, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data != null)
+                            return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                        return '—';
+                    }
+                },
+            ],
+            rowCallback: function( row, data ){
+                switch (data.estado)    {
+                    case "ABIERTO":
+                        $(row).css("background-color", "#fef9e7");
+                        break;
+                    case "TRABAJANDO": $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO": $(row).css("background-color", "#fdedec");  break;
+                    case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
+                    case "CERRADO": $(row).css("background-color", "#eafaf1");  break;
+                }
+            },
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+
+        /* Refrescar esta tabla cada 30 seg. TODO: Aplicar SocketIO */
+        setInterval( function () {
+            table.ajax.reload();
+        }, 30000 );
+    </script>
 {% endblock %}

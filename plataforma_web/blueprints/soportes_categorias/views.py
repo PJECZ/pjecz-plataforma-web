@@ -1,9 +1,10 @@
 """
 Soporte Categorias, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for, request
 from flask_login import current_user, login_required
 
+from lib import datatables
 from lib.safe_string import safe_string, safe_message
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -145,3 +146,35 @@ def recover(soporte_categoria_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("soportes_categorias.detail", soporte_categoria_id=soporte_categoria.id))
+
+
+@soportes_categorias.route('/soportes_categorias/datatable_json', methods=['GET', 'POST'])
+def datatable_json():
+    """DataTable JSON para listado de Categorías"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = SoporteCategoria.query
+    if 'estatus' in request.form:
+        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    else:
+        consulta = consulta.filter_by(estatus='A')
+    if 'instrucciones' in request.form:
+        consulta =  consulta.filter(SoporteCategoria.instrucciones != "")
+    registros = consulta.order_by(SoporteCategoria.nombre.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                'nombre': resultado.nombre,
+                'atendido': resultado.rol.nombre,
+                'instrucciones': {
+                    'id': resultado.id,
+                    'url': url_for('soportes_categorias.detail', soporte_categoria_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
