@@ -84,3 +84,14 @@ class SoporteTicketCloseForm(FlaskForm):
     tecnico = StringField("Técnico")  # Read only
     soluciones = TextAreaField("Solución", validators=[DataRequired(), Length(max=1024)])
     guardar = SubmitField("Cerrar")
+
+
+class SoporteTicketCancelForm(FlaskForm):
+    """Formulario SoporteTicket para Cancelar"""
+
+    usuario = StringField("Usuario")  # Read only
+    descripcion = TextAreaField("Descripción del problema")  # Read only
+    categoria = StringField("Categoría")  # Read only
+    tecnico = StringField("Técnico")  # Read only
+    soluciones = TextAreaField("Motivo", validators=[DataRequired(), Length(max=1024)])
+    guardar = SubmitField("Marcar como cancelado")

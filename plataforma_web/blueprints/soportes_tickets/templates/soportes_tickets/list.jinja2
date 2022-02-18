@@ -51,8 +51,22 @@
             {% endcall %}
         {% endif %}
 
-        {% call list.card('Trabajando') %}
-                <table id="soportes_tickets_trabajando_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
+        {% call list.card('Trabajando - Míos') %}
+                <table id="soportes_tickets_trabajando_mios_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Oficina</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Técnico</th>
+                        </tr>
+                    </thead>
+                </table>
+        {% endcall %}
+        {% call list.card('Trabajando - TODOS') %}
+                <table id="soportes_tickets_trabajando_todos_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -136,9 +150,12 @@
             }
         }
 
-        // Datatables para tickets en trabajando
-        datatable_config['ajax']['data'] = {{ filtros_trabajando }};
-        $('#soportes_tickets_trabajando_datatable').DataTable(datatable_config);
+        // Datatables para tickets en trabajando MIOS
+        datatable_config['ajax']['data'] = {{ filtros_trabajando_mios }};
+        $('#soportes_tickets_trabajando_mios_datatable').DataTable(datatable_config);
+        // Datatables para tickets en trabajando TODOS
+        datatable_config['ajax']['data'] = {{ filtros_trabajando_todos }};
+        $('#soportes_tickets_trabajando_todos_datatable').DataTable(datatable_config)
 
         // Datatable para tickets abiertos por categoría
         datatable_config['columns'] = [

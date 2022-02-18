@@ -37,7 +37,7 @@
             {% endif %}
         {% endif %}
         {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
-            {{ modals.button_modal('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'cancelar', 'mdi:cancel', '¿Desesas cancelar el Ticket?') }}
+            {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
         {% endif %}
         {% if soporte_ticket.estado == 'CANCELADO' %}
             {{ modals.button_modal('Descancelar', url_for('soportes_tickets.uncancel', soporte_ticket_id=soporte_ticket.id), 'descancelar', 'mdi:cancel', '¿Deseas descancelar el Ticket?') }}
@@ -95,7 +95,6 @@
         {% if soporte_ticket.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este ticket?') }}{% endif %}
         {{ modals.custom_javascript('Soltar', '¿Desea soltar este ticket?', 'soltar') }}
         {{ modals.custom_javascript('No Resuleto', '¿Deseas marcar como "No Resuelto" este ticket?', 'no_resuelto') }}
-        {{ modals.custom_javascript('Sí Cancelar', '¿Deseas cancelar este ticket?', 'cancelar') }}
         {{ modals.custom_javascript('Descancelar', '¿Deseas descancelar este ticket?', 'descancelar') }}
     {% endif %}
     {{ list.datatable('soportes_archivos_datatable') }}
