@@ -254,7 +254,11 @@ def new():
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.usuario.data = current_user.nombre
-    return render_template("soportes_tickets/new.jinja2", form=form)
+    return render_template(
+        "soportes_tickets/new.jinja2",
+        form=form,
+        filtros=json.dumps({"estatus": "A", "instrucciones": True}),
+    )
 
 
 @soportes_tickets.route("/soportes_tickets/nuevo/<int:usuario_id>", methods=["GET", "POST"])
