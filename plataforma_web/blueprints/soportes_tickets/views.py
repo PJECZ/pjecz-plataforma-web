@@ -24,6 +24,7 @@ from .forms import (
     SoporteTicketNewForm,
     SoporteTicketNewForUsuarioForm,
     SoporteTicketEditForm,
+    SoporteTicketSearchForm,
     SoporteTicketTakeForm,
     SoporteTicketCategorizeForm,
     SoporteTicketCloseForm,
@@ -136,6 +137,18 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.estatus==request.form["estatus"])
     else:
         consulta = consulta.filter(SoporteTicket.estatus=="A")
+    if "fecha_inicio" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_inicio"])
+    if "fecha_termino" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado <= request.form["fecha_termino"])
+    if "categoria" in request.form:
+        consulta = consulta.filter(SoporteTicket.soporte_categoria_id == request.form["categoria"])
+    #if "oficina" in request.form:
+    #    consulta = consulta.filter(SoporteTicket.soporte_categoria == request.form["oficina"])
+    if "descripcion" in request.form:
+        consulta = consulta.filter(SoporteTicket.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
+    if "solucion" in request.form:
+        consulta = consulta.filter(SoporteTicket.soluciones.like("%" + safe_string(request.form["solucion"]) + "%"))
 
     if "usuario_normal" in request.form:
         consulta = consulta.filter(SoporteTicket.usuario == current_user).order_by(SoporteTicket.id.desc())
@@ -146,8 +159,6 @@ def datatable_json():
                 consulta = consulta.order_by(SoporteTicket.id.desc())
             else:
                 consulta = consulta.order_by(SoporteTicket.id.asc())
-        else:
-            consulta = consulta.filter(SoporteTicket.estatus=="")
 
     if "soportes_tickets_abiertos" in request.form:
         # Extraemos los roles del usuario
@@ -176,6 +187,10 @@ def datatable_json():
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
+        if resultado.resolucion is None:
+            resolucion = "—"
+        else:
+            resolucion = resultado.resolucion.strftime("%Y-%m-%d %H:%M")
         data.append(
             {
                 "id": {
@@ -192,6 +207,8 @@ def datatable_json():
                 "tecnico": resultado.funcionario.nombre,
                 "soluciones": resultado.soluciones,
                 "estado": resultado.estado,
+                "inicio": resultado.creado.strftime("%Y-%m-%d %H:%M"),
+                "termino": resolucion,
             }
         )
 
@@ -623,3 +640,51 @@ def recover(soporte_ticket_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
+
+
+@soportes_tickets.route("/soportes_tickets/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Tickets"""
+    form_search = SoporteTicketSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.fecha_inicio.data:
+            busqueda["fecha_inicio"] = form_search.fecha_inicio.data.strftime("%Y-%m-%d 00:00:00")
+            titulos.append("fecha de inicio " + busqueda["fecha_inicio"])
+        if form_search.fecha_termino.data:
+            busqueda["fecha_termino"] = form_search.fecha_termino.data.strftime("%Y-%m-%d 24:00:00")
+            titulos.append("fecha de termino " + busqueda["fecha_termino"])
+        if form_search.categoria.data:
+            flash(f"Categoria {form_search.categoria.data}", "info")
+            categoria = "2"#safe_string(form_search.categoria.data)
+            if categoria != "":
+                busqueda["categoria"] = categoria
+                titulos.append("categoria " + categoria)
+        if form_search.oficina.data:
+            oficina = safe_string(form_search.oficina.data)
+            if oficina != "":
+                busqueda["oficina"] = oficina
+                titulos.append("oficina " + oficina)
+        if form_search.descripcion.data:
+            descripcion = safe_string(form_search.descripcion.data)
+            if descripcion != "":
+                busqueda["descripcion"] = descripcion
+                titulos.append("descripción " + descripcion)
+        if form_search.solucion.data:
+            solucion = safe_string(form_search.solucion.data)
+            if solucion != "":
+                busqueda["solucion"] = solucion
+                titulos.append("solución " + solucion)
+        if form_search.estado.data:
+            estado = safe_string(form_search.estado.data)
+            if estado != "":
+                busqueda["estado"] = estado
+                titulos.append("estado " + estado)
+        return render_template(
+            "soportes_tickets/list_search.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Tickets con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("soportes_tickets/search.jinja2", form=form_search)

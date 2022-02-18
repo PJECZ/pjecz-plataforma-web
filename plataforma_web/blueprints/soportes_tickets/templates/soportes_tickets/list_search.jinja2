@@ -1,0 +1,110 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Soportes Tickets{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_insert('SOPORTES TICKETS') %}
+            {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
+            {{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card('Tickets') %}
+        <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Inicio</th>
+                    <th>Termino</th>
+                    <th>Usuario</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Técnico</th>
+                    <th>Descripción</th>
+                    <th>Solución/Cancelación</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        let table = $('#soportes_tickets_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            deferRender: true,
+            ajax: {
+                url: "/soportes_tickets/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "id" },
+                { data: "inicio" },
+                { data: "termino" },
+                { data: "usuario" },
+                { data: "categoria" },
+                { data: "estado" },
+                { data: "tecnico" },
+                { data: "descripcion" },
+                { data: "soluciones" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: [4, 6, 7, 8],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data != null)
+                            return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                        return '—';
+                    }
+                },
+            ],
+            rowCallback: function( row, data ){
+                switch (data.estado)    {
+                    case "ABIERTO":
+                        $(row).css("background-color", "#fef9e7");
+                        break;
+                    case "TRABAJANDO": $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO": $(row).css("background-color", "#fdedec");  break;
+                    case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
+                    case "CERRADO": $(row).css("background-color", "#eafaf1");  break;
+                }
+            },
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
+{% endblock %}
