@@ -8,7 +8,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Ticket ' + soporte_ticket.id | string) %}
-        {% if soporte_ticket.estado == 'CANCELADO' and current_user.can_admin('SOPORTES USUARIOS') %}
+        {% if soporte_ticket.estado == 'CANCELADO' %}
             {{ topbar.button_previous('Tickets cancelados', url_for('soportes_tickets.list_cancel')) }}
         {% elif soporte_ticket.estado == 'CERRADO' %}
             {{ topbar.button_previous('Tickets cerrados', url_for('soportes_tickets.list_done')) }}
@@ -54,9 +54,17 @@
     {% call detail.card(estatus=soporte_ticket.estatus) %}
         {{ detail.label_value_big('Estado', soporte_ticket.estado) }}
         {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
-        {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
+        {% if current_user.can_edit('USUARIOS') %}
+            {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre, url_for('usuarios.detail', usuario_id=soporte_ticket.usuario_id)) }}
+        {% else %}
+            {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
+        {% endif %}
         {{ detail.label_value('Descripción del Problema', soporte_ticket.descripcion) }}
-        {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
+        {% if current_user.can_edit('SOPORTES CATEGORIAS') %}
+            {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre, url_for('soportes_categorias.detail', soporte_categoria_id=soporte_ticket.soporte_categoria_id)) }}
+        {% else %}
+            {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
+        {% endif %}
         {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave + ' - ' + soporte_ticket.usuario.oficina.descripcion) }}
         {% if soporte_ticket.funcionario_id != 1 %}
             {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
