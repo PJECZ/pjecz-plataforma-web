@@ -29,7 +29,6 @@
         {{ detail.label_value_boolean('En soportes', funcionario.en_soportes) }}
         {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
     {% endcall %}
-    {# Autoridades del funcionario #}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
         {% call detail.card('Autoridades') %}
             <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
@@ -41,24 +40,25 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                {% for autoridad_funcionario in funcionario.autoridades_funcionarios %}
-                    {% if autoridad_funcionario.estatus == "A" %}
-                    <tr>
-                        <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad_funcionario.autoridad_id) }}">{{ autoridad_funcionario.autoridad.clave }}</a></td>
-                        <td>{{ autoridad_funcionario.autoridad.distrito.nombre }}</td>
-                        <td>{{ autoridad_funcionario.autoridad.descripcion }}</td>
-                        <td>
-                        {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-                            {{ modals.button_delete(url=url_for('autoridades_funcionarios.delete', autoridad_funcionario_id=autoridad_funcionario.id), id='DeleteAutoridadFuncionario', message='¿Eliminar ' + autoridad_funcionario.funcionario.nombre + '?') }}
-                        {% endif %}
-                        </td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-                </tbody>
             </table>
             {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
+                <a href="{{ url_for('autoridades_funcionarios.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
+        {% call detail.card('Autoridades') %}
+            <table id="oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Clave</th>
+                        <th>Descripción Corta</th>
+                        <th>Domicilio</th>
+                        <th>Horario</th>
+                    </tr>
+                </thead>
+            </table>
+            {% if current_user.can_insert('FUNCIONARIOS OFICINAS') %}
                 <a href="{{ url_for('autoridades_funcionarios.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
             {% endif %}
         {% endcall %}
@@ -71,9 +71,7 @@
         {% if funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + funcionario.nombre + '?') }}{% endif %}
     {% endif %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
-        {{ detail.datatable('autoridades_datatable') }}
     {% endif %}
-    {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-        {{ modals.custom_javascript('Eliminar', '¿Eliminar esa autoridad del funcionario?', 'DeleteAutoridadFuncionario') }}
+    {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
     {% endif %}
 {% endblock %}

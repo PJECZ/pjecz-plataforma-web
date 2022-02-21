@@ -27,6 +27,19 @@
         {{ detail.label_value('Límite de Personas', oficina.limite_personas) }}
         {{ detail.label_value_boolean('Juridiccional', oficina.es_juridiccional) }}
     {% endcall %}
+    {% call detail.card('Funcionarios') %}
+        <table id="funcionarios_oficinas_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombres completos</th>
+                    <th>CURP</th>
+                    <th>e-mail</th>
+                    <th>Puesto</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
     {% call detail.card('Usuarios') %}
         <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
             <thead>

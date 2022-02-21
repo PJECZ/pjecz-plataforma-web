@@ -1,53 +1,48 @@
 """
 Oficinas, vistas
 """
-import datetime
-
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib import datatables
 from lib.safe_string import safe_clave, safe_message, safe_string
-
-from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.oficinas.models import Oficina
-
 from plataforma_web.blueprints.oficinas.forms import OficinaForm
+from plataforma_web.blueprints.oficinas.models import Oficina
+from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "OFICINAS"
 
 oficinas = Blueprint("oficinas", __name__, template_folder="templates")
 
 
-@oficinas.route("/oficinas")
-@login_required
-@permission_required(MODULO, Permiso.VER)
+@oficinas.route('/oficinas')
 def list_active():
     """Listado de Oficinas activas"""
-    activos = Oficina.query.filter(Oficina.estatus == "A").all()
     return render_template(
-        "oficinas/list.jinja2",
-        oficinas=activos,
-        titulo="Oficinas",
-        estatus="A",
+        'oficinas/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Oficinas',
+        estatus='A',
     )
 
 
-@oficinas.route("/oficinas/inactivos")
-@login_required
+@oficinas.route('/oficinas/inactivos')
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Oficinas inactivas"""
-    inactivos = Oficina.query.filter(Oficina.estatus == "B").all()
     return render_template(
-        "oficinas/list.jinja2",
-        oficinas=inactivos,
-        titulo="Oficinas inactivas",
-        estatus="B",
+        'oficinas/list.jinja2',
+        filtros=json.dumps({'estatus': 'B'}),
+        titulo='Oficinas inactivas',
+        estatus='B',
     )
+
+
 
 
 @oficinas.route("/oficinas/<int:oficina_id>")
