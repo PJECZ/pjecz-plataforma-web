@@ -53,7 +53,7 @@
 		"prefix": "fmodels_hijo",
 		"body": [
 			"# Hijos",
-			"${1:plural_hijos} = db.relationship('${2:Clase_hijo}', back_populates='${3:singular_esta_clase}')",
+			"${1:plural_hijos} = db.relationship('${2:Clase_hijo}', back_populates='${3:singular_esta_clase}', lazy='noload')",
 			""
 		],
 		"description": "Hijo"
