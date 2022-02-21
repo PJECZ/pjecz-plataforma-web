@@ -6,11 +6,12 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from plataforma_web.blueprints.usuarios.decorators import permission_required
+from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.funcionarios_oficinas.forms import FuncionarioOficinaForm
 from plataforma_web.blueprints.funcionarios_oficinas.models import FuncionarioOficina
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 MODULO = "FUNCIONARIOS OFICINAS"
@@ -59,6 +60,10 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "funcionario_id" in request.form:
+        consulta = consulta.filter_by(funcionario_id=request.form["funcionario_id"])
+    if "oficina_id" in request.form:
+        consulta = consulta.filter_by(oficina_id=request.form["oficina_id"])
     registros = consulta.order_by(FuncionarioOficina.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -66,16 +71,23 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "creado": resultado.creado.strftime("%Y-%m-%d %H:%M:%S"),
-                "fecha": resultado.fecha.strftime("%Y-%m-%d 00:00:00"),
                 "detalle": {
-                    "descripcion": resultado.descripcion,
+                    "id": resultado.id,
                     "url": url_for("funcionarios_oficinas.detail", funcionario_oficina_id=resultado.id),
                 },
+                "funcionario_nombre": resultado.funcionario.nombre,
+                "oficina_clave": resultado.oficina.clave,
             }
         )
     # Entregar JSON
     return datatables.output(draw, total, data)
+
+
+@funcionarios_oficinas.route("/funcionarios_oficinas/<int:funcionario_oficina_id>")
+def detail(funcionario_oficina_id):
+    """Detalle de un Funcionario Oficina"""
+    funcionario_oficina = FuncionarioOficina.query.get_or_404(funcionario_oficina_id)
+    return render_template("funcionarios_oficinas/detail.jinja2", funcionario_oficina=funcionario_oficina)
 
 
 @funcionarios_oficinas.route("/funcionarios_oficinas/nuevo_con_funcionario/<int:funcionario_id>", methods=["GET", "POST"])

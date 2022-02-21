@@ -1,19 +1,19 @@
 """
 Autoridades Funcionarios, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib import datatables
 from lib.safe_string import safe_message
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.funcionarios.models import Funcionario
-from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.autoridades_funcionarios.models import AutoridadFuncionario
 from plataforma_web.blueprints.autoridades_funcionarios.forms import AutoridadFuncionarioForm, AutoridadFuncionarioWithAutoridadForm, AutoridadFuncionarioWithFuncionarioForm
+from plataforma_web.blueprints.autoridades_funcionarios.models import AutoridadFuncionario
+from plataforma_web.blueprints.funcionarios.models import Funcionario
+from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "AUTORIDADES FUNCIONARIOS"
 
@@ -27,29 +27,61 @@ def before_request():
     """Permiso por defecto"""
 
 
-@autoridades_funcionarios.route("/autoridades_funcionarios")
+@autoridades_funcionarios.route('/autoridades_funcionarios')
 def list_active():
-    """Listado de Autoridades-Funcionarios activos"""
-    autoridades_funcionarios_activos = AutoridadFuncionario.query.filter(AutoridadFuncionario.estatus == "A").all()
+    """Listado de Autoridades Funcionarios activos"""
     return render_template(
-        "autoridades_funcionarios/list.jinja2",
-        autoridades_funcionarios=autoridades_funcionarios_activos,
-        titulo="Autoridades-Funcionarios",
-        estatus="A",
+        'autoridades_funcionarios/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Autoridades Funcionarios',
+        estatus='A',
     )
 
 
-@autoridades_funcionarios.route("/autoridades_funcionarios/inactivos")
+@autoridades_funcionarios.route('/autoridades_funcionarios/inactivos')
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Autoridades-Funcionarios inactivos"""
-    autoridades_funcionarios_inactivos = AutoridadFuncionario.query.filter(AutoridadFuncionario.estatus == "B").all()
+    """Listado de Autoridades Funcionarios inactivos"""
     return render_template(
-        "autoridades_funcionarios/list.jinja2",
-        autoridades_funcionarios=autoridades_funcionarios_inactivos,
-        titulo="Autoridades-Funcionarios inactivos",
-        estatus="B",
+        'autoridades_funcionarios/list.jinja2',
+        filtros=json.dumps({'estatus': 'B'}),
+        titulo='Autoridades Funcionarios inactivos',
+        estatus='B',
     )
+
+
+@autoridades_funcionarios.route('/autoridades_funcionarios/datatable_json', methods=['GET', 'POST'])
+def datatable_json():
+    """DataTable JSON para listado de Autoridades Funcionarios"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = AutoridadFuncionario.query
+    if 'estatus' in request.form:
+        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    else:
+        consulta = consulta.filter_by(estatus='A')
+    if "autoridad_id" in request.form:
+        consulta = consulta.filter_by(autoridad_id=request.form['autoridad_id'])
+    if "funcionario_id" in request.form:
+        consulta = consulta.filter_by(funcionario_id=request.form['funcionario_id'])
+    registros = consulta.order_by(AutoridadFuncionario.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=resultado.id),
+                },
+                "autoridad_clave": resultado.autoridad.clave,
+                "funcionario_nombre": resultado.funcionario.nombre,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @autoridades_funcionarios.route("/autoridades_funcionarios/<int:autoridad_funcionario_id>")
@@ -93,42 +125,6 @@ def new():
     )
 
 
-@autoridades_funcionarios.route("/autoridades_funcionarios/nuevo_con_autoridad/<int:autoridad_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.CREAR)
-def new_with_autoridad(autoridad_id):
-    """Nuevo Autoridad-Funcionario con Autoridad"""
-    autoridad = Autoridad.query.get_or_404(autoridad_id)
-    form = AutoridadFuncionarioWithAutoridadForm()
-    if form.validate_on_submit():
-        funcionario = form.funcionario.data
-        descripcion = f"{funcionario.nombre} en {autoridad.clave}"
-        if AutoridadFuncionario.query.filter(AutoridadFuncionario.autoridad == autoridad).filter(AutoridadFuncionario.funcionario == funcionario).first() is not None:
-            flash(f"CONFLICTO: Ya existe {descripcion}. Si está eliminado puede recuperarlo.", "warning")
-            return redirect(url_for("autoridades_funcionarios.list_inactive"))
-        autoridad_funcionario = AutoridadFuncionario(
-            autoridad=autoridad,
-            funcionario=funcionario,
-            descripcion=descripcion,
-        )
-        autoridad_funcionario.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo autoridad-funcionario {autoridad_funcionario.descripcion}"),
-            url=url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=autoridad_funcionario.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    form.autoridad.data = autoridad.clave
-    return render_template(
-        "autoridades_funcionarios/new_with_autoridad.jinja2",
-        form=form,
-        autoridad=autoridad,
-        titulo=f"Agregar funcionario a la autoridad {autoridad.clave}",
-    )
-
-
 @autoridades_funcionarios.route("/autoridades_funcionarios/nuevo_con_funcionario/<int:funcionario_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_funcionario(funcionario_id):
@@ -147,15 +143,8 @@ def new_with_funcionario(funcionario_id):
             descripcion=descripcion,
         )
         autoridad_funcionario.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo autoridad-funcionario {autoridad_funcionario.descripcion}"),
-            url=url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=autoridad_funcionario.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        flash(f"Nuevo autoridad-funcionario {autoridad_funcionario.descripcion}", "success")
+        return redirect(url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=autoridad_funcionario.id))
     form.funcionario.data = funcionario.nombre
     return render_template(
         "autoridades_funcionarios/new_with_funcionario.jinja2",
