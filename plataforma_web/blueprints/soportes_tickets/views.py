@@ -653,6 +653,7 @@ def recover(soporte_ticket_id):
 
 
 @soportes_tickets.route("/soportes_tickets/buscar", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
 def search():
     """Buscar Tickets"""
     # revisar si es un funcionario o usuario
