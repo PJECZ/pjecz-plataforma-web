@@ -669,7 +669,7 @@ def search():
             busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d 00:00:00")
             titulos.append("fecha de creación desde " + form_search.fecha_desde.data.strftime("%Y-%m-%d"))
         if form_search.fecha_hasta.data:
-            busqueda["fecha_hasta"] = form_search.fecha_termino.data.strftime("%Y-%m-%d 24:00:00")
+            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d 24:00:00")
             titulos.append("fecha de creación hasta " + form_search.fecha_hasta.data.strftime("%Y-%m-%d"))
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)

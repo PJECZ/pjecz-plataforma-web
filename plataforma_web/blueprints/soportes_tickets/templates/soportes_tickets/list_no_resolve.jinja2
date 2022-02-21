@@ -13,6 +13,7 @@
             {{ topbar.button_primary('Abiertos y Trabajando', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
             {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:plus-circle') }}
             {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
+            {{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
     {% endcall %}
