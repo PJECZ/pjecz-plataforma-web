@@ -585,6 +585,9 @@ def uncancel(soporte_ticket_id):
     """Para descancelar un ticket este debe estar CANCELADO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
+    if _expulsar_usuario(soporte_ticket) or soporte_ticket.usuario == current_user:
+        flash("No tiene permisos para descancelar un ticket.", "warning")
+        return redirect(detalle_url)
     if soporte_ticket.estatus != "A":
         flash("No se puede descancelar un ticket eliminado.", "warning")
         return redirect(detalle_url)
