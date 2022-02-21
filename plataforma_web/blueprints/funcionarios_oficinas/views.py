@@ -1,0 +1,101 @@
+"""
+Funcionarios Oficinas, vistas
+"""
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
+from lib import datatables
+from lib.safe_string import safe_string, safe_message
+from plataforma_web.blueprints.usuarios.decorators import permission_required
+
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.funcionarios_oficinas.models import FuncionarioOficina
+
+MODULO = "FUNCIONARIOS OFICINAS"
+
+funcionarios_oficinas = Blueprint('funcionarios_oficinas', __name__, template_folder='templates')
+
+
+@funcionarios_oficinas.before_request
+@login_required
+@permission_required(MODULO, Permiso.VER)
+def before_request():
+    """ Permiso por defecto """
+
+
+@funcionarios_oficinas.route('/funcionarios_oficinas')
+def list_active():
+    """Listado de Funcionarios Oficinas activos"""
+    return render_template(
+        'funcionarios_oficinas/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Funcionarios Oficinas',
+        estatus='A',
+    )
+
+
+@funcionarios_oficinas.route('/funcionarios_oficinas/inactivos')
+@permission_required(MODULO, Permiso.MODIFICAR)
+def list_inactive():
+    """Listado de Funcionarios Oficinas inactivos"""
+    return render_template(
+        'funcionarios_oficinas/list.jinja2',
+        filtros=json.dumps({'estatus': 'B'}),
+        titulo='Funcionarios Oficinas inactivos',
+        estatus='B',
+    )
+
+
+@funcionarios_oficinas.route('/funcionarios_oficinas/datatable_json', methods=['GET', 'POST'])
+def datatable_json():
+    """DataTable JSON para listado de Funcionarios Oficinas"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = FuncionarioOficina.query
+    if 'estatus' in request.form:
+        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    else:
+        consulta = consulta.filter_by(estatus='A')
+    registros = consulta.order_by(FuncionarioOficina.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                'creado': resultado.creado.strftime('%Y-%m-%d %H:%M:%S'),
+                'fecha': resultado.fecha.strftime('%Y-%m-%d 00:00:00'),
+                'detalle': {
+                    'descripcion': resultado.descripcion,
+                    'url': url_for('funcionarios_oficinas.detail', funcionario_oficina_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
+
+
+@funcionarios_oficinas.route('/funcionarios_oficinas/eliminar/<int:funcionario_oficina_id>')
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(funcionario_oficina_id):
+    """ Eliminar Funcionario Oficina """
+    funcionario_oficina = FuncionarioOficina.query.get_or_404(funcionario_oficina_id)
+    if funcionario_oficina.estatus == 'A':
+        funcionario_oficina.delete()
+        flash(f'Funcionario Oficina {funcionario_oficina.descripcion} eliminado.', 'success')
+    return redirect(url_for('funcionarios_oficinas.detail', funcionario_oficina_id=funcionario_oficina.id))
+
+
+@funcionarios_oficinas.route('/funcionarios_oficinas/recuperar/<int:funcionario_oficina_id>')
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(funcionario_oficina_id):
+    """ Recuperar Funcionario Oficina """
+    funcionario_oficina = FuncionarioOficina.query.get_or_404(funcionario_oficina_id)
+    if funcionario_oficina.estatus == 'B':
+        funcionario_oficina.recover()
+        flash(f'Funcionario Oficina {funcionario_oficina.descripcion} recuperado.', 'success')
+    return redirect(url_for('funcionarios_oficinas.detail', funcionario_oficina_id=funcionario_oficina.id))

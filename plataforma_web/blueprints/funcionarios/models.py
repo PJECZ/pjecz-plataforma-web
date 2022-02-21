@@ -27,10 +27,11 @@ class Funcionario(db.Model, UniversalMixin):
     en_tesis_jurisprudencias = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
-    autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="funcionario")
+    autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="funcionario", lazy="noload")
+    funcionarios_oficinas = db.relationship('FuncionarioOficina', back_populates='funcionario', lazy="noload")
     soportes_tickets = db.relationship("SoporteTicket", back_populates="funcionario", lazy="noload")
-    tesis_jurisprudencias_funcionarios = db.relationship('TesisJurisprudenciaFuncionario', back_populates='funcionario')
-    
+    tesis_jurisprudencias_funcionarios = db.relationship('TesisJurisprudenciaFuncionario', back_populates='funcionario', lazy="noload")
+
     @property
     def nombre(self):
         """Junta nombres, apellido_paterno y apellido materno"""
