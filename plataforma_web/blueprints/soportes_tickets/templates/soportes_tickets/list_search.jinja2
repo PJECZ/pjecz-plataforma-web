@@ -19,8 +19,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Inicio</th>
-                    <th>Termino</th>
+                    <th>Tiempo de creación</th>
                     <th>Usuario</th>
                     <th>Oficina</th>
                     <th>Categoría</th>
@@ -54,8 +53,7 @@
             },
             columns: [
                 { data: "id" },
-                { data: "inicio" },
-                { data: "termino" },
+                { data: "creacion" },
                 { data: "usuario" },
                 { data: "oficina" },
                 { data: "categoria" },
@@ -73,18 +71,18 @@
                     }
                 },
                 {
-                    targets: 4,
+                    targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<span title="' + data.nombre + '">' + data.clave + '</span>';
                     }
                 },
                 {
-                    targets: [5, 7, 8, 9],
+                    targets: [4, 6, 7, 8],
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != null)
-                            return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                            return (data.length > 28 ? data.substr(0, 28) + '…' : data);
                         return '—';
                     }
                 },

@@ -20,7 +20,12 @@
     {% call detail.card(estatus=soporte_categoria.estatus) %}
         {{ detail.label_value_big('Nombre', soporte_categoria.nombre) }}
         {{ detail.label_value('Atendido por', soporte_categoria.rol.nombre) }}
-        {{ detail.label_value('Instrucciones', soporte_categoria.instrucciones) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Instrucciones</div>
+            <div class="col-md-9">
+                <pre>{{ soporte_categoria.instrucciones }}</pre>
+            </div>
+        </div>
     {% endcall %}
 {% endblock %}
 
