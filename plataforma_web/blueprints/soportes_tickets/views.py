@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string, safe_text
@@ -24,9 +24,11 @@ from .forms import (
     SoporteTicketNewForm,
     SoporteTicketNewForUsuarioForm,
     SoporteTicketEditForm,
+    SoporteTicketSearchForm,
     SoporteTicketTakeForm,
     SoporteTicketCategorizeForm,
     SoporteTicketCloseForm,
+    SoporteTicketCancelForm,
 )
 
 MODULO = "SOPORTES TICKETS"
@@ -70,7 +72,8 @@ def list_soport():
         "soportes_tickets/list.jinja2",
         filtros_abiertos_categorizados=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "CATEGORIZADOS"}),
         filtros_abiertos_todos=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "TODOS"}),
-        filtros_trabajando=json.dumps({"estatus": "A", "estado": "TRABAJANDO"}),
+        filtros_trabajando_mios=json.dumps({"estatus": "A", "estado": "TRABAJANDO", "soporte_tickets_trabajando": "MIOS"}),
+        filtros_trabajando_todos=json.dumps({"estatus": "A", "estado": "TRABAJANDO", "soporte_tickets_trabajando": "TODOS"}),
         titulo="Tickets",
         estatus="A",
     )
@@ -79,22 +82,10 @@ def list_soport():
 @soportes_tickets.route("/soportes_tickets/usuario")
 def list_user():
     """Listado de TODOS los Tickets activos para un usuario"""
-
-    # Inicializar las tablas a mandar a la plantilla
-    tickets = SoporteTicket.query.filter_by(estatus="A")
-
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_from_current_user()
-
-    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    if current_user.can_insert(MODULO) and funcionario:
-        tickets = tickets.filter(SoporteTicket.funcionario == funcionario)
-    else:
-        tickets = tickets.filter(SoporteTicket.usuario == current_user)
     # Entregar
     return render_template(
         "soportes_tickets/list_user.jinja2",
-        tickets=tickets.order_by(SoporteTicket.id.desc()).limit(100).all(),
+        filtros=json.dumps({"estatus": "A", "usuario_normal": True}),
         titulo="Tickets",
         estatus="A",
     )
@@ -146,18 +137,42 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.estatus==request.form["estatus"])
     else:
         consulta = consulta.filter(SoporteTicket.estatus=="A")
+    if "fecha_inicio" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_inicio"])
+    if "fecha_termino" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado <= request.form["fecha_termino"])
+    if "usuario" in request.form:
+        consulta = consulta.join(Usuario).filter(or_(
+            Usuario.nombres.ilike("%" + safe_string(request.form["usuario"]) + "%"),
+            Usuario.apellido_paterno.ilike("%" + safe_string(request.form["usuario"]) + "%"),
+            Usuario.apellido_materno.ilike("%" + safe_string(request.form["usuario"]) + "%")
+        ))
+    if "categoria" in request.form:
+        consulta = consulta.filter(SoporteTicket.soporte_categoria_id == request.form["categoria"])
+    if "oficina" in request.form:
+        consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina"])
+    if "tecnico" in request.form:
+        consulta = consulta.join(Funcionario).filter(or_(
+            Funcionario.nombres.ilike("%" + safe_string(request.form["tecnico"]) + "%"),
+            Funcionario.apellido_paterno.ilike("%" + safe_string(request.form["tecnico"]) + "%"),
+            Funcionario.apellido_materno.ilike("%" + safe_string(request.form["tecnico"]) + "%")
+        ))
+    if "descripcion" in request.form:
+        consulta = consulta.filter(SoporteTicket.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
+    if "solucion" in request.form:
+        consulta = consulta.filter(SoporteTicket.soluciones.like("%" + safe_string(request.form["solucion"]) + "%"))
 
-    if "estado" in request.form:
-        consulta = consulta.filter(SoporteTicket.estado==request.form["estado"])
-        if request.form["estado"] in ("TERMINADO", "CANCELADO", "NO RESUELTO", "CERRADO"):
-            consulta = consulta.order_by(SoporteTicket.id.desc())
-        else:
-            consulta = consulta.order_by(SoporteTicket.id.asc())
+    if "usuario_normal" in request.form:
+        consulta = consulta.filter(SoporteTicket.usuario == current_user).order_by(SoporteTicket.id.desc())
     else:
-        consulta = consulta.filter(SoporteTicket.estatus=="")
+        if "estado" in request.form:
+            consulta = consulta.filter(SoporteTicket.estado==request.form["estado"])
+            if request.form["estado"] in ("TERMINADO", "CANCELADO", "NO RESUELTO", "CERRADO"):
+                consulta = consulta.order_by(SoporteTicket.id.desc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.id.asc())
 
     if "soportes_tickets_abiertos" in request.form:
-        funcionario = _get_funcionario_from_current_user()
         # Extraemos los roles del usuario
         current_user_roles_id = []
         for usuario_rol in current_user.usuarios_roles:
@@ -168,6 +183,13 @@ def datatable_json():
         else: # TODOS
             consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(current_user_roles_id))
 
+    if "soporte_tickets_trabajando" in request.form:
+        funcionario = _get_funcionario_from_current_user()
+        if request.form["soporte_tickets_trabajando"] == "MIOS":
+            consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
+        else: # TODOS
+            consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
+
     if consulta is None:
         return datatables.output(draw, 0, [])
     else:
@@ -177,6 +199,10 @@ def datatable_json():
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
+        if resultado.resolucion is None:
+            resolucion = "—"
+        else:
+            resolucion = resultado.resolucion.strftime("%Y-%m-%d %H:%M")
         data.append(
             {
                 "id": {
@@ -192,6 +218,9 @@ def datatable_json():
                 "descripcion": resultado.descripcion,
                 "tecnico": resultado.funcionario.nombre,
                 "soluciones": resultado.soluciones,
+                "estado": resultado.estado,
+                "inicio": resultado.creado.strftime("%Y-%m-%d %H:%M"),
+                "termino": resolucion,
             }
         )
 
@@ -233,6 +262,7 @@ def new():
             soporte_categoria=categoria_no_definida,
             usuario=current_user,
             descripcion=descripcion,
+            soluciones="",
             estado="ABIERTO",
         )
         ticket.save()
@@ -246,7 +276,11 @@ def new():
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.usuario.data = current_user.nombre
-    return render_template("soportes_tickets/new.jinja2", form=form)
+    return render_template(
+        "soportes_tickets/new.jinja2",
+        form=form,
+        filtros=json.dumps({"estatus": "A", "instrucciones": True}),
+    )
 
 
 @soportes_tickets.route("/soportes_tickets/nuevo/<int:usuario_id>", methods=["GET", "POST"])
@@ -533,19 +567,28 @@ def cancel(soporte_ticket_id):
     if soporte_ticket.estado not in ("ABIERTO", "TRABAJANDO"):
         flash("No puede cancelar un ticket que no está abierto o trabajando.", "warning")
         return redirect(detalle_url)
-    soporte_ticket.estado = "CANCELADO"
-    soporte_ticket.soluciones = ""
-    soporte_ticket.resolucion = datetime.now()
-    soporte_ticket.save()
-    bitacora = Bitacora(
-        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-        usuario=current_user,
-        descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id}."),
-        url=detalle_url,
-    )
-    bitacora.save()
-    flash(bitacora.descripcion, "success")
-    return redirect(bitacora.url)
+
+    form = SoporteTicketCancelForm()
+    if form.validate_on_submit():
+        soporte_ticket.estado = "CANCELADO"
+        soporte_ticket.soluciones = safe_string(form.soluciones.data)
+        soporte_ticket.resolucion = datetime.now()
+        soporte_ticket.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id}."),
+            url=detalle_url,
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.usuario.data = soporte_ticket.usuario.nombre
+    form.descripcion.data = soporte_ticket.descripcion
+    form.categoria.data = soporte_ticket.soporte_categoria.nombre
+    form.tecnico.data = soporte_ticket.funcionario.nombre
+    form.soluciones.data = soporte_ticket.soluciones
+    return render_template("soportes_tickets/cancel.jinja2", form=form, soporte_ticket=soporte_ticket)
 
 
 @soportes_tickets.route("/soportes_tickets/descancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])
@@ -554,6 +597,9 @@ def uncancel(soporte_ticket_id):
     """Para descancelar un ticket este debe estar CANCELADO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
+    if _expulsar_usuario(soporte_ticket) or soporte_ticket.usuario == current_user:
+        flash("No tiene permisos para descancelar un ticket.", "warning")
+        return redirect(detalle_url)
     if soporte_ticket.estatus != "A":
         flash("No se puede descancelar un ticket eliminado.", "warning")
         return redirect(detalle_url)
@@ -610,3 +656,60 @@ def recover(soporte_ticket_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
+
+
+@soportes_tickets.route("/soportes_tickets/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Tickets"""
+    form_search = SoporteTicketSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.fecha_inicio.data:
+            busqueda["fecha_inicio"] = form_search.fecha_inicio.data.strftime("%Y-%m-%d 00:00:00")
+            titulos.append("fecha de inicio " + form_search.fecha_inicio.data.strftime("%Y-%m-%d"))
+        if form_search.fecha_termino.data:
+            busqueda["fecha_termino"] = form_search.fecha_termino.data.strftime("%Y-%m-%d 24:00:00")
+            titulos.append("fecha de termino " + form_search.fecha_termino.data.strftime("%Y-%m-%d"))
+        if form_search.usuario.data:
+            usuario = form_search.usuario.data
+            if usuario != "":
+                busqueda["usuario"] = usuario
+                titulos.append("usuario " + usuario)
+        if form_search.categoria.data:
+            categoria = form_search.categoria.data
+            if categoria != "":
+                busqueda["categoria"] = categoria.id
+                titulos.append("categoria " + categoria.nombre)
+        if form_search.oficina.data:
+            oficina = form_search.oficina.data
+            if oficina != "":
+                busqueda["oficina"] = oficina.id
+                titulos.append("oficina " + oficina.descripcion_corta)
+        if form_search.tecnico.data:
+            tecnico = form_search.tecnico.data
+            if tecnico != "":
+                busqueda["tecnico"] = tecnico
+                titulos.append("técnico " + tecnico)
+        if form_search.descripcion.data:
+            descripcion = safe_string(form_search.descripcion.data)
+            if descripcion != "":
+                busqueda["descripcion"] = descripcion
+                titulos.append("descripción " + descripcion)
+        if form_search.solucion.data:
+            solucion = safe_string(form_search.solucion.data)
+            if solucion != "":
+                busqueda["solucion"] = solucion
+                titulos.append("solución " + solucion)
+        if form_search.estado.data:
+            estado = safe_string(form_search.estado.data)
+            if estado != "":
+                busqueda["estado"] = estado
+                titulos.append("estado " + estado)
+        return render_template(
+            "soportes_tickets/list_search.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Tickets con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("soportes_tickets/search.jinja2", form=form_search)

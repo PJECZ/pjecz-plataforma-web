@@ -1,6 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
 
 {% block title %}Nuevo Ticket{% endblock %}
 
@@ -25,4 +26,74 @@
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+    {% if current_user.can_view("SOPORTES CATEGORIAS") %}
+        <p>* Antes de enviar un ticket, lea las instrucciones del tipo de problema que presenta, y redacte conforme a las indicacciones descritas.</p>
+        {% call list.card('Instrucciones') %}
+            <table id="instrucciones_datatable" class="table display nowrap" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Atendido por</th>
+                        <th>Instrucciones</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#instrucciones_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/soportes_categorias/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "nombre" },
+                { data: "atendido" },
+                { data: "instrucciones" }
+            ],
+            columnDefs: [
+                {
+                    targets: [0],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                    }
+                },
+                {
+                    targets: [2],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">Leer instrucción</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}
