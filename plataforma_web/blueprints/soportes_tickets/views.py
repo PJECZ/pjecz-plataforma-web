@@ -69,7 +69,9 @@ def list_soport():
     # Entregar
     return render_template(
         "soportes_tickets/list.jinja2",
-        filtros_abiertos_categorizados=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "CATEGORIZADOS"}),
+        filtros_abiertos_categorizados=json.dumps(
+            {"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "CATEGORIZADOS"}
+        ),
         filtros_abiertos_todos=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "TODOS"}),
         filtros_trabajando_mios=json.dumps({"estatus": "A", "estado": "TRABAJANDO", "soporte_tickets_trabajando": "MIOS"}),
         filtros_trabajando_todos=json.dumps({"estatus": "A", "estado": "TRABAJANDO", "soporte_tickets_trabajando": "TODOS"}),
@@ -130,12 +132,12 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
 
-    # Consultar
+    # Consultar y filtrar
     consulta = SoporteTicket.query
     if "estatus" in request.form:
-        consulta = consulta.filter(SoporteTicket.estatus==request.form["estatus"])
+        consulta = consulta.filter(SoporteTicket.estatus == request.form["estatus"])
     else:
-        consulta = consulta.filter(SoporteTicket.estatus=="A")
+        consulta = consulta.filter(SoporteTicket.estatus == "A")
     if "fecha_desde" in request.form:
         consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
@@ -153,35 +155,39 @@ def datatable_json():
     if "solucion" in request.form:
         consulta = consulta.filter(SoporteTicket.soluciones.contains(safe_string(request.form["solucion"])))
     if "estado" in request.form:
-        consulta = consulta.filter(SoporteTicket.estado==request.form["estado"])
-        if request.form["estado"] in ("ABIERTO", "TRABAJANDO"):
-            consulta = consulta.order_by(SoporteTicket.id.asc())
-        else:
-            consulta = consulta.order_by(SoporteTicket.id.desc())
-    else:
-        consulta = consulta.order_by(SoporteTicket.id.desc())
+        consulta = consulta.filter(SoporteTicket.estado == request.form["estado"])
 
+    # Obtener el funcionario para saber si es de soporte o no
     funcionario = _get_funcionario_if_is_soporte()
-    if funcionario is None: # Listado para un usuario que solo pueden crear tickets
-        consulta = consulta.filter(SoporteTicket.usuario == current_user).order_by(SoporteTicket.id.desc())
-    # Creación del listado para tickets ABIERTO divididos en CATEGORIZADOS y TODOS
-    if "soportes_tickets_abiertos" in request.form:
-        # Extraemos los roles del usuario
-        current_user_roles_id = []
-        for usuario_rol in current_user.usuarios_roles:
-            if usuario_rol.estatus == "A":
-                current_user_roles_id.append(usuario_rol.rol.id)
-        if request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
-            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(current_user_roles_id))
-        else: # TODOS
-            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(current_user_roles_id))
-    # Creación del listado para tickets TRABAJANDO divididos en MIOS y TODOS
-    if "soporte_tickets_trabajando" in request.form:
-        if request.form["soporte_tickets_trabajando"] == "MIOS":
-            consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
-        else: # TODOS
-            consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
+    if funcionario is None:
+        # NO es de soporte, se muestran sus propios tickets
+        consulta = consulta.filter(SoporteTicket.usuario == current_user)
+        # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
+        consulta = consulta.order_by(SoporteTicket.id.desc())
+    else:
+        # SI es de soporte
+        # Si es la vista "Abiertos y Trabajando", para ABIERTOS, hay dos tablas: CATEGORIZADOS y TODOS
+        if "soportes_tickets_abiertos" in request.form:
+            # Obtenemos los roles del current_user
+            roles_ids = []
+            for usuario_rol in current_user.usuarios_roles:
+                if usuario_rol.estatus == "A":
+                    roles_ids.append(usuario_rol.rol.id)
+            # Si es la tabla CATEGORIZADOS
+            if request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
+                consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
+            else:  # TODOS los demas
+                consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
+        # Si es la vista "Abiertos y Trabajando", para TRABAJANDO, hay dos tablas MIOS y TODOS
+        if "soporte_tickets_trabajando" in request.form:
+            if request.form["soporte_tickets_trabajando"] == "MIOS":
+                consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
+            else:  # TODOS
+                consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
+        # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
+        consulta = consulta.order_by(SoporteTicket.id.asc())
 
+    # Obtener los registros y el total
     registros = consulta.offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -245,7 +251,7 @@ def new():
         descripcion = safe_text(form.descripcion.data)
         clasificacion = safe_string(form.clasificacion.data)
         if clasificacion != "OTRO":
-            descripcion=f"[{clasificacion}] {descripcion}"
+            descripcion = f"[{clasificacion}] {descripcion}"
         ticket = SoporteTicket(
             funcionario=tecnico_no_definido,
             soporte_categoria=categoria_no_definida,
@@ -325,7 +331,6 @@ def _expulsar_usuario(ticket):
             return False
     # De lo contrario, solo puede ver tickets abiertos
     return True
-
 
 
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
@@ -460,7 +465,9 @@ def categorize(soporte_ticket_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Categorizado el ticket {ticket.id} a {ticket.soporte_categoria.nombre} por {funcionario.nombre}."),
+            descripcion=safe_message(
+                f"Categorizado el ticket {ticket.id} a {ticket.soporte_categoria.nombre} por {funcionario.nombre}."
+            ),
             url=detalle_url,
         )
         bitacora.save()
