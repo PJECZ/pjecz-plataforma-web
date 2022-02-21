@@ -22,26 +22,69 @@
         <table id="oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Clave</th>
                     <th>Descripción Corta</th>
                     <th>Domicilio</th>
-                    <th>Horario</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for oficina in oficinas %}
-                <tr>
-                    <td><a href="{{ url_for('oficinas.detail', oficina_id=oficina.id) }}">{{ oficina.clave }}</a></td>
-                    <td>{{ oficina.descripcion_corta }}</td>
-                    <td>{{ oficina.domicilio.completo | truncate(64) }}</td>
-                    <td>{{ oficina.apertura.strftime("%H:%M") }} — {{ oficina.cierre.strftime("%H:%M") }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('oficinas_datatable') }}
+    <script>
+        $('#oficinas_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/oficinas/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "id" },
+                { data: "detalle" },
+                { data: "descripcion_corta" },
+                { data: "domicilio_completo" }
+            ],
+            columnDefs: [
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                },
+                {
+                    targets: [2, 3],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

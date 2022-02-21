@@ -20,29 +20,62 @@ MODULO = "OFICINAS"
 oficinas = Blueprint("oficinas", __name__, template_folder="templates")
 
 
-@oficinas.route('/oficinas')
+@oficinas.route("/oficinas")
 def list_active():
     """Listado de Oficinas activas"""
     return render_template(
-        'oficinas/list.jinja2',
-        filtros=json.dumps({'estatus': 'A'}),
-        titulo='Oficinas',
-        estatus='A',
+        "oficinas/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Oficinas",
+        estatus="A",
     )
 
 
-@oficinas.route('/oficinas/inactivos')
+@oficinas.route("/oficinas/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Oficinas inactivas"""
     return render_template(
-        'oficinas/list.jinja2',
-        filtros=json.dumps({'estatus': 'B'}),
-        titulo='Oficinas inactivas',
-        estatus='B',
+        "oficinas/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Oficinas inactivas",
+        estatus="B",
     )
 
 
+@oficinas.route("/oficinas/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Oficinas"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = Oficina.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "distrito_id" in request.form:
+        consulta = consulta.filter_by(distrito_id=request.form["distrito_id"])
+    if "domicilio_id" in request.form:
+        consulta = consulta.filter_by(domicilio_id=request.form["domicilio_id"])
+    registros = consulta.order_by(Oficina.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "id": resultado.id,
+                "detalle": {
+                    "clave": resultado.descripcion,
+                    "url": url_for("oficinas.detail", oficina_id=resultado.id),
+                },
+                "descripcion_corta": resultado.descripcion_corta,
+                "domicilio_completo": resultado.domicilio.completo,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @oficinas.route("/oficinas/<int:oficina_id>")

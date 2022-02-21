@@ -30,8 +30,8 @@
         {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
     {% endcall %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
-        {% call detail.card('Autoridades') %}
-            <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
+        {% call detail.card('Autoridades-Funcionarios') %}
+            <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Claves</th>
@@ -47,19 +47,19 @@
         {% endcall %}
     {% endif %}
     {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
-        {% call detail.card('Autoridades') %}
-            <table id="oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        {% call detail.card('Funcionarios-Oficinas') %}
+            <table id="funcionarios_oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Clave</th>
                         <th>Descripción Corta</th>
                         <th>Domicilio</th>
-                        <th>Horario</th>
                     </tr>
                 </thead>
             </table>
             {% if current_user.can_insert('FUNCIONARIOS OFICINAS') %}
-                <a href="{{ url_for('autoridades_funcionarios.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
+                <a href="{{ url_for('funcionarios_oficinas.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
             {% endif %}
         {% endcall %}
     {% endif %}
@@ -73,5 +73,59 @@
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
     {% endif %}
     {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
+    <script>
+        $('#funcionarios_oficinas_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/funcionarios_oficinas/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: { "funcionario_id": {{ funcionario.id }}, "estatus": "A" }
+            },
+            columns: [
+                { data: "id" },
+                { data: "detalle" },
+                { data: "descripcion_corta" },
+                { data: "domicilio_completo" }
+            ],
+            columnDefs: [
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                },
+                {
+                    targets: [2, 3],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
     {% endif %}
 {% endblock %}
