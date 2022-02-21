@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string, safe_text
@@ -141,10 +141,22 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_inicio"])
     if "fecha_termino" in request.form:
         consulta = consulta.filter(SoporteTicket.creado <= request.form["fecha_termino"])
+    if "usuario" in request.form:
+        consulta = consulta.join(Usuario).filter(or_(
+            Usuario.nombres.ilike("%" + safe_string(request.form["usuario"]) + "%"),
+            Usuario.apellido_paterno.ilike("%" + safe_string(request.form["usuario"]) + "%"),
+            Usuario.apellido_materno.ilike("%" + safe_string(request.form["usuario"]) + "%")
+        ))
     if "categoria" in request.form:
         consulta = consulta.filter(SoporteTicket.soporte_categoria_id == request.form["categoria"])
-    #if "oficina" in request.form:
-    #    consulta = consulta.filter(SoporteTicket.soporte_categoria == request.form["oficina"])
+    if "oficina" in request.form:
+        consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina"])
+    if "tecnico" in request.form:
+        consulta = consulta.join(Funcionario).filter(or_(
+            Funcionario.nombres.ilike("%" + safe_string(request.form["tecnico"]) + "%"),
+            Funcionario.apellido_paterno.ilike("%" + safe_string(request.form["tecnico"]) + "%"),
+            Funcionario.apellido_materno.ilike("%" + safe_string(request.form["tecnico"]) + "%")
+        ))
     if "descripcion" in request.form:
         consulta = consulta.filter(SoporteTicket.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
     if "solucion" in request.form:
@@ -585,6 +597,9 @@ def uncancel(soporte_ticket_id):
     """Para descancelar un ticket este debe estar CANCELADO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
+    if _expulsar_usuario(soporte_ticket) or soporte_ticket.usuario == current_user:
+        flash("No tiene permisos para descancelar un ticket.", "warning")
+        return redirect(detalle_url)
     if soporte_ticket.estatus != "A":
         flash("No se puede descancelar un ticket eliminado.", "warning")
         return redirect(detalle_url)
@@ -652,21 +667,30 @@ def search():
         titulos = []
         if form_search.fecha_inicio.data:
             busqueda["fecha_inicio"] = form_search.fecha_inicio.data.strftime("%Y-%m-%d 00:00:00")
-            titulos.append("fecha de inicio " + busqueda["fecha_inicio"])
+            titulos.append("fecha de inicio " + form_search.fecha_inicio.data.strftime("%Y-%m-%d"))
         if form_search.fecha_termino.data:
             busqueda["fecha_termino"] = form_search.fecha_termino.data.strftime("%Y-%m-%d 24:00:00")
-            titulos.append("fecha de termino " + busqueda["fecha_termino"])
+            titulos.append("fecha de termino " + form_search.fecha_termino.data.strftime("%Y-%m-%d"))
+        if form_search.usuario.data:
+            usuario = form_search.usuario.data
+            if usuario != "":
+                busqueda["usuario"] = usuario
+                titulos.append("usuario " + usuario)
         if form_search.categoria.data:
-            flash(f"Categoria {form_search.categoria.data}", "info")
-            categoria = "2"#safe_string(form_search.categoria.data)
+            categoria = form_search.categoria.data
             if categoria != "":
-                busqueda["categoria"] = categoria
-                titulos.append("categoria " + categoria)
+                busqueda["categoria"] = categoria.id
+                titulos.append("categoria " + categoria.nombre)
         if form_search.oficina.data:
-            oficina = safe_string(form_search.oficina.data)
+            oficina = form_search.oficina.data
             if oficina != "":
-                busqueda["oficina"] = oficina
-                titulos.append("oficina " + oficina)
+                busqueda["oficina"] = oficina.id
+                titulos.append("oficina " + oficina.descripcion_corta)
+        if form_search.tecnico.data:
+            tecnico = form_search.tecnico.data
+            if tecnico != "":
+                busqueda["tecnico"] = tecnico
+                titulos.append("técnico " + tecnico)
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
             if descripcion != "":

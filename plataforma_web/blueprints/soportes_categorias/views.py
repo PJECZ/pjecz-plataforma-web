@@ -5,7 +5,7 @@ from flask import Blueprint, flash, redirect, render_template, url_for, request
 from flask_login import current_user, login_required
 
 from lib import datatables
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_string, safe_message, safe_text
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -71,7 +71,7 @@ def new():
             soporte_categoria = SoporteCategoria(
                 nombre=nombre,
                 rol=form.rol.data,
-                instrucciones=safe_string(form.instrucciones.data, max_len=2048),
+                instrucciones=safe_text(form.instrucciones.data),
             )
             soporte_categoria.save()
             bitacora = Bitacora(
@@ -95,7 +95,7 @@ def edit(soporte_categoria_id):
     if form.validate_on_submit():
         soporte_categoria.nombre = safe_string(form.nombre.data)
         soporte_categoria.rol = form.rol.data
-        soporte_categoria.instrucciones = safe_string(form.instrucciones.data, max_len=2048)
+        soporte_categoria.instrucciones = safe_text(form.instrucciones.data)
         soporte_categoria.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),

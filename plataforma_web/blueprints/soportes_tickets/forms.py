@@ -115,6 +115,7 @@ class SoporteTicketSearchForm(FlaskForm):
     oficina = QuerySelectField(
         label="Oficina", query_factory=oficinas_opciones, get_label="clave_nombre", validators=[Optional()]
     )
+    tecnico = StringField("Técnico", validators=[Optional(), Length(max=256)])
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     solucion = StringField("Solución", validators=[Optional(), Length(max=256)])
     estado = SelectField("Estado", choices=SoporteTicket.ESTADOS, validators=[Optional()])
