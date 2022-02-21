@@ -250,6 +250,7 @@ def new():
             soporte_categoria=categoria_no_definida,
             usuario=current_user,
             descripcion=descripcion,
+            soluciones="",
             estado="ABIERTO",
         )
         ticket.save()
