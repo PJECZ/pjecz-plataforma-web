@@ -22,6 +22,7 @@
                     <th>Inicio</th>
                     <th>Termino</th>
                     <th>Usuario</th>
+                    <th>Oficina</th>
                     <th>Categoría</th>
                     <th>Estado</th>
                     <th>Técnico</th>
@@ -56,6 +57,7 @@
                 { data: "inicio" },
                 { data: "termino" },
                 { data: "usuario" },
+                { data: "oficina" },
                 { data: "categoria" },
                 { data: "estado" },
                 { data: "tecnico" },
@@ -71,7 +73,14 @@
                     }
                 },
                 {
-                    targets: [4, 6, 7, 8],
+                    targets: 4,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                    }
+                },
+                {
+                    targets: [5, 7, 8, 9],
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != null)

@@ -18,8 +18,10 @@
         {% call f.form_tag('soportes_tickets.search', fid='soportes_tickets_search_form') %}
             {% call f.form_group(form.fecha_inicio) %}{% endcall %}
             {% call f.form_group(form.fecha_termino) %}{% endcall %}
+            {% call f.form_group(form.usuario) %}{% endcall %}
             {% call f.form_group(form.categoria) %}{% endcall %}
             {% call f.form_group(form.oficina) %}{% endcall %}
+            {% call f.form_group(form.tecnico) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.solucion) %}{% endcall %}
             {% call f.form_group(form.estado) %}{% endcall %}
