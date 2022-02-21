@@ -137,30 +137,22 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.estatus==request.form["estatus"])
     else:
         consulta = consulta.filter(SoporteTicket.estatus=="A")
-    if "fecha_inicio" in request.form:
-        consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_inicio"])
-    if "fecha_termino" in request.form:
-        consulta = consulta.filter(SoporteTicket.creado <= request.form["fecha_termino"])
-    if "usuario" in request.form:
-        consulta = consulta.join(Usuario).filter(or_(
-            Usuario.nombres.ilike("%" + safe_string(request.form["usuario"]) + "%"),
-            Usuario.apellido_paterno.ilike("%" + safe_string(request.form["usuario"]) + "%"),
-            Usuario.apellido_materno.ilike("%" + safe_string(request.form["usuario"]) + "%")
-        ))
-    if "categoria" in request.form:
-        consulta = consulta.filter(SoporteTicket.soporte_categoria_id == request.form["categoria"])
-    if "oficina" in request.form:
-        consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina"])
-    if "tecnico" in request.form:
-        consulta = consulta.join(Funcionario).filter(or_(
-            Funcionario.nombres.ilike("%" + safe_string(request.form["tecnico"]) + "%"),
-            Funcionario.apellido_paterno.ilike("%" + safe_string(request.form["tecnico"]) + "%"),
-            Funcionario.apellido_materno.ilike("%" + safe_string(request.form["tecnico"]) + "%")
-        ))
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado <= request.form["fecha_hasta"])
+    if "usuario_id" in request.form:
+        consulta = consulta.filter(SoporteTicket.usuario_id == request.form["usuario_id"])
+    if "soporte_categoria_id" in request.form:
+        consulta = consulta.filter(SoporteTicket.soporte_categoria_id == request.form["soporte_categoria_id"])
+    if "oficina_id" in request.form:
+        consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
+    if "funcionario_id" in request.form:
+        consulta = consulta.filter(SoporteTicket.usuario_id == request.form["funcionario_id"])
     if "descripcion" in request.form:
-        consulta = consulta.filter(SoporteTicket.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
+        consulta = consulta.filter(SoporteTicket.descripcion.contains(safe_string(request.form["descripcion"])))
     if "solucion" in request.form:
-        consulta = consulta.filter(SoporteTicket.soluciones.like("%" + safe_string(request.form["solucion"]) + "%"))
+        consulta = consulta.filter(SoporteTicket.soluciones.contains(safe_string(request.form["solucion"])))
 
     if "usuario_normal" in request.form:
         consulta = consulta.filter(SoporteTicket.usuario == current_user).order_by(SoporteTicket.id.desc())
@@ -171,6 +163,8 @@ def datatable_json():
                 consulta = consulta.order_by(SoporteTicket.id.desc())
             else:
                 consulta = consulta.order_by(SoporteTicket.id.asc())
+        else:
+            consulta = consulta.order_by(SoporteTicket.id.desc())
 
     if "soportes_tickets_abiertos" in request.form:
         # Extraemos los roles del usuario
@@ -219,8 +213,8 @@ def datatable_json():
                 "tecnico": resultado.funcionario.nombre,
                 "soluciones": resultado.soluciones,
                 "estado": resultado.estado,
-                "inicio": resultado.creado.strftime("%Y-%m-%d %H:%M"),
-                "termino": resolucion,
+                "creacion": resultado.creado.strftime("%Y-%m-%d %H:%M"),
+                "resolucion": resolucion,
             }
         )
 
@@ -661,36 +655,21 @@ def recover(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Tickets"""
+    # revisar si es un funcionario o usuario
+    funcionario = _get_funcionario_from_current_user()
+    if not funcionario:
+        flash("No tiene permiso para acceder a esa sección", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
     form_search = SoporteTicketSearchForm()
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
-        if form_search.fecha_inicio.data:
-            busqueda["fecha_inicio"] = form_search.fecha_inicio.data.strftime("%Y-%m-%d 00:00:00")
-            titulos.append("fecha de inicio " + form_search.fecha_inicio.data.strftime("%Y-%m-%d"))
-        if form_search.fecha_termino.data:
-            busqueda["fecha_termino"] = form_search.fecha_termino.data.strftime("%Y-%m-%d 24:00:00")
-            titulos.append("fecha de termino " + form_search.fecha_termino.data.strftime("%Y-%m-%d"))
-        if form_search.usuario.data:
-            usuario = form_search.usuario.data
-            if usuario != "":
-                busqueda["usuario"] = usuario
-                titulos.append("usuario " + usuario)
-        if form_search.categoria.data:
-            categoria = form_search.categoria.data
-            if categoria != "":
-                busqueda["categoria"] = categoria.id
-                titulos.append("categoria " + categoria.nombre)
-        if form_search.oficina.data:
-            oficina = form_search.oficina.data
-            if oficina != "":
-                busqueda["oficina"] = oficina.id
-                titulos.append("oficina " + oficina.descripcion_corta)
-        if form_search.tecnico.data:
-            tecnico = form_search.tecnico.data
-            if tecnico != "":
-                busqueda["tecnico"] = tecnico
-                titulos.append("técnico " + tecnico)
+        if form_search.fecha_desde.data:
+            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d 00:00:00")
+            titulos.append("fecha de creación desde " + form_search.fecha_desde.data.strftime("%Y-%m-%d"))
+        if form_search.fecha_hasta.data:
+            busqueda["fecha_hasta"] = form_search.fecha_termino.data.strftime("%Y-%m-%d 24:00:00")
+            titulos.append("fecha de creación hasta " + form_search.fecha_hasta.data.strftime("%Y-%m-%d"))
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
             if descripcion != "":
