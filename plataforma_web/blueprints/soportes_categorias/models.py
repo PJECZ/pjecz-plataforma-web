@@ -15,8 +15,8 @@ class SoporteCategoria(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    rol_id = db.Column(db.Integer, db.ForeignKey('roles.id'), index=True, nullable=False)
-    rol = db.relationship('Rol', back_populates='soportes_categorias_roles')
+    rol_id = db.Column(db.Integer, db.ForeignKey("roles.id"), index=True, nullable=False)
+    rol = db.relationship("Rol", back_populates="soportes_categorias_roles")
 
     # Columnas
     nombre = db.Column(db.String(256), unique=True, nullable=False)
@@ -27,4 +27,4 @@ class SoporteCategoria(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<SoporteCategoria>"
+        return f"<SoporteCategoria {self.nombre}>"
