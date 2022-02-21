@@ -29,8 +29,6 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    <!-- Refrescar esta página TODO: Aplicar SocketIO -->
-    <script> window.setTimeout(function () { window.location.reload(); }, 300000); </script>
     <script>
         $('#soportes_tickets_datatable').DataTable({
             processing: true,
