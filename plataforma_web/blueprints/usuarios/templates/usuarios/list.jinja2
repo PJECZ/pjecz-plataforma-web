@@ -28,9 +28,8 @@
         <table id="usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nombres Completos</th>
                     <th>e-mail</th>
+                    <th>Nombres Completos</th>
                     <th>Puesto</th>
                     <th>Autoridad</th>
                     <th>Oficina</th>
@@ -60,9 +59,8 @@
             columns: [
                 { data: "detalle" },
                 { data: "nombre" },
-                { data: "email" },
                 { data: "puesto" },
-                { data: "autoridad_clave" },
+                { data: "autoridad" },
                 { data: "oficina_clave" }
             ],
             columnDefs: [
@@ -70,14 +68,21 @@
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
                     }
                 },
                 {
-                    targets: [1, 3],
+                    targets: [1, 2],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
                 }
             ],

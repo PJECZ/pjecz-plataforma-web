@@ -76,9 +76,8 @@
             <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>IDs</th>
-                        <th>Nombres</th>
                         <th>e-mail</th>
+                        <th>Nombres</th>
                         <th>Puestos</th>
                     </tr>
                 </thead>
@@ -92,7 +91,9 @@
                 <thead>
                     <tr>
                         <th>IDs</th>
-                        <th>Nombres</th>
+                        <th>CURPs</th>
+                        <th>Nombres completos</th>
+                        <th>Puestos</th>
                     </tr>
                 </thead>
             </table>
@@ -125,7 +126,6 @@
             columns: [
                 { data: "detalle" },
                 { data: "nombre" },
-                { data: "email" },
                 { data: "puesto" }
             ],
             columnDefs: [
@@ -133,11 +133,11 @@
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
                     }
                 },
                 {
-                    targets: [1, 3],
+                    targets: [1, 2],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 32 ? data.substr(0, 32) + '…' : data);
@@ -180,7 +180,9 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "funcionario_nombre" }
+                { data: "funcionario" },
+                { data: "funcionario_nombre" },
+                { data: "funcionario_puesto" }
             ],
             columnDefs: [
                 {
@@ -192,6 +194,13 @@
                 },
                 {
                     targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.curp + '</a>';
+                    }
+                },
+                {
+                    targets: [2, 3],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 48 ? data.substr(0, 48) + '…' : data);

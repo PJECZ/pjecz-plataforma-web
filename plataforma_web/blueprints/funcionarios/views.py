@@ -160,7 +160,7 @@ def datatable_json():
         consulta = consulta.filter(Funcionario.en_soportes == True)
     if "en_tesis_jurisprudencias" in request.form and request.form["en_tesis_jurisprudencias"] == "true":
         consulta = consulta.filter(Funcionario.en_tesis_jurisprudencias == True)
-    registros = consulta.order_by(Funcionario.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Funcionario.curp.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -168,11 +168,10 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "curp": resultado.curp,
                     "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "curp": resultado.curp,
                 "email": resultado.email,
                 "puesto": resultado.puesto,
                 "en_funciones": resultado.en_funciones,

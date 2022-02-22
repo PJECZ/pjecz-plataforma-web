@@ -220,7 +220,7 @@ def datatable_json():
         consulta = consulta.filter(Usuario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
     if "workspace" in request.form:
         consulta = consulta.filter(Usuario.workspace == safe_string(request.form["email"]))
-    registros = consulta.order_by(Usuario.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Usuario.email.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -228,13 +228,15 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "email": resultado.email,
                     "url": url_for("usuarios.detail", usuario_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "email": resultado.email,
                 "puesto": resultado.puesto,
-                "autoridad_clave": resultado.autoridad.clave,
+                "autoridad": {
+                    "clave": resultado.autoridad.clave,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id),
+                },
                 "oficina_clave": resultado.oficina.clave,
                 "workspace": resultado.workspace,
             }

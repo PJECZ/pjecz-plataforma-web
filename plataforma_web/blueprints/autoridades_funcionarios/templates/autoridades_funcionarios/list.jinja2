@@ -48,10 +48,11 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "autoridad_clave" },
+                { data: "autoridad" },
                 { data: "autoridad_descripcion_corta" },
+                { data: "funcionario" },
                 { data: "funcionario_nombre" },
-                { data: "funcionario_curp" }
+                { data: "funcionario_puesto" }
             ],
             columnDefs: [
                 {
@@ -62,10 +63,24 @@
                     }
                 },
                 {
-                    targets: [2, 3],
+                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.curp + '</a>';
+                    }
+                },
+                {
+                    targets: [2, 4, 5],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
                     }
                 }
             ],

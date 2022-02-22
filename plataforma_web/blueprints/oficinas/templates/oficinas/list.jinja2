@@ -25,14 +25,13 @@
         <table id="oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>IDs</th>
                     <th>Claves</th>
                     <th>Descripciones</th>
                     <th>Domicilios</th>
                     <th>Distritos</th>
                     <th>Aperturas</th>
                     <th>Cierres</th>
-                    <th>Personas</th>
+                    <th>Limites</th>
                 </tr>
             </thead>
         </table>
@@ -58,10 +57,9 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "clave" },
                 { data: "descripcion_corta" },
-                { data: "domicilio_completo" },
-                { data: "distrito_nombre_corto" },
+                { data: "domicilio" },
+                { data: "distrito" },
                 { data: "apertura" },
                 { data: "cierre" },
                 { data: "limite_personas" }
@@ -71,14 +69,32 @@
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
                 },
                 {
-                    targets: [2, 3],
+                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+                    }
+                },
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.completo.length > 48) {
+                            return '<a href="' + data.url + '">' + data.completo.substr(0, 48) + '…' + '</a>';
+                        } else {
+                            return '<a href="' + data.url + '">' + data.completo + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
                     }
                 }
             ],

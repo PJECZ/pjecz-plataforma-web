@@ -75,11 +75,17 @@ def datatable_json():
                     "id": resultado.id,
                     "url": url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=resultado.id),
                 },
-                "autoridad_clave": resultado.autoridad.clave,
+                "autoridad": {
+                    "clave": resultado.autoridad.clave,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id),
+                },
                 "autoridad_descripcion_corta": resultado.autoridad.descripcion_corta,
-                "distrito_nombre_corto": resultado.autoridad.distrito.nombre_corto,
+                "funcionario": {
+                    "curp": resultado.funcionario.curp,
+                    "url": url_for("funcionarios.detail", funcionario_id=resultado.funcionario_id),
+                },
                 "funcionario_nombre": resultado.funcionario.nombre,
-                "funcionario_curp": resultado.funcionario.curp,
+                "funcionario_puesto": resultado.funcionario.puesto,
             }
         )
     # Entregar JSON

@@ -88,14 +88,14 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "distrito_id" in request.form:
-        consulta = consulta.filter_by(distrito_id=request.form["distrito_id"])
+        consulta = consulta.filter(Oficina.distrito_id == request.form["distrito_id"])
     if "domicilio_id" in request.form:
         consulta = consulta.filter_by(domicilio_id=request.form["domicilio_id"])
     if "clave" in request.form:
         consulta = consulta.filter(Oficina.clave.contains(safe_string(request.form["clave"])))
     if "descripcion" in request.form:
         consulta = consulta.filter(Oficina.descripcion.contains(safe_string(request.form["descripcion"])))
-    registros = consulta.order_by(Oficina.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Oficina.clave.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -103,13 +103,18 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "clave": resultado.clave,
                     "url": url_for("oficinas.detail", oficina_id=resultado.id),
                 },
-                "clave": resultado.clave,
                 "descripcion_corta": resultado.descripcion_corta,
-                "distrito_nombre_corto": resultado.distrito.nombre_corto,
-                "domicilio_completo": resultado.domicilio.completo,
+                "domicilio": {
+                    "completo": resultado.domicilio.completo,
+                    "url": url_for("domicilios.detail", domicilio_id=resultado.domicilio_id),
+                },
+                "distrito": {
+                    "nombre_corto": resultado.distrito.nombre_corto,
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id),
+                },
                 "apertura": resultado.apertura.strftime("%H:%M"),
                 "cierre": resultado.cierre.strftime("%H:%M"),
                 "limite_personas": resultado.limite_personas,

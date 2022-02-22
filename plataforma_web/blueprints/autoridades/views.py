@@ -120,7 +120,7 @@ def datatable_json():
         consulta = consulta.filter(Autoridad.descripcion.contains(safe_string(request.form["descripcion"], to_uppercase=False)))
     if "organo_jurisdiccional" in request.form:
         consulta = consulta.filter(Autoridad.organo_jurisdiccional == safe_string(request.form["organo_jurisdiccional"]))
-    registros = consulta.order_by(Autoridad.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Autoridad.clave.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -128,13 +128,15 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "clave": resultado.clave,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.id),
                 },
-                "clave": resultado.clave,
-                "distrito_nombre_corto": resultado.distrito.nombre_corto,
                 "descripcion_corta": resultado.descripcion_corta,
                 "organo_jurisdiccional": resultado.organo_jurisdiccional,
+                "distrito": {
+                    "nombre_corto": resultado.distrito.nombre_corto,
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id),
+                },
                 "materia_nombre": resultado.materia.nombre,
             }
         )

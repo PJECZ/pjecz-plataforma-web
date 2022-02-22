@@ -25,11 +25,10 @@
         <table id="autoridades_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>IDs</th>
                     <th>Claves</th>
-                    <th>Distritos</th>
                     <th>Descripciones cortas</th>
                     <th>Órganos Jurisdiccionales</th>
+                    <th>Distritos</th>
                     <th>Materias</th>
                 </tr>
             </thead>
@@ -56,10 +55,9 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "clave" },
-                { data: "distrito_nombre_corto" },
                 { data: "descripcion_corta" },
                 { data: "organo_jurisdiccional" },
+                { data: "distrito" },
                 { data: "materia_nombre" }
             ],
             columnDefs: [
@@ -67,7 +65,14 @@
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
                     }
                 }
             ],

@@ -19,8 +19,8 @@
             <thead>
                 <tr>
                     <th>IDs</th>
-                    <th>Funcionarios</th>
-                    <th>CURPs</th>
+                    <th>Funcionarios CURPs</th>
+                    <th>Funcionarios nombres</th>
                     <th>Oficinas claves</th>
                     <th>Oficinas descripciones</th>
                 </tr>
@@ -48,9 +48,9 @@
             },
             columns: [
                 { data: "detalle" },
+                { data: "funcionario" },
                 { data: "funcionario_nombre" },
-                { data: "funcionario_curp" },
-                { data: "oficina_clave" },
+                { data: "oficina" },
                 { data: "oficina_descripcion_corta" }
             ],
             columnDefs: [
@@ -62,7 +62,21 @@
                     }
                 },
                 {
-                    targets: [1, 4],
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: [2, 4],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 48 ? data.substr(0, 48) + '…' : data);

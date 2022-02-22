@@ -53,8 +53,6 @@
                         <th>IDs</th>
                         <th>Claves</th>
                         <th>Descripciones</th>
-                        <th>Domicilios</th>
-                        <th>Distritos</th>
                     </tr>
                 </thead>
             </table>
@@ -85,11 +83,11 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: { "funcionario_id": {{ funcionario.id }}, "estatus": "A" }
+                data: { "estatus": "A", "funcionario_id": {{ funcionario.id }} }
             },
             columns: [
                 { data: "detalle" },
-                { data: "autoridad_clave" },
+                { data: "autoridad" },
                 { data: "autoridad_descripcion_corta" }
             ],
             columnDefs: [
@@ -98,6 +96,13 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
                 }
             ],
@@ -133,14 +138,12 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: { "funcionario_id": {{ funcionario.id }}, "estatus": "A" }
+                data: { "estatus": "A", "funcionario_id": {{ funcionario.id }} }
             },
             columns: [
                 { data: "detalle" },
-                { data: "oficina_clave" },
-                { data: "oficina_descripcion_corta" },
-                { data: "oficina_domicilio_completo" },
-                { data: "oficina_distrito_nombre_corto" }
+                { data: "oficina" },
+                { data: "oficina_descripcion_corta" }
             ],
             columnDefs: [
                 {
@@ -151,10 +154,10 @@
                     }
                 },
                 {
-                    targets: 3,
+                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
                 }
             ],

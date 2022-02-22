@@ -28,9 +28,9 @@
             <thead>
                 <tr>
                     <th>IDs</th>
+                    <th>e-mail</th>
                     <th>Nombres completos</th>
                     <th>Puestos</th>
-                    <th>e-mails</th>
                     <th>Roles</th>
                 </tr>
             </thead>
@@ -57,9 +57,9 @@
             },
             columns: [
                 { data: "detalle" },
+                { data: "usuario" },
                 { data: "usuario_nombre" },
                 { data: "usuario_puesto" },
-                { data: "usuario_email" },
                 { data: "rol_nombre" }
             ],
             columnDefs: [
@@ -71,7 +71,14 @@
                     }
                 },
                 {
-                    targets: [1, 2, 3],
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
+                    }
+                },
+                {
+                    targets: [2, 3],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 24 ? data.substr(0, 24) + '…' : data);
