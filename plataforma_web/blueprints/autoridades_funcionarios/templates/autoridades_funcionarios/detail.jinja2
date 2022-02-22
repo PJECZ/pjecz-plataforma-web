@@ -6,7 +6,7 @@
 {% block title %}Autoridad-Funcionario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(autoridad_funcionario.descripcion) %}
+    {% call topbar.page_buttons('Autoridad-Funcionario') %}
         {{ topbar.button_previous('Autoridades Funcionarios', url_for('autoridades_funcionarios.list_active')) }}
         {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
             {% if autoridad_funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades_funcionarios.delete', autoridad_funcionario_id=autoridad_funcionario.id)) }}{% endif %}

@@ -6,7 +6,7 @@
 {% block title %}Usuario-Rol{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Usuario-Rol ' + usuario_rol.descripcion) %}
+    {% call topbar.page_buttons('Usuario-Rol') %}
         {{ topbar.button_previous('Usuarios-Roles', url_for('usuarios_roles.list_active')) }}
         {% if current_user.can_edit('USUARIOS ROLES') %}
             {% if usuario_rol.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id)) }}{% endif %}

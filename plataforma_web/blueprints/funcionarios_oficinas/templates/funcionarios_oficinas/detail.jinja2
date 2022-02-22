@@ -6,7 +6,7 @@
 {% block title %}Funcionario-Oficina{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(funcionario_oficina.descripcion) %}
+    {% call topbar.page_buttons('Funcionario-Oficina') %}
         {{ topbar.button_previous('Funcionarios Oficinas', url_for('funcionarios_oficinas.list_active')) }}
         {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
             {% if funcionario_oficina.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('funcionarios_oficinas.delete', funcionario_oficina_id=funcionario_oficina.id)) }}{% endif %}
