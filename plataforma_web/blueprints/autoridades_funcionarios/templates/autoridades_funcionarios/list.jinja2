@@ -21,8 +21,8 @@
                     <th>Detalles</th>
                     <th>Autoridades claves</th>
                     <th>Autoridades descripciones</th>
-                    <th>Distritos</th>
                     <th>Funcionarios</th>
+                    <th>CURPs</th>
                 </tr>
             </thead>
         </table>
@@ -50,8 +50,8 @@
                 { data: "detalle" },
                 { data: "autoridad_clave" },
                 { data: "autoridad_descripcion_corta" },
-                { data: "distrito_nombre_corto" },
-                { data: "funcionario_nombre" }
+                { data: "funcionario_nombre" },
+                { data: "funcionario_curp" }
             ],
             columnDefs: [
                 {
@@ -62,7 +62,7 @@
                     }
                 },
                 {
-                    targets: [2, 4],
+                    targets: [2, 3],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 48 ? data.substr(0, 48) + '…' : data);

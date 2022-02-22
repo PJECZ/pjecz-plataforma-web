@@ -79,6 +79,7 @@ def datatable_json():
                 "autoridad_descripcion_corta": resultado.autoridad.descripcion_corta,
                 "distrito_nombre_corto": resultado.autoridad.distrito.nombre_corto,
                 "funcionario_nombre": resultado.funcionario.nombre,
+                "funcionario_curp": resultado.funcionario.curp,
             }
         )
     # Entregar JSON

@@ -30,13 +30,12 @@
         {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
     {% endcall %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
-        {% call detail.card('Autoridades-Funcionarios') %}
+        {% call detail.card('Autoridades') %}
             <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>IDs</th>
                         <th>Claves</th>
-                        <th>Distritos</th>
                         <th>Descripciones</th>
                     </tr>
                 </thead>
@@ -47,7 +46,7 @@
         {% endcall %}
     {% endif %}
     {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
-        {% call detail.card('Funcionarios-Oficinas') %}
+        {% call detail.card('Oficinas') %}
             <table id="funcionarios_oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -91,8 +90,7 @@
             columns: [
                 { data: "detalle" },
                 { data: "autoridad_clave" },
-                { data: "distrito_nombre_corto" },
-                { data: "descripcion_corta" }
+                { data: "autoridad_descripcion_corta" }
             ],
             columnDefs: [
                 {

@@ -84,7 +84,7 @@ def search():
         # email
         if form_search.email.data:
             busqueda["email"] = form_search.email.data
-            titulos.append("email " + busqueda["email"])
+            titulos.append("e-mail " + busqueda["email"])
         # Mostrar resultados
         return render_template(
             "cit_clientes/list.jinja2",

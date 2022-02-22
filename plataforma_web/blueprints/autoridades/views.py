@@ -79,7 +79,7 @@ def search():
             descripcion = safe_string(form_search.descripcion.data, to_uppercase=False)
             if descripcion != "":
                 busqueda["descripcion"] = descripcion
-                titulos.append("descripcion " + descripcion)
+                titulos.append("descripción " + descripcion)
         if form_search.clave.data:
             clave = safe_string(form_search.clave.data)
             if clave != "":
@@ -89,7 +89,7 @@ def search():
             organo_jurisdiccional = safe_string(form_search.organo_jurisdiccional.data)
             if organo_jurisdiccional != "":
                 busqueda["organo_jurisdiccional"] = organo_jurisdiccional
-                titulos.append("organo_jurisdiccional " + organo_jurisdiccional)
+                titulos.append("órgano jurisdiccional " + organo_jurisdiccional)
         return render_template(
             "autoridades/list.jinja2",
             filtros=json.dumps(busqueda),

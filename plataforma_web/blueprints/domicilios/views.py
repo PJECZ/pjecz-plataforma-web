@@ -77,7 +77,7 @@ def search():
             titulos.append("colonia " + busqueda["colonia"])
         if form_search.cp.data:
             busqueda["cp"] = form_search.cp.data
-            titulos.append("cp " + str(busqueda["cp"]))
+            titulos.append("C.P. " + str(busqueda["cp"]))
         # Mostrar resultados
         return render_template(
             "domicilios/list.jinja2",

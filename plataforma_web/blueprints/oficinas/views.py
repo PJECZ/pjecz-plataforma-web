@@ -10,7 +10,7 @@ from lib.safe_string import safe_clave, safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.oficinas.forms import OficinaForm
+from plataforma_web.blueprints.oficinas.forms import OficinaForm, OficinaSearchForm
 from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -50,6 +50,32 @@ def list_inactive():
     )
 
 
+@oficinas.route('/oficinas/buscar', methods=['GET', 'POST'])
+def search():
+    """Buscar Oficinas"""
+    form_search = OficinaSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {'estatus': 'A'}
+        titulos = []
+        if form_search.clave.data:
+            clave = safe_string(form_search.clave.data)
+            if clave != '':
+                busqueda['clave'] = clave
+                titulos.append('clave ' + clave)
+        if form_search.descripcion.data:
+            descripcion = safe_string(form_search.descripcion.data)
+            if descripcion != '':
+                busqueda['descripcion'] = descripcion
+                titulos.append('descripción ' + descripcion)
+        return render_template(
+            'oficinas/list.jinja2',
+            filtros=json.dumps(busqueda),
+            titulo='Oficinas con ' + ', '.join(titulos),
+            estatus='A',
+        )
+    return render_template('oficinas/search.jinja2', form=form_search)
+
+
 @oficinas.route("/oficinas/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Oficinas"""
@@ -65,6 +91,10 @@ def datatable_json():
         consulta = consulta.filter_by(distrito_id=request.form["distrito_id"])
     if "domicilio_id" in request.form:
         consulta = consulta.filter_by(domicilio_id=request.form["domicilio_id"])
+    if "clave" in request.form:
+        consulta = consulta.filter(Oficina.clave.contains(safe_string(request.form["clave"])))
+    if "descripcion" in request.form:
+        consulta = consulta.filter(Oficina.descripcion.contains(safe_string(request.form["descripcion"])))
     registros = consulta.order_by(Oficina.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

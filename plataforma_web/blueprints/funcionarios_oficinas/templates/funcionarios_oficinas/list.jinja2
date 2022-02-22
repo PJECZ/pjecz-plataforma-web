@@ -20,10 +20,9 @@
                 <tr>
                     <th>IDs</th>
                     <th>Funcionarios</th>
+                    <th>CURPs</th>
                     <th>Oficinas claves</th>
                     <th>Oficinas descripciones</th>
-                    <th>Domicilios</th>
-                    <th>Distritos</th>
                 </tr>
             </thead>
         </table>
@@ -50,10 +49,9 @@
             columns: [
                 { data: "detalle" },
                 { data: "funcionario_nombre" },
+                { data: "funcionario_curp" },
                 { data: "oficina_clave" },
-                { data: "oficina_descripcion_corta" },
-                { data: "oficina_domicilio_completo" },
-                { data: "oficina_distrito_nombre_corto" }
+                { data: "oficina_descripcion_corta" }
             ],
             columnDefs: [
                 {
@@ -64,7 +62,7 @@
                     }
                 },
                 {
-                    targets: [1, 3, 4],
+                    targets: [1, 4],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 48 ? data.substr(0, 48) + '…' : data);
