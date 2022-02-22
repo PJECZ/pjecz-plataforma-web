@@ -76,8 +76,8 @@ def datatable_json():
                     "url": url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=resultado.id),
                 },
                 "autoridad_clave": resultado.autoridad.clave,
+                "autoridad_descripcion_corta": resultado.autoridad.descripcion_corta,
                 "distrito_nombre_corto": resultado.autoridad.distrito.nombre_corto,
-                "descripcion_corta": resultado.autoridad.descripcion_corta,
                 "funcionario_nombre": resultado.funcionario.nombre,
             }
         )

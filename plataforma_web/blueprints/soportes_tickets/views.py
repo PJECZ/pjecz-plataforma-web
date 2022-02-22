@@ -178,14 +178,19 @@ def datatable_json():
                 consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
             else:  # TODOS los demas
                 consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
+            # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
+            consulta = consulta.order_by(SoporteTicket.id.asc())
         # Si es la vista "Abiertos y Trabajando", para TRABAJANDO, hay dos tablas MIOS y TODOS
-        if "soporte_tickets_trabajando" in request.form:
+        elif "soporte_tickets_trabajando" in request.form:
             if request.form["soporte_tickets_trabajando"] == "MIOS":
                 consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
             else:  # TODOS
                 consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
-        # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
-        consulta = consulta.order_by(SoporteTicket.id.asc())
+            # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
+            consulta = consulta.order_by(SoporteTicket.id.asc())
+        else:
+            # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
+            consulta = consulta.order_by(SoporteTicket.id.desc())
 
     # Obtener los registros y el total
     registros = consulta.offset(start).limit(rows_per_page).all()

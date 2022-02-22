@@ -18,7 +18,11 @@
         <table id="autoridades_funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Descripción</th>
+                    <th>Detalles</th>
+                    <th>Autoridades claves</th>
+                    <th>Autoridades descripciones</th>
+                    <th>Distritos</th>
+                    <th>Funcionarios</th>
                 </tr>
             </thead>
         </table>
@@ -45,6 +49,8 @@
             columns: [
                 { data: "detalle" },
                 { data: "autoridad_clave" },
+                { data: "autoridad_descripcion_corta" },
+                { data: "distrito_nombre_corto" },
                 { data: "funcionario_nombre" }
             ],
             columnDefs: [
@@ -56,7 +62,7 @@
                     }
                 },
                 {
-                    targets: 2,
+                    targets: [2, 4],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 48 ? data.substr(0, 48) + '…' : data);

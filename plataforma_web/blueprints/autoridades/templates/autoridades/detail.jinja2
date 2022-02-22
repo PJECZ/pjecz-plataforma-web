@@ -76,8 +76,9 @@
             <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>e-mail</th>
+                        <th>IDs</th>
                         <th>Nombres</th>
+                        <th>e-mail</th>
                         <th>Puestos</th>
                     </tr>
                 </thead>
@@ -90,16 +91,11 @@
             <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Nombres completos</th>
-                        <th>Puestos</th>
-                        <th>En funciones</th>
-                        <th>Acciones</th>
+                        <th>IDs</th>
+                        <th>Nombres</th>
                     </tr>
                 </thead>
             </table>
-            {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
-                <a href="{{ url_for('autoridades_funcionarios.new_with_autoridad', autoridad_id=autoridad.id) }}" class="btn btn-primary">Agregar</a>
-            {% endif %}
         {% endcall %}
     {% endif %}
 {% endblock %}
@@ -110,8 +106,114 @@
         {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
     {% if current_user.can_view('USUARIOS') %}
+    <script>
+        $('#usuarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/usuarios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "autoridad_id": {{ autoridad.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "nombre" },
+                { data: "email" },
+                { data: "puesto" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: [1, 3],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
     {% endif %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
+    <script>
+        $('#autoridades_funcionarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/autoridades_funcionarios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "autoridad_id": {{ autoridad.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "funcionario_nombre" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
     {% endif %}
     {{ detail.moment_js(moment) }}
     <!-- Obtener informacion para las tarjetas -->
