@@ -18,5 +18,5 @@ class SoporteCategoriaForm(FlaskForm):
     """ Formulario SoporteCategoria """
     nombre = StringField('Nombre', validators=[DataRequired(), Length(max=256)])
     rol = QuerySelectField("Rol", query_factory=roles_opciones, get_label="nombre", validators=[Optional()])
-    instrucciones = TextAreaField('Instrucciones', validators=[Optional(), Length(max=2048)])
+    instrucciones = TextAreaField('Instrucciones', validators=[Optional(), Length(max=4096)])
     guardar = SubmitField('Guardar')

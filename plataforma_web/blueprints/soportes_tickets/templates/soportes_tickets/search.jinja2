@@ -16,12 +16,8 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('soportes_tickets.search', fid='soportes_tickets_search_form') %}
-            {% call f.form_group(form.fecha_inicio) %}{% endcall %}
-            {% call f.form_group(form.fecha_termino) %}{% endcall %}
-            {% call f.form_group(form.usuario) %}{% endcall %}
-            {% call f.form_group(form.categoria) %}{% endcall %}
-            {% call f.form_group(form.oficina) %}{% endcall %}
-            {% call f.form_group(form.tecnico) %}{% endcall %}
+            {% call f.form_group(form.fecha_desde) %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.solucion) %}{% endcall %}
             {% call f.form_group(form.estado) %}{% endcall %}
@@ -35,20 +31,6 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            $('#oficina').addClass('js-example-placeholder-single js-states form-control');
-            $("#oficina").prop("selectedIndex", -1);
-            $("#oficina").select2({
-                placeholder: "Oficina",
-                allowClear: true
-            });
-
-            $('#categoria').addClass('js-example-placeholder-single js-states form-control');
-            $("#categoria").prop("selectedIndex", -1);
-            $("#categoria").select2({
-                placeholder: "Categoría",
-                allowClear: true
-            });
-
             $("#estado").prepend($('<option>', {
                 value: '',
                 text: ''
