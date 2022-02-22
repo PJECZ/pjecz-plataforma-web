@@ -48,6 +48,8 @@ locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 
 USUARIOS_EMAILS_DISTRITOS_CSV = "seed/usuarios_emails_distritos.csv"
 
+USUARIOS_OFICINAS_CSV = "seed/usuarios_oficinas.csv"
+
 
 def definir_oficinas():
     """Definir las oficinas a partir de una relacion entre email y oficina"""
@@ -117,6 +119,43 @@ def definir_oficinas():
             contador += 1
             if contador % 100 == 0:
                 bitacora.info("Procesados %d", contador)
+
+        # Cargar archivo CSV usuarios oficinas
+        oficina_relacion_email = Path(USUARIOS_OFICINAS_CSV)
+        if not oficina_relacion_email.exists():
+            mensaje = "No se encontró {oficina_relacion_email.name}"
+            set_task_error(mensaje)
+            bitacora.error(mensaje)
+            return
+        if not oficina_relacion_email.is_file():
+            mensaje = "No es un archivo {oficina_relacion_email.name}"
+            set_task_error(mensaje)
+            bitacora.error(mensaje)
+            return
+        contador = 0
+        usuarios_cambiados_contador = 0
+        usuarios_sin_cambios_contador = 0
+        emails_no_encontrados = 0
+        with open(ruta, encoding="utf8") as puntero:
+            rows = csv.DictReader(puntero)
+            for row in rows:
+                clave_oficina = row["clave"]
+                usuario_email = row["email"]
+                # consultar el usuario que coincida con el email:
+                usuario_c = Usuario.query.filter_by(email=usuario_email)
+                if usuario_c.count() > 0:
+
+                    # verificar la oficina actual
+                    # if usuario_c.oficina_id == 1:
+                    if usuario_c is None:
+                        usuario_c.oficina_id = Oficina.query.get().filter_by(clave=clave_oficina)
+                        emails_no_encontrados += 1
+                        bitacora.warning("No se encontró el email %s", usuario_email)
+                    else:
+                        if usuario_c.oficina == oficina_no_definido:
+                            if clave_oficina in Oficina.query.get().filter_by(clave=clave_oficina):
+                                usuario_c.save()
+                                # mensaje = "Usuario {usuario.email} actualizado..."
 
     # Terminar
     set_task_progress(100)
