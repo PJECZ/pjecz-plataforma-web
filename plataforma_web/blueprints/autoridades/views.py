@@ -13,7 +13,7 @@ from lib.safe_string import safe_string, safe_message
 
 from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm
+from plataforma_web.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm, AutoridadSearchForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.materias.models import Materia
@@ -68,6 +68,37 @@ def list_inactive():
     )
 
 
+@autoridades.route("/autoridades/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Autoridad"""
+    form_search = AutoridadSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.descripcion.data:
+            descripcion = safe_string(form_search.descripcion.data, to_uppercase=False)
+            if descripcion != "":
+                busqueda["descripcion"] = descripcion
+                titulos.append("descripcion " + descripcion)
+        if form_search.clave.data:
+            clave = safe_string(form_search.clave.data)
+            if clave != "":
+                busqueda["clave"] = clave
+                titulos.append("clave " + clave)
+        if form_search.organo_jurisdiccional.data:
+            organo_jurisdiccional = safe_string(form_search.organo_jurisdiccional.data)
+            if organo_jurisdiccional != "":
+                busqueda["organo_jurisdiccional"] = organo_jurisdiccional
+                titulos.append("organo_jurisdiccional " + organo_jurisdiccional)
+        return render_template(
+            "autoridades/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Autoridad con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("autoridades/search.jinja2", form=form_search)
+
+
 @autoridades.route("/autoridades/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Autoridades"""
@@ -85,6 +116,8 @@ def datatable_json():
         consulta = consulta.filter_by(materia_id=request.form["materia_id"])
     if "clave" in request.form:
         consulta = consulta.filter(Autoridad.clave.contains(safe_string(request.form["clave"])))
+    if "descripcion" in request.form:
+        consulta = consulta.filter(Autoridad.descripcion.contains(safe_string(request.form["descripcion"], to_uppercase=False)))
     if "organo_jurisdiccional" in request.form:
         consulta = consulta.filter(Autoridad.organo_jurisdiccional == safe_string(request.form["organo_jurisdiccional"]))
     registros = consulta.order_by(Autoridad.id.desc()).offset(start).limit(rows_per_page).all()
@@ -124,9 +157,7 @@ def audiencias_json(autoridad_id):
     # Listado
     listado = []
     desde = datetime.now()  # Desde este momento
-    for audiencia in (
-        audiencias.filter(Audiencia.tiempo >= desde).order_by(Audiencia.tiempo).limit(TARJETAS_LIMITE_REGISTROS).all()
-    ):
+    for audiencia in audiencias.filter(Audiencia.tiempo >= desde).order_by(Audiencia.tiempo).limit(TARJETAS_LIMITE_REGISTROS).all():
         listado.append(
             {
                 "tiempo": audiencia.tiempo.strftime("%Y-%m-%d %H:%M"),

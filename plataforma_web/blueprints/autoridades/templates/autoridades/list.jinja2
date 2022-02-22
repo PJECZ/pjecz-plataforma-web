@@ -16,6 +16,7 @@
         {% if current_user.can_insert('AUTORIDADES') %}
             {{ topbar.button_new('Nueva Autoridad', url_for('autoridades.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('autoridades.search')) }}
     {% endcall %}
 {% endblock %}
 
