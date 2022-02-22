@@ -34,10 +34,10 @@
             <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
+                        <th>IDs</th>
                         <th>Claves</th>
                         <th>Distritos</th>
-                        <th>Descripciones</th>
-                        <th>Acciones</th>
+                        <th>Descripciones cortas</th>
                     </tr>
                 </thead>
             </table>
@@ -51,10 +51,10 @@
             <table id="funcionarios_oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Clave</th>
-                        <th>Descripción Corta</th>
-                        <th>Domicilio</th>
+                        <th>IDs</th>
+                        <th>Claves</th>
+                        <th>Descripciones cortas</th>
+                        <th>Domicilios</th>
                     </tr>
                 </thead>
             </table>
@@ -71,6 +71,53 @@
         {% if funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + funcionario.nombre + '?') }}{% endif %}
     {% endif %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
+    <script>
+        $('#autoridades_funcionarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/autoridades_funcionarios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: { "funcionario_id": {{ funcionario.id }}, "estatus": "A" }
+            },
+            columns: [
+                { data: "id" },
+                { data: "clave" },
+                { data: "distrito_nombre_corto" },
+                { data: "descripcion_corta" }
+            ],
+            columnDefs: [
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
     {% endif %}
     {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
     <script>

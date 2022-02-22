@@ -107,7 +107,13 @@ def new_with_funcionario(funcionario_id):
         funcionario_oficina.save()
         flash(f"Funcionario Oficina {funcionario_oficina.funcionario} guardado.", "success")
         return redirect(url_for("funcionarios_oficinas.list_active"))
-    return render_template("funcionarios_oficinas/new.jinja2", form=form)
+    form.funcionario.data = funcionario.nombre
+    return render_template(
+        "funcionarios_oficinas/new_with_funcionario.jinja2",
+        form=form,
+        funcionario=funcionario,
+        titulo=f"Agregar oficina al funcionario {funcionario.nombre}",
+    )
 
 
 @funcionarios_oficinas.route("/funcionarios_oficinas/eliminar/<int:funcionario_oficina_id>")
