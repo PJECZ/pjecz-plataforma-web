@@ -6,7 +6,7 @@
 {% block title %}Oficina{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(oficina.descripcion) %}
+    {% call topbar.page_buttons('Oficina ' + oficina.clave) %}
         {{ topbar.button_previous('Oficinas', url_for('oficinas.list_active')) }}
         {% if current_user.can_edit('OFICINAS') %}
             {{ topbar.button_edit('Editar', url_for('oficinas.edit', oficina_id=oficina.id)) }}
@@ -48,7 +48,6 @@
                     <th>Nombres Completos</th>
                     <th>e-mail</th>
                     <th>Puesto</th>
-                    <th>Autoridad</th>
                 </tr>
             </thead>
         </table>
@@ -77,26 +76,21 @@
                 data: {"estatus": "A", "oficina_id": {{ oficina.id }}},
             },
             columns: [
-                { data: "id" },
                 { data: "detalle" },
+                { data: "nombre" },
                 { data: "email" },
-                { data: "puesto" },
-                { data: "autoridad_clave" }
+                { data: "puesto" }
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.nombre.length > 32) {
-                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 32) + '…' + '</a>';
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                        }
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: [2, 3],
+                    targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 32 ? data.substr(0, 32) + '…' : data);

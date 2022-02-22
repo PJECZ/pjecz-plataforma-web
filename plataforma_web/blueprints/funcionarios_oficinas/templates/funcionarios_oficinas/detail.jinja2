@@ -9,7 +9,6 @@
     {% call topbar.page_buttons(funcionario_oficina.descripcion) %}
         {{ topbar.button_previous('Funcionarios Oficinas', url_for('funcionarios_oficinas.list_active')) }}
         {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
-            {{ topbar.button_edit('Editar', url_for('funcionarios_oficinas.edit', funcionario_oficina_id=funcionario_oficina.id)) }}
             {% if funcionario_oficina.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('funcionarios_oficinas.delete', funcionario_oficina_id=funcionario_oficina.id)) }}{% endif %}
             {% if funcionario_oficina.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('funcionarios_oficinas.recover', funcionario_oficina_id=funcionario_oficina.id)) }}{% endif %}
         {% endif %}

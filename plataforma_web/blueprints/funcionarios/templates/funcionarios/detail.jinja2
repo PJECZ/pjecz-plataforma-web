@@ -37,7 +37,7 @@
                         <th>IDs</th>
                         <th>Claves</th>
                         <th>Distritos</th>
-                        <th>Descripciones cortas</th>
+                        <th>Descripciones</th>
                     </tr>
                 </thead>
             </table>
@@ -53,8 +53,9 @@
                     <tr>
                         <th>IDs</th>
                         <th>Claves</th>
-                        <th>Descripciones cortas</th>
+                        <th>Descripciones</th>
                         <th>Domicilios</th>
+                        <th>Distritos</th>
                     </tr>
                 </thead>
             </table>
@@ -88,17 +89,17 @@
                 data: { "funcionario_id": {{ funcionario.id }}, "estatus": "A" }
             },
             columns: [
-                { data: "id" },
-                { data: "clave" },
+                { data: "detalle" },
+                { data: "autoridad_clave" },
                 { data: "distrito_nombre_corto" },
                 { data: "descripcion_corta" }
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 }
             ],
@@ -137,21 +138,22 @@
                 data: { "funcionario_id": {{ funcionario.id }}, "estatus": "A" }
             },
             columns: [
-                { data: "id" },
                 { data: "detalle" },
-                { data: "descripcion_corta" },
-                { data: "domicilio_completo" }
+                { data: "oficina_clave" },
+                { data: "oficina_descripcion_corta" },
+                { data: "oficina_domicilio_completo" },
+                { data: "oficina_distrito_nombre_corto" }
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: [2, 3],
+                    targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 32 ? data.substr(0, 32) + '…' : data);

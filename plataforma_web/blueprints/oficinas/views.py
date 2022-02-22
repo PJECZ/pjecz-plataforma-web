@@ -78,9 +78,11 @@ def datatable_json():
                 },
                 "clave": resultado.clave,
                 "descripcion_corta": resultado.descripcion_corta,
+                "distrito_nombre_corto": resultado.distrito.nombre_corto,
                 "domicilio_completo": resultado.domicilio.completo,
                 "apertura": resultado.apertura.strftime("%H:%M"),
                 "cierre": resultado.cierre.strftime("%H:%M"),
+                "limite_personas": resultado.limite_personas,
             }
         )
     # Entregar JSON

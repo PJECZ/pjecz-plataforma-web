@@ -111,8 +111,8 @@ def new_with_usuario(usuario_id):
             descripcion=descripcion,
         )
         usuario_rol.save()
-        flash(safe_message(f"Nuevo usuario-rol {usuario_rol.descripcion}"), "success")
-        return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))
+        flash(safe_message(f"Nuevo {descripcion}"), "success")
+        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
     form.usuario.data = usuario.email
     return render_template(
         "usuarios_roles/new_with_usuario.jinja2",

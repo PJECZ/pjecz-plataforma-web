@@ -8,11 +8,11 @@ from flask_login import current_user, login_required
 from lib import datatables
 from lib.safe_string import safe_message
 
-from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.funcionarios_oficinas.forms import FuncionarioOficinaForm
 from plataforma_web.blueprints.funcionarios_oficinas.models import FuncionarioOficina
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.permisos.models import Permiso
 
 MODULO = "FUNCIONARIOS OFICINAS"
 
@@ -77,6 +77,9 @@ def datatable_json():
                 },
                 "funcionario_nombre": resultado.funcionario.nombre,
                 "oficina_clave": resultado.oficina.clave,
+                "oficina_descripcion_corta": resultado.oficina.descripcion_corta,
+                "oficina_domicilio_completo": resultado.oficina.domicilio.completo,
+                "oficina_distrito_nombre_corto": resultado.oficina.distrito.nombre_corto,
             }
         )
     # Entregar JSON
@@ -94,19 +97,27 @@ def detail(funcionario_oficina_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_funcionario(funcionario_id):
     """Nuevo Funcionario Oficina"""
-    funcionario = Usuario.query.get_or_404(funcionario_id)
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
     form = FuncionarioOficinaForm()
     if form.validate_on_submit():
         oficina = form.oficina.data
         descripcion = f"Funcionario {funcionario.curp} en {oficina.clave}"
+        if (
+            FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario)
+            .filter(FuncionarioOficina.oficina == oficina)
+            .first()
+            is not None
+        ):
+            flash(f"CONFLICTO: Ya existe {descripcion}. Si está eliminado puede recuperarlo.", "warning")
+            return redirect(url_for("funcionarios_oficinas.list_inactive"))
         funcionario_oficina = FuncionarioOficina(
             funcionario=funcionario,
             oficina=oficina,
             descripcion=descripcion,
         )
         funcionario_oficina.save()
-        flash(f"Funcionario Oficina {funcionario_oficina.funcionario} guardado.", "success")
-        return redirect(url_for("funcionarios_oficinas.list_active"))
+        flash(f"Nuevo {descripcion}", "success")
+        return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
     form.funcionario.data = funcionario.nombre
     return render_template(
         "funcionarios_oficinas/new_with_funcionario.jinja2",

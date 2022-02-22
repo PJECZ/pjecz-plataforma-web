@@ -10,9 +10,6 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('autoridades_funcionarios.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('autoridades_funcionarios.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
-            {{ topbar.button_new('Nuevo Autoridad Funcionario', url_for('autoridades_funcionarios.new')) }}
-        {% endif %}
     {% endcall %}
 {% endblock %}
 

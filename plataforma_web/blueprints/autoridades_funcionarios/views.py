@@ -26,44 +26,44 @@ def before_request():
     """Permiso por defecto"""
 
 
-@autoridades_funcionarios.route('/autoridades_funcionarios')
+@autoridades_funcionarios.route("/autoridades_funcionarios")
 def list_active():
     """Listado de Autoridades Funcionarios activos"""
     return render_template(
-        'autoridades_funcionarios/list.jinja2',
-        filtros=json.dumps({'estatus': 'A'}),
-        titulo='Autoridades Funcionarios',
-        estatus='A',
+        "autoridades_funcionarios/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Autoridades Funcionarios",
+        estatus="A",
     )
 
 
-@autoridades_funcionarios.route('/autoridades_funcionarios/inactivos')
+@autoridades_funcionarios.route("/autoridades_funcionarios/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Autoridades Funcionarios inactivos"""
     return render_template(
-        'autoridades_funcionarios/list.jinja2',
-        filtros=json.dumps({'estatus': 'B'}),
-        titulo='Autoridades Funcionarios inactivos',
-        estatus='B',
+        "autoridades_funcionarios/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Autoridades Funcionarios inactivos",
+        estatus="B",
     )
 
 
-@autoridades_funcionarios.route('/autoridades_funcionarios/datatable_json', methods=['GET', 'POST'])
+@autoridades_funcionarios.route("/autoridades_funcionarios/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Autoridades Funcionarios"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = AutoridadFuncionario.query
-    if 'estatus' in request.form:
-        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus='A')
+        consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
-        consulta = consulta.filter_by(autoridad_id=request.form['autoridad_id'])
+        consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
     if "funcionario_id" in request.form:
-        consulta = consulta.filter_by(funcionario_id=request.form['funcionario_id'])
+        consulta = consulta.filter_by(funcionario_id=request.form["funcionario_id"])
     registros = consulta.order_by(AutoridadFuncionario.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -76,6 +76,8 @@ def datatable_json():
                     "url": url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=resultado.id),
                 },
                 "autoridad_clave": resultado.autoridad.clave,
+                "distrito_nombre_corto": resultado.autoridad.distrito.nombre_corto,
+                "descripcion_corta": resultado.autoridad.descripcion_corta,
                 "funcionario_nombre": resultado.funcionario.nombre,
             }
         )
@@ -99,7 +101,12 @@ def new_with_funcionario(funcionario_id):
     if form.validate_on_submit():
         autoridad = form.autoridad.data
         descripcion = f"{funcionario.nombre} en {autoridad.clave}"
-        if AutoridadFuncionario.query.filter(AutoridadFuncionario.autoridad == autoridad).filter(AutoridadFuncionario.funcionario == funcionario).first() is not None:
+        if (
+            AutoridadFuncionario.query.filter(AutoridadFuncionario.autoridad == autoridad)
+            .filter(AutoridadFuncionario.funcionario == funcionario)
+            .first()
+            is not None
+        ):
             flash(f"CONFLICTO: Ya existe {descripcion}. Si está eliminado puede recuperarlo.", "warning")
             return redirect(url_for("autoridades_funcionarios.list_inactive"))
         autoridad_funcionario = AutoridadFuncionario(
@@ -108,8 +115,8 @@ def new_with_funcionario(funcionario_id):
             descripcion=descripcion,
         )
         autoridad_funcionario.save()
-        flash(f"Nuevo autoridad-funcionario {autoridad_funcionario.descripcion}", "success")
-        return redirect(url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=autoridad_funcionario.id))
+        flash(f"Nuevo {descripcion}", "success")
+        return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
     form.funcionario.data = funcionario.nombre
     return render_template(
         "autoridades_funcionarios/new_with_funcionario.jinja2",
