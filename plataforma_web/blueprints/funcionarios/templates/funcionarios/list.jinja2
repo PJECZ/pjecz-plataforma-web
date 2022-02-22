@@ -25,7 +25,7 @@
         <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>IDs</th>
                     <th>Nombres completos</th>
                     <th>CURP</th>
                     <th>e-mail</th>
@@ -54,26 +54,22 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "id" },
                 { data: "detalle" },
+                { data: "nombre" },
                 { data: "curp" },
                 { data: "email" },
                 { data: "puesto" }
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.nombre.length > 32) {
-                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 32) + '…' + '</a>';
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                        }
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: [3, 4],
+                    targets: [1, 4],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 32 ? data.substr(0, 32) + '…' : data);

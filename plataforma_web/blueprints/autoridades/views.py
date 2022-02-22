@@ -1,13 +1,15 @@
 """
 Autoridades, vistas
 """
+import json
 from datetime import date, datetime, timedelta
-from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import current_user, login_required
-import pytz
 
-from lib.safe_string import safe_message
-from plataforma_web.blueprints.usuarios.decorators import permission_required
+import pytz
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
+from lib import datatables
+from lib.safe_string import safe_string, safe_message
 
 from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -19,6 +21,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.sentencias.models import Sentencia
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "AUTORIDADES"
 
@@ -47,7 +50,7 @@ def list_active():
     """Listado de Autoridades activos"""
     return render_template(
         "autoridades/list.jinja2",
-        autoridades=Autoridad.query.filter(Autoridad.estatus == "A").all(),
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Autoridades",
         estatus="A",
     )
@@ -59,10 +62,51 @@ def list_inactive():
     """Listado de Autoridades inactivos"""
     return render_template(
         "autoridades/list.jinja2",
-        autoridades=Autoridad.query.filter(Autoridad.estatus == "B").all(),
-        titulo="Autoridades inactivas",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Autoridades inactivos",
         estatus="B",
     )
+
+
+@autoridades.route("/autoridades/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Autoridades"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = Autoridad.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "distrito_id" in request.form:
+        consulta = consulta.filter_by(distrito_id=request.form["distrito_id"])
+    if "materia_id" in request.form:
+        consulta = consulta.filter_by(materia_id=request.form["materia_id"])
+    if "clave" in request.form:
+        consulta = consulta.filter(Autoridad.clave.contains(safe_string(request.form["clave"])))
+    if "organo_jurisdiccional" in request.form:
+        consulta = consulta.filter(Autoridad.organo_jurisdiccional == safe_string(request.form["organo_jurisdiccional"]))
+    registros = consulta.order_by(Autoridad.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.id),
+                },
+                "clave": resultado.clave,
+                "distrito_nombre_corto": resultado.distrito.nombre_corto,
+                "descripcion_corta": resultado.descripcion_corta,
+                "organo_jurisdiccional": resultado.organo_jurisdiccional,
+                "materia_nombre": resultado.materia.nombre,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @autoridades.route("/autoridades/<int:autoridad_id>")
@@ -80,7 +124,9 @@ def audiencias_json(autoridad_id):
     # Listado
     listado = []
     desde = datetime.now()  # Desde este momento
-    for audiencia in audiencias.filter(Audiencia.tiempo >= desde).order_by(Audiencia.tiempo).limit(TARJETAS_LIMITE_REGISTROS).all():
+    for audiencia in (
+        audiencias.filter(Audiencia.tiempo >= desde).order_by(Audiencia.tiempo).limit(TARJETAS_LIMITE_REGISTROS).all()
+    ):
         listado.append(
             {
                 "tiempo": audiencia.tiempo.strftime("%Y-%m-%d %H:%M"),

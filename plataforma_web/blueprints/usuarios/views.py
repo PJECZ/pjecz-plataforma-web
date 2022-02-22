@@ -202,20 +202,24 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "nombres" in request.form:
-        consulta = consulta.filter(Usuario.nombres.like("%" + safe_string(request.form["nombres"]) + "%"))
-    if "apellido_paterno" in request.form:
-        consulta = consulta.filter(Usuario.apellido_paterno.like("%" + safe_string(request.form["apellido_paterno"]) + "%"))
-    if "apellido_materno" in request.form:
-        consulta = consulta.filter(Usuario.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
-    if "curp" in request.form:
-        consulta = consulta.filter(Usuario.curp.like("%" + safe_string(request.form["curp"]) + "%"))
-    if "puesto" in request.form:
-        consulta = consulta.filter(Usuario.puesto.like("%" + safe_string(request.form["puesto"]) + "%"))
-    if "email" in request.form:
-        consulta = consulta.filter(Usuario.email.like("%" + safe_string(request.form["email"], to_uppercase=False) + "%"))
+    if "autoridad_id" in request.form:
+        consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
     if "oficina_id" in request.form:
         consulta = consulta.filter_by(oficina_id=request.form["oficina_id"])
+    if "nombres" in request.form:
+        consulta = consulta.filter(Usuario.nombres.contains(safe_string(request.form["nombres"])))
+    if "apellido_paterno" in request.form:
+        consulta = consulta.filter(Usuario.apellido_paterno.contains(safe_string(request.form["apellido_paterno"])))
+    if "apellido_materno" in request.form:
+        consulta = consulta.filter(Usuario.apellido_materno.contains(safe_string(request.form["apellido_materno"])))
+    if "curp" in request.form:
+        consulta = consulta.filter(Usuario.curp.contains(safe_string(request.form["curp"])))
+    if "puesto" in request.form:
+        consulta = consulta.filter(Usuario.puesto.contains(safe_string(request.form["puesto"])))
+    if "email" in request.form:
+        consulta = consulta.filter(Usuario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
+    if "workspace" in request.form:
+        consulta = consulta.filter(Usuario.workspace == safe_string(request.form["email"]))
     registros = consulta.order_by(Usuario.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -223,11 +227,11 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "id": resultado.id,
                 "detalle": {
-                    "nombre": resultado.nombre,
+                    "id": resultado.id,
                     "url": url_for("usuarios.detail", usuario_id=resultado.id),
                 },
+                "nombre": resultado.nombre,
                 "email": resultado.email,
                 "puesto": resultado.puesto,
                 "autoridad_clave": resultado.autoridad.clave,

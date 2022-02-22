@@ -81,17 +81,6 @@
                         <th>Puestos</th>
                     </tr>
                 </thead>
-                <tbody>
-                {% for usuario in autoridad.usuarios %}
-                    {% if usuario.estatus == "A" %}
-                    <tr>
-                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
-                        <td>{{ usuario.nombre }}</td>
-                        <td>{{ usuario.puesto }}</td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-                </tbody>
             </table>
         {% endcall %}
     {% endif %}
@@ -107,22 +96,6 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                {% for autoridad_funcionario in autoridad.autoridades_funcionarios %}
-                    {% if autoridad_funcionario.estatus == "A" %}
-                    <tr>
-                        <td><a href="{{ url_for('funcionarios.detail', funcionario_id=autoridad_funcionario.funcionario_id) }}">{{ autoridad_funcionario.funcionario.nombre }}</a></td>
-                        <td>{{ autoridad_funcionario.funcionario.puesto }}</td>
-                        <td>{% if autoridad_funcionario.funcionario.en_funciones %}SI{% endif %}</td>
-                        <td>
-                        {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-                            {{ modals.button_delete(url=url_for('autoridades_funcionarios.delete', autoridad_funcionario_id=autoridad_funcionario.id), id='DeleteAutoridadFuncionario', message='¿Eliminar ' + autoridad_funcionario.funcionario.nombre + '?') }}
-                        {% endif %}
-                        </td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-                </tbody>
             </table>
             {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
                 <a href="{{ url_for('autoridades_funcionarios.new_with_autoridad', autoridad_id=autoridad.id) }}" class="btn btn-primary">Agregar</a>
@@ -137,13 +110,8 @@
         {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
     {% if current_user.can_view('USUARIOS') %}
-        {{ detail.datatable('usuarios_datatable') }}
     {% endif %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
-        {{ detail.datatable('autoridades_funcionarios_datatable') }}
-    {% endif %}
-    {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-        {{ modals.custom_javascript('Eliminar', '¿Eliminar ese funcionario de la autoridad?', 'DeleteAutoridadFuncionario') }}
     {% endif %}
     {{ detail.moment_js(moment) }}
     <!-- Obtener informacion para las tarjetas -->

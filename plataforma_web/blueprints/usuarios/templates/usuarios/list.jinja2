@@ -58,8 +58,8 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "id" },
                 { data: "detalle" },
+                { data: "nombre" },
                 { data: "email" },
                 { data: "puesto" },
                 { data: "autoridad_clave" },
@@ -67,18 +67,14 @@
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.nombre.length > 32) {
-                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 32) + '…' + '</a>';
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                        }
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: [2, 3],
+                    targets: [1, 3],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 32 ? data.substr(0, 32) + '…' : data);

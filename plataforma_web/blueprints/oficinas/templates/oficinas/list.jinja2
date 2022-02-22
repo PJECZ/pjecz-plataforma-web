@@ -22,10 +22,12 @@
         <table id="oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Clave</th>
-                    <th>Descripción Corta</th>
-                    <th>Domicilio</th>
+                    <th>IDs</th>
+                    <th>Claves</th>
+                    <th>Descripciones cortas</th>
+                    <th>Domicilios</th>
+                    <th>Aperturas</th>
+                    <th>Cierres</th>
                 </tr>
             </thead>
         </table>
@@ -50,17 +52,19 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "id" },
                 { data: "detalle" },
+                { data: "clave" },
                 { data: "descripcion_corta" },
-                { data: "domicilio_completo" }
+                { data: "domicilio_completo" },
+                { data: "apertura" },
+                { data: "cierre" }
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {

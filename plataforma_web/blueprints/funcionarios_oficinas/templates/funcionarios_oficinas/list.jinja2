@@ -21,22 +21,67 @@
         <table id="funcionarios_oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Nombre o descripción</th>
-                    <th>Columna</th>
+                    <th>IDs</th>
+                    <th>Funcionarios</th>
+                    <th>Oficinas</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for funcionario_oficina in funcionarios_oficinas %}
-                <tr>
-                    <td><a href="{{ url_for('funcionarios_oficinas.detail', funcionario_oficina_id=funcionario_oficina.id) }}">{{ funcionario_oficina.descripcion }}</a></td>
-                    <td>{{ funcionario_oficina.columna }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('funcionarios_oficinas_datatable') }}
+    <script>
+        $('#funcionarios_oficinas_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/funcionarios_oficinas/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "funcionario_nombre" },
+                { data: "oficina_clave" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

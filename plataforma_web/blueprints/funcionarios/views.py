@@ -141,17 +141,17 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "nombres" in request.form:
-        consulta = consulta.filter(Funcionario.nombres.like("%" + safe_string(request.form["nombres"]) + "%"))
+        consulta = consulta.filter(Funcionario.nombres.contains(safe_string(request.form["nombres"])))
     if "apellido_paterno" in request.form:
-        consulta = consulta.filter(Funcionario.apellido_paterno.like("%" + safe_string(request.form["apellido_paterno"]) + "%"))
+        consulta = consulta.filter(Funcionario.apellido_paterno.contains(safe_string(request.form["apellido_paterno"])))
     if "apellido_materno" in request.form:
-        consulta = consulta.filter(Funcionario.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
+        consulta = consulta.filter(Funcionario.apellido_materno.contains(safe_string(request.form["apellido_materno"])))
     if "curp" in request.form:
-        consulta = consulta.filter(Funcionario.curp.like("%" + safe_string(request.form["curp"]) + "%"))
+        consulta = consulta.filter(Funcionario.curp.contains(safe_string(request.form["curp"])))
     if "puesto" in request.form:
-        consulta = consulta.filter(Funcionario.puesto.like("%" + safe_string(request.form["puesto"]) + "%"))
+        consulta = consulta.filter(Funcionario.puesto.contains(safe_string(request.form["puesto"])))
     if "email" in request.form:
-        consulta = consulta.filter(Funcionario.email.like("%" + safe_string(request.form["email"], to_uppercase=False) + "%"))
+        consulta = consulta.filter(Funcionario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
     if "en_funciones" in request.form and request.form["en_funciones"] == "true":
         consulta = consulta.filter(Funcionario.en_funciones == True)
     if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
@@ -167,11 +167,11 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "id": resultado.id,
                 "detalle": {
-                    "nombre": resultado.nombre,
+                    "id": resultado.id,
                     "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
                 },
+                "nombre": resultado.nombre,
                 "curp": resultado.curp,
                 "email": resultado.email,
                 "puesto": resultado.puesto,

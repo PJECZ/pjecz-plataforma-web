@@ -20,6 +20,13 @@ MODULO = "OFICINAS"
 oficinas = Blueprint("oficinas", __name__, template_folder="templates")
 
 
+@oficinas.before_request
+@login_required
+@permission_required(MODULO, Permiso.VER)
+def before_request():
+    """Permiso por defecto"""
+
+
 @oficinas.route("/oficinas")
 def list_active():
     """Listado de Oficinas activas"""
@@ -65,13 +72,15 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "id": resultado.id,
                 "detalle": {
-                    "clave": resultado.descripcion,
+                    "id": resultado.id,
                     "url": url_for("oficinas.detail", oficina_id=resultado.id),
                 },
+                "clave": resultado.clave,
                 "descripcion_corta": resultado.descripcion_corta,
                 "domicilio_completo": resultado.domicilio.completo,
+                "apertura": resultado.apertura.strftime("%H:%M"),
+                "cierre": resultado.cierre.strftime("%H:%M"),
             }
         )
     # Entregar JSON
