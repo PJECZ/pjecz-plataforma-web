@@ -161,7 +161,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus='A')
     if 'instrucciones' in request.form:
         consulta =  consulta.filter(SoporteCategoria.instrucciones != "")
-    registros = consulta.order_by(SoporteCategoria.nombre.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(SoporteCategoria.nombre.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
