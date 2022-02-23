@@ -1,11 +1,11 @@
 """
 INVENTARIOS CUSTODIAS, vistas
 """
+import json
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
@@ -69,31 +69,17 @@ def detail(custodia_id):
 @inv_custodias.route("/inv_custodias/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nueva Custodia"""
-    usuario = Usuario.query.filter(Usuario.id).all
+    """Nuevo Custodias"""
     form = INVCustodiaForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form)
-            validacion = True
-        except Exception as err:
-            flash(f"Verificar datos incorrectos: {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
-            custodia = INVCustodia(
-                fecha=form.fecha.data,
-                curp=safe_string(form.curp.data),
-                nombre_completo=safe_string(form.nombre_completo.data),
-                usuario=form.usuario.data,
-                # usuario=current_user,
-            )
-            custodia.save()
-            flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
-    # form.usuario.curp = usuario.curp
-    # form.usuario.nombre_completo = usuario.nombres
+        custodia = INVCustodia(
+            fecha=form.fecha.data,
+            usuario=current_user,
+        )
+        custodia.save()
+        flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
+        return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+    form.usuario.data = current_user.nombre
     return render_template("inv_custodias/new.jinja2", form=form)
 
 
@@ -167,15 +153,6 @@ def _validar_form(form, same=False):
         if nombre_existente:
             raise Exception("El nombre ya esta en uso.")
     return True
-
-
-# def _validar_fecha(fecha):
-#     if fecha < date.today():
-#         raise Exception("La fecha no puede ser pasada.")
-#     fecha_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
-#     if fecha > fecha_futura:
-#         raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {fecha_futura}")
-#     return True
 
 
 @inv_custodias.route("/inv_custodias/eliminar/<int:custodia_id>")
