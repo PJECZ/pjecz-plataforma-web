@@ -2,26 +2,27 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Soportes Tickets{% endblock %}
+{% block title %}Tickets No Resueltos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(titulo) %}
+    {% call topbar.page_buttons('Tickets No Resueltos') %}
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
+        {{ topbar.button_primary('Abiertos', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
+        {{ topbar.button_primary('Trabajando', url_for('soportes_tickets.list_working'), 'mdi:plus-circle') }}
+        {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:plus-circle') }}
+        {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
-            {{ topbar.button_primary('Abiertos y Trabajando', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
-            {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:plus-circle') }}
-            {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
-            {{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card('No Resueltos') %}
-        <table id="soportes_tickets_no_resuletos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%; background-color:#f5eef8;">
+        <table id="soportes_tickets_no_resuletos_datatable" class="table display nowrap" style="width:100%; background-color:#f5eef8;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -51,7 +52,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {{ filtros }}
+                data: { "estatus": "A", "estado": "NO RESUELTO" }
             },
             columns: [
                 { data: "id" },

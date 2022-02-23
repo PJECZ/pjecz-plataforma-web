@@ -2,10 +2,10 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Soportes Tickets{% endblock %}
+{% block title %}Tickets{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(titulo) %}
+    {% call topbar.page_buttons('Tickets') %}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
@@ -44,7 +44,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {{ filtros }}
+                data: { "estatus": "A" }
             },
             columns: [
                 { data: "id" },
