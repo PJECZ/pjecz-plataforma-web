@@ -167,7 +167,9 @@ def definir_oficinas():
 
     # Terminar
     set_task_progress(100)
-    mensaje_final = f"Terminado definir oficinas satisfactoriamente con {contador} usuarios actualizados"
+    mensaje_final = (
+        f"Terminado definir oficinas satisfactoriamente con {contador}  usuarios actualizados con oficina asignada {contador1}"
+    )
     bitacora.info(mensaje_final)
     return mensaje_final
 
