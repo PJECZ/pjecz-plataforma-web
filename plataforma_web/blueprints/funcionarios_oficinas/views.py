@@ -77,14 +77,14 @@ def datatable_json():
                 },
                 "funcionario": {
                     "curp": resultado.funcionario.curp,
-                    "url": url_for("funcionarios.detail", funcionario_id=resultado.funcionario_id),
+                    "url": url_for("funcionarios.detail", funcionario_id=resultado.funcionario_id) if current_user.can_view("FUNCIONARIOS") else "",
                 },
                 "funcionario_nombre": resultado.funcionario.nombre,
                 "funcionario_email": resultado.funcionario.email,
                 "funcionario_puesto": resultado.funcionario.puesto,
                 "oficina": {
                     "clave": resultado.oficina.clave,
-                    "url": url_for("oficinas.detail", oficina_id=resultado.oficina_id),
+                    "url": url_for("oficinas.detail", oficina_id=resultado.oficina_id) if current_user.can_view("OFICINAS") else "",
                 },
                 "oficina_descripcion_corta": resultado.oficina.descripcion_corta,
                 "oficina_domicilio_completo": resultado.oficina.domicilio.completo,

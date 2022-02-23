@@ -76,17 +76,22 @@
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
                     }
                 },
                 {
                     targets: 2,
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.completo.length > 48) {
-                            return '<a href="' + data.url + '">' + data.completo.substr(0, 48) + '…' + '</a>';
+                        if (data.completo.length > 32) {
+                            texto = data.completo.substr(0, 32) + '…';
                         } else {
-                            return '<a href="' + data.url + '">' + data.completo + '</a>';
+                            texto = data.completo;
+                        }
+                        if (data.url == '') {
+                            return texto;
+                        } else {
+                            return '<a href="' + data.url + '">' + texto + '</a>';
                         }
                     }
                 },
@@ -94,7 +99,11 @@
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                        if (data.url == '') {
+                            return data.nombre_corto;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                        }
                     }
                 }
             ],

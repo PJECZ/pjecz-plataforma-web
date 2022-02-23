@@ -78,7 +78,7 @@ def datatable_json():
                 },
                 "usuario": {
                     "email": resultado.usuario.email,
-                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id),
+                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id) if current_user.can_view("USUARIOS") else "",
                 },
                 "usuario_nombre": resultado.usuario.nombre,
                 "usuario_puesto": resultado.usuario.puesto,

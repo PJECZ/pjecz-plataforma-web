@@ -135,7 +135,7 @@ def datatable_json():
                 "organo_jurisdiccional": resultado.organo_jurisdiccional,
                 "distrito": {
                     "nombre_corto": resultado.distrito.nombre_corto,
-                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id),
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
                 },
                 "materia_nombre": resultado.materia.nombre,
             }

@@ -74,7 +74,11 @@
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.email + '</a>';
+                        if (data.url == '') {
+                            return data.email;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.email + '</a>';
+                        }
                     }
                 },
                 {

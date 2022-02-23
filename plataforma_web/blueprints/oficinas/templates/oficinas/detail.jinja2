@@ -99,7 +99,11 @@
                         targets: 1,
                         data: null,
                         render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.curp + '</a>';
+                            if (data.url == '') {
+                                return data.curp;
+                            } else {
+                                return '<a href="' + data.url + '">' + data.curp + '</a>';
+                            }
                         }
                     }
                 ],
@@ -162,7 +166,11 @@
                         targets: 3,
                         data: null,
                         render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                            if (data.url == '') {
+                                return data.clave;
+                            } else {
+                                return '<a href="' + data.url + '">' + data.clave + '</a>';
+                            }
                         }
                     }
                 ],

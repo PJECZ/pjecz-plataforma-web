@@ -18,6 +18,7 @@
 
 {% block content %}
     {% call detail.card(estatus=distrito.estatus) %}
+        {{ detail.label_value('Nombre', distrito.nombre) }}
         {{ detail.label_value('Nombre corto', distrito.nombre_corto) }}
         {{ detail.label_value_boolean('Es Distrito Judicial', distrito.es_distrito_judicial) }}
         {{ detail.label_value('Creado', moment(distrito.creado).format('llll')) }}
@@ -147,9 +148,14 @@
                         data: null,
                         render: function(data, type, row, meta) {
                             if (data.completo.length > 32) {
-                                return '<a href="' + data.url + '">' + data.completo.substr(0, 32) + '…' + '</a>';
+                                texto = data.completo.substr(0, 32) + '…';
                             } else {
-                                return '<a href="' + data.url + '">' + data.completo + '</a>';
+                                texto = data.completo;
+                            }
+                            if (data.url == '') {
+                                return texto;
+                            } else {
+                                return '<a href="' + data.url + '">' + texto + '</a>';
                             }
                         }
                     }

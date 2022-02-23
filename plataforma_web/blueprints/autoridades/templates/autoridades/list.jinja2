@@ -72,7 +72,11 @@
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                        if (data.url == '') {
+                            return data.nombre_corto;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                        }
                     }
                 }
             ],

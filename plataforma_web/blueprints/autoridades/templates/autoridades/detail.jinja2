@@ -6,7 +6,7 @@
 {% block title %}Autoridad{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Autoridad ' + autoridad.descripcion_corta + ', ' + autoridad.distrito.nombre_corto) %}
+    {% call topbar.page_buttons('Autoridad ' + autoridad.descripcion_corta) %}
         {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
         {% if current_user.can_edit('AUTORIDADES') %}
             {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
@@ -196,7 +196,11 @@
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.curp + '</a>';
+                        if (data.url == '') {
+                            return data.curp;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.curp + '</a>';
+                        }
                     }
                 },
                 {

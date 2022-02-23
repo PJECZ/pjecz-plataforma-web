@@ -60,6 +60,9 @@ def new():
     """Nuevo Modulo"""
     form = ModuloForm()
     if form.validate_on_submit():
+        if Modulo.query.filter_by(nombre=form.nombre.data).first():
+            flash(safe_message("El nombre del módulo ya existe"), "warning")
+            return render_template("modulos/new.jinja2", form=form)
         modulo = Modulo(
             nombre=safe_string(form.nombre.data),
             nombre_corto=form.nombre_corto.data,

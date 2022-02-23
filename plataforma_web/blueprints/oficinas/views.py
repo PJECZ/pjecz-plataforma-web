@@ -109,11 +109,11 @@ def datatable_json():
                 "descripcion_corta": resultado.descripcion_corta,
                 "domicilio": {
                     "completo": resultado.domicilio.completo,
-                    "url": url_for("domicilios.detail", domicilio_id=resultado.domicilio_id),
+                    "url": url_for("domicilios.detail", domicilio_id=resultado.domicilio_id) if current_user.can_view("DOMICILIOS") else "",
                 },
                 "distrito": {
                     "nombre_corto": resultado.distrito.nombre_corto,
-                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id),
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
                 },
                 "apertura": resultado.apertura.strftime("%H:%M"),
                 "cierre": resultado.cierre.strftime("%H:%M"),

@@ -235,7 +235,7 @@ def datatable_json():
                 "puesto": resultado.puesto,
                 "autoridad": {
                     "clave": resultado.autoridad.clave,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id),
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
                 },
                 "oficina_clave": resultado.oficina.clave,
                 "workspace": resultado.workspace,
