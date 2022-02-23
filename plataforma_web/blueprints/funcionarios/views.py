@@ -141,17 +141,17 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "nombres" in request.form:
-        consulta = consulta.filter(Funcionario.nombres.like("%" + safe_string(request.form["nombres"]) + "%"))
+        consulta = consulta.filter(Funcionario.nombres.contains(safe_string(request.form["nombres"])))
     if "apellido_paterno" in request.form:
-        consulta = consulta.filter(Funcionario.apellido_paterno.like("%" + safe_string(request.form["apellido_paterno"]) + "%"))
+        consulta = consulta.filter(Funcionario.apellido_paterno.contains(safe_string(request.form["apellido_paterno"])))
     if "apellido_materno" in request.form:
-        consulta = consulta.filter(Funcionario.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
+        consulta = consulta.filter(Funcionario.apellido_materno.contains(safe_string(request.form["apellido_materno"])))
     if "curp" in request.form:
-        consulta = consulta.filter(Funcionario.curp.like("%" + safe_string(request.form["curp"]) + "%"))
+        consulta = consulta.filter(Funcionario.curp.contains(safe_string(request.form["curp"])))
     if "puesto" in request.form:
-        consulta = consulta.filter(Funcionario.puesto.like("%" + safe_string(request.form["puesto"]) + "%"))
+        consulta = consulta.filter(Funcionario.puesto.contains(safe_string(request.form["puesto"])))
     if "email" in request.form:
-        consulta = consulta.filter(Funcionario.email.like("%" + safe_string(request.form["email"], to_uppercase=False) + "%"))
+        consulta = consulta.filter(Funcionario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
     if "en_funciones" in request.form and request.form["en_funciones"] == "true":
         consulta = consulta.filter(Funcionario.en_funciones == True)
     if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
@@ -160,19 +160,18 @@ def datatable_json():
         consulta = consulta.filter(Funcionario.en_soportes == True)
     if "en_tesis_jurisprudencias" in request.form and request.form["en_tesis_jurisprudencias"] == "true":
         consulta = consulta.filter(Funcionario.en_tesis_jurisprudencias == True)
-    registros = consulta.order_by(Funcionario.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Funcionario.curp.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
         data.append(
             {
-                "id": resultado.id,
                 "detalle": {
-                    "nombre": resultado.nombre,
+                    "curp": resultado.curp,
                     "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
                 },
-                "curp": resultado.curp,
+                "nombre": resultado.nombre,
                 "email": resultado.email,
                 "puesto": resultado.puesto,
                 "en_funciones": resultado.en_funciones,

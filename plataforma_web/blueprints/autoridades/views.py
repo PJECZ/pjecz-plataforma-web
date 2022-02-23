@@ -1,17 +1,19 @@
 """
 Autoridades, vistas
 """
+import json
 from datetime import date, datetime, timedelta
-from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import current_user, login_required
-import pytz
 
-from lib.safe_string import safe_message
-from plataforma_web.blueprints.usuarios.decorators import permission_required
+import pytz
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
+from lib import datatables
+from lib.safe_string import safe_string, safe_message
 
 from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm
+from plataforma_web.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm, AutoridadSearchForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.materias.models import Materia
@@ -19,6 +21,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.sentencias.models import Sentencia
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "AUTORIDADES"
 
@@ -47,7 +50,7 @@ def list_active():
     """Listado de Autoridades activos"""
     return render_template(
         "autoridades/list.jinja2",
-        autoridades=Autoridad.query.filter(Autoridad.estatus == "A").all(),
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Autoridades",
         estatus="A",
     )
@@ -59,10 +62,86 @@ def list_inactive():
     """Listado de Autoridades inactivos"""
     return render_template(
         "autoridades/list.jinja2",
-        autoridades=Autoridad.query.filter(Autoridad.estatus == "B").all(),
-        titulo="Autoridades inactivas",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Autoridades inactivos",
         estatus="B",
     )
+
+
+@autoridades.route("/autoridades/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Autoridad"""
+    form_search = AutoridadSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.descripcion.data:
+            descripcion = safe_string(form_search.descripcion.data, to_uppercase=False)
+            if descripcion != "":
+                busqueda["descripcion"] = descripcion
+                titulos.append("descripción " + descripcion)
+        if form_search.clave.data:
+            clave = safe_string(form_search.clave.data)
+            if clave != "":
+                busqueda["clave"] = clave
+                titulos.append("clave " + clave)
+        if form_search.organo_jurisdiccional.data:
+            organo_jurisdiccional = safe_string(form_search.organo_jurisdiccional.data)
+            if organo_jurisdiccional != "":
+                busqueda["organo_jurisdiccional"] = organo_jurisdiccional
+                titulos.append("órgano jurisdiccional " + organo_jurisdiccional)
+        return render_template(
+            "autoridades/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Autoridad con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("autoridades/search.jinja2", form=form_search)
+
+
+@autoridades.route("/autoridades/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Autoridades"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = Autoridad.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "distrito_id" in request.form:
+        consulta = consulta.filter_by(distrito_id=request.form["distrito_id"])
+    if "materia_id" in request.form:
+        consulta = consulta.filter_by(materia_id=request.form["materia_id"])
+    if "clave" in request.form:
+        consulta = consulta.filter(Autoridad.clave.contains(safe_string(request.form["clave"])))
+    if "descripcion" in request.form:
+        consulta = consulta.filter(Autoridad.descripcion.contains(safe_string(request.form["descripcion"], to_uppercase=False)))
+    if "organo_jurisdiccional" in request.form:
+        consulta = consulta.filter(Autoridad.organo_jurisdiccional == safe_string(request.form["organo_jurisdiccional"]))
+    registros = consulta.order_by(Autoridad.clave.asc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "clave": resultado.clave,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.id),
+                },
+                "descripcion_corta": resultado.descripcion_corta,
+                "organo_jurisdiccional": resultado.organo_jurisdiccional,
+                "distrito": {
+                    "nombre_corto": resultado.distrito.nombre_corto,
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
+                },
+                "materia_nombre": resultado.materia.nombre,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @autoridades.route("/autoridades/<int:autoridad_id>")

@@ -6,108 +6,61 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_view('SOPORTES CATEGORIAS') %}
-            {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
-        {% endif %}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
-            {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
-            {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
-            {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
+            {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
             {{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }}
-            {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-
-    {% call list.card('Abiertos - Categorizados') %}
-        <table id="soportes_tickets_abiertos_categorizados_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+    {% call list.card('Tickets') %}
+        <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Tiempo de creación</th>
                     <th>Usuario</th>
                     <th>Oficina</th>
                     <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Técnico</th>
                     <th>Descripción</th>
+                    <th>Solución/Cancelación</th>
                 </tr>
             </thead>
         </table>
     {% endcall %}
-
-    <!-- Mostrar todos los abiertos a los de rol administrador -->
-    {% if current_user.can_edit('SOPORTES TICKETS')%}
-            {% call list.card('Abiertos - TODOS' ) %}
-                <table id="soportes_tickets_abiertos_todos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Oficina</th>
-                            <th>Categoría</th>
-                            <th>Descripción</th>
-                        </tr>
-                    </thead>
-                </table>
-            {% endcall %}
-        {% endif %}
-
-        {% call list.card('Trabajando - Míos') %}
-                <table id="soportes_tickets_trabajando_mios_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Oficina</th>
-                            <th>Categoría</th>
-                            <th>Descripción</th>
-                            <th>Técnico</th>
-                        </tr>
-                    </thead>
-                </table>
-        {% endcall %}
-        {% call list.card('Trabajando - TODOS') %}
-                <table id="soportes_tickets_trabajando_todos_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Oficina</th>
-                            <th>Categoría</th>
-                            <th>Descripción</th>
-                            <th>Técnico</th>
-                        </tr>
-                    </thead>
-                </table>
-        {% endcall %}
-
 {% endblock %}
 
 {% block custom_javascript %}
     <script>
-        // configuración general para el datatable
-        let datatable_config = {
+        $('#soportes_tickets_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
+            deferRender: true,
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: ""
+                data: {{ filtros }}
             },
             columns: [
                 { data: "id" },
+                { data: "creacion" },
                 { data: "usuario" },
                 { data: "oficina" },
                 { data: "categoria" },
+                { data: "estado" },
+                { data: "tecnico" },
                 { data: "descripcion" },
-                { data: "tecnico" }
+                { data: "soluciones" }
             ],
             columnDefs: [
                 {
@@ -118,20 +71,33 @@
                     }
                 },
                 {
-                    targets: 2,
+                    targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<span title="' + data.nombre + '">' + data.clave + '</span>';
                     }
                 },
                 {
-                    targets: [1, 3, 4],
+                    targets: [4, 6, 7, 8],
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                        if (data != null)
+                            return (data.length > 28 ? data.substr(0, 28) + '…' : data);
+                        return '—';
                     }
-                }
+                },
             ],
+            rowCallback: function( row, data ){
+                switch (data.estado)    {
+                    case "ABIERTO":
+                        $(row).css("background-color", "#fef9e7");
+                        break;
+                    case "TRABAJANDO": $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO": $(row).css("background-color", "#fdedec");  break;
+                    case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
+                    case "CERRADO": $(row).css("background-color", "#eafaf1");  break;
+                }
+            },
             language: {
                 lengthMenu: "Mostrar _MENU_",
                 search: "Filtrar:",
@@ -146,28 +112,6 @@
                     sPrevious: "Anterior"
                 }
             }
-        }
-
-        // Datatables para tickets en trabajando MIOS
-        datatable_config['ajax']['data'] = {{ filtros_trabajando_mios }};
-        $('#soportes_tickets_trabajando_mios_datatable').DataTable(datatable_config);
-        // Datatables para tickets en trabajando TODOS
-        datatable_config['ajax']['data'] = {{ filtros_trabajando_todos }};
-        $('#soportes_tickets_trabajando_todos_datatable').DataTable(datatable_config)
-
-        // Datatable para tickets abiertos por categoría
-        datatable_config['columns'] = [
-                { data: "id" },
-                { data: "usuario" },
-                { data: "oficina" },
-                { data: "categoria" },
-                { data: "descripcion" }
-            ];
-        datatable_config['ajax']['data'] = {{ filtros_abiertos_categorizados }};
-        $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
-
-        // Datatables para tickets abietos todos
-        datatable_config['ajax']['data'] = {{ filtros_abiertos_todos }};
-        $('#soportes_tickets_abiertos_todos_datatable').DataTable(datatable_config);
+        });
     </script>
 {% endblock %}

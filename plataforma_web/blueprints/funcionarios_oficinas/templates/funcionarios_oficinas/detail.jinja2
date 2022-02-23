@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Funcionario-Oficina{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Funcionario-Oficina') %}
+        {{ topbar.button_previous('Funcionarios Oficinas', url_for('funcionarios_oficinas.list_active')) }}
+        {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
+            {% if funcionario_oficina.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('funcionarios_oficinas.delete', funcionario_oficina_id=funcionario_oficina.id)) }}{% endif %}
+            {% if funcionario_oficina.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('funcionarios_oficinas.recover', funcionario_oficina_id=funcionario_oficina.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=funcionario_oficina.estatus) %}
+        {{ detail.label_value('Funcionario', funcionario_oficina.funcionario.nombre, url_for('funcionarios.detail', funcionario_id=funcionario_oficina.funcionario_id)) }}
+        {{ detail.label_value('Oficina', funcionario_oficina.oficina.clave, url_for('oficinas.detail', oficina_id=funcionario_oficina.oficina_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
+        {% if funcionario_oficina.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + funcionario_oficina.descripcion + '?') }}{% endif %}
+        {% if funcionario_oficina.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + funcionario_oficina.descripcion + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

@@ -2,36 +2,27 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Oficinas{% endblock %}
+{% block title %}Funcionarios - Oficinas{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_view('DOMICILIOS') %}
-            {{ topbar.button('Domicilios', url_for('domicilios.list_active'), 'mdi:map-marker') }}
+        {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('funcionarios_oficinas.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('funcionarios_oficinas.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_edit('OFICINAS') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('oficinas.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('oficinas.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('OFICINAS') %}
-            {{ topbar.button_new('Nueva Oficina', url_for('oficinas.new')) }}
-        {% endif %}
-        {{ topbar.button_search('Buscar', url_for('oficinas.search')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="funcionarios_oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Claves</th>
-                    <th>Descripciones</th>
-                    <th>Domicilios</th>
-                    <th>Distritos</th>
-                    <th>Aperturas</th>
-                    <th>Cierres</th>
-                    <th>Limites</th>
+                    <th>IDs</th>
+                    <th>Funcionarios CURPs</th>
+                    <th>Funcionarios nombres</th>
+                    <th>Oficinas claves</th>
+                    <th>Oficinas descripciones</th>
                 </tr>
             </thead>
         </table>
@@ -40,7 +31,7 @@
 
 {% block custom_javascript %}
     <script>
-        $('#oficinas_datatable').DataTable({
+        $('#funcionarios_oficinas_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -48,7 +39,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/oficinas/datatable_json",
+                url: "/funcionarios_oficinas/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
@@ -57,41 +48,27 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "descripcion_corta" },
-                { data: "domicilio" },
-                { data: "distrito" },
-                { data: "apertura" },
-                { data: "cierre" },
-                { data: "limite_personas" }
+                { data: "funcionario" },
+                { data: "funcionario_nombre" },
+                { data: "oficina" },
+                { data: "oficina_descripcion_corta" }
             ],
             columnDefs: [
                 {
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
-                    }
-                },
-                {
-                    targets: 2,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.completo.length > 32) {
-                            texto = data.completo.substr(0, 32) + '…';
+                        if (data.url = '') {
+                            data.curl;
                         } else {
-                            texto = data.completo;
-                        }
-                        if (data.url == '') {
-                            return texto;
-                        } else {
-                            return '<a href="' + data.url + '">' + texto + '</a>';
+                            return '<a href="' + data.url + '">' + data.curl + '</a>';
                         }
                     }
                 },
@@ -100,10 +77,17 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url == '') {
-                            return data.nombre_corto;
+                            return data.clave;
                         } else {
-                            return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
                         }
+                    }
+                },
+                {
+                    targets: [2, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
                     }
                 }
             ],

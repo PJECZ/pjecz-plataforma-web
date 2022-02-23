@@ -1,0 +1,26 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Buscar Autoridades{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Buscar Autoridades') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('autoridades.search', fid='autoridad_search_form') %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.clave) %}{% endcall %}
+            {% call f.form_group(form.organo_jurisdiccional) %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $("#organo_jurisdiccional").prop("selectedIndex", -1); // Poner en blanco el select
+    </script>
+{% endblock %}

@@ -33,9 +33,9 @@ def list_active():
     """ Listado de Funcionarios que tienen una Tesis y Jurisprudencia activos """
     tesis_jurisprudencias_funcionarios_activos = TesisJurisprudenciaFuncionario.query.filter(TesisJurisprudenciaFuncionario.estatus == 'A').all()
     return render_template(
-        'tesis_jurisprudencias_funcionarios/list.jinja2', 
-        tesis_jurisprudencias_funcionarios=tesis_jurisprudencias_funcionarios_activos, 
-        titulo='Funcionarios que tienen una Tesis y Jurisprudencia ', 
+        'tesis_jurisprudencias_funcionarios/list.jinja2',
+        tesis_jurisprudencias_funcionarios=tesis_jurisprudencias_funcionarios_activos,
+        titulo='Funcionarios que tienen una Tesis y Jurisprudencia ',
         estatus='A',)
 
 @tesis_jurisprudencias_funcionarios.route("/tesis_jurisprudencias_funcionarios/<int:tesis_jurisprudencia_funcionario_id>")
@@ -62,17 +62,10 @@ def new_with_tesis(tesis_jurisprudencias_id):
             funcionario=funcionario,
             tesis_jurisprudencias=tesis_jurisprudencia,
 
-        )        
-        tesis_funcionario.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo funcionario en tesis-jurisprudencia-funcionario {tesis_funcionario.funcionario.nombres}"),
-            url=url_for("tesis_jurisprudencias_funcionarios.detail", tesis_jurisprudencia_funcionario_id=tesis_funcionario.id),
         )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        tesis_funcionario.save()
+        flash(safe_message(f"{descripcion} guardado"), "success")
+        return redirect(url_for("tesis_jurisprudencias_funcionarios.detail", tesis_jurisprudencia_funcionario_id=tesis_funcionario.id),)
     form.tesis.data = tesis_jurisprudencia.clave_control
     return render_template(
         "tesis_jurisprudencias_funcionarios/new_with_tesis.jinja2",
@@ -128,4 +121,3 @@ def list_inactive(tesis_jurisprudencias_id):
         titulo="Tesis-Jurisprudencias-Funcionarios inactivos",
         estatus="B",
     )
-

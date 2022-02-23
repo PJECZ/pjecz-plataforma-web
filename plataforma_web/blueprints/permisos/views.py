@@ -66,7 +66,7 @@ def datatable_json():
         consulta = consulta.filter_by(modulo_id=request.form["modulo_id"])
     if "rol_id" in request.form:
         consulta = consulta.filter_by(rol_id=request.form["rol_id"])
-    registros = consulta.order_by(Permiso.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Permiso.nombre.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -104,7 +104,7 @@ def new_with_rol(rol_id):
         nivel = form.nivel.data
         nombre = f"{rol.nombre} puede {Permiso.NIVELES[nivel]} en {modulo.nombre}"
         if Permiso.query.filter(Permiso.modulo == modulo).filter(Permiso.rol == rol).first() is not None:
-            flash(f"CONFLICTO: Ya existe {nombre}. Mejor recupere el registro.", "warning")
+            flash(f"CONFLICTO: Ya existe {rol.nombre} en {modulo.nombre}. Mejor recupere el registro.", "warning")
             return redirect(url_for("permisos.list_inactive"))
         permiso = Permiso(
             modulo=modulo,
@@ -113,15 +113,8 @@ def new_with_rol(rol_id):
             nivel=nivel,
         )
         permiso.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo permiso {nombre}"),
-            url=url_for("permisos.detail", permiso_id=permiso.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        flash(safe_message(f"Nuevo permiso {nombre}"), "success")
+        return redirect(url_for("roles.detail", rol_id=rol.id))
     form.rol.data = rol.nombre
     return render_template(
         "permisos/new_with_rol.jinja2",
@@ -151,15 +144,8 @@ def new_with_modulo(modulo_id):
             nivel=nivel,
         )
         permiso.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo permiso {nombre}"),
-            url=url_for("permisos.detail", permiso_id=permiso.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        flash(safe_message(f"Nuevo permiso {nombre}"), "success")
+        return redirect(url_for("modulos.detail", modulo_id=modulo.id))
     form.modulo.data = modulo.nombre
     return render_template(
         "permisos/new_with_modulo.jinja2",
