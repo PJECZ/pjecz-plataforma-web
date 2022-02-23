@@ -639,17 +639,22 @@ def search():
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
+
+        # Si se busca por el ID
+        if form_search.id.data:
+            soporte_ticket_id = int(form_search.id.data)
+            if soporte_ticket_id != 0:
+                soporte_ticket = SoporteTicket.query.get(soporte_ticket_id)
+                if soporte_ticket is not None:
+                    return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
+
+        # Si se busca con los demas parametros
         if form_search.fecha_desde.data:
             busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d 00:00:00")
             titulos.append("fecha de creación desde " + form_search.fecha_desde.data.strftime("%Y-%m-%d"))
         if form_search.fecha_hasta.data:
             busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d 24:00:00")
             titulos.append("fecha de creación hasta " + form_search.fecha_hasta.data.strftime("%Y-%m-%d"))
-        if form_search.num_ticket.data:
-            ticket_id = int(form_search.num_ticket.data)
-            if ticket_id != "":
-                busqueda["ticket_id"] = ticket_id
-                titulos.append("número de ticket " + str(ticket_id))
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
             if descripcion != "":

@@ -70,7 +70,7 @@ def safe_text(input_str, max_len=4096, to_uppercase=True):
     """Safe string"""
     if not isinstance(input_str, str):
         return ""
-    new_string = re.sub(r"[^a-zA-Z0-9@\n()\[\].-]+", " ", unidecode(input_str))
+    new_string = re.sub(r"[^a-zA-Z0-9@\n()\[\]:/.-]+", " ", unidecode(input_str))
     final = new_string.strip()
     if to_uppercase:
         final = final.upper()
