@@ -132,30 +132,38 @@ def definir_oficinas():
             set_task_error(mensaje)
             bitacora.error(mensaje)
             return
-        contador = 0
-        usuarios_cambiados_contador = 0
-        usuarios_sin_cambios_contador = 0
-        emails_no_encontrados = 0
+        contador1 = 0
+        usuarios_cambiados_contador1 = 0
+        usuarios_sin_cambios_contador1 = 0
+        emails_no_encontrados1 = 0
         with open(ruta, encoding="utf8") as puntero:
             rows = csv.DictReader(puntero)
             for row in rows:
                 clave_oficina = row["clave"]
                 usuario_email = row["email"]
                 # consultar el usuario que coincida con el email:
-                usuario_c = Usuario.query.filter_by(email=usuario_email)
-                if usuario_c.count() > 0:
-
-                    # verificar la oficina actual
-                    # if usuario_c.oficina_id == 1:
-                    if usuario_c is None:
-                        usuario_c.oficina_id = Oficina.query.get().filter_by(clave=clave_oficina)
-                        emails_no_encontrados += 1
-                        bitacora.warning("No se encontró el email %s", usuario_email)
+                # SELECT * FROM usuarios WHERE email = {usuario_email}
+                usuario_c = Usuario.query.filter_by(email=usuario_email).first()
+                # verifica si el usuario existe
+                if usuario_c is None:
+                    emails_no_encontrados1 += 1
+                    bitacora.warning("Al asignar oficina id: No se encontró el email %s", usuario_email)
+                else:
+                    # verifica si el usuario YA tiene asignada una oficina
+                    if usuario_c.oficina_id != 1:
+                        usuarios_sin_cambios_contador1 += 1
+                        bitacora.warning("Usuario {usuario_c.email} ya tiene asignada id oficina")
                     else:
-                        if usuario_c.oficina == oficina_no_definido:
-                            if clave_oficina in Oficina.query.get().filter_by(clave=clave_oficina):
-                                usuario_c.save()
-                                # mensaje = "Usuario {usuario.email} actualizado..."
+                        # Si no tienen oficina, consultar mediante la clave:
+                        # SELECT id FROM oficinas WHERE 'clave' = {clave_oficina}
+                        usuario_c.oficina_id = Oficina.query.get().filter_by(clave=clave_oficina)
+                        # Guardar los cambios
+                        usuario_c.save()
+                        # sumar al contador
+                        usuarios_cambiados_contador1 += 1
+                contador1 += 1
+                if contador1 % 100 == 0:
+                    bitacora.info("Usuarios asignados a una oficina %d", contador1)
 
     # Terminar
     set_task_progress(100)
