@@ -16,6 +16,7 @@
 
 {% block content %}
     {% call f.card() %}
+        {# {% set form_kwargs = {'custodia_id': custodia.id} %}  #}
         {% call f.form_tag('inv_equipos.new', fid='equipo_form') %}
             {% call f.form_group(form.modelo) %}{% endcall %}
             {% call f.form_group(form.nombre_red) %}{% endcall %}
@@ -38,7 +39,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            /*$('#red').addClass('js-example-placeholder-single js-states form-control'); #*/
+            $('#red').addClass('js-example-placeholder-single js-states form-control');
             $('#red').prop("selectedIndex", -1); //poner en blanco el select
         });
     </script>

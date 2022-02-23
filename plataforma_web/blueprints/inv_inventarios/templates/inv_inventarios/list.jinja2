@@ -8,8 +8,9 @@
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('INV INVENTARIOS') %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_inventarios.list_active')) }}{% endif %}
-            {{ topbar.button_primary('Equipos', url_for('inv_equipos.list_active'), 'mdi:desktop-classic') }}
+            {{ topbar.button('Custodias', url_for('inv_custodias.list_active'), 'mdi:shield-account') }}
             {{ topbar.button('Categorías', url_for('inv_categorias.list_active'),'mdi:car-wrench') }}
+            {{ topbar.button('Equipos- Custodias', url_for('inv_equipos_custodias.list_active'),'mdi:car-wrench') }}
         {% endif %}
         
     {% endcall %}

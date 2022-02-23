@@ -20,6 +20,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_equipos.models import INVEquipo
 from plataforma_web.blueprints.inv_componentes.models import INVComponente
 from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
+from plataforma_web.blueprints.inv_custodias.models import INVCustodia
 
 from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
 
@@ -95,6 +96,7 @@ def new():
                 numero_nodo=form.numero_nodo.data,
                 numero_switch=form.numero_switch.data,
                 numero_puerto=form.numero_puerto.data,
+                custodia=current_user,
             )
             equipo.save()
             flash(f"Equipos {equipo.descripcion} guardado.", "success")

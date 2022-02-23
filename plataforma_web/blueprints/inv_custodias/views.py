@@ -11,6 +11,8 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message
+from plataforma_web.blueprints.inv_equipos.models import INVEquipo
+from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -37,13 +39,11 @@ def before_request():
 @inv_custodias.route("/inv_custodias")
 def list_active():
     """Listado de Custodias activos"""
-    # usuario = Usuario.query.filter(usuario_id=current_user.id)
     return render_template(
         "inv_custodias/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
         titulo="Custodias",
         estatus="A",
-        # usuario=usuario,
     )
 
 
@@ -70,16 +70,21 @@ def detail(custodia_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Custodias"""
+    oficina = Oficina.query.join(Usuario).filter(Usuario.id == current_user.id).first()
     form = INVCustodiaForm()
     if form.validate_on_submit():
         custodia = INVCustodia(
             fecha=form.fecha.data,
             usuario=current_user,
+            nombre_completo=current_user.nombre,
+            curp=current_user.curp,
+            oficina=oficina,
         )
         custodia.save()
         flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
         return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
-    form.usuario.data = current_user.nombre
+    form.usuario.data = str(current_user.nombre)
+    form.oficina.data = str(f"{oficina.clave} - {oficina.descripcion_corta}")
     return render_template("inv_custodias/new.jinja2", form=form)
 
 

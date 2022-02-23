@@ -16,8 +16,8 @@ class INVEquipo(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    # custodia_id = db.Column(db.Integer, db.ForeignKey('inv_custodia.id'), index=True, nullable=False)
-    # custodia_id = db.relationship('InvCustodia', back_populates='equipos')
+    custodia_id = db.Column(db.Integer, db.ForeignKey("inv_custodias.id"), index=True, nullable=False)
+    custodia = db.relationship("INVCustodia", back_populates="equipos")
     modelo_id = db.Column(db.Integer, db.ForeignKey("inv_modelos.id"), index=True, nullable=False)
     modelo = db.relationship("INVModelo", back_populates="equipos")
     red_id = db.Column(db.Integer, db.ForeignKey("inv_redes.id"), index=True, nullable=False)

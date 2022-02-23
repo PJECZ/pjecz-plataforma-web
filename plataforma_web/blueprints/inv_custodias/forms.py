@@ -7,21 +7,19 @@ from wtforms import IntegerField, StringField, SubmitField, DateField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
-# from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.oficinas.models import Oficina
 
 
-# def usuarios_opciones():
-#     """Seleccionar correo electronico de usuarios: opciones para select"""
-#     return Usuario.query.filter_by(estatus="A").order_by(Usuario.nombres)
+# def oficinas_opciones():
+#     """Oficinas: opciones para select"""
+#     return Oficina.query.filter_by(estatus="A").order_by(Oficina.clave)
 
 
 class INVCustodiaForm(FlaskForm):
     """Formulario INVCustodia"""
 
-    # usuario = StringField("Usuario")  # Read only
     usuario = StringField("Usuario")
-    # curp_user = QuerySelectField(label="Curp", query_factory=usuarios_opciones, get_label="curp", validators=[Optional()])
-    # nombre_completo = StringField("Nombre completo", validators=[DataRequired(), Length(max=250)])
+    oficina = StringField("Oficina")
+    # oficina = QuerySelectField(label="oficina", query_factory=oficinas_opciones, get_label="clave", validators=[DataRequired()])
     fecha = DateField("Fecha", validators=[DataRequired()])
-    # curp = StringField("CURP", validators=[DataRequired(), Length(max=50)])
     guardar = SubmitField("Guardar")
