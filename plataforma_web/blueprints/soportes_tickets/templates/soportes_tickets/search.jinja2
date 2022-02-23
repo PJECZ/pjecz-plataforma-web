@@ -16,12 +16,12 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('soportes_tickets.search', fid='soportes_tickets_search_form') %}
-            {% call f.form_group(form.fecha_desde) %}{% endcall %}
-            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
-            {% call f.form_group(form.num_ticket) %}{% endcall %}
+            {% call f.form_group(form.id) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.solucion) %}{% endcall %}
             {% call f.form_group(form.estado) %}{% endcall %}
+            {% call f.form_group(form.fecha_desde) %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     {% endcall %}
