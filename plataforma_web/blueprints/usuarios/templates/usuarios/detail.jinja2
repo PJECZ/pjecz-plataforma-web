@@ -2,6 +2,7 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
 
 {% block title %}Usuario{% endblock %}
 
@@ -56,6 +57,22 @@
             <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
         {% endif %}
     {% endcall %}
+    {% call list.card('Tickets') %}
+        <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Creación</th>
+                    <th>Categoría</th>
+                    <th>Oficina</th>
+                    <th>Estado</th>
+                    <th>Técnico</th>
+                    <th>Descripción</th>
+                    <th>Solución/Cancelación</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -66,4 +83,87 @@
     {{ detail.moment_js(moment) }}
     {{ detail.datatable('roles_datatable') }}
     {{ modals.custom_javascript('Eliminar', '¿Eliminar ese rol del usuario?', 'DeleteRolUsuario') }}
+    <script>
+        $('#soportes_tickets_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            deferRender: true,
+            ajax: {
+                url: "/soportes_tickets/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: {"estatus": "A", "usuario_id": "{{usuario.id}}" }
+            },
+            columns: [
+                { data: "id" },
+                { data: "creacion" },
+                { data: "categoria" },
+                { data: "oficina" },
+                { data: "estado" },
+                { data: "tecnico" },
+                { data: "descripcion" },
+                { data: "soluciones" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                    }
+                },
+                {
+                    targets: [2, 5, 6, 7],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data != null)
+                            if (data.length > 16)   {
+                                return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                            } else {
+                                return data;
+                            }
+                        return '—';
+                    }
+                },
+            ],
+            rowCallback: function( row, data ){
+                switch (data.estado)    {
+                    case "ABIERTO":
+                        $(row).css("background-color", "#fef9e7");
+                        break;
+                    case "TRABAJANDO": $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO": $(row).css("background-color", "#fdedec");  break;
+                    case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
+                    case "CERRADO": $(row).css("background-color", "#eafaf1");  break;
+                }
+            },
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

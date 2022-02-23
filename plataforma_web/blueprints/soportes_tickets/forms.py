@@ -106,16 +106,8 @@ class SoporteTicketCancelForm(FlaskForm):
 class SoporteTicketSearchForm(FlaskForm):
     """Formulario de búsqueda de Ticekts"""
 
-    usuario = StringField("Usuario", validators=[Optional(), Length(max=256)])
-    fecha_inicio = DateField("Fecha de inicio", validators=[Optional()])
-    fecha_termino = DateField("Fecha de termino", validators=[Optional()])
-    categoria = QuerySelectField(
-        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[Optional()]
-    )
-    oficina = QuerySelectField(
-        label="Oficina", query_factory=oficinas_opciones, get_label="clave_nombre", validators=[Optional()]
-    )
-    tecnico = StringField("Técnico", validators=[Optional(), Length(max=256)])
+    fecha_desde = DateField("Creados desde", validators=[Optional()])
+    fecha_hasta = DateField("Creados hasta", validators=[Optional()])
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     solucion = StringField("Solución", validators=[Optional(), Length(max=256)])
     estado = SelectField("Estado", choices=SoporteTicket.ESTADOS, validators=[Optional()])
