@@ -72,7 +72,7 @@ def search():
             lugar_nacimiento = safe_string(form_search.lugar_nacimiento.data)
             if lugar_nacimiento != "":
                 busqueda["lugar_nacimiento"] = lugar_nacimiento
-                titulos.append("lugar nacimiento " + lugar_nacimiento)
+                titulos.append("lugar de nacimiento " + lugar_nacimiento)
         return render_template(
             "identidades_generos/list.jinja2",
             filtros=json.dumps(busqueda),

@@ -2,27 +2,27 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Autoridades Funcionarios{% endblock %}
+{% block title %}Funcionarios - Oficinas{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('autoridades_funcionarios.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('autoridades_funcionarios.list_active')) }}{% endif %}
+        {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('funcionarios_oficinas.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('funcionarios_oficinas.list_active')) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="autoridades_funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="funcionarios_oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Detalles</th>
-                    <th>Autoridades claves</th>
-                    <th>Autoridades descripciones</th>
-                    <th>Funcionarios</th>
-                    <th>CURPs</th>
+                    <th>IDs</th>
+                    <th>Funcionarios CURPs</th>
+                    <th>Funcionarios nombres</th>
+                    <th>Oficinas claves</th>
+                    <th>Oficinas descripciones</th>
                 </tr>
             </thead>
         </table>
@@ -31,7 +31,7 @@
 
 {% block custom_javascript %}
     <script>
-        $('#autoridades_funcionarios_datatable').DataTable({
+        $('#funcionarios_oficinas_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -39,7 +39,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/autoridades_funcionarios/datatable_json",
+                url: "/funcionarios_oficinas/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
@@ -48,11 +48,10 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "autoridad" },
-                { data: "autoridad_descripcion_corta" },
                 { data: "funcionario" },
                 { data: "funcionario_nombre" },
-                { data: "funcionario_puesto" }
+                { data: "oficina" },
+                { data: "oficina_descripcion_corta" }
             ],
             columnDefs: [
                 {
@@ -66,10 +65,10 @@
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.clave;
+                        if (data.url = '') {
+                            data.curl;
                         } else {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                            return '<a href="' + data.url + '">' + data.curl + '</a>';
                         }
                     }
                 },
@@ -78,17 +77,17 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url == '') {
-                            return data.curp;
+                            return data.clave;
                         } else {
-                            return '<a href="' + data.url + '">' + data.curp + '</a>';
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
                         }
                     }
                 },
                 {
-                    targets: [2, 4, 5],
+                    targets: [2, 4],
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
                     }
                 }
             ],

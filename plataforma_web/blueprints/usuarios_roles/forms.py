@@ -18,5 +18,5 @@ class UsuarioRolWithUsuarioForm(FlaskForm):
     """Formulario UsuarioRol"""
 
     rol = QuerySelectField(query_factory=roles_opciones, get_label="nombre", validators=[DataRequired()])
-    usuario = StringField("Usuario")  # Solo lectura
+    usuario = StringField("Usuario")  # Read only
     guardar = SubmitField("Guardar")

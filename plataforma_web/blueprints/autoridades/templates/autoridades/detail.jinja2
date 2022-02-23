@@ -6,7 +6,7 @@
 {% block title %}Autoridad{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(autoridad.descripcion_corta + ', ' + autoridad.distrito.nombre_corto) %}
+    {% call topbar.page_buttons('Autoridad ' + autoridad.descripcion_corta) %}
         {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
         {% if current_user.can_edit('AUTORIDADES') %}
             {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
@@ -81,17 +81,6 @@
                         <th>Puestos</th>
                     </tr>
                 </thead>
-                <tbody>
-                {% for usuario in autoridad.usuarios %}
-                    {% if usuario.estatus == "A" %}
-                    <tr>
-                        <td><a href="{{ url_for('usuarios.detail', usuario_id=usuario.id) }}">{{ usuario.email }}</a></td>
-                        <td>{{ usuario.nombre }}</td>
-                        <td>{{ usuario.puesto }}</td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-                </tbody>
             </table>
         {% endcall %}
     {% endif %}
@@ -101,32 +90,13 @@
             <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
+                        <th>IDs</th>
+                        <th>CURPs</th>
                         <th>Nombres completos</th>
                         <th>Puestos</th>
-                        <th>En funciones</th>
-                        <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                {% for autoridad_funcionario in autoridad.autoridades_funcionarios %}
-                    {% if autoridad_funcionario.estatus == "A" %}
-                    <tr>
-                        <td><a href="{{ url_for('funcionarios.detail', funcionario_id=autoridad_funcionario.funcionario_id) }}">{{ autoridad_funcionario.funcionario.nombre }}</a></td>
-                        <td>{{ autoridad_funcionario.funcionario.puesto }}</td>
-                        <td>{% if autoridad_funcionario.funcionario.en_funciones %}SI{% endif %}</td>
-                        <td>
-                        {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-                            {{ modals.button_delete(url=url_for('autoridades_funcionarios.delete', autoridad_funcionario_id=autoridad_funcionario.id), id='DeleteAutoridadFuncionario', message='¿Eliminar ' + autoridad_funcionario.funcionario.nombre + '?') }}
-                        {% endif %}
-                        </td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-                </tbody>
             </table>
-            {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
-                <a href="{{ url_for('autoridades_funcionarios.new_with_autoridad', autoridad_id=autoridad.id) }}" class="btn btn-primary">Agregar</a>
-            {% endif %}
         {% endcall %}
     {% endif %}
 {% endblock %}
@@ -137,13 +107,126 @@
         {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
     {% if current_user.can_view('USUARIOS') %}
-        {{ detail.datatable('usuarios_datatable') }}
+    <script>
+        $('#usuarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/usuarios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "autoridad_id": {{ autoridad.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "nombre" },
+                { data: "puesto" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
+                    }
+                },
+                {
+                    targets: [1, 2],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
     {% endif %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
-        {{ detail.datatable('autoridades_funcionarios_datatable') }}
-    {% endif %}
-    {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-        {{ modals.custom_javascript('Eliminar', '¿Eliminar ese funcionario de la autoridad?', 'DeleteAutoridadFuncionario') }}
+    <script>
+        $('#autoridades_funcionarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/autoridades_funcionarios/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "autoridad_id": {{ autoridad.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "funcionario" },
+                { data: "funcionario_nombre" },
+                { data: "funcionario_puesto" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.curp;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.curp + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: [2, 3],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
     {% endif %}
     {{ detail.moment_js(moment) }}
     <!-- Obtener informacion para las tarjetas -->
