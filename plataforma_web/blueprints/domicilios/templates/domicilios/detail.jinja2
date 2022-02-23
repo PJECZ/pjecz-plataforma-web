@@ -34,6 +34,9 @@
                         <th>Claves</th>
                         <th>Descripciones</th>
                         <th>Distritos</th>
+                        <th>Aperturas</th>
+                        <th>Cierres</th>
+                        <th>L. P.</th>
                     </tr>
                 </thead>
             </table>
@@ -66,7 +69,10 @@
                 columns: [
                     { data: "detalle" },
                     { data: "descripcion_corta" },
-                    { data: "distrito_nombre_corto" }
+                    { data: "distrito" },
+                    { data: "apertura" },
+                    { data: "cierre" },
+                    { data: "limite_personas" }
                 ],
                 columnDefs: [
                     {
@@ -81,6 +87,17 @@
                         data: null,
                         render: function(data, type, row, meta) {
                             return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                        }
+                    },
+                    {
+                        targets: 2,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data.url == '') {
+                                return data.nombre_corto;
+                            } else {
+                                return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                            }
                         }
                     }
                 ],
