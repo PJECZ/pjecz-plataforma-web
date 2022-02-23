@@ -73,7 +73,10 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != null)
-                            return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                            if(data.length > 32)
+                                return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                            else
+                                return data;
                         return '—';
                     }
                 },
