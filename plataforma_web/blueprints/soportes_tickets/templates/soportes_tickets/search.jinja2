@@ -18,6 +18,7 @@
         {% call f.form_tag('soportes_tickets.search', fid='soportes_tickets_search_form') %}
             {% call f.form_group(form.fecha_desde) %}{% endcall %}
             {% call f.form_group(form.fecha_hasta) %}{% endcall %}
+            {% call f.form_group(form.num_ticket) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.solucion) %}{% endcall %}
             {% call f.form_group(form.estado) %}{% endcall %}

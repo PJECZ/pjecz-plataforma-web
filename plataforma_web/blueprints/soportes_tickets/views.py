@@ -107,6 +107,8 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(SoporteTicket.estatus == "A")
+    if "ticket_id" in request.form:
+        consulta = consulta.filter(SoporteTicket.id == request.form["ticket_id"])
     if "fecha_desde" in request.form:
         consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
@@ -643,6 +645,11 @@ def search():
         if form_search.fecha_hasta.data:
             busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d 24:00:00")
             titulos.append("fecha de creación hasta " + form_search.fecha_hasta.data.strftime("%Y-%m-%d"))
+        if form_search.num_ticket.data:
+            ticket_id = int(form_search.num_ticket.data)
+            if ticket_id != "":
+                busqueda["ticket_id"] = ticket_id
+                titulos.append("número de ticket " + str(ticket_id))
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
             if descripcion != "":
