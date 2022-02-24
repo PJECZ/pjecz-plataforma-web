@@ -107,12 +107,10 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(SoporteTicket.estatus == "A")
-    if "ticket_id" in request.form:
-        consulta = consulta.filter(SoporteTicket.id == request.form["ticket_id"])
-    if "fecha_desde" in request.form:
-        consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_desde"])
-    if "fecha_hasta" in request.form:
-        consulta = consulta.filter(SoporteTicket.creado <= request.form["fecha_hasta"])
+    if "creado_desde" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado >= request.form["creado_desde"])
+    if "creado_hasta" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado <= request.form["creado_hasta"])
     if "usuario_id" in request.form:
         consulta = consulta.filter(SoporteTicket.usuario_id == request.form["usuario_id"])
     if "soporte_categoria_id" in request.form:
@@ -120,13 +118,13 @@ def datatable_json():
     if "oficina_id" in request.form:
         consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
     if "funcionario_id" in request.form:
-        consulta = consulta.filter(SoporteTicket.usuario_id == request.form["funcionario_id"])
+        consulta = consulta.filter(SoporteTicket.funcionario_id == request.form["funcionario_id"])
     if "descripcion" in request.form:
         consulta = consulta.filter(SoporteTicket.descripcion.contains(safe_string(request.form["descripcion"])))
     if "solucion" in request.form:
         consulta = consulta.filter(SoporteTicket.soluciones.contains(safe_string(request.form["solucion"])))
     if "estado" in request.form:
-        consulta = consulta.filter(SoporteTicket.estado == request.form["estado"])
+        consulta = consulta.filter(SoporteTicket.estado == safe_string(request.form["estado"]))
 
     # Obtener el funcionario para saber si es de soporte o no
     funcionario = _get_funcionario_if_is_soporte()
@@ -157,8 +155,8 @@ def datatable_json():
                 consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
             else:  # TODOS
                 consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
-            # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
-            consulta = consulta.order_by(SoporteTicket.id.asc())
+            # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
+            consulta = consulta.order_by(SoporteTicket.id.desc())
         else:
             # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
             consulta = consulta.order_by(SoporteTicket.id.desc())
@@ -631,16 +629,20 @@ def recover(soporte_ticket_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def search():
     """Buscar Tickets"""
+
+    # Expulsar si no es de soporte
     funcionario = _get_funcionario_if_is_soporte()
     if not funcionario:
         flash("No tiene permiso para acceder a esa sección", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
+
+    # Recibir formulario
     form_search = SoporteTicketSearchForm()
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
 
-        # Si se busca por el ID
+        # Si se busca por el ID y se encuentra, se redirecciona al detalle
         if form_search.id.data:
             soporte_ticket_id = int(form_search.id.data)
             if soporte_ticket_id != 0:
@@ -649,12 +651,12 @@ def search():
                     return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
 
         # Si se busca con los demas parametros
-        if form_search.fecha_desde.data:
-            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d 00:00:00")
-            titulos.append("fecha de creación desde " + form_search.fecha_desde.data.strftime("%Y-%m-%d"))
-        if form_search.fecha_hasta.data:
-            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d 24:00:00")
-            titulos.append("fecha de creación hasta " + form_search.fecha_hasta.data.strftime("%Y-%m-%d"))
+        if form_search.creado_desde.data:
+            busqueda["creado_desde"] = form_search.creado_desde.data.strftime("%Y-%m-%d 00:00:00")
+            titulos.append("fecha de creación desde " + form_search.creado_desde.data.strftime("%Y-%m-%d"))
+        if form_search.creado_hasta.data:
+            busqueda["creado_hasta"] = form_search.creado_hasta.data.strftime("%Y-%m-%d 24:00:00")
+            titulos.append("fecha de creación hasta " + form_search.creado_hasta.data.strftime("%Y-%m-%d"))
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
             if descripcion != "":
@@ -670,10 +672,14 @@ def search():
             if estado != "":
                 busqueda["estado"] = estado
                 titulos.append("estado " + estado)
+
+        # Mostrar listado con los resultados
         return render_template(
             "soportes_tickets/list.jinja2",
             filtros=json.dumps(busqueda),
             titulo="Tickets con " + ", ".join(titulos),
             estatus="A",
         )
+
+    # Mostrar el formulario de busqueda
     return render_template("soportes_tickets/search.jinja2", form=form_search)
