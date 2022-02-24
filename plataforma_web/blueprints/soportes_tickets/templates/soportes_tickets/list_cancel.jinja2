@@ -2,26 +2,27 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Soportes Tickets{% endblock %}
+{% block title %}Tickets Cancelados{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(titulo) %}
+    {% call topbar.page_buttons('Tickets Cancelados') %}
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
+        {{ topbar.button_primary('Abiertos', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
+        {{ topbar.button_primary('Trabajando', url_for('soportes_tickets.list_working'), 'mdi:plus-circle') }}
+        {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
+        {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
-            {{ topbar.button_primary('Abiertos y Trabajando', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
-            {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
-            {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
-            {{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card('Cancelados') %}
-        <table id="soportes_tickets_cancelados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%; background-color:#fdedec;">
+        <table id="soportes_tickets_cancelados_datatable" class="table display nowrap" style="width:100%; background-color:#fdedec;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -49,7 +50,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {{ filtros }}
+                data: { "estatus": "A", "estado": "CANCELADO" }
             },
             columns: [
                 { data: "id" },
@@ -76,7 +77,9 @@
                     targets: [1, 3],
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                        if(data.length > 32)
+                            return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                        return data;
                     }
                 }
             ],

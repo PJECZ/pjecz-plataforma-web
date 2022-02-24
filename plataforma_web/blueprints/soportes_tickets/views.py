@@ -56,73 +56,42 @@ def before_request():
 
 @soportes_tickets.route("/soportes_tickets")
 def list_active():
-    """Listado de Tickets"""
-    funcionario = _get_funcionario_if_is_soporte()
-    if funcionario:
-        return list_soport()
-    return list_user()
+    """Listado de Tickets: Si es usuario un listado sencillo, si es de soporte los tickets Abiertos"""
+    if _get_funcionario_if_is_soporte() is None:
+        return render_template("soportes_tickets/list_user.jinja2")
+    return render_template("soportes_tickets/list_open.jinja2")
 
 
-@soportes_tickets.route("/soportes_tickets/soporte")
-def list_soport():
-    """Listado de TODOS los Soportes Tickets activos"""
-    # Entregar
-    return render_template(
-        "soportes_tickets/list.jinja2",
-        filtros_abiertos_categorizados=json.dumps(
-            {"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "CATEGORIZADOS"}
-        ),
-        filtros_abiertos_todos=json.dumps({"estatus": "A", "estado": "ABIERTO", "soportes_tickets_abiertos": "TODOS"}),
-        filtros_trabajando_mios=json.dumps({"estatus": "A", "estado": "TRABAJANDO", "soporte_tickets_trabajando": "MIOS"}),
-        filtros_trabajando_todos=json.dumps({"estatus": "A", "estado": "TRABAJANDO", "soporte_tickets_trabajando": "TODOS"}),
-        titulo="Tickets",
-        estatus="A",
-    )
-
-
-@soportes_tickets.route("/soportes_tickets/usuario")
-def list_user():
-    """Listado de TODOS los Tickets activos para un usuario"""
-    # Entregar
-    return render_template(
-        "soportes_tickets/list_user.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Tickets",
-        estatus="A",
-    )
+@soportes_tickets.route("/soportes_tickets/trabajando")
+def list_working():
+    """Listado de Tickets Trabajando"""
+    if _get_funcionario_if_is_soporte() is None:
+        redirect(url_for("soportes_tickets.list_active"))
+    return render_template("soportes_tickets/list_working.jinja2")
 
 
 @soportes_tickets.route("/soportes_tickets/terminados")
 def list_done():
-    """Listado de tickets Terminados"""
-    return render_template(
-        "soportes_tickets/list_done.jinja2",
-        filtros=json.dumps({"estatus": "A", "estado": "CERRADO"}),
-        titulo="Tickets Terminados",
-        estatus="A",
-    )
+    """Listado de Tickets Terminados"""
+    if _get_funcionario_if_is_soporte() is None:
+        redirect(url_for("soportes_tickets.list_active"))
+    return render_template("soportes_tickets/list_done.jinja2")
 
 
 @soportes_tickets.route("/soportes_tickets/cancelados")
 def list_cancel():
-    """Listado de tickets Cancelados"""
-    return render_template(
-        "soportes_tickets/list_cancel.jinja2",
-        filtros=json.dumps({"estatus": "A", "estado": "CANCELADO"}),
-        titulo="Tickets Cancelados",
-        estatus="A",
-    )
+    """Listado de Tickets Cancelados"""
+    if _get_funcionario_if_is_soporte() is None:
+        redirect(url_for("soportes_tickets.list_active"))
+    return render_template("soportes_tickets/list_cancel.jinja2")
 
 
 @soportes_tickets.route("/soportes_tickets/no_resueltos")
 def list_no_resolve():
-    """Listado de tickets No resueltos"""
-    return render_template(
-        "soportes_tickets/list_no_resolve.jinja2",
-        filtros=json.dumps({"estatus": "A", "estado": "NO RESUELTO"}),
-        titulo="Tickets No Resueltos",
-        estatus="A",
-    )
+    """Listado de Tickets No Resueltos"""
+    if _get_funcionario_if_is_soporte() is None:
+        redirect(url_for("soportes_tickets.list_active"))
+    return render_template("soportes_tickets/list_no_resolve.jinja2")
 
 
 @soportes_tickets.route("/soportes_tickets/datatable_json", methods=["GET", "POST"])
@@ -138,10 +107,10 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(SoporteTicket.estatus == "A")
-    if "fecha_desde" in request.form:
-        consulta = consulta.filter(SoporteTicket.creado >= request.form["fecha_desde"])
-    if "fecha_hasta" in request.form:
-        consulta = consulta.filter(SoporteTicket.creado <= request.form["fecha_hasta"])
+    if "creado_desde" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado >= request.form["creado_desde"])
+    if "creado_hasta" in request.form:
+        consulta = consulta.filter(SoporteTicket.creado <= request.form["creado_hasta"])
     if "usuario_id" in request.form:
         consulta = consulta.filter(SoporteTicket.usuario_id == request.form["usuario_id"])
     if "soporte_categoria_id" in request.form:
@@ -149,13 +118,13 @@ def datatable_json():
     if "oficina_id" in request.form:
         consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
     if "funcionario_id" in request.form:
-        consulta = consulta.filter(SoporteTicket.usuario_id == request.form["funcionario_id"])
+        consulta = consulta.filter(SoporteTicket.funcionario_id == request.form["funcionario_id"])
     if "descripcion" in request.form:
         consulta = consulta.filter(SoporteTicket.descripcion.contains(safe_string(request.form["descripcion"])))
     if "solucion" in request.form:
         consulta = consulta.filter(SoporteTicket.soluciones.contains(safe_string(request.form["solucion"])))
     if "estado" in request.form:
-        consulta = consulta.filter(SoporteTicket.estado == request.form["estado"])
+        consulta = consulta.filter(SoporteTicket.estado == safe_string(request.form["estado"]))
 
     # Obtener el funcionario para saber si es de soporte o no
     funcionario = _get_funcionario_if_is_soporte()
@@ -178,14 +147,19 @@ def datatable_json():
                 consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
             else:  # TODOS los demas
                 consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
+            # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
+            consulta = consulta.order_by(SoporteTicket.id.asc())
         # Si es la vista "Abiertos y Trabajando", para TRABAJANDO, hay dos tablas MIOS y TODOS
-        if "soporte_tickets_trabajando" in request.form:
+        elif "soporte_tickets_trabajando" in request.form:
             if request.form["soporte_tickets_trabajando"] == "MIOS":
                 consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
             else:  # TODOS
                 consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
-        # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
-        consulta = consulta.order_by(SoporteTicket.id.asc())
+            # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
+            consulta = consulta.order_by(SoporteTicket.id.desc())
+        else:
+            # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
+            consulta = consulta.order_by(SoporteTicket.id.desc())
 
     # Obtener los registros y el total
     registros = consulta.offset(start).limit(rows_per_page).all()
@@ -341,7 +315,6 @@ def edit(soporte_ticket_id):
     if _expulsar_usuario(ticket):
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
-
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
         flash("No puede editar un ticket eliminado.", "warning")
@@ -465,9 +438,7 @@ def categorize(soporte_ticket_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(
-                f"Categorizado el ticket {ticket.id} a {ticket.soporte_categoria.nombre} por {funcionario.nombre}."
-            ),
+            descripcion=safe_message(f"Categorizado el ticket {ticket.id} a {ticket.soporte_categoria.nombre} por {funcionario.nombre}."),
             url=detalle_url,
         )
         bitacora.save()
@@ -658,21 +629,34 @@ def recover(soporte_ticket_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def search():
     """Buscar Tickets"""
-    # revisar si es un funcionario o usuario
+
+    # Expulsar si no es de soporte
     funcionario = _get_funcionario_if_is_soporte()
     if not funcionario:
         flash("No tiene permiso para acceder a esa sección", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
+
+    # Recibir formulario
     form_search = SoporteTicketSearchForm()
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
-        if form_search.fecha_desde.data:
-            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d 00:00:00")
-            titulos.append("fecha de creación desde " + form_search.fecha_desde.data.strftime("%Y-%m-%d"))
-        if form_search.fecha_hasta.data:
-            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d 24:00:00")
-            titulos.append("fecha de creación hasta " + form_search.fecha_hasta.data.strftime("%Y-%m-%d"))
+
+        # Si se busca por el ID y se encuentra, se redirecciona al detalle
+        if form_search.id.data:
+            soporte_ticket_id = int(form_search.id.data)
+            if soporte_ticket_id != 0:
+                soporte_ticket = SoporteTicket.query.get(soporte_ticket_id)
+                if soporte_ticket is not None:
+                    return redirect(url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id))
+
+        # Si se busca con los demas parametros
+        if form_search.creado_desde.data:
+            busqueda["creado_desde"] = form_search.creado_desde.data.strftime("%Y-%m-%d 00:00:00")
+            titulos.append("fecha de creación desde " + form_search.creado_desde.data.strftime("%Y-%m-%d"))
+        if form_search.creado_hasta.data:
+            busqueda["creado_hasta"] = form_search.creado_hasta.data.strftime("%Y-%m-%d 24:00:00")
+            titulos.append("fecha de creación hasta " + form_search.creado_hasta.data.strftime("%Y-%m-%d"))
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
             if descripcion != "":
@@ -688,10 +672,14 @@ def search():
             if estado != "":
                 busqueda["estado"] = estado
                 titulos.append("estado " + estado)
+
+        # Mostrar listado con los resultados
         return render_template(
-            "soportes_tickets/list_search.jinja2",
+            "soportes_tickets/list.jinja2",
             filtros=json.dumps(busqueda),
             titulo="Tickets con " + ", ".join(titulos),
             estatus="A",
         )
+
+    # Mostrar el formulario de busqueda
     return render_template("soportes_tickets/search.jinja2", form=form_search)

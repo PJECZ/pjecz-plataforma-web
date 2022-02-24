@@ -2,16 +2,16 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Tickets No Resueltos{% endblock %}
+{% block title %}Tickets Trabajando{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Tickets No Resueltos') %}
+    {% call topbar.page_buttons('Tickets Trabajando') %}
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
         {{ topbar.button_primary('Abiertos', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
-        {{ topbar.button_primary('Trabajando', url_for('soportes_tickets.list_working'), 'mdi:plus-circle') }}
-        {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:plus-circle') }}
+        {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
+        {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
         {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
@@ -21,8 +21,22 @@
 {% endblock %}
 
 {% block content %}
-    {% call list.card('No Resueltos') %}
-        <table id="soportes_tickets_no_resuletos_datatable" class="table display nowrap" style="width:100%; background-color:#f5eef8;">
+    {% call list.card('Trabajando - Míos') %}
+        <table id="soportes_tickets_trabajando_mios_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Oficina</th>
+                    <th>Categoría</th>
+                    <th>Descripción</th>
+                    <th>Técnico</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+    {% call list.card('Trabajando - TODOS') %}
+        <table id="soportes_tickets_trabajando_todos_datatable" class="table display nowrap" style="width:100%; background-color:#ebf5fb;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -39,7 +53,9 @@
 
 {% block custom_javascript %}
     <script>
-        $('#soportes_tickets_no_resuletos_datatable').DataTable({
+
+        // Configuración general
+        let datatable_config = {
             processing: true,
             serverSide: true,
             ordering: false,
@@ -52,7 +68,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: { "estatus": "A", "estado": "NO RESUELTO" }
+                data: "" // Se define mas abajo
             },
             columns: [
                 { data: "id" },
@@ -101,6 +117,23 @@
                     sPrevious: "Anterior"
                 }
             }
-        });
+        }
+
+        // Datatables para tickets en trabajando MIOS
+        datatable_config['ajax']['data'] = {
+            "estatus": "A",
+            "estado": "TRABAJANDO",
+            "soporte_tickets_trabajando": "MIOS"
+        };
+        $('#soportes_tickets_trabajando_mios_datatable').DataTable(datatable_config);
+
+        // Datatables para tickets en trabajando TODOS
+        datatable_config['ajax']['data'] = {
+            "estatus": "A",
+            "estado": "TRABAJANDO",
+            "soporte_tickets_trabajando": "TODOS"
+        };
+        $('#soportes_tickets_trabajando_todos_datatable').DataTable(datatable_config)
+
     </script>
 {% endblock %}

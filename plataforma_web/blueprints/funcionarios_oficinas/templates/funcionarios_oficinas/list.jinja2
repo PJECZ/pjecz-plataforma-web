@@ -2,35 +2,27 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Domicilios{% endblock %}
+{% block title %}Funcionarios - Oficinas{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_view('OFICINAS') %}
-            {{ topbar.button('Oficinas', url_for('oficinas.list_active'), 'mdi:store') }}
+        {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('funcionarios_oficinas.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('funcionarios_oficinas.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_edit('DOMICILIOS') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('domicilios.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('domicilios.list_active')) }}{% endif %}
-        {% endif %}
-            {{ topbar.button_new('Nuevo Domicilio', url_for('domicilios.new')) }}
-        {{ topbar.button_search('Buscar', url_for('domicilios.search')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="domicilios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="funcionarios_oficinas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>IDs</th>
-                    <th>Estados</th>
-                    <th>Municipios</th>
-                    <th>Calles</th>
-                    <th>No. Ext.</th>
-                    <th>No. Int.</th>
-                    <th>Colonias</th>
-                    <th>C.P.</th>
+                    <th>Funcionarios CURPs</th>
+                    <th>Funcionarios nombres</th>
+                    <th>Oficinas claves</th>
+                    <th>Oficinas descripciones</th>
                 </tr>
             </thead>
         </table>
@@ -38,8 +30,8 @@
 {% endblock %}
 
 {% block custom_javascript %}
-        <script>
-        $('#domicilios_datatable').DataTable({
+    <script>
+        $('#funcionarios_oficinas_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -47,7 +39,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/domicilios/datatable_json",
+                url: "/funcionarios_oficinas/datatable_json",
                 type: "POST",
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
@@ -56,13 +48,10 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "estado" },
-                { data: "municipio" },
-                { data: "calle" },
-                { data: "num_ext" },
-                { data: "num_int" },
-                { data: "colonia" },
-                { data: "cp" },
+                { data: "funcionario" },
+                { data: "funcionario_nombre" },
+                { data: "oficina" },
+                { data: "oficina_descripcion_corta" }
             ],
             columnDefs: [
                 {
@@ -73,10 +62,32 @@
                     }
                 },
                 {
-                    targets: [1, 2, 3, 6],
+                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return data.length > 16 ? data.substr(0, 16) + '…' : data;
+                        if (data.url = '') {
+                            data.curl;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.curl + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.clave;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: [2, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
                     }
                 }
             ],
