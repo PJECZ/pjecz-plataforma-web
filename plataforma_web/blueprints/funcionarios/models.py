@@ -21,6 +21,9 @@ class Funcionario(db.Model, UniversalMixin):
     curp = db.Column(db.String(18), unique=True, index=True)
     email = db.Column(db.String(256), unique=True, index=True)
     puesto = db.Column(db.String(256), default="", server_default="")
+    # numero_empleado
+    # telefono_celular
+    # area
     en_funciones = db.Column(db.Boolean, nullable=False, default=True)
     en_sentencias = db.Column(db.Boolean, nullable=False, default=False)
     en_soportes = db.Column(db.Boolean, nullable=False, default=False)

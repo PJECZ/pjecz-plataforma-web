@@ -110,6 +110,6 @@ class SoporteTicketSearchForm(FlaskForm):
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     solucion = StringField("Solución", validators=[Optional(), Length(max=256)])
     estado = SelectField("Estado", choices=SoporteTicket.ESTADOS, validators=[Optional()])
-    fecha_desde = DateField("Creados desde", validators=[Optional()])
-    fecha_hasta = DateField("Creados hasta", validators=[Optional()])
+    creado_desde = DateField("Creados desde", validators=[Optional()])
+    creado_hasta = DateField("Creados hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")
