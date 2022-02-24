@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Custodia: ' + custodia.nombre_completo) %}
         {{ topbar.button_previous('Custodias', url_for('inv_custodias.list_active')) }}
-        {% if current_user.can_edit('INV custodiaS') %}
+        {% if current_user.can_edit('INV CUSTODIAS') %}
             {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', custodia_id=custodia.id)) }}
             {% if custodia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_custodias.delete', custodia_id=custodia.id)) }}{% endif %}
             {% if custodia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_custodias.recover', custodia_id=custodia.id)) }}{% endif %}
@@ -18,19 +18,21 @@
 
 {% block content %}
     {% call detail.card(estatus=custodia.estatus) %}
-        {{ detail.label_value('Usuario', current_user.nombre) }}
+        {{ detail.label_value('Nombre completo', current_user.nombre) }}
+        {{ detail.label_value('Curp', custodia.curp) }}
         {{ detail.label_value('Fecha', custodia.fecha) }}
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS') %}
-        {% call detail.card('Equipos') %}
-            <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%">
+        {% call detail.card('Equipo') %}
+            <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}  display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>IDs</th>
-                        <th>Claves</th>
-                        <th>Descripciones</th>
+                        <th>Numero inventario</th>
+                        <th>Numero serie</th>
+                        <th>adquisicion fecha</th>
                     </tr>
                 </thead>
+
             </table>
             {% if current_user.can_insert('INV EQUIPOS') %}
                 <a href="{{ url_for('inv_equipos.new', custodia_id=custodia.id) }}" class="btn btn-primary">Agregar</a>
@@ -44,50 +46,51 @@
         {% if custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + custodia.nombre_completo + '?') }}{% endif %}
         {% if custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + custodia.nombre_completo + '?') }}{% endif %}
     {% endif %}
-       <script>
-        $('#inv_equipos_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/inv_equipos/datatable_json",
-                type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
-            },
-            columns: [
-                { data: "numero_inventario" },
-                { data: "numero_serie" },
-                { data: "adquisicion_fecha" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                    }
-                }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+    <script>
+    $('#inv_equipos_datatable').DataTable({
+        processing: true,
+        serverSide: true,
+        ordering: false,
+        searching: false,
+        responsive: true,
+        scrollX: true,
+        ajax: {
+            url: "/inv_equipos/datatable_json",
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+            dataType: "json",
+            dataSrc: "data",
+            data: {{ filtros }}
+        },
+        columns: [
+            { data: "numero_inventario" },
+            { data: "numero_serie" },
+            { data: "adquisicion_fecha" },
+            /*{ data: "custodia" },*/
+        ],
+        columnDefs: [
+            {
+                targets: 0,
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                 }
             }
-        });
+        ],
+        language: {
+            lengthMenu: "Mostrar _MENU_",
+            search: "Filtrar:",
+            zeroRecords: "No se encontraron registros",
+            info: "Total de registros _TOTAL_ ",
+            infoEmpty: "No hay registros",
+            infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+            oPaginate: {
+                sFirst: "Primero",
+                sLast: "Último",
+                sNext: "Siguiente",
+                sPrevious: "Anterior"
+            }
+        }
+    });
     </script>
 {% endblock %}

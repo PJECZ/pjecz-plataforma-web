@@ -20,6 +20,5 @@ class INVCustodiaForm(FlaskForm):
 
     usuario = StringField("Usuario")
     oficina = StringField("Oficina")
-    # oficina = QuerySelectField(label="oficina", query_factory=oficinas_opciones, get_label="clave", validators=[DataRequired()])
     fecha = DateField("Fecha", validators=[DataRequired()])
     guardar = SubmitField("Guardar")

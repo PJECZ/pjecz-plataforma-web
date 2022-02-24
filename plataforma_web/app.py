@@ -67,7 +67,6 @@ from plataforma_web.blueprints.inv_componentes.views import inv_componentes
 from plataforma_web.blueprints.inv_categorias.views import inv_categorias
 from plataforma_web.blueprints.inv_custodias.views import inv_custodias
 from plataforma_web.blueprints.inv_equipos_fotos.views import inv_equipos_fotos
-from plataforma_web.blueprints.inv_equipos_custodias.views import inv_equipos_custodias
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -144,7 +143,6 @@ def create_app():
     app.register_blueprint(inv_categorias)
     app.register_blueprint(inv_custodias)
     app.register_blueprint(inv_equipos_fotos)
-    app.register_blueprint(inv_equipos_custodias)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)

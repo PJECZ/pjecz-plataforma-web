@@ -36,7 +36,7 @@ def before_request():
     """Permiso por defecto"""
 
 
-@inv_custodias.route("/inv_custodias")
+@inv_custodias.route("/inv_custodias/")
 def list_active():
     """Listado de Custodias activos"""
     return render_template(
@@ -63,6 +63,7 @@ def list_inactive():
 def detail(custodia_id):
     """Detalle de un Custodias"""
     custodia = INVCustodia.query.get_or_404(custodia_id)
+    # equipos = INVEquipo.query.filter(INVEquipo.custodia_id == custodia_id).all()
     return render_template("inv_custodias/detail.jinja2", custodia=custodia)
 
 
@@ -136,16 +137,14 @@ def edit(custodia_id):
 
         if validacion:
             custodia.fecha = form.fecha.data
-            custodia.curp = safe_string(form.curp.data)
-            custodia.nombre_completo = safe_string(form.nombre_completo.data)
-            custodia.usuario = form.usuario.data
+            custodia.curp = current_user.curp
+            custodia.nombre_completo = current_user.nombre
+            custodia.usuario = current_user
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.fecha.data = custodia.fecha
-    form.curp.data = custodia.curp
-    form.nombre_completo.data = custodia.nombre_completo
-    form.usuario.data = custodia.usuario
+    form.usuario.data = str(current_user.nombre)
     return render_template("inv_custodias/edit.jinja2", form=form, custodia=custodia)
 
 
@@ -167,7 +166,7 @@ def delete(custodia_id):
     custodia = INVCustodia.query.get_or_404(custodia_id)
     if custodia.estatus == "A":
         custodia.delete()
-        flash(f"Custodias {custodia.descripcion} eliminado.", "success")
+        flash(f"Custodias {custodia.nombre_completo} eliminado.", "success")
     return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
 
 
@@ -178,5 +177,5 @@ def recover(custodia_id):
     custodia = INVCustodia.query.get_or_404(custodia_id)
     if custodia.estatus == "B":
         custodia.recover()
-        flash(f"Custodias {custodia.descripcion} recuperado.", "success")
+        flash(f"Custodias {custodia.nombre_completo} recuperado.", "success")
     return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))

@@ -25,6 +25,7 @@ def redes_opciones():
 class INVEquipoForm(FlaskForm):
     """Formulario InvEquipo"""
 
+    custodia = StringField("Custodia")
     modelo = QuerySelectField(label="Modelo", query_factory=modelos_opciones, get_label="descripcion", validators=[DataRequired()])  # solo lectrua
     nombre_red = QuerySelectField(label="Nombre Red", query_factory=redes_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
     adquisicion_fecha = DateField("Fecha de adquisición", validators=[DataRequired()])

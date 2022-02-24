@@ -26,6 +26,7 @@
 
 {% block content %}
     {% call detail.card(estatus=equipo.estatus) %}
+        {{ detail.label_value('Custodia', equipo.custodia.nombre_completo) }}
         {{ detail.label_value('Modelo', equipo.modelo.descripcion) }}
         {{ detail.label_value('Nombre Red', equipo.red.nombre) }}
         {{ detail.label_value('Número Inventario', equipo.numero_inventario) }}

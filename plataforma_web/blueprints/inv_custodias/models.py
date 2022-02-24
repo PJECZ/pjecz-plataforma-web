@@ -28,7 +28,6 @@ class INVCustodia(db.Model, UniversalMixin):
 
     # Hijos
     equipos = db.relationship("INVEquipo", back_populates="custodia")
-    equipos_custodias = db.relationship("INVEquipoCustodia", back_populates="custodia")
 
     def __repr__(self):
         """Representación"""

@@ -16,8 +16,8 @@
 
 {% block content %}
     {% call f.card() %}
-        {# {% set form_kwargs = {'custodia_id': custodia.id} %}  #}
-        {% call f.form_tag('inv_equipos.new', fid='equipo_form') %}
+        {% set form_kwargs = {'custodia_id': custodia.id} %} 
+        {% call f.form_tag('inv_equipos.new', fid='equipo_form', **form_kwargs) %}
             {% call f.form_group(form.modelo) %}{% endcall %}
             {% call f.form_group(form.nombre_red) %}{% endcall %}
             {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}
