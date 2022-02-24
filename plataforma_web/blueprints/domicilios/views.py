@@ -24,74 +24,88 @@ domicilios = Blueprint("domicilios", __name__, template_folder="templates")
 @login_required
 @permission_required(MODULO, Permiso.VER)
 def before_request():
-    """ Permiso por defecto """
+    """Permiso por defecto"""
 
 
-@domicilios.route('/domicilios')
+@domicilios.route("/domicilios")
 def list_active():
     """Listado de Modulo activos"""
     return render_template(
-        'domicilios/list.jinja2',
-        filtros=json.dumps({'estatus': 'A'}),
-        titulo='Modulo',
-        estatus='A',
+        "domicilios/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Domicilios",
+        estatus="A",
     )
 
 
-@domicilios.route('/domicilios/inactivos')
+@domicilios.route("/domicilios/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Domicilios inactivos"""
     return render_template(
-        'domicilios/list.jinja2',
-        filtros=json.dumps({'estatus': 'B'}),
-        titulo='Domicilios inactivos',
-        estatus='B',
+        "domicilios/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Domicilios inactivos",
+        estatus="B",
     )
 
 
-@domicilios.route('/domicilios/buscar', methods=['GET', 'POST'])
+@domicilios.route("/domicilios/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Domicilios"""
     form_search = DomicilioSearchForm()
     if form_search.validate_on_submit():
-        busqueda = {'estatus': 'A'}
+        busqueda = {"estatus": "A"}
         titulos = []
+        if form_search.estado.data:
+            estado = safe_string(form_search.estado.data)
+            if estado != "":
+                busqueda["estado"] = estado
+                titulos.append("estado " + estado)
+        if form_search.municipio.data:
+            municipio = safe_string(form_search.municipio.data)
+            if municipio != "":
+                busqueda["municipio"] = municipio
+                titulos.append("municipio " + municipio)
         if form_search.calle.data:
             calle = safe_string(form_search.calle.data)
-            if calle != '':
-                busqueda['calle'] = calle
-                titulos.append('calle ' + calle)
+            if calle != "":
+                busqueda["calle"] = calle
+                titulos.append("calle " + calle)
         if form_search.colonia.data:
             colonia = safe_string(form_search.colonia.data)
-            if colonia != '':
-                busqueda['colonia'] = colonia
-                titulos.append('colonia ' + colonia)
+            if colonia != "":
+                busqueda["colonia"] = colonia
+                titulos.append("colonia " + colonia)
         if form_search.cp.data:
             cp = int(form_search.cp.data)
             if cp:
-                busqueda['cp'] = cp
-                titulos.append('C.P. ' + cp)
+                busqueda["cp"] = cp
+                titulos.append("C.P. " + cp)
         return render_template(
-            'domicilios/list.jinja2',
+            "domicilios/list.jinja2",
             filtros=json.dumps(busqueda),
-            titulo='Domicilios con ' + ', '.join(titulos),
-            estatus='A',
+            titulo="Domicilios con " + ", ".join(titulos),
+            estatus="A",
         )
-    return render_template('domicilios/search.jinja2', form=form_search)
+    return render_template("domicilios/search.jinja2", form=form_search)
 
 
-@domicilios.route('/domicilios/datatable_json', methods=['GET', 'POST'])
+@domicilios.route("/domicilios/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Domicilios"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = datatables.get_parameters()
     # Consultar
     consulta = Domicilio.query
-    if 'estatus' in request.form:
-        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus='A')
+        consulta = consulta.filter_by(estatus="A")
+    if "estado" in request.form:
+        consulta = consulta.filter(Domicilio.estado.contains(safe_string(request.form["estado"])))
+    if "municipio" in request.form:
+        consulta = consulta.filter(Domicilio.municipio.contains(safe_string(request.form["municipio"])))
     if "calle" in request.form:
         consulta = consulta.filter(Domicilio.calle.contains(safe_string(request.form["calle"])))
     if "colonia" in request.form:
@@ -105,9 +119,9 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                'detalle': {
-                    'id': resultado.id,
-                    'url': url_for('domicilios.detail', domicilio_id=resultado.id),
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("domicilios.detail", domicilio_id=resultado.id),
                 },
                 "estado": resultado.estado,
                 "municipio": resultado.municipio,
@@ -122,17 +136,17 @@ def datatable_json():
     return datatables.output(draw, total, data)
 
 
-@domicilios.route('/domicilios/<int:domicilio_id>')
+@domicilios.route("/domicilios/<int:domicilio_id>")
 def detail(domicilio_id):
-    """ Detalle de un Domicilio """
+    """Detalle de un Domicilio"""
     domicilio = Domicilio.query.get_or_404(domicilio_id)
-    return render_template('domicilios/detail.jinja2', domicilio=domicilio)
+    return render_template("domicilios/detail.jinja2", domicilio=domicilio)
 
 
-@domicilios.route('/domicilios/nuevo', methods=['GET', 'POST'])
+@domicilios.route("/domicilios/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """ Nuevo Domicilio """
+    """Nuevo Domicilio"""
     form = DomicilioForm()
     if form.validate_on_submit():
         estado = safe_string(form.estado.data, max_len=64)
