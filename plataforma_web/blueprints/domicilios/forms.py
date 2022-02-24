@@ -22,7 +22,9 @@ class DomicilioForm(FlaskForm):
 class DomicilioSearchForm(FlaskForm):
     """Formulario para Buscar Domicilios"""
 
-    colonia = StringField("Colonia", validators=[Optional(), Length(max=256)])
+    estado = StringField("Estado", validators=[Optional(), Length(max=64)])
+    municipio = StringField("Municipio", validators=[Optional(), Length(max=64)])
     calle = StringField("Calle", validators=[Optional(), Length(max=256)])
+    colonia = StringField("Colonia", validators=[Optional(), Length(max=256)])
     cp = IntegerField('CP', validators=[Optional()])
     buscar = SubmitField("Buscar")

@@ -97,7 +97,9 @@
                     targets: [1, 3, 4],
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                        if(data.length > 32)
+                            return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                        return data;
                     }
                 }
             ],
