@@ -105,11 +105,12 @@
         $('#soportes_tickets_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
+            ordering: true,
             searching: false,
             responsive: true,
             scrollX: true,
             deferRender: true,
+            order: [[ 0, "asc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
@@ -169,7 +170,7 @@
                     }
                 },
                 {
-                    targets: [6, 7],
+                    targets: [6, 7],    // Descripción, Soluciones
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != null)
@@ -181,7 +182,30 @@
                         return '—';
                     }
                 }
-            });
+            ],
+            rowCallback: function( row, data ){
+                switch (data.estado)    {
+                    case "ABIERTO":     $(row).css("background-color", "#fef9e7");  break;
+                    case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
+                    case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
+                    case "CERRADO":     $(row).css("background-color", "#eafaf1");  break;
+                }
+            },
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
         </script>
-    {% endif %}
 {% endblock %}
