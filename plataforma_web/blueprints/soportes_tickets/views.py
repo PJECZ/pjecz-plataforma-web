@@ -8,6 +8,7 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string, safe_text
+from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.soportes_adjuntos.models import SoporteAdjunto
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -66,7 +67,7 @@ def list_active():
 def list_working():
     """Listado de Tickets Trabajando"""
     if _get_funcionario_if_is_soporte() is None:
-        redirect(url_for("soportes_tickets.list_active"))
+        return redirect(url_for("soportes_tickets.list_active"))
     return render_template("soportes_tickets/list_working.jinja2")
 
 
@@ -74,7 +75,7 @@ def list_working():
 def list_done():
     """Listado de Tickets Terminados"""
     if _get_funcionario_if_is_soporte() is None:
-        redirect(url_for("soportes_tickets.list_active"))
+        return redirect(url_for("soportes_tickets.list_active"))
     return render_template("soportes_tickets/list_done.jinja2")
 
 
@@ -82,7 +83,7 @@ def list_done():
 def list_cancel():
     """Listado de Tickets Cancelados"""
     if _get_funcionario_if_is_soporte() is None:
-        redirect(url_for("soportes_tickets.list_active"))
+        return redirect(url_for("soportes_tickets.list_active"))
     return render_template("soportes_tickets/list_cancel.jinja2")
 
 
@@ -90,7 +91,7 @@ def list_cancel():
 def list_no_resolve():
     """Listado de Tickets No Resueltos"""
     if _get_funcionario_if_is_soporte() is None:
-        redirect(url_for("soportes_tickets.list_active"))
+        return redirect(url_for("soportes_tickets.list_active"))
     return render_template("soportes_tickets/list_no_resolve.jinja2")
 
 
@@ -125,6 +126,58 @@ def datatable_json():
         consulta = consulta.filter(SoporteTicket.soluciones.contains(safe_string(request.form["solucion"])))
     if "estado" in request.form:
         consulta = consulta.filter(SoporteTicket.estado == safe_string(request.form["estado"]))
+
+    # Ordenación de columnas
+    if "order[0][column]" in request.form:
+        columna_num = request.form["order[0][column]"]
+        asc_or_desc = request.form["order[0][dir]"]
+        columna = request.form["columns["+columna_num+"][data]"]
+        if columna == "id":
+            if asc_or_desc == "asc":
+                consulta = consulta.order_by(SoporteTicket.id.asc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.id.desc())
+        elif columna == "usuario":
+            if asc_or_desc == "asc":
+                consulta = consulta.join(Usuario).order_by(Usuario.nombres.asc())
+            else:
+                consulta = consulta.join(Usuario).order_by(Usuario.nombres.desc())
+        elif columna == "oficina":
+            if asc_or_desc == "asc":
+                consulta = consulta.join(Usuario).join(Oficina).order_by(Oficina.clave.asc())
+            else:
+                consulta = consulta.join(Usuario).join(Oficina).order_by(Oficina.clave.desc())
+        elif columna == "categoria":
+            if "soportes_tickets_abiertos" not in request.form:
+                if asc_or_desc == "asc":
+                    consulta = consulta.join(SoporteCategoria).order_by(SoporteCategoria.nombre.asc())
+                else:
+                    consulta = consulta.join(SoporteCategoria).order_by(SoporteCategoria.nombre.desc())
+            else:
+                if asc_or_desc == "asc":
+                    consulta = consulta.order_by(SoporteCategoria.nombre.asc())
+                else:
+                    consulta = consulta.order_by(SoporteCategoria.nombre.desc())
+        elif columna == "estado":
+            if asc_or_desc == "asc":
+                consulta = consulta.order_by(SoporteTicket.estado.asc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.estado.desc())
+        elif columna == "descripcion":
+            if asc_or_desc == "asc":
+                consulta = consulta.order_by(SoporteTicket.descripcion.asc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.descripcion.desc())
+        elif columna == "soluciones":
+            if asc_or_desc == "asc":
+                consulta = consulta.order_by(SoporteTicket.resolucion.asc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.resolucion.desc())
+        elif columna == "tecnico":
+            if asc_or_desc == "asc":
+                consulta = consulta.join(Funcionario).order_by(Funcionario.nombres.asc())
+            else:
+                consulta = consulta.join(Funcionario).order_by(Funcionario.nombres.desc())
 
     # Obtener el funcionario para saber si es de soporte o no
     funcionario = _get_funcionario_if_is_soporte()
@@ -161,6 +214,7 @@ def datatable_json():
             # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
             consulta = consulta.order_by(SoporteTicket.id.desc())
 
+
     # Obtener los registros y el total
     registros = consulta.offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -178,14 +232,25 @@ def datatable_json():
                     "id": resultado.id,
                     "url": url_for("soportes_tickets.detail", soporte_ticket_id=resultado.id),
                 },
-                "usuario": resultado.usuario.nombre,
+                "usuario": {
+                    "nombre": resultado.usuario.nombre,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id) if current_user.can_view("USUARIOS") else "",
+                },
                 "oficina": {
                     "clave": resultado.usuario.oficina.clave,
                     "nombre": resultado.usuario.oficina.descripcion_corta,
+                    "url": url_for("oficinas.detail", oficina_id=resultado.usuario.oficina_id) if current_user.can_view("OFICINAS") else "",
                 },
-                "categoria": resultado.soporte_categoria.nombre,
+                "categoria": {
+                    "nombre": resultado.soporte_categoria.nombre,
+                    # Omitimos también que sea usuario común que piede soportes
+                    "url": url_for("soportes_categorias.detail", soporte_categoria_id=resultado.soporte_categoria_id) if (current_user.can_view("SOPORTES CATEGORIAS") and _get_funcionario_if_is_soporte()) else "",
+                },
                 "descripcion": resultado.descripcion,
-                "tecnico": resultado.funcionario.nombre,
+                "tecnico": {
+                    "nombre": resultado.funcionario.nombre,
+                    "url": url_for("funcionarios.detail", funcionario_id=resultado.funcionario_id) if current_user.can_view("FUNCIONARIOS") else "",
+                },
                 "soluciones": resultado.soluciones,
                 "estado": resultado.estado,
                 "creacion": resultado.creado.strftime("%Y-%m-%d %H:%M"),
@@ -201,7 +266,7 @@ def datatable_json():
 def detail(soporte_ticket_id):
     """Detalle de un Soporte Ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
-    if _expulsar_usuario(ticket):
+    if _expulsar_usuario() and ticket.usuario_id != current_user.id:
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
 
@@ -289,7 +354,7 @@ def new_for_usuario(usuario_id):
     return render_template("soportes_tickets/new_for_usuario.jinja2", form=form, usuario=usuario)
 
 
-def _expulsar_usuario(ticket):
+def _expulsar_usuario():
     """Expulsar al usuario normal de un ticket"""
     # Consultar el funcionario (si es de soporte) a partir del usuario actual
     funcionario = _get_funcionario_if_is_soporte()
@@ -297,12 +362,8 @@ def _expulsar_usuario(ticket):
     if current_user.can_admin(MODULO):
         return False
     # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    elif current_user.can_insert(MODULO) and funcionario:
+    if current_user.can_insert(MODULO) and funcionario:
         return False
-    # Si puede crear tickets, mostramos los suyos
-    elif current_user.can_insert(MODULO):
-        if ticket.usuario == current_user:
-            return False
     # De lo contrario, solo puede ver tickets abiertos
     return True
 
@@ -312,7 +373,7 @@ def _expulsar_usuario(ticket):
 def edit(soporte_ticket_id):
     """Editar un ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
-    if _expulsar_usuario(ticket):
+    if _expulsar_usuario() and ticket.usuario_id != current_user.id:
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
@@ -352,7 +413,7 @@ def take(soporte_ticket_id):
     if ticket.estatus != "A":
         flash("No puede tomar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado != "ABIERTO":
+    if ticket.estado not in ("ABIERTO", "NO RESUELTO"):
         flash("No puede tomar un ticket que no está abierto.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
@@ -393,8 +454,8 @@ def release(soporte_ticket_id):
     if ticket.estatus != "A":
         flash("No puede soltar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado == "ABIERTO":
-        flash("No puede soltar un ticket que está abierto.", "warning")
+    if ticket.estado in ("ABIERTO", "NO RESUELTO"):
+        flash("No puede soltar un ticket que está ABIERTO o en estado de NO RESUELTO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -425,7 +486,7 @@ def categorize(soporte_ticket_id):
         flash("No puede categorizar un ticket eliminado.", "warning")
         return redirect(detalle_url)
     if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
-        flash("No puede categorizar un ticket que no está abierto o trabajando.", "warning")
+        flash("No puede categorizar un ticket que no está ABIERTO o TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -460,7 +521,7 @@ def close(soporte_ticket_id):
         flash("No puede cerrar un ticket eliminado.", "warning")
         return redirect(detalle_url)
     if ticket.estado != "TRABAJANDO":
-        flash("No puede cerrar un ticket que no está trabajando.", "warning")
+        flash("No puede cerrar un ticket que no está TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -496,14 +557,14 @@ def no_resolve(soporte_ticket_id):
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
-        flash("No puede pasar a no resuelto un ticket eliminado.", "warning")
+        flash("No puede pasar a NO RESUELTO un ticket eliminado.", "warning")
         return redirect(detalle_url)
     if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
-        flash("No puede pasar a no resuelto un ticket que no está abierto o trabajando.", "warning")
+        flash("No puede pasar a NO RESUELTO un ticket que no está ABIERTO o TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
-        flash("No puede pasar a no resuelto el ticket porque no es funcionario de soporte.", "warning")
+        flash("No puede pasar a NO RESUELTO el ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
     ticket.estado = "NO RESUELTO"
     ticket.resolucion = datetime.now()
@@ -524,15 +585,15 @@ def no_resolve(soporte_ticket_id):
 def cancel(soporte_ticket_id):
     """Para cancelar un ticket este debe estar ABIERTO o TRABAJANDO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
-    if _expulsar_usuario(soporte_ticket):
+    if _expulsar_usuario() and soporte_ticket.usuario_id != current_user.id:
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
     if soporte_ticket.estatus != "A":
-        flash("No puede cancelar un ticket eliminado.", "warning")
+        flash("No puede CANCELAR un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if soporte_ticket.estado not in ("ABIERTO", "TRABAJANDO"):
-        flash("No puede cancelar un ticket que no está abierto o trabajando.", "warning")
+    if soporte_ticket.estado not in ("ABIERTO", "TRABAJANDO", "NO RESUELTO"):
+        flash("No puede CANCELAR un ticket que no está ABIERTO, TRABAJANDO o NO RESUELTO.", "warning")
         return redirect(detalle_url)
 
     form = SoporteTicketCancelForm()
@@ -564,7 +625,8 @@ def uncancel(soporte_ticket_id):
     """Para descancelar un ticket este debe estar CANCELADO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
-    if _expulsar_usuario(soporte_ticket) or soporte_ticket.usuario == current_user:
+
+    if _expulsar_usuario():
         flash("No tiene permisos para descancelar un ticket.", "warning")
         return redirect(detalle_url)
     if soporte_ticket.estatus != "A":
