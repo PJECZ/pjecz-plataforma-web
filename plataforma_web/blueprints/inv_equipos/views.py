@@ -21,6 +21,8 @@ from plataforma_web.blueprints.inv_equipos.models import INVEquipo
 from plataforma_web.blueprints.inv_componentes.models import INVComponente
 from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
 from plataforma_web.blueprints.inv_custodias.models import INVCustodia
+from plataforma_web.blueprints.inv_marcas.models import INVMarca
+from plataforma_web.blueprints.usuarios.models import Usuario
 
 from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
 
@@ -66,7 +68,6 @@ def detail(equipo_id):
     equipo = INVEquipo.query.get_or_404(equipo_id)
     componentes = INVComponente.query.filter(INVComponente.equipo_id == equipo_id).all()
     fotos = INVEquipoFoto.query.filter(INVEquipoFoto.equipo_id == equipo_id).all()
-    # custodia = INVCustodia.query.filter(INVCustodia.equipo_id == equipo_id).all()
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
@@ -75,6 +76,9 @@ def detail(equipo_id):
 def new(custodia_id):
     """Nuevo Equipos"""
     custodia = INVCustodia.query.get_or_404(custodia_id)
+    if custodia.estatus != "A":
+        flash("El usuario no es activo.", "warning")
+        return redirect(url_for("inv_custodia.list_active"))
     form = INVEquipoForm()
     validacion = False
     if form.validate_on_submit():
@@ -121,7 +125,7 @@ def datatable_json():
     if "custodia_id" in request.form:
         consulta = consulta.filter_by(custodia_id=request.form["custodia_id"])
     if "modelo_id" in request.form:
-        consulta = consulta.filter_by(modelo_id=request.form["modelo_id"])
+        consulta = consulta.join(INVMarca).filter_by(modelo_id=request.form["modelo_id"])
     registros = consulta.order_by(INVEquipo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -139,8 +143,9 @@ def datatable_json():
                     "nombre_completo": resultado.custodia.nombre_completo,
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
                 },
+                # "custodia": resultado.custodia.nombre_completo,
                 "modelo": {
-                    "descripcion": resultado.modelo.marca,
+                    "nombre": resultado.modelo.marca.nombre,
                     "url": url_for("inv_modelos.detail", modelo_id=resultado.modelo_id) if current_user.can_view("INV MODELOS") else "",
                 },
             }

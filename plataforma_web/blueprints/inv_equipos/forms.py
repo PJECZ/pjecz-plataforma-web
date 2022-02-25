@@ -9,11 +9,14 @@ from wtforms.validators import DataRequired, Length, Optional, IPAddress, MacAdd
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from plataforma_web.blueprints.inv_modelos.models import INVModelo
+
+# from plataforma_web.blueprints.inv_modelos.models import INVMarca
 from plataforma_web.blueprints.inv_redes.models import INVRedes
 
 
 def modelos_opciones():
     """Seleccionar la modelo para select"""
+    # return INVModelo.query.join(INVMarca).filter(INVModelo.marca == marca_id).first()
     return INVModelo.query.filter_by(estatus="A").order_by(INVModelo.descripcion).all()
 
 

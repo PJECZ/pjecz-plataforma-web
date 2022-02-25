@@ -27,7 +27,7 @@
 {% block content %}
     {% call detail.card(estatus=equipo.estatus) %}
         {{ detail.label_value('Custodia', equipo.custodia.nombre_completo) }}
-        {{ detail.label_value('Modelo', equipo.modelo.descripcion) }}
+        {{ detail.label_value('Modelo', equipo.modelo.marca.nombre) }}
         {{ detail.label_value('Nombre Red', equipo.red.nombre) }}
         {{ detail.label_value('Número Inventario', equipo.numero_inventario) }}
         {{ detail.label_value('Número serie', equipo.numero_serie) }}
@@ -78,7 +78,7 @@
                     {% for foto in fotos %}
                         <tr>
                             <td><a href="{{ url_for('inv_equipos_fotos.detail', equipo_foto_id=foto.id) }}">{{ foto.archivo }}</a></td>
-                            <td>{{ foto.dequipo_escripcion | truncate(48) }}</td>
+                            <td>{{ foto.descripcion | truncate(48) }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

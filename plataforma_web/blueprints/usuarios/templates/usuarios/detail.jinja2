@@ -65,46 +65,6 @@
                         </td>
                     </tr>
                     {% endif %}
-                    </td>
-                </tr>
-                {% endif %}
-            {% endfor %}
-            </tbody>
-        </table>
-        {% if current_user.can_insert('USUARIOS ROLES') %}
-            <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
-        {% endif %}
-    {% endcall %}
-    {% call list.card('Tickets') %}
-        <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Creación</th>
-                    <th>Categoría</th>
-                    <th>Oficina</th>
-                    <th>Estado</th>
-                    <th>Técnico</th>
-                    <th>Descripción</th>
-                    <th>Solución/Cancelación</th>
-                </tr>
-            </thead>
-        </table>
-    {% endcall %}
-    {% call list.card('Equipos') %}
-        <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%;">
-            <thead>
-                <tr>
-                    <th>Numero inventario</th>
-                    <th>Numero serie</th>
-                    <th>Adquisicion fecha</th>
-                    <th>Custodia</th>
-                    <th>Modelo</th>
-                
-                </tr>
-            </thead>
-        </table>
-    {% endcall %}
                 {% endfor %}
                 </tbody>
             </table>
@@ -131,6 +91,20 @@
             </table>
         {% endcall %}
     {% endif %}
+    {% call list.card() %}
+        <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Numero Inventario</th>
+                    <th>Numero Serie</th>
+                    <th>Adquisicion Fecha</th>
+                    {# <th>Custodia</th>#}
+                    <th>Modelo</th>
+                </tr>
+            </thead>
+            
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -223,23 +197,9 @@
                         sPrevious: "Anterior"
                     }
                 }
-            },
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
-        });
-    </script>
+            });
+        </script>
+    {% endif %}
     {# equipos#}
     <script>
         $('#inv_equipos_datatable').DataTable({
@@ -261,8 +221,8 @@
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
-                { data: "custodia" },
-                { data: "modelo" },
+                /*{ data: "custodia" },*/
+                { data: "modelo" }
             ],
             columnDefs: [
                 {
@@ -271,7 +231,21 @@
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
-                }
+                },
+                /*{
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                    }
+                },
+                {
+                    targets: 4,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                },*/
             ],
             language: {
                 lengthMenu: "Mostrar _MENU_",
@@ -289,7 +263,6 @@
             }
         });
     </script>
-            });
-        </script>
-    {% endif %}
+
 {% endblock %}
+    
