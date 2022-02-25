@@ -32,7 +32,13 @@
                         <th>adquisicion fecha</th>
                     </tr>
                 </thead>
-
+                {% for equipo in usuario.custodia_id %}
+                    {% if equipo.estatus == "A" %}
+                        <tr>
+                            <td><a href="{{ url_for('inv_equipos.detail', equipo_id=custodia_id.equipo_id) }}">{{ equipo.modelo.marca }}</a></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
             </table>
             {% if current_user.can_insert('INV EQUIPOS') %}
                 <a href="{{ url_for('inv_equipos.new', custodia_id=custodia.id) }}" class="btn btn-primary">Agregar</a>

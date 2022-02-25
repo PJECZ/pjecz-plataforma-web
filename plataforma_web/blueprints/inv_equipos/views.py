@@ -122,6 +122,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "custodia_id" in request.form:
         consulta = consulta.filter_by(custodia_id=request.form["custodia_id"])
+    if "modelo_id" in request.form:
+        consulta = consulta.filter_by(modelo_id=request.form["modelo_id"])
     registros = consulta.order_by(INVEquipo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -138,6 +140,10 @@ def datatable_json():
                 "custodia": {
                     "nombre_completo": resultado.custodia.nombre_completo,
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
+                },
+                "modelo": {
+                    "marca": resultado.modelo.marca,
+                    "url": url_for("inv_custodias.detail", modelo_id=resultado.modelo_id) if current_user.can_view("INV MODELOS") else "",
                 },
             }
         )
