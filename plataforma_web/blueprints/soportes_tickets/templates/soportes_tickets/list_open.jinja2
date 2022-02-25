@@ -78,21 +78,39 @@
             ],
             columnDefs: [
                 {
-                    targets: 0,
+                    targets: 0, // ID
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: 2,
+                    targets: [1, 3], // Usuario, Categoría
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        if(data.nombre.length > 32)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 32) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
                     }
                 },
                 {
-                    targets: [1, 3, 4],
+                    targets: 2, // Oficina
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: 4,
                     data: null,
                     render: function(data, type, row, meta) {
                         if(data.length > 32)
