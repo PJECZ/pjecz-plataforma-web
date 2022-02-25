@@ -8,6 +8,7 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string, safe_text
+from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.soportes_adjuntos.models import SoporteAdjunto
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -128,6 +129,53 @@ def datatable_json():
     if "estado" in request.form:
         consulta = consulta.filter(SoporteTicket.estado == request.form["estado"])
 
+    # Ordenación de columnas
+    if "order[0][column]" in request.form:
+        columna_num = request.form["order[0][column]"]
+        asc_or_desc = request.form["order[0][dir]"]
+        columna = request.form["columns["+columna_num+"][data]"]
+        if columna == "id":
+            if asc_or_desc == "asc":
+                consulta = consulta.order_by(SoporteTicket.id.asc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.id.desc())
+        if columna == "usuario":
+            if asc_or_desc == "asc":
+                consulta = consulta.join(Usuario).order_by(Usuario.nombres.asc())
+            else:
+                consulta = consulta.join(Usuario).order_by(Usuario.nombres.desc())
+        if columna == "oficina":
+            if asc_or_desc == "asc":
+                consulta = consulta.join(Usuario).join(Oficina).order_by(Oficina.clave.asc())
+            else:
+                consulta = consulta.join(Usuario).join(Oficina).order_by(Oficina.clave.desc())
+        if columna == "categoria":
+            if "soportes_tickets_abiertos" not in request.form:
+                if asc_or_desc == "asc":
+                    consulta = consulta.join(SoporteCategoria).order_by(SoporteCategoria.nombre.asc())
+                else:
+                    consulta = consulta.join(SoporteCategoria).order_by(SoporteCategoria.nombre.desc())
+        if columna == "estado":
+            if asc_or_desc == "asc":
+                consulta = consulta.order_by(SoporteTicket.estado.asc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.estado.desc())
+        if columna == "descripcion":
+            if asc_or_desc == "asc":
+                consulta = consulta.order_by(SoporteTicket.descripcion.asc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.descripcion.desc())
+        if columna == "soluciones":
+            if asc_or_desc == "asc":
+                consulta = consulta.order_by(SoporteTicket.resolucion.asc())
+            else:
+                consulta = consulta.order_by(SoporteTicket.resolucion.desc())
+        if columna == "tecnico":
+            if asc_or_desc == "asc":
+                consulta = consulta.join(Funcionario).order_by(Funcionario.nombres.asc())
+            else:
+                consulta = consulta.join(Funcionario).order_by(Funcionario.nombres.desc())
+
     # Obtener el funcionario para saber si es de soporte o no
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -159,9 +207,10 @@ def datatable_json():
                 consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
             # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
             consulta = consulta.order_by(SoporteTicket.id.asc())
-        else:
+        #else:
             # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
             consulta = consulta.order_by(SoporteTicket.id.desc())
+
 
     # Obtener los registros y el total
     registros = consulta.offset(start).limit(rows_per_page).all()

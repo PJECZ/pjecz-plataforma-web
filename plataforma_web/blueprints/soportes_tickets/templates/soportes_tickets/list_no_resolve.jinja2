@@ -42,10 +42,11 @@
         $('#soportes_tickets_no_resuletos_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
+            ordering: true,
             searching: false,
             responsive: true,
             scrollX: true,
+            order: [[ 0, "asc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
