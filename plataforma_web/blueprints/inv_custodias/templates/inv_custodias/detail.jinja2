@@ -29,16 +29,12 @@
                     <tr>
                         <th>Numero inventario</th>
                         <th>Numero serie</th>
-                        <th>adquisicion fecha</th>
+                        <th>Adquisicion fecha</th>
+                        <th>Custodia</th>
+                        <th>Modelo</th>
                     </tr>
                 </thead>
-                {% for equipo in usuario.custodia_id %}
-                    {% if equipo.estatus == "A" %}
-                        <tr>
-                            <td><a href="{{ url_for('inv_equipos.detail', equipo_id=custodia_id.equipo_id) }}">{{ equipo.modelo.marca }}</a></td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
+                
             </table>
             {% if current_user.can_insert('INV EQUIPOS') %}
                 <a href="{{ url_for('inv_equipos.new', custodia_id=custodia.id) }}" class="btn btn-primary">Agregar</a>
@@ -66,13 +62,14 @@
             headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
             dataType: "json",
             dataSrc: "data",
-            data: {{ filtros }}
+            data:{ "estatus": "A", "custodia_id": {{custodia.id}} }
         },
         columns: [
             { data: "numero_inventario" },
             { data: "numero_serie" },
             { data: "adquisicion_fecha" },
-            /*{ data: "custodia" },*/
+            { data: "custodia" },
+            { data: "modelo" },
         ],
         columnDefs: [
             {

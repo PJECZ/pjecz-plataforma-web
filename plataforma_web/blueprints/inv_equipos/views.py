@@ -75,9 +75,6 @@ def detail(equipo_id):
 def new(custodia_id):
     """Nuevo Equipos"""
     custodia = INVCustodia.query.get_or_404(custodia_id)
-    if custodia.estatus != "A":
-        flash("La custodia no es activa.", "warning")
-        return redirect(url_for("inv_custodias.list_active"))
     form = INVEquipoForm()
     validacion = False
     if form.validate_on_submit():
@@ -106,6 +103,7 @@ def new(custodia_id):
             equipo.save()
             flash(f"Equipos {equipo.descripcion} guardado.", "success")
             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+    form.custodia.data = custodia.nombre_completo
     return render_template("inv_equipos/new.jinja2", form=form, custodia=custodia)
 
 
@@ -142,8 +140,8 @@ def datatable_json():
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
                 },
                 "modelo": {
-                    "marca": resultado.modelo.marca,
-                    "url": url_for("inv_custodias.detail", modelo_id=resultado.modelo_id) if current_user.can_view("INV MODELOS") else "",
+                    "descripcion": resultado.modelo.marca,
+                    "url": url_for("inv_modelos.detail", modelo_id=resultado.modelo_id) if current_user.can_view("INV MODELOS") else "",
                 },
             }
         )

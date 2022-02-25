@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Agregar Equipo al custodio{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'custodia_id': custodia.id} %}
+        {% call f.form_tag('inv_equipos.new_with_custodia', fid='inv_equipo_custodia_form', **form_kwargs) %}
+            {% call f.form_group(form.custodia, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.modelo) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
