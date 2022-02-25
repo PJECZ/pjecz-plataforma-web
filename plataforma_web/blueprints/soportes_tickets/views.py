@@ -137,38 +137,43 @@ def datatable_json():
                 consulta = consulta.order_by(SoporteTicket.id.asc())
             else:
                 consulta = consulta.order_by(SoporteTicket.id.desc())
-        if columna == "usuario":
+        elif columna == "usuario":
             if asc_or_desc == "asc":
                 consulta = consulta.join(Usuario).order_by(Usuario.nombres.asc())
             else:
                 consulta = consulta.join(Usuario).order_by(Usuario.nombres.desc())
-        if columna == "oficina":
+        elif columna == "oficina":
             if asc_or_desc == "asc":
                 consulta = consulta.join(Usuario).join(Oficina).order_by(Oficina.clave.asc())
             else:
                 consulta = consulta.join(Usuario).join(Oficina).order_by(Oficina.clave.desc())
-        if columna == "categoria":
+        elif columna == "categoria":
             if "soportes_tickets_abiertos" not in request.form:
                 if asc_or_desc == "asc":
                     consulta = consulta.join(SoporteCategoria).order_by(SoporteCategoria.nombre.asc())
                 else:
                     consulta = consulta.join(SoporteCategoria).order_by(SoporteCategoria.nombre.desc())
-        if columna == "estado":
+            else:
+                if asc_or_desc == "asc":
+                    consulta = consulta.order_by(SoporteCategoria.nombre.asc())
+                else:
+                    consulta = consulta.order_by(SoporteCategoria.nombre.desc())
+        elif columna == "estado":
             if asc_or_desc == "asc":
                 consulta = consulta.order_by(SoporteTicket.estado.asc())
             else:
                 consulta = consulta.order_by(SoporteTicket.estado.desc())
-        if columna == "descripcion":
+        elif columna == "descripcion":
             if asc_or_desc == "asc":
                 consulta = consulta.order_by(SoporteTicket.descripcion.asc())
             else:
                 consulta = consulta.order_by(SoporteTicket.descripcion.desc())
-        if columna == "soluciones":
+        elif columna == "soluciones":
             if asc_or_desc == "asc":
                 consulta = consulta.order_by(SoporteTicket.resolucion.asc())
             else:
                 consulta = consulta.order_by(SoporteTicket.resolucion.desc())
-        if columna == "tecnico":
+        elif columna == "tecnico":
             if asc_or_desc == "asc":
                 consulta = consulta.join(Funcionario).order_by(Funcionario.nombres.asc())
             else:
