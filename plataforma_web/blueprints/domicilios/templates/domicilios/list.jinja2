@@ -23,12 +23,13 @@
         <table id="domicilios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Estado</th>
-                    <th>Municipio</th>
-                    <th>Calle</th>
+                    <th>IDs</th>
+                    <th>Estados</th>
+                    <th>Municipios</th>
+                    <th>Calles</th>
                     <th>No. Ext.</th>
                     <th>No. Int.</th>
-                    <th>Colonia</th>
+                    <th>Colonias</th>
                     <th>C.P.</th>
                 </tr>
             </thead>
@@ -54,6 +55,7 @@
                 data: {{ filtros }}
             },
             columns: [
+                { data: "detalle" },
                 { data: "estado" },
                 { data: "municipio" },
                 { data: "calle" },
@@ -64,21 +66,17 @@
             ],
             columnDefs: [
                 {
-                    targets: [0, 1, 5],
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return data.length > 16 ? data.substr(0, 16) + '…' : data;
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: 2,
+                    targets: [1, 2, 3, 6],
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.descripcion.length > 48) {
-                            return '<a href="' + data.url + '">' + data.descripcion.substr(0, 48) + '…' + '</a>';
-                        } else {
-                            return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                        }
+                        return data.length > 16 ? data.substr(0, 16) + '…' : data;
                     }
                 }
             ],

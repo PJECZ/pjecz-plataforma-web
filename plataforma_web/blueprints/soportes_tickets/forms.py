@@ -2,7 +2,6 @@
 Soportes Tickets, formularios
 """
 from flask_wtf import FlaskForm
-from numpy import integer
 from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField, DateField, IntegerField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -21,11 +20,6 @@ def tecnicos_opciones():
 def categorias_opciones():
     """Seleccionar la categoría para select"""
     return SoporteCategoria.query.filter_by(estatus="A").order_by(SoporteCategoria.nombre).all()
-
-
-def oficinas_opciones():
-    """Seleccionar la oficina para select"""
-    return Oficina.query.filter_by(estatus="A").order_by(Oficina.clave).all()
 
 
 class SoporteTicketNewForm(FlaskForm):
@@ -107,10 +101,10 @@ class SoporteTicketCancelForm(FlaskForm):
 class SoporteTicketSearchForm(FlaskForm):
     """Formulario de búsqueda de Ticekts"""
 
-    fecha_desde = DateField("Creados desde", validators=[Optional()])
-    fecha_hasta = DateField("Creados hasta", validators=[Optional()])
-    num_ticket = IntegerField("Número de Ticket", validators=[Optional()])
+    id = IntegerField("ID", validators=[Optional()])
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     solucion = StringField("Solución", validators=[Optional(), Length(max=256)])
     estado = SelectField("Estado", choices=SoporteTicket.ESTADOS, validators=[Optional()])
+    creado_desde = DateField("Creados desde", validators=[Optional()])
+    creado_hasta = DateField("Creados hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")

@@ -4,6 +4,11 @@
 
 {% block title %}Nuevo Usuario{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Nuevo Usuario') }}
 {% endblock %}
@@ -18,9 +23,9 @@
             {% call f.form_group(form.apellido_paterno) %}{% endcall %}
             {% call f.form_group(form.apellido_materno) %}{% endcall %}
             {% call f.form_group(form.curp) %}{% endcall %}
+            {% call f.form_group(form.puesto) %}{% endcall %}
             {% call f.form_group(form.email) %}{% endcall %}
             {% call f.form_group(form.workspace) %}{% endcall %}
-            {% call f.form_group(form.puesto) %}{% endcall %}
             {% call f.form_group(form.contrasena) %}{% endcall %}
             {% call f.form_group(form.contrasena_repetir) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
@@ -30,4 +35,17 @@
 
 {% block custom_javascript %}
     {{ f.js_select_distrito_autoridad(distritos, autoridades) }}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Select2 bootstrap oficinas -->
+    <script>
+        $(document).ready(function(){
+            $('#oficina').addClass('js-example-placeholder-single js-states form-control');
+            $("#oficina").prop("selectedIndex", -1);
+            $(".js-example-placeholder-single").select2({
+                placeholder: "Oficina",
+                allowClear: true
+            });
+        });
+    </script>
 {% endblock %}

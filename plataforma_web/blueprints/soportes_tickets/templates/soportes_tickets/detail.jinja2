@@ -58,13 +58,13 @@
     {% call detail.card(estatus=soporte_ticket.estatus) %}
         <div id="estado">{{ detail.label_value_big('Estado', soporte_ticket.estado) }}</div>
         {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
-        {% if current_user.can_edit('USUARIOS') %}
+        {% if current_user.can_view('USUARIOS') %}
             {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre, url_for('usuarios.detail', usuario_id=soporte_ticket.usuario_id)) }}
         {% else %}
             {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
         {% endif %}
         {{ detail.label_value('Descripción del Problema', soporte_ticket.descripcion) }}
-        {% if current_user.can_edit('SOPORTES CATEGORIAS') %}
+        {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre, url_for('soportes_categorias.detail', soporte_categoria_id=soporte_ticket.soporte_categoria_id)) }}
         {% else %}
             {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}

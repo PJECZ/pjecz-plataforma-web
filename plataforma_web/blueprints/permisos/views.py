@@ -78,8 +78,14 @@ def datatable_json():
                     "url": url_for("permisos.detail", permiso_id=resultado.id),
                 },
                 "nivel": resultado.nivel_descrito,
-                "modulo_nombre": resultado.modulo.nombre,
-                "rol_nombre": resultado.rol.nombre,
+                "modulo": {
+                    "nombre": resultado.modulo.nombre,
+                    "url": url_for("modulos.detail", modulo_id=resultado.modulo_id) if current_user.can_view("MODULOS") else "",
+                },
+                "rol": {
+                    "nombre": resultado.rol.nombre,
+                    "url": url_for("roles.detail", rol_id=resultado.rol_id) if current_user.can_view("ROLES") else "",
+                },
             }
         )
     # Entregar JSON
