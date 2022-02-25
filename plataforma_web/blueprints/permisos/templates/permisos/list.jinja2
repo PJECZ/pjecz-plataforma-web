@@ -55,7 +55,8 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "modulo_nombre" },
+                { data: "rol" },
+                { data: "modulo" },
                 { data: "nivel" }
             ],
             columnDefs: [
@@ -64,6 +65,28 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
+                    }
+                }
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
                     }
                 }
             ],
