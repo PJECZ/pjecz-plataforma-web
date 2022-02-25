@@ -90,6 +90,13 @@
                     }
                 },
                 {
+                    targets: 1, // Creación
+                    type: "date",
+                    render: function(data, type, row, meta) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm a");
+                    }
+                },
+                {
                     targets: [2, 5], // Usuario, Técnico
                     data: null,
                     render: function(data, type, row, meta) {
