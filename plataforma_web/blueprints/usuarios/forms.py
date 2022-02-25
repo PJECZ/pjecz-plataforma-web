@@ -16,7 +16,7 @@ CONTRASENA_MENSAJE = "De 8 a 48 caracteres con al menos una may√∫scula, una min√
 
 def oficinas_opciones():
     """Oficinas: opciones para select"""
-    return Oficina.query.filter_by(estatus="A").order_by(Oficina.descripcion).all()
+    return Oficina.query.filter_by(estatus="A").order_by(Oficina.clave).all()
 
 
 class AccesoForm(FlaskForm):
@@ -59,7 +59,7 @@ class UsuarioNewForm(FlaskForm):
 
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
-    oficina = QuerySelectField(query_factory=oficinas_opciones, get_label="descripcion")
+    oficina = QuerySelectField(query_factory=oficinas_opciones, get_label="clave_nombre")
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
@@ -82,9 +82,25 @@ class UsuarioNewForm(FlaskForm):
 class UsuarioEditForm(FlaskForm):
     """Formulario para editar usuario"""
 
+    distrito = StringField("Distrito")  # Read only
+    autoridad = StringField("Autoridad")  # Read only
+    oficina = QuerySelectField(query_factory=oficinas_opciones, get_label="clave_nombre")
+    nombres = StringField("Nombres", validators=[Optional(), Length(max=256)])
+    apellido_paterno = StringField("Apellido paterno", validators=[Optional(), Length(max=256)])
+    apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
+    curp = StringField("CURP", validators=[Optional(), Length(max=256)])
+    puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
+    email = StringField("e-mail")  # Read only
+    workspace = StringField("Workspace")  # Read only
+    guardar = SubmitField("Guardar")
+
+
+class UsuarioEditAdminForm(FlaskForm):
+    """Formulario para editar usuario"""
+
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
-    oficina = QuerySelectField(query_factory=oficinas_opciones, get_label="descripcion")
+    oficina = QuerySelectField(query_factory=oficinas_opciones, get_label="clave_nombre")
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
