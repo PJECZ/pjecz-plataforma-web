@@ -22,11 +22,6 @@ def categorias_opciones():
     return SoporteCategoria.query.filter_by(estatus="A").order_by(SoporteCategoria.nombre).all()
 
 
-def oficinas_opciones():
-    """Seleccionar la oficina para select"""
-    return Oficina.query.filter_by(estatus="A").order_by(Oficina.clave).all()
-
-
 class SoporteTicketNewForm(FlaskForm):
     """Formulario para que cualquier usuario pueda crear un ticket"""
 
