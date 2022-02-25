@@ -82,7 +82,10 @@ def datatable_json():
                 },
                 "usuario_nombre": resultado.usuario.nombre,
                 "usuario_puesto": resultado.usuario.puesto,
-                "rol_nombre": resultado.rol.nombre,
+                "rol": {
+                    "nombre": resultado.rol.nombre,
+                    "url": url_for("roles.detail", rol_id=resultado.rol_id) if current_user.can_view("ROLES") else "",
+                },
             }
         )
     # Entregar JSON

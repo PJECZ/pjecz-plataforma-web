@@ -23,9 +23,21 @@
         {{ detail.label_value('Puesto', usuario.puesto) }}
         {{ detail.label_value('CURP', usuario.curp) }}
         {{ detail.label_value('e-mail', usuario.email) }}
-        {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
-        {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
-        {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
+        {% if current_user.can_view("DISTRITOS") %}
+            {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
+        {% else %}
+            {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre) }}
+        {% endif %}
+        {% if current_user.can_view("AUTORIDADES") %}
+            {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
+        {% else %}
+            {{ detail.label_value('Autoridad', usuario.autoridad.descripcion) }}
+        {% endif %}
+        {% if current_user.can_view("OFICINAS") %}
+            {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
+        {% else %}
+            {{ detail.label_value('Oficina', usuario.oficina.descripcion) }}
+        {% endif %}
         {{ detail.label_value('Teléfono celular', usuario.telefono_celular) }}
         {{ detail.label_value('Workspace', usuario.workspace) }}
         {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
