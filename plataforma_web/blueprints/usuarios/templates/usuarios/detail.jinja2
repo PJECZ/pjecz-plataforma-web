@@ -9,10 +9,12 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Usuario ' + usuario.email) %}
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
-        {% if current_user.can_edit('USUARIOS') %}
-            {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
+        {% if current_user.can_admin('USUARIOS') %}
+            {{ topbar.button_edit('Editar', url_for('usuarios.edit_admin', usuario_id=usuario.id)) }}
             {% if usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('usuarios.delete', usuario_id=usuario.id)) }}{% endif %}
             {% if usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('usuarios.recover', usuario_id=usuario.id)) }}{% endif %}
+        {% elif current_user.can_edit('USUARIOS') %}
+            {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -23,29 +25,45 @@
         {{ detail.label_value('Puesto', usuario.puesto) }}
         {{ detail.label_value('CURP', usuario.curp) }}
         {{ detail.label_value('e-mail', usuario.email) }}
-        {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
-        {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
-        {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
+        {% if current_user.can_view("DISTRITOS") %}
+            {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
+        {% else %}
+            {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre) }}
+        {% endif %}
+        {% if current_user.can_view("AUTORIDADES") %}
+            {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
+        {% else %}
+            {{ detail.label_value('Autoridad', usuario.autoridad.descripcion) }}
+        {% endif %}
+        {% if current_user.can_view("OFICINAS") %}
+            {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
+        {% else %}
+            {{ detail.label_value('Oficina', usuario.oficina.descripcion) }}
+        {% endif %}
         {{ detail.label_value('Teléfono celular', usuario.telefono_celular) }}
         {{ detail.label_value('Workspace', usuario.workspace) }}
         {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
     {% endcall %}
-    {% call detail.card("Roles") %}
-        <table id="roles_datatable" class="table display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for usuario_rol in usuario.usuarios_roles %}
-                {% if usuario_rol.estatus == "A" %}
-                <tr>
-                    <td><a href="{{ url_for('roles.detail', rol_id=usuario_rol.rol_id) }}">{{ usuario_rol.rol.nombre }}</a></td>
-                    <td>
-                    {% if current_user.can_edit('USUARIOS ROLES') %}
-                        {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteRolUsuario', message='¿Eliminar ' + usuario_rol.rol.nombre + '?') }}
+    {% if current_user.can_view('ROLES') %}
+        {% call detail.card("Roles") %}
+            <table id="roles_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for usuario_rol in usuario.usuarios_roles %}
+                    {% if usuario_rol.estatus == "A" %}
+                    <tr>
+                        <td><a href="{{ url_for('roles.detail', rol_id=usuario_rol.rol_id) }}">{{ usuario_rol.rol.nombre }}</a></td>
+                        <td>
+                        {% if current_user.can_edit('USUARIOS ROLES') %}
+                            {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteRolUsuario', message='¿Eliminar ' + usuario_rol.rol.nombre + '?') }}
+                        {% endif %}
+                        </td>
+                    </tr>
                     {% endif %}
                     </td>
                 </tr>
@@ -87,6 +105,32 @@
             </thead>
         </table>
     {% endcall %}
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if current_user.can_insert('USUARIOS ROLES') %}
+                <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('SOPORTES TICKETS') %}
+        {% call list.card('Tickets') %}
+            <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Creación</th>
+                        <th>Categoría</th>
+                        <th>Oficina</th>
+                        <th>Estado</th>
+                        <th>Técnico</th>
+                        <th>Descripción</th>
+                        <th>Solución/Cancelación</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -97,71 +141,87 @@
     {{ detail.moment_js(moment) }}
     {{ detail.datatable('roles_datatable') }}
     {{ modals.custom_javascript('Eliminar', '¿Eliminar ese rol del usuario?', 'DeleteRolUsuario') }}
-    <script>
-        $('#soportes_tickets_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            deferRender: true,
-            ajax: {
-                url: "/soportes_tickets/datatable_json",
-                type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                dataType: "json",
-                dataSrc: "data",
-                data: { "estatus": "A", "usuario_id": {{usuario.id}} }
-            },
-            columns: [
-                { data: "id" },
-                { data: "creacion" },
-                { data: "categoria" },
-                { data: "oficina" },
-                { data: "estado" },
-                { data: "tecnico" },
-                { data: "descripcion" },
-                { data: "soluciones" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
+    {% if current_user.can_view('SOPORTES TICKETS') %}
+        <script>
+            $('#soportes_tickets_datatable').DataTable({
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                searching: false,
+                responsive: true,
+                scrollX: true,
+                deferRender: true,
+                ajax: {
+                    url: "/soportes_tickets/datatable_json",
+                    type: "POST",
+                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                    dataType: "json",
+                    dataSrc: "data",
+                    data: { "estatus": "A", "usuario_id": {{usuario.id}} }
+                },
+                columns: [
+                    { data: "id" },
+                    { data: "creacion" },
+                    { data: "categoria" },
+                    { data: "oficina" },
+                    { data: "estado" },
+                    { data: "tecnico" },
+                    { data: "descripcion" },
+                    { data: "soluciones" }
+                ],
+                columnDefs: [
+                    {
+                        targets: 0,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 3,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        }
+                    },
+                    {
+                        targets: [2, 5, 6, 7],
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data != null)
+                                if (data.length > 16)   {
+                                    return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                                } else {
+                                    return data;
+                                }
+                            return '—';
+                        }
+                    },
+                ],
+                rowCallback: function( row, data ){
+                    switch (data.estado)    {
+                        case "ABIERTO":
+                            $(row).css("background-color", "#fef9e7");
+                            break;
+                        case "TRABAJANDO": $(row).css("background-color", "#ebf5fb");  break;
+                        case "CANCELADO": $(row).css("background-color", "#fdedec");  break;
+                        case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
+                        case "CERRADO": $(row).css("background-color", "#eafaf1");  break;
                     }
                 },
-                {
-                    targets: 3,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                language: {
+                    lengthMenu: "Mostrar _MENU_",
+                    search: "Filtrar:",
+                    zeroRecords: "No se encontraron registros",
+                    info: "Total de registros _TOTAL_ ",
+                    infoEmpty: "No hay registros",
+                    infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                    oPaginate: {
+                        sFirst: "Primero",
+                        sLast: "Último",
+                        sNext: "Siguiente",
+                        sPrevious: "Anterior"
                     }
-                },
-                {
-                    targets: [2, 5, 6, 7],
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data != null)
-                            if (data.length > 16)   {
-                                return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
-                            } else {
-                                return data;
-                            }
-                        return '—';
-                    }
-                },
-            ],
-            rowCallback: function( row, data ){
-                switch (data.estado)    {
-                    case "ABIERTO":
-                        $(row).css("background-color", "#fef9e7");
-                        break;
-                    case "TRABAJANDO": $(row).css("background-color", "#ebf5fb");  break;
-                    case "CANCELADO": $(row).css("background-color", "#fdedec");  break;
-                    case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
-                    case "CERRADO": $(row).css("background-color", "#eafaf1");  break;
                 }
             },
             language: {
@@ -229,4 +289,7 @@
             }
         });
     </script>
+            });
+        </script>
+    {% endif %}
 {% endblock %}

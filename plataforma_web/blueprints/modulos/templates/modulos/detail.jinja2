@@ -29,8 +29,8 @@
             <thead>
                 <tr>
                     <th>Nombres</th>
-                    <th>Modulos</th>
                     <th>Niveles</th>
+                    <th>Roles</th>
                 </tr>
             </thead>
         </table>
@@ -64,8 +64,8 @@
             },
             columns: [
                 { data: "detalle" },
-                { data: "modulo_nombre" },
-                { data: "nivel" }
+                { data: "nivel" },
+                { data: "rol" }
             ],
             columnDefs: [
                 {
@@ -73,6 +73,17 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+                {
+                    targets: 2,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
                     }
                 }
             ],
