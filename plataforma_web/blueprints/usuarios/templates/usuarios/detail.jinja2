@@ -115,89 +115,112 @@
     {{ detail.moment_js(moment) }}
     {{ detail.datatable('roles_datatable') }}
     {{ modals.custom_javascript('Eliminar', '¿Eliminar ese rol del usuario?', 'DeleteRolUsuario') }}
-    {% if current_user.can_view('SOPORTES TICKETS') %}
-        <script>
-            $('#soportes_tickets_datatable').DataTable({
-                processing: true,
-                serverSide: true,
-                ordering: false,
-                searching: false,
-                responsive: true,
-                scrollX: true,
-                deferRender: true,
-                ajax: {
-                    url: "/soportes_tickets/datatable_json",
-                    type: "POST",
-                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                    dataType: "json",
-                    dataSrc: "data",
-                    data: { "estatus": "A", "usuario_id": {{usuario.id}} }
-                },
-                columns: [
-                    { data: "id" },
-                    { data: "creacion" },
-                    { data: "categoria" },
-                    { data: "oficina" },
-                    { data: "estado" },
-                    { data: "tecnico" },
-                    { data: "descripcion" },
-                    { data: "soluciones" }
-                ],
-                columnDefs: [
-                    {
-                        targets: 0,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.id + '</a>';
-                        }
-                    },
-                    {
-                        targets: 3,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return '<span title="' + data.nombre + '">' + data.clave + '</span>';
-                        }
-                    },
-                    {
-                        targets: [2, 5, 6, 7],
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            if (data != null)
-                                if (data.length > 16)   {
-                                    return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
-                                } else {
-                                    return data;
-                                }
-                            return '—';
-                        }
-                    },
-                ],
-                rowCallback: function( row, data ){
-                    switch (data.estado)    {
-                        case "ABIERTO":
-                            $(row).css("background-color", "#fef9e7");
-                            break;
-                        case "TRABAJANDO": $(row).css("background-color", "#ebf5fb");  break;
-                        case "CANCELADO": $(row).css("background-color", "#fdedec");  break;
-                        case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
-                        case "CERRADO": $(row).css("background-color", "#eafaf1");  break;
+    <script>
+        $('#soportes_tickets_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: true,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            deferRender: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                url: "/soportes_tickets/datatable_json",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "usuario_id": {{usuario.id}} }
+            },
+            columns: [
+                { data: "id" },
+                { data: "creacion" },
+                { data: "categoria" },
+                { data: "oficina" },
+                { data: "estado" },
+                { data: "tecnico" },
+                { data: "descripcion" },
+                { data: "soluciones" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0, // ID
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
-                language: {
-                    lengthMenu: "Mostrar _MENU_",
-                    search: "Filtrar:",
-                    zeroRecords: "No se encontraron registros",
-                    info: "Total de registros _TOTAL_ ",
-                    infoEmpty: "No hay registros",
-                    infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                    oPaginate: {
-                        sFirst: "Primero",
-                        sLast: "Último",
-                        sNext: "Siguiente",
-                        sPrevious: "Anterior"
+                {
+                    targets: 1, // Creación
+                    type: "date",
+                    render: function(data, type, row, meta) {
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm a");
+                    }
+                },
+                {
+                    targets: [2, 5], // Categoría, Técnico
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if(data.nombre.length > 24)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: 3, // Oficina
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: [6, 7],    // Descripción, Soluciones
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data != null)
+                            if (data.length > 24)   {
+                                return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
+                            } else {
+                                return data;
+                            }
+                        return '—';
                     }
                 }
-            });
+            ],
+            rowCallback: function( row, data ){
+                switch (data.estado)    {
+                    case "ABIERTO":     $(row).css("background-color", "#fef9e7");  break;
+                    case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
+                    case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
+                    case "CERRADO":     $(row).css("background-color", "#eafaf1");  break;
+                }
+            },
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
         </script>
     {% endif %}
     {# equipos#}

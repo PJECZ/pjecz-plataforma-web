@@ -4,6 +4,21 @@
 
 {% block title %}Tickets{% endblock %}
 
+{% block custom_head %}
+    <style>
+        tr {
+            border-color: white;
+        }
+        #soportes_tickets_datatable td:nth-child(3), th:nth-child(3) {
+            text-align: center;
+        }
+        #soportes_tickets_datatable tbody tr:hover {
+            background-color: #ffa;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons('Tickets') %}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
@@ -33,11 +48,12 @@
         $('#soportes_tickets_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
+            ordering: true,
             searching: false,
             responsive: true,
             scrollX: true,
             deferRender: true,
+            order: [[ 0, "desc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
@@ -55,21 +71,44 @@
             ],
             columnDefs: [
                 {
-                    targets: 0,
+                    targets: 0, // ID
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
+                    },
+                    sort: 8
                 },
                 {
-                    targets: 2,
+                    targets: 1, // Categoría
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<strong>' + data + '</strong>';
+                        if(data.nombre.length > 32)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 32) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
                     }
                 },
                 {
-                    targets: [1, 3, 4],
+                    targets: 2, // Estado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        let color = "black";
+                        switch (data)    {
+                            case "ABIERTO":     color = "#7d6608"; break;
+                            case "TRABAJANDO":  color = "#154360"; break;
+                            case "CANCELADO":   color = "#641e16"; break;
+                            case "NO RESUELTO": color = "#4a235a"; break;
+                            case "CERRADO":     color = "#0b5345"; break;
+                        }
+                        return '<strong style="color:' + color + '; text-align:center;">' + data + '</strong>';
+                    }
+                },
+                {
+                    targets: [3, 4],
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != null)
@@ -81,7 +120,7 @@
                     }
                 },
             ],
-            rowCallback: function( row, data ){
+            createdRow: function( row, data, dataIndex ){
                 switch (data.estado)    {
                     case "ABIERTO":     $(row).css("background-color", "#fef9e7");  break;
                     case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
