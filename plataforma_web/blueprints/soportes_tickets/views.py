@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import func
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string, safe_text
@@ -19,6 +20,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
 from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.funcionarios_oficinas.models import FuncionarioOficina
 
 from .forms import (
     SoporteTicketNewForm,
@@ -195,8 +197,16 @@ def datatable_json():
             for usuario_rol in current_user.usuarios_roles:
                 if usuario_rol.estatus == "A":
                     roles_ids.append(usuario_rol.rol.id)
-            # Si es la tabla CATEGORIZADOS
-            if request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
+            # Si es la tabla CERCANOS, CATEGORIZADOS o TODOS
+            if request.form["soportes_tickets_abiertos"] == "CERCANOS":
+                funcionario = _get_funcionario_if_is_soporte()
+                if funcionario:
+                    oficinas_ids = []
+                    funcionarios_oficinas = FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).all()
+                    for funcionario_oficina in funcionarios_oficinas:
+                        oficinas_ids.append(funcionario_oficina.oficina_id)
+                    consulta = consulta.join(Usuario).filter(Usuario.oficina_id.in_(oficinas_ids))
+            elif request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
                 consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
             else:  # TODOS los demas
                 consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
