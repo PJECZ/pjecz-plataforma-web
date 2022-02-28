@@ -1,0 +1,23 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Relacionar oficinas al funcionario a partir de una direccion{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Relacionar oficinas al funcionario a partir de una direccion') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'funcionario_id': funcionario.id} %}
+        {% call f.form_tag('funcionarios.insert_offices', fid='insert_offices_form', **form_kwargs) %}
+            {% call f.form_group(form.funcionario_nombre, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.funcionario_curp, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.funcionario_puesto, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.funcionario_email, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.domicilio) %}{% endcall %}
+            {% call f.form_group(form.asignar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

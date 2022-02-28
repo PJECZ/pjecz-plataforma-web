@@ -60,26 +60,28 @@ def new():
     """Nuevo Modulo"""
     form = ModuloForm()
     if form.validate_on_submit():
-        if Modulo.query.filter_by(nombre=form.nombre.data).first():
-            flash(safe_message("El nombre del módulo ya existe"), "warning")
-            return render_template("modulos/new.jinja2", form=form)
-        modulo = Modulo(
-            nombre=safe_string(form.nombre.data),
-            nombre_corto=form.nombre_corto.data,
-            icono=form.icono.data,
-            ruta=form.ruta.data,
-            en_navegacion=form.en_navegacion.data == 1,
-        )
-        modulo.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo módulo {modulo.nombre}"),
-            url=url_for("modulos.detail", modulo_id=modulo.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        # Validar que el nombre no se repita
+        nombre = safe_string(form.nombre.data)
+        if Modulo.query.filter_by(nombre=nombre).first():
+            flash("La nombre ya está en uso. Debe de ser único.", "warning")
+        else:
+            modulo = Modulo(
+                nombre=nombre,
+                nombre_corto=form.nombre_corto.data,
+                icono=form.icono.data,
+                ruta=form.ruta.data,
+                en_navegacion=form.en_navegacion.data == 1,
+            )
+            modulo.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo módulo {modulo.nombre}"),
+                url=url_for("modulos.detail", modulo_id=modulo.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("modulos/new.jinja2", form=form)
 
 
@@ -90,21 +92,31 @@ def edit(modulo_id):
     modulo = Modulo.query.get_or_404(modulo_id)
     form = ModuloForm()
     if form.validate_on_submit():
-        modulo.nombre = safe_string(form.nombre.data)
-        modulo.nombre_corto = form.nombre_corto.data
-        modulo.icono = form.icono.data
-        modulo.ruta = form.ruta.data
-        modulo.en_navegacion = form.en_navegacion.data == 1
-        modulo.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado módulo {modulo.nombre}"),
-            url=url_for("modulos.detail", modulo_id=modulo.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia el nombre verificar que no este en uso
+        nombre = safe_string(form.nombre.data)
+        if modulo.nombre != nombre:
+            modulo_existente = Modulo.query.filter_by(nombre=nombre).first()
+            if modulo_existente and modulo_existente.id != modulo.id:
+                es_valido = False
+                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            modulo.nombre = nombre
+            modulo.nombre_corto = safe_string(form.nombre_corto.data)
+            modulo.icono = form.icono.data
+            modulo.ruta = form.ruta.data
+            modulo.en_navegacion = form.en_navegacion.data == 1
+            modulo.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado módulo {modulo.nombre}"),
+                url=url_for("modulos.detail", modulo_id=modulo.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.nombre.data = modulo.nombre
     form.nombre_corto.data = modulo.nombre_corto
     form.icono.data = modulo.icono

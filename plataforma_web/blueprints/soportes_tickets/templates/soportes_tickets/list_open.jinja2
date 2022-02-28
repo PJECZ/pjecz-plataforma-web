@@ -21,6 +21,22 @@
 {% endblock %}
 
 {% block content %}
+    <div id="cercanos">
+    {% call list.card('Abiertos - Cercanos') %}
+        <table id="soportes_tickets_abiertos_cercanos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Oficina</th>
+                    <th>Categoría</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+    </div>
+    <div id="categorizados">
     {% call list.card('Abiertos - Categorizados') %}
         <table id="soportes_tickets_abiertos_categorizados_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
             <thead>
@@ -34,6 +50,7 @@
             </thead>
         </table>
     {% endcall %}
+    </div>
     {% call list.card('Abiertos - TODOS' ) %}
         <table id="soportes_tickets_abiertos_todos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
             <thead>
@@ -136,7 +153,7 @@
             }
         }
 
-        // Datatable Tickets Abiertos Categorizados
+        // Datatable Tickets Abiertos - Cercanos
         datatable_config['columns'] = [
                 { data: "id" },
                 { data: "usuario" },
@@ -147,11 +164,29 @@
         datatable_config['ajax']['data'] = {
             "estatus": "A",
             "estado": "ABIERTO",
+            "soportes_tickets_abiertos": "CERCANOS"
+        };
+        let cercanos = $('#soportes_tickets_abiertos_cercanos_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_abiertos_cercanos_datatable').on( 'init.dt', function () {
+            if ( ! cercanos.data().count() ){
+                $('#cercanos').hide();
+            }
+        });
+
+        // Datatable Tickets Abiertos - Categorizados
+        datatable_config['ajax']['data'] = {
+            "estatus": "A",
+            "estado": "ABIERTO",
             "soportes_tickets_abiertos": "CATEGORIZADOS"
         };
-        $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
+        let categorizados = $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_abiertos_categorizados_datatable').on( 'init.dt', function () {
+            if ( ! categorizados.data().count() ){
+                $('#categorizados').hide();
+            }
+        });
 
-        // Datatable Tickets Abiertos Todos
+        // Datatable Tickets Abiertos - Todos
         datatable_config['ajax']['data'] = {
             "estatus": "A",
             "estado": "ABIERTO",
