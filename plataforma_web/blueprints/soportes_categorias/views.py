@@ -64,6 +64,7 @@ def new():
     """Nuevo Soporte Categoria"""
     form = SoporteCategoriaForm()
     if form.validate_on_submit():
+        # Validar que el nombre no se repita
         nombre = safe_string(form.nombre.data)
         if SoporteCategoria.query.filter_by(nombre=nombre).first() is not None:
             flash("El nombre ya está en uso. Debe de ser único.", "warning")
@@ -93,19 +94,29 @@ def edit(soporte_categoria_id):
     soporte_categoria = SoporteCategoria.query.get_or_404(soporte_categoria_id)
     form = SoporteCategoriaForm()
     if form.validate_on_submit():
-        soporte_categoria.nombre = safe_string(form.nombre.data)
-        soporte_categoria.rol = form.rol.data
-        soporte_categoria.instrucciones = safe_text(form.instrucciones.data)
-        soporte_categoria.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado soporte categoria {soporte_categoria.nombre}"),
-            url=url_for("soportes_categorias.detail", soporte_categoria_id=soporte_categoria.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia el nombre verificar que no este en uso
+        nombre = safe_string(form.nombre.data)
+        if soporte_categoria.nombre != nombre:
+            soporte_categoria_existente = SoporteCategoria.query.filter_by(nombre=nombre).first()
+            if soporte_categoria_existente and soporte_categoria_existente.id != soporte_categoria.id:
+                es_valido = False
+                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            soporte_categoria.nombre = nombre
+            soporte_categoria.rol = form.rol.data
+            soporte_categoria.instrucciones = safe_text(form.instrucciones.data)
+            soporte_categoria.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado soporte categoria {soporte_categoria.nombre}"),
+                url=url_for("soportes_categorias.detail", soporte_categoria_id=soporte_categoria.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.nombre.data = soporte_categoria.nombre
     form.rol.data = soporte_categoria.rol
     form.instrucciones.data = soporte_categoria.instrucciones

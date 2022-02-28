@@ -195,13 +195,15 @@ def new():
     form = FuncionarioForm()
     if form.validate_on_submit():
         es_valido = True
+        # Validar que el CURP no se repita
         curp = safe_string(form.curp.data)
         if Funcionario.query.filter_by(curp=curp).first():
-            flash(f"Ya existe un funcionario con la CURP {curp}", "warning")
+            flash("La CURP ya está en uso. Debe de ser única.", "warning")
             es_valido = False
+        # Validar que el e-mail no se repita
         email = form.email.data
         if Funcionario.query.filter_by(email=email).first():
-            flash(f"Ya existe un funcionario con el email {email}", "warning")
+            flash("El e-mail ya está en uso. Debe de ser único.", "warning")
             es_valido = False
         if es_valido:
             funcionario = Funcionario(
@@ -237,14 +239,21 @@ def edit(funcionario_id):
     form = FuncionarioForm()
     if form.validate_on_submit():
         es_valido = True
+        # Si cambia el CURP verificar que no este en uso
         curp = safe_string(form.curp.data)
-        if Funcionario.query.filter_by(curp=curp).filter(Funcionario.id != funcionario_id).first():
-            flash(f"Ya existe un funcionario con la CURP {curp}", "warning")
-            es_valido = False
+        if funcionario.curp != curp:
+            funcionario_existente = Funcionario.query.filter_by(curp=curp).first()
+            if funcionario_existente and funcionario_existente.id != funcionario.id:
+                es_valido = False
+                flash("El CURP ya está en uso. Debe de ser único.", "warning")
+        # Si cambia el e-mail verificar que no este en uso
         email = form.email.data
-        if Funcionario.query.filter_by(email=email).filter(Funcionario.id != funcionario_id).first():
-            flash(f"Ya existe un funcionario con el email {email}", "warning")
-            es_valido = False
+        if funcionario.email != email:
+            funcionario_existente = Funcionario.query.filter_by(email=email).first()
+            if funcionario_existente and funcionario_existente.id != funcionario.id:
+                es_valido = False
+                flash("La e-mail ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
         if es_valido:
             funcionario.nombres = safe_string(form.nombres.data)
             funcionario.apellido_paterno = safe_string(form.apellido_paterno.data)
