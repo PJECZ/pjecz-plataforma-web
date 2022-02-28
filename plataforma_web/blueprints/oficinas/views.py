@@ -140,8 +140,9 @@ def new():
     """Nueva Oficina"""
     form = OficinaForm()
     if form.validate_on_submit():
+        # Validar que la clave no se repita
         clave = safe_clave(form.clave.data)
-        if Oficina.query.filter(Oficina.clave == clave).first():
+        if Oficina.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
         else:
             oficina = Oficina(
@@ -176,14 +177,19 @@ def edit(oficina_id):
     oficina = Oficina.query.get_or_404(oficina_id)
     form = OficinaForm()
     if form.validate_on_submit():
+        es_valido = True
+        # Si cambia la clave verificar que no este en uso
         clave = safe_clave(form.clave.data)
-        # Validar que la clave este disponible
-        if oficina.clave != clave and Oficina.query.filter(Oficina.clave == clave).first():
-            flash("La clave ya está en uso. Debe de ser única.", "warning")
-        else:
+        if oficina.clave != clave:
+            oficina_existente = Oficina.query.filter_by(clave=clave).first()
+            if oficina_existente and oficina_existente.id != oficina_id:
+                es_valido = False
+                flash("La clave ya está en uso. Debe de ser única.", "warning")
+        # Si es valido actualizar
+        if es_valido:
             oficina.distrito = form.distrito.data
             oficina.domicilio = form.domicilio.data
-            oficina.clave = safe_string(form.clave.data)
+            oficina.clave = clave
             oficina.descripcion_corta = safe_string(form.descripcion_corta.data)
             oficina.descripcion = safe_string(form.descripcion.data)
             oficina.es_jurisdiccional = form.es_jurisdiccional.data == 1

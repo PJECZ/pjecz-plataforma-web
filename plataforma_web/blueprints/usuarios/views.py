@@ -338,27 +338,37 @@ def edit_admin(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     form = UsuarioEditAdminForm()
     if form.validate_on_submit():
-        usuario.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
-        usuario.nombres = safe_string(form.nombres.data)
-        usuario.apellido_paterno = safe_string(form.apellido_paterno.data)
-        usuario.apellido_materno = safe_string(form.apellido_materno.data)
-        usuario.curp = safe_string(form.curp.data)
-        usuario.puesto = safe_string(form.puesto.data)
-        usuario.email = form.email.data
-        usuario.workspace = safe_string(form.workspace.data)
-        usuario.oficina = form.oficina.data
-        if form.contrasena.data != "":
-            usuario.contrasena = pwd_context.hash(form.contrasena.data)
-        usuario.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado usuario {usuario.email}: {usuario.nombre}"),
-            url=url_for("usuarios.detail", usuario_id=usuario.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia el e-mail verificar que no este en uso
+        email = form.email.data
+        if usuario.email != email:
+            usuario_existente = Usuario.query.filter_by(email=email).first()
+            if usuario_existente and usuario_existente.id != usuario.id:
+                es_valido = False
+                flash("La e-mail ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            usuario.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+            usuario.nombres = safe_string(form.nombres.data)
+            usuario.apellido_paterno = safe_string(form.apellido_paterno.data)
+            usuario.apellido_materno = safe_string(form.apellido_materno.data)
+            usuario.curp = safe_string(form.curp.data)
+            usuario.puesto = safe_string(form.puesto.data)
+            usuario.email = email
+            usuario.workspace = safe_string(form.workspace.data)
+            usuario.oficina = form.oficina.data
+            if form.contrasena.data != "":
+                usuario.contrasena = pwd_context.hash(form.contrasena.data)
+            usuario.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado usuario {usuario.email}: {usuario.nombre}"),
+                url=url_for("usuarios.detail", usuario_id=usuario.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.distrito.data = usuario.autoridad.distrito
     form.autoridad.data = usuario.autoridad
     form.nombres.data = usuario.nombres
