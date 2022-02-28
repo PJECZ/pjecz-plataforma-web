@@ -11,7 +11,7 @@ from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.funcionarios.models import Funcionario
-from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioSearchForm
+from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioSearchForm, FuncionarioDomicilioForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -322,3 +322,54 @@ def recover(funcionario_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+
+
+@funcionarios.route("/funcionarios/limpiar_oficinas/<int:funcionario_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def clean(funcionario_id):
+    """Limpiar funcionarios_oficinas"""
+    # Validar el funcionario
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    # Salir si hay una tarea en el fondo
+    if current_user.get_task_in_progress("funcionarios.tasks.limpiar_oficinas"):
+        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
+    else:
+        # Lanzar tarea en el fondo
+        current_user.launch_task(
+            nombre="funcionarios.tasks.limpiar_oficinas",
+            descripcion=f"Limpiar oficinas del funcionario {funcionario.curp}",
+            funcionario_id=funcionario.id,
+        )
+        flash("Se están limpiando las oficinas de este funcionario... ", "info")
+    # Mostrar detalle del funcionario
+    return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+
+
+@funcionarios.route("/funcionarios/asignar_oficinas/<int:funcionario_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def insert_offices(funcionario_id):
+    """Asignar funcionarios_oficinas a partir de una direccion"""
+    # Validar el funcionario
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    # Salir si hay una tarea en el fondo
+    if current_user.get_task_in_progress("funcionarios.tasks.asignar_oficinas"):
+        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
+        return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+    # Si viene el formulario con el domicilio
+    form = FuncionarioDomicilioForm()
+    if form.validate_on_submit():
+        # Lanzar tarea en el fondo
+        current_user.launch_task(
+            nombre="funcionarios.tasks.asignar_oficinas",
+            descripcion=f"Asignar oficinas para el funcionario {funcionario.curp}",
+            funcionario_id=funcionario.id,
+            domicilio_id=form.domicilio.data.id,
+        )
+        flash("Se están asignando las oficinas para este funcionario... ", "info")
+        return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+    # Mostrar el formulario para solicitar el domicilio
+    form.funcionario_nombre.data = funcionario.nombre  # Read only
+    form.funcionario_curp.data = funcionario.curp  # Read only
+    form.funcionario_puesto.data = funcionario.puesto  # Read only
+    form.funcionario_email.data = funcionario.email  # Read only
+    return render_template("funcionarios/insert_offices.jinja2", form=form, funcionario=funcionario)
