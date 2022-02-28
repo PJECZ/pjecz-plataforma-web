@@ -59,6 +59,9 @@
             {% if current_user.can_insert('FUNCIONARIOS OFICINAS') %}
                 <a href="{{ url_for('funcionarios_oficinas.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
             {% endif %}
+            {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
+                <a href="{{ url_for('funcionarios.clean', funcionario_id=funcionario.id) }}" class="btn btn-primary">Limpiar</a>
+            {% endif %}
         {% endcall %}
     {% endif %}
     {% if current_user.can_view('SOPORTES TICKETS') and funcionario.en_soportes %}

@@ -1,6 +1,8 @@
 """
 Funcionarios, tareas para ejecutar en el fondo
 
+- asignar_oficinas: Asignar funcionarios_oficinas a partir de una direccion
+- limpiar_oficinas: Limpiar funcionarios_oficinas
 - enviar_reporte: Enviar via correo electronico el reporte de funcionarios
 - sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
@@ -18,6 +20,7 @@ from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.funcionarios.models import Funcionario
+from plataforma_web.blueprints.funcionarios_oficinas.models import FuncionarioOficina
 
 load_dotenv()  # Take environment variables from .env
 
@@ -33,6 +36,47 @@ app.app_context().push()
 db.app = app
 
 locale.setlocale(locale.LC_TIME, "es_MX.utf8")
+
+
+def asignar_oficinas(funcionario_id: int, domicilio_id: int):
+    """Asignar funcionarios_oficinas a partir de una direccion"""
+
+    # Iniciar
+    bitacora.info("Inicia asignar oficinas")
+
+    # Terminar
+    set_task_progress(100)
+    mensaje_final = "Terminado asignar oficinas"
+    bitacora.info(mensaje_final)
+    return mensaje_final
+
+
+def limpiar_oficinas(funcionario_id: int):
+    """Limpiar funcionarios_oficinas"""
+
+    # Iniciar
+    bitacora.info("Inicia limpiar oficinas")
+
+    # Consultar funcionario
+    funcionario = Funcionario.query.get(funcionario_id)
+    if funcionario is None:
+        mensaje = "No se encuentra al funcionario"
+        set_task_error(mensaje)
+        bitacora.error(mensaje)
+        return
+
+    # Limpiar (cambiar estatus a B) los registros de funcionarios_oficinas
+    contador = 0
+    for funcionario_oficina in FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).all():
+        if funcionario_oficina.estatus == "A":
+            funcionario_oficina.delete()
+            contador +=1
+
+    # Terminar
+    set_task_progress(100)
+    mensaje_final = f"Terminado limpiar oficinas, {contador} a {funcionario.curp}"
+    bitacora.info(mensaje_final)
+    return mensaje_final
 
 
 def enviar_reporte():
@@ -103,7 +147,7 @@ def sincronizar():
         for persona_datos in data["items"]:
             curp = persona_datos["curp"]
             email = persona_datos["email"]
-            if curp != "" and email !="" and email.endswith("@coahuila.gob.mx"):
+            if curp != "" and email != "" and email.endswith("@coahuila.gob.mx"):
                 funcionario = Funcionario.query.filter(or_(Funcionario.curp == curp, Funcionario.email == email)).first()
                 if funcionario is None:
                     funcionarios_insertados_contador += 1

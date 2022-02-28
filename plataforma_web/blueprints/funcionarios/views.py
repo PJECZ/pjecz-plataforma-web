@@ -322,3 +322,20 @@ def recover(funcionario_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+
+
+@funcionarios.route("/funcionarios/limpiar_oficinas/<int:funcionario_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def clean(funcionario_id):
+    """Limpiar funcionarios_oficinas"""
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    if current_user.get_task_in_progress("funcionarios.tasks.limpiar_oficinas"):
+        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
+    else:
+        current_user.launch_task(
+            nombre="funcionarios.tasks.limpiar_oficinas",
+            descripcion=f"Limpiar oficinas del funcionario {funcionario.curp}",
+            funcionario_id=funcionario.id,
+        )
+        flash("Se están limpiando las oficinas de este funcionario... ", "info")
+    return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
