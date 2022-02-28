@@ -15,7 +15,10 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_modelos.models import INVModelo
 from plataforma_web.blueprints.inv_modelos.forms import INVModeloForm
-from plataforma_web.blueprints.inv_marcas.models import INVMarca
+
+# from plataforma_web.blueprints.inv_marcas.models import INVMarca
+from plataforma_web.blueprints.inv_equipos.models import INVEquipo
+
 
 MODULO = "INV MODELOS"
 
@@ -75,7 +78,10 @@ def new():
             flash(f"Creación de la descripcion incorrecta. {str(err)}", "warning")
             validacion = False
         if validacion:
-            modelo = INVModelo(marca=form.nombre.data, descripcion=safe_string(form.descripcion.data))
+            modelo = INVModelo(
+                marca=form.nombre.data,
+                descripcion=safe_string(form.descripcion.data),
+            )
             modelo.save()
             flash(f"Modelos {modelo.descripcion} guardado.", "success")
             return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))

@@ -23,7 +23,7 @@ class INVCustodia(db.Model, UniversalMixin):
 
     # Columnas
     fecha = db.Column(db.Date(), nullable=False)
-    curp = db.Column(db.String(256), unique=True, nullable=False)
+    curp = db.Column(db.String(256), nullable=True)
     nombre_completo = db.Column(db.String(256))
 
     # Hijos

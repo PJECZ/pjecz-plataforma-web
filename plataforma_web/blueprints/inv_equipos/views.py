@@ -22,6 +22,7 @@ from plataforma_web.blueprints.inv_componentes.models import INVComponente
 from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
 from plataforma_web.blueprints.inv_custodias.models import INVCustodia
 from plataforma_web.blueprints.inv_marcas.models import INVMarca
+from plataforma_web.blueprints.inv_modelos.models import INVModelo
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
@@ -71,11 +72,11 @@ def detail(equipo_id):
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
-@inv_equipos.route("/inv_equipos/nuevo/<int:custodia_id>", methods=["GET", "POST"])
+@inv_equipos.route("/inv_equipos/nuevo/<int:usuario_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new(custodia_id):
+def new(usuario_id):
     """Nuevo Equipos"""
-    custodia = INVCustodia.query.get_or_404(custodia_id)
+    custodia = INVCustodia.query.get_or_404(usuario_id)
     if custodia.estatus != "A":
         flash("El usuario no es activo.", "warning")
         return redirect(url_for("inv_custodia.list_active"))
@@ -122,10 +123,14 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "custodia_id" in request.form:
-        consulta = consulta.filter_by(custodia_id=request.form["custodia_id"])
+    # if "custodia_id" in request.form:
+    #     consulta = consulta.filter_by(custodia_id=request.form["custodia_id"])
+    if "usuario_id" in request.form:
+        consulta = consulta.filter(INVCustodia.usuario_id == request.form["usuario_id"])
+    # if "modelo_equipo_id" in request.form:
+    #     consulta = consulta.filter(INVEquipo.modelo_equipo_id == request.form["modelo_equipo_id"])
     if "modelo_id" in request.form:
-        consulta = consulta.join(INVMarca).filter_by(modelo_id=request.form["modelo_id"])
+        consulta = consulta.join(INVMarca.desc()).filter_by(modelo_id=request.form["modelo_id"])
     registros = consulta.order_by(INVEquipo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -139,11 +144,11 @@ def datatable_json():
                 },
                 "numero_serie": resultado.numero_serie,
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d 00:00:00"),
-                "custodia": {
-                    "nombre_completo": resultado.custodia.nombre_completo,
-                    "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
-                },
-                # "custodia": resultado.custodia.nombre_completo,
+                # "custodia": {
+                #     "nombre_completo": resultado.custodia.nombre_completo,
+                #     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
+                # },
+                "custodia": resultado.custodia.nombre_completo,
                 "modelo": {
                     "nombre": resultado.modelo.marca.nombre,
                     "url": url_for("inv_modelos.detail", modelo_id=resultado.modelo_id) if current_user.can_view("INV MODELOS") else "",

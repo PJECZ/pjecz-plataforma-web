@@ -29,7 +29,7 @@
                     <th>Numero Inventario</th>
                     <th>Numero Serie</th>
                     <th>Adquisicion Fecha</th>
-                    {# <th>Custodia</th>#}
+                    <th>Custodia</th>
                     <th>Modelo</th>
                 </tr>
             </thead>
@@ -65,8 +65,8 @@
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
-                /*{ data: "custodia" },*/
-                { data: "modelo" }
+                { data: "modelo" },
+                { data: "custodia" },
             ],
             columnDefs: [
                 {
@@ -76,14 +76,14 @@
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
                 },
-                /*{
+                {
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                     }
                 },
-                {
+               /* {
                     targets: 4,
                     data: null,
                     render: function(data, type, row, meta) {

@@ -6,14 +6,14 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button_previous('Inventarios', url_for('inv_inventarios.list_active')) }}
+        {{ topbar.button_previous('Custodias', url_for('inv_custodias.list_active')) }}
         {% if current_user.can_edit('INV EQUIPOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_equipos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_equipos.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('INV EQUIPOS') %}
             {# {{ topbar.button_new('Nuevo Equipo', url_for('inv_equipos.new')) }} #}
-            {{ topbar.button_primary('Modelos', url_for('inv_modelos.list_active'), 'mdi:chart-bubble') }}
+            {{ topbar.button_primary('Marcas', url_for('inv_marcas.list_active'), 'mdi:chart-bubble') }}
             {{ topbar.button_primary('Redes', url_for('inv_redes.list_active'), 'mdi:access-point-network') }}
         {% endif %}
     {% endcall %}
@@ -27,8 +27,8 @@
                     <th>Numero Inventario</th>
                     <th>Numero Serie</th>
                     <th>Adquisicion Fecha</th>
-                    <th>Modelo</th>
-                    <th>Custodia</th>
+                    {# <th>Modelo</th>#}
+                    <th>Custodia</th> 
                 </tr>
             </thead>
             
@@ -57,8 +57,8 @@
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
-                { data: "modelo" }
-                { data: "modelo" },
+              /*  { data: "modelo" }*/
+                { data: "custodia" },
             ],
             columnDefs: [
                 {
@@ -72,14 +72,14 @@
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
-                 {
+                {
                     targets: 4,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                     }
                 },*/
             ],
