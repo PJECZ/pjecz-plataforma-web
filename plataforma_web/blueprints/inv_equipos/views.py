@@ -72,14 +72,10 @@ def detail(equipo_id):
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
-@inv_equipos.route("/inv_equipos/nuevo/<int:usuario_id>", methods=["GET", "POST"])
+@inv_equipos.route("/inv_equipos/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new(usuario_id):
+def new():
     """Nuevo Equipos"""
-    custodia = INVCustodia.query.get_or_404(usuario_id)
-    if custodia.estatus != "A":
-        flash("El usuario no es activo.", "warning")
-        return redirect(url_for("inv_custodia.list_active"))
     form = INVEquipoForm()
     validacion = False
     if form.validate_on_submit():
@@ -92,7 +88,7 @@ def new(usuario_id):
 
         if validacion:
             equipo = INVEquipo(
-                custodia=custodia,
+                custodia=form.custodia.data,
                 modelo=form.modelo.data,
                 red=form.nombre_red.data,
                 adquisicion_fecha=form.adquisicion_fecha.data,
@@ -108,8 +104,8 @@ def new(usuario_id):
             equipo.save()
             flash(f"Equipos {equipo.descripcion} guardado.", "success")
             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
-    form.custodia.data = custodia.nombre_completo
-    return render_template("inv_equipos/new.jinja2", form=form, custodia=custodia)
+    # form.custodia.data = equipo.custodia
+    return render_template("inv_equipos/new.jinja2", form=form)
 
 
 @inv_equipos.route("/inv_equipos/datatable_json", methods=["GET", "POST"])
@@ -123,16 +119,18 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    # if "custodia_id" in request.form:
-    #     consulta = consulta.filter_by(custodia_id=request.form["custodia_id"])
     if "usuario_id" in request.form:
         consulta = consulta.filter(INVCustodia.usuario_id == request.form["usuario_id"])
-    # if "modelo_equipo_id" in request.form:
-    #     consulta = consulta.filter(INVEquipo.modelo_equipo_id == request.form["modelo_equipo_id"])
+        # consulta = consulta.join(INVEquipo).join(INVCustodia).filter(INVCustodia.usuario_id == current_user.id)
+    if "custodia_id" in request.form:
+        consulta = consulta.filter_by(custodia_id=request.form["custodia_id"])
+    if "modelo_equipo_id" in request.form:
+        consulta = consulta.filter(INVEquipo.modelo_id == request.form["modelo_equipo_id"])
     if "modelo_id" in request.form:
-        consulta = consulta.join(INVMarca.desc()).filter_by(modelo_id=request.form["modelo_id"])
+        consulta = consulta.join(INVMarca).filter_by(modelo_id=request.form["modelo_id"])
     registros = consulta.order_by(INVEquipo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
+
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
@@ -144,11 +142,11 @@ def datatable_json():
                 },
                 "numero_serie": resultado.numero_serie,
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d 00:00:00"),
-                # "custodia": {
-                #     "nombre_completo": resultado.custodia.nombre_completo,
-                #     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
-                # },
-                "custodia": resultado.custodia.nombre_completo,
+                "custodia": {
+                    "nombre_completo": resultado.custodia.nombre_completo,
+                    "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
+                },
+                # "custodia": resultado.custodia.nombre_completo,
                 "modelo": {
                     "nombre": resultado.modelo.marca.nombre,
                     "url": url_for("inv_modelos.detail", modelo_id=resultado.modelo_id) if current_user.can_view("INV MODELOS") else "",

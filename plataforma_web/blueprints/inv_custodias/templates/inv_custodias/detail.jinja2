@@ -18,11 +18,12 @@
 
 {% block content %}
     {% call detail.card(estatus=custodia.estatus) %}
-        {{ detail.label_value('Nombre completo', current_user.nombre) }}
+        {{ detail.label_value('Custodia de equipo', custodia.nombre_completo, url_for('usuarios.detail', usuario_id=custodia.usuario_id)) }}
         {{ detail.label_value('Curp', custodia.curp) }}
+        {{ detail.label_value('Oficina', custodia.oficina.clave + ' - ' + custodia.oficina.descripcion_corta) }}
         {{ detail.label_value('Fecha', custodia.fecha) }}
     {% endcall %}
-    {% if current_user.can_view('INV EQUIPOS') %}
+    {# {% if current_user.can_view('INV EQUIPOS')  %} #}
         {% call detail.card('Equipo') %}
             <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}  display nowrap" style="width:100%">
                 <thead>
@@ -40,7 +41,7 @@
                 <a href="{{ url_for('inv_equipos.new', custodia_id=custodia.id) }}" class="btn btn-primary">Agregar</a>
             {% endif %}
         {% endcall %}
-    {% endif %}
+    {# {% endif %} #}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -48,6 +49,7 @@
         {% if custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + custodia.nombre_completo + '?') }}{% endif %}
         {% if custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + custodia.nombre_completo + '?') }}{% endif %}
     {% endif %}
+    {# {% if current_user.can_view('INV EQUIPOS') and custodia.usuario_id %} #}
     <script>
     $('#inv_equipos_datatable').DataTable({
         processing: true,
@@ -86,13 +88,13 @@
                     return '<a href="' + data.url + '">' + data.nombre + '</a>';
                 }
             },
-            /*{
+            {
                 targets: 4,
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                 }
-            },*/
+            },
         ],
         language: {
             lengthMenu: "Mostrar _MENU_",
@@ -110,4 +112,5 @@
         }
     });
     </script>
+    {# {% endif%} #}
 {% endblock %}

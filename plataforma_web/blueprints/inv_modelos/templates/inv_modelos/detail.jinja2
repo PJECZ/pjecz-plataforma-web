@@ -29,8 +29,8 @@
                     <th>Numero Inventario</th>
                     <th>Numero Serie</th>
                     <th>Adquisicion Fecha</th>
-                    <th>Custodia</th>
                     <th>Modelo</th>
+                    <th>Custodia</th>
                 </tr>
             </thead>
             
@@ -59,7 +59,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: {{ filtros }} 
+                data: { "estatus": "A", "modelo_equipo_id": {{modelo.id}} }
             },
             columns: [
                 { data: "numero_inventario" },
@@ -80,16 +80,16 @@
                     targets: 3,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
-               /* {
+                {
                     targets: 4,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                     }
-                },*/
+                },
             ],
             language: {
                 lengthMenu: "Mostrar _MENU_",

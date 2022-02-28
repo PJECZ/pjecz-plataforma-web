@@ -63,7 +63,6 @@ def list_inactive():
 def detail(custodia_id):
     """Detalle de un Custodias"""
     custodia = INVCustodia.query.get_or_404(custodia_id)
-    # equipos = INVEquipo.query.filter(INVEquipo.custodia_id == custodia_id).all()
     return render_template("inv_custodias/detail.jinja2", custodia=custodia)
 
 
