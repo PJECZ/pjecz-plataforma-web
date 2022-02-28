@@ -16,7 +16,8 @@
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('inv_custodias.new', fid='custodia_form') %}
+        {% set form_kwargs = {'usuario_id': usuario.id} %} 
+        {% call f.form_tag('inv_custodias.new', fid='custodia_form', **form_kwargs) %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
             {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}

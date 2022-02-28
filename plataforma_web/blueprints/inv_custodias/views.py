@@ -66,16 +66,18 @@ def detail(custodia_id):
     return render_template("inv_custodias/detail.jinja2", custodia=custodia)
 
 
-@inv_custodias.route("/inv_custodias/nuevo", methods=["GET", "POST"])
+@inv_custodias.route("/inv_custodias/nuevo/<int:usuario_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new():
+def new(usuario_id):
     """Nuevo Custodias"""
+    usuario = Usuario.query.get_or_404(usuario_id)
     oficina = Oficina.query.join(Usuario).filter(Usuario.id == current_user.id).first()
     form = INVCustodiaForm()
     if form.validate_on_submit():
         custodia = INVCustodia(
             fecha=form.fecha.data,
-            usuario=current_user,
+            # usuario=current_user,
+            usuario=usuario,
             nombre_completo=current_user.nombre,
             curp=current_user.curp,
             oficina=oficina,
@@ -85,7 +87,7 @@ def new():
         return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.usuario.data = str(current_user.nombre)
     form.oficina.data = str(f"{oficina.clave} - {oficina.descripcion_corta}")
-    return render_template("inv_custodias/new.jinja2", form=form)
+    return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
 
 
 @inv_custodias.route("/inv_custodias/datatable_json", methods=["GET", "POST"])
@@ -99,7 +101,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-
+    if "usuario_id" in request.form:
+        consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
     registros = consulta.order_by(INVCustodia.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

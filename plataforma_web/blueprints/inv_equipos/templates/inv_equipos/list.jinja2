@@ -27,6 +27,7 @@
                     <th>Numero Inventario</th>
                     <th>Numero Serie</th>
                     <th>Adquisicion Fecha</th>
+                    <th>Descripción</th>
                     <th>Modelo</th>
                     <th>Custodia</th> 
                 </tr>
@@ -57,6 +58,7 @@
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
+                { data: "descripcion" },
                 { data: "modelo" },
                 { data: "custodia" },
             ],
@@ -69,14 +71,14 @@
                     }
                 },
                {
-                    targets: 3,
+                    targets: 4,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
                 {
-                    targets: 4,
+                    targets: 5,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';

@@ -72,10 +72,14 @@ def detail(equipo_id):
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
-@inv_equipos.route("/inv_equipos/nuevo", methods=["GET", "POST"])
+@inv_equipos.route("/inv_equipos/nuevo/<int:custodia_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new():
+def new(custodia_id):
     """Nuevo Equipos"""
+    custodia = INVCustodia.query.get_or_404(custodia_id)
+    if custodia.estatus != "A":
+        flash("El usuario no es activo.", "warning")
+        return redirect(url_for("inv_custodia.list_active"))
     form = INVEquipoForm()
     validacion = False
     if form.validate_on_submit():
@@ -88,7 +92,7 @@ def new():
 
         if validacion:
             equipo = INVEquipo(
-                custodia=form.custodia.data,
+                custodia=custodia,
                 modelo=form.modelo.data,
                 red=form.nombre_red.data,
                 adquisicion_fecha=form.adquisicion_fecha.data,
@@ -104,8 +108,44 @@ def new():
             equipo.save()
             flash(f"Equipos {equipo.descripcion} guardado.", "success")
             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
-    # form.custodia.data = equipo.custodia
-    return render_template("inv_equipos/new.jinja2", form=form)
+    form.custodia.data = custodia.nombre_completo
+    return render_template("inv_equipos/new.jinja2", form=form, custodia=custodia)
+
+
+# @inv_equipos.route("/inv_equipos/nuevo", methods=["GET", "POST"])
+# @permission_required(MODULO, Permiso.CREAR)
+# def new():
+#     """Nuevo Equipos"""
+#     form = INVEquipoForm()
+#     validacion = False
+#     if form.validate_on_submit():
+#         try:
+#             validar_fecha(form.adquisicion_fecha.data)
+#             validacion = True
+#         except Exception as err:
+#             flash(f"La fecha es incorrecta: {str(err)}", "warning")
+#             validacion = False
+
+#         if validacion:
+#             equipo = INVEquipo(
+#                 custodia=form.custodia.data,
+#                 modelo=form.modelo.data,
+#                 red=form.nombre_red.data,
+#                 adquisicion_fecha=form.adquisicion_fecha.data,
+#                 numero_serie=form.numero_serie.data,
+#                 numero_inventario=form.numero_inventario.data,
+#                 descripcion=safe_string(form.descripcion.data),
+#                 direccion_ip=form.direccion_ip.data,
+#                 direccion_mac=form.direccion_mac.data,
+#                 numero_nodo=form.numero_nodo.data,
+#                 numero_switch=form.numero_switch.data,
+#                 numero_puerto=form.numero_puerto.data,
+#             )
+#             equipo.save()
+#             flash(f"Equipos {equipo.descripcion} guardado.", "success")
+#             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+#     # form.custodia.data = equipo.custodia
+#     return render_template("inv_equipos/new.jinja2", form=form)
 
 
 @inv_equipos.route("/inv_equipos/datatable_json", methods=["GET", "POST"])
@@ -121,7 +161,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
         consulta = consulta.filter(INVCustodia.usuario_id == request.form["usuario_id"])
-        # consulta = consulta.join(INVEquipo).join(INVCustodia).filter(INVCustodia.usuario_id == current_user.id)
+        # consulta = consulta.join(INVCustodia).filter(INVCustodia.usuario_id == request.form["usuario_id"])
     if "custodia_id" in request.form:
         consulta = consulta.filter_by(custodia_id=request.form["custodia_id"])
     if "modelo_equipo_id" in request.form:
@@ -142,6 +182,7 @@ def datatable_json():
                 },
                 "numero_serie": resultado.numero_serie,
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d 00:00:00"),
+                "descripcion": resultado.descripcion,
                 "custodia": {
                     "nombre_completo": resultado.custodia.nombre_completo,
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
