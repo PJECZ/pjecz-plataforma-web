@@ -384,7 +384,7 @@
                 // --- Carga de emails por Ajax --- //
                 ajax: {
                     url: '/cid_procedimientos/usuarios_email',
-                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
                     type: "POST",
