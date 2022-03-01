@@ -105,7 +105,7 @@
                             <div style="display: none;">{% call f.form_group(form.desarrollo, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Registros -->
-                        {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}                      
+                        {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}
                             {% call add_data.div_container('form-alert1-reg') %}
                                 <div id="regis_pop"><a tabindex="0" class="popover-registro" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
                                 {% call add_data.form_create() %}
@@ -123,7 +123,7 @@
                                                     <th>Años de retención</th>
                                                 </thead>
                                                 <tbody>
-                                                                            
+
                                                 </tbody>
                                             </table>
                                         </div>
@@ -154,7 +154,7 @@
                                                     <th>Fecha</th>
                                                 </thead>
                                                 <tbody>
-                                                                            
+
                                                 </tbody>
                                             </table>
                                         </div>
@@ -214,7 +214,7 @@
 {% endblock %}
 
 {# se manda llamar el json de la ayuda  #}
-{% block content_help %} 
+{% block content_help %}
     {{ help_quill }}
 {% endblock %}
 
@@ -267,7 +267,7 @@
                     $(this).addClass('tActive');
                 }
             } );
-        
+
             $('#btn_del_reg').click( function () {
                 tabla.row('.tActive').remove().draw(false);
             } );
@@ -282,9 +282,9 @@
 
             $("#e_updt_btn").click( function() {
 
-                let newArr = [ 
-                    $("#e_registro_codigo").val(), 
-                    $("#e_registro_nombre").val(), 
+                let newArr = [
+                    $("#e_registro_codigo").val(),
+                    $("#e_registro_nombre").val(),
                     $("#e_registro_responsable").val(),
                     $("#e_registro_retencion").val()
                 ];
@@ -330,7 +330,7 @@
                     $(this).addClass('tActive');
                 }
             } );
-        
+
             $('#btn_del_cam').click( function () {
                 tabla_control.row('.tActive').remove().draw(false);
             } );
@@ -345,9 +345,9 @@
 
             $("#e_updt_control_btn").click( function() {
 
-                let newArr = [ 
-                    $("#e_control_revision").val(), 
-                    $("#e_control_cambio").val(), 
+                let newArr = [
+                    $("#e_control_revision").val(),
+                    $("#e_control_cambio").val(),
                     $("#e_control_solicitud").val(),
                     $("#e_control_fecha").val()
                 ];
@@ -381,7 +381,19 @@
             $("#reviso_email").prop("selectedIndex", -1); // Poner en blanco el select
             $("#aprobo_email").prop("selectedIndex", -1); // Poner en blanco el select
             $(".js-example-placeholder-single").select2({
+                // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/cid_procedimientos/usuarios_email',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term };
+                    }
+                },
                 placeholder: "correo",
+                minimumInputLength: 4,
                 allowClear: true
             });
         });
@@ -392,43 +404,43 @@
             var popover = new bootstrap.Popover(document.querySelector('.popover-objetivo'), {
                 trigger: 'hover',
                 title: 'Objetivo',
-                content: 'Resultado / propósito esperado de las acciones descritas en el documento.' 
+                content: 'Resultado / propósito esperado de las acciones descritas en el documento.'
             });
             var popover = new bootstrap.Popover(document.querySelector('.popover-alcance'), {
                 trigger: 'hover',
                 title: 'Alcance',
-                content: 'El alcance puede incluir la totalidad de la organización, procesos, subprocesos, funciones específicas e identificadas de la organización, secciones específicas e identificadas de la organización.' 
+                content: 'El alcance puede incluir la totalidad de la organización, procesos, subprocesos, funciones específicas e identificadas de la organización, secciones específicas e identificadas de la organización.'
             });
             var popover = new bootstrap.Popover(document.querySelector('.popover-documento'), {
                 trigger: 'hover',
                 title: 'Documentos de Referencia',
-                content: 'Documentos que tienen alguna relación con el contenido del documento y que deben tomarse en consideración al ejecutar las acciones descritas.' 
+                content: 'Documentos que tienen alguna relación con el contenido del documento y que deben tomarse en consideración al ejecutar las acciones descritas.'
             });
             var popover = new bootstrap.Popover(document.querySelector('.popover-definiciones'), {
                 trigger: 'hover',
                 title: 'Definiciones',
-                content: 'Palabras o términos que son utilizados como parte del “lenguaje técnico” o interpretaciones apegadas a lo establecido a la norma de referencia.' 
+                content: 'Palabras o términos que son utilizados como parte del “lenguaje técnico” o interpretaciones apegadas a lo establecido a la norma de referencia.'
             });
 
             var popover = new bootstrap.Popover(document.querySelector('.popover-respon'), {
                 trigger: 'hover',
                 title: 'Responsabilidades',
-                content: 'Obligación de la que una persona debe responder. Se describen las responsabilidades a cumplir conforme las acciones descritas en el documento.' 
+                content: 'Obligación de la que una persona debe responder. Se describen las responsabilidades a cumplir conforme las acciones descritas en el documento.'
             });
             var popover = new bootstrap.Popover(document.querySelector('.popover-desarrollo'), {
                 trigger: 'hover',
                 title: 'Desarrollo',
-                content: 'Pasos secuenciales y lógicos que se siguen para lograr el resultado/propósito (objetivo) del documento. Se recomienda identificar en este apartado los riesgos, los formatos, las variables críticas, los indicadores de medición y los requisitos legales relacionados con las acciones descritas.' 
+                content: 'Pasos secuenciales y lógicos que se siguen para lograr el resultado/propósito (objetivo) del documento. Se recomienda identificar en este apartado los riesgos, los formatos, las variables críticas, los indicadores de medición y los requisitos legales relacionados con las acciones descritas.'
             });
             var popover = new bootstrap.Popover(document.querySelector('.popover-registro'), {
                 trigger: 'hover',
                 title: 'Registros',
-                content: 'Evidencias tangibles que demuestran que las acciones descritas en el documento se ejecutaron congruentemente con lo documentado.' 
+                content: 'Evidencias tangibles que demuestran que las acciones descritas en el documento se ejecutaron congruentemente con lo documentado.'
             });
             var popover = new bootstrap.Popover(document.querySelector('.popover-control'), {
                 trigger: 'hover',
                 title: 'Control de cambios',
-                content: 'Identificación de las modificaciones que ha sufrido el documento a lo largo de su período de implementación.' 
+                content: 'Identificación de las modificaciones que ha sufrido el documento a lo largo de su período de implementación.'
             });
         });
     </script>

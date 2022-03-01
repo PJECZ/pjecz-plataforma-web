@@ -5,7 +5,6 @@ import json
 from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import func
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string, safe_text
@@ -48,6 +47,17 @@ def _get_funcionario_if_is_soporte():
     if funcionario.en_soportes is False:
         return None  # No es de soporte
     return funcionario
+
+
+def _owns_ticket(soporte_ticket: SoporteTicket):
+    """Es propietario del ticket, porque lo creo, es de soporte o es administrador"""
+    if current_user.can_admin(MODULO):
+        return True # Es administrador
+    if _get_funcionario_if_is_soporte():
+        return True # Es de soporte
+    if soporte_ticket.usuario == current_user:
+        return True # Es el usuario que creó el ticket
+    return False
 
 
 @soportes_tickets.before_request
@@ -202,7 +212,7 @@ def datatable_json():
                 funcionario = _get_funcionario_if_is_soporte()
                 if funcionario:
                     oficinas_ids = []
-                    funcionarios_oficinas = FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).all()
+                    funcionarios_oficinas = FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).filter_by(estatus="A").all()
                     for funcionario_oficina in funcionarios_oficinas:
                         oficinas_ids.append(funcionario_oficina.oficina_id)
                     consulta = consulta.join(Usuario).filter(Usuario.oficina_id.in_(oficinas_ids))
@@ -223,7 +233,6 @@ def datatable_json():
         else:
             # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
             consulta = consulta.order_by(SoporteTicket.id.desc())
-
 
     # Obtener los registros y el total
     registros = consulta.offset(start).limit(rows_per_page).all()
@@ -253,7 +262,7 @@ def datatable_json():
                 },
                 "categoria": {
                     "nombre": resultado.soporte_categoria.nombre,
-                    # Omitimos también que sea usuario común que piede soportes
+                    # Omitimos también que sea usuario común que solicita soportes
                     "url": url_for("soportes_categorias.detail", soporte_categoria_id=resultado.soporte_categoria_id) if (current_user.can_view("SOPORTES CATEGORIAS") and _get_funcionario_if_is_soporte()) else "",
                 },
                 "descripcion": resultado.descripcion,
@@ -276,10 +285,9 @@ def datatable_json():
 def detail(soporte_ticket_id):
     """Detalle de un Soporte Ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
-    if _expulsar_usuario() and ticket.usuario_id != current_user.id:
+    if not _owns_ticket(ticket):
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
-
     archivos = SoporteAdjunto.query.filter(SoporteAdjunto.soporte_ticket_id == soporte_ticket_id).all()
     return render_template(
         "soportes_tickets/detail.jinja2",
@@ -364,26 +372,12 @@ def new_for_usuario(usuario_id):
     return render_template("soportes_tickets/new_for_usuario.jinja2", form=form, usuario=usuario)
 
 
-def _expulsar_usuario():
-    """Expulsar al usuario normal de un ticket"""
-    # Consultar el funcionario (si es de soporte) a partir del usuario actual
-    funcionario = _get_funcionario_if_is_soporte()
-    # Si es administrador
-    if current_user.can_admin(MODULO):
-        return False
-    # Si puede crear tickets y es un funcionario de soporte, mostramos los que ha tomado
-    if current_user.can_insert(MODULO) and funcionario:
-        return False
-    # De lo contrario, solo puede ver tickets abiertos
-    return True
-
-
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(soporte_ticket_id):
     """Editar un ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
-    if _expulsar_usuario() and ticket.usuario_id != current_user.id:
+    if not _owns_ticket(ticket):
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
@@ -595,7 +589,7 @@ def no_resolve(soporte_ticket_id):
 def cancel(soporte_ticket_id):
     """Para cancelar un ticket este debe estar ABIERTO o TRABAJANDO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
-    if _expulsar_usuario() and soporte_ticket.usuario_id != current_user.id:
+    if not _owns_ticket(soporte_ticket):
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
@@ -635,8 +629,7 @@ def uncancel(soporte_ticket_id):
     """Para descancelar un ticket este debe estar CANCELADO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
-
-    if _expulsar_usuario():
+    if not _owns_ticket(soporte_ticket):
         flash("No tiene permisos para descancelar un ticket.", "warning")
         return redirect(detalle_url)
     if soporte_ticket.estatus != "A":

@@ -57,7 +57,7 @@
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: { "estatus": "A" }
