@@ -83,7 +83,7 @@
                 ajax: {
                     url: "/funcionarios_oficinas/datatable_json",
                     type: "POST",
-                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: "json",
                     dataSrc: "data",
                     data: { "estatus": "A", "oficina_id": {{ oficina.id }} }
@@ -144,7 +144,7 @@
                 ajax: {
                     url: "/usuarios/datatable_json",
                     type: "POST",
-                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: "json",
                     dataSrc: "data",
                     data: {"estatus": "A", "oficina_id": {{ oficina.id }}}

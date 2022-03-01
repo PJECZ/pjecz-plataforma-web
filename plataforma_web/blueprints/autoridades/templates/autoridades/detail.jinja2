@@ -122,7 +122,7 @@
             ajax: {
                 url: "/usuarios/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: { "estatus": "A", "autoridad_id": {{ autoridad.id }} }
@@ -177,7 +177,7 @@
             ajax: {
                 url: "/autoridades_funcionarios/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: { "estatus": "A", "autoridad_id": {{ autoridad.id }} }
