@@ -71,21 +71,20 @@ def detail(custodia_id):
 def new(usuario_id):
     """Nuevo Custodias"""
     usuario = Usuario.query.get_or_404(usuario_id)
-    oficina = Oficina.query.join(Usuario).filter(Usuario.id == current_user.id).first()
+    oficina = Oficina.query.join(Usuario).filter(Usuario.id == usuario.id).first()
     form = INVCustodiaForm()
     if form.validate_on_submit():
         custodia = INVCustodia(
             fecha=form.fecha.data,
-            # usuario=current_user,
             usuario=usuario,
-            nombre_completo=current_user.nombre,
-            curp=current_user.curp,
+            nombre_completo=usuario.nombres,
+            curp=usuario.curp,
             oficina=oficina,
         )
         custodia.save()
         flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
         return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
-    form.usuario.data = str(current_user.nombre)
+    form.usuario.data = str(f"{usuario.nombre} - {usuario.apellido_paterno}")
     form.oficina.data = str(f"{oficina.clave} - {oficina.descripcion_corta}")
     return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
 

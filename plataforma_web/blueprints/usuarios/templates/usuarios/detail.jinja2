@@ -102,9 +102,9 @@
             </thead>
             
         </table>
-        {# {% if current_user.can_insert('INV CUSTODIAS') %}
-            <a href="{{ url_for('inv_custodia.new', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
-        {% endif %} #}
+        {% if current_user.can_insert('INV CUSTODIAS') %}
+            <a href="{{ url_for('inv_custodias.new', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+        {% endif %}
     {% endcall %}
     {# {% if current_user.can_view('INV EQUIPOS') %}
         {% call list.card('Equipos') %}

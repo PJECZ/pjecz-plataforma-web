@@ -12,9 +12,9 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_custodias.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_custodias.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('INV CUSTODIAS') %}
-            {{ topbar.button_new('Nueva Custodia', url_for('inv_custodias.new', usuario_id=usuario.id)) }}
-        {% endif %}
+        {# {% if current_user.can_insert('INV CUSTODIAS') %}
+            {{ topbar.button_new('Nueva Custodia', url_for('inv_custodias.new')) }}
+        {% endif %} #}
     {% endcall %}
 {% endblock %}
 
