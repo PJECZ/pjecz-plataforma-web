@@ -20,16 +20,17 @@
 {% block content %}
     {% call detail.card() %}
         {{ detail.label_value('Marca', modelo.marca.nombre) }}
-        {{ detail.label_value('Modelos', modelo.descripcion) }}
+        {{ detail.label_value('Descripcion', modelo.descripcion) }}
     {% endcall %}
     {% call list.card() %}
         <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Numero Inventario</th>
-                    <th>Numero Serie</th>
+                    <th>No. Inventario</th>
+                    <th>No. Serie</th>
                     <th>Adquisicion Fecha</th>
-                    <th>Modelo</th>
+                    <th>Descripcion</th>
+                    <th>Marca</th>
                     <th>Custodia</th>
                 </tr>
             </thead>
@@ -65,6 +66,7 @@
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
+                { data: "descripcion" },
                 { data: "modelo" },
                 { data: "custodia" },
             ],
@@ -77,14 +79,14 @@
                     }
                 },
                 {
-                    targets: 3,
+                    targets: 4,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
                 {
-                    targets: 4,
+                    targets: 5,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';

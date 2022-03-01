@@ -77,14 +77,14 @@ def new(usuario_id):
         custodia = INVCustodia(
             fecha=form.fecha.data,
             usuario=usuario,
-            nombre_completo=usuario.nombres,
+            nombre_completo=usuario.nombre,
             curp=usuario.curp,
             oficina=oficina,
         )
         custodia.save()
         flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
         return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
-    form.usuario.data = str(f"{usuario.nombre} - {usuario.apellido_paterno}")
+    form.usuario.data = str(f"{usuario.nombre}")
     form.oficina.data = str(f"{oficina.clave} - {oficina.descripcion_corta}")
     return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
 
@@ -102,6 +102,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
         consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
+    if "oficina_id" in request.form:
+        consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
     registros = consulta.order_by(INVCustodia.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -109,12 +111,16 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "nombre_completo": {
-                    "descripcion": resultado.nombre_completo,
+                "id": {
+                    "custodia_id": resultado.id,
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.id),
                 },
+                "nombre_completo": resultado.nombre_completo,
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
-                "curp": resultado.curp,
+                "oficina": {
+                    "clave": resultado.oficina.clave,
+                    "url": url_for("oficinas.detail", oficina_id=resultado.oficina_id) if current_user.can_view("OFICINAS") else "",
+                },
             }
         )
     # Entregar JSON

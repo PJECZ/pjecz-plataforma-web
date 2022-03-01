@@ -5,7 +5,7 @@
 {% block title %}Editar Modelo{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar ' + modelo.marca.nombre) }}
+    {{ topbar.page('Editar Modelo: ' + modelo.descripcion) }}
 
 {% endblock %}
 
@@ -13,7 +13,7 @@
     {% call f.card() %}
         {% set form_kwargs = {'modelo_id': modelo.id} %}
         {% call f.form_tag('inv_modelos.edit', fid='modelo_form', **form_kwargs) %}
-            {% call f.form_group(form.nombre, redonly=true) %}{% endcall %}
+            {% call f.form_group(form.nombre, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}

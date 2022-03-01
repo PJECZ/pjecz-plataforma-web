@@ -8,7 +8,7 @@
 {% block title %}Equipos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Equipo: N° ' + equipo.numero_inventario | string) %}
+    {% call topbar.page_buttons('Equipo: Inventario ' + equipo.numero_inventario | string) %}
         {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
         {% if current_user.can_edit('INV EQUIPOS') %}
             {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', equipo_id=equipo.id)) }}
@@ -27,10 +27,11 @@
 {% block content %}
     {% call detail.card(estatus=equipo.estatus) %}
         {{ detail.label_value('Custodia', equipo.custodia.nombre_completo) }}
-        {{ detail.label_value('Modelo', equipo.modelo.marca.nombre) }}
+        {{ detail.label_value('Marca', equipo.modelo.marca.nombre) }}
+        {{ detail.label_value('Modelo', equipo.modelo.descripcion) }}
         {{ detail.label_value('Nombre Red', equipo.red.nombre) }}
-        {{ detail.label_value('Número Inventario', equipo.numero_inventario) }}
-        {{ detail.label_value('Número serie', equipo.numero_serie) }}
+        {{ detail.label_value('No. Inventario', equipo.numero_inventario) }}
+        {{ detail.label_value('No. serie', equipo.numero_serie) }}
         {{ detail.label_value('Adquisicion Fecha', equipo.adquisicion_fecha) }}
         {{ detail.label_value('Descripción', equipo.descripcion) }}
         {{ detail.label_value('Dirección IP', equipo.direccion_ip) }}
@@ -67,7 +68,7 @@
     {# Listado de Fotos #}
     {% if fotos %}
         {% call list.card('Fotos Adjuntas') %}
-            <table id="inv_fotos_datatable" class="table display nowrap" style="width:100%">
+            <table id="inv__equipos_fotos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -92,5 +93,5 @@
         {% if equipo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + equipo.descripcion + '?') }}{% endif %}
         {% if equipo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + equipo.descripcion + '?') }}{% endif %}
     {% endif %}
-    {{ list.datatable('inv_fotos_datatable') }}
+    {{ list.datatable('inv_equipos_fotos_datatable') }}
 {% endblock %}

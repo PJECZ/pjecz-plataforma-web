@@ -13,6 +13,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_marcas.models import INVMarca
+from plataforma_web.blueprints.inv_modelos.models import INVModelo
 
 from plataforma_web.blueprints.inv_marcas.forms import INVMarcaForm
 
@@ -52,7 +53,8 @@ def list_inactive():
 def detail(marca_id):
     """Detalle de un Marcas"""
     marca = INVMarca.query.get_or_404(marca_id)
-    return render_template("inv_marcas/detail.jinja2", marca=marca)
+    modelos = INVModelo.query.filter(INVModelo.marca_id == marca_id).all()
+    return render_template("inv_marcas/detail.jinja2", marca=marca, modelos=modelos)
 
 
 @inv_marcas.route("/inv_marcas/nuevo", methods=["GET", "POST"])

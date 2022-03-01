@@ -6,15 +6,12 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
+        {{ topbar.button('Equipos', url_for('inv_equipos.list_active'),'mdi:desktop-classic') }}
         {{ topbar.button('Categorías', url_for('inv_categorias.list_active'),'mdi:car-wrench') }}
         {% if current_user.can_edit('INV CUSTODIAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_custodias.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_custodias.list_active')) }}{% endif %}
         {% endif %}
-        {# {% if current_user.can_insert('INV CUSTODIAS') %}
-            {{ topbar.button_new('Nueva Custodia', url_for('inv_custodias.new')) }}
-        {% endif %} #}
     {% endcall %}
 {% endblock %}
 
@@ -23,9 +20,10 @@
         <table id="inv_custodias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>IDs</th>
                     <th>Nombre completo</th>
                     <th>Fecha</th>
-                    <th>CURP</th>
+                    <th>Oficina</th>
                 </tr>
             </thead>
             
@@ -51,18 +49,26 @@
                 data: {{ filtros }}
             },
             columns: [
+                { data: "id" },
                 { data: "nombre_completo" },
                 { data: "fecha" },
-                { data: "curp" }
+                { data: "oficina" },
             ],
             columnDefs: [
                 {
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
                     }
-                }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                },
             ],
             language: {
                 lengthMenu: "Mostrar _MENU_",

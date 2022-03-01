@@ -14,10 +14,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_modelos.models import INVModelo
-from plataforma_web.blueprints.inv_modelos.forms import INVModeloForm
-
-# from plataforma_web.blueprints.inv_marcas.models import INVMarca
-from plataforma_web.blueprints.inv_equipos.models import INVEquipo
+from plataforma_web.blueprints.inv_modelos.forms import INVModeloForm, INVModeloEditForm
 
 
 MODULO = "INV MODELOS"
@@ -93,7 +90,7 @@ def new():
 def edit(modelo_id):
     """Editar Modelo"""
     modelo = INVModelo.query.get_or_404(modelo_id)
-    form = INVModeloForm()
+    form = INVModeloEditForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -104,12 +101,11 @@ def edit(modelo_id):
             validacion = False
 
         if validacion:
-            modelo.marca = form.nombre.data
             modelo.descripcion = form.descripcion.data
             modelo.save()
             flash(f"Modelo {modelo.descripcion} guardado.", "success")
             return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
-    form.nombre.data = modelo.marca
+    form.nombre.data = modelo.marca.nombre
     form.descripcion.data = modelo.descripcion
     return render_template("inv_modelos/edit.jinja2", form=form, modelo=modelo)
 

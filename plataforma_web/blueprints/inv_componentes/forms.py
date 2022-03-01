@@ -23,7 +23,7 @@ class INVComponenteForm(FlaskForm):
     """Formulario INVComponente"""
 
     equipo = StringField("Numero inventario equipo")  # solo lectrua
-    nombre = QuerySelectField(label="Nombre Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
+    nombre = QuerySelectField(label="Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
     cantidad = IntegerField("Cantidad", validators=[DataRequired()])
     version = StringField("Versión", validators=[DataRequired(), Length(max=512)])

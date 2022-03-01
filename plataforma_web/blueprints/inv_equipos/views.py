@@ -112,42 +112,6 @@ def new(custodia_id):
     return render_template("inv_equipos/new.jinja2", form=form, custodia=custodia)
 
 
-# @inv_equipos.route("/inv_equipos/nuevo", methods=["GET", "POST"])
-# @permission_required(MODULO, Permiso.CREAR)
-# def new():
-#     """Nuevo Equipos"""
-#     form = INVEquipoForm()
-#     validacion = False
-#     if form.validate_on_submit():
-#         try:
-#             validar_fecha(form.adquisicion_fecha.data)
-#             validacion = True
-#         except Exception as err:
-#             flash(f"La fecha es incorrecta: {str(err)}", "warning")
-#             validacion = False
-
-#         if validacion:
-#             equipo = INVEquipo(
-#                 custodia=form.custodia.data,
-#                 modelo=form.modelo.data,
-#                 red=form.nombre_red.data,
-#                 adquisicion_fecha=form.adquisicion_fecha.data,
-#                 numero_serie=form.numero_serie.data,
-#                 numero_inventario=form.numero_inventario.data,
-#                 descripcion=safe_string(form.descripcion.data),
-#                 direccion_ip=form.direccion_ip.data,
-#                 direccion_mac=form.direccion_mac.data,
-#                 numero_nodo=form.numero_nodo.data,
-#                 numero_switch=form.numero_switch.data,
-#                 numero_puerto=form.numero_puerto.data,
-#             )
-#             equipo.save()
-#             flash(f"Equipos {equipo.descripcion} guardado.", "success")
-#             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
-#     # form.custodia.data = equipo.custodia
-#     return render_template("inv_equipos/new.jinja2", form=form)
-
-
 @inv_equipos.route("/inv_equipos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Equipos"""
@@ -181,15 +145,18 @@ def datatable_json():
                     "url": url_for("inv_equipos.detail", equipo_id=resultado.id),
                 },
                 "numero_serie": resultado.numero_serie,
-                "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d 00:00:00"),
+                "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d"),
                 "descripcion": resultado.descripcion,
                 "custodia": {
                     "nombre_completo": resultado.custodia.nombre_completo,
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
                 },
-                # "custodia": resultado.custodia.nombre_completo,
-                "modelo": {
+                "marca": {
                     "nombre": resultado.modelo.marca.nombre,
+                    "url": url_for("inv_marcas.detail", marca_id=resultado.modelo.marca_id) if current_user.can_view("INV MARCAS") else "",
+                },
+                "modelo": {
+                    "nombre": resultado.modelo.descripcion,
                     "url": url_for("inv_modelos.detail", modelo_id=resultado.modelo_id) if current_user.can_view("INV MODELOS") else "",
                 },
             }
@@ -214,6 +181,8 @@ def edit(equipo_id):
             validacion = False
 
         if validacion:
+            equipo.modelo = form.modelo.data
+            equipo.red = form.nombre_red.data
             equipo.adquisicion_fecha = form.adquisicion_fecha.data
             equipo.numero_serie = form.numero_serie.data
             equipo.numero_invenatario = form.numero_inventario.data
@@ -226,6 +195,8 @@ def edit(equipo_id):
             equipo.save()
             flash(f"Equipos {equipo.descripcion} guardado.", "success")
             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+    form.modelo.data = equipo.modelo
+    form.nombre_red.data = equipo.red
     form.adquisicion_fecha.data = equipo.adquisicion_fecha
     form.numero_serie.data = equipo.numero_serie
     form.numero_inventario.data = equipo.numero_inventario

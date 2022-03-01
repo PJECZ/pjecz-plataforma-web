@@ -18,6 +18,14 @@ def marcas_opciones():
 class INVModeloForm(FlaskForm):
     """Formulario INVModelo"""
 
-    nombre = QuerySelectField(label="Nombre Marca", query_factory=marcas_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
+    nombre = QuerySelectField(label="Marca", query_factory=marcas_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
+    descripcion = StringField("Descripción del modelo", validators=[DataRequired(), Length(max=512)])
+    guardar = SubmitField("Guardar")
+
+
+class INVModeloEditForm(FlaskForm):
+    """Formulario INVModelo"""
+
+    nombre = StringField("Marca")  # solo lectrua
+    descripcion = StringField("Descripción del modelo", validators=[DataRequired(), Length(max=512)])
     guardar = SubmitField("Guardar")

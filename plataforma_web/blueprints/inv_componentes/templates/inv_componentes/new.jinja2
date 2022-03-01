@@ -5,7 +5,7 @@
 {% block title %}Nuevo Componente{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Componente') }}
+    {{ topbar.page('Nuevo Componente para ' + equipo.modelo.descripcion ) }}
 {% endblock %}
 
 
@@ -13,7 +13,7 @@
     {% call f.card() %}
         {% set form_kwargs = {'equipo_id': equipo.id} %}  
         {% call f.form_tag('inv_componentes.new', fid='componente_form', **form_kwargs) %}
-            {% call f.form_group(form.nombre, redonly=true) %}{% endcall %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.cantidad) %}{% endcall %}
             {% call f.form_group(form.version) %}{% endcall %}

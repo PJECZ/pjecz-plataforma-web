@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button_previous('Custodias', url_for('inv_custodias.list_active')) }}
+        
         {% if current_user.can_edit('INV EQUIPOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_equipos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_equipos.list_active')) }}{% endif %}
@@ -24,12 +24,13 @@
         <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Numero Inventario</th>
-                    <th>Numero Serie</th>
+                    <th>Inventario</th>
+                    <th>No. Serie</th>
                     <th>Adquisicion Fecha</th>
-                    <th>Descripción</th>
+                    <th>Marca</th>
                     <th>Modelo</th>
-                    <th>Custodia</th> 
+                    <th>Descripción</th>
+                    <th>Custodio</th> 
                 </tr>
             </thead>
             
@@ -58,8 +59,9 @@
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
-                { data: "descripcion" },
+                { data: "marca" },
                 { data: "modelo" },
+                { data: "descripcion" },
                 { data: "custodia" },
             ],
             columnDefs: [
@@ -71,14 +73,14 @@
                     }
                 },
                {
-                    targets: 4,
+                    targets: [3,4],
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';

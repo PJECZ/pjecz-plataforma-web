@@ -17,8 +17,8 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=custodia.estatus) %}
-        {{ detail.label_value('Custodia de equipo', custodia.id | string + '  ' + custodia.nombre_completo + '  ' + custodia.usuario.apellido_paterno + '  ' + custodia.usuario.apellido_materno, url_for('usuarios.detail', usuario_id=custodia.usuario_id)) }}
+    {% call detail.card(estatus=custodia.estatus) %} 
+        {{ detail.label_value('Custodia de equipo', custodia.nombre_completo, url_for('usuarios.detail', usuario_id=custodia.usuario_id)) }}
         {{ detail.label_value('Curp', custodia.curp) }}
         {{ detail.label_value('Oficina', custodia.oficina.clave + ' - ' + custodia.oficina.descripcion_corta) }}
         {{ detail.label_value('Fecha', custodia.fecha) }}
@@ -28,11 +28,13 @@
             <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}  display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Numero inventario</th>
-                        <th>Numero serie</th>
+                        <th>No. inventario</th>
+                        <th>N. serie</th>
                         <th>Adquisicion fecha</th>
+                        <th>Marca</th>
                         <th>Modelo</th>
-                        <th>Custodia</th>
+                        <th>Descripción</th>
+                        <th>Custodio</th> 
                     </tr>
                 </thead>
                 
@@ -70,7 +72,9 @@
             { data: "numero_inventario" },
             { data: "numero_serie" },
             { data: "adquisicion_fecha" },
+            { data: "marca" },
             { data: "modelo" },
+            { data: "descripcion" },
             { data: "custodia" },
         ],
         columnDefs: [
@@ -82,14 +86,14 @@
                 }
             },
             {
-                targets: 3,
+                targets: [3,4],
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.nombre + '</a>';
                 }
             },
             {
-                targets: 4,
+                targets: 6,
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';

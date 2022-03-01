@@ -16,7 +16,6 @@ from plataforma_web.blueprints.inv_redes.models import INVRedes
 
 def modelos_opciones():
     """Seleccionar la modelo para select"""
-    # return INVModelo.query.join(INVMarca).filter(INVModelo.marca == marca_id).first()
     return INVModelo.query.filter_by(estatus="A").order_by(INVModelo.descripcion).all()
 
 
