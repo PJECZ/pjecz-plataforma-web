@@ -14,7 +14,7 @@ from lib import datatables
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
-from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_message, safe_string
+from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
@@ -178,7 +178,7 @@ def search():
                 busqueda["puesto"] = puesto
                 titulos.append("puesto " + puesto)
         if form_search.email.data:
-            email = safe_string(form_search.email.data, to_uppercase=False)
+            email = safe_email(form_search.email.data, search_fragment=True)
             if email != "":
                 busqueda["email"] = email
                 titulos.append("e-mail " + email)
@@ -269,13 +269,13 @@ def new():
         usuario = Usuario(
             autoridad=autoridad,
             oficina=form.oficina.data,
-            nombres=form.nombres.data,
-            apellido_paterno=form.apellido_paterno.data,
-            apellido_materno=form.apellido_materno.data,
-            curp=form.curp.data,
-            email=form.email.data,
+            nombres=safe_string(form.nombres.data),
+            apellido_paterno=safe_string(form.apellido_paterno.data),
+            apellido_materno=safe_string(form.apellido_materno.data),
+            curp=safe_string(form.curp.data),
+            puesto=safe_string(form.puesto.data),
+            email=safe_email(form.email.data),
             workspace=form.workspace.data,
-            puesto=form.puesto.data,
             contrasena=contrasena,
         )
         usuario.save()
@@ -340,7 +340,7 @@ def edit_admin(usuario_id):
     if form.validate_on_submit():
         es_valido = True
         # Si cambia el e-mail verificar que no este en uso
-        email = form.email.data
+        email = safe_email(form.email.data)
         if usuario.email != email:
             usuario_existente = Usuario.query.filter_by(email=email).first()
             if usuario_existente and usuario_existente.id != usuario.id:

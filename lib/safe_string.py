@@ -28,6 +28,18 @@ def safe_clave(input_str, max_len=16):
     return final
 
 
+def safe_email(input_str, search_fragment=False):
+    """Safe string"""
+    if not isinstance(input_str, str):
+        return ""
+    new_string = input_str.strip().lower()
+    if search_fragment:
+        final = re.match(r"^[\w.-]*@*[\w.-]*\.*\w*$", new_string)
+    else:
+        final = re.match(EMAIL_REGEXP, new_string)
+    return final if final is not None else ""
+
+
 def safe_expediente(input_str):
     """Safe expediente"""
     if not isinstance(input_str, str) or input_str.strip() == "":
@@ -70,7 +82,7 @@ def safe_text(input_str, max_len=4096, to_uppercase=True):
     """Safe string"""
     if not isinstance(input_str, str):
         return ""
-    new_string = re.sub(r"[^a-zA-Z0-9@\n()\[\]:/.-]+", " ", unidecode(input_str))
+    new_string = re.sub(r"[^a-zA-Z0-9@\n()\[\]:/_.-]+", " ", unidecode(input_str))
     final = new_string.strip()
     if to_uppercase:
         final = final.upper()

@@ -6,7 +6,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_email, safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -116,7 +116,7 @@ def search():
                 busqueda["puesto"] = puesto
                 titulos.append("puesto " + puesto)
         if form_search.email.data:
-            email = safe_string(form_search.email.data, to_uppercase=False)
+            email = safe_email(form_search.email.data, search_fragment=True)
             if email != "":
                 busqueda["email"] = email
                 titulos.append("e-mail " + email)
@@ -201,7 +201,7 @@ def new():
             flash("La CURP ya está en uso. Debe de ser única.", "warning")
             es_valido = False
         # Validar que el e-mail no se repita
-        email = form.email.data
+        email = safe_email(form.email.data)
         if Funcionario.query.filter_by(email=email).first():
             flash("El e-mail ya está en uso. Debe de ser único.", "warning")
             es_valido = False
@@ -247,7 +247,7 @@ def edit(funcionario_id):
                 es_valido = False
                 flash("El CURP ya está en uso. Debe de ser único.", "warning")
         # Si cambia el e-mail verificar que no este en uso
-        email = form.email.data
+        email = safe_email(form.email.data)
         if funcionario.email != email:
             funcionario_existente = Funcionario.query.filter_by(email=email).first()
             if funcionario_existente and funcionario_existente.id != funcionario.id:

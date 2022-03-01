@@ -7,7 +7,7 @@ from flask import Blueprint, request, render_template, url_for
 from flask_login import login_required
 
 from lib import datatables
-from lib.safe_string import safe_string
+from lib.safe_string import safe_email, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -77,13 +77,11 @@ def search():
         if form_search.apellido_materno.data:
             busqueda["apellido_materno"] = form_search.apellido_materno.data
             titulos.append("apellido " + busqueda["apellido_materno"])
-        # CURP
         if form_search.curp.data:
             busqueda["curp"] = safe_string(form_search.curp.data)
             titulos.append("CURP: " + busqueda["curp"])
-        # email
         if form_search.email.data:
-            busqueda["email"] = form_search.email.data
+            busqueda["email"] = safe_email(form_search.email.data, search_fragment=True)
             titulos.append("e-mail " + busqueda["email"])
         # Mostrar resultados
         return render_template(
