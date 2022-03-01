@@ -36,18 +36,14 @@ def _get_funcionario_from_current_user():
     return funcionario
 
 
-def _owns_ticket(ticket):
+def _owns_ticket(soporte_ticket: SoporteTicket):
     """Es propietario del ticket, porque lo creo, es de soporte o es administrador"""
-    # Si es administrador, le damos el privilegio
     if current_user.can_admin(MODULO):
-        return True
-    # Si es funcionario de soporte y puede insertar, le damos el privilegio
+        return True # Es administrador
     if _get_funcionario_from_current_user():
-        return True
-    # Si este ticket es del usuario, le damos el privilegio
-    if ticket.usuario == current_user:
-        return True
-    # De lo contrario, se lo negamos
+        return True # Es funcionario de soporte
+    if soporte_ticket.usuario == current_user:
+        return True # Es el usuario que creo este ticket
     return False
 
 
