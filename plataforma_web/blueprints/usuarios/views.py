@@ -1,6 +1,7 @@
 """
 Usuarios, vistas
 """
+import datetime
 import json
 import os
 import re
@@ -116,7 +117,13 @@ def logout():
 @login_required
 def profile():
     """Mostrar el Perfil"""
-    return render_template("usuarios/profile.jinja2")
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    return render_template(
+        "usuarios/profile.jinja2",
+        hoy_str=hoy.strftime("%Y-%m-%d"),
+        hoy_dt_str=hoy_dt.strftime("%Y-%m-%d"),
+    )
 
 
 @usuarios.route("/usuarios")
