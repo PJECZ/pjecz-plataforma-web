@@ -140,10 +140,13 @@ class GoogleCloudStorage:
     """Google Cloud Storage"""
 
     EXTENSIONS_MIME_TYPES = {
+        "doc": "application/msword",
         "docx": "application/msword",
         "pdf": "application/pdf",
         "xls": "xapplication/vnd.ms-excel",
+        "xlsx": "xapplication/vnd.ms-excel",
         "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
         "png": "image/png",
     }
 

@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card() %}
+    {% call detail.card('Mi Perfil') %}
         {{ detail.label_value_big('Nombre', current_user.nombre) }}
         {{ detail.label_value('Distrito', current_user.autoridad.distrito.nombre) }}
         {{ detail.label_value('Autoridad', current_user.autoridad.descripcion) }}
@@ -17,5 +17,9 @@
         {{ detail.label_value('e-mail', current_user.email) }}
         {{ detail.label_value('Workspace', current_user.workspace) }}
         {{ detail.label_value('Puesto', current_user.puesto) }}
+    {% endcall %}
+    {% call detail.card('Sistema') %}
+        {{ detail.label_value('Hoy', hoy_str) }}
+        {{ detail.label_value('Hoy dt', hoy_dt_str) }}
     {% endcall %}
 {% endblock %}
