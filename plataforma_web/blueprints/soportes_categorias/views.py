@@ -4,6 +4,8 @@ Soporte Categorias, vistas
 from flask import Blueprint, flash, redirect, render_template, url_for, request
 from flask_login import current_user, login_required
 
+from sqlalchemy import not_
+
 from lib import datatables
 from lib.safe_string import safe_string, safe_message, safe_text
 
@@ -13,6 +15,8 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_categorias.forms import SoporteCategoriaForm
+
+from plataforma_web.blueprints.roles.models import Rol
 
 MODULO = "SOPORTES CATEGORIAS"
 
@@ -172,6 +176,12 @@ def datatable_json():
         consulta = consulta.filter_by(estatus='A')
     if 'instrucciones' in request.form:
         consulta =  consulta.filter(SoporteCategoria.instrucciones != "")
+    if "filtrar_categoria" in request.form:
+        if request.form["filtrar_categoria"] == "OTRO":
+            consulta = consulta.join(Rol).filter(not_(Rol.nombre.contains("TECNICO"))).filter(not_(Rol.nombre.contains("PAIIJ"))).filter(not_(Rol.nombre.contains("SIGE")))
+        else:
+            consulta = consulta.join(Rol).filter(Rol.nombre.contains(safe_string(request.form["filtrar_categoria"])))
+
     registros = consulta.order_by(SoporteCategoria.nombre.asc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
