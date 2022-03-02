@@ -6,16 +6,14 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        
         {% if current_user.can_edit('INV EQUIPOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_equipos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_equipos.list_active')) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('INV EQUIPOS') %}
-            {# {{ topbar.button_new('Nuevo Equipo', url_for('inv_equipos.new')) }} #}
-            {{ topbar.button_primary('Marcas', url_for('inv_marcas.list_active'), 'mdi:chart-bubble') }}
-            {{ topbar.button_primary('Redes', url_for('inv_redes.list_active'), 'mdi:access-point-network') }}
-        {% endif %}
+        {{ topbar.button('Categorías', url_for('inv_categorias.list_active'),'mdi:car-wrench') }}
+        {{ topbar.button('Marcas', url_for('inv_marcas.list_active'), 'mdi:chart-bubble') }}
+        {{ topbar.button('Redes', url_for('inv_redes.list_active'), 'mdi:access-point-network') }}
+
     {% endcall %}
 {% endblock %}
 

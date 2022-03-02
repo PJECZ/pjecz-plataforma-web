@@ -4,15 +4,9 @@
 
 {% block title %}Nueva Custodia{% endblock %}
 
-{% block custom_head %}
-    <!-- Select2 bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{% endblock %}
-
 {% block topbar_actions %}
     {{ topbar.page('Nueva Custodia') }}
 {% endblock %}
-
 
 {% block content %}
     {% call f.card() %}

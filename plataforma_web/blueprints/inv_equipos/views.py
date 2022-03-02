@@ -24,6 +24,7 @@ from plataforma_web.blueprints.inv_custodias.models import INVCustodia
 from plataforma_web.blueprints.inv_marcas.models import INVMarca
 from plataforma_web.blueprints.inv_modelos.models import INVModelo
 from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.oficinas.models import Oficina
 
 from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
 
@@ -108,7 +109,11 @@ def new(custodia_id):
             equipo.save()
             flash(f"Equipos {equipo.descripcion} guardado.", "success")
             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+    # form.modelo.data = modelo.marca.nombre
     form.custodia.data = custodia.nombre_completo
+    form.email.data = custodia.usuario.email
+    form.puesto.data = custodia.usuario.puesto
+    form.oficina.data = str(f"{custodia.oficina.clave} - {custodia.oficina.descripcion_corta}")
     return render_template("inv_equipos/new.jinja2", form=form, custodia=custodia)
 
 

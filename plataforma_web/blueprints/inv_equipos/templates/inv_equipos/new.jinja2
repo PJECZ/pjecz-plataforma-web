@@ -10,7 +10,7 @@
 {% endblock %}
    
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Equipo para: ' + custodia.nombre_completo) }}
+    {{ topbar.page('Nuevo Equipo ') }}
 {% endblock %}
 
 
@@ -18,6 +18,10 @@
     {% call f.card() %}
         {% set form_kwargs = {'custodia_id': custodia.id} %} 
         {% call f.form_tag('inv_equipos.new', fid='equipo_form', **form_kwargs) %}
+            {% call f.form_group(form.custodia, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.email, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.puesto, readonly=true) %}{% endcall %}
             {% call f.form_group(form.modelo) %}{% endcall %}
             {% call f.form_group(form.nombre_red) %}{% endcall %}
             {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}

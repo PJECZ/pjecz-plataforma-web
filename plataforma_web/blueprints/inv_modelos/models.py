@@ -24,6 +24,11 @@ class INVModelo(db.Model, UniversalMixin):
     # Hijos
     equipos = db.relationship("INVEquipo", back_populates="modelo")
 
+    @property
+    def marca_modelo(self):
+        """Junta marca y modelo"""
+        return self.marca.nombre + " - " + self.descripcion
+
     def __repr__(self):
         """Representación"""
         return "<INVModelo>"

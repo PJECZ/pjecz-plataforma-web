@@ -26,12 +26,13 @@
         <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>No. Inventario</th>
-                    <th>No. Serie</th>
-                    <th>Adquisicion Fecha</th>
-                    <th>Descripcion</th>
+                    <th>Inventario</th>
+                    <th>No. serie</th>
+                    <th>Fecha adquisición</th>
                     <th>Marca</th>
-                    <th>Custodia</th>
+                    <th>Modelo</th>
+                    <th>Descripción</th>
+                    <th>Custodio</th> 
                 </tr>
             </thead>
             
@@ -45,7 +46,7 @@
         {% if modelo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + modelo.descripcion + '?') }}{% endif %}
         {% if modelo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + modelo.descripcion + '?') }}{% endif %}
     {% endif %}
-    {# equipos#}
+    {# script para cargar equipos relacionados con este modelo #}
     <script>
         $('#inv_equipos_datatable').DataTable({
             processing: true,
@@ -66,8 +67,9 @@
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
-                { data: "descripcion" },
+                { data: "marca" },
                 { data: "modelo" },
+                { data: "descripcion" },
                 { data: "custodia" },
             ],
             columnDefs: [
@@ -79,14 +81,14 @@
                     }
                 },
                 {
-                    targets: 4,
+                    targets: [3,4],
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';

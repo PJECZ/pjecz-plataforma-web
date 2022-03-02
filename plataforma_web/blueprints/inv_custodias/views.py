@@ -131,6 +131,7 @@ def datatable_json():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(custodia_id):
     """Editar Custodias"""
+    usuario = Usuario.query.get_or_404(custodia_id)
     custodia = INVCustodia.query.get_or_404(custodia_id)
     form = INVCustodiaForm()
     validacion = False
@@ -144,14 +145,14 @@ def edit(custodia_id):
 
         if validacion:
             custodia.fecha = form.fecha.data
-            custodia.curp = current_user.curp
-            custodia.nombre_completo = current_user.nombre
-            custodia.usuario = current_user
+            custodia.curp = usuario.curp
+            custodia.nombre_completo = usuario.nombre
+            custodia.usuario = usuario.id
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.fecha.data = custodia.fecha
-    form.usuario.data = str(current_user.nombre)
+    form.usuario.data = str(usuario.nombre)
     return render_template("inv_custodias/edit.jinja2", form=form, custodia=custodia)
 
 

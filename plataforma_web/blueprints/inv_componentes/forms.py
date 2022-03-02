@@ -8,10 +8,7 @@ from wtforms.validators import DataRequired, Length, Optional
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
-
 from plataforma_web.blueprints.inv_categorias.models import INVCategoria
-
-# from plataforma_web.blueprints.inv_equipos.models import INVEquipos
 
 
 def categorias_opciones():
