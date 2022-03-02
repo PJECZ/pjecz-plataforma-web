@@ -185,11 +185,12 @@
             ],
             rowCallback: function( row, data ){
                 switch (data.estado)    {
-                    case "ABIERTO":     $(row).css("background-color", "#fef9e7");  break;
+                    case "SIN ATENDER": $(row).css("background-color", "#fef9e7");  break;
                     case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
                     case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
-                    case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
-                    case "CERRADO":     $(row).css("background-color", "#eafaf1");  break;
+                    case "PENDIENTE":   $(row).css("background-color", "#f5eef8");  break;
+                    case "TERMINADO":   $(row).css("background-color", "#eafaf1");  break;
+                    case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
                 }
             },
             language: {

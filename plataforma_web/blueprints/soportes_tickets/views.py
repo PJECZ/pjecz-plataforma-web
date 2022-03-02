@@ -69,7 +69,7 @@ def before_request():
 
 @soportes_tickets.route("/soportes_tickets")
 def list_active():
-    """Listado de Tickets: Si es usuario un listado sencillo, si es de soporte los tickets Abiertos"""
+    """Listado de Tickets: Si es usuario un listado sencillo, si es de soporte los tickets Sin Atender"""
     if _get_funcionario_if_is_soporte() is None:
         return render_template("soportes_tickets/list_user.jinja2")
     return render_template("soportes_tickets/list_open.jinja2")
@@ -91,6 +91,14 @@ def list_done():
     return render_template("soportes_tickets/list_done.jinja2")
 
 
+@soportes_tickets.route("/soportes_tickets/cerrados")
+def list_closed():
+    """Listado de Tickets Cerrados"""
+    if _get_funcionario_if_is_soporte() is None:
+        return redirect(url_for("soportes_tickets.list_active"))
+    return render_template("soportes_tickets/list_closed.jinja2")
+
+
 @soportes_tickets.route("/soportes_tickets/cancelados")
 def list_cancel():
     """Listado de Tickets Cancelados"""
@@ -99,12 +107,12 @@ def list_cancel():
     return render_template("soportes_tickets/list_cancel.jinja2")
 
 
-@soportes_tickets.route("/soportes_tickets/no_resueltos")
-def list_no_resolve():
-    """Listado de Tickets No Resueltos"""
+@soportes_tickets.route("/soportes_tickets/pendientes")
+def list_pending():
+    """Listado de Tickets Pendientes"""
     if _get_funcionario_if_is_soporte() is None:
         return redirect(url_for("soportes_tickets.list_active"))
-    return render_template("soportes_tickets/list_no_resolve.jinja2")
+    return render_template("soportes_tickets/list_pending.jinja2")
 
 
 @soportes_tickets.route("/soportes_tickets/datatable_json", methods=["GET", "POST"])
@@ -200,7 +208,7 @@ def datatable_json():
         consulta = consulta.order_by(SoporteTicket.id.desc())
     else:
         # SI es de soporte
-        # Si es la vista "Abiertos y Trabajando", para ABIERTOS, hay dos tablas: CATEGORIZADOS y TODOS
+        # Si es la vista "Sin Atender", hay tres tablas: CERCANOS, CATEGORIZADOS y TODOS
         if "soportes_tickets_abiertos" in request.form:
             # Obtenemos los roles del current_user
             roles_ids = []
@@ -315,7 +323,7 @@ def new():
             usuario=current_user,
             descripcion=descripcion,
             soluciones="",
-            estado="ABIERTO",
+            estado="SIN ATENDER",
         )
         ticket.save()
         bitacora = Bitacora(
@@ -354,7 +362,7 @@ def new_for_usuario(usuario_id):
             soporte_categoria=form.categoria.data,
             usuario=usuario,
             descripcion=safe_text(form.descripcion.data),
-            estado="ABIERTO",
+            estado="SIN ATENDER",
             resolucion="",
             soluciones="",
         )
@@ -384,8 +392,8 @@ def edit(soporte_ticket_id):
     if ticket.estatus != "A":
         flash("No puede editar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
-        flash("No puede editar un ticket que no está abierto o trabajando.", "warning")
+    if ticket.estado not in ("SIN ATENDER", "TRABAJANDO"):
+        flash("No puede editar un ticket que no está SIN ATENDER o TRABAJANDO.", "warning")
         return redirect(detalle_url)
     form = SoporteTicketEditForm()
     if form.validate_on_submit():
@@ -411,14 +419,14 @@ def edit(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/tomar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def take(soporte_ticket_id):
-    """Para tomar un ticket este debe estar ABIERTO y ser funcionario de soportes"""
+    """Para tomar un ticket este debe estar SIN ATENDER y ser funcionario de soportes"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
         flash("No puede tomar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado not in ("ABIERTO", "NO RESUELTO"):
-        flash("No puede tomar un ticket que no está abierto.", "warning")
+    if ticket.estado not in ("SIN ATENDER", "PENDIENTE"):
+        flash("No puede tomar un ticket que no está SIN ATENDER.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -458,8 +466,8 @@ def release(soporte_ticket_id):
     if ticket.estatus != "A":
         flash("No puede soltar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado in ("ABIERTO", "NO RESUELTO"):
-        flash("No puede soltar un ticket que está ABIERTO o en estado de NO RESUELTO.", "warning")
+    if ticket.estado in ("SIN ATENDER", "NO RESUELTO"):
+        flash("No puede soltar un ticket que está SIN ATENDER o en estado de NO RESUELTO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -467,7 +475,7 @@ def release(soporte_ticket_id):
         return redirect(detalle_url)
     tecnico_no_definido = Funcionario.query.get_or_404(1)  # El funcionario con id 1 es NO DEFINIDO
     ticket.funcionario = tecnico_no_definido
-    ticket.estado = "ABIERTO"
+    ticket.estado = "SIN ATENDER"
     ticket.save()
     bitacora = Bitacora(
         modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -483,14 +491,14 @@ def release(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/categorizar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def categorize(soporte_ticket_id):
-    """Para categorizar un ticket este debe estar ABIERTO y ser funcionario de soportes"""
+    """Para categorizar un ticket este debe estar SIN ATENDER y ser funcionario de soportes"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
         flash("No puede categorizar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
-        flash("No puede categorizar un ticket que no está ABIERTO o TRABAJANDO.", "warning")
+    if ticket.estado not in ("SIN ATENDER", "TRABAJANDO"):
+        flash("No puede categorizar un ticket que no está SIN ATENDER o TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -515,10 +523,49 @@ def categorize(soporte_ticket_id):
     return render_template("soportes_tickets/categorize.jinja2", form=form, soporte_ticket=ticket)
 
 
+@soportes_tickets.route("/soportes_tickets/terminar/<int:soporte_ticket_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def done(soporte_ticket_id):
+    """Para TERMINAR un ticket este debe estar TRABAJANDO y ser funcionario de soportes"""
+    ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
+    detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
+    if ticket.estatus != "A":
+        flash("No puede cerrar un ticket eliminado.", "warning")
+        return redirect(detalle_url)
+    if ticket.estado != "TRABAJANDO":
+        flash("No puede cerrar un ticket que no está TRABAJANDO.", "warning")
+        return redirect(detalle_url)
+    funcionario = _get_funcionario_if_is_soporte()
+    if funcionario is None:
+        flash("No puede cerrar el ticket porque no es funcionario de soporte.", "warning")
+        return redirect(detalle_url)
+    form = SoporteTicketCloseForm()
+    if form.validate_on_submit():
+        ticket.estado = "TERMINADO"
+        ticket.soluciones = safe_text(form.soluciones.data)
+        ticket.resolucion = datetime.now()
+        ticket.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Terminado el ticket {ticket.id}."),
+            url=detalle_url,
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.usuario.data = ticket.usuario.nombre
+    form.descripcion.data = ticket.descripcion
+    form.categoria.data = ticket.soporte_categoria.nombre
+    form.tecnico.data = ticket.funcionario.nombre
+    form.soluciones.data = ticket.soluciones
+    return render_template("soportes_tickets/close.jinja2", form=form, soporte_ticket=ticket)
+
+
 @soportes_tickets.route("/soportes_tickets/cerrar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def close(soporte_ticket_id):
-    """Para cerrar un ticket este debe estar TRABAJANDO y ser funcionario de soportes"""
+    """Para CERRAR un ticket este debe estar TRABAJANDO y ser funcionario de soportes"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
@@ -554,29 +601,29 @@ def close(soporte_ticket_id):
     return render_template("soportes_tickets/close.jinja2", form=form, soporte_ticket=ticket)
 
 
-@soportes_tickets.route("/soportes_tickets/no_resolve/<int:soporte_ticket_id>", methods=["GET", "POST"])
+@soportes_tickets.route("/soportes_tickets/pendiente/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def no_resolve(soporte_ticket_id):
-    """Para 'no resuelto' un ticket este debe estar TRABAJANDO y ser funcionario de soportes"""
+def pending(soporte_ticket_id):
+    """Para pasar a un estado de PENDIENTE un ticket debe estar TRABAJANDO y ser funcionario de soportes"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
-        flash("No puede pasar a NO RESUELTO un ticket eliminado.", "warning")
+        flash("No puede pasar a PENDIENTE un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
-        flash("No puede pasar a NO RESUELTO un ticket que no está ABIERTO o TRABAJANDO.", "warning")
+    if ticket.estado not in ("SIN ATENDER", "TRABAJANDO"):
+        flash("No puede pasar a PENDIENTE un ticket que no está SIN ATENDER o TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
-        flash("No puede pasar a NO RESUELTO el ticket porque no es funcionario de soporte.", "warning")
+        flash("No puede pasar a PENDIENTE el ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
-    ticket.estado = "NO RESUELTO"
+    ticket.estado = "PENDIENTE"
     ticket.resolucion = datetime.now()
     ticket.save()
     bitacora = Bitacora(
         modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
-        descripcion=safe_message(f"No resuelto el ticket {ticket.id}."),
+        descripcion=safe_message(f"Pendiente el ticket {ticket.id}."),
         url=detalle_url,
     )
     bitacora.save()
@@ -587,7 +634,7 @@ def no_resolve(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/cancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def cancel(soporte_ticket_id):
-    """Para cancelar un ticket este debe estar ABIERTO o TRABAJANDO y ser funcionario de soportes"""
+    """Para cancelar un ticket este debe estar SIN ATENDER o TRABAJANDO y ser funcionario de soportes"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     if not _owns_ticket(soporte_ticket):
         flash("No tiene permisos para ver ese ticket.", "warning")
@@ -596,8 +643,8 @@ def cancel(soporte_ticket_id):
     if soporte_ticket.estatus != "A":
         flash("No puede CANCELAR un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if soporte_ticket.estado not in ("ABIERTO", "TRABAJANDO", "NO RESUELTO"):
-        flash("No puede CANCELAR un ticket que no está ABIERTO, TRABAJANDO o NO RESUELTO.", "warning")
+    if soporte_ticket.estado not in ("SIN ATENDER", "TRABAJANDO", "NO RESUELTO"):
+        flash("No puede CANCELAR un ticket que no está SIN ATENDER, TRABAJANDO o NO RESUELTO.", "warning")
         return redirect(detalle_url)
 
     form = SoporteTicketCancelForm()
@@ -638,8 +685,8 @@ def uncancel(soporte_ticket_id):
     if soporte_ticket.estado != "CANCELADO":
         flash("No se puede descancelar un ticket que no este en estado de CANCELADO.", "warning")
         return redirect(detalle_url)
-    if soporte_ticket.funcionario_id == 1:  # Si su funcionario es NO DEFINIDO pasa a ABIERTO
-        soporte_ticket.estado = "ABIERTO"
+    if soporte_ticket.funcionario_id == 1:  # Si su funcionario es NO DEFINIDO pasa a SIN ATENDER
+        soporte_ticket.estado = "SIN ATENDER"
     else:
         soporte_ticket.estado = "TRABAJANDO"
     soporte_ticket.save()

@@ -8,7 +8,7 @@
 
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Ticket ' + soporte_ticket.id | string) %}
+    {% call topbar.page_buttons('Ticket: ' + soporte_ticket.id | string) %}
         {% if soporte_ticket.estado == 'CANCELADO' %}
             {{ topbar.button_previous('Tickets cancelados', url_for('soportes_tickets.list_cancel')) }}
         {% elif soporte_ticket.estado == 'CERRADO' %}
@@ -18,32 +18,33 @@
         {% else %}
             {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
         {% endif %}
-        {% if current_user.can_edit('SOPORTES TICKETS') and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO')  %}
+        {% if current_user.can_edit('SOPORTES TICKETS') and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO')  %}
             {{ topbar.button_edit('Editar', url_for('soportes_tickets.edit', soporte_ticket_id=soporte_ticket.id)) }}
         {% endif %}
-        {% if soporte_ticket.estado == 'ABIERTO' or soporte_ticket.estado == 'TRABAJANDO' %}
+        {% if soporte_ticket.estado == 'SIN ATENDER' or soporte_ticket.estado == 'TRABAJANDO' %}
             {{ topbar.button('Adjuntar Archivo', url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id), 'mdi:file-upload-outline') }}
         {% endif %}
         {% if funcionario and current_user.can_edit('SOPORTES TICKETS') %}
-            {% if soporte_ticket.estado == 'ABIERTO' %}
+            {% if soporte_ticket.estado == 'SIN ATENDER' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
                 {{ topbar.button_primary('Categorizar', url_for('soportes_tickets.categorize', soporte_ticket_id=soporte_ticket.id), 'mdi:order-bool-descending') }}
             {% endif %}
             {% if soporte_ticket.estado == 'TRABAJANDO' %}
-                {{ topbar.button_primary('Resolver', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}
+                {{ topbar.button_primary('Resolver', url_for('soportes_tickets.done', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}
                 {{ modals.button_modal('Soltar', url_for('soportes_tickets.release', soporte_ticket_id=soporte_ticket.id), 'soltar', 'mdi:stop-circle-outline', '¿Deseas soltar el Ticket?') }}
+                {{ topbar.button_primary('Cerrar', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:alert-octagon') }}
             {% endif %}
-            {% if soporte_ticket.estado != 'NO RESUELTO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO') %}
-                {{ modals.button_modal('No Resuelto', url_for('soportes_tickets.no_resolve', soporte_ticket_id=soporte_ticket.id), 'no_resuelto', 'mdi:message-alert', '¿Deseas marcar este Ticket como No Resuelto?') }}
+            {% if soporte_ticket.estado != 'PENDIENTE' and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO') %}
+                {{ modals.button_modal('Pendiente', url_for('soportes_tickets.pending', soporte_ticket_id=soporte_ticket.id), 'no_resuelto', 'mdi:message-alert', '¿Deseas marcar este Ticket como No Resuelto?') }}
             {% endif %}
-            {% if soporte_ticket.estado == 'NO RESUELTO' %}
+            {% if soporte_ticket.estado == 'PENDIENTE' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
             {% endif %}
             {% if soporte_ticket.estado == 'CANCELADO' %}
                 {{ modals.button_modal('Descancelar', url_for('soportes_tickets.uncancel', soporte_ticket_id=soporte_ticket.id), 'descancelar', 'mdi:cancel', '¿Deseas descancelar el Ticket?') }}
             {% endif %}
         {% endif %}
-        {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('ABIERTO', 'TRABAJANDO', 'NO RESUELTO') %}
+        {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO', 'PENDIENTE') %}
             {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
         {% endif %}
 
@@ -76,12 +77,16 @@
         {% if soporte_ticket.estado == 'CERRADO' %}
             {{ detail.label_value('Resolución', moment(soporte_ticket.resolucion).format('llll')) }}
         {% endif %}
-        {% if soporte_ticket.estado == 'CANCELADO' %}
+        {% if soporte_ticket.estado in ('CANCELADO', 'CERRADO') %}
             {{ detail.label_value('Motivo', soporte_ticket.soluciones) }}
         {% else %}
             {{ detail.label_value('Soluciones', soporte_ticket.soluciones) }}
         {% endif %}
     {% endcall %}
+
+    {% if soporte_ticket.estado == 'SIN ATENDER' or soporte_ticket.estado == 'TRABAJANDO' %}
+        <a href="{{ url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id) }}" class="btn btn-primary">Adjuntar Archivo</a>
+    {% endif %}
 
     {% if archivos %}
         {% call list.card('Archivos Adjuntos') %}
@@ -117,11 +122,12 @@
     {{ list.datatable('soportes_archivos_datatable') }}
     <script>
         switch ("{{ soporte_ticket.estado }}")    {
-            case "ABIERTO":     $('.card-body').css("background-color", "#fef9e7");  $('.card').css("border-color", "#7d6608");    $('#estado').css("color", "#7d6608");    break;
+            case "SIN ATENDER": $('.card-body').css("background-color", "#fef9e7");  $('.card').css("border-color", "#7d6608");    $('#estado').css("color", "#7d6608");    break;
             case "TRABAJANDO":  $('.card-body').css("background-color", "#ebf5fb");  $('.card').css("border-color", "#154360");    $('#estado').css("color", "#154360");    break;
             case "CANCELADO":   $('.card-body').css("background-color", "#fdedec");  $('.card').css("border-color", "#641e16");    $('#estado').css("color", "#641e16");    break;
-            case "NO RESUELTO": $('.card-body').css("background-color", "#f5eef8");  $('.card').css("border-color", "#4a235a");    $('#estado').css("color", "#4a235a");    break;
-            case "CERRADO":     $('.card-body').css("background-color", "#eafaf1");  $('.card').css("border-color", "#0b5345");    $('#estado').css("color", "#0b5345");    break;
+            case "PENDIENTE":   $('.card-body').css("background-color", "#f5eef8");  $('.card').css("border-color", "#4a235a");    $('#estado').css("color", "#4a235a");    break;
+            case "TERMINADO":   $('.card-body').css("background-color", "#eafaf1");  $('.card').css("border-color", "#0b5345");    $('#estado').css("color", "#0b5345");    break;
+            case "CERRADO":     $('.card-body').css("background-color", "#eceff1");  $('.card').css("border-color", "#546e7a");    $('#estado').css("color", "#546e7a");    break;
         }
     </script>
 {% endblock %}

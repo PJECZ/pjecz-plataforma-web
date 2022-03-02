@@ -11,18 +11,18 @@ class SoporteTicket(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(
         [
-            ("ABIERTO", "Abierto o pendiente"),
+            ("SIN ATENDER", "Abierto o pendiente"),
             ("TRABAJANDO", "Trabjando"),
-            ("CERRADO", "Cerrado o terminado"),
-            ("NO RESUELTO", "No resuelto"),
+            ("TERMINADO", "Trabajo concluido, resultado satisfacorio"),
+            ("CERRADO", "Trabajo concluido, resultado indiferente"),
+            ("PENDIENTE", "Pendiente de resolver"),
             ("CANCELADO", "Cancelado"),
         ]
     )
 
     CLASIFICACIONES = OrderedDict(
         [
-            ("PC", "PC"),
-            ("RED", "Red"),
+            ("SOPORTE TECNICO", "SOPORTE TÉCNICO"),
             ("PAIIJ", "PAIIJ"),
             ("SIGE", "SIGE"),
             ("OTRO", "Otro"),
