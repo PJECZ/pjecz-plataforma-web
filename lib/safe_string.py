@@ -32,12 +32,14 @@ def safe_email(input_str, search_fragment=False):
     """Safe string"""
     if not isinstance(input_str, str):
         return ""
-    new_string = input_str.strip().lower()
+    final = input_str.strip().lower()
     if search_fragment:
-        final = re.match(r"^[\w.-]*@*[\w.-]*\.*\w*$", new_string)
-    else:
-        final = re.match(EMAIL_REGEXP, new_string)
-    return final if final is not None else ""
+        if re.match(r"^[\w.-]*@*[\w.-]*\.*\w*$", final) is None:
+            return ""
+        return final
+    if re.match(EMAIL_REGEXP, final) is None:
+        return ""
+    return final
 
 
 def safe_expediente(input_str):
