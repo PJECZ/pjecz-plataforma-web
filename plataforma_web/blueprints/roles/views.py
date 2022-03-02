@@ -61,17 +61,22 @@ def new():
     """Nuevo Rol"""
     form = RolForm()
     if form.validate_on_submit():
-        rol = Rol(nombre=safe_string(form.nombre.data))
-        rol.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo rol {rol.nombre}"),
-            url=url_for("roles.detail", rol_id=rol.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        # Validar que el nombre no se repita
+        nombre = safe_string(form.nombre.data)
+        if Rol.query.filter_by(nombre=nombre).first():
+            flash("La nombre ya está en uso. Debe de ser único.", "warning")
+        else:
+            rol = Rol(nombre=nombre)
+            rol.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo rol {rol.nombre}"),
+                url=url_for("roles.detail", rol_id=rol.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("roles/new.jinja2", form=form)
 
 
@@ -82,17 +87,27 @@ def edit(rol_id):
     rol = Rol.query.get_or_404(rol_id)
     form = RolForm()
     if form.validate_on_submit():
-        rol.nombre = safe_string(form.nombre.data)
-        rol.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado rol {rol.nombre}"),
-            url=url_for("roles.detail", rol_id=rol.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia el nombre verificar que no este en uso
+        nombre = safe_string(form.nombre.data)
+        if rol.nombre != nombre:
+            rol_existente = Rol.query.filter_by(nombre=nombre).first()
+            if rol_existente and rol_existente.id != rol.id:
+                es_valido = False
+                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            rol.nombre = nombre
+            rol.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado rol {rol.nombre}"),
+                url=url_for("roles.detail", rol_id=rol.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.nombre.data = rol.nombre
     return render_template("roles/edit.jinja2", form=form, rol=rol)
 

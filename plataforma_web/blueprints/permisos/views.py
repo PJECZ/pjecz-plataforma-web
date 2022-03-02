@@ -66,7 +66,7 @@ def datatable_json():
         consulta = consulta.filter_by(modulo_id=request.form["modulo_id"])
     if "rol_id" in request.form:
         consulta = consulta.filter_by(rol_id=request.form["rol_id"])
-    registros = consulta.order_by(Permiso.nombre.asc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Permiso.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -78,8 +78,14 @@ def datatable_json():
                     "url": url_for("permisos.detail", permiso_id=resultado.id),
                 },
                 "nivel": resultado.nivel_descrito,
-                "modulo_nombre": resultado.modulo.nombre,
-                "rol_nombre": resultado.rol.nombre,
+                "modulo": {
+                    "nombre": resultado.modulo.nombre,
+                    "url": url_for("modulos.detail", modulo_id=resultado.modulo_id) if current_user.can_view("MODULOS") else "",
+                },
+                "rol": {
+                    "nombre": resultado.rol.nombre,
+                    "url": url_for("roles.detail", rol_id=resultado.rol_id) if current_user.can_view("ROLES") else "",
+                },
             }
         )
     # Entregar JSON
@@ -213,5 +219,4 @@ def recover(permiso_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-        # flash(f"Permiso {permiso.nombre} recuperado.", "success")
     return redirect(url_for("permisos.detail", permiso_id=permiso.id))

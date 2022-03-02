@@ -1,6 +1,7 @@
 """
 Usuarios, vistas
 """
+import datetime
 import json
 import os
 import re
@@ -14,7 +15,7 @@ from lib import datatables
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
-from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_message, safe_string
+from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
@@ -25,7 +26,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioNewForm, UsuarioEditForm, UsuarioSearchForm
+from plataforma_web.blueprints.usuarios.forms import AccesoForm, UsuarioNewForm, UsuarioEditForm, UsuarioEditAdminForm, UsuarioSearchForm
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 HTTP_REQUEST = google.auth.transport.requests.Request()
@@ -116,7 +117,13 @@ def logout():
 @login_required
 def profile():
     """Mostrar el Perfil"""
-    return render_template("usuarios/profile.jinja2")
+    hoy = datetime.date.today()
+    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    return render_template(
+        "usuarios/profile.jinja2",
+        hoy_str=hoy.strftime("%Y-%m-%d"),
+        hoy_dt_str=hoy_dt.strftime("%Y-%m-%d"),
+    )
 
 
 @usuarios.route("/usuarios")
@@ -178,7 +185,7 @@ def search():
                 busqueda["puesto"] = puesto
                 titulos.append("puesto " + puesto)
         if form_search.email.data:
-            email = safe_string(form_search.email.data, to_uppercase=False)
+            email = safe_email(form_search.email.data, search_fragment=True)
             if email != "":
                 busqueda["email"] = email
                 titulos.append("e-mail " + email)
@@ -220,7 +227,7 @@ def datatable_json():
         consulta = consulta.filter(Usuario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
     if "workspace" in request.form:
         consulta = consulta.filter(Usuario.workspace == safe_string(request.form["email"]))
-    registros = consulta.order_by(Usuario.email.asc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Usuario.email).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -269,13 +276,13 @@ def new():
         usuario = Usuario(
             autoridad=autoridad,
             oficina=form.oficina.data,
-            nombres=form.nombres.data,
-            apellido_paterno=form.apellido_paterno.data,
-            apellido_materno=form.apellido_materno.data,
-            curp=form.curp.data,
-            email=form.email.data,
+            nombres=safe_string(form.nombres.data),
+            apellido_paterno=safe_string(form.apellido_paterno.data),
+            apellido_materno=safe_string(form.apellido_materno.data),
+            curp=safe_string(form.curp.data),
+            puesto=safe_string(form.puesto.data),
+            email=safe_email(form.email.data),
             workspace=form.workspace.data,
-            puesto=form.puesto.data,
             contrasena=contrasena,
         )
         usuario.save()
@@ -297,21 +304,16 @@ def new():
 @login_required
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(usuario_id):
-    """Editar Usuario, solo al escribir la contraseña se cambia"""
+    """Editar Usuario para quien tenga el nivel de modificar"""
     usuario = Usuario.query.get_or_404(usuario_id)
     form = UsuarioEditForm()
     if form.validate_on_submit():
-        usuario.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        usuario.nombres = safe_string(form.nombres.data)
+        usuario.apellido_paterno = safe_string(form.apellido_paterno.data)
+        usuario.apellido_materno = safe_string(form.apellido_materno.data)
+        usuario.curp = safe_string(form.curp.data)
+        usuario.puesto = safe_string(form.puesto.data)
         usuario.oficina = form.oficina.data
-        usuario.nombres = form.nombres.data
-        usuario.apellido_paterno = form.apellido_paterno.data
-        usuario.apellido_materno = form.apellido_materno.data
-        usuario.curp = form.curp.data
-        usuario.email = form.email.data
-        usuario.workspace = form.workspace.data
-        usuario.puesto = form.puesto.data
-        if form.contrasena.data != "":
-            usuario.contrasena = pwd_context.hash(form.contrasena.data)
         usuario.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -322,19 +324,77 @@ def edit(usuario_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    form.distrito.data = usuario.autoridad.distrito
-    form.autoridad.data = usuario.autoridad
-    form.oficina.data = usuario.oficina
+    form.distrito.data = usuario.autoridad.distrito.nombre  # Read only
+    form.autoridad.data = usuario.autoridad.descripcion  # Read only
     form.nombres.data = usuario.nombres
     form.apellido_paterno.data = usuario.apellido_paterno
     form.apellido_materno.data = usuario.apellido_materno
     form.curp.data = usuario.curp
+    form.puesto.data = usuario.puesto
+    form.email.data = usuario.email  # Read only
+    form.workspace.data = usuario.workspace  # Read only
+    form.oficina.data = usuario.oficina
+    return render_template("usuarios/edit.jinja2", form=form, usuario=usuario)
+
+
+@usuarios.route("/usuarios/edicion_admin/<int:usuario_id>", methods=["GET", "POST"])
+@login_required
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def edit_admin(usuario_id):
+    """Editar Usuario para quien tenga el nivel de administrar"""
+    usuario = Usuario.query.get_or_404(usuario_id)
+    form = UsuarioEditAdminForm()
+    if form.validate_on_submit():
+        es_valido = True
+        # Si cambia el e-mail verificar que no este en uso
+        email = safe_email(form.email.data)
+        if usuario.email != email:
+            usuario_existente = Usuario.query.filter_by(email=email).first()
+            if usuario_existente and usuario_existente.id != usuario.id:
+                es_valido = False
+                flash("La e-mail ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            usuario.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+            usuario.nombres = safe_string(form.nombres.data)
+            usuario.apellido_paterno = safe_string(form.apellido_paterno.data)
+            usuario.apellido_materno = safe_string(form.apellido_materno.data)
+            usuario.curp = safe_string(form.curp.data)
+            usuario.puesto = safe_string(form.puesto.data)
+            usuario.email = email
+            usuario.workspace = safe_string(form.workspace.data)
+            usuario.oficina = form.oficina.data
+            if form.contrasena.data != "":
+                usuario.contrasena = pwd_context.hash(form.contrasena.data)
+            usuario.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado usuario {usuario.email}: {usuario.nombre}"),
+                url=url_for("usuarios.detail", usuario_id=usuario.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+    form.distrito.data = usuario.autoridad.distrito
+    form.autoridad.data = usuario.autoridad
+    form.nombres.data = usuario.nombres
+    form.apellido_paterno.data = usuario.apellido_paterno
+    form.apellido_materno.data = usuario.apellido_materno
+    form.curp.data = usuario.curp
+    form.puesto.data = usuario.puesto
     form.email.data = usuario.email
     form.workspace.data = usuario.workspace
-    form.puesto.data = usuario.puesto
+    form.oficina.data = usuario.oficina
     distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()
-    return render_template("usuarios/edit.jinja2", form=form, usuario=usuario, distritos=distritos, autoridades=autoridades)
+    return render_template(
+        "usuarios/edit_admin.jinja2",
+        form=form,
+        usuario=usuario,
+        distritos=distritos,
+        autoridades=autoridades,
+    )
 
 
 @usuarios.route("/usuarios/eliminar/<int:usuario_id>")

@@ -6,7 +6,6 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.funcionarios_oficinas.forms import FuncionarioOficinaForm
@@ -111,12 +110,7 @@ def new_with_funcionario(funcionario_id):
     if form.validate_on_submit():
         oficina = form.oficina.data
         descripcion = f"Funcionario {funcionario.curp} en {oficina.clave}"
-        if (
-            FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario)
-            .filter(FuncionarioOficina.oficina == oficina)
-            .first()
-            is not None
-        ):
+        if FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).filter(FuncionarioOficina.oficina == oficina).first() is not None:
             flash(f"CONFLICTO: Ya existe {descripcion}. Si está eliminado puede recuperarlo.", "warning")
             return redirect(url_for("funcionarios_oficinas.list_inactive"))
         funcionario_oficina = FuncionarioOficina(

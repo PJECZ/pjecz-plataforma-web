@@ -19,10 +19,10 @@
             <thead>
                 <tr>
                     <th>IDs</th>
-                    <th>Funcionarios CURPs</th>
-                    <th>Funcionarios nombres</th>
-                    <th>Oficinas claves</th>
-                    <th>Oficinas descripciones</th>
+                    <th>CURPs</th>
+                    <th>Nombres</th>
+                    <th>Oficinas</th>
+                    <th>Descripciones cortas</th>
                 </tr>
             </thead>
         </table>
@@ -41,7 +41,7 @@
             ajax: {
                 url: "/funcionarios_oficinas/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: {{ filtros }}
@@ -65,10 +65,10 @@
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.url = '') {
-                            data.curl;
+                        if (data.url == '') {
+                            data.curp;
                         } else {
-                            return '<a href="' + data.url + '">' + data.curl + '</a>';
+                            return '<a href="' + data.url + '">' + data.curp + '</a>';
                         }
                     }
                 },

@@ -9,10 +9,12 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Usuario ' + usuario.email) %}
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
-        {% if current_user.can_edit('USUARIOS') %}
-            {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
+        {% if current_user.can_admin('USUARIOS') %}
+            {{ topbar.button_edit('Editar', url_for('usuarios.edit_admin', usuario_id=usuario.id)) }}
             {% if usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('usuarios.delete', usuario_id=usuario.id)) }}{% endif %}
             {% if usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('usuarios.recover', usuario_id=usuario.id)) }}{% endif %}
+        {% elif current_user.can_edit('USUARIOS') %}
+            {{ topbar.button_edit('Editar', url_for('usuarios.edit', usuario_id=usuario.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -23,56 +25,72 @@
         {{ detail.label_value('Puesto', usuario.puesto) }}
         {{ detail.label_value('CURP', usuario.curp) }}
         {{ detail.label_value('e-mail', usuario.email) }}
-        {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
-        {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
-        {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
+        {% if current_user.can_view("DISTRITOS") %}
+            {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
+        {% else %}
+            {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre) }}
+        {% endif %}
+        {% if current_user.can_view("AUTORIDADES") %}
+            {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
+        {% else %}
+            {{ detail.label_value('Autoridad', usuario.autoridad.descripcion) }}
+        {% endif %}
+        {% if current_user.can_view("OFICINAS") %}
+            {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
+        {% else %}
+            {{ detail.label_value('Oficina', usuario.oficina.descripcion) }}
+        {% endif %}
         {{ detail.label_value('Teléfono celular', usuario.telefono_celular) }}
         {{ detail.label_value('Workspace', usuario.workspace) }}
         {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
     {% endcall %}
-    {% call detail.card("Roles") %}
-        <table id="roles_datatable" class="table display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for usuario_rol in usuario.usuarios_roles %}
-                {% if usuario_rol.estatus == "A" %}
-                <tr>
-                    <td><a href="{{ url_for('roles.detail', rol_id=usuario_rol.rol_id) }}">{{ usuario_rol.rol.nombre }}</a></td>
-                    <td>
-                    {% if current_user.can_edit('USUARIOS ROLES') %}
-                        {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteRolUsuario', message='¿Eliminar ' + usuario_rol.rol.nombre + '?') }}
+    {% if current_user.can_view('ROLES') %}
+        {% call detail.card("Roles") %}
+            <table id="roles_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for usuario_rol in usuario.usuarios_roles %}
+                    {% if usuario_rol.estatus == "A" %}
+                    <tr>
+                        <td><a href="{{ url_for('roles.detail', rol_id=usuario_rol.rol_id) }}">{{ usuario_rol.rol.nombre }}</a></td>
+                        <td>
+                        {% if current_user.can_edit('USUARIOS ROLES') %}
+                            {{ modals.button_delete(url=url_for('usuarios_roles.delete', usuario_rol_id=usuario_rol.id), id='DeleteRolUsuario', message='¿Eliminar ' + usuario_rol.rol.nombre + '?') }}
+                        {% endif %}
+                        </td>
+                    </tr>
                     {% endif %}
-                    </td>
-                </tr>
-                {% endif %}
-            {% endfor %}
-            </tbody>
-        </table>
-        {% if current_user.can_insert('USUARIOS ROLES') %}
-            <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
-        {% endif %}
-    {% endcall %}
-    {% call list.card('Tickets') %}
-        <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Creación</th>
-                    <th>Categoría</th>
-                    <th>Oficina</th>
-                    <th>Estado</th>
-                    <th>Técnico</th>
-                    <th>Descripción</th>
-                    <th>Solución/Cancelación</th>
-                </tr>
-            </thead>
-        </table>
-    {% endcall %}
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if current_user.can_insert('USUARIOS ROLES') %}
+                <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('SOPORTES TICKETS') %}
+        {% call list.card('Tickets') %}
+            <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Creación</th>
+                        <th>Categoría</th>
+                        <th>Oficina</th>
+                        <th>Estado</th>
+                        <th>Técnico</th>
+                        <th>Descripción</th>
+                        <th>Solución/Cancelación</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -87,15 +105,16 @@
         $('#soportes_tickets_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
+            ordering: true,
             searching: false,
             responsive: true,
             scrollX: true,
             deferRender: true,
+            order: [[ 0, "desc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: { "estatus": "A", "usuario_id": {{usuario.id}} }
@@ -112,42 +131,65 @@
             ],
             columnDefs: [
                 {
-                    targets: 0,
+                    targets: 0, // ID
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: 3,
-                    data: null,
+                    targets: 1, // Creación
+                    type: "date",
                     render: function(data, type, row, meta) {
-                        return '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm a");
                     }
                 },
                 {
-                    targets: [2, 5, 6, 7],
+                    targets: [2, 5], // Categoría, Técnico
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if(data.nombre.length > 24)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: 3, // Oficina
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: [6, 7],    // Descripción, Soluciones
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != null)
-                            if (data.length > 16)   {
-                                return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                            if (data.length > 24)   {
+                                return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
                             } else {
                                 return data;
                             }
                         return '—';
                     }
-                },
+                }
             ],
             rowCallback: function( row, data ){
                 switch (data.estado)    {
-                    case "ABIERTO":
-                        $(row).css("background-color", "#fef9e7");
-                        break;
-                    case "TRABAJANDO": $(row).css("background-color", "#ebf5fb");  break;
-                    case "CANCELADO": $(row).css("background-color", "#fdedec");  break;
+                    case "ABIERTO":     $(row).css("background-color", "#fef9e7");  break;
+                    case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
                     case "NO RESUELTO": $(row).css("background-color", "#f5eef8");  break;
-                    case "CERRADO": $(row).css("background-color", "#eafaf1");  break;
+                    case "CERRADO":     $(row).css("background-color", "#eafaf1");  break;
                 }
             },
             language: {
@@ -165,5 +207,5 @@
                 }
             }
         });
-    </script>
+        </script>
 {% endblock %}

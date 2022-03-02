@@ -18,11 +18,12 @@
         <table id="autoridades_funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Detalles</th>
-                    <th>Autoridades claves</th>
-                    <th>Autoridades descripciones</th>
-                    <th>Funcionarios</th>
+                    <th>IDs</th>
+                    <th>Autoridades</th>
+                    <th>Descripciones cortas</th>
                     <th>CURPs</th>
+                    <th>Nombres</th>
+                    <th>Puestos</th>
                 </tr>
             </thead>
         </table>
@@ -41,7 +42,7 @@
             ajax: {
                 url: "/autoridades_funcionarios/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: {{ filtros }}

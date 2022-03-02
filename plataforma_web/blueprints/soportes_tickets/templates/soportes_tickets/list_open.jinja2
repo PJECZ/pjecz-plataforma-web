@@ -21,6 +21,22 @@
 {% endblock %}
 
 {% block content %}
+    <div id="cercanos">
+    {% call list.card('Abiertos - Cercanos') %}
+        <table id="soportes_tickets_abiertos_cercanos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Oficina</th>
+                    <th>Categoría</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+    </div>
+    <div id="categorizados">
     {% call list.card('Abiertos - Categorizados') %}
         <table id="soportes_tickets_abiertos_categorizados_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
             <thead>
@@ -34,6 +50,7 @@
             </thead>
         </table>
     {% endcall %}
+    </div>
     {% call list.card('Abiertos - TODOS' ) %}
         <table id="soportes_tickets_abiertos_todos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
             <thead>
@@ -56,14 +73,15 @@
         let datatable_config = {
             processing: true,
             serverSide: true,
-            ordering: false,
+            ordering: true,
             searching: false,
             responsive: true,
             scrollX: true,
+            order: [[ 0, "asc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: "" // Se define mas abajo
@@ -78,21 +96,39 @@
             ],
             columnDefs: [
                 {
-                    targets: 0,
+                    targets: 0, // ID
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: 2,
+                    targets: [1, 3], // Usuario, Categoría
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        if(data.nombre.length > 32)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 32) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
                     }
                 },
                 {
-                    targets: [1, 3, 4],
+                    targets: 2, // Oficina
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: 4,
                     data: null,
                     render: function(data, type, row, meta) {
                         if(data.length > 32)
@@ -117,7 +153,7 @@
             }
         }
 
-        // Datatable Tickets Abiertos Categorizados
+        // Datatable Tickets Abiertos - Cercanos
         datatable_config['columns'] = [
                 { data: "id" },
                 { data: "usuario" },
@@ -128,11 +164,29 @@
         datatable_config['ajax']['data'] = {
             "estatus": "A",
             "estado": "ABIERTO",
+            "soportes_tickets_abiertos": "CERCANOS"
+        };
+        let cercanos = $('#soportes_tickets_abiertos_cercanos_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_abiertos_cercanos_datatable').on( 'init.dt', function () {
+            if ( ! cercanos.data().count() ){
+                $('#cercanos').hide();
+            }
+        });
+
+        // Datatable Tickets Abiertos - Categorizados
+        datatable_config['ajax']['data'] = {
+            "estatus": "A",
+            "estado": "ABIERTO",
             "soportes_tickets_abiertos": "CATEGORIZADOS"
         };
-        $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
+        let categorizados = $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_abiertos_categorizados_datatable').on( 'init.dt', function () {
+            if ( ! categorizados.data().count() ){
+                $('#categorizados').hide();
+            }
+        });
 
-        // Datatable Tickets Abiertos Todos
+        // Datatable Tickets Abiertos - Todos
         datatable_config['ajax']['data'] = {
             "estatus": "A",
             "estado": "ABIERTO",

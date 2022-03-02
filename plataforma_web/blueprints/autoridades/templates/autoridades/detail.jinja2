@@ -55,7 +55,11 @@
     {# Detalles #}
     {% call detail.card(estatus=autoridad.estatus) %}
         {{ detail.label_value('Clave', autoridad.clave) }}
-        {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
+        {% if current_user.can_view("DISTRITOS") %}
+            {{ detail.label_value('Distrito', autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=autoridad.distrito_id)) }}
+        {% else %}
+            {{ detail.label_value('Distrito', autoridad.distrito.nombre) }}
+        {% endif %}
         {{ detail.label_value('Descripción', autoridad.descripcion) }}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
         {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
@@ -118,7 +122,7 @@
             ajax: {
                 url: "/usuarios/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: { "estatus": "A", "autoridad_id": {{ autoridad.id }} }
@@ -173,7 +177,7 @@
             ajax: {
                 url: "/autoridades_funcionarios/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: { "estatus": "A", "autoridad_id": {{ autoridad.id }} }

@@ -50,7 +50,7 @@
             ajax: {
                 url: "/usuarios_roles/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: {{ filtros }}
@@ -60,7 +60,7 @@
                 { data: "usuario" },
                 { data: "usuario_nombre" },
                 { data: "usuario_puesto" },
-                { data: "rol_nombre" }
+                { data: "rol" }
             ],
             columnDefs: [
                 {
@@ -78,6 +78,17 @@
                             return data.email;
                         } else {
                             return '<a href="' + data.url + '">' + data.email + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: 4,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
                         }
                     }
                 },

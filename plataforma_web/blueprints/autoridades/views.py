@@ -9,7 +9,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_clave, safe_string, safe_message
 
 from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -120,7 +120,7 @@ def datatable_json():
         consulta = consulta.filter(Autoridad.descripcion.contains(safe_string(request.form["descripcion"], to_uppercase=False)))
     if "organo_jurisdiccional" in request.form:
         consulta = consulta.filter(Autoridad.organo_jurisdiccional == safe_string(request.form["organo_jurisdiccional"]))
-    registros = consulta.order_by(Autoridad.clave.asc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Autoridad.clave).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -303,53 +303,58 @@ def sentencias_json(autoridad_id):
 @autoridades.route("/autoridades/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Autoridad"""
+    """Nueva Autoridad"""
     form = AutoridadNewForm()
     if form.validate_on_submit():
-        distrito = form.distrito.data
-        descripcion = form.descripcion.data.strip()
-        es_jurisdiccional = form.es_jurisdiccional.data
-        es_notaria = form.es_notaria.data
-        directorio = f"{distrito.nombre}/{descripcion}"
-        directorio_listas_de_acuerdos = ""
-        directorio_sentencias = ""
-        directorio_edictos = ""
-        directorio_glosas = ""
-        limite_dias_listas_de_acuerdos = 0
-        if es_jurisdiccional:
-            directorio_edictos = directorio
-            directorio_listas_de_acuerdos = directorio
-            directorio_sentencias = directorio
-            directorio_glosas = directorio
-            limite_dias_listas_de_acuerdos = 1
-        if es_notaria:
-            directorio_edictos = directorio
-        autoridad = Autoridad(
-            distrito=distrito,
-            descripcion=descripcion,
-            descripcion_corta=form.descripcion_corta.data.strip(),
-            clave=form.clave.data.strip().upper(),
-            es_jurisdiccional=es_jurisdiccional,
-            es_notaria=es_notaria,
-            organo_jurisdiccional=form.organo_jurisdiccional.data,
-            materia=form.materia.data,
-            audiencia_categoria=form.audiencia_categoria.data,
-            directorio_listas_de_acuerdos=directorio_listas_de_acuerdos,
-            directorio_sentencias=directorio_sentencias,
-            directorio_edictos=directorio_edictos,
-            directorio_glosas=directorio_glosas,
-            limite_dias_listas_de_acuerdos=limite_dias_listas_de_acuerdos,
-        )
-        autoridad.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nueva autoridad {autoridad.clave}"),
-            url=url_for("autoridades.detail", autoridad_id=autoridad.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        # Validar que la clave no se repita
+        clave = safe_string(form.clave.data)
+        if Autoridad.query.filter_by(clave=clave).first():
+            flash("La clave ya está en uso. Debe de ser única.", "warning")
+        else:
+            distrito = form.distrito.data
+            descripcion = form.descripcion.data.strip()
+            es_jurisdiccional = form.es_jurisdiccional.data
+            es_notaria = form.es_notaria.data
+            directorio = f"{distrito.nombre}/{descripcion}"
+            directorio_listas_de_acuerdos = ""
+            directorio_sentencias = ""
+            directorio_edictos = ""
+            directorio_glosas = ""
+            limite_dias_listas_de_acuerdos = 0
+            if es_jurisdiccional:
+                directorio_edictos = directorio
+                directorio_listas_de_acuerdos = directorio
+                directorio_sentencias = directorio
+                directorio_glosas = directorio
+                limite_dias_listas_de_acuerdos = 1
+            if es_notaria:
+                directorio_edictos = directorio
+            autoridad = Autoridad(
+                distrito=distrito,
+                descripcion=descripcion,
+                descripcion_corta=form.descripcion_corta.data.strip(),
+                clave=clave,
+                es_jurisdiccional=es_jurisdiccional,
+                es_notaria=es_notaria,
+                organo_jurisdiccional=form.organo_jurisdiccional.data,
+                materia=form.materia.data,
+                audiencia_categoria=form.audiencia_categoria.data,
+                directorio_listas_de_acuerdos=directorio_listas_de_acuerdos,
+                directorio_sentencias=directorio_sentencias,
+                directorio_edictos=directorio_edictos,
+                directorio_glosas=directorio_glosas,
+                limite_dias_listas_de_acuerdos=limite_dias_listas_de_acuerdos,
+            )
+            autoridad.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nueva autoridad {autoridad.clave}"),
+                url=url_for("autoridades.detail", autoridad_id=autoridad.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.materia.data = Materia.query.get(1)  # Materia NO DEFINIDO
     return render_template("autoridades/new.jinja2", form=form)
 
@@ -361,30 +366,40 @@ def edit(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = AutoridadEditForm()
     if form.validate_on_submit():
-        autoridad.distrito = form.distrito.data
-        autoridad.descripcion = form.descripcion.data.strip()
-        autoridad.descripcion_corta = form.descripcion_corta.data.strip()
-        autoridad.clave = form.clave.data.strip().upper()
-        autoridad.es_jurisdiccional = form.es_jurisdiccional.data
-        autoridad.es_notaria = form.es_notaria.data
-        autoridad.organo_jurisdiccional = form.organo_jurisdiccional.data
-        autoridad.materia = form.materia.data
-        autoridad.audiencia_categoria = form.audiencia_categoria.data
-        autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data.strip()
-        autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
-        autoridad.directorio_edictos = form.directorio_edictos.data.strip()
-        autoridad.directorio_glosas = form.directorio_glosas.data.strip()
-        autoridad.limite_dias_listas_de_acuerdos = form.limite_dias_listas_de_acuerdos.data
-        autoridad.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editada autoridad {autoridad.clave}"),
-            url=url_for("autoridades.detail", autoridad_id=autoridad.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia la clave verificar que no este en uso
+        clave = safe_clave(form.clave.data)
+        if autoridad.clave != clave:
+            oficina_existente = Autoridad.query.filter_by(clave=clave).first()
+            if oficina_existente and oficina_existente.id != autoridad.id:
+                es_valido = False
+                flash("La clave ya está en uso. Debe de ser única.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            autoridad.distrito = form.distrito.data
+            autoridad.descripcion = form.descripcion.data.strip()
+            autoridad.descripcion_corta = form.descripcion_corta.data.strip()
+            autoridad.clave = clave
+            autoridad.es_jurisdiccional = form.es_jurisdiccional.data
+            autoridad.es_notaria = form.es_notaria.data
+            autoridad.organo_jurisdiccional = form.organo_jurisdiccional.data
+            autoridad.materia = form.materia.data
+            autoridad.audiencia_categoria = form.audiencia_categoria.data
+            autoridad.directorio_listas_de_acuerdos = form.directorio_listas_de_acuerdos.data.strip()
+            autoridad.directorio_sentencias = form.directorio_sentencias.data.strip()
+            autoridad.directorio_edictos = form.directorio_edictos.data.strip()
+            autoridad.directorio_glosas = form.directorio_glosas.data.strip()
+            autoridad.limite_dias_listas_de_acuerdos = form.limite_dias_listas_de_acuerdos.data
+            autoridad.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editada autoridad {autoridad.clave}"),
+                url=url_for("autoridades.detail", autoridad_id=autoridad.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.distrito.data = autoridad.distrito
     form.descripcion.data = autoridad.descripcion
     form.descripcion_corta.data = autoridad.descripcion_corta

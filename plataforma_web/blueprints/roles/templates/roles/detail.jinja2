@@ -68,14 +68,14 @@
             ajax: {
                 url: "/permisos/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: {"estatus": "A", "rol_id": {{ rol.id }} }
             },
             columns: [
                 { data: "detalle" },
-                { data: "modulo_nombre" },
+                { data: "modulo" },
                 { data: "nivel" }
             ],
             columnDefs: [
@@ -84,6 +84,17 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
                     }
                 }
             ],
@@ -114,7 +125,7 @@
             ajax: {
                 url: "/usuarios_roles/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: {"estatus": "A", "rol_id": {{ rol.id }} }
