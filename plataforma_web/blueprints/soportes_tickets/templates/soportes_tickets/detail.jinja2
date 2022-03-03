@@ -39,14 +39,14 @@
                 {{ topbar.button_primary('Cerrar', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:alert-octagon') }}
             {% endif %}
             {% if soporte_ticket.estado != 'PENDIENTE' and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO') %}
-                {{ modals.button_modal('Pendiente', url_for('soportes_tickets.pending', soporte_ticket_id=soporte_ticket.id), 'no_resuelto', 'mdi:message-alert', '¿Deseas marcar este Ticket como No Resuelto?') }}
+                {{ modals.button_modal('Pendiente', url_for('soportes_tickets.pending', soporte_ticket_id=soporte_ticket.id), 'pendiente', 'mdi:message-alert', '¿Deseas marcar este Ticket como Pendiente?') }}
             {% endif %}
             {% if soporte_ticket.estado == 'PENDIENTE' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
             {% endif %}
         {% else %}
             {% if soporte_ticket.estado == 'SIN ATENDER' %}
-                {{ topbar.button_primary('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
+                {{ modals.button_modal('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'cancelar', 'mdi:cancel', '¿Desea cancelar el ticket?') }}
             {% endif %}
         {% endif %}
         {# Botones eliminar y recuperar #}
@@ -117,8 +117,8 @@
         {% if soporte_ticket.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar este ticket?') }}{% endif %}
         {% if soporte_ticket.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este ticket?') }}{% endif %}
         {{ modals.custom_javascript('Soltar', '¿Desea soltar este ticket?', 'soltar') }}
-        {{ modals.custom_javascript('No Resuleto', '¿Deseas marcar como "No Resuelto" este ticket?', 'no_resuelto') }}
-        {{ modals.custom_javascript('Descancelar', '¿Deseas descancelar este ticket?', 'descancelar') }}
+        {{ modals.custom_javascript('Pendiente', '¿Deseas marcar como "Pendiente" este ticket?', 'pendiente') }}
+        {{ modals.custom_javascript('Cancelar Ticket', '¿Deseas cancelar este ticket?', 'cancelar') }}
     {% endif %}
     {{ list.datatable('soportes_archivos_datatable') }}
     <script>
