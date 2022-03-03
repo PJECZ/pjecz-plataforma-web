@@ -22,9 +22,6 @@ from plataforma_web.blueprints.inv_componentes.models import INVComponente
 from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
 from plataforma_web.blueprints.inv_custodias.models import INVCustodia
 from plataforma_web.blueprints.inv_marcas.models import INVMarca
-from plataforma_web.blueprints.inv_modelos.models import INVModelo
-from plataforma_web.blueprints.usuarios.models import Usuario
-from plataforma_web.blueprints.oficinas.models import Oficina
 
 from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
 
