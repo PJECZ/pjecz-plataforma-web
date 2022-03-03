@@ -1,13 +1,14 @@
 """
 Usuarios, vistas
 """
-import datetime
 import json
 import os
 import re
+from datetime import datetime
 
 import google.auth.transport.requests
 import google.oauth2.id_token
+from pytz import timezone
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -117,12 +118,13 @@ def logout():
 @login_required
 def profile():
     """Mostrar el Perfil"""
-    hoy = datetime.date.today()
-    hoy_dt = datetime.datetime(year=hoy.year, month=hoy.month, day=hoy.day)
+    ahora_utc = datetime.now(timezone('UTC'))
+    ahora_mx_coah = ahora_utc.astimezone(timezone('America/Mexico_City'))
+    formato_fecha = "%Y-%m-%d"
     return render_template(
         "usuarios/profile.jinja2",
-        hoy_str=hoy.strftime("%Y-%m-%d"),
-        hoy_dt_str=hoy_dt.strftime("%Y-%m-%d"),
+        ahora_utc_str=ahora_utc.strftime(formato_fecha),
+        ahora_mx_coah_str=ahora_mx_coah.strftime(formato_fecha),
     )
 
 
