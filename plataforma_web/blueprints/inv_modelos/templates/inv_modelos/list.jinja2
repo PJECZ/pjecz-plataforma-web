@@ -13,7 +13,6 @@
         {% endif %}
         {% if current_user.can_insert('INV MODELOS') %}
             {{ topbar.button_new('Nuevo Modelo', url_for('inv_modelos.new')) }}
-            {# {{ topbar.button_primary('Marcas', url_for('inv_marcas.list_active'), 'mdi:bookmark') }} #}
         {% endif %}
     {% endcall %}
 {% endblock %}

@@ -32,7 +32,6 @@ def before_request():
 @inv_modelos.route("/inv_modelos")
 def list_active():
     """Listado de Modelos activos"""
-    # activos = INVModelo.query.filter(INVModelo.estatus == "A").all()
     return render_template(
         "inv_modelos/list.jinja2",
         modelos=INVModelo.query.filter_by(estatus="A").all(),
@@ -45,7 +44,6 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Modelos inactivos"""
-    # inactivos = INVModelo.query.filter(INVModelo.estatus == "B").all()
     return render_template(
         "inv_modelos/list.jinja2",
         modelos=INVModelo.query.filter_by(estatus="B").all(),
@@ -112,9 +110,6 @@ def edit(modelo_id):
 
 def _validar_form(form, same=False):
     if not same:
-        # nombre_existente = INVModelo.query.filter(INVModelo.marca == form.nombre.data).first()
-        # if nombre_existente:
-        #     raise Exception("El nombre ya se encuentra en uso.")
         descripcion_existente = INVModelo.query.filter(INVModelo.descripcion == form.descripcion.data).first()
         if descripcion_existente:
             raise Exception("La descripcion ya esta en uso. ")

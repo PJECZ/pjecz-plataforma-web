@@ -12,6 +12,10 @@
     {% call f.card() %}
         {% set form_kwargs = {'equipo_id': equipo.id} %}
         {% call f.form_tag('inv_equipos.edit', fid='equipo_id_form', **form_kwargs) %}
+            {% call f.form_group(form.custodia, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.email, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.puesto, readonly=true) %}{% endcall %}
             {% call f.form_group(form.modelo) %}{% endcall %}
             {% call f.form_group(form.nombre_red) %}{% endcall %}
             {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}

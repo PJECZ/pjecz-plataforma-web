@@ -10,7 +10,7 @@ from wtforms.validators import DataRequired, Length
 class INVEquipoFotoNewForm(FlaskForm):
     """Formulario para subir archivos"""
 
-    equipo = StringField("Descripción del archivo")  # read only
+    equipo = StringField("Equipo")  # read only
     descripcion = StringField("Descripción del archivo", validators=[DataRequired(), Length(max=512)])
     archivo = FileField("Archivo", validators=[FileRequired()])
     guardar = SubmitField("Subir Archivo")

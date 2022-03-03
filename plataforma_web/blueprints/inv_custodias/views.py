@@ -73,17 +73,25 @@ def new(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     oficina = Oficina.query.join(Usuario).filter(Usuario.id == usuario.id).first()
     form = INVCustodiaForm()
+    validacion = False
     if form.validate_on_submit():
-        custodia = INVCustodia(
-            fecha=form.fecha.data,
-            usuario=usuario,
-            nombre_completo=usuario.nombre,
-            curp=usuario.curp,
-            oficina=oficina,
-        )
-        custodia.save()
-        flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-        return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+        try:
+            _validar_fecha(form.fecha.data)
+            validacion = True
+        except Exception as err:
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
+            validacion = False
+        if validacion:
+            custodia = INVCustodia(
+                fecha=form.fecha.data,
+                usuario=usuario,
+                nombre_completo=usuario.nombre,
+                curp=usuario.curp,
+                oficina=oficina,
+            )
+            custodia.save()
+            flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
+            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.usuario.data = str(f"{usuario.nombre}")
     form.oficina.data = str(f"{oficina.clave} - {oficina.descripcion_corta}")
     return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
@@ -131,39 +139,25 @@ def datatable_json():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(custodia_id):
     """Editar Custodias"""
-    usuario = Usuario.query.get_or_404(custodia_id)
     custodia = INVCustodia.query.get_or_404(custodia_id)
     form = INVCustodiaForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form, True)
-            validacion = True
-        except Exception as err:
-            flash(f"La fecha es incorrecta: {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
-            custodia.fecha = form.fecha.data
-            custodia.curp = usuario.curp
-            custodia.nombre_completo = usuario.nombre
-            custodia.usuario = usuario.id
-            custodia.save()
-            flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+        custodia.fecha = form.fecha.data
+        custodia.save()
+        flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
+        return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.fecha.data = custodia.fecha
-    form.usuario.data = str(usuario.nombre)
+    form.usuario.data = custodia.usuario.nombre
+    form.oficina.data = str(f"{custodia.oficina.clave} - {custodia.oficina.descripcion_corta}")
     return render_template("inv_custodias/edit.jinja2", form=form, custodia=custodia)
 
 
-def _validar_form(form, same=False):
-    if not same:
-        curp_existente = INVCustodia.query.filter(INVCustodia.curp == form.curp.data).first()
-        if curp_existente:
-            raise Exception("La CURP ya esta en uso.")
-        nombre_existente = INVCustodia.query.filter(INVCustodia.nombre_completo == form.nombre_completo.data).first()
-        if nombre_existente:
-            raise Exception("El nombre ya esta en uso.")
+def _validar_fecha(fecha):
+    if fecha > date.today():
+        raise Exception("La fecha no puede estar en el pasado.")
+    fecha_max_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
+    if fecha > fecha_max_futura:
+        raise Exception(f"La fecha es muy futura, lo máximo permitido es: {fecha_max_futura}")
     return True
 
 
