@@ -28,13 +28,14 @@
     {% endcall %}
     {% if current_user.can_view("SOPORTES CATEGORIAS") %}
         <p>* Antes de enviar un ticket, lea las instrucciones del tipo de problema que presenta, y redacte conforme a las indicacciones descritas.</p>
+        <p>Para los ticket´s que se dirigen a los sistemas de gestión SIGE y PAIIJ que no abarque una categoría, es necesario enviar un oficio dirigido a la Visitaduría General con copia a la Dirección de Informática, explicando el problema presentado.</p>
         {% call list.card('Instrucciones') %}
             <table id="instrucciones_datatable" class="table display nowrap" style="width:100%;">
                 <thead>
                     <tr>
                         <th>Categoría</th>
                         <th>Atendido por</th>
-                        <th>Instrucciones</th>
+                        <th>Requisitos</th>
                     </tr>
                 </thead>
             </table>
@@ -44,7 +45,8 @@
 
 {% block custom_javascript %}
     <script>
-        $('#instrucciones_datatable').DataTable({
+        let dataSet = {{ filtros }};
+        let tabla_instrucciones = $('#instrucciones_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -57,7 +59,9 @@
                 headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
-                data: {{ filtros }}
+                data: function ( d ) {
+                    return  $.extend(d, dataSet);
+                }
             },
             columns: [
                 { data: "nombre" },
@@ -76,7 +80,7 @@
                     targets: [2],
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">Leer instrucción</a>';
+                        return '<a href="' + data.url + '">Leer requisitos</a>';
                     }
                 }
             ],
@@ -95,5 +99,12 @@
                 }
             }
         });
+
+        /* Filtrar el listado según el radibutton seleccionado */
+        $('input[type=radio][name=clasificacion]').change(function() {
+            dataSet.filtrar_categoria = this.value;
+            tabla_instrucciones.ajax.reload();
+        });
+
     </script>
 {% endblock %}
