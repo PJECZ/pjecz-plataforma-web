@@ -92,7 +92,7 @@ def new(custodia_id):
             equipo = INVEquipo(
                 custodia=custodia,
                 modelo=form.modelo.data,
-                red=form.nombre_red.data,
+                red=form.red.data,
                 adquisicion_fecha=form.adquisicion_fecha.data,
                 numero_serie=form.numero_serie.data,
                 numero_inventario=form.numero_inventario.data,
@@ -174,7 +174,7 @@ def edit(equipo_id):
     form = INVEquipoForm()
     if form.validate_on_submit():
         equipo.modelo = form.modelo.data
-        equipo.red = form.nombre_red.data
+        equipo.red = form.red.data
         equipo.adquisicion_fecha = form.adquisicion_fecha.data
         equipo.numero_serie = form.numero_serie.data
         equipo.numero_invenatario = form.numero_inventario.data
@@ -188,7 +188,7 @@ def edit(equipo_id):
         flash(f"Equipos {equipo.descripcion} guardado.", "success")
         return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
     form.modelo.data = equipo.modelo
-    form.nombre_red.data = equipo.red
+    form.red.data = equipo.red
     form.adquisicion_fecha.data = equipo.adquisicion_fecha
     form.numero_serie.data = equipo.numero_serie
     form.numero_inventario.data = equipo.numero_inventario

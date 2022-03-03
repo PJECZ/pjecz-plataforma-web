@@ -7,7 +7,6 @@ from wtforms import DateField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional, IPAddress, MacAddress
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
-from plataforma_web.blueprints.inv_marcas.models import INVMarca
 from plataforma_web.blueprints.inv_modelos.models import INVModelo
 from plataforma_web.blueprints.inv_redes.models import INVRedes
 
@@ -29,9 +28,8 @@ class INVEquipoForm(FlaskForm):
     puesto = StringField("Puesto")
     email = StringField("Email")
     oficina = StringField("Oficina")
-    # modelo = QuerySelectField(label="Modelo", query_factory=modelos_opciones, get_label="descripcion", validators=[DataRequired()])  # solo lectrua
     modelo = QuerySelectField(label="Modelo", query_factory=modelos_opciones, get_label="marca_modelo", validators=[DataRequired()])  # solo lectrua
-    nombre_red = QuerySelectField(label="Nombre Red", query_factory=redes_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
+    red = QuerySelectField(label="Red", query_factory=redes_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
     adquisicion_fecha = DateField("Fecha de adquisición", validators=[DataRequired()])
     numero_serie = IntegerField("Número de serie", validators=[DataRequired()])
     numero_inventario = IntegerField("Número de inventario", validators=[DataRequired()])

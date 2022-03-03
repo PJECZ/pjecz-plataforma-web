@@ -23,7 +23,7 @@
             {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
             {% call f.form_group(form.puesto, readonly=true) %}{% endcall %}
             {% call f.form_group(form.modelo) %}{% endcall %}
-            {% call f.form_group(form.nombre_red) %}{% endcall %}
+            {% call f.form_group(form.red) %}{% endcall %}
             {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}
             {% call f.form_group(form.numero_serie) %}{% endcall %}
             {% call f.form_group(form.numero_inventario) %}{% endcall %}
@@ -44,7 +44,13 @@
     <script>
         $(document).ready(function() {
             $('#red').addClass('js-example-placeholder-single js-states form-control');
+            $('#modelo').addClass('js-example-placeholder-single js-states form-control');
             $('#red').prop("selectedIndex", -1); //poner en blanco el select
+            $('#modelo').prop("selectedIndex", -1); //poner en blanco el select
+            $(".js-example-placeholder-single").select2({
+                placeholder: "Selecciona campo",
+                allowClear: true
+            });
         });
     </script>
 {% endblock%}
