@@ -1,10 +1,9 @@
 """
 Soporte Categorias, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for, request
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-
-from sqlalchemy import not_
 
 from lib import datatables
 from lib.safe_string import safe_string, safe_message, safe_text
@@ -30,29 +29,59 @@ def before_request():
     """Permiso por defecto"""
 
 
-@soportes_categorias.route("/soportes_categorias")
+@soportes_categorias.route('/soportes_categorias')
 def list_active():
-    """Listado de Soportes Categorias activas"""
-    soportes_categorias_activas = SoporteCategoria.query.filter(SoporteCategoria.estatus == "A").all()
+    """Listado de Soportes Categorias activos"""
     return render_template(
-        "soportes_categorias/list.jinja2",
-        soportes_categorias=soportes_categorias_activas,
-        titulo="Soportes Categorias",
-        estatus="A",
+        'soportes_categorias/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Soportes Categorias',
+        estatus='A',
     )
 
 
-@soportes_categorias.route("/soportes_categorias/inactivas")
+@soportes_categorias.route('/soportes_categorias/inactivos')
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Soportes Categorias inactivas"""
-    soportes_categorias_inactivas = SoporteCategoria.query.filter(SoporteCategoria.estatus == "B").all()
+    """Listado de Soportes Categorias inactivos"""
     return render_template(
-        "soportes_categorias/list.jinja2",
-        soportes_categorias=soportes_categorias_inactivas,
-        titulo="Soportes Categorias inactivas",
-        estatus="B",
+        'soportes_categorias/list.jinja2',
+        filtros=json.dumps({'estatus': 'B'}),
+        titulo='Soportes Categorias inactivos',
+        estatus='B',
     )
+
+
+@soportes_categorias.route('/soportes_categorias/datatable_json', methods=['GET', 'POST'])
+def datatable_json():
+    """DataTable JSON para listado de Categorías"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = SoporteCategoria.query
+    if 'estatus' in request.form:
+        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    else:
+        consulta = consulta.filter_by(estatus='A')
+    if "nombre" in request.form and request.form["nombre"] != "OTRO":
+        consulta = consulta.filter(SoporteCategoria.nombre.contains(safe_string(request.form["nombre"])))
+    registros = consulta.order_by(SoporteCategoria.nombre).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                'detalle': {
+                    'nombre': resultado.nombre,
+                    'url': url_for('soportes_categorias.detail', soporte_categoria_id=resultado.id),
+                },
+                'atendido': resultado.rol.nombre,
+                'instrucciones': resultado.instrucciones,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @soportes_categorias.route("/soportes_categorias/<int:soporte_categoria_id>")
@@ -161,41 +190,3 @@ def recover(soporte_categoria_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("soportes_categorias.detail", soporte_categoria_id=soporte_categoria.id))
-
-
-@soportes_categorias.route('/soportes_categorias/datatable_json', methods=['GET', 'POST'])
-def datatable_json():
-    """DataTable JSON para listado de Categorías"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
-    # Consultar
-    consulta = SoporteCategoria.query
-    if 'estatus' in request.form:
-        consulta = consulta.filter_by(estatus=request.form['estatus'])
-    else:
-        consulta = consulta.filter_by(estatus='A')
-    if 'instrucciones' in request.form:
-        consulta =  consulta.filter(SoporteCategoria.instrucciones != "")
-    if "filtrar_categoria" in request.form:
-        if request.form["filtrar_categoria"] == "OTRO":
-            consulta = consulta.join(Rol).filter(not_(Rol.nombre.contains("TECNICO"))).filter(not_(Rol.nombre.contains("PAIIJ"))).filter(not_(Rol.nombre.contains("SIGE")))
-        else:
-            consulta = consulta.join(Rol).filter(Rol.nombre.contains(safe_string(request.form["filtrar_categoria"])))
-
-    registros = consulta.order_by(SoporteCategoria.nombre.asc()).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for resultado in registros:
-        data.append(
-            {
-                'nombre': resultado.nombre,
-                'atendido': resultado.rol.nombre,
-                'instrucciones': {
-                    'id': resultado.id,
-                    'url': url_for('soportes_categorias.detail', soporte_categoria_id=resultado.id),
-                },
-            }
-        )
-    # Entregar JSON
-    return datatables.output(draw, total, data)

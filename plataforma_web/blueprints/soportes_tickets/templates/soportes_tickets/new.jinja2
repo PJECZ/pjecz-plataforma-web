@@ -7,9 +7,7 @@
 
 {% block custom_head %}
     <style>
-        .radiobutton_inline {
-            display: flex;
-        }
+        .radiobutton_inline { display: flex; }
     </style>
 {% endblock %}
 
@@ -18,35 +16,38 @@
 {% endblock %}
 
 {% block content %}
-    {% call f.card() %}
+    {% call f.card('IMPORTANTE') %}
+        <ul>
+            <li>Algunos soportes técnicos pueden necesitar información especifica u oficios para su realización. Lea "Requisitos de las categorías" (tabla inferior).</li>
+            <li>Después de dar clic en el botón guardar podrá adjuntar archivos archivos al ticket, como archivos pdf de los oficios o imágenes de evidencia.</li>
+            <li>Los soportes técnicos de los sistemas de gestión SIGE y PAIIJ que no sean parte de una categoría, necesitan oficio dirigido a la Visitaduría General con copia a la Dirección de Informática explicando el problema presentado y quedan en proceso de la autorización correspondiente.</li>
+        </ul>
+    {% endcall %}
+    {% call f.card('Nuevo Ticket') %}
         {% call f.form_tag('soportes_tickets.new', fid='soporte_tickets_form') %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion, rows=7) %}{% endcall %}
             {% call f.form_group(form.clasificacion, css_class="radiobutton_inline") %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
-    {% if current_user.can_view("SOPORTES CATEGORIAS") %}
-        <p>* Antes de enviar un ticket, lea las instrucciones del tipo de problema que presenta, y redacte conforme a las indicacciones descritas.</p>
-        <p>Para los ticket´s que se dirigen a los sistemas de gestión SIGE y PAIIJ que no abarque una categoría, es necesario enviar un oficio dirigido a la Visitaduría General con copia a la Dirección de Informática, explicando el problema presentado.</p>
-        {% call list.card('Instrucciones') %}
-            <table id="instrucciones_datatable" class="table display nowrap" style="width:100%;">
-                <thead>
-                    <tr>
-                        <th>Categoría</th>
-                        <th>Atendido por</th>
-                        <th>Requisitos</th>
-                    </tr>
-                </thead>
-            </table>
-        {% endcall %}
-    {% endif %}
+    {% call f.card('Requisitos de las categorías') %}
+        <table id="soportes_categorias_datatable" class="table display nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Requisitos</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
     <script>
         let dataSet = {{ filtros }};
-        let tabla_instrucciones = $('#instrucciones_datatable').DataTable({
+        let soportes_categorias_ajax = $('#soportes_categorias_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -60,27 +61,36 @@
                 dataType: "json",
                 dataSrc: "data",
                 data: function ( d ) {
-                    return  $.extend(d, dataSet);
+                    return $.extend(d, dataSet);
                 }
             },
             columns: [
-                { data: "nombre" },
-                { data: "atendido" },
+                { data: "detalle" },
                 { data: "instrucciones" }
             ],
             columnDefs: [
                 {
-                    targets: [0],
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                        if (data.nombre.length > 48) {
+                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 48) + '… </a>';
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
                     }
                 },
                 {
-                    targets: [2],
+                    targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">Leer requisitos</a>';
+                        if (data != null)
+                            if (data.length > 48) {
+                                return '<span title="' + data + '">' + data.substr(0, 48) + '…</span>';
+                            } else {
+                                return data;
+                            }
+                        return '—';
                     }
                 }
             ],
@@ -102,8 +112,8 @@
 
         /* Filtrar el listado según el radibutton seleccionado */
         $('input[type=radio][name=clasificacion]').change(function() {
-            dataSet.filtrar_categoria = this.value;
-            tabla_instrucciones.ajax.reload();
+            dataSet.nombre = this.value;
+            soportes_categorias_ajax.ajax.reload();
         });
 
     </script>
