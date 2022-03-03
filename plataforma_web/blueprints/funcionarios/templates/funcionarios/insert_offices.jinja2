@@ -4,6 +4,11 @@
 
 {% block title %}Relacionar oficinas al funcionario a partir de una direccion{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Relacionar oficinas al funcionario a partir de una direccion') }}
 {% endblock %}
@@ -20,4 +25,20 @@
             {% call f.form_group(form.asignar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Select2 bootstrap domicilios -->
+    <script>
+        $(document).ready(function(){
+            $('#domicilio').addClass('js-example-placeholder-single js-states form-control');
+            $("#domicilio").prop("selectedIndex", -1);
+            $(".js-example-placeholder-single").select2({
+                placeholder: "elegir un domicilio",
+                allowClear: true
+            });
+        });
+    </script>
 {% endblock %}
