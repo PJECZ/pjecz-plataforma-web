@@ -9,7 +9,6 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
-from plataforma_web.blueprints.oficinas.models import Oficina
 
 
 def tecnicos_opciones():
@@ -25,7 +24,8 @@ def categorias_opciones():
 class SoporteTicketNewForm(FlaskForm):
     """Formulario para que cualquier usuario pueda crear un ticket"""
 
-    usuario = StringField("Usuario")  # Read only
+    usuario = StringField("Usted es")  # Read only
+    oficina = StringField("Y se encuentra en")  # Read only
     descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
     clasificacion = RadioField("Clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO")
     guardar = SubmitField("Solicitar soporte al personal de Informática")

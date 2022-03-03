@@ -335,7 +335,8 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    form.usuario.data = current_user.nombre
+    form.usuario.data = current_user.nombre # Read only
+    form.oficina.data = current_user.oficina.descripcion # Read only
     return render_template(
         "soportes_tickets/new.jinja2",
         form=form,

@@ -101,11 +101,11 @@
                     targets: [2, 5], // Usuario, Técnico
                     data: null,
                     render: function(data, type, row, meta) {
-                        if(data.nombre.length > 24)
+                        if (data.nombre.length > 24)
                             texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
                         else
                             texto = data.nombre;
-                        if(data.url == '')
+                        if (data.url == '')
                             return texto;
                         else
                             return '<a href="' + data.url + '">' + texto + '</a>';
@@ -116,7 +116,7 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
-                        if(data.url == '')
+                        if (data.url == '')
                             return texto;
                         else
                             return '<a href="' + data.url + '">' + texto + '</a>';
@@ -127,7 +127,7 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != null)
-                            if (data.length > 24)   {
+                            if (data.length > 24) {
                                 return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
                             } else {
                                 return data;
