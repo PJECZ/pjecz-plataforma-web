@@ -19,7 +19,7 @@
         {{ detail.label_value('Puesto', current_user.puesto) }}
     {% endcall %}
     {% call detail.card('Sistema') %}
-        {{ detail.label_value('Hoy', hoy_str) }}
-        {{ detail.label_value('Hoy dt', hoy_dt_str) }}
+        {{ detail.label_value('Hoy UTC', ahora_utc_str) }}
+        {{ detail.label_value('Hoy MX Coahuila', ahora_mx_coah_str) }}
     {% endcall %}
 {% endblock %}
