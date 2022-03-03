@@ -9,21 +9,25 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Ticket: ' + soporte_ticket.id | string) %}
+        {# Botones para listados #}
         {% if soporte_ticket.estado == 'CANCELADO' %}
             {{ topbar.button_previous('Tickets cancelados', url_for('soportes_tickets.list_cancel')) }}
         {% elif soporte_ticket.estado == 'CERRADO' %}
-            {{ topbar.button_previous('Tickets cerrados', url_for('soportes_tickets.list_done')) }}
-        {% elif soporte_ticket.estado == 'NO RESUELTO' %}
-            {{ topbar.button_previous('Tickets no resuletos', url_for('soportes_tickets.list_no_resolve')) }}
+            {{ topbar.button_previous('Tickets cerrados', url_for('soportes_tickets.list_closed')) }}
+        {% elif soporte_ticket.estado == 'PENDIENTE' %}
+            {{ topbar.button_previous('Tickets pendientes', url_for('soportes_tickets.list_pending')) }}
+        {% elif soporte_ticket.estado == 'TERMINADO' %}
+            {{ topbar.button_previous('Tickets terminados', url_for('soportes_tickets.list_done')) }}
+        {% elif soporte_ticket.estado == 'TRABAJANDO' %}
+            {{ topbar.button_previous('Tickets trabajando', url_for('soportes_tickets.list_working')) }}
         {% else %}
             {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
         {% endif %}
+        {# Boton editar #}
         {% if current_user.can_edit('SOPORTES TICKETS') and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO')  %}
             {{ topbar.button_edit('Editar', url_for('soportes_tickets.edit', soporte_ticket_id=soporte_ticket.id)) }}
         {% endif %}
-        {% if soporte_ticket.estado == 'SIN ATENDER' or soporte_ticket.estado == 'TRABAJANDO' %}
-            {{ topbar.button('Adjuntar Archivo', url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id), 'mdi:file-upload-outline') }}
-        {% endif %}
+        {# Botones para funcionarios en soportes #}
         {% if funcionario and current_user.can_edit('SOPORTES TICKETS') %}
             {% if soporte_ticket.estado == 'SIN ATENDER' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
@@ -40,14 +44,12 @@
             {% if soporte_ticket.estado == 'PENDIENTE' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
             {% endif %}
-            {% if soporte_ticket.estado == 'CANCELADO' %}
-                {{ modals.button_modal('Descancelar', url_for('soportes_tickets.uncancel', soporte_ticket_id=soporte_ticket.id), 'descancelar', 'mdi:cancel', '¿Deseas descancelar el Ticket?') }}
+        {% else %}
+            {% if soporte_ticket.estado == 'SIN ATENDER' %}
+                {{ topbar.button_primary('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
             {% endif %}
         {% endif %}
-        {% if soporte_ticket.estado != 'CANCELADO' and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO', 'PENDIENTE') %}
-            {{ topbar.button_danger('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:cancel') }}
-        {% endif %}
-
+        {# Botones eliminar y recuperar #}
         {% if current_user.can_admin('SOPORTES TICKETS') %}
             {% if soporte_ticket.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('soportes_tickets.delete', soporte_ticket_id=soporte_ticket.id)) }}{% endif %}
             {% if soporte_ticket.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('soportes_tickets.recover', soporte_ticket_id=soporte_ticket.id)) }}{% endif %}
@@ -84,30 +86,29 @@
         {% endif %}
     {% endcall %}
 
-    {% if soporte_ticket.estado == 'SIN ATENDER' or soporte_ticket.estado == 'TRABAJANDO' %}
-        <a href="{{ url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id) }}" class="btn btn-primary">Adjuntar Archivo</a>
-    {% endif %}
 
-    {% if archivos %}
-        {% call list.card('Archivos Adjuntos') %}
-            <table id="soportes_archivos_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for archivo in archivos %}
-                    <tr>
-                        <td><a href="{{ url_for('soportes_adjuntos.detail', soporte_adjunto_id=archivo.id) }}">{{ archivo.archivo }}</a></td>
-                        <td>{{ archivo.descripcion | truncate(48) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    {% endif %}
+    {% call list.card('Archivos Adjuntos') %}
+        <table id="soportes_archivos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for archivo in archivos %}
+                <tr>
+                    <td><a href="{{ url_for('soportes_adjuntos.detail', soporte_adjunto_id=archivo.id) }}">{{ archivo.archivo }}</a></td>
+                    <td>{{ archivo.descripcion | truncate(48) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if soporte_ticket.estado == 'SIN ATENDER' or soporte_ticket.estado == 'TRABAJANDO' %}
+            <a href="{{ url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id) }}" class="btn btn-primary">Adjuntar Archivo</a>
+        {% endif %}
+    {% endcall %}
+
 {% endblock %}
 
 {% block custom_javascript %}

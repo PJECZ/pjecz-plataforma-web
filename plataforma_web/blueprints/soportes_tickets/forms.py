@@ -26,8 +26,8 @@ class SoporteTicketNewForm(FlaskForm):
 
     usuario = StringField("Usted es")  # Read only
     oficina = StringField("Y se encuentra en")  # Read only
-    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
-    clasificacion = RadioField("Clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO")
+    descripcion = TextAreaField("Escriba detalladamente el problema", validators=[DataRequired(), Length(max=4000)])
+    clasificacion = RadioField("Y elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
@@ -36,9 +36,7 @@ class SoporteTicketNewForUsuarioForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
-    categoria = QuerySelectField(
-        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
-    )
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Guardar como abierto")
 
 
@@ -58,9 +56,7 @@ class SoporteTicketTakeForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
-    categoria = QuerySelectField(
-        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
-    )
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     tecnico = StringField("Técnico")  # Read only
     guardar = SubmitField("Tomar")
 
@@ -70,9 +66,7 @@ class SoporteTicketCategorizeForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
-    categoria = QuerySelectField(
-        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
-    )
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Categorizar")
 
 

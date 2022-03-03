@@ -635,7 +635,7 @@ def pending(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/cancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def cancel(soporte_ticket_id):
-    """Para cancelar un ticket este debe estar SIN ATENDER o TRABAJANDO y ser funcionario de soportes"""
+    """Para cancelar un ticket este debe estar SIN ATENDER"""
     soporte_ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     if not _owns_ticket(soporte_ticket):
         flash("No tiene permisos para ver ese ticket.", "warning")
@@ -644,31 +644,20 @@ def cancel(soporte_ticket_id):
     if soporte_ticket.estatus != "A":
         flash("No puede CANCELAR un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if soporte_ticket.estado not in ("SIN ATENDER", "TRABAJANDO", "NO RESUELTO"):
-        flash("No puede CANCELAR un ticket que no está SIN ATENDER, TRABAJANDO o NO RESUELTO.", "warning")
+    if soporte_ticket.estado != "SIN ATENDER":
+        flash("No puede CANCELAR un ticket que no está en SIN ATENDER.", "warning")
         return redirect(detalle_url)
-
-    form = SoporteTicketCancelForm()
-    if form.validate_on_submit():
-        soporte_ticket.estado = "CANCELADO"
-        soporte_ticket.soluciones = safe_string(form.soluciones.data)
-        soporte_ticket.resolucion = datetime.now()
-        soporte_ticket.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id}."),
-            url=detalle_url,
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    form.usuario.data = soporte_ticket.usuario.nombre
-    form.descripcion.data = soporte_ticket.descripcion
-    form.categoria.data = soporte_ticket.soporte_categoria.nombre
-    form.tecnico.data = soporte_ticket.funcionario.nombre
-    form.soluciones.data = soporte_ticket.soluciones
-    return render_template("soportes_tickets/cancel.jinja2", form=form, soporte_ticket=soporte_ticket)
+    soporte_ticket.estado = "CANCELADO"
+    soporte_ticket.save()
+    bitacora = Bitacora(
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+        usuario=current_user,
+        descripcion=safe_message(f"Cancelado el ticket {soporte_ticket.id}."),
+        url=detalle_url,
+    )
+    bitacora.save()
+    flash(bitacora.descripcion, "success")
+    return redirect(bitacora.url)
 
 
 @soportes_tickets.route("/soportes_tickets/descancelar/<int:soporte_ticket_id>", methods=["GET", "POST"])
