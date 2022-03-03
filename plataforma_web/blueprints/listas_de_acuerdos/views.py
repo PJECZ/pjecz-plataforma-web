@@ -27,12 +27,12 @@ from plataforma_web.blueprints.permisos.models import Permiso
 
 listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="templates")
 
+HUSO_HORARIO = "America/Mexico_City"
 MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
 LIMITE_DIAS = 30  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
 LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
 ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
-
 
 @listas_de_acuerdos.before_request
 @login_required
@@ -360,7 +360,7 @@ def new():
 
     # Google App Engine usa tiempo universal, sin esta correccion las fechas de la noche cambian al dia siguiente
     ahora_utc = datetime.datetime.now(timezone("UTC"))
-    ahora_mx_coah = ahora_utc.astimezone(timezone("America/Mexico_City"))
+    ahora_mx_coah = ahora_utc.astimezone(timezone(HUSO_HORARIO))
 
     # Para validar la fecha
     hoy = ahora_mx_coah.date()
@@ -388,7 +388,7 @@ def new():
         # Validar fecha
         if mi_limite_dias > 0:
             fecha = form.fecha.data
-            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
+            if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day, tzinfo=timezone(HUSO_HORARIO)) <= hoy_dt:
                 flash(f"La fecha no debe ser del futuro ni anterior a {mi_limite_dias} días.", "warning")
                 es_valido = False
         else:
