@@ -26,7 +26,7 @@ from plataforma_web.blueprints.inv_marcas.models import INVMarca
 from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
 
 MODULO = "INV EQUIPOS"
-MESES_FUTUROS = 12  # Un año a futuro, para las fechas
+MESES_FUTUROS = 6  # Un año a futuro, para las fechas
 
 inv_equipos = Blueprint("inv_equipos", __name__, template_folder="templates")
 
@@ -172,21 +172,29 @@ def edit(equipo_id):
     """Editar Equipos"""
     equipo = INVEquipo.query.get_or_404(equipo_id)
     form = INVEquipoForm()
+    validacion = False
     if form.validate_on_submit():
-        equipo.modelo = form.modelo.data
-        equipo.red = form.red.data
-        equipo.adquisicion_fecha = form.adquisicion_fecha.data
-        equipo.numero_serie = form.numero_serie.data
-        equipo.numero_invenatario = form.numero_inventario.data
-        equipo.descripcion = safe_string(form.descripcion.data)
-        equipo.direccion_ip = form.direccion_ip.data
-        equipo.direccion_mac = form.direccion_mac.data
-        equipo.numero_nodo = form.numero_nodo.data
-        equipo.numero_switch = form.numero_switch.data
-        equipo.numero_puerto = form.numero_puerto.data
-        equipo.save()
-        flash(f"Equipos {equipo.descripcion} guardado.", "success")
-        return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+        try:
+            validar_fecha(form.adquisicion_fecha.data)
+            validacion = True
+        except Exception as err:
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
+            validacion = False
+        if validacion:
+            equipo.modelo = form.modelo.data
+            equipo.red = form.red.data
+            equipo.adquisicion_fecha = form.adquisicion_fecha.data
+            equipo.numero_serie = form.numero_serie.data
+            equipo.numero_invenatario = form.numero_inventario.data
+            equipo.descripcion = safe_string(form.descripcion.data)
+            equipo.direccion_ip = form.direccion_ip.data
+            equipo.direccion_mac = form.direccion_mac.data
+            equipo.numero_nodo = form.numero_nodo.data
+            equipo.numero_switch = form.numero_switch.data
+            equipo.numero_puerto = form.numero_puerto.data
+            equipo.save()
+            flash(f"Equipos {equipo.descripcion} guardado.", "success")
+            return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
     form.modelo.data = equipo.modelo
     form.red.data = equipo.red
     form.adquisicion_fecha.data = equipo.adquisicion_fecha
@@ -207,11 +215,8 @@ def edit(equipo_id):
 
 def validar_fecha(fecha):
     """Validar Fecha"""
-    if fecha < date.today():
-        raise Exception("La fecha no puede ser pasada.")
-    fecha_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
-    if fecha > fecha_futura:
-        raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {fecha_futura}")
+    if fecha > date.today():
+        raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {date.today()}")
     return True
 
 

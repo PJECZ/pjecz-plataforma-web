@@ -87,12 +87,20 @@ def edit(red_id):
     """Editar Red"""
     red = INVRedes.query.get_or_404(red_id)
     form = INVRedesForm()
+    validacion = False
     if form.validate_on_submit():
-        red.nombre = safe_string(form.nombre.data)
-        red.tipo = safe_string(form.tipo.data)
-        red.save()
-        flash(f"Red {red.nombre} guardado.", "success")
-        return redirect(url_for("inv_redes.detail", red_id=red.id))
+        try:
+            _validar_form(form)
+            validacion = True
+        except Exception as err:
+            flash(f"Nombre de la red incorrecto. {str(err)}", "warning")
+            validacion = False
+        if validacion:
+            red.nombre = safe_string(form.nombre.data)
+            red.tipo = safe_string(form.tipo.data)
+            red.save()
+            flash(f"Red {red.nombre} guardado.", "success")
+            return redirect(url_for("inv_redes.detail", red_id=red.id))
     form.nombre.data = red.nombre
     form.tipo.data = red.tipo
     return render_template("inv_redes/edit.jinja2", form=form, red=red)

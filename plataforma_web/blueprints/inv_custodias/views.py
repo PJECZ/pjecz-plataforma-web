@@ -24,7 +24,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.inv_custodias.forms import INVCustodiaForm
 
 MODULO = "INV CUSTODIAS"
-MESES_FUTUROS = 12  # Un año a futuro, para las fechas
+MESES_FUTUROS = 6  # Un año a futuro, para las fechas
 
 inv_custodias = Blueprint("inv_custodias", __name__, template_folder="templates")
 
@@ -141,23 +141,29 @@ def edit(custodia_id):
     """Editar Custodias"""
     custodia = INVCustodia.query.get_or_404(custodia_id)
     form = INVCustodiaForm()
+    validacion = False
     if form.validate_on_submit():
-        custodia.fecha = form.fecha.data
-        custodia.save()
-        flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-        return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+        try:
+            validar_fecha(form.adquisicion_fecha.data)
+            validacion = True
+        except Exception as err:
+            flash(f"La fecha es incorrecta: {str(err)}", "warning")
+            validacion = False
+        if validacion:
+            custodia.fecha = form.fecha.data
+            custodia.save()
+            flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
+            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.fecha.data = custodia.fecha
     form.usuario.data = custodia.usuario.nombre
     form.oficina.data = str(f"{custodia.oficina.clave} - {custodia.oficina.descripcion_corta}")
     return render_template("inv_custodias/edit.jinja2", form=form, custodia=custodia)
 
 
-def _validar_fecha(fecha):
+def validar_fecha(fecha):
+    """Validar Fecha"""
     if fecha > date.today():
-        raise Exception("La fecha no puede estar en el pasado.")
-    fecha_max_futura = date.today() + relativedelta(months=+MESES_FUTUROS)
-    if fecha > fecha_max_futura:
-        raise Exception(f"La fecha es muy futura, lo máximo permitido es: {fecha_max_futura}")
+        raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {date.today()}")
     return True
 
 
