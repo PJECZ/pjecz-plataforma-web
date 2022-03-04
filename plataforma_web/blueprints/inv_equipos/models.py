@@ -20,14 +20,14 @@ class INVEquipo(db.Model, UniversalMixin):
     custodia = db.relationship("INVCustodia", back_populates="equipos")
     modelo_id = db.Column(db.Integer, db.ForeignKey("inv_modelos.id"), index=True, nullable=False)
     modelo = db.relationship("INVModelo", back_populates="equipos")
-    red_id = db.Column(db.Integer, db.ForeignKey("inv_redes.id"), index=True, nullable=False)
+    red_id = db.Column(db.Integer, db.ForeignKey("inv_redes.id"), index=True)
     red = db.relationship("INVRedes", back_populates="equipos")
 
     # Columnas
     adquisicion_fecha = db.Column(db.Date(), nullable=False)
     numero_serie = db.Column(db.String(256))
     numero_inventario = db.Column(db.Integer())
-    descripcion = db.Column(db.String(256))
+    descripcion = db.Column(db.String(256), nullable=False)
     direccion_ip = db.Column(db.String(256))
     direccion_mac = db.Column(db.String(256))
     numero_nodo = db.Column(db.Integer())

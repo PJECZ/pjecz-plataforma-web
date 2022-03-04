@@ -29,13 +29,13 @@ class INVEquipoForm(FlaskForm):
     email = StringField("Email")
     oficina = StringField("Oficina")
     modelo = QuerySelectField(label="Modelo", query_factory=modelos_opciones, get_label="marca_modelo", validators=[DataRequired()])  # solo lectrua
-    red = QuerySelectField(label="Red", query_factory=redes_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
+    red = QuerySelectField(label="Red", query_factory=redes_opciones, get_label="nombre", validators=[Optional()])  # solo lectrua
     adquisicion_fecha = DateField("Fecha de adquisición", validators=[DataRequired()])
-    numero_serie = IntegerField("Número de serie", validators=[DataRequired()])
-    numero_inventario = IntegerField("Número de inventario", validators=[DataRequired()])
+    numero_serie = IntegerField("Número de serie", validators=[Optional()])
+    numero_inventario = IntegerField("Número de inventario", validators=[Optional()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
-    direccion_ip = StringField("Dirección IP", validators=[IPAddress()])
-    direccion_mac = StringField("Dirección MAC", validators=[MacAddress()])
+    direccion_ip = StringField("Dirección IP", validators=[Optional()])
+    direccion_mac = StringField("Dirección MAC", validators=[Optional()])
     numero_nodo = IntegerField("Número de nodo", validators=[Optional()])
     numero_switch = IntegerField("Número de switch", validators=[Optional()])
     numero_puerto = IntegerField("Número de puerto", validators=[Optional()])

@@ -23,13 +23,13 @@
             <thead>
                 <tr>
                     <th>Marca</th>
-                    <th>Descripcion</th>
+                    <th>Modelo</th>
                 </tr>
             </thead>
             <tbody>
                 {% for modelo in modelos %}
                 <tr>
-                    <td>{{ modelo.marca.nombre }}</td>
+                    <td><a href="{{ url_for('inv_marcas.detail', marca_id=marca.id) }}">({{ modelo.marca.nombre }}</td>
                     <td><a href="{{ url_for('inv_modelos.detail', modelo_id=modelo.id) }}">{{ modelo.descripcion }}</a></td>
                 </tr>
                 {% endfor %}

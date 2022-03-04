@@ -22,7 +22,7 @@
         {{ detail.label_value('Marca', modelo.marca.nombre) }}
         {{ detail.label_value('Descripcion', modelo.descripcion) }}
     {% endcall %}
-    {% call list.card() %}
+    {% call list.card('Equipos') %}
         <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>

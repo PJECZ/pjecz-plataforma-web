@@ -112,7 +112,7 @@ def _validar_form(form, same=False):
     if not same:
         descripcion_existente = INVModelo.query.filter(INVModelo.descripcion == safe_string(form.descripcion.data)).first()
         if descripcion_existente:
-            raise Exception("La descripcion ya está en uso. ")
+            raise Exception("La descripción ya está en uso. ")
 
 
 @inv_modelos.route("/inv_modelos/eliminar/<int:modelo_id>")
