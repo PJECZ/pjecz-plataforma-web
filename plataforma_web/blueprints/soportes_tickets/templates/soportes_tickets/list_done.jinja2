@@ -9,9 +9,10 @@
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
-        {{ topbar.button_primary('Abiertos', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
-        {{ topbar.button_primary('Trabajando', url_for('soportes_tickets.list_working'), 'mdi:plus-circle') }}
-        {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
+        {{ topbar.button_primary('Sin Atender', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
+        {{ topbar.button_primary('Trabajando', url_for('soportes_tickets.list_working'), 'mdi:play-circle') }}
+        {{ topbar.button('Pendientes', url_for('soportes_tickets.list_pending'), 'mdi:pause-circle') }}
+        {{ topbar.button('Cerrados', url_for('soportes_tickets.list_closed'), 'mdi:minus-circle') }}
         {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
@@ -54,7 +55,7 @@
                 headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
-                data: { "estatus": "A", "estado": "CERRADO" }
+                data: { "estatus": "A", "estado": "TERMINADO" }
             },
             columns: [
                 { data: "id" },
