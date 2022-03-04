@@ -24,7 +24,7 @@ class INVEquipo(db.Model, UniversalMixin):
     red = db.relationship("INVRedes", back_populates="equipos")
 
     # Columnas
-    adquisicion_fecha = db.Column(db.Date(), nullable=False)
+    adquisicion_fecha = db.Column(db.Date())
     numero_serie = db.Column(db.String(256))
     numero_inventario = db.Column(db.Integer())
     descripcion = db.Column(db.String(256), nullable=False)
