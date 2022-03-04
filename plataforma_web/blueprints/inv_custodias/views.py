@@ -76,7 +76,7 @@ def new(usuario_id):
     validacion = False
     if form.validate_on_submit():
         try:
-            _validar_fecha(form.fecha.data)
+            validar_fecha(form.fecha.data)
             validacion = True
         except Exception as err:
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
@@ -144,7 +144,7 @@ def edit(custodia_id):
     validacion = False
     if form.validate_on_submit():
         try:
-            validar_fecha(form.adquisicion_fecha.data)
+            validar_fecha(form.fecha.data)
             validacion = True
         except Exception as err:
             flash(f"La fecha es incorrecta: {str(err)}", "warning")

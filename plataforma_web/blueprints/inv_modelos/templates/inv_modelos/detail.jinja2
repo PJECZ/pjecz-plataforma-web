@@ -26,12 +26,12 @@
         <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Descripción</th>
                     <th>Inventario</th>
                     <th>No. serie</th>
                     <th>Fecha adquisición</th>
                     <th>Marca</th>
                     <th>Modelo</th>
-                    <th>Descripción</th>
                     <th>Custodio</th> 
                 </tr>
             </thead>
@@ -64,24 +64,24 @@
                 data: { "estatus": "A", "modelo_equipo_id": {{modelo.id}} }
             },
             columns: [
+                { data: "descripcion" },
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
                 { data: "marca" },
                 { data: "modelo" },
-                { data: "descripcion" },
                 { data: "custodia" },
             ],
             columnDefs: [
-                {
+                /* {
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
-                },
+                }, */
                 {
-                    targets: [3,4],
+                    targets: [0,4,5],
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';

@@ -141,13 +141,13 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "numero_inventario": {
-                    "descripcion": resultado.numero_inventario,
+                "descripcion": {
+                    "nombre": resultado.descripcion,
                     "url": url_for("inv_equipos.detail", equipo_id=resultado.id),
                 },
-                "numero_serie": resultado.numero_serie,
-                "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d"),
-                "descripcion": resultado.descripcion,
+                "numero_inventario": resultado.numero_inventario if resultado.numero_inventario is not None else "-",
+                "numero_serie": resultado.numero_serie if resultado.numero_inventario is not None else "-",
+                "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d") if resultado.adquisicion_fecha is not None else "-",
                 "custodia": {
                     "nombre_completo": resultado.custodia.nombre_completo,
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
