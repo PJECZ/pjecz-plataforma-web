@@ -29,6 +29,7 @@
                     <th>Marca</th>
                     <th>Modelo</th>
                     <th>Custodio</th> 
+                    <th>Custodia id</th> 
                 </tr>
             </thead>
             
@@ -61,16 +62,10 @@
                 { data: "adquisicion_fecha" },
                 { data: "marca" },
                 { data: "modelo" },
-                { data: "custodia" },
+                { data: "usuario" },
+                { data: "custodia_id" },
             ],
             columnDefs: [
-              /*  {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                    }
-                },*/
                {
                     targets: [0,4,5],
                     data: null,
@@ -83,6 +78,13 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                    }
+                },
+                {
+                    targets: 7,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
             ],

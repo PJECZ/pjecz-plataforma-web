@@ -26,7 +26,7 @@
         {{ detail.label_value('Fecha', custodia.fecha) }}
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS')  %}
-        {% call detail.card('Equipo') %}
+        {% call detail.card('Equipos') %}
             <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}  display nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -36,7 +36,6 @@
                         <th>Fecha adquisición</th>
                         <th>Marca</th>
                         <th>Modelo</th>
-                        <th>Custodio</th> 
                     </tr>
                 </thead>
                 
@@ -76,28 +75,13 @@
             { data: "adquisicion_fecha" },
             { data: "marca" },
             { data: "modelo" },
-            { data: "custodia" },
         ],
         columnDefs: [
-            /*{
-                targets: 0,
-                data: null,
-                render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                }
-            },*/
             {
                 targets: [0,4,5],
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                }
-            },
-            {
-                targets: 6,
-                data: null,
-                render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                 }
             },
         ],

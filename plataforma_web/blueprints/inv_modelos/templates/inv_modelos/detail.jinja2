@@ -31,7 +31,6 @@
                     <th>No. serie</th>
                     <th>Fecha adquisición</th>
                     <th>Marca</th>
-                    <th>Modelo</th>
                     <th>Custodio</th> 
                 </tr>
             </thead>
@@ -69,26 +68,18 @@
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
                 { data: "marca" },
-                { data: "modelo" },
-                { data: "custodia" },
+                { data: "usuario" },
             ],
             columnDefs: [
-                /* {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                    }
-                }, */
                 {
-                    targets: [0,4,5],
+                    targets: [0,4],
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
                 {
-                    targets: 6,
+                    targets: 5,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';

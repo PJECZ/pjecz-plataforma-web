@@ -148,8 +148,12 @@ def datatable_json():
                 "numero_inventario": resultado.numero_inventario if resultado.numero_inventario is not None else "-",
                 "numero_serie": resultado.numero_serie if resultado.numero_inventario is not None else "-",
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d") if resultado.adquisicion_fecha is not None else "-",
-                "custodia": {
-                    "nombre_completo": resultado.custodia.nombre_completo,
+                "usuario": {
+                    "nombre_completo": resultado.custodia.usuario.nombre,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.custodia.usuario_id) if current_user.can_view("USUARIOS") else "",
+                },
+                "custodia_id": {
+                    "id": resultado.custodia.id,
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
                 },
                 "marca": {
