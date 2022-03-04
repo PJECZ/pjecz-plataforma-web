@@ -105,7 +105,7 @@ def _validar_form(form, same=False):
     if not same:
         nombre_existente = INVCategoria.query.filter(INVCategoria.nombre == safe_string(form.nombre.data)).first()
         if nombre_existente:
-            raise Exception("El nombre ya está regsitrado.")
+            raise Exception("El nombre ya está registrado.")
     return True
 
 
