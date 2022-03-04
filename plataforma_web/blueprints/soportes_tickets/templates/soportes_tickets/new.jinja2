@@ -74,9 +74,9 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.nombre.length > 48) {
-                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 48) + '… </a>';
+                            return '<a href="' + data.url + '" target="_blank">' + data.nombre.substr(0, 48) + '… </a>';
                         } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                            return '<a href="' + data.url + '" target="_blank">' + data.nombre + '</a>';
                         }
                     }
                 },

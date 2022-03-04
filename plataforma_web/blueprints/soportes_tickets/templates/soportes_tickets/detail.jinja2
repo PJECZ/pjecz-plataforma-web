@@ -6,7 +6,6 @@
 
 {% block title %}Soporte Ticket{% endblock %}
 
-
 {% block topbar_actions %}
     {% call topbar.page_buttons('Ticket: ' + soporte_ticket.id | string) %}
         {# Botones para listados #}
@@ -39,14 +38,14 @@
                 {{ topbar.button_primary('Cerrar', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:alert-octagon') }}
             {% endif %}
             {% if soporte_ticket.estado != 'PENDIENTE' and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO') %}
-                {{ modals.button_modal('Pendiente', url_for('soportes_tickets.pending', soporte_ticket_id=soporte_ticket.id), 'no_resuelto', 'mdi:message-alert', '¿Deseas marcar este Ticket como No Resuelto?') }}
+                {{ modals.button_modal('Pendiente', url_for('soportes_tickets.pending', soporte_ticket_id=soporte_ticket.id), 'pendiente', 'mdi:message-alert', '¿Deseas marcar este Ticket como Pendiente?') }}
             {% endif %}
             {% if soporte_ticket.estado == 'PENDIENTE' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
             {% endif %}
         {% else %}
             {% if soporte_ticket.estado == 'SIN ATENDER' %}
-                {{ topbar.button_primary('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
+                {{ modals.button_modal('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'cancelar', 'mdi:cancel', '¿Desea cancelar el ticket?') }}
             {% endif %}
         {% endif %}
         {# Botones eliminar y recuperar #}
@@ -59,34 +58,42 @@
 
 {% block content %}
     {% call detail.card(estatus=soporte_ticket.estatus) %}
-        <div id="estado">{{ detail.label_value_big('Estado', soporte_ticket.estado) }}</div>
+        <div id="estado">
+            {{ detail.label_value_big('Estado', soporte_ticket.estado) }}
+        </div>
+        <div class="fs-4">
+            {{ detail.label_value('Descripción', soporte_ticket.descripcion) }}
+        </div>
         {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
         {% if current_user.can_view('USUARIOS') %}
             {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre, url_for('usuarios.detail', usuario_id=soporte_ticket.usuario_id)) }}
         {% else %}
             {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
         {% endif %}
-        {{ detail.label_value('Descripción del Problema', soporte_ticket.descripcion) }}
+        {% if current_user.can_view('OFICINAS') %}
+            {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave_nombre, url_for('oficinas.detail', oficina_id=soporte_ticket.usuario.oficina_id)) }}
+        {% else %}
+            {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave_nombre) }}
+        {% endif %}
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre, url_for('soportes_categorias.detail', soporte_categoria_id=soporte_ticket.soporte_categoria_id)) }}
         {% else %}
             {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
         {% endif %}
-        {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave + ' - ' + soporte_ticket.usuario.oficina.descripcion) }}
         {% if soporte_ticket.funcionario_id != 1 %}
-            {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
+            {% if current_user.can_view('FUNCIONARIOS') %}
+                {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre, url_for('funcionarios.detail', funcionario_id=soporte_ticket.funcionario_id)) }}
+            {% else %}
+                {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
+            {% endif %}
         {% endif %}
-        {% if soporte_ticket.estado == 'CERRADO' %}
+        {% if soporte_ticket.estado in ('CERRADO', 'TERMINADO') %}
             {{ detail.label_value('Resolución', moment(soporte_ticket.resolucion).format('llll')) }}
         {% endif %}
-        {% if soporte_ticket.estado in ('CANCELADO', 'CERRADO') %}
-            {{ detail.label_value('Motivo', soporte_ticket.soluciones) }}
-        {% else %}
-            {{ detail.label_value('Soluciones', soporte_ticket.soluciones) }}
-        {% endif %}
+        <div class="fs-4">
+            {{ detail.label_value('Respuesta/Solucion', soporte_ticket.soluciones) }}
+        </div>
     {% endcall %}
-
-
     {% call list.card('Archivos Adjuntos') %}
         <table id="soportes_archivos_datatable" class="table display nowrap" style="width:100%">
             <thead>
@@ -108,7 +115,6 @@
             <a href="{{ url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id) }}" class="btn btn-primary">Adjuntar Archivo</a>
         {% endif %}
     {% endcall %}
-
 {% endblock %}
 
 {% block custom_javascript %}
@@ -117,18 +123,18 @@
         {% if soporte_ticket.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar este ticket?') }}{% endif %}
         {% if soporte_ticket.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este ticket?') }}{% endif %}
         {{ modals.custom_javascript('Soltar', '¿Desea soltar este ticket?', 'soltar') }}
-        {{ modals.custom_javascript('No Resuleto', '¿Deseas marcar como "No Resuelto" este ticket?', 'no_resuelto') }}
-        {{ modals.custom_javascript('Descancelar', '¿Deseas descancelar este ticket?', 'descancelar') }}
+        {{ modals.custom_javascript('Pendiente', '¿Deseas marcar como "Pendiente" este ticket?', 'pendiente') }}
+        {{ modals.custom_javascript('Cancelar Ticket', '¿Deseas cancelar este ticket?', 'cancelar') }}
     {% endif %}
     {{ list.datatable('soportes_archivos_datatable') }}
     <script>
         switch ("{{ soporte_ticket.estado }}")    {
-            case "SIN ATENDER": $('.card-body').css("background-color", "#fef9e7");  $('.card').css("border-color", "#7d6608");    $('#estado').css("color", "#7d6608");    break;
-            case "TRABAJANDO":  $('.card-body').css("background-color", "#ebf5fb");  $('.card').css("border-color", "#154360");    $('#estado').css("color", "#154360");    break;
-            case "CANCELADO":   $('.card-body').css("background-color", "#fdedec");  $('.card').css("border-color", "#641e16");    $('#estado').css("color", "#641e16");    break;
-            case "PENDIENTE":   $('.card-body').css("background-color", "#f5eef8");  $('.card').css("border-color", "#4a235a");    $('#estado').css("color", "#4a235a");    break;
-            case "TERMINADO":   $('.card-body').css("background-color", "#eafaf1");  $('.card').css("border-color", "#0b5345");    $('#estado').css("color", "#0b5345");    break;
-            case "CERRADO":     $('.card-body').css("background-color", "#eceff1");  $('.card').css("border-color", "#546e7a");    $('#estado').css("color", "#546e7a");    break;
+            case "SIN ATENDER": $('.card-body').css("background-color", "#fef9e7"); $('.card').css("border-color", "#7d6608"); $('#estado').css("color", "#7d6608"); break;
+            case "TRABAJANDO":  $('.card-body').css("background-color", "#ebf5fb"); $('.card').css("border-color", "#154360"); $('#estado').css("color", "#154360"); break;
+            case "CANCELADO":   $('.card-body').css("background-color", "#fdedec"); $('.card').css("border-color", "#641e16"); $('#estado').css("color", "#641e16"); break;
+            case "PENDIENTE":   $('.card-body').css("background-color", "#f5eef8"); $('.card').css("border-color", "#4a235a"); $('#estado').css("color", "#4a235a"); break;
+            case "TERMINADO":   $('.card-body').css("background-color", "#eafaf1"); $('.card').css("border-color", "#0b5345"); $('#estado').css("color", "#0b5345"); break;
+            case "CERRADO":     $('.card-body').css("background-color", "#eceff1"); $('.card').css("border-color", "#546e7a"); $('#estado').css("color", "#546e7a"); break;
         }
     </script>
 {% endblock %}
