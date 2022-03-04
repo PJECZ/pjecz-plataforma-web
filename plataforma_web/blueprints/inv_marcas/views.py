@@ -105,9 +105,9 @@ def edit(marca_id):
 
 def _validar_form(form, same=False):
     if not same:
-        nombre_existente = INVMarca.query.filter(INVMarca.nombre == form.nombre.data).first()
+        nombre_existente = INVMarca.query.filter(INVMarca.nombre == safe_string(form.nombre.data)).first()
         if nombre_existente:
-            raise Exception("El nombre ya esta regsitrado")
+            raise Exception("El nombre ya está registrado")
     return True
 
 

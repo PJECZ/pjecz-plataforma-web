@@ -7,7 +7,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Red:  ' + red.nombre) %}
-        {{ topbar.button_previous('Red', url_for('inv_redes.list_active')) }}
+        {{ topbar.button_previous('Redes', url_for('inv_redes.list_active')) }}
         {% if current_user.can_edit('INV REDES') %}
             {{ topbar.button_edit('Editar', url_for('inv_redes.edit', red_id=red.id)) }}
             {% if red.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_redes.delete', red_id=red.id)) }}{% endif %}

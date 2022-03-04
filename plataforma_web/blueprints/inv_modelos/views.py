@@ -99,7 +99,7 @@ def edit(modelo_id):
             validacion = False
 
         if validacion:
-            modelo.descripcion = form.descripcion.data
+            modelo.descripcion = safe_string(form.descripcion.data)
             modelo.save()
             flash(f"Modelo {modelo.descripcion} guardado.", "success")
             return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
@@ -110,9 +110,9 @@ def edit(modelo_id):
 
 def _validar_form(form, same=False):
     if not same:
-        descripcion_existente = INVModelo.query.filter(INVModelo.descripcion == form.descripcion.data).first()
+        descripcion_existente = INVModelo.query.filter(INVModelo.descripcion == safe_string(form.descripcion.data)).first()
         if descripcion_existente:
-            raise Exception("La descripcion ya esta en uso. ")
+            raise Exception("La descripcion ya está en uso. ")
 
 
 @inv_modelos.route("/inv_modelos/eliminar/<int:modelo_id>")
