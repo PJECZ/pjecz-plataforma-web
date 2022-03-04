@@ -23,7 +23,6 @@ from plataforma_web.blueprints.funcionarios_oficinas.models import FuncionarioOf
 
 from .forms import (
     SoporteTicketNewForm,
-    SoporteTicketNewForUsuarioForm,
     SoporteTicketEditForm,
     SoporteTicketSearchForm,
     SoporteTicketTakeForm,
@@ -52,11 +51,11 @@ def _get_funcionario_if_is_soporte():
 def _owns_ticket(soporte_ticket: SoporteTicket):
     """Es propietario del ticket, porque lo creo, es de soporte o es administrador"""
     if current_user.can_admin(MODULO):
-        return True # Es administrador
+        return True  # Es administrador
     if _get_funcionario_if_is_soporte():
-        return True # Es de soporte
+        return True  # Es de soporte
     if soporte_ticket.usuario == current_user:
-        return True # Es el usuario que creó el ticket
+        return True  # Es el usuario que creó el ticket
     return False
 
 
@@ -151,7 +150,7 @@ def datatable_json():
     if "order[0][column]" in request.form:
         columna_num = request.form["order[0][column]"]
         asc_or_desc = request.form["order[0][dir]"]
-        columna = request.form["columns["+columna_num+"][data]"]
+        columna = request.form["columns[" + columna_num + "][data]"]
         if columna == "id":
             if asc_or_desc == "asc":
                 consulta = consulta.order_by(SoporteTicket.id.asc())
@@ -335,50 +334,13 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    form.usuario.data = current_user.nombre # Read only
-    form.oficina.data = current_user.oficina.descripcion # Read only
+    form.usuario.data = current_user.nombre  # Read only
+    form.oficina.data = current_user.oficina.descripcion  # Read only
     return render_template(
         "soportes_tickets/new.jinja2",
         form=form,
         filtros=json.dumps({"estatus": "A", "instrucciones": True}),
     )
-
-
-@soportes_tickets.route("/soportes_tickets/nuevo/<int:usuario_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
-def new_for_usuario(usuario_id):
-    """Solo un administrador puede crear un ticket para otro usuario"""
-    usuario = Usuario.query.get_or_404(usuario_id)
-    if usuario.estatus != "A":
-        flash("El usuario esta eliminado", "warning")
-        return redirect(url_for("soportes_tickets.list_active"))
-    tecnico = _get_funcionario_if_is_soporte()
-    if tecnico is None:
-        flash("No puede crear tickets; necesita ser funcionario de soporte para hacerlo", "warning")
-        return redirect(url_for("soportes_tickets.list_active"))
-    form = SoporteTicketNewForUsuarioForm()
-    if form.validate_on_submit():
-        ticket = SoporteTicket(
-            funcionario=tecnico,
-            soporte_categoria=form.categoria.data,
-            usuario=usuario,
-            descripcion=safe_text(form.descripcion.data),
-            estado="SIN ATENDER",
-            resolucion="",
-            soluciones="",
-        )
-        ticket.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo ticket {ticket.id} por {tecnico.nombre}"),
-            url=url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    form.usuario.data = usuario.nombre
-    return render_template("soportes_tickets/new_for_usuario.jinja2", form=form, usuario=usuario)
 
 
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
