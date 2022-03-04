@@ -543,7 +543,7 @@ def done(soporte_ticket_id):
     form = SoporteTicketCloseForm()
     if form.validate_on_submit():
         ticket.estado = "TERMINADO"
-        ticket.soluciones = safe_text(form.soluciones.data)
+        ticket.soluciones = safe_text(form.soluciones.data, to_uppercase=False)
         ticket.resolucion = datetime.now()
         ticket.save()
         bitacora = Bitacora(
@@ -582,7 +582,7 @@ def close(soporte_ticket_id):
     form = SoporteTicketCloseForm()
     if form.validate_on_submit():
         ticket.estado = "CERRADO"
-        ticket.soluciones = safe_text(form.soluciones.data)
+        ticket.soluciones = safe_text(form.soluciones.data, to_uppercase=False)
         ticket.resolucion = datetime.now()
         ticket.save()
         bitacora = Bitacora(
