@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar Equipo: ' + equipo.numero_inventario | string) }}
+    {{ topbar.page('Editar Equipo: ' + equipo.descripcion) }}
 {% endblock %}
 
 {% block content %}
@@ -48,7 +48,6 @@
             $(".js-example-placeholder-single").select2({
                 placeholder: "Selecciona campo",
                 allowClear: true,
-                theme: 'bootstrap-5'
             });
         });
     </script>

@@ -162,7 +162,7 @@ def edit(custodia_id):
 
 def validar_fecha(fecha):
     """Validar Fecha"""
-    if fecha > date.today():
+    if fecha is not None and fecha > date.today():
         raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {date.today()}")
     return True
 
