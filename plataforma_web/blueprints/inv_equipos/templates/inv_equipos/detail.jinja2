@@ -8,7 +8,7 @@
 {% block title %}Equipos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Equipo: Inventario ' + equipo.descripcion) %}
+    {% call topbar.page_buttons('Equipo: ' + equipo.descripcion) %}
         {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
         {% if current_user.can_edit('INV EQUIPOS') %}
             {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', equipo_id=equipo.id)) }}

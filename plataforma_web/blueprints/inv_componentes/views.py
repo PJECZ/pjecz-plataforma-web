@@ -75,7 +75,7 @@ def new(equipo_id):
     validacion = False
     if form.validate_on_submit():
         try:
-            _validar_form(form)
+            _validar_form(form, equipo_id)
             validacion = True
         except Exception as err:
             flash(f"La descripcion es incorrecta: {str(err)}", "warning")
@@ -138,7 +138,7 @@ def edit(componente_id):
     validacion = False
     if form.validate_on_submit():
         try:
-            _validar_form(form, True)
+            _validar_form(form, componente.equipo_id, True)
             validacion = True
         except Exception as err:
             flash(f"El componente es incorrecto: {str(err)}", "warning")
@@ -159,9 +159,9 @@ def edit(componente_id):
     return render_template("inv_componentes/edit.jinja2", form=form, componente=componente)
 
 
-def _validar_form(form, same=False):
+def _validar_form(form, equipo_id, same=False):
     if not same:
-        descripcion_existente = INVComponente.query.filter(INVComponente.descripcion == safe_string(form.descripcion.data)).first()
+        descripcion_existente = INVComponente.query.filter(INVComponente.descripcion == safe_string(form.descripcion.data)).filter(INVComponente.equipo_id == equipo_id).first()
         if descripcion_existente:
             raise Exception("La descripción ya está en uso.")
     return True
