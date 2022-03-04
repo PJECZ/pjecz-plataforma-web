@@ -29,7 +29,7 @@ from .forms import (
     SoporteTicketTakeForm,
     SoporteTicketCategorizeForm,
     SoporteTicketCloseForm,
-    SoporteTicketCancelForm,
+    SoporteTicketDoneForm,
 )
 
 MODULO = "SOPORTES TICKETS"
@@ -540,7 +540,7 @@ def done(soporte_ticket_id):
     if funcionario is None:
         flash("No puede cerrar el ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
-    form = SoporteTicketCloseForm()
+    form = SoporteTicketDoneForm()
     if form.validate_on_submit():
         ticket.estado = "TERMINADO"
         ticket.soluciones = safe_text(form.soluciones.data, to_uppercase=False)
@@ -560,7 +560,7 @@ def done(soporte_ticket_id):
     form.categoria.data = ticket.soporte_categoria.nombre
     form.tecnico.data = ticket.funcionario.nombre
     form.soluciones.data = ticket.soluciones
-    return render_template("soportes_tickets/close.jinja2", form=form, soporte_ticket=ticket)
+    return render_template("soportes_tickets/done.jinja2", form=form, soporte_ticket=ticket)
 
 
 @soportes_tickets.route("/soportes_tickets/cerrar/<int:soporte_ticket_id>", methods=["GET", "POST"])
