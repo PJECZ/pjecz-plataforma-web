@@ -26,24 +26,23 @@
         {% if current_user.can_edit('SOPORTES TICKETS') and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO')  %}
             {{ topbar.button_edit('Editar', url_for('soportes_tickets.edit', soporte_ticket_id=soporte_ticket.id)) }}
         {% endif %}
-        {# Botones para funcionarios en soportes #}
+        {# Botones para cambiar el estado #}
         {% if funcionario and current_user.can_edit('SOPORTES TICKETS') %}
+            {# Es funcionario de soporte #}
             {% if soporte_ticket.estado == 'SIN ATENDER' %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
                 {{ topbar.button_primary('Categorizar', url_for('soportes_tickets.categorize', soporte_ticket_id=soporte_ticket.id), 'mdi:order-bool-descending') }}
-            {% endif %}
-            {% if soporte_ticket.estado == 'TRABAJANDO' %}
+            {% elif soporte_ticket.estado == 'TRABAJANDO' %}
                 {{ topbar.button_primary('Resolver', url_for('soportes_tickets.done', soporte_ticket_id=soporte_ticket.id), 'mdi:check') }}
                 {{ modals.button_modal('Soltar', url_for('soportes_tickets.release', soporte_ticket_id=soporte_ticket.id), 'soltar', 'mdi:stop-circle-outline', '¿Deseas soltar el Ticket?') }}
                 {{ topbar.button_primary('Cerrar', url_for('soportes_tickets.close', soporte_ticket_id=soporte_ticket.id), 'mdi:alert-octagon') }}
-            {% endif %}
-            {% if soporte_ticket.estado != 'PENDIENTE' and soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO') %}
+            {% elif soporte_ticket.estado in ('SIN ATENDER', 'TRABAJANDO') %}
                 {{ modals.button_modal('Pendiente', url_for('soportes_tickets.pending', soporte_ticket_id=soporte_ticket.id), 'pendiente', 'mdi:message-alert', '¿Deseas marcar este Ticket como Pendiente?') }}
-            {% endif %}
-            {% if soporte_ticket.estado == 'PENDIENTE' %}
+            {% elif soporte_ticket.estado in ('CERRADO', 'PENDIENTE') %}
                 {{ topbar.button_primary('Tomar', url_for('soportes_tickets.take', soporte_ticket_id=soporte_ticket.id), 'mdi:hand-back-right') }}
             {% endif %}
         {% else %}
+            {# Es usuario #}
             {% if soporte_ticket.estado == 'SIN ATENDER' %}
                 {{ modals.button_modal('Cancelar', url_for('soportes_tickets.cancel', soporte_ticket_id=soporte_ticket.id), 'cancelar', 'mdi:cancel', '¿Desea cancelar el ticket?') }}
             {% endif %}
@@ -61,7 +60,7 @@
         <div id="estado">
             {{ detail.label_value_big('Estado', soporte_ticket.estado) }}
         </div>
-        <div class="fs-4">
+        <div class="fs-5">
             {{ detail.label_value('Descripción', soporte_ticket.descripcion) }}
         </div>
         {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
@@ -90,7 +89,7 @@
         {% if soporte_ticket.estado in ('CERRADO', 'TERMINADO') %}
             {{ detail.label_value('Resolución', moment(soporte_ticket.resolucion).format('llll')) }}
         {% endif %}
-        <div class="fs-4">
+        <div class="fs-5">
             {{ detail.label_value('Respuesta/Solucion', soporte_ticket.soluciones) }}
         </div>
     {% endcall %}
