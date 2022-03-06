@@ -59,11 +59,10 @@
         let datatable_config = {
             processing: true,
             serverSide: true,
-            ordering: true,
+            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
-            order: [[ 0, "asc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",

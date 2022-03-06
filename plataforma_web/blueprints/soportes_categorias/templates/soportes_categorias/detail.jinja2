@@ -58,19 +58,17 @@
         $('#soportes_tickets_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: true,
+            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
-            deferRender: true,
-            order: [[ 0, "desc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
                 headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
-                data: {"estatus": "A", "soporte_categoria_id": "{{soporte_categoria.id}}" }
+                data: { "estatus": "A", "soporte_categoria_id": "{{soporte_categoria.id}}" }
             },
             columns: [
                 { data: "id" },

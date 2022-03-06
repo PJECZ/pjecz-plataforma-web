@@ -74,11 +74,10 @@
         let datatable_config = {
             processing: true,
             serverSide: true,
-            ordering: true,
+            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
-            order: [[ 0, "asc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
@@ -92,8 +91,7 @@
                 { data: "usuario" },
                 { data: "oficina" },
                 { data: "categoria" },
-                { data: "descripcion" },
-                { data: "tecnico" }
+                { data: "descripcion" }
             ],
             columnDefs: [
                 {
@@ -129,7 +127,7 @@
                     }
                 },
                 {
-                    targets: 4,
+                    targets: 4, // Descripcion
                     data: null,
                     render: function(data, type, row, meta) {
                         if(data.length > 32)
@@ -155,13 +153,6 @@
         }
 
         // Datatable Tickets Abiertos - Cercanos
-        datatable_config['columns'] = [
-                { data: "id" },
-                { data: "usuario" },
-                { data: "oficina" },
-                { data: "categoria" },
-                { data: "descripcion" }
-            ];
         datatable_config['ajax']['data'] = {
             "estatus": "A",
             "estado": "SIN ATENDER",
@@ -178,7 +169,7 @@
         datatable_config['ajax']['data'] = {
             "estatus": "A",
             "estado": "SIN ATENDER",
-            "soportes_abiertos": "CATEGORIZADOS"
+            "soportes_tickets_abiertos": "CATEGORIZADOS"
         };
         let categorizados = $('#soportes_tickets_categorizados_datatable').DataTable(datatable_config);
         $('#soportes_tickets_categorizados_datatable').on( 'init.dt', function () {

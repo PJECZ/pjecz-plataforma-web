@@ -146,100 +146,49 @@ def datatable_json():
     if "estado" in request.form:
         consulta = consulta.filter(SoporteTicket.estado == safe_string(request.form["estado"]))
 
-    # Ordenación de columnas
-    if "order[0][column]" in request.form:
-        columna_num = request.form["order[0][column]"]
-        asc_or_desc = request.form["order[0][dir]"]
-        columna = request.form["columns[" + columna_num + "][data]"]
-        if columna == "id":
-            if asc_or_desc == "asc":
-                consulta = consulta.order_by(SoporteTicket.id.asc())
-            else:
-                consulta = consulta.order_by(SoporteTicket.id.desc())
-        elif columna == "usuario":
-            if asc_or_desc == "asc":
-                consulta = consulta.join(Usuario).order_by(Usuario.nombres.asc())
-            else:
-                consulta = consulta.join(Usuario).order_by(Usuario.nombres.desc())
-        elif columna == "oficina":
-            if asc_or_desc == "asc":
-                consulta = consulta.join(Usuario).join(Oficina).order_by(Oficina.clave.asc())
-            else:
-                consulta = consulta.join(Usuario).join(Oficina).order_by(Oficina.clave.desc())
-        elif columna == "categoria":
-            if "soportes_tickets_abiertos" not in request.form:
-                if asc_or_desc == "asc":
-                    consulta = consulta.join(SoporteCategoria).order_by(SoporteCategoria.nombre.asc())
-                else:
-                    consulta = consulta.join(SoporteCategoria).order_by(SoporteCategoria.nombre.desc())
-            else:
-                if asc_or_desc == "asc":
-                    consulta = consulta.order_by(SoporteCategoria.nombre.asc())
-                else:
-                    consulta = consulta.order_by(SoporteCategoria.nombre.desc())
-        elif columna == "estado":
-            if asc_or_desc == "asc":
-                consulta = consulta.order_by(SoporteTicket.estado.asc())
-            else:
-                consulta = consulta.order_by(SoporteTicket.estado.desc())
-        elif columna == "descripcion":
-            if asc_or_desc == "asc":
-                consulta = consulta.order_by(SoporteTicket.descripcion.asc())
-            else:
-                consulta = consulta.order_by(SoporteTicket.descripcion.desc())
-        elif columna == "soluciones":
-            if asc_or_desc == "asc":
-                consulta = consulta.order_by(SoporteTicket.resolucion.asc())
-            else:
-                consulta = consulta.order_by(SoporteTicket.resolucion.desc())
-        elif columna == "tecnico":
-            if asc_or_desc == "asc":
-                consulta = consulta.join(Funcionario).order_by(Funcionario.nombres.asc())
-            else:
-                consulta = consulta.join(Funcionario).order_by(Funcionario.nombres.desc())
-
     # Obtener el funcionario para saber si es de soporte o no
     funcionario = _get_funcionario_if_is_soporte()
+
+    # Si es funcionario de soporte y se van a separar los tickets POR ATENDER
+    if funcionario and "estado" in request.form and "soportes_tickets_abiertos" in request.form:
+        # Obtenemos los roles del current_user
+        roles_ids = []
+        for usuario_rol in current_user.usuarios_roles:
+            if usuario_rol.estatus == "A":
+                roles_ids.append(usuario_rol.rol.id)
+        # Si la tabla es de...
+        if request.form["soportes_tickets_abiertos"] == "CERCANOS":
+            # Tickets CERCANOS
+            funcionario = _get_funcionario_if_is_soporte()
+            if funcionario:
+                oficinas_ids = []
+                funcionarios_oficinas = FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).filter_by(estatus="A").all()
+                for funcionario_oficina in funcionarios_oficinas:
+                    oficinas_ids.append(funcionario_oficina.oficina_id)
+                consulta = consulta.join(Usuario).filter(Usuario.oficina_id.in_(oficinas_ids))
+        elif request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
+            # Tickets CATEGORIZADOS
+            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
+        else:
+            # Los demas
+            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
+        # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
+        consulta = consulta.order_by(SoporteTicket.id)
+    elif funcionario and "estado" in request.form and "soporte_tickets_trabajando" in request.form:
+        # Es funcionario y se van a separar los tickets TRABAJANDO
+        if request.form["soporte_tickets_trabajando"] == "MIOS":
+            consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
+        else:  # TODOS
+            consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
+        # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
+        consulta = consulta.order_by(SoporteTicket.id)
+
+    # NO es funcionario de soporte
     if funcionario is None:
-        # NO es de soporte, se muestran sus propios tickets
+        # SOLO ve sus propios tickets
         consulta = consulta.filter(SoporteTicket.usuario == current_user)
         # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
         consulta = consulta.order_by(SoporteTicket.id.desc())
-    else:
-        # SI es de soporte
-        # Si es la vista "Sin Atender", hay tres tablas: CERCANOS, CATEGORIZADOS y TODOS
-        if "soportes_tickets_abiertos" in request.form:
-            # Obtenemos los roles del current_user
-            roles_ids = []
-            for usuario_rol in current_user.usuarios_roles:
-                if usuario_rol.estatus == "A":
-                    roles_ids.append(usuario_rol.rol.id)
-            # Si es la tabla CERCANOS, CATEGORIZADOS o TODOS
-            if request.form["soportes_tickets_abiertos"] == "CERCANOS":
-                funcionario = _get_funcionario_if_is_soporte()
-                if funcionario:
-                    oficinas_ids = []
-                    funcionarios_oficinas = FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).filter_by(estatus="A").all()
-                    for funcionario_oficina in funcionarios_oficinas:
-                        oficinas_ids.append(funcionario_oficina.oficina_id)
-                    consulta = consulta.join(Usuario).filter(Usuario.oficina_id.in_(oficinas_ids))
-            elif request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
-                consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
-            else:  # TODOS los demas
-                consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
-            # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
-            consulta = consulta.order_by(SoporteTicket.id.asc())
-        # Si es la vista "Abiertos y Trabajando", para TRABAJANDO, hay dos tablas MIOS y TODOS
-        elif "soporte_tickets_trabajando" in request.form:
-            if request.form["soporte_tickets_trabajando"] == "MIOS":
-                consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
-            else:  # TODOS
-                consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
-            # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
-            consulta = consulta.order_by(SoporteTicket.id.desc())
-        else:
-            # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
-            consulta = consulta.order_by(SoporteTicket.id.desc())
 
     # Obtener los registros y el total
     registros = consulta.offset(start).limit(rows_per_page).all()
@@ -248,10 +197,6 @@ def datatable_json():
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
-        if resultado.resolucion is None:
-            resolucion = "—"
-        else:
-            resolucion = resultado.resolucion.strftime("%Y-%m-%d %H:%M")
         data.append(
             {
                 "id": {
@@ -277,10 +222,10 @@ def datatable_json():
                     "nombre": resultado.funcionario.nombre,
                     "url": url_for("funcionarios.detail", funcionario_id=resultado.funcionario_id) if current_user.can_view("FUNCIONARIOS") else "",
                 },
-                "soluciones": resultado.soluciones,
+                "soluciones": resultado.soluciones if resultado.soluciones else "",
                 "estado": resultado.estado,
                 "creacion": resultado.creado.strftime("%Y-%m-%d %H:%M"),
-                "resolucion": resolucion,
+                "resolucion": resultado.resolucion.strftime("%Y-%m-%d %H:%M") if resultado.resolucion is not None else "",
             }
         )
 
@@ -382,14 +327,14 @@ def edit(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/tomar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def take(soporte_ticket_id):
-    """Para tomar un ticket este debe estar SIN ATENDER y ser funcionario de soportes"""
+    """Para tomar un ticket este debe estar SIN ATENDER, PENDIENTE o CERRADO y ser funcionario de soportes"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
         flash("No puede tomar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado not in ("SIN ATENDER", "PENDIENTE"):
-        flash("No puede tomar un ticket que no está SIN ATENDER.", "warning")
+    if ticket.estado not in ("SIN ATENDER", "PENDIENTE", "CERRADO"):
+        flash("No puede tomar este ticket porque no esta SIN ATENDER, PENDIENTE o CERRADO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -429,8 +374,8 @@ def release(soporte_ticket_id):
     if ticket.estatus != "A":
         flash("No puede soltar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado in ("SIN ATENDER", "NO RESUELTO"):
-        flash("No puede soltar un ticket que está SIN ATENDER o en estado de NO RESUELTO.", "warning")
+    if ticket.estado != "TRABAJANDO":
+        flash("No puede soltar este ticket porque no esta en TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
@@ -454,18 +399,18 @@ def release(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/categorizar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def categorize(soporte_ticket_id):
-    """Para categorizar un ticket este debe estar SIN ATENDER y ser funcionario de soportes"""
+    """Para categorizar un ticket este debe estar SIN ATENDER o TRABAJANDO y ser funcionario de soportes"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
         flash("No puede categorizar un ticket eliminado.", "warning")
         return redirect(detalle_url)
     if ticket.estado not in ("SIN ATENDER", "TRABAJANDO"):
-        flash("No puede categorizar un ticket que no está SIN ATENDER o TRABAJANDO.", "warning")
+        flash("No puede categorizar este ticket porque no está SIN ATENDER o TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
-        flash("No puede tomar el ticket porque no es funcionario de soporte.", "warning")
+        flash("No puede categorizar este ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
     form = SoporteTicketCategorizeForm()
     if form.validate_on_submit():
@@ -493,14 +438,14 @@ def done(soporte_ticket_id):
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
-        flash("No puede cerrar un ticket eliminado.", "warning")
+        flash("No puede terminar un ticket eliminado.", "warning")
         return redirect(detalle_url)
     if ticket.estado != "TRABAJANDO":
-        flash("No puede cerrar un ticket que no está TRABAJANDO.", "warning")
+        flash("No puede terminar este ticket que no está TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
-        flash("No puede cerrar el ticket porque no es funcionario de soporte.", "warning")
+        flash("No puede terminar este ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
     form = SoporteTicketDoneForm()
     if form.validate_on_submit():
@@ -535,11 +480,11 @@ def close(soporte_ticket_id):
         flash("No puede cerrar un ticket eliminado.", "warning")
         return redirect(detalle_url)
     if ticket.estado != "TRABAJANDO":
-        flash("No puede cerrar un ticket que no está TRABAJANDO.", "warning")
+        flash("No puede cerrar este ticket que no está TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
-        flash("No puede cerrar el ticket porque no es funcionario de soporte.", "warning")
+        flash("No puede cerrar este ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
     form = SoporteTicketCloseForm()
     if form.validate_on_submit():
@@ -571,14 +516,14 @@ def pending(soporte_ticket_id):
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
-        flash("No puede pasar a PENDIENTE un ticket eliminado.", "warning")
+        flash("No puede pasar a pendiente un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado not in ("SIN ATENDER", "TRABAJANDO"):
-        flash("No puede pasar a PENDIENTE un ticket que no está SIN ATENDER o TRABAJANDO.", "warning")
+    if ticket.estado != "TRABAJANDO":
+        flash("No puede pasar a pendiente este ticket porque no esta TRABAJANDO.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:
-        flash("No puede pasar a PENDIENTE el ticket porque no es funcionario de soporte.", "warning")
+        flash("No puede pasar a pendiente este ticket porque no es funcionario de soporte.", "warning")
         return redirect(detalle_url)
     ticket.estado = "PENDIENTE"
     ticket.resolucion = datetime.now()
@@ -604,10 +549,10 @@ def cancel(soporte_ticket_id):
         return redirect(url_for("soportes_tickets.list_active"))
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=soporte_ticket.id)
     if soporte_ticket.estatus != "A":
-        flash("No puede CANCELAR un ticket eliminado.", "warning")
+        flash("No puede cancelar un ticket eliminado.", "warning")
         return redirect(detalle_url)
     if soporte_ticket.estado != "SIN ATENDER":
-        flash("No puede CANCELAR un ticket que no está en SIN ATENDER.", "warning")
+        flash("No puede cancelar este ticket porque no está SIN ATENDER.", "warning")
         return redirect(detalle_url)
     soporte_ticket.estado = "CANCELADO"
     soporte_ticket.save()
@@ -635,7 +580,7 @@ def uncancel(soporte_ticket_id):
         flash("No se puede descancelar un ticket eliminado.", "warning")
         return redirect(detalle_url)
     if soporte_ticket.estado != "CANCELADO":
-        flash("No se puede descancelar un ticket que no este en estado de CANCELADO.", "warning")
+        flash("No se puede descancelar este ticket porque no esta CANCELADO.", "warning")
         return redirect(detalle_url)
     if soporte_ticket.funcionario_id == 1:  # Si su funcionario es NO DEFINIDO pasa a SIN ATENDER
         soporte_ticket.estado = "SIN ATENDER"

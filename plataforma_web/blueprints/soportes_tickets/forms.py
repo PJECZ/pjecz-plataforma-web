@@ -77,7 +77,7 @@ class SoporteTicketCloseForm(FlaskForm):
     descripcion = TextAreaField("Descripción del problema")  # Read only
     categoria = StringField("Categoría")  # Read only
     tecnico = StringField("Técnico")  # Read only
-    soluciones = TextAreaField("Solución", validators=[DataRequired(), Length(max=1024)])
+    soluciones = TextAreaField("Motivo", validators=[DataRequired(), Length(max=1024)])
     guardar = SubmitField("Cerrar")
 
 
