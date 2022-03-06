@@ -25,9 +25,9 @@ class SoporteTicketNewForm(FlaskForm):
     """Formulario para que cualquier usuario pueda crear un ticket"""
 
     usuario = StringField("Usted es")  # Read only
-    oficina = StringField("Y se encuentra en")  # Read only
-    descripcion = TextAreaField("Escriba detalladamente el problema", validators=[DataRequired(), Length(max=4000)])
-    clasificacion = RadioField("Y elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
+    oficina = StringField("Se encuentra en")  # Read only
+    descripcion = TextAreaField("1. Escriba detalladamente el problema", validators=[DataRequired(), Length(max=4000)])
+    clasificacion = RadioField("2. Elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
