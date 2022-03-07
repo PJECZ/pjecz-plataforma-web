@@ -8,7 +8,6 @@ from flask_login import current_user, login_required
 
 from lib import datatables
 from lib.safe_string import safe_message, safe_string, safe_text
-from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.soportes_adjuntos.models import SoporteAdjunto
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -151,43 +150,47 @@ def datatable_json():
 
     # Si es funcionario de soporte y se van a separar los tickets POR ATENDER
     if funcionario and "estado" in request.form and "soportes_tickets_abiertos" in request.form:
-        # Obtenemos los roles del current_user
-        roles_ids = []
-        for usuario_rol in current_user.usuarios_roles:
-            if usuario_rol.estatus == "A":
-                roles_ids.append(usuario_rol.rol.id)
         # Si la tabla es de...
         if request.form["soportes_tickets_abiertos"] == "CERCANOS":
             # Tickets CERCANOS
-            funcionario = _get_funcionario_if_is_soporte()
-            if funcionario:
-                oficinas_ids = []
-                funcionarios_oficinas = FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).filter_by(estatus="A").all()
-                for funcionario_oficina in funcionarios_oficinas:
-                    oficinas_ids.append(funcionario_oficina.oficina_id)
-                consulta = consulta.join(Usuario).filter(Usuario.oficina_id.in_(oficinas_ids))
+            oficinas_ids = []
+            funcionarios_oficinas = FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).filter_by(estatus="A").all()
+            for funcionario_oficina in funcionarios_oficinas:
+                oficinas_ids.append(funcionario_oficina.oficina_id)
+            consulta = consulta.join(Usuario).filter(Usuario.oficina_id.in_(oficinas_ids))
         elif request.form["soportes_tickets_abiertos"] == "CATEGORIZADOS":
             # Tickets CATEGORIZADOS
-            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
+            roles_ids = []
+            for usuario_rol in current_user.usuarios_roles:
+                if usuario_rol.estatus == "A":
+                    roles_ids.append(usuario_rol.rol_id)
+            if len(roles_ids) > 0:
+                consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
         else:
-            # Los demas
-            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
+            # Los demas tickets
+            roles_ids = []
+            for usuario_rol in current_user.usuarios_roles:
+                if usuario_rol.estatus == "A":
+                    roles_ids.append(usuario_rol.rol_id)
+            if len(roles_ids) > 0:
+                consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
         # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
         consulta = consulta.order_by(SoporteTicket.id)
     elif funcionario and "estado" in request.form and "soporte_tickets_trabajando" in request.form:
-        # Es funcionario y se van a separar los tickets TRABAJANDO
+        # Es funcionario de soporte y se van a separar los tickets TRABAJANDO
         if request.form["soporte_tickets_trabajando"] == "MIOS":
             consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
         else:  # TODOS
             consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
         # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
         consulta = consulta.order_by(SoporteTicket.id)
-
-    # NO es funcionario de soporte
-    if funcionario is None:
-        # SOLO ve sus propios tickets
+    elif funcionario is None:
+        # NO es funcionario de soporte, es usuario comun, por lo que SOLO ve sus propios tickets
         consulta = consulta.filter(SoporteTicket.usuario == current_user)
         # Y el orden de los IDs es descendente, del mas nuevo al mas antiguo
+        consulta = consulta.order_by(SoporteTicket.id.desc())
+    else:
+        # El resto de los listados se ordenan por IDs de forma descendente, del mas nuevo al mas antiguo
         consulta = consulta.order_by(SoporteTicket.id.desc())
 
     # Obtener los registros y el total
