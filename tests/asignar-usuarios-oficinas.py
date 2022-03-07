@@ -1,8 +1,8 @@
 """
 Usuarios-Oficinas
-Asignar a un usuario una oficina si no tiene asignada ninguna
+
+Asignacion masiva de usuarios a sus oficinas, si no tienen asignadas ninguna
 """
-import os
 import csv
 import argparse
 from pathlib import Path
@@ -37,13 +37,17 @@ def main():
     app = create_app()
     db.app = app
 
+    # Simulacion o ejecucion
     simulacion = True
     parser = argparse.ArgumentParser()
     parser.add_argument("-x", "--exec", help="Ejecutar cambio en la BD", action="store_true")
     args = parser.parse_args()
     if args.exec:
         simulacion = False
+    msg_exec = "SIMULACION" if simulacion else "EJECUCIÓN"
+    print(f"Alimentando relación de oficinas con usuarios... {msg_exec}")
 
+    # Ruta al archivo CSV
     ruta = Path(USUARIOS_OFICINAS_CSV)
     if not ruta.exists():
         print(f"AVISO: {ruta.name} no se encontró.")
@@ -51,9 +55,8 @@ def main():
     if not ruta.is_file():
         print(f"AVISO: {ruta.name} no es un archivo.")
         return
-    msg_exec = "SIMULACIÓM" if simulacion else "EJECUCIÓN"
-    print("Alimentando relación de oficinas con usuarios... {}".format(msg_exec))
 
+    # Bucle para leer cada linea del archivo CSV
     contador = 0
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
@@ -85,11 +88,11 @@ def main():
             else:
                 usuario.oficina=oficina
                 usuario.save()
-
+            # Incrementar contador
             contador += 1
             if contador % 100 == 0:
                 print(f"  Van {contador} relaciones...")
-
+    # Mensaje final
     print(f"={contador} usuarios asignados a una nueva oficina. {msg_exec}")
 
 

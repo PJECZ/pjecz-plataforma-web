@@ -1,3 +1,8 @@
+"""
+Demo Hashids
+
+Demostracion de las cadenas cifradas
+"""
 import re
 from hashids import Hashids
 
