@@ -1,5 +1,9 @@
 """
-Demo Ofcinas Usuarios
+Demo Oficinas-Usuarios
+
+Consultar a los usuarios que tienen correo electrónico coahuila.gob.mx y que pertenecen a una oficina "generica".
+
+Lo ideal es que este listado salga vacio para que todos los usuarios tengan oficinas definidas.
 """
 from dotenv import load_dotenv
 from plataforma_web.app import create_app
