@@ -29,7 +29,7 @@
             <tbody>
                 {% for modelo in modelos %}
                 <tr>
-                    <td><a href="{{ url_for('inv_marcas.detail', marca_id=modelo.id) }}">({{ modelo.marca.nombre }}</a></td>
+                    <td><a href="{{ url_for('inv_marcas.detail', marca_id=modelo.id) }}">{{ modelo.marca.nombre }}</a></td>
                     <td><a href="{{ url_for('inv_modelos.detail', modelo_id=modelo.id) }}">{{ modelo.descripcion }}</a></td>
                 </tr>
                 {% endfor %}

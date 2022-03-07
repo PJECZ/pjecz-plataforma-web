@@ -15,7 +15,7 @@ class INVModelo(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    marca_id = db.Column(db.Integer, db.ForeignKey("inv_marcas.id"), index=True, nullable=False)
+    inv_marca_id = db.Column(db.Integer, db.ForeignKey("inv_marcas.id"), index=True, nullable=False)
     marca = db.relationship("INVMarca", back_populates="modelos")
 
     # Columnas

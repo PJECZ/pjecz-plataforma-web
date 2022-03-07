@@ -65,16 +65,16 @@ def list_inactive():
 def detail(equipo_id):
     """Detalle de un Equipos"""
     equipo = INVEquipo.query.get_or_404(equipo_id)
-    componentes = INVComponente.query.filter(INVComponente.equipo_id == equipo_id).all()
-    fotos = INVEquipoFoto.query.filter(INVEquipoFoto.equipo_id == equipo_id).all()
+    componentes = INVComponente.query.filter(INVComponente.inv_equipo_id == equipo_id).all()
+    fotos = INVEquipoFoto.query.filter(INVEquipoFoto.inv_equipo_id == equipo_id).all()
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
-@inv_equipos.route("/inv_equipos/nuevo/<int:custodia_id>", methods=["GET", "POST"])
+@inv_equipos.route("/inv_equipos/nuevo/<int:inv_custodia_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new(custodia_id):
+def new(inv_custodia_id):
     """Nuevo Equipos"""
-    custodia = INVCustodia.query.get_or_404(custodia_id)
+    custodia = INVCustodia.query.get_or_404(inv_custodia_id)
     if custodia.estatus != "A":
         flash("El usuario no es activo.", "warning")
         return redirect(url_for("inv_custodia.list_active"))
@@ -126,11 +126,10 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
         consulta = consulta.filter(INVCustodia.usuario_id == request.form["usuario_id"])
-        # consulta = consulta.join(INVCustodia).filter(INVCustodia.usuario_id == request.form["usuario_id"])
     if "custodia_id" in request.form:
-        consulta = consulta.filter_by(custodia_id=request.form["custodia_id"])
+        consulta = consulta.filter_by(inv_custodia_id=request.form["custodia_id"])
     if "modelo_equipo_id" in request.form:
-        consulta = consulta.filter(INVEquipo.modelo_id == request.form["modelo_equipo_id"])
+        consulta = consulta.filter(INVEquipo.inv_modelo_id == request.form["modelo_equipo_id"])
     if "modelo_id" in request.form:
         consulta = consulta.join(INVMarca).filter_by(modelo_id=request.form["modelo_id"])
     registros = consulta.order_by(INVEquipo.creado.desc()).offset(start).limit(rows_per_page).all()
@@ -154,15 +153,15 @@ def datatable_json():
                 },
                 "custodia_id": {
                     "id": resultado.custodia.id,
-                    "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
+                    "url": url_for("inv_custodias.detail", custodia_id=resultado.inv_custodia_id) if current_user.can_view("INV CUSTODIAS") else "",
                 },
                 "marca": {
                     "nombre": resultado.modelo.marca.nombre,
-                    "url": url_for("inv_marcas.detail", marca_id=resultado.modelo.marca_id) if current_user.can_view("INV MARCAS") else "",
+                    "url": url_for("inv_marcas.detail", marca_id=resultado.inv_modelo.marca_id) if current_user.can_view("INV MARCAS") else "",
                 },
                 "modelo": {
                     "nombre": resultado.modelo.descripcion,
-                    "url": url_for("inv_modelos.detail", modelo_id=resultado.modelo_id) if current_user.can_view("INV MODELOS") else "",
+                    "url": url_for("inv_modelos.detail", modelo_id=resultado.inv_modelo_id) if current_user.can_view("INV MODELOS") else "",
                 },
             }
         )

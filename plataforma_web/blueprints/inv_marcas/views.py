@@ -53,7 +53,7 @@ def list_inactive():
 def detail(marca_id):
     """Detalle de un Marcas"""
     marca = INVMarca.query.get_or_404(marca_id)
-    modelos = INVModelo.query.filter(INVModelo.marca_id == marca_id).all()
+    modelos = INVModelo.query.filter(INVModelo.inv_marca_id == marca_id).all()
     return render_template("inv_marcas/detail.jinja2", marca=marca, modelos=modelos)
 
 

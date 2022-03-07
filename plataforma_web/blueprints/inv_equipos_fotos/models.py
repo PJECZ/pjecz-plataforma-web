@@ -16,7 +16,7 @@ class INVEquipoFoto(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Claves foránea para el ticket
-    equipo_id = db.Column(db.Integer, db.ForeignKey("inv_equipos.id"), index=True, nullable=True)
+    inv_equipo_id = db.Column(db.Integer, db.ForeignKey("inv_equipos.id"), index=True, nullable=True)
     equipo = db.relationship("INVEquipo", back_populates="fotos")
 
     # Columnas

@@ -71,7 +71,7 @@ def detail(custodia_id):
 def new(usuario_id):
     """Nuevo Custodias"""
     usuario = Usuario.query.get_or_404(usuario_id)
-    oficina = Oficina.query.join(Usuario).filter(Usuario.id == usuario.id).first()
+    # oficina = Oficina.query.join(Usuario).filter(Usuario.id == usuario.id).first()
     form = INVCustodiaForm()
     validacion = False
     if form.validate_on_submit():
@@ -87,13 +87,14 @@ def new(usuario_id):
                 usuario=usuario,
                 nombre_completo=usuario.nombre,
                 curp=usuario.curp,
-                oficina=oficina,
+                oficina=usuario.oficina
+                # oficina=oficina,
             )
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.usuario.data = str(f"{usuario.nombre}")
-    form.oficina.data = str(f"{oficina.clave} - {oficina.descripcion_corta}")
+    form.oficina.data = str(f"{usuario.oficina.clave} - {usuario.oficina.descripcion_corta}")
     return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
 
 
@@ -110,8 +111,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
         consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
-    if "oficina_id" in request.form:
-        consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
+    # if "oficina_id" in request.form:
+    #     consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
     registros = consulta.order_by(INVCustodia.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -126,7 +127,7 @@ def datatable_json():
                 "nombre_completo": resultado.nombre_completo,
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                 "oficina": {
-                    "clave": resultado.oficina.clave,
+                    "clave": resultado.usuario.oficina.clave,
                     "url": url_for("oficinas.detail", oficina_id=resultado.oficina_id) if current_user.can_view("OFICINAS") else "",
                 },
             }
