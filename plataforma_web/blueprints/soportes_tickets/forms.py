@@ -9,7 +9,6 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
-from plataforma_web.blueprints.oficinas.models import Oficina
 
 
 def tecnicos_opciones():
@@ -25,9 +24,10 @@ def categorias_opciones():
 class SoporteTicketNewForm(FlaskForm):
     """Formulario para que cualquier usuario pueda crear un ticket"""
 
-    usuario = StringField("Usuario")  # Read only
-    descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
-    clasificacion = RadioField("Clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO")
+    usuario = StringField("Usted es")  # Read only
+    oficina = StringField("Se encuentra en")  # Read only
+    descripcion = TextAreaField("1. Escriba detalladamente el problema", validators=[DataRequired(), Length(max=4000)])
+    clasificacion = RadioField("2. Elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
@@ -36,9 +36,7 @@ class SoporteTicketNewForUsuarioForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
-    categoria = QuerySelectField(
-        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
-    )
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Guardar como abierto")
 
 
@@ -58,9 +56,7 @@ class SoporteTicketTakeForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
-    categoria = QuerySelectField(
-        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
-    )
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     tecnico = StringField("Técnico")  # Read only
     guardar = SubmitField("Tomar")
 
@@ -70,9 +66,7 @@ class SoporteTicketCategorizeForm(FlaskForm):
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
-    categoria = QuerySelectField(
-        label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()]
-    )
+    categoria = QuerySelectField(label="Categoría", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Categorizar")
 
 
@@ -83,19 +77,19 @@ class SoporteTicketCloseForm(FlaskForm):
     descripcion = TextAreaField("Descripción del problema")  # Read only
     categoria = StringField("Categoría")  # Read only
     tecnico = StringField("Técnico")  # Read only
-    soluciones = TextAreaField("Solución", validators=[DataRequired(), Length(max=1024)])
+    soluciones = TextAreaField("Motivo", validators=[DataRequired(), Length(max=1024)])
     guardar = SubmitField("Cerrar")
 
 
-class SoporteTicketCancelForm(FlaskForm):
-    """Formulario SoporteTicket para Cancelar"""
+class SoporteTicketDoneForm(FlaskForm):
+    """Formulario SoporteTicket TERMINAR"""
 
     usuario = StringField("Usuario")  # Read only
     descripcion = TextAreaField("Descripción del problema")  # Read only
     categoria = StringField("Categoría")  # Read only
     tecnico = StringField("Técnico")  # Read only
-    soluciones = TextAreaField("Motivo", validators=[DataRequired(), Length(max=1024)])
-    guardar = SubmitField("Marcar como cancelado")
+    soluciones = TextAreaField("Solución", validators=[DataRequired(), Length(max=1024)])
+    guardar = SubmitField("Terminar")
 
 
 class SoporteTicketSearchForm(FlaskForm):

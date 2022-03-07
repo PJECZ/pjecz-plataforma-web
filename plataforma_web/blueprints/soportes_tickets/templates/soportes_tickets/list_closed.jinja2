@@ -2,17 +2,17 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Tickets Terminados{% endblock %}
+{% block title %}Tickets Cerrados{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Tickets Terminados') %}
+    {% call topbar.page_buttons('Tickets Cerrados') %}
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
         {{ topbar.button_primary('Sin Atender', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
         {{ topbar.button_primary('Trabajando', url_for('soportes_tickets.list_working'), 'mdi:play-circle') }}
         {{ topbar.button('Pendientes', url_for('soportes_tickets.list_pending'), 'mdi:pause-circle') }}
-        {{ topbar.button('Cerrados', url_for('soportes_tickets.list_closed'), 'mdi:minus-circle') }}
+        {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
         {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
@@ -22,8 +22,8 @@
 {% endblock %}
 
 {% block content %}
-    {% call list.card('Terminados') %}
-        <table id="soportes_tickets_terminados_datatable" class="table display nowrap" style="width:100%; background-color:#eafaf1;">
+    {% call list.card('Cerrados') %}
+        <table id="soportes_tickets_cerrados_datatable" class="table display nowrap" style="width:100%; background-color:#eceff1;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -32,7 +32,7 @@
                     <th>Categoría</th>
                     <th>Descripción</th>
                     <th>Técnico</th>
-                    <th>Soluciones</th>
+                    <th>Motivo</th>
                 </tr>
             </thead>
         </table>
@@ -41,7 +41,7 @@
 
 {% block custom_javascript %}
     <script>
-        $('#soportes_tickets_terminados_datatable').DataTable({
+        $('#soportes_tickets_cerrados_datatable').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -54,7 +54,7 @@
                 headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
-                data: { "estatus": "A", "estado": "TERMINADO" }
+                data: { "estatus": "A", "estado": "CERRADO" }
             },
             columns: [
                 { data: "id" },

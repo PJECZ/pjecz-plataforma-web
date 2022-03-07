@@ -2,16 +2,17 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Tickets Abiertos{% endblock %}
+{% block title %}Tickets Sin Atender{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Tickets Abiertos') %}
+    {% call topbar.page_buttons('Tickets Sin Atender') %}
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
         {{ topbar.button_primary('Trabajando', url_for('soportes_tickets.list_working'), 'mdi:plus-circle') }}
-        {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
+        {{ topbar.button('Pendientes', url_for('soportes_tickets.list_pending'), 'mdi:pause-circle') }}
         {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
+        {{ topbar.button('Cerrados', url_for('soportes_tickets.list_closed'), 'mdi:minus-circle') }}
         {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
@@ -22,8 +23,8 @@
 
 {% block content %}
     <div id="cercanos">
-    {% call list.card('Abiertos - Cercanos') %}
-        <table id="soportes_tickets_abiertos_cercanos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+    {% call list.card('Sin Atender - Cercanos') %}
+        <table id="soportes_tickets_cercanos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -37,8 +38,8 @@
     {% endcall %}
     </div>
     <div id="categorizados">
-    {% call list.card('Abiertos - Categorizados') %}
-        <table id="soportes_tickets_abiertos_categorizados_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+    {% call list.card('Sin Atender - Categorizados') %}
+        <table id="soportes_tickets_categorizados_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -51,8 +52,8 @@
         </table>
     {% endcall %}
     </div>
-    {% call list.card('Abiertos - TODOS' ) %}
-        <table id="soportes_tickets_abiertos_todos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
+    {% call list.card('Sin Atender - TODOS' ) %}
+        <table id="soportes_tickets_todos_datatable" class="table display nowrap" style="width:100%; background-color:#fef9e7;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -73,11 +74,10 @@
         let datatable_config = {
             processing: true,
             serverSide: true,
-            ordering: true,
+            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
-            order: [[ 0, "asc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
@@ -91,8 +91,7 @@
                 { data: "usuario" },
                 { data: "oficina" },
                 { data: "categoria" },
-                { data: "descripcion" },
-                { data: "tecnico" }
+                { data: "descripcion" }
             ],
             columnDefs: [
                 {
@@ -128,7 +127,7 @@
                     }
                 },
                 {
-                    targets: 4,
+                    targets: 4, // Descripcion
                     data: null,
                     render: function(data, type, row, meta) {
                         if(data.length > 32)
@@ -154,20 +153,13 @@
         }
 
         // Datatable Tickets Abiertos - Cercanos
-        datatable_config['columns'] = [
-                { data: "id" },
-                { data: "usuario" },
-                { data: "oficina" },
-                { data: "categoria" },
-                { data: "descripcion" }
-            ];
         datatable_config['ajax']['data'] = {
             "estatus": "A",
-            "estado": "ABIERTO",
+            "estado": "SIN ATENDER",
             "soportes_tickets_abiertos": "CERCANOS"
         };
-        let cercanos = $('#soportes_tickets_abiertos_cercanos_datatable').DataTable(datatable_config);
-        $('#soportes_tickets_abiertos_cercanos_datatable').on( 'init.dt', function () {
+        let cercanos = $('#soportes_tickets_cercanos_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_cercanos_datatable').on( 'init.dt', function () {
             if ( ! cercanos.data().count() ){
                 $('#cercanos').hide();
             }
@@ -176,11 +168,11 @@
         // Datatable Tickets Abiertos - Categorizados
         datatable_config['ajax']['data'] = {
             "estatus": "A",
-            "estado": "ABIERTO",
+            "estado": "SIN ATENDER",
             "soportes_tickets_abiertos": "CATEGORIZADOS"
         };
-        let categorizados = $('#soportes_tickets_abiertos_categorizados_datatable').DataTable(datatable_config);
-        $('#soportes_tickets_abiertos_categorizados_datatable').on( 'init.dt', function () {
+        let categorizados = $('#soportes_tickets_categorizados_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_categorizados_datatable').on( 'init.dt', function () {
             if ( ! categorizados.data().count() ){
                 $('#categorizados').hide();
             }
@@ -189,10 +181,10 @@
         // Datatable Tickets Abiertos - Todos
         datatable_config['ajax']['data'] = {
             "estatus": "A",
-            "estado": "ABIERTO",
+            "estado": "SIN ATENDER",
             "soportes_tickets_abiertos": "TODOS"
         };
-        $('#soportes_tickets_abiertos_todos_datatable').DataTable(datatable_config);
+        $('#soportes_tickets_todos_datatable').DataTable(datatable_config);
 
     </script>
 {% endblock %}

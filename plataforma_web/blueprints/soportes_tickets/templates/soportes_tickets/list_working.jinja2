@@ -9,9 +9,10 @@
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
-        {{ topbar.button_primary('Abiertos', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
-        {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
+        {{ topbar.button_primary('Sin Atender', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
+        {{ topbar.button('Pendientes', url_for('soportes_tickets.list_pending'), 'mdi:pause-circle') }}
         {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
+        {{ topbar.button('Cerrados', url_for('soportes_tickets.list_closed'), 'mdi:minus-circle') }}
         {{ topbar.button('Cancelados', url_for('soportes_tickets.list_cancel'), 'mdi:close-circle') }}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
@@ -58,11 +59,10 @@
         let datatable_config = {
             processing: true,
             serverSide: true,
-            ordering: true,
+            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
-            order: [[ 0, "asc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
