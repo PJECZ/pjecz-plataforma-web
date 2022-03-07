@@ -42,11 +42,10 @@
         $('#soportes_tickets_cancelados_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: true,
+            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
-            order: [[ 0, "desc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
@@ -71,7 +70,7 @@
                     }
                 },
                 {
-                    targets: 1,     // Usuario
+                    targets: 1, // Usuario
                     data: null,
                     render: function(data, type, row, meta) {
                         if(data.nombre.length > 32)
@@ -85,7 +84,7 @@
                     }
                 },
                 {
-                    targets: 2,     // Oficina
+                    targets: 2, // Oficina
                     data: null,
                     render: function(data, type, row, meta) {
                         texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
@@ -96,7 +95,7 @@
                     }
                 },
                 {
-                    targets: [3, 4],     // Descripcion
+                    targets: [3, 4], // Descripcion y Soluciones
                     data: null,
                     render: function(data, type, row, meta) {
                         if(data.length > 32)

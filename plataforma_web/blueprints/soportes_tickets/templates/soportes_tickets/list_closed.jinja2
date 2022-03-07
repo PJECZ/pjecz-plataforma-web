@@ -32,7 +32,7 @@
                     <th>Categoría</th>
                     <th>Descripción</th>
                     <th>Técnico</th>
-                    <th>Soluciones</th>
+                    <th>Motivo</th>
                 </tr>
             </thead>
         </table>
@@ -44,11 +44,10 @@
         $('#soportes_tickets_cerrados_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: true,
+            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
-            order: [[ 0, "desc" ]],
             ajax: {
                 url: "/soportes_tickets/datatable_json",
                 type: "POST",
@@ -100,7 +99,7 @@
                     }
                 },
                 {
-                    targets: [4, 6],
+                    targets: [4, 6], // Descripcion y Soluciones
                     data: null,
                     render: function(data, type, row, meta) {
                         if(data.length > 32)
