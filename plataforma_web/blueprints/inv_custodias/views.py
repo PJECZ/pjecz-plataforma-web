@@ -71,7 +71,6 @@ def detail(custodia_id):
 def new(usuario_id):
     """Nuevo Custodias"""
     usuario = Usuario.query.get_or_404(usuario_id)
-    # oficina = Oficina.query.join(Usuario).filter(Usuario.id == usuario.id).first()
     form = INVCustodiaForm()
     validacion = False
     if form.validate_on_submit():
@@ -82,14 +81,7 @@ def new(usuario_id):
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
         if validacion:
-            custodia = INVCustodia(
-                fecha=form.fecha.data,
-                usuario=usuario,
-                nombre_completo=usuario.nombre,
-                curp=usuario.curp,
-                oficina=usuario.oficina
-                # oficina=oficina,
-            )
+            custodia = INVCustodia(fecha=form.fecha.data, usuario=usuario, nombre_completo=usuario.nombre, curp=usuario.curp, oficina=usuario.oficina)
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
@@ -111,8 +103,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
         consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
-    # if "oficina_id" in request.form:
-    #     consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
+
     registros = consulta.order_by(INVCustodia.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

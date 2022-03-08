@@ -129,9 +129,7 @@ def datatable_json():
     if "custodia_id" in request.form:
         consulta = consulta.filter_by(inv_custodia_id=request.form["custodia_id"])
     if "modelo_equipo_id" in request.form:
-        consulta = consulta.filter(INVEquipo.inv_modelo_id == request.form["modelo_equipo_id"])
-    if "modelo_id" in request.form:
-        consulta = consulta.join(INVMarca).filter_by(modelo_id=request.form["modelo_id"])
+        consulta = consulta.filter(inv_modelo_id=request.form["modelo_equipo_id"])
     registros = consulta.order_by(INVEquipo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 
@@ -157,7 +155,7 @@ def datatable_json():
                 },
                 "marca": {
                     "nombre": resultado.modelo.marca.nombre,
-                    "url": url_for("inv_marcas.detail", marca_id=resultado.inv_modelo.marca_id) if current_user.can_view("INV MARCAS") else "",
+                    "url": url_for("inv_marcas.detail", marca_id=resultado.modelo.inv_marca_id) if current_user.can_view("INV MARCAS") else "",
                 },
                 "modelo": {
                     "nombre": resultado.modelo.descripcion,
