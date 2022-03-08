@@ -9,9 +9,9 @@
     {% call topbar.page_buttons(repsvm_agresor.nombre) %}
         {{ topbar.button_previous('Agresores', url_for('repsvm_agresores.list_active')) }}
         {% if current_user.can_edit('REPSVM AGRESORES') %}
-            {{ topbar.button_edit('Editar', url_for('repsvm_agresores.edit', repsvm_agresor_id=repsvm_agresor.id)) }}
-            {% if repsvm_agresor.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('repsvm_agresores.delete', repsvm_agresor_id=repsvm_agresor.id)) }}{% endif %}
-            {% if repsvm_agresor.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('repsvm_agresores.recover', repsvm_agresor_id=repsvm_agresor.id)) }}{% endif %}
+            {# topbar.button_edit('Editar', url_for('repsvm_agresores.edit', repsvm_agresor_id=repsvm_agresor.id)) #}
+            {# if repsvm_agresor.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('repsvm_agresores.delete', repsvm_agresor_id=repsvm_agresor.id)) }}{% endif #}
+            {# if repsvm_agresor.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('repsvm_agresores.recover', repsvm_agresor_id=repsvm_agresor.id)) }}{% endif #}
         {% endif %}
     {% endcall %}
 {% endblock %}

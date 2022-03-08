@@ -11,7 +11,7 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('repsvm_agresores.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('REPSVM AGRESORES') %}
-            {{ topbar.button_new('Nuevo Agresor', url_for('repsvm_agresores.new')) }}
+            {# topbar.button_new('Nuevo Agresor', url_for('repsvm_agresores.new')) #}
         {% endif %}
     {% endcall %}
 {% endblock %}

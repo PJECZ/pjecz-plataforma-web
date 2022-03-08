@@ -93,12 +93,12 @@ def alimentar(entrada_csv):
                 repsvm_tipo_sentencia = REPSVMTipoSentencia(nombre=repsvm_tipo_sentencia_nombre).save()
                 click.echo(f"+ Se agrega el tipo de sentencia {repsvm_tipo_sentencia_nombre}")
             # Delitos
-            repsvm_delito_generico_nombre = safe_string(row["delito_generico"])
+            repsvm_delito_generico_nombre = safe_string(row["delito_generico"], do_unidecode=False)
             repsvm_delito_generico = REPSVMDelitoGenerico.query.filter_by(nombre=repsvm_delito_generico_nombre).first()
             if repsvm_delito_generico is None:
                 repsvm_delito_generico = REPSVMDelitoGenerico(nombre=repsvm_delito_generico_nombre).save()
                 click.echo(f"+ Se agrega el delito generico {repsvm_delito_generico_nombre}")
-            repsvm_delito_especifico_descripcion = safe_string(row["delito_especifico"])
+            repsvm_delito_especifico_descripcion = safe_string(row["delito_especifico"], do_unidecode=False)
             repsvm_delito_especifico = REPSVMDelitoEspecifico.query.filter(REPSVMDelitoEspecifico.repsvm_delito_generico == repsvm_delito_generico).filter_by(descripcion=repsvm_delito_especifico_descripcion).first()
             if repsvm_delito_especifico is None:
                 repsvm_delito_especifico = REPSVMDelitoEspecifico(
@@ -114,7 +114,7 @@ def alimentar(entrada_csv):
                 repsvm_tipo_sentencia=repsvm_tipo_sentencia,
                 nombre=safe_string(row["nombre"]),
                 numero_causa=safe_string(row["numero_causa"]),
-                pena_impuesta=safe_string(row["pena_impuesta"]),
+                pena_impuesta=safe_string(row["pena_impuesta"], do_unidecode=False),
                 observaciones=safe_text(row["observaciones"], to_uppercase=True),
                 sentencia_url=row["sentencia_url"].strip(),
             ).save()
