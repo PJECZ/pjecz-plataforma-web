@@ -14,7 +14,7 @@ class REPSVMAgresor(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
+    # Claves foráneas
     distrito_id = db.Column(db.Integer, db.ForeignKey("distritos.id"), index=True, nullable=False)
     distrito = db.relationship("Distrito", back_populates="repsvm_agresores")
     materia_tipo_juzgado_id = db.Column(db.Integer, db.ForeignKey("materias_tipos_juzgados.id"), index=True, nullable=False)
