@@ -1,0 +1,18 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Delito Generico{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Delito Generico') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('repsvm_delitos_genericos.new', fid='repsvm_delito_generico_form') %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
