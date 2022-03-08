@@ -13,6 +13,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.repsvm_tipos_sentencias.models import REPSVMTipoSentencia
+from plataforma_web.blueprints.repsvm_tipos_sentencias.forms import REPSVMTipoSentenciaForm
 
 MODULO = "REPSVM TIPOS SENTENCIAS"
 
@@ -56,3 +57,81 @@ def detail(repsvm_tipo_sentencia_id):
     """Detalle de un Tipo de Sentencia"""
     repsvm_tipo_sentencia = REPSVMTipoSentencia.query.get_or_404(repsvm_tipo_sentencia_id)
     return render_template("repsvm_tipos_sentencias/detail.jinja2", repsvm_tipo_sentencia=repsvm_tipo_sentencia)
+
+
+@repsvm_tipos_sentencias.route("/repsvm_tipos_sentencias/nuevo", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.CREAR)
+def new():
+    """Nuevo Tipo de Sentencia"""
+    form = REPSVMTipoSentenciaForm()
+    if form.validate_on_submit():
+        repsvm_tipo_sentencia = REPSVMTipoSentencia(nombre=safe_string(form.nombre.data))
+        repsvm_tipo_sentencia.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo Tipo de Sentencia {repsvm_tipo_sentencia.nombre}"),
+            url=url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    return render_template("repsvm_tipos_sentencias/new.jinja2", form=form)
+
+
+@repsvm_tipos_sentencias.route("/repsvm_tipos_sentencias/edicion/<int:repsvm_tipo_sentencia_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(repsvm_tipo_sentencia_id):
+    """Editar Tipo de Sentencia"""
+    repsvm = REPSVMTipoSentencia.query.get_or_404(repsvm_tipo_sentencia_id)
+    form = REPSVMTipoSentenciaForm()
+    if form.validate_on_submit():
+        repsvm.nombre = safe_string(form.nombre.data)
+        repsvm.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Tipo de Sentencia {repsvm.nombre}"),
+            url=url_for("repsvm_tipos_sentencias.detail", repsvm_id=repsvm.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.nombre.data = repsvm.nombre
+    return render_template("repsvm_tipos_sentencias/edit.jinja2", form=form, repsvm=repsvm)
+
+
+@repsvm_tipos_sentencias.route("/repsvm_tipos_sentencias/eliminar/<int:repsvm_tipo_sentencia_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(repsvm_tipo_sentencia_id):
+    """Eliminar Tipo de Sentencia"""
+    repsvm_tipo_sentencia = REPSVMTipoSentencia.query.get_or_404(repsvm_tipo_sentencia_id)
+    if repsvm_tipo_sentencia.estatus == "A":
+        repsvm_tipo_sentencia.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado Tipo de Sentencia {repsvm_tipo_sentencia.nombre}"),
+            url=url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id))
+
+
+@repsvm_tipos_sentencias.route("/repsvm_tipos_sentencias/recuperar/<int:repsvm_tipo_sentencia_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(repsvm_tipo_sentencia_id):
+    """Recuperar Tipo de Sentencia"""
+    repsvm_tipo_sentencia = REPSVMTipoSentencia.query.get_or_404(repsvm_tipo_sentencia_id)
+    if repsvm_tipo_sentencia.estatus == "B":
+        repsvm_tipo_sentencia.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado Tipo de Sentencia {repsvm_tipo_sentencia.nombre}"),
+            url=url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id))

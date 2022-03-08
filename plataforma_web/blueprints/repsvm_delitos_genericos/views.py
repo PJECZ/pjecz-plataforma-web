@@ -13,6 +13,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.repsvm_delitos_genericos.models import REPSVMDelitoGenerico
+from plataforma_web.blueprints.repsvm_delitos_genericos.forms import REPSVMDelitoGenericoForm
 
 MODULO = "REPSVM DELITOS GENERICOS"
 
@@ -56,3 +57,81 @@ def detail(repsvm_delito_generico_id):
     """Detalle de un Delito Generico"""
     repsvm_delito_generico = REPSVMDelitoGenerico.query.get_or_404(repsvm_delito_generico_id)
     return render_template("repsvm_delitos_genericos/detail.jinja2", repsvm_delito_generico=repsvm_delito_generico)
+
+
+@repsvm_delitos_genericos.route("/repsvm_delitos_genericos/nuevo", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.CREAR)
+def new():
+    """Nuevo Delito Generico"""
+    form = REPSVMDelitoGenericoForm()
+    if form.validate_on_submit():
+        repsvm_delito_generico = REPSVMDelitoGenerico(nombre=safe_string(form.nombre.data))
+        repsvm_delito_generico.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo Delito Generico {repsvm_delito_generico.nombre}"),
+            url=url_for("repsvm_delitos_genericos.detail", repsvm_delito_generico_id=repsvm_delito_generico.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    return render_template("repsvm_delitos_genericos/new.jinja2", form=form)
+
+
+@repsvm_delitos_genericos.route("/repsvm_delitos_genericos/edicion/<int:repsvm_delito_generico_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(repsvm_delito_generico_id):
+    """Editar Delito Generico"""
+    repsvm_delito_generico = REPSVMDelitoGenerico.query.get_or_404(repsvm_delito_generico_id)
+    form = REPSVMDelitoGenericoForm()
+    if form.validate_on_submit():
+        repsvm_delito_generico.nombre = safe_string(form.nombre.data)
+        repsvm_delito_generico.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Delito Generico {repsvm_delito_generico.nombre}"),
+            url=url_for("repsvm_delitos_genericos.detail", repsvm_delito_generico_id=repsvm_delito_generico.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.nombre.data = repsvm_delito_generico.nombre
+    return render_template("repsvm_delitos_genericos/edit.jinja2", form=form, repsvm_delito_generico=repsvm_delito_generico)
+
+
+@repsvm_delitos_genericos.route("/repsvm_delitos_genericos/eliminar/<int:repsvm_delito_generico_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(repsvm_delito_generico_id):
+    """Eliminar Delito Generico"""
+    repsvm_delito_generico = REPSVMDelitoGenerico.query.get_or_404(repsvm_delito_generico_id)
+    if repsvm_delito_generico.estatus == "A":
+        repsvm_delito_generico.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado Delito Generico {repsvm_delito_generico.nombre}"),
+            url=url_for("repsvm_delitos_genericos.detail", repsvm_delito_generico_id=repsvm_delito_generico.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("repsvm_delitos_genericos.detail", repsvm_delito_generico_id=repsvm_delito_generico.id))
+
+
+@repsvm_delitos_genericos.route("/repsvm_delitos_genericos/recuperar/<int:repsvm_delito_generico_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(repsvm_delito_generico_id):
+    """Recuperar Delito Generico"""
+    repsvm_delito_generico = REPSVMDelitoGenerico.query.get_or_404(repsvm_delito_generico_id)
+    if repsvm_delito_generico.estatus == "B":
+        repsvm_delito_generico.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado Delito Generico {repsvm_delito_generico.nombre}"),
+            url=url_for("repsvm_delitos_genericos.detail", repsvm_delito_generico_id=repsvm_delito_generico.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("repsvm_delitos_genericos.detail", repsvm_delito_generico_id=repsvm_delito_generico.id))

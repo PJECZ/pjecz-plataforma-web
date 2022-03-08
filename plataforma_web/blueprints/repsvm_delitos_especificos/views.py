@@ -13,6 +13,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.repsvm_delitos_especificos.models import REPSVMDelitoEspecifico
+from plataforma_web.blueprints.repsvm_delitos_especificos.forms import REPSVMDelitoEspecificoForm
 
 MODULO = "REPSVM DELITOS ESPECIFICOS"
 
@@ -56,3 +57,45 @@ def detail(repsvm_delito_especifico_id):
     """Detalle de un Delito Especifico"""
     repsvm_delito_especifico = REPSVMDelitoEspecifico.query.get_or_404(repsvm_delito_especifico_id)
     return render_template("repsvm_delitos_especificos/detail.jinja2", repsvm_delito_especifico=repsvm_delito_especifico)
+
+
+@repsvm_delitos_especificos.route('/repsvm_delitos_especificos/nuevo', methods=['GET', 'POST'])
+@permission_required(MODULO, Permiso.CREAR)
+def new():
+    """ Nuevo DelitoEspecifico """
+    form = REPSVMDelitoEspecificoForm()
+    if form.validate_on_submit():
+        repsvm_delito_especifico = REPSVMDelitoEspecifico(descripcion=safe_string(form.descripcion.data))
+        repsvm_delito_especifico.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo DelitoEspecifico {repsvm_delito_especifico.descripcion}"),
+            url=url_for("repsvm_delitos_especificos.detail", repsvm_delito_especifico_id=repsvm_delito_especifico.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    return render_template('repsvm_delitos_especificos/new.jinja2', form=form)
+
+
+@repsvm_delitos_especificos.route('/repsvm_delitos_especificos/edicion/<int:repsvm_delito_especifico_id>', methods=['GET', 'POST'])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(repsvm_delito_especifico_id):
+    """ Editar Delito Especifico """
+    repsvm_delito_especifico = REPSVMDelitoEspecifico.query.get_or_404(repsvm_delito_especifico_id)
+    form = REPSVMDelitoEspecificoForm()
+    if form.validate_on_submit():
+        repsvm_delito_especifico.descripcion = safe_string(form.descripcion.data)
+        repsvm_delito_especifico.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Delito Especifico {repsvm_delito_especifico.descripcion}"),
+            url=url_for("repsvm_delitos_especificos.detail", repsvm_delito_especifico_id=repsvm_delito_especifico.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.descripcion.data = repsvm_delito_especifico.descripcion
+    return render_template('repsvm_delitos_especificos/edit.jinja2', form=form, repsvm_delito_especifico=repsvm_delito_especifico)

@@ -150,7 +150,7 @@
 			""
 		],
 		"description": "Buscar JSON"
-	}
+	},
 	"Flask views datatable json": {
 		"scope": "python",
 		"prefix": "fviews_datatable_json",

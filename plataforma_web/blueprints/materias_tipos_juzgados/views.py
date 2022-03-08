@@ -6,13 +6,14 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_clave, safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.materias_tipos_juzgados.models import MateriaTipoJuzgado
+from plataforma_web.blueprints.materias_tipos_juzgados.forms import MateriaTipoJuzgadoForm
 
 MODULO = "MATERIAS TIPOS JUZGADOS"
 
@@ -56,3 +57,87 @@ def detail(materia_tipo_juzgado_id):
     """Detalle de un Tipo de Juzgado"""
     materia_tipo_juzgado = MateriaTipoJuzgado.query.get_or_404(materia_tipo_juzgado_id)
     return render_template("materias_tipos_juzgados/detail.jinja2", materia_tipo_juzgado=materia_tipo_juzgado)
+
+
+@materias_tipos_juzgados.route("/materias_tipos_juzgados/nuevo", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.CREAR)
+def new():
+    """Nuevo Tipo de Juzgado"""
+    form = MateriaTipoJuzgadoForm()
+    if form.validate_on_submit():
+        materia_tipo_juzgado = MateriaTipoJuzgado(
+            materia=form.materia.data,
+            clave=safe_clave(form.clave.data),
+            descripcion=safe_string(form.descripcion.data),
+        )
+        materia_tipo_juzgado.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo Tipo de Juzgado {materia_tipo_juzgado.clave}"),
+            url=url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    return render_template("materias_tipos_juzgados/new.jinja2", form=form)
+
+
+@materias_tipos_juzgados.route("/materias_tipos_juzgados/edicion/<int:materia_tipo_juzgado_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(materia_tipo_juzgado_id):
+    """Editar Tipo de Juzgado"""
+    materia_tipo_juzgado = MateriaTipoJuzgado.query.get_or_404(materia_tipo_juzgado_id)
+    form = MateriaTipoJuzgadoForm()
+    if form.validate_on_submit():
+        materia_tipo_juzgado.materia = form.materia.data
+        materia_tipo_juzgado.clave = safe_clave(form.clave.data)
+        materia_tipo_juzgado.descripcion = safe_string(form.descripcion.data)
+        materia_tipo_juzgado.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Tipo de Juzgado {materia_tipo_juzgado.clave}"),
+            url=url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.clave.data = materia_tipo_juzgado.clave
+    return render_template("materias_tipos_juzgados/edit.jinja2", form=form, materia_tipo_juzgado=materia_tipo_juzgado)
+
+
+@materias_tipos_juzgados.route("/materias_tipos_juzgados/eliminar/<int:materia_tipo_juzgado_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(materia_tipo_juzgado_id):
+    """Eliminar Tipo de Juzgado"""
+    materia_tipo_juzgado = MateriaTipoJuzgado.query.get_or_404(materia_tipo_juzgado_id)
+    if materia_tipo_juzgado.estatus == "A":
+        materia_tipo_juzgado.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado Tipo de Juzgado {materia_tipo_juzgado.clave}"),
+            url=url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id))
+
+
+@materias_tipos_juzgados.route("/materias_tipos_juzgados/recuperar/<int:materia_tipo_juzgado_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(materia_tipo_juzgado_id):
+    """Recuperar Tipo de Juzgado"""
+    materia_tipo_juzgado = MateriaTipoJuzgado.query.get_or_404(materia_tipo_juzgado_id)
+    if materia_tipo_juzgado.estatus == "B":
+        materia_tipo_juzgado.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado Tipo de Juzgado {materia_tipo_juzgado.clave}"),
+            url=url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id))
