@@ -23,12 +23,13 @@
                 <tr>
                     <th>IDs</th>
                     <th>Distritos</th>
-                    <th>Tipos de Juzgados</th>
+                    <th>T. Juzgados</th>
                     <th>Delitos Específicos</th>
-                    <th>Tipos de Sentencias</th>
+                    <th>T. Sentencias</th>
                     <th>Nombres</th>
                     <th>No. Causa</th>
                     <th>Penas Impuestas</th>
+                    <th>URL</th>
                 </tr>
             </thead>
         </table>
@@ -60,7 +61,8 @@
                 { data: "repsvm_tipo_sentencia" },
                 { data: "nombre" },
                 { data: "numero_causa" },
-                { data: "pena_impuesta" }
+                { data: "pena_impuesta" },
+                { data: "sentencia_url" }
             ],
             columnDefs: [
                 {
@@ -94,12 +96,60 @@
                     targets: 3, // Delito Especifico
                     data: null,
                     render: function(data, type, row, meta) {
+                        if (data.descripcion.length > 16)
+                            texto = '<span title="' + data.descripcion + '">' + data.descripcion.substr(0, 16) + '…' + '</span>';
+                        else
+                            texto = data.descripcion;
                         if (data.url != '') {
-                            return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                            return '<a href="' + data.url + '">' + texto + '</a>';
                         }
-                        return data.descripcion;
+                        return texto;
                     }
                 },
+                {
+                    targets: 4, // Tipo Sentencia
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.nombre.length > 16)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 16) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if (data.url != '') {
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                        }
+                        return texto;
+                    }
+                },
+                {
+                    targets: 5, // Nombre
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.length > 48)
+                            return '<span title="' + data + '">' + data.substr(0, 48) + '…' + '</span>';
+                        else
+                            return data;
+                    }
+                },
+                {
+                    targets: [6, 7], // No. Causa y Pena
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.length > 16)
+                            return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                        else
+                            return data;
+                    }
+                },
+                {
+                    targets: 8, // Sentencia URL
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data != '') {
+                            return '<a href="' + data + '" target="_blank"><span class="iconify" data-icon="mdi:file-download"></span></a>';
+                        }
+                        return '';
+                    }
+                }
             ],
             language: {
                 lengthMenu: "Mostrar _MENU_",

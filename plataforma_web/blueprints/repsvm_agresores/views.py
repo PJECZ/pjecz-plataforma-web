@@ -100,6 +100,7 @@ def datatable_json():
                 "nombre": resultado.nombre,
                 "numero_causa": resultado.numero_causa,
                 "pena_impuesta": resultado.pena_impuesta,
+                "sentencia_url": resultado.sentencia_url,
             }
         )
     # Entregar JSON
