@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipos de Sentencias{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(repsvm_tipo_sentencia.nombre) %}
+        {{ topbar.button_previous('Tipos de Sentencias', url_for('repsvm_tipos_sentencias.list_active')) }}
+        {% if current_user.can_edit('REPSVM TIPOS SENTENCIAS') %}
+            {{ topbar.button_edit('Editar', url_for('repsvm_tipos_sentencias.edit', repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id)) }}
+            {% if repsvm_tipo_sentencia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('repsvm_tipos_sentencias.delete', repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id)) }}{% endif %}
+            {% if repsvm_tipo_sentencia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('repsvm_tipos_sentencias.recover', repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=repsvm_tipo_sentencia.estatus) %}
+        {{ detail.label_value_big('Nombre', repsvm_tipo_sentencia.nombre) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('REPSVM TIPOS SENTENCIAS') %}
+        {% if repsvm_tipo_sentencia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + repsvm_tipo_sentencia.nombre + '?') }}{% endif %}
+        {% if repsvm_tipo_sentencia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + repsvm_tipo_sentencia.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
