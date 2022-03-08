@@ -1,0 +1,32 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipos de Juzgados{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(materia_tipo_juzgado.clave) %}
+        {{ topbar.button_previous('Tipos de Juzgados', url_for('materias_tipos_juzgados.list_active')) }}
+        {% if current_user.can_edit('MATERIAS TIPOS JUZGADOS') %}
+            {{ topbar.button_edit('Editar', url_for('materias_tipos_juzgados.edit', materia_tipo_juzgado_id=materia_tipo_juzgado.id)) }}
+            {% if materia_tipo_juzgado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('materias_tipos_juzgados.delete', materia_tipo_juzgado_id=materia_tipo_juzgado.id)) }}{% endif %}
+            {% if materia_tipo_juzgado.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('materias_tipos_juzgados.recover', materia_tipo_juzgado_id=materia_tipo_juzgado.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=materia_tipo_juzgado.estatus) %}
+        {{ detail.label_value_big('Clave', materia_tipo_juzgado.clave) }}
+        {{ detail.label_value('Materia', materia_tipo_juzgado.columna_1) }}
+        {{ detail.label_value('Descripcion', materia_tipo_juzgado.columna_2) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('MATERIAS TIPOS JUZGADOS') %}
+        {% if materia_tipo_juzgado.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + materia_tipo_juzgado.clave + '?') }}{% endif %}
+        {% if materia_tipo_juzgado.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + materia_tipo_juzgado.clave + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

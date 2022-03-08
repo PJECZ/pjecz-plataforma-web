@@ -2,17 +2,16 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Editar Tipo de Juicio{% endblock %}
+{% block title %}Nuevo Delito Especifico{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar Tipo de Juicio ' + materia_tipo_juicio.descripcion) }}
+    {{ topbar.page('Nuevo Delito Especifico') }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'materia_tipo_juicio_id': materia_tipo_juicio.id} %}
-        {% call f.form_tag('materias_tipos_juicios.edit', fid='materia_tipo_juicio_form', **form_kwargs) %}
-            {% call f.form_group(form.materia) %}{% endcall %}
+        {% call f.form_tag('repsvm_delitos_especificos.new', fid='repsvm_delito_especifico_form') %}
+            {% call f.form_group(form.repsvm_delito_generico) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}

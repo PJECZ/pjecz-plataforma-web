@@ -1,0 +1,30 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Delito Generico{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(repsvm_delito_generico.nombre) %}
+        {{ topbar.button_previous('Delitos Genericos', url_for('repsvm_delitos_genericos.list_active')) }}
+        {% if current_user.can_edit('REPSVM DELITOS GENERICOS') %}
+            {{ topbar.button_edit('Editar', url_for('repsvm_delitos_genericos.edit', repsvm_delito_generico_id=repsvm_delito_generico.id)) }}
+            {% if repsvm_delito_generico.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('repsvm_delitos_genericos.delete', repsvm_delito_generico_id=repsvm_delito_generico.id)) }}{% endif %}
+            {% if repsvm_delito_generico.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('repsvm_delitos_genericos.recover', repsvm_delito_generico_id=repsvm_delito_generico.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=repsvm_delito_generico.estatus) %}
+        {{ detail.label_value_big('Nombre', repsvm_delito_generico.nombre) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('REPSVM DELITOS GENERICOS') %}
+        {% if repsvm_delito_generico.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + repsvm_delito_generico.nombre + '?') }}{% endif %}
+        {% if repsvm_delito_generico.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + repsvm_delito_generico.nombre + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

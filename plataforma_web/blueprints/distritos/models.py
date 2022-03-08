@@ -23,6 +23,7 @@ class Distrito(db.Model, UniversalMixin):
     autoridades = db.relationship("Autoridad", back_populates="distrito")
     peritos = db.relationship("Perito", back_populates="distrito", lazy="noload")
     oficinas = db.relationship("Oficina", back_populates="distrito", lazy="noload")
+    repsvm_agresores = db.relationship("REPSVMAgresor", back_populates="distrito", lazy="noload")
 
     def __repr__(self):
         """Representación"""
