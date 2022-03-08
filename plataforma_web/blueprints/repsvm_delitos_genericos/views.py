@@ -14,7 +14,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.repsvm_delitos_genericos.models import REPSVMDelitoGenerico
 
-MODULO = "REPSVM"
+MODULO = "REPSVM DELITOS GENERICOS"
 
 repsvm_delitos_genericos = Blueprint("repsvm_delitos_genericos", __name__, template_folder="templates")
 
