@@ -26,10 +26,9 @@ class REPSVMAgresor(db.Model, UniversalMixin):
 
     # Columnas
     nombre = db.Column(db.String(256), nullable=False)
-    numero_causa = db.Column(db.Integer, nullable=False)
+    numero_causa = db.Column(db.String(256), nullable=False)
     pena_impuesta = db.Column(db.String(256), nullable=False)
     observaciones = db.Column(db.Text(), nullable=True)
-    sentencia_archivo = db.Column(db.String(256), nullable=False)
     sentencia_url = db.Column(db.String(512), nullable=False)
 
     def __repr__(self):
