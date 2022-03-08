@@ -1,0 +1,42 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Agresores{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('REPSVM AGRESORES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('repsvm_agresores.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('repsvm_agresores.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('REPSVM AGRESORES') %}
+            {{ topbar.button_new('Nuevo Agresor', url_for('repsvm_agresores.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="repsvm_agresores_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>IDs</th>
+                    <th>Nombres</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for repsvm_agresor in repsvm_agresores %}
+                <tr>
+                    <td><a href="{{ url_for('repsvm_agresores.detail', repsvm_agresor_id=repsvm_agresor.id) }}">{{ repsvm_agresor.id }}</a></td>
+                    <td>{{ repsvm_agresor.nombre }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('repsvm_agresores_datatable') }}
+{% endblock %}

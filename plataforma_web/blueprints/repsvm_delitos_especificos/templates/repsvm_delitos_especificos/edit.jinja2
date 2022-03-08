@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Delito Especifico{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + repsvm_delito_especifico.descripcion) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'repsvm_delito_especifico_id': repsvm_delito_especifico.id} %}
+        {% call f.form_tag('repsvm_delitos_especificos.edit', fid='repsvm_delito_especifico_form', **form_kwargs) %}
+            {% call f.form_group(form.repsvm_delito_generico) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

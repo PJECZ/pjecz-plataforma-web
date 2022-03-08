@@ -1,0 +1,3 @@
+"""
+REPSVM Delitos Genericos, vistas
+"""

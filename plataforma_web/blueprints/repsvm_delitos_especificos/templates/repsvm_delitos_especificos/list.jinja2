@@ -1,0 +1,42 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Delitos Especificos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('REPSVM DELITOS ESPECIFICOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('repsvm_delitos_especificos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('repsvm_delitos_especificos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('REPSVM DELITOS ESPECIFICOS') %}
+            {{ topbar.button_new('Nuevo Delito Especifico', url_for('repsvm_delitos_especificos.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="repsvm_delitos_especificos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Delito generico</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for repsvm_delito_especifico in repsvm_delitos_especificos %}
+                <tr>
+                    <td>{{ repsvm_delito_especifico.repsvm_delito_generico.nombre }}</td>
+                    <td><a href="{{ url_for('repsvm_delitos_especificos.detail', repsvm_delito_especifico_id=repsvm_delito_especifico.id) }}">{{ repsvm_delito_especifico.descripcion }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('repsvm_delitos_especificos_datatable') }}
+{% endblock %}
