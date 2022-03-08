@@ -22,21 +22,99 @@
             <thead>
                 <tr>
                     <th>IDs</th>
+                    <th>Distritos</th>
+                    <th>Tipos de Juzgados</th>
+                    <th>Delitos Específicos</th>
+                    <th>Tipos de Sentencias</th>
                     <th>Nombres</th>
+                    <th>No. Causa</th>
+                    <th>Penas Impuestas</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for repsvm_agresor in repsvm_agresores %}
-                <tr>
-                    <td><a href="{{ url_for('repsvm_agresores.detail', repsvm_agresor_id=repsvm_agresor.id) }}">{{ repsvm_agresor.id }}</a></td>
-                    <td>{{ repsvm_agresor.nombre }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('repsvm_agresores_datatable') }}
+    <script>
+        $('#repsvm_agresores_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/repsvm_agresores/datatable_json",
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "distrito" },
+                { data: "materia_tipo_juzgado" },
+                { data: "repsvm_delito_especifico" },
+                { data: "repsvm_tipo_sentencia" },
+                { data: "nombre" },
+                { data: "numero_causa" },
+                { data: "pena_impuesta" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0, // ID
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // Distrito
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url != '') {
+                            return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                        }
+                        return data.nombre_corto;
+                    }
+                },
+                {
+                    targets: 2, // Materia Tipo Juzgado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url != '') {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                        return data.clave;
+                    }
+                },
+                {
+                    targets: 3, // Delito Especifico
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url != '') {
+                            return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        }
+                        return data.descripcion;
+                    }
+                },
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

@@ -29,10 +29,9 @@ def before_request():
 @repsvm_agresores.route("/repsvm_agresores")
 def list_active():
     """Listado de Agresores activos"""
-    repsvm_agresores_activos = REPSVMAgresor.query.filter(REPSVMAgresor.estatus == "A").all()
     return render_template(
         "repsvm_agresores/list.jinja2",
-        repsvm_agresores=repsvm_agresores_activos,
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Agresores",
         estatus="A",
     )
@@ -42,13 +41,69 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Agresores inactivos"""
-    repsvm_agresores_inactivos = REPSVMAgresor.query.filter(REPSVMAgresor.estatus == "B").all()
     return render_template(
         "repsvm_agresores/list.jinja2",
-        repsvm_agresores=repsvm_agresores_inactivos,
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Agresores inactivos",
         estatus="B",
     )
+
+
+@repsvm_agresores.route("/repsvm_agresores/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Agresores"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = REPSVMAgresor.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "distrito_id" in request.form:
+        consulta = consulta.filter_by(distrito_id=request.form["distrito_id"])
+    if "materia_tipo_juzgado_id" in request.form:
+        consulta = consulta.filter_by(materia_tipo_juzgado_id=request.form["materia_tipo_juzgado_id"])
+    if "repsvm_delito_especifico_id" in request.form:
+        consulta = consulta.filter_by(repsvm_delito_especifico_id=request.form["repsvm_delito_especifico_id"])
+    if "repsvm_tipo_sentencia_id" in request.form:
+        consulta = consulta.filter_by(repsvm_tipo_sentencia_id=request.form["repsvm_tipo_sentencia_id"])
+    if "nombre" in request.form:
+        consulta = consulta.filter(REPSVMAgresor.nombre.contains(safe_string(request.form["nombre"])))
+    registros = consulta.order_by(REPSVMAgresor.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("repsvm_agresores.detail", repsvm_agresor_id=resultado.id),
+                },
+                "distrito": {
+                    "nombre_corto": resultado.distrito.nombre_corto,
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
+                },
+                "materia_tipo_juzgado": {
+                    "clave": resultado.materia_tipo_juzgado.clave,
+                    "url": url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=resultado.materia_tipo_juzgado_id) if current_user.can_view("MATERIAS TIPOS JUZGADOS") else "",
+                },
+                "repsvm_delito_especifico": {
+                    "descripcion": resultado.repsvm_delito_especifico.descripcion,
+                    "url": url_for("repsvm_delitos_especificos.detail", repsvm_delito_especifico_id=resultado.repsvm_delito_especifico_id) if current_user.can_view("REPSVM DELITOS ESPECIFICOS") else "",
+                },
+                "repsvm_tipo_sentencia": {
+                    "nombre": resultado.repsvm_tipo_sentencia.nombre,
+                    "url": url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=resultado.repsvm_tipo_sentencia_id) if current_user.can_view("REPSVM TIPOS SENTENCIAS") else "",
+                },
+                "nombre": resultado.nombre,
+                "numero_causa": resultado.numero_causa,
+                "pena_impuesta": resultado.pena_impuesta,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @repsvm_agresores.route("/repsvm_agresores/<int:repsvm_agresor_id>")
