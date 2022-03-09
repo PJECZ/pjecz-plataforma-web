@@ -10,6 +10,7 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_equipos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_equipos.list_active')) }}{% endif %}
         {% endif %}
+        {{ topbar.button('Custodias', url_for('inv_custodias.list_active'),'mdi:security-network') }}
         {{ topbar.button('Categorías', url_for('inv_categorias.list_active'),'mdi:car-wrench') }}
         {{ topbar.button('Marcas', url_for('inv_marcas.list_active'), 'mdi:chart-bubble') }}
         {{ topbar.button('Redes', url_for('inv_redes.list_active'), 'mdi:access-point-network') }}

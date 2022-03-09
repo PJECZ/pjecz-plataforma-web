@@ -91,7 +91,7 @@
             </table>
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('SOPORTES TICKETS') %}
+    {% if current_user.can_edit('SOPORTES TICKETS') %}
         {% call list.card('Custodias') %}
             <table id="inv_custodias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>

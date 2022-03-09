@@ -210,7 +210,7 @@ def edit(equipo_id):
     form.custodia.data = equipo.custodia.nombre_completo
     form.email.data = equipo.custodia.usuario.email
     form.puesto.data = equipo.custodia.usuario.puesto
-    form.oficina.data = str(f"{equipo.custodia.oficina.clave} - {equipo.custodia.oficina.descripcion_corta}")
+    form.oficina.data = str(f"{equipo.custodia.usuario.oficina.clave} - {equipo.custodia.usuario.oficina.descripcion_corta}")
     return render_template("inv_equipos/edit.jinja2", form=form, equipo=equipo)
 
 
