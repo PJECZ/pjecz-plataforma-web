@@ -109,7 +109,7 @@ def new(inv_custodia_id):
     form.custodia.data = custodia.nombre_completo
     form.email.data = custodia.usuario.email
     form.puesto.data = custodia.usuario.puesto
-    form.oficina.data = str(f"{custodia.oficina.clave} - {custodia.oficina.descripcion_corta}")
+    form.oficina.data = str(f"{custodia.usuario.oficina.clave} - {custodia.usuario.oficina.descripcion_corta}")
     return render_template("inv_equipos/new.jinja2", form=form, custodia=custodia)
 
 
@@ -128,8 +128,8 @@ def datatable_json():
         consulta = consulta.filter(INVCustodia.usuario_id == request.form["usuario_id"])
     if "custodia_id" in request.form:
         consulta = consulta.filter_by(inv_custodia_id=request.form["custodia_id"])
-    if "modelo_equipo_id" in request.form:
-        consulta = consulta.filter(inv_modelo_id=request.form["modelo_equipo_id"])
+    if "modelo_id" in request.form:
+        consulta = consulta.filter_by(inv_modelo_id=request.form["modelo_id"])
     registros = consulta.order_by(INVEquipo.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
 

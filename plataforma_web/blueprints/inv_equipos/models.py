@@ -20,7 +20,7 @@ class INVEquipo(db.Model, UniversalMixin):
     custodia = db.relationship("INVCustodia", back_populates="equipos")
     inv_modelo_id = db.Column(db.Integer, db.ForeignKey("inv_modelos.id"), index=True, nullable=False)
     modelo = db.relationship("INVModelo", back_populates="equipos")
-    inv_red_id = db.Column(db.Integer, db.ForeignKey("inv_redes.id"), index=True)
+    inv_red_id = db.Column(db.Integer, db.ForeignKey("inv_redes.id"), index=True, nullable=False)
     red = db.relationship("INVRedes", back_populates="equipos")
 
     # Columnas

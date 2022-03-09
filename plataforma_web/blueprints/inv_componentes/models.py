@@ -23,7 +23,7 @@ class INVComponente(db.Model, UniversalMixin):
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
-    cantidad = db.Column(db.Integer())
+    cantidad = db.Column(db.Integer(), nullable=False)
     version = db.Column(db.String(256))
 
     # Hijos

@@ -60,7 +60,7 @@
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 dataType: "json",
                 dataSrc: "data",
-                data: { "estatus": "A", "modelo_equipo_id": {{modelo.id}} }
+                data: { "estatus": "A", "modelo_id": {{modelo.id}} }
             },
             columns: [
                 { data: "descripcion" },

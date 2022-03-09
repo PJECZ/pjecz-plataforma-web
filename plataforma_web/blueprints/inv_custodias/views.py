@@ -81,7 +81,7 @@ def new(usuario_id):
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
         if validacion:
-            custodia = INVCustodia(fecha=form.fecha.data, usuario=usuario, nombre_completo=usuario.nombre, curp=usuario.curp, oficina=usuario.oficina)
+            custodia = INVCustodia(fecha=form.fecha.data, usuario=usuario, nombre_completo=usuario.nombre, curp=usuario.curp)
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
@@ -103,7 +103,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
         consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
-
+    # if "oficina_id" in request.form:
+    #     consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
     registros = consulta.order_by(INVCustodia.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -119,7 +120,7 @@ def datatable_json():
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                 "oficina": {
                     "clave": resultado.usuario.oficina.clave,
-                    "url": url_for("oficinas.detail", oficina_id=resultado.oficina_id) if current_user.can_view("OFICINAS") else "",
+                    "url": url_for("oficinas.detail", oficina_id=resultado.usuario.oficina_id) if current_user.can_view("OFICINAS") else "",
                 },
             }
         )
@@ -148,7 +149,7 @@ def edit(custodia_id):
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
     form.fecha.data = custodia.fecha
     form.usuario.data = custodia.usuario.nombre
-    form.oficina.data = str(f"{custodia.oficina.clave} - {custodia.oficina.descripcion_corta}")
+    form.oficina.data = str(f"{custodia.usuario.oficina.clave} - {custodia.usuario.oficina.descripcion_corta}")
     return render_template("inv_custodias/edit.jinja2", form=form, custodia=custodia)
 
 

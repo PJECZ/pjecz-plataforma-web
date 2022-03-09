@@ -18,8 +18,6 @@ class INVCustodia(db.Model, UniversalMixin):
     # Clave foránea
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
     usuario = db.relationship("Usuario", back_populates="custodias")
-    oficina_id = db.Column(db.Integer, db.ForeignKey("oficinas.id"), index=True, nullable=False)
-    oficina = db.relationship("Oficina", back_populates="custodias")
 
     # Columnas
     fecha = db.Column(db.Date(), nullable=False)

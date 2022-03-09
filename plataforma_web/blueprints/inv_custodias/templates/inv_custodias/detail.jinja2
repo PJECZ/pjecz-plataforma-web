@@ -21,7 +21,7 @@
         {{ detail.label_value('Custodia de equipo', custodia.nombre_completo, url_for('usuarios.detail', usuario_id=custodia.usuario_id)) }}
         {{ detail.label_value('Email', custodia.usuario.email) }}
         {{ detail.label_value('Curp', custodia.curp) }}
-        {{ detail.label_value('Oficina', custodia.oficina.clave + ' - ' + custodia.oficina.descripcion_corta) }}
+        {{ detail.label_value('Oficina', custodia.usuario.oficina.clave + ' - ' + custodia.usuario.oficina.descripcion_corta) }}
         {{ detail.label_value('Puesto', custodia.usuario.puesto) }}
         {{ detail.label_value('Fecha', custodia.fecha) }}
     {% endcall %}
