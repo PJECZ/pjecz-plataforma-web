@@ -65,17 +65,22 @@ def new():
     """Nuevo Tipo de Sentencia"""
     form = REPSVMTipoSentenciaForm()
     if form.validate_on_submit():
-        repsvm_tipo_sentencia = REPSVMTipoSentencia(nombre=safe_string(form.nombre.data))
-        repsvm_tipo_sentencia.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo Tipo de Sentencia {repsvm_tipo_sentencia.nombre}"),
-            url=url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        # Validar que el nombre no se repita
+        nombre = safe_string(form.nombre.data)
+        if REPSVMTipoSentencia.query.filter_by(nombre=nombre).first():
+            flash("La nombre ya está en uso. Debe de ser único.", "warning")
+        else:
+            repsvm_tipo_sentencia = REPSVMTipoSentencia(nombre=nombre)
+            repsvm_tipo_sentencia.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo Tipo de Sentencia {repsvm_tipo_sentencia.nombre}"),
+                url=url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=repsvm_tipo_sentencia.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("repsvm_tipos_sentencias/new.jinja2", form=form)
 
 
@@ -83,20 +88,30 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(repsvm_tipo_sentencia_id):
     """Editar Tipo de Sentencia"""
-    repsvm = REPSVMTipoSentencia.query.get_or_404(repsvm_tipo_sentencia_id)
+    repsvm_tipo_sentencia = REPSVMTipoSentencia.query.get_or_404(repsvm_tipo_sentencia_id)
     form = REPSVMTipoSentenciaForm()
     if form.validate_on_submit():
-        repsvm.nombre = safe_string(form.nombre.data)
-        repsvm.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado Tipo de Sentencia {repsvm.nombre}"),
-            url=url_for("repsvm_tipos_sentencias.detail", repsvm_id=repsvm.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia el nombre verificar que no este en uso
+        nombre = safe_string(form.nombre.data)
+        if repsvm_tipo_sentencia.nombre != nombre:
+            repsvm_tipo_sentencia_existente = REPSVMTipoSentencia.query.filter_by(nombre=nombre).first()
+            if repsvm_tipo_sentencia_existente and repsvm_tipo_sentencia_existente.id != repsvm_tipo_sentencia_id:
+                es_valido = False
+                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            repsvm_tipo_sentencia.nombre = nombre
+            repsvm_tipo_sentencia.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado Tipo de Sentencia {repsvm_tipo_sentencia.nombre}"),
+                url=url_for("repsvm_tipos_sentencias.detail", repsvm_id=repsvm_tipo_sentencia.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.nombre.data = repsvm.nombre
     return render_template("repsvm_tipos_sentencias/edit.jinja2", form=form, repsvm=repsvm)
 

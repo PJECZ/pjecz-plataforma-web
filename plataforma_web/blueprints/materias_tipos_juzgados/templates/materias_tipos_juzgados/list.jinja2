@@ -9,6 +9,9 @@
         {% if current_user.can_edit('MATERIAS') %}
             {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
         {% endif %}
+        {% if current_user.can_view('REPSVM AGRESORES') %}
+            {{ topbar.button('Agresores', url_for('repsvm_agresores.list_active'), 'mdi:account-cancel') }}
+        {% endif %}
         {% if current_user.can_edit('MATERIAS TIPOS JUZGADOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('materias_tipos_juzgados.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('materias_tipos_juzgados.list_active')) }}{% endif %}

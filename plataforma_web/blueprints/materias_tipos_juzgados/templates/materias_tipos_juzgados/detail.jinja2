@@ -19,8 +19,8 @@
 {% block content %}
     {% call detail.card(estatus=materia_tipo_juzgado.estatus) %}
         {{ detail.label_value_big('Clave', materia_tipo_juzgado.clave) }}
-        {{ detail.label_value('Materia', materia_tipo_juzgado.columna_1) }}
-        {{ detail.label_value('Descripcion', materia_tipo_juzgado.columna_2) }}
+        {{ detail.label_value('Materia', materia_tipo_juzgado.materia.nombre) }}
+        {{ detail.label_value('Descripcion', materia_tipo_juzgado.descripcion) }}
     {% endcall %}
 {% endblock %}
 

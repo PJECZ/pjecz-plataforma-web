@@ -2,10 +2,22 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Agresores{% endblock %}
+{% block title %}REPSVM Agresores{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('REPSVM DELITOS GENERICOS') %}
+            {{ topbar.button('D. Genéricos', url_for('repsvm_delitos_genericos.list_active'), 'mdi:label') }}
+        {% endif %}
+        {% if current_user.can_view('REPSVM DELITOS ESPECIFICOS') %}
+            {{ topbar.button('D. Especificos', url_for('repsvm_delitos_especificos.list_active'), 'mdi:label-multiple') }}
+        {% endif %}
+        {% if current_user.can_view('REPSVM TIPOS SENTENCIAS') %}
+            {{ topbar.button('T. Sentencias', url_for('repsvm_tipos_sentencias.list_active'), 'mdi:bookshelf') }}
+        {% endif %}
+        {% if current_user.can_view('MATERIAS TIPOS JUZGADOS') %}
+            {{ topbar.button('T. Juzgados', url_for('materias_tipos_juzgados.list_active'), 'mdi:gavel') }}
+        {% endif %}
         {% if current_user.can_edit('REPSVM AGRESORES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('repsvm_agresores.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('repsvm_agresores.list_active')) }}{% endif %}

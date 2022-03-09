@@ -65,21 +65,26 @@ def new():
     """Nuevo Tipo de Juzgado"""
     form = MateriaTipoJuzgadoForm()
     if form.validate_on_submit():
-        materia_tipo_juzgado = MateriaTipoJuzgado(
-            materia=form.materia.data,
-            clave=safe_clave(form.clave.data),
-            descripcion=safe_string(form.descripcion.data),
-        )
-        materia_tipo_juzgado.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo Tipo de Juzgado {materia_tipo_juzgado.clave}"),
-            url=url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        # Validar que la clave no se repita
+        clave = safe_clave(form.clave.data)
+        if MateriaTipoJuzgado.query.filter_by(clave=clave).first():
+            flash("La clave ya está en uso. Debe de ser única.", "warning")
+        else:
+            materia_tipo_juzgado = MateriaTipoJuzgado(
+                materia=form.materia.data,
+                clave=safe_clave(form.clave.data),
+                descripcion=safe_string(form.descripcion.data),
+            )
+            materia_tipo_juzgado.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo Tipo de Juzgado {materia_tipo_juzgado.clave}"),
+                url=url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("materias_tipos_juzgados/new.jinja2", form=form)
 
 
@@ -90,19 +95,29 @@ def edit(materia_tipo_juzgado_id):
     materia_tipo_juzgado = MateriaTipoJuzgado.query.get_or_404(materia_tipo_juzgado_id)
     form = MateriaTipoJuzgadoForm()
     if form.validate_on_submit():
-        materia_tipo_juzgado.materia = form.materia.data
-        materia_tipo_juzgado.clave = safe_clave(form.clave.data)
-        materia_tipo_juzgado.descripcion = safe_string(form.descripcion.data)
-        materia_tipo_juzgado.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado Tipo de Juzgado {materia_tipo_juzgado.clave}"),
-            url=url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia la clave verificar que no este en uso
+        clave = safe_clave(form.clave.data)
+        if materia_tipo_juzgado.clave != clave:
+            clave_existente = MateriaTipoJuzgado.query.filter_by(clave=clave).first()
+            if clave_existente and clave_existente.id != materia_tipo_juzgado_id:
+                es_valido = False
+                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            materia_tipo_juzgado.materia = form.materia.data
+            materia_tipo_juzgado.clave = safe_clave(form.clave.data)
+            materia_tipo_juzgado.descripcion = safe_string(form.descripcion.data)
+            materia_tipo_juzgado.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado Tipo de Juzgado {materia_tipo_juzgado.clave}"),
+                url=url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=materia_tipo_juzgado.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.clave.data = materia_tipo_juzgado.clave
     return render_template("materias_tipos_juzgados/edit.jinja2", form=form, materia_tipo_juzgado=materia_tipo_juzgado)
 

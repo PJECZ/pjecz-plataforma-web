@@ -270,33 +270,40 @@ def new():
     """Nuevo usuario"""
     form = UsuarioNewForm()
     if form.validate_on_submit():
-        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
-        if form.contrasena.data == "":
-            contrasena = pwd_context.hash(generar_contrasena())
+        # Validar que el email no se repita
+        email = safe_email(form.email.data)
+        if Usuario.query.filter_by(email=email).first():
+            flash("El e-mail ya está en uso. Debe de ser único.", "warning")
         else:
-            contrasena = pwd_context.hash(form.contrasena.data)
-        usuario = Usuario(
-            autoridad=autoridad,
-            oficina=form.oficina.data,
-            nombres=safe_string(form.nombres.data),
-            apellido_paterno=safe_string(form.apellido_paterno.data),
-            apellido_materno=safe_string(form.apellido_materno.data),
-            curp=safe_string(form.curp.data),
-            puesto=safe_string(form.puesto.data),
-            email=safe_email(form.email.data),
-            workspace=form.workspace.data,
-            contrasena=contrasena,
-        )
-        usuario.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo usuario {usuario.email}: {usuario.nombre}"),
-            url=url_for("usuarios.detail", usuario_id=usuario.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+            # Consultar la autoridad a partir del ID que viene
+            autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+            # Cifrar la contrasena
+            if form.contrasena.data == "":
+                contrasena = pwd_context.hash(generar_contrasena())
+            else:
+                contrasena = pwd_context.hash(form.contrasena.data)
+            usuario = Usuario(
+                autoridad=autoridad,
+                oficina=form.oficina.data,
+                nombres=safe_string(form.nombres.data),
+                apellido_paterno=safe_string(form.apellido_paterno.data),
+                apellido_materno=safe_string(form.apellido_materno.data),
+                curp=safe_string(form.curp.data),
+                puesto=safe_string(form.puesto.data),
+                email=email,
+                workspace=form.workspace.data,
+                contrasena=contrasena,
+            )
+            usuario.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo usuario {usuario.email}: {usuario.nombre}"),
+                url=url_for("usuarios.detail", usuario_id=usuario.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()
     return render_template("usuarios/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)

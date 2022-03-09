@@ -93,7 +93,7 @@ def edit(materia_id):
         nombre = safe_string(form.nombre.data)
         if materia.nombre != nombre:
             materia_existente = Materia.query.filter_by(nombre=nombre).first()
-            if materia_existente and materia_existente.id != materia.id:
+            if materia_existente and materia_existente.id != materia_id:
                 es_valido = False
                 flash("El nombre ya está en uso. Debe de ser único.", "warning")
         # Si es valido actualizar
