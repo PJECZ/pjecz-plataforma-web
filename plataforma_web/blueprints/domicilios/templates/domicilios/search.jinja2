@@ -13,6 +13,8 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('domicilios.search', fid='domicilios_search_form') %}
+            {% call f.form_group(form.estado) %}{% endcall %}
+            {% call f.form_group(form.municipio) %}{% endcall %}
             {% call f.form_group(form.calle) %}{% endcall %}
             {% call f.form_group(form.colonia) %}{% endcall %}
             {% call f.form_group(form.cp) %}{% endcall %}

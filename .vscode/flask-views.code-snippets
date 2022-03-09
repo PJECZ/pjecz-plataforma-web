@@ -123,6 +123,34 @@
 		],
 		"description": "Buscar"
 	},
+	"Flask views search json": {
+		"scope": "python",
+		"prefix": "fviews_search_json",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/buscar', methods=['GET', 'POST'])",
+			"def search():",
+			"\t\"\"\"Buscar ${2:Modulo}\"\"\"",
+			"\tform_search = ${3:ClaseSearchForm}()",
+			"\tif form_search.validate_on_submit():",
+			"\t\tbusqueda = {'estatus': 'A'}",
+			"\t\ttitulos = []",
+			"\t\tif form_search.${4:nombre_o_descripcion}.data:",
+			"\t\t\t${4:nombre_o_descripcion} = safe_string(form_search.${4:nombre_o_descripcion}.data)",
+			"\t\t\tif ${4:nombre_o_descripcion} != '':",
+			"\t\t\t\tbusqueda['${4:nombre_o_descripcion}'] = ${4:nombre_o_descripcion}",
+			"\t\t\t\ttitulos.append('${4:nombre_o_descripcion} ' + ${4:nombre_o_descripcion})",
+			"\t\treturn render_template(",
+			"\t\t\t'${1:blueprint}/list.jinja2',",
+			"\t\t\tfiltros=json.dumps(busqueda),",
+			"\t\t\ttitulo='${2:Modulo} con ' + ', '.join(titulos),",
+			"\t\t\testatus='A',",
+			"\t\t)",
+			"\treturn render_template('${1:blueprint}/search.jinja2', form=form_search)",
+			"",
+			""
+		],
+		"description": "Buscar JSON"
+	}
 	"Flask views datatable json": {
 		"scope": "python",
 		"prefix": "fviews_datatable_json",
@@ -149,7 +177,7 @@
 			"\t\t\t\t'fecha': resultado.fecha.strftime('%Y-%m-%d 00:00:00'),",
 			"\t\t\t\t'detalle': {",
 			"\t\t\t\t\t'descripcion': resultado.descripcion,",
-			"\t\t\t\t\t'url': url_for('rep_resultados.detail', rep_resultado_id=resultado.id),",
+			"\t\t\t\t\t'url': url_for('${1:blueprint}.detail', ${4:instance}_id=resultado.id),",
 			"\t\t\t\t},",
 			"\t\t\t}",
 			"\t\t)",

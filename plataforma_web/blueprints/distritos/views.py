@@ -4,7 +4,7 @@ Distritos, vistas
 from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_login import current_user, login_required
 
-from lib.safe_string import safe_message
+from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
@@ -61,21 +61,26 @@ def new():
     """Nuevo Distrito"""
     form = DistritoForm()
     if form.validate_on_submit():
-        distrito = Distrito(
-            nombre=form.nombre.data.strip(),
-            nombre_corto=form.nombre_corto.data.strip(),
-            es_distrito_judicial=form.es_distrito_judicial.data,
-        )
-        distrito.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo distrito {distrito.nombre}"),
-            url=url_for("distritos.detail", distrito_id=distrito.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        # Validar que el nombre no se repita
+        nombre = safe_string(form.nombre.data)
+        if Distrito.query.filter_by(nombre=nombre).first():
+            flash("La nombre ya está en uso. Debe de ser único.", "warning")
+        else:
+            distrito = Distrito(
+                nombre=nombre,
+                nombre_corto=form.nombre_corto.data.strip(),
+                es_distrito_judicial=form.es_distrito_judicial.data,
+            )
+            distrito.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo distrito {distrito.nombre}"),
+                url=url_for("distritos.detail", distrito_id=distrito.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("distritos/new.jinja2", form=form)
 
 
@@ -86,19 +91,29 @@ def edit(distrito_id):
     distrito = Distrito.query.get_or_404(distrito_id)
     form = DistritoForm()
     if form.validate_on_submit():
-        distrito.nombre = form.nombre.data.strip()
-        distrito.nombre_corto = form.nombre_corto.data.strip()
-        distrito.es_distrito_judicial = form.es_distrito_judicial.data
-        distrito.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado distrito {distrito.nombre}"),
-            url=url_for("distritos.detail", distrito_id=distrito.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia el nombre verificar que no este en uso
+        nombre = safe_string(form.nombre.data)
+        if distrito.nombre != nombre:
+            distrito_existente = Distrito.query.filter_by(nombre=nombre).first()
+            if distrito_existente and distrito_existente.id != distrito.id:
+                es_valido = False
+                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            distrito.nombre = nombre
+            distrito.nombre_corto = safe_string(form.nombre_corto.data)
+            distrito.es_distrito_judicial = form.es_distrito_judicial.data
+            distrito.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado distrito {distrito.nombre}"),
+                url=url_for("distritos.detail", distrito_id=distrito.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.nombre.data = distrito.nombre
     form.nombre_corto.data = distrito.nombre_corto
     form.es_distrito_judicial.data = distrito.es_distrito_judicial

@@ -1,9 +1,10 @@
 """
 CID Procedimientos, vistas
 """
+import email
 import json
 from delta import html
-from flask import abort, Blueprint, flash, redirect, render_template, url_for
+from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from wtforms.fields.core import StringField
 
@@ -588,3 +589,32 @@ def help_quill(seccion: str):
     data = json.load(archivo_ayuda)
     archivo_ayuda.close()
     return render_template("quill_help.jinja2", titulo=data["titulo"], descripcion=data["descripcion"], secciones=data["secciones"], seccion_id=seccion)
+
+
+@cid_procedimientos.route("/cid_procedimientos/usuarios_email", methods=["POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def users_email():
+    """Entrega un JSON con los email encontrados"""
+    # Consultar
+    consulta = Usuario.query
+    consulta = consulta.filter_by(estatus="A")
+    if "searchString" in request.form:
+        consulta = consulta.filter(Usuario.email.contains(safe_string(request.form["searchString"]).lower()))
+    consulta = consulta.order_by(Usuario.email).limit(10).all()
+    # Elaborar datos el Select2
+    results = []
+    for usuario in consulta:
+        results.append(
+            {
+                "id": usuario.id,
+                "text": usuario.email,
+                "nombre": usuario.nombre,
+            }
+        )
+
+    return {
+        "results": results,
+        "pagination": {
+            "more": False
+        }
+    }

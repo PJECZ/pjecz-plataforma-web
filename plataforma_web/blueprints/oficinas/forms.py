@@ -1,7 +1,6 @@
 """
 Oficinas, formularios
 """
-from telnetlib import DO
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, BooleanField, TimeField, IntegerField
 from wtforms.validators import DataRequired, Length, Optional
@@ -33,5 +32,12 @@ class OficinaForm(FlaskForm):
     cierre = TimeField("Horario de cierre", validators=[DataRequired()], format="%H:%M")
     limite_personas = IntegerField("Límite de personas", validators=[DataRequired()])
     es_jurisdiccional = BooleanField("Es Jurisdiccional", validators=[Optional()])
-
     guardar = SubmitField("Guardar")
+
+
+class OficinaSearchForm(FlaskForm):
+    """Buscar Oficinas"""
+
+    clave = StringField("Clave", validators=[Optional(), Length(max=32)])
+    descripcion = StringField("Descripción", validators=[Optional(), Length(max=512)])
+    buscar = SubmitField("Buscar")

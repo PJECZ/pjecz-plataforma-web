@@ -1,0 +1,44 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Relacionar oficinas al funcionario a partir de una direccion{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Relacionar oficinas al funcionario a partir de una direccion') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'funcionario_id': funcionario.id} %}
+        {% call f.form_tag('funcionarios.insert_offices', fid='insert_offices_form', **form_kwargs) %}
+            {% call f.form_group(form.funcionario_nombre, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.funcionario_curp, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.funcionario_puesto, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.funcionario_email, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.domicilio) %}{% endcall %}
+            {% call f.form_group(form.asignar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Select2 bootstrap domicilios -->
+    <script>
+        $(document).ready(function(){
+            $('#domicilio').addClass('js-example-placeholder-single js-states form-control');
+            $("#domicilio").prop("selectedIndex", -1);
+            $(".js-example-placeholder-single").select2({
+                placeholder: "elegir un domicilio",
+                allowClear: true
+            });
+        });
+    </script>
+{% endblock %}

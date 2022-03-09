@@ -6,7 +6,7 @@ from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_email, safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -139,7 +139,7 @@ def new():
             domicilio=safe_string(form.domicilio.data),
             telefono_fijo=safe_string(form.telefono_fijo.data),
             telefono_celular=safe_string(form.telefono_celular.data),
-            email=form.email.data,
+            email=safe_email(form.email.data),
             renovacion=form.renovacion.data,
             notas=safe_string(form.notas.data),
         )
@@ -169,7 +169,7 @@ def edit(perito_id):
         perito.domicilio = safe_string(form.domicilio.data)
         perito.telefono_fijo = safe_string(form.telefono_fijo.data)
         perito.telefono_celular = safe_string(form.telefono_celular.data)
-        perito.email = form.email.data
+        perito.email = safe_email(form.email.data)
         perito.renovacion = form.renovacion.data
         perito.notas = safe_string(form.notas.data)
         perito.save()

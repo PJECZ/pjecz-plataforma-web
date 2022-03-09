@@ -1,0 +1,45 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipos de Juzgados{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('MATERIAS') %}
+            {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
+        {% endif %}
+        {% if current_user.can_edit('MATERIAS TIPOS JUZGADOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('materias_tipos_juzgados.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('materias_tipos_juzgados.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('MATERIAS TIPOS JUZGADOS') %}
+            {{ topbar.button_new('Nuevo Tipo de Juzgado', url_for('materias_tipos_juzgados.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="materias_tipos_juzgados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Materias</th>
+                    <th>Tipos de Juzgados</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for materia_tipo_juzgado in materias_tipos_juzgados %}
+                <tr>
+                    <td>{{ materia_tipo_juzgado.materia.nombre }}</td>
+                    <td><a href="{{ url_for('materias_tipos_juzgados.detail', materia_tipo_juzgado_id=materia_tipo_juzgado.id) }}">{{ materia_tipo_juzgado.descripcion }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.datatable('materias_tipos_juzgados_datatable') }}
+{% endblock %}

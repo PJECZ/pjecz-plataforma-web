@@ -15,20 +15,6 @@ NUMERO_PUBLICACION_REGEXP = r"^\d+/[12]\d\d\d$"
 SENTENCIA_REGEXP = r"^\d+/[12]\d\d\d$"
 
 
-def safe_string(input_str, max_len=250, to_uppercase=True):
-    """Safe string"""
-    if not isinstance(input_str, str):
-        return ""
-    new_string = re.sub(r"[^a-zA-Z0-9()-.]+", " ", unidecode(input_str))
-    removed_multiple_spaces = re.sub(r"\s+", " ", new_string)
-    final = removed_multiple_spaces.strip()
-    if to_uppercase:
-        final = final.upper()
-    if max_len == 0:
-        return final
-    return (final[:max_len] + "...") if len(final) > max_len else final
-
-
 def safe_clave(input_str, max_len=16):
     """Safe clave"""
     if not isinstance(input_str, str):
@@ -42,12 +28,18 @@ def safe_clave(input_str, max_len=16):
     return final
 
 
-def safe_message(input_str, max_len=250):
-    """Safe message"""
-    message = str(input_str)
-    if message == "":
-        message = "Sin descripción"
-    return (message[:max_len] + "...") if len(message) > max_len else message
+def safe_email(input_str, search_fragment=False):
+    """Safe string"""
+    if not isinstance(input_str, str):
+        return ""
+    final = input_str.strip().lower()
+    if search_fragment:
+        if re.match(r"^[\w.-]*@*[\w.-]*\.*\w*$", final) is None:
+            return ""
+        return final
+    if re.match(EMAIL_REGEXP, final) is None:
+        return ""
+    return final
 
 
 def safe_expediente(input_str):
@@ -74,6 +66,49 @@ def safe_expediente(input_str):
     return limpio
 
 
+def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True):
+    """Safe string"""
+    if not isinstance(input_str, str):
+        return ""
+    if do_unidecode:
+        new_string = re.sub(r"[^a-zA-Z0-9()/-]+", " ", unidecode(input_str))
+    else:
+        new_string = re.sub(r"[^a-zñA-ZÑ0-9()/-]+", " ", input_str)
+    removed_multiple_spaces = re.sub(r"\s+", " ", new_string)
+    final = removed_multiple_spaces.strip()
+    if to_uppercase:
+        final = final.upper()
+    if max_len == 0:
+        return final
+    return (final[:max_len] + "...") if len(final) > max_len else final
+
+
+def safe_text(input_str, max_len=4096, to_uppercase=True):
+    """Safe string"""
+    if not isinstance(input_str, str):
+        return ""
+    new_string = re.sub(r"[^a-zA-Z0-9@\n()\?=\[\]:/_.-]+", " ", unidecode(input_str))
+    final = new_string.strip()
+    if to_uppercase:
+        final = final.upper()
+    if max_len == 0:
+        return final
+    return (final[:max_len] + "...") if len(final) > max_len else final
+
+
+def safe_message(input_str, max_len=250):
+    """Safe message"""
+    message = str(input_str)
+    if message == "":
+        message = "Sin descripción"
+    return (message[:max_len] + "...") if len(message) > max_len else message
+
+
+def safe_numero_publicacion(input_str):
+    """Safe número publicación"""
+    return safe_sentencia(input_str)
+
+
 def safe_sentencia(input_str):
     """Safe sentencia"""
     if not isinstance(input_str, str) or input_str.strip() == "":
@@ -92,8 +127,3 @@ def safe_sentencia(input_str):
     if len(limpio) > 16:
         raise ValueError
     return limpio
-
-
-def safe_numero_publicacion(input_str):
-    """Safe número publicación"""
-    return safe_sentencia(input_str)

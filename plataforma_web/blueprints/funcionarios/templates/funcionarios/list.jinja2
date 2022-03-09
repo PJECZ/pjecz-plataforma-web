@@ -25,9 +25,8 @@
         <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nombres completos</th>
                     <th>CURP</th>
+                    <th>Nombres completos</th>
                     <th>e-mail</th>
                     <th>Puesto</th>
                 </tr>
@@ -48,35 +47,30 @@
             ajax: {
                 url: "/funcionarios/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: {{ filtros }}
             },
             columns: [
-                { data: "id" },
                 { data: "detalle" },
-                { data: "curp" },
+                { data: "nombre" },
                 { data: "email" },
                 { data: "puesto" }
             ],
             columnDefs: [
                 {
-                    targets: 1,
+                    targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.nombre.length > 32) {
-                            return '<a href="' + data.url + '">' + data.nombre.substr(0, 32) + '…' + '</a>';
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                        }
+                        return '<a href="' + data.url + '">' + data.curp + '</a>';
                     }
                 },
                 {
-                    targets: [3, 4],
+                    targets: [1, 3],
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
                     }
                 }
             ],

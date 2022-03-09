@@ -19,9 +19,9 @@ class Domicilio(db.Model, UniversalMixin):
     municipio = db.Column(db.String(64), nullable=False)
     calle = db.Column(db.String(256), nullable=False)
     num_ext = db.Column(db.String(24), nullable=False, default="", server_default="")
-    num_int = db.Column(db.String(24), default="", server_default="")
+    num_int = db.Column(db.String(24), nullable=False, default="", server_default="")
     colonia = db.Column(db.String(256), nullable=False, default="", server_default="")
-    cp = db.Column(db.Integer())
+    cp = db.Column(db.Integer(), nullable=False)
     completo = db.Column(db.String(1024), nullable=False, default="", server_default="")
 
     # Hijos

@@ -6,12 +6,12 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib import datatables
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_email, safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.funcionarios.models import Funcionario
-from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioSearchForm
+from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioSearchForm, FuncionarioDomicilioForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -116,7 +116,7 @@ def search():
                 busqueda["puesto"] = puesto
                 titulos.append("puesto " + puesto)
         if form_search.email.data:
-            email = safe_string(form_search.email.data, to_uppercase=False)
+            email = safe_email(form_search.email.data, search_fragment=True)
             if email != "":
                 busqueda["email"] = email
                 titulos.append("e-mail " + email)
@@ -141,17 +141,17 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "nombres" in request.form:
-        consulta = consulta.filter(Funcionario.nombres.like("%" + safe_string(request.form["nombres"]) + "%"))
+        consulta = consulta.filter(Funcionario.nombres.contains(safe_string(request.form["nombres"])))
     if "apellido_paterno" in request.form:
-        consulta = consulta.filter(Funcionario.apellido_paterno.like("%" + safe_string(request.form["apellido_paterno"]) + "%"))
+        consulta = consulta.filter(Funcionario.apellido_paterno.contains(safe_string(request.form["apellido_paterno"])))
     if "apellido_materno" in request.form:
-        consulta = consulta.filter(Funcionario.apellido_materno.like("%" + safe_string(request.form["apellido_materno"]) + "%"))
+        consulta = consulta.filter(Funcionario.apellido_materno.contains(safe_string(request.form["apellido_materno"])))
     if "curp" in request.form:
-        consulta = consulta.filter(Funcionario.curp.like("%" + safe_string(request.form["curp"]) + "%"))
+        consulta = consulta.filter(Funcionario.curp.contains(safe_string(request.form["curp"])))
     if "puesto" in request.form:
-        consulta = consulta.filter(Funcionario.puesto.like("%" + safe_string(request.form["puesto"]) + "%"))
+        consulta = consulta.filter(Funcionario.puesto.contains(safe_string(request.form["puesto"])))
     if "email" in request.form:
-        consulta = consulta.filter(Funcionario.email.like("%" + safe_string(request.form["email"], to_uppercase=False) + "%"))
+        consulta = consulta.filter(Funcionario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
     if "en_funciones" in request.form and request.form["en_funciones"] == "true":
         consulta = consulta.filter(Funcionario.en_funciones == True)
     if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
@@ -160,19 +160,18 @@ def datatable_json():
         consulta = consulta.filter(Funcionario.en_soportes == True)
     if "en_tesis_jurisprudencias" in request.form and request.form["en_tesis_jurisprudencias"] == "true":
         consulta = consulta.filter(Funcionario.en_tesis_jurisprudencias == True)
-    registros = consulta.order_by(Funcionario.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Funcionario.curp).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
         data.append(
             {
-                "id": resultado.id,
                 "detalle": {
-                    "nombre": resultado.nombre,
+                    "curp": resultado.curp,
                     "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
                 },
-                "curp": resultado.curp,
+                "nombre": resultado.nombre,
                 "email": resultado.email,
                 "puesto": resultado.puesto,
                 "en_funciones": resultado.en_funciones,
@@ -196,13 +195,15 @@ def new():
     form = FuncionarioForm()
     if form.validate_on_submit():
         es_valido = True
+        # Validar que el CURP no se repita
         curp = safe_string(form.curp.data)
         if Funcionario.query.filter_by(curp=curp).first():
-            flash(f"Ya existe un funcionario con la CURP {curp}", "warning")
+            flash("La CURP ya está en uso. Debe de ser única.", "warning")
             es_valido = False
-        email = form.email.data
+        # Validar que el e-mail no se repita
+        email = safe_email(form.email.data)
         if Funcionario.query.filter_by(email=email).first():
-            flash(f"Ya existe un funcionario con el email {email}", "warning")
+            flash("El e-mail ya está en uso. Debe de ser único.", "warning")
             es_valido = False
         if es_valido:
             funcionario = Funcionario(
@@ -238,14 +239,21 @@ def edit(funcionario_id):
     form = FuncionarioForm()
     if form.validate_on_submit():
         es_valido = True
+        # Si cambia el CURP verificar que no este en uso
         curp = safe_string(form.curp.data)
-        if Funcionario.query.filter_by(curp=curp).filter(Funcionario.id != funcionario_id).first():
-            flash(f"Ya existe un funcionario con la CURP {curp}", "warning")
-            es_valido = False
-        email = form.email.data
-        if Funcionario.query.filter_by(email=email).filter(Funcionario.id != funcionario_id).first():
-            flash(f"Ya existe un funcionario con el email {email}", "warning")
-            es_valido = False
+        if funcionario.curp != curp:
+            funcionario_existente = Funcionario.query.filter_by(curp=curp).first()
+            if funcionario_existente and funcionario_existente.id != funcionario.id:
+                es_valido = False
+                flash("El CURP ya está en uso. Debe de ser único.", "warning")
+        # Si cambia el e-mail verificar que no este en uso
+        email = safe_email(form.email.data)
+        if funcionario.email != email:
+            funcionario_existente = Funcionario.query.filter_by(email=email).first()
+            if funcionario_existente and funcionario_existente.id != funcionario.id:
+                es_valido = False
+                flash("La e-mail ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
         if es_valido:
             funcionario.nombres = safe_string(form.nombres.data)
             funcionario.apellido_paterno = safe_string(form.apellido_paterno.data)
@@ -314,3 +322,54 @@ def recover(funcionario_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+
+
+@funcionarios.route("/funcionarios/limpiar_oficinas/<int:funcionario_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def clean(funcionario_id):
+    """Limpiar funcionarios_oficinas"""
+    # Validar el funcionario
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    # Salir si hay una tarea en el fondo
+    if current_user.get_task_in_progress("funcionarios.tasks.limpiar_oficinas"):
+        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
+    else:
+        # Lanzar tarea en el fondo
+        current_user.launch_task(
+            nombre="funcionarios.tasks.limpiar_oficinas",
+            descripcion=f"Limpiar oficinas del funcionario {funcionario.curp}",
+            funcionario_id=funcionario.id,
+        )
+        flash("Se están limpiando las oficinas de este funcionario... ", "info")
+    # Mostrar detalle del funcionario
+    return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+
+
+@funcionarios.route("/funcionarios/asignar_oficinas/<int:funcionario_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def insert_offices(funcionario_id):
+    """Asignar funcionarios_oficinas a partir de una direccion"""
+    # Validar el funcionario
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    # Salir si hay una tarea en el fondo
+    if current_user.get_task_in_progress("funcionarios.tasks.asignar_oficinas"):
+        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
+        return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+    # Si viene el formulario con el domicilio
+    form = FuncionarioDomicilioForm()
+    if form.validate_on_submit():
+        # Lanzar tarea en el fondo
+        current_user.launch_task(
+            nombre="funcionarios.tasks.asignar_oficinas",
+            descripcion=f"Asignar oficinas para el funcionario {funcionario.curp}",
+            funcionario_id=funcionario.id,
+            domicilio_id=form.domicilio.data.id,
+        )
+        flash("Se están asignando las oficinas para este funcionario... ", "info")
+        return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
+    # Mostrar el formulario para solicitar el domicilio
+    form.funcionario_nombre.data = funcionario.nombre  # Read only
+    form.funcionario_curp.data = funcionario.curp  # Read only
+    form.funcionario_puesto.data = funcionario.puesto  # Read only
+    form.funcionario_email.data = funcionario.email  # Read only
+    return render_template("funcionarios/insert_offices.jinja2", form=form, funcionario=funcionario)

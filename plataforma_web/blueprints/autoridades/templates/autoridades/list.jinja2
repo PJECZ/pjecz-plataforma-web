@@ -16,6 +16,7 @@
         {% if current_user.can_insert('AUTORIDADES') %}
             {{ topbar.button_new('Nueva Autoridad', url_for('autoridades.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('autoridades.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -25,27 +26,74 @@
             <thead>
                 <tr>
                     <th>Claves</th>
-                    <th>Distritos</th>
-                    <th>Descripciones</th>
+                    <th>Descripciones cortas</th>
                     <th>Órganos Jurisdiccionales</th>
+                    <th>Distritos</th>
                     <th>Materias</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for autoridad in autoridades %}
-                <tr>
-                    <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad.id) }}">{{ autoridad.clave }}</a></td>
-                    <td>{{ autoridad.distrito.nombre_corto }}</td>
-                    <td>{{ autoridad.descripcion|truncate(64) }}</td>
-                    <td>{{ autoridad.organo_jurisdiccional }}</td>
-                    <td>{{ autoridad.materia.nombre }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('autoridades_datatable') }}
+    <script>
+        $('#autoridades_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/autoridades/datatable_json",
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: {{ filtros }}
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "descripcion_corta" },
+                { data: "organo_jurisdiccional" },
+                { data: "distrito" },
+                { data: "materia_nombre" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                },
+                {
+                    targets: 3,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre_corto;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                        }
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tickets{% endblock %}
+
+{% block custom_head %}
+    <style>
+        tr {
+            border-color: white;
+        }
+        #soportes_tickets_datatable td:nth-child(4), th:nth-child(4) {
+            text-align: center;
+        }
+        #soportes_tickets_datatable tbody tr:hover {
+            background-color: #ffa;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Tickets') %}
+        {% if current_user.can_insert('SOPORTES TICKETS') %}
+            {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card('Tickets') %}
+        <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Descripción</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Respuesta/Solución</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $('#soportes_tickets_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/soportes_tickets/datatable_json",
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A" }
+            },
+            columns: [
+                { data: "id" },
+                { data: "descripcion" },
+                { data: "categoria" },
+                { data: "estado" },
+                { data: "soluciones" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0, // ID
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    },
+                    sort: 8
+                },
+                {
+                    targets: 2, // Categoría
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if(data.nombre.length > 32)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 32) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: 3, // Estado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        let color = "black";
+                        switch (data)    {
+                            case "SIN ATENDER": color = "#7d6608"; break;
+                            case "TRABAJANDO":  color = "#154360"; break;
+                            case "CANCELADO":   color = "#e53935"; break;
+                            case "PENDIENTE":   color = "#4a235a"; break;
+                            case "TERMINADO":   color = "#0b5345"; break;
+                            case "CERRADO":     color = "#546e7a"; break;
+                        }
+                        return '<strong style="color:' + color + '; ">' + data + '</strong>';
+                    }
+                },
+                {
+                    targets: [1, 4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data != null)
+                            if(data.length > 32)
+                                return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                            else
+                                return data;
+                        return '—';
+                    }
+                },
+            ],
+            createdRow: function( row, data, dataIndex ){
+                switch (data.estado)    {
+                    case "SIN ATENDER": $(row).css("background-color", "#fef9e7");  break;
+                    case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
+                    case "PENDIENTE":   $(row).css("background-color", "#f5eef8");  break;
+                    case "TERMINADO":   $(row).css("background-color", "#eafaf1");  break;
+                    case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
+                }
+            },
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Delito Especifico{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Delito Especifico') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('repsvm_delitos_especificos.new', fid='repsvm_delito_especifico_form') %}
+            {% call f.form_group(form.repsvm_delito_generico) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

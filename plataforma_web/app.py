@@ -26,12 +26,14 @@ from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.epocas.views import epocas
 from plataforma_web.blueprints.escrituras.views import escrituras
 from plataforma_web.blueprints.funcionarios.views import funcionarios
+from plataforma_web.blueprints.funcionarios_oficinas.views import funcionarios_oficinas
 from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.identidades_generos.views import identidades_generos
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_de_acuerdos_acuerdos
 from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
+from plataforma_web.blueprints.materias_tipos_juzgados.views import materias_tipos_juzgados
 from plataforma_web.blueprints.mensajes.views import mensajes
 from plataforma_web.blueprints.modulos.views import modulos
 from plataforma_web.blueprints.oficinas.views import oficinas
@@ -41,6 +43,10 @@ from plataforma_web.blueprints.permisos.views import permisos
 from plataforma_web.blueprints.rep_graficas.views import rep_graficas
 from plataforma_web.blueprints.rep_reportes.views import rep_reportes
 from plataforma_web.blueprints.rep_resultados.views import rep_resultados
+from plataforma_web.blueprints.repsvm_agresores.views import repsvm_agresores
+from plataforma_web.blueprints.repsvm_delitos_especificos.views import repsvm_delitos_especificos
+from plataforma_web.blueprints.repsvm_delitos_genericos.views import repsvm_delitos_genericos
+from plataforma_web.blueprints.repsvm_tipos_sentencias.views import repsvm_tipos_sentencias
 from plataforma_web.blueprints.roles.views import roles
 from plataforma_web.blueprints.sentencias.views import sentencias
 from plataforma_web.blueprints.sistemas.views import sistemas
@@ -92,12 +98,14 @@ def create_app():
     app.register_blueprint(epocas)
     app.register_blueprint(escrituras)
     app.register_blueprint(funcionarios)
+    app.register_blueprint(funcionarios_oficinas)
     app.register_blueprint(glosas)
     app.register_blueprint(identidades_generos)
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(listas_de_acuerdos_acuerdos)
     app.register_blueprint(materias)
     app.register_blueprint(materias_tipos_juicios)
+    app.register_blueprint(materias_tipos_juzgados)
     app.register_blueprint(mensajes)
     app.register_blueprint(modulos)
     app.register_blueprint(oficinas)
@@ -107,6 +115,10 @@ def create_app():
     app.register_blueprint(rep_graficas)
     app.register_blueprint(rep_reportes)
     app.register_blueprint(rep_resultados)
+    app.register_blueprint(repsvm_agresores)
+    app.register_blueprint(repsvm_delitos_especificos)
+    app.register_blueprint(repsvm_delitos_genericos)
+    app.register_blueprint(repsvm_tipos_sentencias)
     app.register_blueprint(roles)
     app.register_blueprint(sentencias)
     app.register_blueprint(sistemas)

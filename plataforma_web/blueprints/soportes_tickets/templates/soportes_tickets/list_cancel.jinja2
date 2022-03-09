@@ -2,47 +2,122 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Soportes Tickets{% endblock %}
+{% block title %}Tickets Cancelados{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(titulo) %}
+    {% call topbar.page_buttons('Tickets Cancelados') %}
         {% if current_user.can_view('SOPORTES CATEGORIAS') %}
             {{ topbar.button('Categorías', url_for('soportes_categorias.list_active'), 'mdi:car-wrench') }}
         {% endif %}
+        {{ topbar.button_primary('Sin Atender', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
+        {{ topbar.button_primary('Trabajando', url_for('soportes_tickets.list_working'), 'mdi:play-circle') }}
+        {{ topbar.button('Pendientes', url_for('soportes_tickets.list_pending'), 'mdi:pause-circle') }}
+        {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
+        {{ topbar.button('Cerrados', url_for('soportes_tickets.list_closed'), 'mdi:minus-circle') }}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
-            {{ topbar.button_primary('Abiertos y Trabajando', url_for('soportes_tickets.list_active'), 'mdi:plus-circle') }}
-            {{ topbar.button('No Resueltos', url_for('soportes_tickets.list_no_resolve'), 'mdi:pause-circle') }}
-            {{ topbar.button('Terminados', url_for('soportes_tickets.list_done'), 'mdi:check-circle') }}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('soportes_tickets.search')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card('Cancelados') %}
-        <table id="soportes_tickets_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%; background-color:#fdedec;">
+        <table id="soportes_tickets_cancelados_datatable" class="table display nowrap" style="width:100%; background-color:#fdedec;">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Usuario</th>
                     <th>Oficina</th>
                     <th>Descripción</th>
+                    <th>Motivo</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for cancelado in cancelados %}
-                <tr>
-                    <td><a href="{{ url_for('soportes_tickets.detail', soporte_ticket_id=cancelado.id) }}">{{ cancelado.id }}</a></td>
-                    <td>{{ cancelado.usuario.nombre | truncate(48) }}</td>
-                    <td>{{ cancelado.usuario.oficina.clave }}</td>
-                    <td>{{ cancelado.descripcion | truncate(48) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('soportes_tickets_datatable') }}
+    <script>
+        $('#soportes_tickets_cancelados_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/soportes_tickets/datatable_json",
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "estado": "CANCELADO" }
+            },
+            columns: [
+                { data: "id" },
+                { data: "usuario" },
+                { data: "oficina" },
+                { data: "descripcion" },
+                { data: "soluciones" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0, // ID
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // Usuario
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if(data.nombre.length > 32)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 32) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: 2, // Oficina
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: [3, 4], // Descripcion y Soluciones
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if(data.length > 32)
+                            return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                        return data;
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
 {% endblock %}

@@ -1,12 +1,10 @@
 """
 Soportes Adjuntos, vistas
 """
-from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
-from lib import datatables
 from lib.safe_string import safe_string, safe_message
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -17,7 +15,6 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.soportes_adjuntos.models import SoporteAdjunto
 from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
-from plataforma_web.blueprints.usuarios.models import Usuario
 
 from plataforma_web.blueprints.soportes_adjuntos.forms import SoporteAdjuntoNewForm
 
@@ -39,6 +36,17 @@ def _get_funcionario_from_current_user():
     return funcionario
 
 
+def _owns_ticket(soporte_ticket: SoporteTicket):
+    """Es propietario del ticket, porque lo creo, es de soporte o es administrador"""
+    if current_user.can_admin(MODULO):
+        return True # Es administrador
+    if _get_funcionario_from_current_user():
+        return True # Es funcionario de soporte
+    if soporte_ticket.usuario == current_user:
+        return True # Es el usuario que creo este ticket
+    return False
+
+
 @soportes_adjuntos.before_request
 @login_required
 @permission_required(MODULO, Permiso.VER)
@@ -46,11 +54,13 @@ def before_request():
     """Permiso por defecto"""
 
 
-
 @soportes_adjuntos.route("/soportes_adjuntos/<int:soporte_adjunto_id>")
 def detail(soporte_adjunto_id):
     """Detalle de un Soporte Ticket"""
     soporte_adjunto = SoporteAdjunto.query.get_or_404(soporte_adjunto_id)
+    if not _owns_ticket(soporte_adjunto.soporte_ticket):
+        flash("No tiene permiso para ver archivos adjuntos en ese ticket.", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
     return render_template(
         "soportes_adjuntos/detail.jinja2",
         soporte_adjunto=soporte_adjunto,
@@ -63,12 +73,14 @@ def detail(soporte_adjunto_id):
 def new(soporte_ticket_id):
     """Adjuntar Archivos al Ticket"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
-    #archivo = SoporteTicketFile
+    if not _owns_ticket(ticket):
+        flash("No tiene permiso para agregar archivos adjuntos en ese ticket.", "warning")
+        return redirect(url_for("soportes_tickets.list_active"))
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
         flash("No puede adjuntar un archivo a un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado not in ("ABIERTO", "TRABAJANDO"):
+    if ticket.estado not in ("SIN ATENDER", "TRABAJANDO"):
         flash("No puede adjuntar un archivo a un ticket que no está abierto o trabajando.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_from_current_user()

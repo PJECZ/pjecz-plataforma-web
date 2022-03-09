@@ -6,7 +6,7 @@
 {% block title %}Funcionario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(funcionario.nombre) %}
+    {% call topbar.page_buttons('Funcionario ' + funcionario.nombre) %}
         {{ topbar.button_previous('Funcionarios', url_for('funcionarios.list_active')) }}
         {% if current_user.can_edit('FUNCIONARIOS') %}
             {{ topbar.button_edit('Editar', url_for('funcionarios.edit', funcionario_id=funcionario.id)) }}
@@ -29,38 +29,55 @@
         {{ detail.label_value_boolean('En soportes', funcionario.en_soportes) }}
         {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
     {% endcall %}
-    {# Autoridades del funcionario #}
-    {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
+    {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') and funcionario.en_sentencias %}
         {% call detail.card('Autoridades') %}
-            <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
+            <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
+                        <th>IDs</th>
                         <th>Claves</th>
-                        <th>Distritos</th>
                         <th>Descripciones</th>
-                        <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                {% for autoridad_funcionario in funcionario.autoridades_funcionarios %}
-                    {% if autoridad_funcionario.estatus == "A" %}
-                    <tr>
-                        <td><a href="{{ url_for('autoridades.detail', autoridad_id=autoridad_funcionario.autoridad_id) }}">{{ autoridad_funcionario.autoridad.clave }}</a></td>
-                        <td>{{ autoridad_funcionario.autoridad.distrito.nombre }}</td>
-                        <td>{{ autoridad_funcionario.autoridad.descripcion }}</td>
-                        <td>
-                        {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-                            {{ modals.button_delete(url=url_for('autoridades_funcionarios.delete', autoridad_funcionario_id=autoridad_funcionario.id), id='DeleteAutoridadFuncionario', message='¿Eliminar ' + autoridad_funcionario.funcionario.nombre + '?') }}
-                        {% endif %}
-                        </td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-                </tbody>
             </table>
             {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
                 <a href="{{ url_for('autoridades_funcionarios.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
             {% endif %}
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('FUNCIONARIOS OFICINAS') and funcionario.en_soportes %}
+        {% call detail.card('Oficinas') %}
+            <table id="funcionarios_oficinas_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>IDs</th>
+                        <th>Claves</th>
+                        <th>Descripciones</th>
+                    </tr>
+                </thead>
+            </table>
+            {% if current_user.can_insert('FUNCIONARIOS OFICINAS') %}
+                <a href="{{ url_for('funcionarios_oficinas.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
+            {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
+                <a href="{{ url_for('funcionarios.clean', funcionario_id=funcionario.id) }}" class="btn btn-primary">Limpiar</a>
+                <a href="{{ url_for('funcionarios.insert_offices', funcionario_id=funcionario.id) }}" class="btn btn-primary">Asignar domicilio</a>
+            {% endif %}
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('SOPORTES TICKETS') and funcionario.en_soportes %}
+        {% call detail.card('Tickets') %}
+            <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>IDs</th>
+                        <th>Categorías</th>
+                        <th>Estados</th>
+                        <th>Descripciones</th>
+                        <th>Soluciones/Cancelaciones</th>
+                    </tr>
+                </thead>
+            </table>
         {% endcall %}
     {% endif %}
 {% endblock %}
@@ -70,10 +87,215 @@
         {% if funcionario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + funcionario.nombre + '?') }}{% endif %}
         {% if funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + funcionario.nombre + '?') }}{% endif %}
     {% endif %}
-    {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
-        {{ detail.datatable('autoridades_datatable') }}
+    {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') and funcionario.en_sentencias %}
+    <script>
+        $('#autoridades_funcionarios_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/autoridades_funcionarios/datatable_json",
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "funcionario_id": {{ funcionario.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "autoridad" },
+                { data: "autoridad_descripcion_corta" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.clave;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
     {% endif %}
-    {% if current_user.can_edit('AUTORIDADES FUNCIONARIOS') %}
-        {{ modals.custom_javascript('Eliminar', '¿Eliminar esa autoridad del funcionario?', 'DeleteAutoridadFuncionario') }}
+    {% if current_user.can_view('FUNCIONARIOS OFICINAS') and funcionario.en_soportes %}
+    <script>
+        $('#funcionarios_oficinas_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/funcionarios_oficinas/datatable_json",
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "funcionario_id": {{ funcionario.id }} }
+            },
+            columns: [
+                { data: "detalle" },
+                { data: "oficina" },
+                { data: "oficina_descripcion_corta" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.clave;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
+    {% endif %}
+    {% if current_user.can_view('SOPORTES TICKETS') and funcionario.en_soportes %}
+    <script>
+        $('#soportes_tickets_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: "/soportes_tickets/datatable_json",
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: { "estatus": "A", "funcionario_id": {{ funcionario.id }} }
+            },
+            columns: [
+                { data: "id" },
+                { data: "categoria" },
+                { data: "estado" },
+                { data: "descripcion" },
+                { data: "soluciones" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0, // ID
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // Categoría
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if(data.nombre.length > 32)
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 32) + '…' + '</span>';
+                        else
+                            texto = data.nombre;
+                        if(data.url == '')
+                            return texto;
+                        else
+                            return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                },
+                {
+                    targets: 2, // Estado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<strong>' + data + '</strong>';
+                    }
+                },
+                {
+                    targets: [3, 4], // Descripcion y Soluciones
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data != null)
+                            if(data.length > 32)
+                                return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                            else
+                                return data;
+                        return '—';
+                    }
+                },
+            ],
+            rowCallback: function( row, data ){
+                switch (data.estado)    {
+                    case "SIN ATENDER": $(row).css("background-color", "#fef9e7");  break;
+                    case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
+                    case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
+                    case "PENDIENTE":   $(row).css("background-color", "#f5eef8");  break;
+                    case "TERMINADO":   $(row).css("background-color", "#eafaf1");  break;
+                    case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
+                }
+            },
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        });
+    </script>
     {% endif %}
 {% endblock %}

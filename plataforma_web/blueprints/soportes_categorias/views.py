@@ -1,10 +1,12 @@
 """
 Soporte Categorias, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib.safe_string import safe_string, safe_message
+from lib import datatables
+from lib.safe_string import safe_string, safe_message, safe_text
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -12,6 +14,8 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_categorias.forms import SoporteCategoriaForm
+
+from plataforma_web.blueprints.roles.models import Rol
 
 MODULO = "SOPORTES CATEGORIAS"
 
@@ -25,29 +29,59 @@ def before_request():
     """Permiso por defecto"""
 
 
-@soportes_categorias.route("/soportes_categorias")
+@soportes_categorias.route('/soportes_categorias')
 def list_active():
-    """Listado de Soportes Categorias activas"""
-    soportes_categorias_activas = SoporteCategoria.query.filter(SoporteCategoria.estatus == "A").all()
+    """Listado de Soportes Categorias activos"""
     return render_template(
-        "soportes_categorias/list.jinja2",
-        soportes_categorias=soportes_categorias_activas,
-        titulo="Soportes Categorias",
-        estatus="A",
+        'soportes_categorias/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Soportes Categorias',
+        estatus='A',
     )
 
 
-@soportes_categorias.route("/soportes_categorias/inactivas")
+@soportes_categorias.route('/soportes_categorias/inactivos')
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Soportes Categorias inactivas"""
-    soportes_categorias_inactivas = SoporteCategoria.query.filter(SoporteCategoria.estatus == "B").all()
+    """Listado de Soportes Categorias inactivos"""
     return render_template(
-        "soportes_categorias/list.jinja2",
-        soportes_categorias=soportes_categorias_inactivas,
-        titulo="Soportes Categorias inactivas",
-        estatus="B",
+        'soportes_categorias/list.jinja2',
+        filtros=json.dumps({'estatus': 'B'}),
+        titulo='Soportes Categorias inactivos',
+        estatus='B',
     )
+
+
+@soportes_categorias.route('/soportes_categorias/datatable_json', methods=['GET', 'POST'])
+def datatable_json():
+    """DataTable JSON para listado de Categorías"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = datatables.get_parameters()
+    # Consultar
+    consulta = SoporteCategoria.query
+    if 'estatus' in request.form:
+        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    else:
+        consulta = consulta.filter_by(estatus='A')
+    if "nombre" in request.form and request.form["nombre"] != "OTRO":
+        consulta = consulta.filter(SoporteCategoria.nombre.contains(safe_string(request.form["nombre"])))
+    registros = consulta.order_by(SoporteCategoria.nombre).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                'detalle': {
+                    'nombre': resultado.nombre,
+                    'url': url_for('soportes_categorias.detail', soporte_categoria_id=resultado.id),
+                },
+                'atendido': resultado.rol.nombre,
+                'instrucciones': resultado.instrucciones,
+            }
+        )
+    # Entregar JSON
+    return datatables.output(draw, total, data)
 
 
 @soportes_categorias.route("/soportes_categorias/<int:soporte_categoria_id>")
@@ -63,6 +97,7 @@ def new():
     """Nuevo Soporte Categoria"""
     form = SoporteCategoriaForm()
     if form.validate_on_submit():
+        # Validar que el nombre no se repita
         nombre = safe_string(form.nombre.data)
         if SoporteCategoria.query.filter_by(nombre=nombre).first() is not None:
             flash("El nombre ya está en uso. Debe de ser único.", "warning")
@@ -70,7 +105,7 @@ def new():
             soporte_categoria = SoporteCategoria(
                 nombre=nombre,
                 rol=form.rol.data,
-                instrucciones=safe_string(form.instrucciones.data, max_len=2048),
+                instrucciones=safe_text(form.instrucciones.data),
             )
             soporte_categoria.save()
             bitacora = Bitacora(
@@ -92,19 +127,29 @@ def edit(soporte_categoria_id):
     soporte_categoria = SoporteCategoria.query.get_or_404(soporte_categoria_id)
     form = SoporteCategoriaForm()
     if form.validate_on_submit():
-        soporte_categoria.nombre = safe_string(form.nombre.data)
-        soporte_categoria.rol = form.rol.data
-        soporte_categoria.instrucciones = safe_string(form.instrucciones.data, max_len=2048)
-        soporte_categoria.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado soporte categoria {soporte_categoria.nombre}"),
-            url=url_for("soportes_categorias.detail", soporte_categoria_id=soporte_categoria.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia el nombre verificar que no este en uso
+        nombre = safe_string(form.nombre.data)
+        if soporte_categoria.nombre != nombre:
+            soporte_categoria_existente = SoporteCategoria.query.filter_by(nombre=nombre).first()
+            if soporte_categoria_existente and soporte_categoria_existente.id != soporte_categoria.id:
+                es_valido = False
+                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            soporte_categoria.nombre = nombre
+            soporte_categoria.rol = form.rol.data
+            soporte_categoria.instrucciones = safe_text(form.instrucciones.data)
+            soporte_categoria.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado soporte categoria {soporte_categoria.nombre}"),
+                url=url_for("soportes_categorias.detail", soporte_categoria_id=soporte_categoria.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.nombre.data = soporte_categoria.nombre
     form.rol.data = soporte_categoria.rol
     form.instrucciones.data = soporte_categoria.instrucciones

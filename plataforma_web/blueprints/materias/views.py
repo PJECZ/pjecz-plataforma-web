@@ -7,7 +7,6 @@ from flask_login import current_user, login_required
 from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias.forms import MateriaForm
@@ -54,12 +53,7 @@ def list_inactive():
 def detail(materia_id):
     """Detalle de una Materia"""
     materia = Materia.query.get_or_404(materia_id)
-    return render_template(
-        "materias/detail.jinja2",
-        materia=materia,
-        autoridades=Autoridad.query.filter(Autoridad.materia == materia).filter_by(estatus="A").all(),
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter(MateriaTipoJuicio.materia == materia).filter_by(estatus="A").all(),
-    )
+    return render_template("materias/detail.jinja2", materia=materia)
 
 
 @materias.route("/materias/nuevo", methods=["GET", "POST"])
@@ -68,17 +62,22 @@ def new():
     """Nueva Materia"""
     form = MateriaForm()
     if form.validate_on_submit():
-        materia = Materia(nombre=safe_string(form.nombre.data))
-        materia.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nueva materia {materia.nombre}"),
-            url=url_for("materias.detail", materia_id=materia.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        # Validar que el nombre no se repita
+        nombre = safe_string(form.nombre.data)
+        if Materia.query.filter_by(nombre=nombre).first():
+            flash("La nombre ya está en uso. Debe de ser único.", "warning")
+        else:
+            materia = Materia(nombre=nombre)
+            materia.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nueva materia {materia.nombre}"),
+                url=url_for("materias.detail", materia_id=materia.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     return render_template("materias/new.jinja2", form=form)
 
 
@@ -89,17 +88,27 @@ def edit(materia_id):
     materia = Materia.query.get_or_404(materia_id)
     form = MateriaForm()
     if form.validate_on_submit():
-        materia.nombre = safe_string(form.nombre.data)
-        materia.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editada materia {materia.nombre}"),
-            url=url_for("materias.detail", materia_id=materia.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        es_valido = True
+        # Si cambia el nombre verificar que no este en uso
+        nombre = safe_string(form.nombre.data)
+        if materia.nombre != nombre:
+            materia_existente = Materia.query.filter_by(nombre=nombre).first()
+            if materia_existente and materia_existente.id != materia.id:
+                es_valido = False
+                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Si es valido actualizar
+        if es_valido:
+            materia.nombre = nombre
+            materia.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editada materia {materia.nombre}"),
+                url=url_for("materias.detail", materia_id=materia.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     form.nombre.data = materia.nombre
     return render_template("materias/edit.jinja2", form=form, materia=materia)
 

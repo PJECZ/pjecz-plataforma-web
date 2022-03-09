@@ -29,7 +29,7 @@ edictos = Blueprint("edictos", __name__, template_folder="templates")
 MODULO = "EDICTOS"
 SUBDIRECTORIO = "Edictos"
 LIMITE_DIAS = 365
-LIMITE_ADMINISTRADORES_DIAS = 365
+LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
 
 
 @edictos.route("/edictos/acuses/<id_hashed>")

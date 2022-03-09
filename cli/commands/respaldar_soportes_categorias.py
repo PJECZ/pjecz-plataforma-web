@@ -27,6 +27,10 @@ def respaldar_soportes_categorias(salida: str = "soportes_categorias.csv"):
             ]
         )
         for soporte_categoria in soportes_categorias:
+            contador += 1
+            while soporte_categoria.id > contador:
+                respaldo.writerow([contador, f"ELIMINADO {contador}", "B"])  # Porque faltan algunos IDs en la BD
+                contador += 1
             respaldo.writerow(
                 [
                     soporte_categoria.id,
@@ -34,7 +38,6 @@ def respaldar_soportes_categorias(salida: str = "soportes_categorias.csv"):
                     soporte_categoria.estatus,
                 ]
             )
-            contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
     click.echo(f"  {contador} en {ruta.name}")

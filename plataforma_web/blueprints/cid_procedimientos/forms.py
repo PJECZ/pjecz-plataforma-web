@@ -13,7 +13,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 def usuarios_email_opciones():
     """Seleccionar correo electronico de usuarios: opciones para select"""
     # TODO Optimizar la consulta de usuarios porque son muchos
-    return Usuario.query.filter_by(estatus="A").order_by(Usuario.email).all()
+    return ""#Usuario.query.filter_by(estatus="A").order_by(Usuario.email).all()
 
 
 class CIDProcedimientoForm(FlaskForm):

@@ -11,6 +11,7 @@
 *.sqlite3-journal
 *.yaml
 __pycache__/
+.ipynb_checkpoints/
 /instance/settings.py
 /seed/
 /setup.cfg

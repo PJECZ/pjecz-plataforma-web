@@ -54,3 +54,12 @@ class AutoridadEditForm(FlaskForm):
     directorio_sentencias = StringField("Directorio para sentencias", validators=[Optional(), Length(max=256)])
     limite_dias_listas_de_acuerdos = IntegerField("Límite días para listas de acuerdos", validators=[NumberRange(0, 30)])
     guardar = SubmitField("Guardar")
+
+
+class AutoridadSearchForm(FlaskForm):
+    """Formulario buscar autoridades"""
+
+    descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
+    clave = StringField("Clave (máximo 16 caracteres)", validators=[Optional(), Length(max=16)])
+    organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[Optional()])
+    buscar = SubmitField("Buscar")

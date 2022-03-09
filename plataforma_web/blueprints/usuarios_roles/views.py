@@ -9,8 +9,6 @@ from flask_login import current_user, login_required
 from lib import datatables
 from lib.safe_string import safe_message
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
@@ -76,12 +74,18 @@ def datatable_json():
             {
                 "detalle": {
                     "id": resultado.id,
-                    "url": url_for("rep_resultados.detail", rep_resultado_id=resultado.id),
+                    "url": url_for("usuarios_roles.detail", usuario_rol_id=resultado.id),
+                },
+                "usuario": {
+                    "email": resultado.usuario.email,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id) if current_user.can_view("USUARIOS") else "",
                 },
                 "usuario_nombre": resultado.usuario.nombre,
                 "usuario_puesto": resultado.usuario.puesto,
-                "usuario_email": resultado.usuario.email,
-                "rol_nombre": resultado.rol.nombre,
+                "rol": {
+                    "nombre": resultado.rol.nombre,
+                    "url": url_for("roles.detail", rol_id=resultado.rol_id) if current_user.can_view("ROLES") else "",
+                },
             }
         )
     # Entregar JSON
@@ -113,15 +117,8 @@ def new_with_usuario(usuario_id):
             descripcion=descripcion,
         )
         usuario_rol.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo usuario-rol {usuario_rol.descripcion}"),
-            url=url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        flash(safe_message(f"Nuevo {descripcion}"), "success")
+        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
     form.usuario.data = usuario.email
     return render_template(
         "usuarios_roles/new_with_usuario.jinja2",
@@ -138,15 +135,8 @@ def delete(usuario_rol_id):
     usuario_rol = UsuarioRol.query.get_or_404(usuario_rol_id)
     if usuario_rol.estatus == "A":
         usuario_rol.delete()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Eliminado usuario-rol {usuario_rol.descripcion}"),
-            url=url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        flash(safe_message(f"Eliminado usuario-rol {usuario_rol.descripcion}"), "success")
+        return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))
     return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))
 
 
@@ -157,13 +147,6 @@ def recover(usuario_rol_id):
     usuario_rol = UsuarioRol.query.get_or_404(usuario_rol_id)
     if usuario_rol.estatus == "B":
         usuario_rol.recover()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Recuperado usuario-rol {usuario_rol.descripcion}"),
-            url=url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        flash(safe_message(f"Recuperado usuario-rol {usuario_rol.descripcion}"), "success")
+        return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))
     return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))

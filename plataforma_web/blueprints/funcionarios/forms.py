@@ -4,8 +4,16 @@ Funcionarios, formularios
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, Optional, Regexp
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from lib.safe_string import CURP_REGEXP
+
+from plataforma_web.blueprints.domicilios.models import Domicilio
+
+
+def domicilios_opciones():
+    """Domicilios: opciones para select"""
+    return Domicilio.query.filter_by(estatus="A").order_by(Domicilio.completo).all()
 
 
 class FuncionarioForm(FlaskForm):
@@ -34,3 +42,14 @@ class FuncionarioSearchForm(FlaskForm):
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[Optional(), Length(max=256)])
     buscar = SubmitField("Buscar")
+
+
+class FuncionarioDomicilioForm(FlaskForm):
+    """Formulario para relacionar oficinas al funcionario a partir de una direccion"""
+
+    funcionario_nombre = StringField("Nombre")  # Read only
+    funcionario_curp = StringField("CURP")  # Read only
+    funcionario_puesto = StringField("Puesto")  # Read only
+    funcionario_email = StringField("e-mail")  # Read only
+    domicilio = QuerySelectField(query_factory=domicilios_opciones, get_label="completo")
+    asignar = SubmitField("Asignar")

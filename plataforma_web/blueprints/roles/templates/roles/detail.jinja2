@@ -37,9 +37,9 @@
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>e-mail</th>
                     <th>Nombres completos</th>
                     <th>Puestos</th>
-                    <th>e-mail</th>
                 </tr>
             </thead>
         </table>
@@ -68,14 +68,14 @@
             ajax: {
                 url: "/permisos/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: {"estatus": "A", "rol_id": {{ rol.id }} }
             },
             columns: [
                 { data: "detalle" },
-                { data: "modulo_nombre" },
+                { data: "modulo" },
                 { data: "nivel" }
             ],
             columnDefs: [
@@ -84,6 +84,17 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+                {
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
                     }
                 }
             ],
@@ -114,16 +125,16 @@
             ajax: {
                 url: "/usuarios_roles/datatable_json",
                 type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
                 data: {"estatus": "A", "rol_id": {{ rol.id }} }
             },
             columns: [
                 { data: "detalle" },
+                { data: "usuario" },
                 { data: "usuario_nombre" },
-                { data: "usuario_puesto" },
-                { data: "usuario_email" }
+                { data: "usuario_puesto" }
             ],
             columnDefs: [
                 {
@@ -134,7 +145,18 @@
                     }
                 },
                 {
-                    targets: [1, 2, 3],
+                    targets: 1,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.email;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.email + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: [2, 3],
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 32 ? data.substr(0, 32) + '…' : data);

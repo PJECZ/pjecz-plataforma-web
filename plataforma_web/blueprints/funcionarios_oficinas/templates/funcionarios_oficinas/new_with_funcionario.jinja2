@@ -1,0 +1,41 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Agregar oficina al funcionario{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page(titulo) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'funcionario_id': funcionario.id} %}
+        {% call f.form_tag('funcionarios_oficinas.new_with_funcionario', fid='funcionario_oficina_form', **form_kwargs) %}
+            {% call f.form_group(form.funcionario, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.oficina) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Select2 bootstrap oficinas -->
+    <script>
+        $(document).ready(function(){
+            $('#oficina').addClass('js-example-placeholder-single js-states form-control');
+            $("#oficina").prop("selectedIndex", -1);
+            $(".js-example-placeholder-single").select2({
+                placeholder: "Oficina",
+                allowClear: true
+            });
+        });
+    </script>
+{% endblock %}
