@@ -199,7 +199,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de ubicaciones de expedientes"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = UbicacionExpediente.query
     if "estatus" in request.form:
@@ -236,7 +236,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/datatable_json_admin", methods=["GET", "POST"])
@@ -244,7 +244,7 @@ def datatable_json():
 def datatable_json_admin():
     """DataTable JSON para listado de ubicaciones de expedientes admin"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = UbicacionExpediente.query
     if "estatus" in request.form:
@@ -282,7 +282,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @ubicaciones_expedientes.route("/ubicaciones_expedientes/<int:ubicacion_expediente_id>")

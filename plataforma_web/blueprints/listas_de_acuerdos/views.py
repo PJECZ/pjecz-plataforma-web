@@ -34,6 +34,7 @@ LIMITE_DIAS = 30  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerd
 LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
 ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
 
+
 @listas_de_acuerdos.before_request
 @login_required
 @permission_required(MODULO, Permiso.VER)
@@ -215,7 +216,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de listas de acuerdos"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = ListaDeAcuerdo.query
     if "estatus" in request.form:
@@ -248,14 +249,14 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/datatable_json_admin", methods=["GET", "POST"])
 def datatable_json_admin():
     """DataTable JSON para listado de listas de acuerdos admin"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = ListaDeAcuerdo.query
     if "estatus" in request.form:
@@ -290,7 +291,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")

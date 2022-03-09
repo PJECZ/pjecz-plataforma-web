@@ -139,7 +139,7 @@ def list_autoridad_tesis_jurisprudencias_inactive(autoridad_id):
 def datatable_json():
     """DataTable JSON para listado de Tesis Jurisprudencias"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = TesisJurisprudencia.query
     if "estatus" in request.form:
@@ -161,14 +161,14 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @tesis_jurisprudencias.route("/tesis_jurisprudencias/datatable_json_admin", methods=["GET", "POST"])
 def datatable_json_admin():
     """DataTable JSON para listado de Tesis Jurisprudencias admin"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = TesisJurisprudencia.query
     if "estatus" in request.form:
@@ -192,7 +192,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @tesis_jurisprudencias.route("/tesis_jurisprudencias/<int:tesis_jurisprudencia_id>")

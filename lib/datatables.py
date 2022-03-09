@@ -4,7 +4,7 @@ Datatables
 from flask import request
 
 
-def get_parameters():
+def get_datatable_parameters():
     """Tomar parametros"""
     try:
         draw = int(request.form["draw"])
@@ -17,7 +17,7 @@ def get_parameters():
     return draw, start, rows_per_page
 
 
-def output(draw, total, data):
+def output_datatable_json(draw, total, data):
     """Entregar JSON"""
     return {
         "draw": draw,

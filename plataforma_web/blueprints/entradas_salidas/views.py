@@ -30,7 +30,7 @@ def list_active():
 def datatable_json():
     """DataTable JSON para listado de entradas y salidas"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = EntradaSalida.query
     registros = consulta.order_by(EntradaSalida.creado.desc()).offset(start).limit(rows_per_page).all()
@@ -49,4 +49,4 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)

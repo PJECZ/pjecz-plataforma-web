@@ -50,37 +50,37 @@ def list_inactive():
     )
 
 
-@oficinas.route('/oficinas/buscar', methods=['GET', 'POST'])
+@oficinas.route("/oficinas/buscar", methods=["GET", "POST"])
 def search():
     """Buscar Oficinas"""
     form_search = OficinaSearchForm()
     if form_search.validate_on_submit():
-        busqueda = {'estatus': 'A'}
+        busqueda = {"estatus": "A"}
         titulos = []
         if form_search.clave.data:
             clave = safe_string(form_search.clave.data)
-            if clave != '':
-                busqueda['clave'] = clave
-                titulos.append('clave ' + clave)
+            if clave != "":
+                busqueda["clave"] = clave
+                titulos.append("clave " + clave)
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
-            if descripcion != '':
-                busqueda['descripcion'] = descripcion
-                titulos.append('descripción ' + descripcion)
+            if descripcion != "":
+                busqueda["descripcion"] = descripcion
+                titulos.append("descripción " + descripcion)
         return render_template(
-            'oficinas/list.jinja2',
+            "oficinas/list.jinja2",
             filtros=json.dumps(busqueda),
-            titulo='Oficinas con ' + ', '.join(titulos),
-            estatus='A',
+            titulo="Oficinas con " + ", ".join(titulos),
+            estatus="A",
         )
-    return render_template('oficinas/search.jinja2', form=form_search)
+    return render_template("oficinas/search.jinja2", form=form_search)
 
 
 @oficinas.route("/oficinas/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Oficinas"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Oficina.query
     if "estatus" in request.form:
@@ -121,7 +121,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @oficinas.route("/oficinas/<int:oficina_id>")

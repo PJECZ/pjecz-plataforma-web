@@ -87,7 +87,7 @@ def search():
 def datatable_json():
     """DataTable JSON para Acuerdos"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = ListaDeAcuerdoAcuerdo.query
     if "estatus" in request.form:
@@ -118,7 +118,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/datatable_json_admin", methods=["GET", "POST"])
@@ -126,7 +126,7 @@ def datatable_json():
 def datatable_json_admin():
     """DataTable JSON para Acuerdos admin"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = ListaDeAcuerdoAcuerdo.query
     if "estatus" in request.form:
@@ -158,7 +158,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @listas_de_acuerdos_acuerdos.route("/listas_de_acuerdos/acuerdos/<int:lista_de_acuerdo_acuerdo_id>")

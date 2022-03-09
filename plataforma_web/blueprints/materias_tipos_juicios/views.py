@@ -1,9 +1,11 @@
 """
 Materias Tipos de Juicios, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib.datatables import get_parameters, output
 from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -25,27 +27,16 @@ def before_request():
     """Permiso por defecto"""
 
 
-@materias_tipos_juicios.route("/materias/tipos_juicios")
+@materias_tipos_juicios.route('/materias_tipos_juicios')
 def list_active():
-    """Listado de Materias Tipos de Juicios activos"""
+    """Listado de Tipos de Juicios activos"""
     return render_template(
-        "materias_tipos_juicios/list.jinja2",
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").all(),
-        titulo="Tipos de Juicios",
-        estatus="A",
+        'materias_tipos_juicios/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Tipos de Juicios',
+        estatus='A',
     )
 
-
-@materias_tipos_juicios.route("/materias/tipos_juicios/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_inactive():
-    """Listado de Materias Tipos de Juicios inactivos"""
-    return render_template(
-        "materias_tipos_juicios/list.jinja2",
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="B").all(),
-        titulo="Tipos de Juicios inactivos",
-        estatus="B",
-    )
 
 
 @materias_tipos_juicios.route("/materias/tipos_juicios/<int:materia_tipo_juicio_id>")

@@ -54,7 +54,7 @@ def list_inactive():
 def datatable_json():
     """DataTable JSON para listado de Agresores"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = REPSVMAgresor.query
     if "estatus" in request.form:
@@ -105,7 +105,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @repsvm_agresores.route("/repsvm_agresores/<int:repsvm_agresor_id>")
