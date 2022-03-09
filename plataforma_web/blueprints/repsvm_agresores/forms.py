@@ -3,8 +3,10 @@ REPSVM Agresores, formularios
 """
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length, Optional, Regexp
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
+
+from lib.safe_string import URL_REGEXP
 
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.materias_tipos_juzgados.models import MateriaTipoJuzgado
@@ -43,5 +45,5 @@ class REPSVMAgresorForm(FlaskForm):
     repsvm_tipo_sentencia = QuerySelectField(query_factory=repsvm_tipos_sentencias_opciones, get_label="descripcion")
     pena_impuesta = StringField("Pena impuesta", validators=[DataRequired(), Length(max=256)])
     observaciones = TextAreaField("Pena impuesta", validators=[DataRequired(), Length(max=4092)])
-    sentencia_url = StringField("V.P. Sentencia", validators=[DataRequired(), Length(max=512)])
+    sentencia_url = StringField("V.P. Sentencia", validators=[DataRequired(), Length(max=512), Regexp(URL_REGEXP)])
     guardar = SubmitField("Guardar")
