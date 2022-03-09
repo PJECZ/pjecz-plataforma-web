@@ -7,7 +7,10 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('MATERIAS TIPOS JUICIOS') %}
-            {{ topbar.button('Tipos de Juicios', url_for('materias_tipos_juicios.list_active'), 'mdi:label') }}
+            {{ topbar.button('T. Juicios', url_for('materias_tipos_juicios.list_active'), 'mdi:label') }}
+        {% endif %}
+        {% if current_user.can_view('MATERIAS TIPOS JUZGADOS') %}
+            {{ topbar.button('T. Juzgados', url_for('materias_tipos_juzgados.list_active'), 'mdi:gavel') }}
         {% endif %}
         {% if current_user.can_edit('MATERIAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('materias.list_inactive')) }}{% endif %}

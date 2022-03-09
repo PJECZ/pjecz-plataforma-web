@@ -17,19 +17,21 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(title='Autoridades') %}
-        <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Claves</th>
-                    <th>Descripciones cortas</th>
-                    <th>Órganos Jurisdiccionales</th>
-                    <th>Distritos</th>
-                </tr>
-            </thead>
-        </table>
-    {% endcall %}
-    {% if materias_tipos_juicios %}
+    {% if current_user.can_view('AUTORIDADES') %}
+        {% call detail.card(title='Autoridades') %}
+            <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Claves</th>
+                        <th>Descripciones cortas</th>
+                        <th>Órganos Jurisdiccionales</th>
+                        <th>Distritos</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('MATERIAS TIPOS JUICIOS') %}
         {% call detail.card(title='Tipos de Juicios') %}
             <table id="materias_tipos_juicios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
@@ -37,13 +39,17 @@
                         <th>Tipos de Juicios</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for materia_tipo_juicio in materia.materias_tipos_juicios %}
+            </table>
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('MATERIAS TIPOS JUZGADOS') %}
+        {% call detail.card(title='Tipos de Juzgados') %}
+            <table id="materias_tipos_juzgados_datatable" class="table display nowrap" style="width:100%">
+                <thead>
                     <tr>
-                        <td><a href="{{ url_for('materias_tipos_juicios.detail', materia_tipo_juicio_id=materia_tipo_juicio.id) }}">{{ materia_tipo_juicio.descripcion }}</a></td>
+                        <th>Tipos de Jugzados</th>
                     </tr>
-                    {% endfor %}
-                </tbody>
+                </thead>
             </table>
         {% endcall %}
     {% endif %}
@@ -55,7 +61,7 @@
         {% if materia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + materia.nombre + '?') }}{% endif %}
     {% endif %}
     <script>
-        $('#autoridades_datatable').DataTable({
+        let configDataTable = {
             processing: true,
             serverSide: true,
             ordering: false,
@@ -63,39 +69,15 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/autoridades/datatable_json",
+                url: null,
                 type: "POST",
                 headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
-                data: { "estatus": "A", "materia_id": {{ materia.id }} }
+                data: null
             },
-            columns: [
-                { data: "detalle" },
-                { data: "descripcion_corta" },
-                { data: "organo_jurisdiccional" },
-                { data: "distrito" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
-                    }
-                },
-                {
-                    targets: 3,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.nombre_corto;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
-                        }
-                    }
-                }
-            ],
+            columns: null,
+            columnDefs: null,
             language: {
                 lengthMenu: "Mostrar _MENU_",
                 search: "Filtrar:",
@@ -110,9 +92,56 @@
                     sPrevious: "Anterior"
                 }
             }
-        });
+        }
     </script>
-    {% if materias_tipos_juicios %}
-        {{ detail.datatable('materias_tipos_juicios_datatable') }}
+    {% if current_user.can_view('AUTORIDADES') %}
+        <script>
+            configDataTable['ajax']['url'] = '/autoridades/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.materia_id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "descripcion_corta" },
+                { data: "organo_jurisdiccional" },
+                { data: "distrito" }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                },
+                {
+                    targets: 3, // distrito
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre_corto;
+                        }
+                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                    }
+                }
+            ];
+            $('#autoridades_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
+    {% if current_user.can_view('MATERIAS TIPOS JUICIOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/materias_tipos_juicios/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.materia_id}} };
+            configDataTable['columns'] = [];
+            configDataTable['columnDefs'] = [];
+            $('#materias_tipos_juicios_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
+    {% if current_user.can_view('MATERIAS TIPOS JUZGADOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/materias_tipos_juzgados/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.materia_id}} };
+            configDataTable['columns'] = [];
+            configDataTable['columnDefs'] = [];
+            $('#materias_tipos_juzgados_datatable').DataTable(configDataTable);
+        </script>
     {% endif %}
 {% endblock %}
