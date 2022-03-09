@@ -4,7 +4,7 @@ Bitácoras, vistas
 from flask import Blueprint, render_template, url_for
 from flask_login import login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.permisos.models import Permiso

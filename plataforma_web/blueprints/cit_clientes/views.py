@@ -6,7 +6,7 @@ import json
 from flask import Blueprint, request, render_template, url_for
 from flask_login import login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_email, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso

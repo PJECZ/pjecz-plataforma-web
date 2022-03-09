@@ -11,5 +11,6 @@
 		"--line-length",
 		"256"
 	],
-	"python.linting.pylintEnabled": true
+	"python.linting.pylintEnabled": true,
+	"python.linting.enabled": true
 }

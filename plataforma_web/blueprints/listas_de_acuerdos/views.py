@@ -9,7 +9,7 @@ from flask_login import current_user, login_required
 from pytz import timezone
 from werkzeug.datastructures import CombinedMultiDict
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.time_to_text import dia_mes_ano

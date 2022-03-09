@@ -5,7 +5,7 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.permisos.models import Permiso

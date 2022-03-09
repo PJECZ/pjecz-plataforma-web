@@ -5,7 +5,7 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_expediente, safe_message, safe_string
 from lib.time_utc import combine_to_utc, decombine_to_local, join_for_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
