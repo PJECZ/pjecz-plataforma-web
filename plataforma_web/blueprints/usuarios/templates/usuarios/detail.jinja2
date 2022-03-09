@@ -91,22 +91,22 @@
             </table>
         {% endcall %}
     {% endif %}
-    {% call list.card('Custodias') %}
-        <table id="inv_custodias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>IDs</th>
-                    <th>Fecha</th>
-                    <th>Oficina</th>
-                </tr>
-            </thead>
-            
-        </table>
-        {% if current_user.can_insert('INV CUSTODIAS') %}
-            <a href="{{ url_for('inv_custodias.new', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
-        {% endif %}
-    {% endcall %}
-    
+    {% if current_user.can_view('SOPORTES TICKETS') %}
+        {% call list.card('Custodias') %}
+            <table id="inv_custodias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>IDs</th>
+                        <th>Fecha</th>
+                        <th>Oficina</th>
+                    </tr>
+                </thead>
+            </table>
+            {% if current_user.can_insert('INV CUSTODIAS') %}
+                <a href="{{ url_for('inv_custodias.new', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
