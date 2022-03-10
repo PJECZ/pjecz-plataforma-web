@@ -11,7 +11,7 @@ from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -235,7 +235,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de edictos"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Edicto.query
     if "estatus" in request.form:
@@ -284,7 +284,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @edictos.route("/edictos/datatable_json_admin", methods=["GET", "POST"])
@@ -292,7 +292,7 @@ def datatable_json():
 def datatable_json_admin():
     """DataTable JSON para listado de edictos administradores"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Edicto.query
     if "estatus" in request.form:
@@ -343,7 +343,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @edictos.route("/edictos/refrescar/<int:autoridad_id>")

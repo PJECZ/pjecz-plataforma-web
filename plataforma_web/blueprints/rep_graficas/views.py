@@ -5,7 +5,7 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.rep_graficas.forms import RepGraficaForm
@@ -55,7 +55,7 @@ def list_inactive():
 def datatable_json():
     """DataTable JSON para listado de Gráficas"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = RepGrafica.query
     if "estatus" in request.form:
@@ -80,7 +80,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @rep_graficas.route("/rep_graficas/<int:rep_grafica_id>")
