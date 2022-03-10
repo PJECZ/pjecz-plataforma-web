@@ -30,10 +30,9 @@ def before_request():
 @materias_tipos_juzgados.route("/materias_tipos_juzgados")
 def list_active():
     """Listado de Tipos de Juzgados activos"""
-    materias_tipos_juzgados_activos = MateriaTipoJuzgado.query.filter(MateriaTipoJuzgado.estatus == "A").all()
     return render_template(
         "materias_tipos_juzgados/list.jinja2",
-        materias_tipos_juzgados=materias_tipos_juzgados_activos,
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Tipos de Juzgados",
         estatus="A",
     )
@@ -43,13 +42,45 @@ def list_active():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Tipos de Juzgados inactivos"""
-    materias_tipos_juzgados_inactivos = MateriaTipoJuzgado.query.filter(MateriaTipoJuzgado.estatus == "B").all()
     return render_template(
         "materias_tipos_juzgados/list.jinja2",
-        materias_tipos_juzgados=materias_tipos_juzgados_inactivos,
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Tipos de Juzgados inactivos",
         estatus="B",
     )
+
+
+@materias_tipos_juzgados.route("/materias_tipos_juzgados/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Tipos de Juzgados"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = MateriaTipoJuzgado.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(MateriaTipoJuzgado.descripcion).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "materia": {
+                    "nombre": resultado.materia.nombre,
+                    "url": url_for("materias.detail", materia_id=resultado.materia_id),
+                },
+                "detalle": {
+                    "descripcion": resultado.descripcion,
+                    "url": url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=resultado.id),
+                },
+                "clave": resultado.clave,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
 
 
 @materias_tipos_juzgados.route("/materias_tipos_juzgados/<int:materia_tipo_juzgado_id>")
