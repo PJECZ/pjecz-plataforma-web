@@ -8,7 +8,7 @@ import pytz
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_clave, safe_string, safe_message
 
 from plataforma_web.blueprints.audiencias.models import Audiencia
@@ -103,7 +103,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de Autoridades"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Autoridad.query
     if "estatus" in request.form:
@@ -141,7 +141,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @autoridades.route("/autoridades/<int:autoridad_id>")
@@ -371,7 +371,7 @@ def edit(autoridad_id):
         clave = safe_clave(form.clave.data)
         if autoridad.clave != clave:
             oficina_existente = Autoridad.query.filter_by(clave=clave).first()
-            if oficina_existente and oficina_existente.id != autoridad.id:
+            if oficina_existente and oficina_existente.id != autoridad_id:
                 es_valido = False
                 flash("La clave ya está en uso. Debe de ser única.", "warning")
         # Si es valido actualizar

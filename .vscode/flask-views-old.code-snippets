@@ -1,0 +1,150 @@
+{
+	"Flask views old list_active": {
+		"scope": "python",
+		"prefix": "fviews_old_list_active",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}')",
+			"def list_active():",
+			"\t\"\"\" Listado de ${2:Modulo} activos \"\"\"",
+			"\t${3:registros}_activos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'A').all()",
+			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_activos, titulo='${2:Modulo}', estatus='A',)",
+			"",
+			""
+		],
+		"description": "Vista anterior listado de registros activos"
+	},
+	"Flask views old list_inactive": {
+		"scope": "python",
+		"prefix": "fviews_old_list_inactive",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
+			"def list_inactive():",
+			"\t\"\"\" Listado de ${2:Modulo} inactivos \"\"\"",
+			"\t${3:registros}_inactivos = ${4:Clase}.query.filter(${4:Clase}.estatus == 'B').all()",
+			"\treturn render_template('${1:blueprint}/list.jinja2', ${3:registros}=${3:registros}_inactivos, titulo='${2:Modulo} inactivos', estatus='B',)",
+			"",
+			""
+		],
+		"description": "Vista anterior listado de registros inactivos"
+	},
+	"Flask views old search": {
+		"scope": "python",
+		"prefix": "fviews_old_search",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/buscar', methods=['GET', 'POST'])",
+			"def search():",
+			"\t\"\"\" Buscar ${2:Modulo} \"\"\"",
+			"\tform_search = ${3:Class}SearchForm()",
+			"\tif form_search.validate_on_submit():",
+			"\t\tconsulta = ${3:Class}.query",
+			"\t\tif form_search.fecha_desde.data:",
+			"\t\t\tconsulta = consulta.filter(${3:Class}.fecha >= form_search.fecha_desde.data)",
+			"\t\tif form_search.fecha_hasta.data:",
+			"\t\t\tconsulta = consulta.filter(${3:Class}.fecha <= form_search.fecha_hasta.data)",
+			"\t\tif form_search.${4:nombre_o_descripcion}.data:",
+			"\t\t\t${4:nombre_o_descripcion} = unidecode(form_search.${4:nombre_o_descripcion}.data.strip()).upper()  # Sin acentos y en mayúsculas, necesita from unidecode import unidecode",
+			"\t\t\tconsulta = consulta.filter(${3:Class}.${4:nombre_o_descripcion}.like(f'%{${4:nombre_o_descripcion}}%'))",
+			"\t\tconsulta = consulta.order_by(${3:Clase}.creado.desc()).limit(100).all()",
+			"\t\treturn render_template('${1:blueprint}/list.jinja2', ${5:registros}=consulta)",
+			"\treturn render_template('${1:blueprint}/search.jinja2', form=form_search)",
+			"",
+			""
+		],
+		"description": "Vista anterior buscar"
+	},
+	"Flask views old new": {
+		"scope": "python",
+		"prefix": "fviews_old_new",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/nuevo', methods=['GET', 'POST'])",
+			"@permission_required(MODULO, Permiso.CREAR)",
+			"def new():",
+			"\t\"\"\" Nuevo ${2:Modulo} \"\"\"",
+			"\tform = ${3:ClassForm}()",
+			"\tif form.validate_on_submit():",
+			"\t\t${4:instance} = ${5:Class}(${6:nombre_o_descripcion}=form.${6:nombre_o_descripcion}.data)",
+			"\t\t${4:instance}.save()",
+			"\t\tflash(f'${2:description} {${4:instance}.${6:nombre_o_descripcion}} guardado.', 'success')",
+			"\t\treturn redirect(url_for('${1:blueprint}.detail', ${7:column_id}=${4:instance}.id))",
+			"\treturn render_template('${1:blueprint}/new.jinja2', form=form)",
+			"",
+			""
+		],
+		"description": "Vista anterior nuevo registro"
+	},
+	"Flask views old edit": {
+		"scope": "python",
+		"prefix": "fviews_old_edit",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/edicion/<int:${2:column_id}>', methods=['GET', 'POST'])",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
+			"def edit(${2:column_id}):",
+			"\t\"\"\" Editar ${3:Modulo} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+			"\tform = ${6:ClassForm}()",
+			"\tif form.validate_on_submit():",
+			"\t\t${4:instance}.${7:nombre_o_descripcion} = form.${7:nombre_o_descripcion}.data",
+			"\t\t${4:instance}.save()",
+			"\t\tflash(f'${3:Modulo} {${4:instance}.${7:nombre_o_descripcion}} guardado.', 'success')",
+			"\t\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${4:instance}.id))",
+			"\tform.${7:nombre_o_descripcion}.data = ${4:instance}.${7:nombre_o_descripcion}",
+			"\treturn render_template('${1:blueprint}/edit.jinja2', form=form, ${4:instance}=${4:instance})",
+			"",
+			""
+		],
+		"description": "Vista anterior editar registro"
+	},
+	"Flask views old delete": {
+		"scope": "python",
+		"prefix": "fviews_old_delete",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/eliminar/<int:${2:column_id}>')",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
+			"def delete(${2:column_id}):",
+			"\t\"\"\" Eliminar ${3:Modulo} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+			"\tif ${4:instance}.estatus == 'A':",
+			"\t\t${4:instance}.delete()",
+			"\t\tflash(f'${3:Modulo} {${4:instance}.${6:nombre_o_descripcion}} eliminado.', 'success')",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${4:instance}.id))",
+			"",
+			""
+		],
+		"description": "Vista anterior borrar registro"
+	},
+	"Flask views old recover": {
+		"scope": "python",
+		"prefix": "fviews_old_recover",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/recuperar/<int:${2:column_id}>')",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
+			"def recover(${2:column_id}):",
+			"\t\"\"\" Recuperar ${3:Modulo} \"\"\"",
+			"\t${4:instance} = ${5:Class}.query.get_or_404(${2:column_id})",
+			"\tif ${4:instance}.estatus == 'B':",
+			"\t\t${4:instance}.recover()",
+			"\t\tflash(f'${3:Modulo} {${4:instance}.${6:nombre_o_descripcion}} recuperado.', 'success')",
+			"\treturn redirect(url_for('${1:blueprint}.detail', ${2:column_id}=${4:instance}.id))",
+			"",
+			""
+		],
+		"description": "Vista anterior recuperar registro"
+	},
+	"Flask views old bitacora": {
+		"scope": "python",
+		"prefix": "fviews_old_bitacora",
+		"body": [
+			"bitacora = Bitacora(",
+			"\tmodulo=Modulo.query.filter_by(nombre=MODULO).first(),",
+			"\tusuario=current_user,",
+			"\tdescripcion=safe_message('${1:Nuevo/Editado/Eliminado/Recuperado} registro con...'),",
+			"\turl=url_for('${2:blueprint}.detail', ${3:column_id}=${4:instance}.id),",
+			")",
+			"bitacora.save()",
+			"flash(bitacora.descripcion, 'success')",
+			"return redirect(bitacora.url)"
+		],
+		"description": "Vista anterior bitacora"
+	}
+}

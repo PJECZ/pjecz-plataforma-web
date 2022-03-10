@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('MATERIAS') %}
+        {% if current_user.can_view('MATERIAS') %}
             {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
         {% endif %}
         {% if current_user.can_edit('MATERIAS TIPOS JUICIOS') %}
@@ -28,18 +28,35 @@
                     <th>Tipos de Juicios</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for materia_tipo_juicio in materias_tipos_juicios %}
-                <tr>
-                    <td>{{ materia_tipo_juicio.materia.nombre }}</td>
-                    <td><a href="{{ url_for('materias_tipos_juicios.detail', materia_tipo_juicio_id=materia_tipo_juicio.id) }}">{{ materia_tipo_juicio.descripcion }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('materias_tipos_juicios_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/materias_tipos_juicios/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "materia" },
+            { data: "detalle" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // materia
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 1, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                }
+            }
+        ];
+        $('#materias_tipos_juicios_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}

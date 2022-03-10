@@ -5,7 +5,7 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -65,7 +65,7 @@ def new_with_tesis(tesis_jurisprudencias_id):
             sentencia=sentencia,
             tesis_jurisprudencia=tesis_jurisprudencia,
 
-        )        
+        )
         tesis_sentencia.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -131,5 +131,3 @@ def recover(tesis_jurisprudencia_sentencia_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     return redirect(url_for("tesis_jurisprudencias_sentencias.detail", tesis_jurisprudencia_sentencia_id=tesis_sentencia.id))
-
-

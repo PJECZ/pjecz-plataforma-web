@@ -1,7 +1,7 @@
 {
-    "Jinja2 list": {
+    "Jinja2 old list": {
         "scope": "jinja-html",
-        "prefix": "j2_list",
+        "prefix": "j2_old_list",
         "body": [
             "{% extends 'layouts/app.jinja2' %}",
             "{% import 'macros/list.jinja2' as list with context %}",
@@ -39,11 +39,11 @@
             "{% endblock %}",
             ""
         ],
-        "description": "List DataTables"
+        "description": "Old listado"
     },
-    "Jinja2 list can edit": {
+    "Jinja2 old list edit": {
         "scope": "jinja-html",
-        "prefix": "j2_list_can_edit",
+        "prefix": "j2_old_list_edit",
         "body": [
             "{% extends 'layouts/app.jinja2' %}",
             "{% import 'macros/list.jinja2' as list %}",
@@ -89,11 +89,11 @@
             "{% endblock %}",
             ""
         ],
-        "description": "List DataTables active inactive"
+        "description": "Old listado edit"
     },
-    "Jinja2 list can admin": {
+    "Jinja2 old list admin": {
         "scope": "jinja-html",
-        "prefix": "j2_list_can_admin",
+        "prefix": "j2_old_list_admin",
         "body": [
             "{% extends 'layouts/app.jinja2' %}",
             "{% import 'macros/list.jinja2' as list %}",
@@ -141,6 +141,6 @@
             "{% endblock %}",
             ""
         ],
-        "description": "List DataTables active inactive"
+        "description": "Old listado admin"
     }
 }

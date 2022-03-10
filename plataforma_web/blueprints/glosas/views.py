@@ -11,7 +11,7 @@ from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_expediente, safe_message, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -230,7 +230,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de glosas"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Glosa.query
     if "estatus" in request.form:
@@ -275,7 +275,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @glosas.route("/glosas/datatable_json_admin", methods=["GET", "POST"])
@@ -283,7 +283,7 @@ def datatable_json():
 def datatable_json_admin():
     """DataTable JSON para listado de glosas admin"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Glosa.query
     if "estatus" in request.form:
@@ -330,7 +330,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @glosas.route("/glosas/refrescar/<int:autoridad_id>")

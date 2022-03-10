@@ -1,9 +1,11 @@
 """
 Materias Tipos de Juicios, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -25,24 +27,58 @@ def before_request():
     """Permiso por defecto"""
 
 
-@materias_tipos_juicios.route("/materias/tipos_juicios")
+@materias_tipos_juicios.route("/materias_tipos_juicios/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Tipos de Juicios"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = MateriaTipoJuicio.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "materia" in request.form:
+        consulta = consulta.filter_by(materia_id=request.form["materia"])
+    registros = consulta.order_by(MateriaTipoJuicio.descripcion).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "materia": {
+                    "nombre": resultado.materia.nombre,
+                    "url": url_for("materias.detail", materia_id=resultado.materia_id),
+                },
+                "detalle": {
+                    "descripcion": resultado.descripcion,
+                    "url": url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@materias_tipos_juicios.route("/materias_tipos_juicios")
 def list_active():
-    """Listado de Materias Tipos de Juicios activos"""
+    """Listado de Tipos de Juicios activos"""
     return render_template(
         "materias_tipos_juicios/list.jinja2",
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").all(),
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Tipos de Juicios",
         estatus="A",
     )
 
 
-@materias_tipos_juicios.route("/materias/tipos_juicios/inactivos")
+@materias_tipos_juicios.route("/materias_tipos_juicios/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Materias Tipos de Juicios inactivos"""
+    """Listado de Tipos de Juicios inactivos"""
     return render_template(
         "materias_tipos_juicios/list.jinja2",
-        materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="B").all(),
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Tipos de Juicios inactivos",
         estatus="B",
     )

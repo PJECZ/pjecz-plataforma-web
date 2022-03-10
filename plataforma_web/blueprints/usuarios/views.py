@@ -12,7 +12,7 @@ from pytz import timezone
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_contrasena
 from lib.safe_next_url import safe_next_url
@@ -118,8 +118,8 @@ def logout():
 @login_required
 def profile():
     """Mostrar el Perfil"""
-    ahora_utc = datetime.now(timezone('UTC'))
-    ahora_mx_coah = ahora_utc.astimezone(timezone('America/Mexico_City'))
+    ahora_utc = datetime.now(timezone("UTC"))
+    ahora_mx_coah = ahora_utc.astimezone(timezone("America/Mexico_City"))
     formato_fecha = "%Y-%m-%d"
     return render_template(
         "usuarios/profile.jinja2",
@@ -204,7 +204,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de Usuarios"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Usuario.query
     if "estatus" in request.form:
@@ -251,7 +251,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @usuarios.route("/usuarios/<int:usuario_id>")
@@ -270,33 +270,40 @@ def new():
     """Nuevo usuario"""
     form = UsuarioNewForm()
     if form.validate_on_submit():
-        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
-        if form.contrasena.data == "":
-            contrasena = pwd_context.hash(generar_contrasena())
+        # Validar que el email no se repita
+        email = safe_email(form.email.data)
+        if Usuario.query.filter_by(email=email).first():
+            flash("El e-mail ya está en uso. Debe de ser único.", "warning")
         else:
-            contrasena = pwd_context.hash(form.contrasena.data)
-        usuario = Usuario(
-            autoridad=autoridad,
-            oficina=form.oficina.data,
-            nombres=safe_string(form.nombres.data),
-            apellido_paterno=safe_string(form.apellido_paterno.data),
-            apellido_materno=safe_string(form.apellido_materno.data),
-            curp=safe_string(form.curp.data),
-            puesto=safe_string(form.puesto.data),
-            email=safe_email(form.email.data),
-            workspace=form.workspace.data,
-            contrasena=contrasena,
-        )
-        usuario.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nuevo usuario {usuario.email}: {usuario.nombre}"),
-            url=url_for("usuarios.detail", usuario_id=usuario.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+            # Consultar la autoridad a partir del ID que viene
+            autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+            # Cifrar la contrasena
+            if form.contrasena.data == "":
+                contrasena = pwd_context.hash(generar_contrasena())
+            else:
+                contrasena = pwd_context.hash(form.contrasena.data)
+            usuario = Usuario(
+                autoridad=autoridad,
+                oficina=form.oficina.data,
+                nombres=safe_string(form.nombres.data),
+                apellido_paterno=safe_string(form.apellido_paterno.data),
+                apellido_materno=safe_string(form.apellido_materno.data),
+                curp=safe_string(form.curp.data),
+                puesto=safe_string(form.puesto.data),
+                email=email,
+                workspace=form.workspace.data,
+                contrasena=contrasena,
+            )
+            usuario.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo usuario {usuario.email}: {usuario.nombre}"),
+                url=url_for("usuarios.detail", usuario_id=usuario.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
     distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()
     return render_template("usuarios/new.jinja2", form=form, distritos=distritos, autoridades=autoridades)
