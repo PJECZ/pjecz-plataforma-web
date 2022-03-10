@@ -171,7 +171,15 @@ def edit(repsvm_agresor_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    form.distrito.data = repsvm_agresor.distrito
+    form.materia_tipo_juzgado.data = repsvm_agresor.materia_tipo_juzgado
+    form.numero_causa.data = repsvm_agresor.numero_causa
     form.nombre.data = repsvm_agresor.nombre
+    form.repsvm_delito_especifico.data = repsvm_agresor.repsvm_delito_especifico
+    form.repsvm_tipo_sentencia.data = repsvm_agresor.repsvm_tipo_sentencia
+    form.pena_impuesta.data = repsvm_agresor.pena_impuesta
+    form.observaciones.data = repsvm_agresor.observaciones
+    form.sentencia_url.data = repsvm_agresor.sentencia_url
     return render_template("repsvm_agresores/edit.jinja2", form=form, repsvm_agresor=repsvm_agresor)
 
 
