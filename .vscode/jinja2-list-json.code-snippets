@@ -57,4 +57,32 @@
         ],
         "description": "Listado"
     },
+    "Jinja2 list custom javascript": {
+        "scope": "jinja-html",
+        "prefix": "j2_list_custom_javascript",
+        "body": [
+            "{% block custom_javascript %}",
+            "\t{{ list.config_datatable() }}",
+            "\t<script>",
+            "\t\tconfigDataTable['ajax']['url'] = '/${3:blueprint}/datatable_json';",
+            "\t\tconfigDataTable['ajax']['data'] = {{ filtros }};",
+            "\t\tconfigDataTable['columns'] = [",
+            "\t\t\t{ data: 'detalle' }",
+            "\t\t];",
+            "\t\tconfigDataTable['columnDefs'] = [",
+            "\t\t\t{",
+            "\t\t\t\ttargets: 0, // detalle",
+            "\t\t\t\tdata: null,",
+            "\t\t\t\trender: function(data, type, row, meta) {",
+            "\t\t\t\t\treturn '<a href=\"' + data.url + '\">' + data.nombre + '</a>';",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t];",
+            "\t\t$('#${3:blueprint}_datatable').DataTable(configDataTable);",
+            "\t</script>",
+            "{% endblock %}",
+            ""
+        ],
+        "description": "Listado custom javascript"
+    },
 }
