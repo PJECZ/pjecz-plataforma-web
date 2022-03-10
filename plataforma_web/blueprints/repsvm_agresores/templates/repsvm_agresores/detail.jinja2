@@ -26,7 +26,7 @@
         {{ detail.label_value('Delito especifico', repsvm_agresor.repsvm_delito_especifico.descripcion) }}
         {{ detail.label_value('Delito general', repsvm_agresor.repsvm_delito_especifico.repsvm_delito_generico.nombre) }}
         {{ detail.label_value('Observaciones', repsvm_agresor.observaciones) }}
-        {{ detail.label_value('V.P. Sentencia URL', repsvm_agresor.sentencia_url) }}
+        {{ detail.label_value('V.P. Sentencia', 'URL', repsvm_agresor.sentencia_url) }}
     {% endcall %}
 {% endblock %}
 

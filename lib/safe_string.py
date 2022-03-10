@@ -13,7 +13,7 @@ TOKEN_REGEXP = r"^[a-zA-Z0-9_.=+-]+$"
 FOLIO_REGEXP = r"^\d+/[12]\d\d\d$"
 NUMERO_PUBLICACION_REGEXP = r"^\d+/[12]\d\d\d$"
 SENTENCIA_REGEXP = r"^\d+/[12]\d\d\d$"
-URL_REGEXP = r"^(https?:\/\/)[0-9a-z-_]*(\.[0-9a-z-_]+)*(\.[a-z]+)+(\/[0-9a-z-_]*)*?\/?$"
+URL_REGEXP = r"^(https?:\/\/)[0-9a-z-_]*(\.[0-9a-z-_]+)*(\.[a-z]+)+(\/[0-9a-z%-_]*)*?\/?$"
 
 def safe_clave(input_str, max_len=16):
     """Safe clave"""
