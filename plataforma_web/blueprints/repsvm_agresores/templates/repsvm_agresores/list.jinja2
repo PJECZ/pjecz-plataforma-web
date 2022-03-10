@@ -35,6 +35,7 @@
                 <tr>
                     <th>IDs</th>
                     <th>Distritos</th>
+                    <th>Consecutivo</th>
                     <th>T. Juzgados</th>
                     <th>Delitos Específicos</th>
                     <th>T. Sentencias</th>
@@ -56,6 +57,7 @@
         configDataTable['columns'] = [
             { data: "detalle" },
             { data: "distrito" },
+            { data: "consecutivo" },
             { data: "materia_tipo_juzgado" },
             { data: "repsvm_delito_especifico" },
             { data: "repsvm_tipo_sentencia" },
@@ -83,7 +85,7 @@
                 }
             },
             {
-                targets: 2, // Materia Tipo Juzgado
+                targets: 3, // Materia Tipo Juzgado
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url != '') {
@@ -93,7 +95,7 @@
                 }
             },
             {
-                targets: 3, // Delito Especifico
+                targets: 4, // Delito Especifico
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.descripcion.length > 16)
@@ -107,7 +109,7 @@
                 }
             },
             {
-                targets: 4, // Tipo Sentencia
+                targets: 5, // Tipo Sentencia
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.nombre.length > 16)
@@ -121,7 +123,7 @@
                 }
             },
             {
-                targets: 5, // Nombre
+                targets: 6, // Nombre
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 48)
@@ -131,7 +133,7 @@
                 }
             },
             {
-                targets: [6, 7], // No. Causa y Pena
+                targets: [7, 8], // No. Causa y Pena
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 16)
@@ -141,7 +143,7 @@
                 }
             },
             {
-                targets: 8, // Sentencia URL
+                targets: 9, // Sentencia URL
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data != '') {

@@ -75,6 +75,7 @@ def datatable_json():
                     "nombre": resultado.repsvm_tipo_sentencia.nombre,
                     "url": url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=resultado.repsvm_tipo_sentencia_id) if current_user.can_view("REPSVM TIPOS SENTENCIAS") else "",
                 },
+                "consecutivo": resultado.consecutivo,
                 "nombre": resultado.nombre,
                 "numero_causa": resultado.numero_causa,
                 "pena_impuesta": resultado.pena_impuesta,
@@ -121,8 +122,12 @@ def new():
     """Nuevo Agresor"""
     form = REPSVMAgresorForm()
     if form.validate_on_submit():
+        # Definir consecutivo
+        distrito = form.distrito.data
+        consecutivo = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count() + 1
+        # Insertar registro
         repsvm_agresor = REPSVMAgresor(
-            distrito=form.distrito.data,
+            distrito=distrito,
             materia_tipo_juzgado=form.materia_tipo_juzgado.data,
             numero_causa=safe_string(form.numero_causa.data),
             nombre=safe_string(form.nombre.data),
@@ -131,12 +136,13 @@ def new():
             pena_impuesta=safe_string(form.pena_impuesta.data),
             observaciones=safe_text(form.observaciones.data),
             sentencia_url=safe_url(form.sentencia_url.data),
+            consecutivo=consecutivo,
         )
         repsvm_agresor.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Agresor {repsvm_agresor.nombre}"),
+            descripcion=safe_message(f"Nuevo Agresor {repsvm_agresor.consecutivo} - {repsvm_agresor.nombre}"),
             url=url_for("repsvm_agresores.detail", repsvm_agresor_id=repsvm_agresor.id),
         )
         bitacora.save()
