@@ -5,7 +5,7 @@ import json
 from flask import Blueprint, flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -91,7 +91,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de abogados"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Abogado.query
     if "estatus" in request.form:
@@ -125,7 +125,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @abogados.route("/abogados/<int:abogado_id>")
