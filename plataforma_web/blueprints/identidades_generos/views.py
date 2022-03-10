@@ -6,7 +6,7 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_expediente, safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -86,7 +86,7 @@ def search():
 def datatable_json():
     """DataTable JSON para listado de Identidades Géneros"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = IdentidadGenero.query
     if "estatus" in request.form:
@@ -118,7 +118,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @identidades_generos.route("/identidades_generos/<int:identidad_genero_id>")

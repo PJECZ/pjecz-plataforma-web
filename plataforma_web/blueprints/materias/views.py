@@ -1,16 +1,17 @@
 """
 Materias, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias.forms import MateriaForm
-from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -26,12 +27,40 @@ def before_request():
     """Permiso por defecto"""
 
 
+@materias.route("/materias/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Materias"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = Materia.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(Materia.nombre).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("materias.detail", materia_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @materias.route("/materias")
 def list_active():
-    """Listado de Materias activas"""
+    """Listado de Materias activos"""
     return render_template(
         "materias/list.jinja2",
-        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Materias",
         estatus="A",
     )
@@ -40,11 +69,11 @@ def list_active():
 @materias.route("/materias/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Materias inactivas"""
+    """Listado de Materias inactivos"""
     return render_template(
         "materias/list.jinja2",
-        materias=Materia.query.filter_by(estatus="B").order_by(Materia.nombre).all(),
-        titulo="Materias inactivas",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Materias inactivos",
         estatus="B",
     )
 
@@ -93,7 +122,7 @@ def edit(materia_id):
         nombre = safe_string(form.nombre.data)
         if materia.nombre != nombre:
             materia_existente = Materia.query.filter_by(nombre=nombre).first()
-            if materia_existente and materia_existente.id != materia.id:
+            if materia_existente and materia_existente.id != materia_id:
                 es_valido = False
                 flash("El nombre ya está en uso. Debe de ser único.", "warning")
         # Si es valido actualizar

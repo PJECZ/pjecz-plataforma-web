@@ -8,7 +8,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_expediente, safe_message, safe_sentencia, safe_string
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.time_to_text import dia_mes_ano
@@ -232,7 +232,7 @@ def search():
 def datatable_json():
     """DataTable JSON para sentencias"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Sentencia.query
     if "estatus" in request.form:
@@ -281,7 +281,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @sentencias.route("/sentencias/datatable_json_admin", methods=["GET", "POST"])
@@ -289,7 +289,7 @@ def datatable_json():
 def datatable_json_admin():
     """DataTable JSON para sentencias admin"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Sentencia.query
     if "estatus" in request.form:
@@ -340,7 +340,7 @@ def datatable_json_admin():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @sentencias.route("/sentencias/refrescar/<int:autoridad_id>")

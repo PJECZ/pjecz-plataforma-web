@@ -5,7 +5,7 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.autoridades_funcionarios.forms import AutoridadFuncionarioWithFuncionarioForm
@@ -53,7 +53,7 @@ def list_inactive():
 def datatable_json():
     """DataTable JSON para listado de Autoridades Funcionarios"""
     # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
+    draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = AutoridadFuncionario.query
     if "estatus" in request.form:
@@ -89,7 +89,7 @@ def datatable_json():
             }
         )
     # Entregar JSON
-    return datatables.output(draw, total, data)
+    return output_datatable_json(draw, total, data)
 
 
 @autoridades_funcionarios.route("/autoridades_funcionarios/<int:autoridad_funcionario_id>")
@@ -108,12 +108,7 @@ def new_with_funcionario(funcionario_id):
     if form.validate_on_submit():
         autoridad = form.autoridad.data
         descripcion = f"{funcionario.nombre} en {autoridad.clave}"
-        if (
-            AutoridadFuncionario.query.filter(AutoridadFuncionario.autoridad == autoridad)
-            .filter(AutoridadFuncionario.funcionario == funcionario)
-            .first()
-            is not None
-        ):
+        if AutoridadFuncionario.query.filter(AutoridadFuncionario.autoridad == autoridad).filter(AutoridadFuncionario.funcionario == funcionario).first() is not None:
             flash(f"CONFLICTO: Ya existe {descripcion}. Si está eliminado puede recuperarlo.", "warning")
             return redirect(url_for("autoridades_funcionarios.list_inactive"))
         autoridad_funcionario = AutoridadFuncionario(
