@@ -1,7 +1,7 @@
 {
     "Jinja2 detail": {
         "scope": "jinja-html",
-        "prefix": "j2_detail",
+        "prefix": "j2_detail_minimal",
         "body": [
             "{% extends 'layouts/app.jinja2' %}",
             "{% import 'macros/detail.jinja2' as detail %}",
@@ -27,11 +27,11 @@
             "{% endblock %}",
             ""
         ],
-        "description": "Detail"
+        "description": "Detalle minimo"
     },
-    "Jinja2 detail edit": {
+    "Jinja2 detail edit delete recover": {
         "scope": "jinja-html",
-        "prefix": "j2_detail_edit",
+        "prefix": "j2_detail",
         "body": [
             "{% extends 'layouts/app.jinja2' %}",
             "{% import 'macros/detail.jinja2' as detail %}",
@@ -69,9 +69,9 @@
             "{% endblock %}",
             ""
         ],
-        "description": "Detail edit delete recover"
+        "description": "Detalle edit delete recover"
     },
-    "Jinja2 detail admin can edit": {
+    "Jinja2 detail admin edit delete recover": {
         "scope": "jinja-html",
         "prefix": "j2_detail_admin",
         "body": [
@@ -113,15 +113,15 @@
             "{% endblock %}",
             ""
         ],
-        "description": "Detail admin edit delete recover"
+        "description": "Detalle admin edit delete recover"
     },
-    "Jinja2 detail list": {
+    "Jinja2 detail table datatable": {
         "scope": "jinja-html",
-        "prefix": "j2_detail_list",
+        "prefix": "j2_detail_table_datatable",
         "body": [
             "{% if current_user.can_view('${1:MODULO}') %}",
             "\t{% call detail.card('${2:Titulo}') %}",
-            "\t\t<table id=\"repsvm_delitos_especificos_datatable\" class=\"table display nowrap\" style=\"width:100%\">",
+            "\t\t<table id=\"${3:blueprint}_datatable\" class=\"table display nowrap\" style=\"width:100%\">",
             "\t\t\t<thead>",
             "\t\t\t\t<tr>",
             "\t\t\t\t\t<th>Nombres</th>",
@@ -131,6 +131,33 @@
             "\t{% endcall %}",
             "{% endif %}"
         ],
-        "description": "Detail list"
+        "description": "Tabla de DataTable"
+    },
+    "Jinja2 detail table javascript": {
+        "scope": "jinja-html",
+        "prefix": "j2_detail_table_javascript",
+        "body": [
+            "{{ detail.config_datatable() }}",
+            "{% if current_user.can_view('${1:MODULO}') %}",
+            "\t<script>",
+            "\t\tconfigDataTable['ajax']['url'] = '/${2:blueprint}/datatable_json';",
+            "\t\tconfigDataTable['ajax']['data'] = { 'estatus': \"A\", '${3:instancia}_id': {{ ${3:instancia}.id}} };",
+            "\t\tconfigDataTable['columns'] = [",
+            "\t\t\t{ data: 'detalle' }",
+            "\t\t];",
+            "\t\tconfigDataTable['columnDefs'] = [",
+            "\t\t\t{",
+            "\t\t\t\ttargets: 0, // detalle",
+            "\t\t\t\tdata: null,",
+            "\t\t\t\trender: function(data, type, row, meta) {",
+            "\t\t\t\t\treturn '<a href=\"' + data.url + '\">' + data.clave + '</a>';",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t];",
+            "\t\t$('#${2:blueprint}_datatable').DataTable(configDataTable);",
+            "\t</script>",
+            "{% endif %}"
+        ],
+        "description": "JavaScript de DataTable"
     }
 }

@@ -27,29 +27,6 @@ def before_request():
     """Permiso por defecto"""
 
 
-@repsvm_agresores.route("/repsvm_agresores")
-def list_active():
-    """Listado de Agresores activos"""
-    return render_template(
-        "repsvm_agresores/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Agresores",
-        estatus="A",
-    )
-
-
-@repsvm_agresores.route("/repsvm_agresores/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_inactive():
-    """Listado de Agresores inactivos"""
-    return render_template(
-        "repsvm_agresores/list.jinja2",
-        filtros=json.dumps({"estatus": "B"}),
-        titulo="Agresores inactivos",
-        estatus="B",
-    )
-
-
 @repsvm_agresores.route("/repsvm_agresores/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Agresores"""
@@ -106,6 +83,29 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@repsvm_agresores.route("/repsvm_agresores")
+def list_active():
+    """Listado de Agresores activos"""
+    return render_template(
+        "repsvm_agresores/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Agresores",
+        estatus="A",
+    )
+
+
+@repsvm_agresores.route("/repsvm_agresores/inactivos")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def list_inactive():
+    """Listado de Agresores inactivos"""
+    return render_template(
+        "repsvm_agresores/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Agresores inactivos",
+        estatus="B",
+    )
 
 
 @repsvm_agresores.route("/repsvm_agresores/<int:repsvm_agresor_id>")
