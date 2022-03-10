@@ -118,6 +118,7 @@ def alimentar(entrada_csv):
                 pena_impuesta=safe_string(row["pena_impuesta"], do_unidecode=False),
                 observaciones=safe_text(row["observaciones"]),
                 sentencia_url=safe_url(row["sentencia_url"]),
+                consecutivo=int(row["consecutivo"]),
             ).save()
             # Incrementar contador
             contador += 1

@@ -6,7 +6,7 @@
 {% block title %}REPSVM Delito Generico{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(repsvm_delito_generico.nombre) %}
+    {% call topbar.page_buttons('REPSVM Delito Generico') %}
         {{ topbar.button_previous('Delitos Genericos', url_for('repsvm_delitos_genericos.list_active')) }}
         {% if current_user.can_edit('REPSVM DELITOS GENERICOS') %}
             {{ topbar.button_edit('Editar', url_for('repsvm_delitos_genericos.edit', repsvm_delito_generico_id=repsvm_delito_generico.id)) }}
