@@ -27,28 +27,54 @@ def before_request():
     """Permiso por defecto"""
 
 
-@repsvm_delitos_genericos.route("/repsvm_delitos_genericos")
+@repsvm_delitos_genericos.route('/repsvm_delitos_genericos/datatable_json', methods=['GET', 'POST'])
+def datatable_json():
+    """DataTable JSON para listado de Delitos Genericos"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = REPSVMDelitoGenerico.query
+    if 'estatus' in request.form:
+        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    else:
+        consulta = consulta.filter_by(estatus='A')
+    registros = consulta.order_by(REPSVMDelitoGenerico.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                'detalle': {
+                    'nombre': resultado.nombre,
+                    'url': url_for('repsvm_delitos_genericos.detail', repsvm_delito_generico_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@repsvm_delitos_genericos.route('/repsvm_delitos_genericos')
 def list_active():
     """Listado de Delitos Genericos activos"""
-    repsvm_delitos_genericos_activos = REPSVMDelitoGenerico.query.filter(REPSVMDelitoGenerico.estatus == "A").all()
     return render_template(
-        "repsvm_delitos_genericos/list.jinja2",
-        repsvm_delitos_genericos=repsvm_delitos_genericos_activos,
-        titulo="Delitos Genericos",
-        estatus="A",
+        'repsvm_delitos_genericos/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Delitos Genericos',
+        estatus='A',
     )
 
 
-@repsvm_delitos_genericos.route("/repsvm_delitos_genericos/inactivos")
+@repsvm_delitos_genericos.route('/repsvm_delitos_genericos/inactivos')
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Delitos Genericos inactivos"""
-    repsvm_delitos_genericos_inactivos = REPSVMDelitoGenerico.query.filter(REPSVMDelitoGenerico.estatus == "B").all()
     return render_template(
-        "repsvm_delitos_genericos/list.jinja2",
-        repsvm_delitos_genericos=repsvm_delitos_genericos_inactivos,
-        titulo="Delitos Genericos inactivos",
-        estatus="B",
+        'repsvm_delitos_genericos/list.jinja2',
+        filtros=json.dumps({'estatus': 'B'}),
+        titulo='Delitos Genericos inactivos',
+        estatus='B',
     )
 
 

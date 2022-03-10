@@ -20,11 +20,42 @@
     {% call detail.card(estatus=repsvm_delito_generico.estatus) %}
         {{ detail.label_value_big('Nombre', repsvm_delito_generico.nombre) }}
     {% endcall %}
+    {% if current_user.can_view('REPSVM DELITOS ESPECIFICOS') %}
+        {% call detail.card('Delitos específicos') %}
+            <table id="repsvm_delitos_especificos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Descripciones</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('REPSVM DELITOS GENERICOS') %}
         {% if repsvm_delito_generico.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + repsvm_delito_generico.nombre + '?') }}{% endif %}
         {% if repsvm_delito_generico.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + repsvm_delito_generico.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('REPSVM DELITOS ESPECIFICOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/repsvm_delitos_especificos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': 'A', 'repsvm_delito_generico_id': {{repsvm_delito_generico.id}} };
+            configDataTable['columns'] = [
+                { data: 'detalle' }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            ];
+            $('#repsvm_delitos_especificos_datatable').DataTable(configDataTable);
+        </script>
     {% endif %}
 {% endblock %}

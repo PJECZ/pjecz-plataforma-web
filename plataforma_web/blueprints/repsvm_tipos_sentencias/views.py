@@ -27,13 +27,40 @@ def before_request():
     """Permiso por defecto"""
 
 
+@repsvm_tipos_sentencias.route("/repsvm_tipos_sentencias/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Tipos de Sentencias"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = REPSVMTipoSentencia.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(REPSVMTipoSentencia.nombre).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @repsvm_tipos_sentencias.route("/repsvm_tipos_sentencias")
 def list_active():
     """Listado de Tipos de Sentencias activos"""
-    repsvm_tipos_sentencias_activos = REPSVMTipoSentencia.query.filter(REPSVMTipoSentencia.estatus == "A").all()
     return render_template(
         "repsvm_tipos_sentencias/list.jinja2",
-        repsvm_tipos_sentencias=repsvm_tipos_sentencias_activos,
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Tipos de Sentencias",
         estatus="A",
     )
@@ -42,12 +69,11 @@ def list_active():
 @repsvm_tipos_sentencias.route("/repsvm_tipos_sentencias/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Tipos de Sentencias inactivos"""
-    repsvm_tipos_sentencias_inactivos = REPSVMTipoSentencia.query.filter(REPSVMTipoSentencia.estatus == "B").all()
+    """Listado de Tipos de Sentencias inactivas"""
     return render_template(
         "repsvm_tipos_sentencias/list.jinja2",
-        repsvm_tipos_sentencias=repsvm_tipos_sentencias_inactivos,
-        titulo="Tipos de Sentencias inactivos",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Tipos de Sentencias inactivas",
         estatus="B",
     )
 
@@ -112,8 +138,8 @@ def edit(repsvm_tipo_sentencia_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.nombre.data = repsvm.nombre
-    return render_template("repsvm_tipos_sentencias/edit.jinja2", form=form, repsvm=repsvm)
+    form.nombre.data = repsvm_tipo_sentencia.nombre
+    return render_template("repsvm_tipos_sentencias/edit.jinja2", form=form, repsvm_tipo_sentencia=repsvm_tipo_sentencia)
 
 
 @repsvm_tipos_sentencias.route("/repsvm_tipos_sentencias/eliminar/<int:repsvm_tipo_sentencia_id>")
