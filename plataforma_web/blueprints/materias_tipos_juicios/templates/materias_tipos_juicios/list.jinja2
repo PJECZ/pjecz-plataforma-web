@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('MATERIAS') %}
+        {% if current_user.can_view('MATERIAS') %}
             {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
         {% endif %}
         {% if current_user.can_edit('MATERIAS TIPOS JUICIOS') %}
