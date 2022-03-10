@@ -29,6 +29,7 @@
                     <tr>
                         <th>IDs</th>
                         <th>Distritos</th>
+                        <th>Consecutivo</th>
                         <th>Delitos Específicos</th>
                         <th>T. Sentencias</th>
                         <th>Nombres</th>
@@ -55,6 +56,7 @@
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "distrito" },
+                { data: "consecutivo" },
                 { data: "repsvm_delito_especifico" },
                 { data: "repsvm_tipo_sentencia" },
                 { data: "nombre" },
@@ -81,7 +83,7 @@
                 }
             },
             {
-                targets: 2, // Delito Especifico
+                targets: 3, // Delito Especifico
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.descripcion.length > 16)
@@ -95,7 +97,7 @@
                 }
             },
             {
-                targets: 3, // Tipo Sentencia
+                targets: 4, // Tipo Sentencia
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.nombre.length > 16)
@@ -109,7 +111,7 @@
                 }
             },
             {
-                targets: 4, // Nombre
+                targets: 5, // Nombre
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 48)
@@ -119,7 +121,7 @@
                 }
             },
             {
-                targets: [5, 6], // No. Causa y Pena
+                targets: [6, 7], // No. Causa y Pena
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 16)
@@ -129,7 +131,7 @@
                 }
             },
             {
-                targets: 7, // Sentencia URL
+                targets: 8, // Sentencia URL
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data != '') {
