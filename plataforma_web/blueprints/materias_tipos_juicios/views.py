@@ -27,29 +27,6 @@ def before_request():
     """Permiso por defecto"""
 
 
-@materias_tipos_juicios.route("/materias_tipos_juicios")
-def list_active():
-    """Listado de Tipos de Juicios activos"""
-    return render_template(
-        "materias_tipos_juicios/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Tipos de Juicios",
-        estatus="A",
-    )
-
-
-@materias_tipos_juicios.route("/materias_tipos_juicios/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_inactive():
-    """Listado de Tipos de Juicios inactivos"""
-    return render_template(
-        "materias_tipos_juicios/list.jinja2",
-        filtros=json.dumps({"estatus": "B"}),
-        titulo="Tipos de Juicios inactivos",
-        estatus="B",
-    )
-
-
 @materias_tipos_juicios.route("/materias_tipos_juicios/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Tipos de Juicios"""
@@ -82,6 +59,29 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@materias_tipos_juicios.route("/materias_tipos_juicios")
+def list_active():
+    """Listado de Tipos de Juicios activos"""
+    return render_template(
+        "materias_tipos_juicios/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Tipos de Juicios",
+        estatus="A",
+    )
+
+
+@materias_tipos_juicios.route("/materias_tipos_juicios/inactivos")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def list_inactive():
+    """Listado de Tipos de Juicios inactivos"""
+    return render_template(
+        "materias_tipos_juicios/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Tipos de Juicios inactivos",
+        estatus="B",
+    )
 
 
 @materias_tipos_juicios.route("/materias/tipos_juicios/<int:materia_tipo_juicio_id>")

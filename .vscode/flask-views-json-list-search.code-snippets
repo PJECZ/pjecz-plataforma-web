@@ -1,0 +1,102 @@
+{
+	"Flask views datatable json": {
+		"scope": "python",
+		"prefix": "fviews_datatable_json",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/datatable_json', methods=['GET', 'POST'])",
+			"def datatable_json():",
+			"\t\"\"\"DataTable JSON para listado de ${2:Modulo}\"\"\"",
+			"\t# Tomar parámetros de Datatables",
+			"\tdraw, start, rows_per_page = get_datatable_parameters()",
+			"\t# Consultar",
+			"\tconsulta = ${3:Class}.query",
+			"\tif 'estatus' in request.form:",
+			"\t\tconsulta = consulta.filter_by(estatus=request.form['estatus'])",
+			"\telse:",
+			"\t\tconsulta = consulta.filter_by(estatus='A')",
+			"\tregistros = consulta.order_by(${3:Class}.id.desc()).offset(start).limit(rows_per_page).all()",
+			"\ttotal = consulta.count()",
+			"\t# Elaborar datos para DataTable",
+			"\tdata = []",
+			"\tfor resultado in registros:",
+			"\t\tdata.append(",
+			"\t\t\t{",
+			"\t\t\t\t'creado': resultado.creado.strftime('%Y-%m-%d %H:%M:%S'),",
+			"\t\t\t\t'fecha': resultado.fecha.strftime('%Y-%m-%d 00:00:00'),",
+			"\t\t\t\t'detalle': {",
+			"\t\t\t\t\t'descripcion': resultado.descripcion,",
+			"\t\t\t\t\t'url': url_for('${1:blueprint}.detail', ${4:instance}_id=resultado.id),",
+			"\t\t\t\t},",
+			"\t\t\t}",
+			"\t\t)",
+			"\t# Entregar JSON",
+			"\treturn output_datatable_json(draw, total, data)",
+			"",
+			""
+		],
+		"description": "Vista DataTable JSON"
+	},
+	"Flask views list_active": {
+		"scope": "python",
+		"prefix": "fviews_list_active",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}')",
+			"def list_active():",
+			"\t\"\"\"Listado de ${2:Modulo} activos\"\"\"",
+			"\treturn render_template(",
+			"\t\t'${1:blueprint}/list.jinja2',",
+			"\t\tfiltros=json.dumps({'estatus': 'A'}),",
+			"\t\ttitulo='${2:Modulo}',",
+			"\t\testatus='A',",
+			"\t)",
+			""
+		],
+		"description": "Vista listado de registros activos"
+	},
+	"Flask views list_inactive": {
+		"scope": "python",
+		"prefix": "fviews_list_inactive",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/inactivos')",
+			"@permission_required(MODULO, Permiso.MODIFICAR)",
+			"def list_inactive():",
+			"\t\"\"\"Listado de ${2:Modulo} inactivos\"\"\"",
+			"\treturn render_template(",
+			"\t\t'${1:blueprint}/list.jinja2',",
+			"\t\tfiltros=json.dumps({'estatus': 'B'}),",
+			"\t\ttitulo='${2:Modulo} inactivos',",
+			"\t\testatus='B',",
+			"\t)",
+			""
+		],
+		"description": "Vista listado de registros inactivos"
+	},
+	"Flask views search": {
+		"scope": "python",
+		"prefix": "fviews_search",
+		"body": [
+			"@${1:blueprint}.route('/${1:blueprint}/buscar', methods=['GET', 'POST'])",
+			"def search():",
+			"\t\"\"\"Buscar ${2:Modulo}\"\"\"",
+			"\tform_search = ${3:ClaseSearchForm}()",
+			"\tif form_search.validate_on_submit():",
+			"\t\tbusqueda = {'estatus': 'A'}",
+			"\t\ttitulos = []",
+			"\t\tif form_search.${4:nombre_o_descripcion}.data:",
+			"\t\t\t${4:nombre_o_descripcion} = safe_string(form_search.${4:nombre_o_descripcion}.data)",
+			"\t\t\tif ${4:nombre_o_descripcion} != '':",
+			"\t\t\t\tbusqueda['${4:nombre_o_descripcion}'] = ${4:nombre_o_descripcion}",
+			"\t\t\t\ttitulos.append('${4:nombre_o_descripcion} ' + ${4:nombre_o_descripcion})",
+			"\t\treturn render_template(",
+			"\t\t\t'${1:blueprint}/list.jinja2',",
+			"\t\t\tfiltros=json.dumps(busqueda),",
+			"\t\t\ttitulo='${2:Modulo} con ' + ', '.join(titulos),",
+			"\t\t\testatus='A',",
+			"\t\t)",
+			"\treturn render_template('${1:blueprint}/search.jinja2', form=form_search)",
+			"",
+			""
+		],
+		"description": "Vista buscar"
+	}
+}
