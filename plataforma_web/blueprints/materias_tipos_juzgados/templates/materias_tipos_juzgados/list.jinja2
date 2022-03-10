@@ -33,10 +33,10 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ detail.config_datatable() }}
+    {{ list.config_datatable() }}
     <script>
         configDataTable['ajax']['url'] = '/materias_tipos_juzgados/datatable_json';
-        configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.materia_id}} };
+        configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "materia" },
             { data: "detalle" }
@@ -48,9 +48,9 @@
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.nombre + '</a>';
                 }
-            }
+            },
             {
-                targets: 0, // detalle
+                targets: 1, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.descripcion + '</a>';

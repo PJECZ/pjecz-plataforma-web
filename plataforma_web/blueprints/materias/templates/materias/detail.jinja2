@@ -64,7 +64,7 @@
     {% if current_user.can_view('AUTORIDADES') %}
         <script>
             configDataTable['ajax']['url'] = '/autoridades/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.materia_id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "descripcion_corta" },
@@ -96,16 +96,16 @@
     {% if current_user.can_view('MATERIAS TIPOS JUICIOS') %}
         <script>
             configDataTable['ajax']['url'] = '/materias_tipos_juicios/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.materia_id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.id}} };
             configDataTable['columns'] = [
-                { data: "detalle" },
+                { data: "detalle" }
             ];
             configDataTable['columnDefs'] = [
                 {
                     targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
                 }
             ];
@@ -115,9 +115,9 @@
     {% if current_user.can_view('MATERIAS TIPOS JUZGADOS') %}
         <script>
             configDataTable['ajax']['url'] = '/materias_tipos_juzgados/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.materia_id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.id}} };
             configDataTable['columns'] = [
-                { data: "detalle" },
+                { data: "detalle" }
             ];
             configDataTable['columnDefs'] = [
                 {

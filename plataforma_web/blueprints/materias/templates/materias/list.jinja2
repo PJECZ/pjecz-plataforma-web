@@ -30,17 +30,27 @@
                     <th>Materias</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for materia in materias %}
-                <tr>
-                    <td><a href="{{ url_for('materias.detail', materia_id=materia.id) }}">{{ materia.nombre }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('materias_datatable', order='asc') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/materias/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "detalle" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            }
+        ];
+        $('#materias_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}
