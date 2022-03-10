@@ -6,7 +6,7 @@ REPSVM
 import csv
 from pathlib import Path
 import click
-from lib.safe_string import safe_string, safe_text
+from lib.safe_string import safe_string, safe_text, safe_url
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -92,13 +92,14 @@ def alimentar(entrada_csv):
             if repsvm_tipo_sentencia is None:
                 repsvm_tipo_sentencia = REPSVMTipoSentencia(nombre=repsvm_tipo_sentencia_nombre).save()
                 click.echo(f"+ Se agrega el tipo de sentencia {repsvm_tipo_sentencia_nombre}")
-            # Delitos
-            repsvm_delito_generico_nombre = safe_string(row["delito_generico"], do_unidecode=False)
+            # Delito generico
+            repsvm_delito_generico_nombre = safe_string(row["delito_generico"])
             repsvm_delito_generico = REPSVMDelitoGenerico.query.filter_by(nombre=repsvm_delito_generico_nombre).first()
             if repsvm_delito_generico is None:
                 repsvm_delito_generico = REPSVMDelitoGenerico(nombre=repsvm_delito_generico_nombre).save()
                 click.echo(f"+ Se agrega el delito generico {repsvm_delito_generico_nombre}")
-            repsvm_delito_especifico_descripcion = safe_string(row["delito_especifico"], do_unidecode=False)
+            # Delito especifico
+            repsvm_delito_especifico_descripcion = safe_string(row["delito_especifico"])
             repsvm_delito_especifico = REPSVMDelitoEspecifico.query.filter(REPSVMDelitoEspecifico.repsvm_delito_generico == repsvm_delito_generico).filter_by(descripcion=repsvm_delito_especifico_descripcion).first()
             if repsvm_delito_especifico is None:
                 repsvm_delito_especifico = REPSVMDelitoEspecifico(
@@ -115,8 +116,8 @@ def alimentar(entrada_csv):
                 nombre=safe_string(row["nombre"]),
                 numero_causa=safe_string(row["numero_causa"]),
                 pena_impuesta=safe_string(row["pena_impuesta"], do_unidecode=False),
-                observaciones=safe_text(row["observaciones"], to_uppercase=True),
-                sentencia_url=row["sentencia_url"].strip(),
+                observaciones=safe_text(row["observaciones"]),
+                sentencia_url=safe_url(row["sentencia_url"]),
             ).save()
             # Incrementar contador
             contador += 1
