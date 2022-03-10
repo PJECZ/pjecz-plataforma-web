@@ -91,7 +91,7 @@
             </table>
         {% endcall %}
     {% endif %}
-    {% if current_user.can_edit('SOPORTES TICKETS') %}
+    {% if current_user.can_view('INV CUSTODIAS') %}
         {% call list.card('Custodias') %}
             <table id="inv_custodias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
@@ -224,58 +224,60 @@
         });
         </script>
         {# script datatables inventarios custodias#}
-        <script>
-        $('#inv_custodias_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/inv_custodias/datatable_json",
-                type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                dataType: "json",
-                dataSrc: "data",
-                data: { "estatus": "A", "usuario_id": {{usuario.id}} }
-            },
-            columns: [
-                { data: "id" },
-                { data: "fecha" },
-                { data: "oficina" },
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
-                    }
+        {% if current_user.can_view('INV CUSTODIAS') %}
+            <script>
+            $('#inv_custodias_datatable').DataTable({
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                searching: false,
+                responsive: true,
+                scrollX: true,
+                ajax: {
+                    url: "/inv_custodias/datatable_json",
+                    type: "POST",
+                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                    dataType: "json",
+                    dataSrc: "data",
+                    data: { "estatus": "A", "usuario_id": {{usuario.id}} }
                 },
-                {
-                    targets: 2,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                columns: [
+                    { data: "id" },
+                    { data: "fecha" },
+                    { data: "oficina" },
+                ],
+                columnDefs: [
+                    {
+                        targets: 0,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 2,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                    },
+                ],
+                language: {
+                    lengthMenu: "Mostrar _MENU_",
+                    search: "Filtrar:",
+                    zeroRecords: "No se encontraron registros",
+                    info: "Total de registros _TOTAL_ ",
+                    infoEmpty: "No hay registros",
+                    infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                    oPaginate: {
+                        sFirst: "Primero",
+                        sLast: "Último",
+                        sNext: "Siguiente",
+                        sPrevious: "Anterior"
                     }
-                },
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
                 }
-            }
-        });
-    </script>
+            });
+        </script>
+    {% endif %}
 {% endblock %}
     
