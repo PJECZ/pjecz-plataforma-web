@@ -38,62 +38,36 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ list.config_datatable() }}
     <script>
-        $('#domicilios_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/domicilios/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
-            },
-            columns: [
-                { data: "detalle" },
-                { data: "estado" },
-                { data: "municipio" },
-                { data: "calle" },
-                { data: "num_ext" },
-                { data: "num_int" },
-                { data: "colonia" },
-                { data: "cp" },
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: [1, 2, 3, 6],
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return data.length > 16 ? data.substr(0, 16) + '…' : data;
-                    }
+        configDataTable['ajax']['url'] = '/domicilios/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "detalle" },
+            { data: "estado" },
+            { data: "municipio" },
+            { data: "calle" },
+            { data: "num_ext" },
+            { data: "num_int" },
+            { data: "colonia" },
+            { data: "cp" },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, //detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+            },
+            {
+                targets: [1, 2, 3, 6], // estado, municipio, calle, colonia
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.length > 16 ? data.substr(0, 16) + '…' : data;
                 }
             }
-        });
+        ];
+        $('#domicilios_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}

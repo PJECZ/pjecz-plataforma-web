@@ -27,6 +27,47 @@ def before_request():
     """Permiso por defecto"""
 
 
+@abogados.route("/abogados/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de abogados"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = Abogado.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(Abogado.fecha >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(Abogado.fecha <= request.form["fecha_hasta"])
+    if "numero" in request.form:
+        consulta = consulta.filter_by(numero=safe_string(request.form["numero"]))
+    if "libro" in request.form:
+        consulta = consulta.filter_by(libro=safe_string(request.form["libro"]))
+    if "nombre" in request.form:
+        consulta = consulta.filter(Abogado.nombre.contains(safe_string(request.form["nombre"])))
+    registros = consulta.order_by(Abogado.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for abogado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": abogado.nombre,
+                    "url": url_for("abogados.detail", abogado_id=abogado.id),
+                },
+                "fecha": abogado.fecha.strftime("%Y-%m-%d 00:00:00"),
+                "numero": abogado.numero,
+                "libro": abogado.libro,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @abogados.route("/abogados")
 def list_active():
     """Listado de Abogados activos"""
@@ -85,47 +126,6 @@ def search():
             estatus="A",
         )
     return render_template("abogados/search.jinja2", form=form_search)
-
-
-@abogados.route("/abogados/datatable_json", methods=["GET", "POST"])
-def datatable_json():
-    """DataTable JSON para listado de abogados"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = get_datatable_parameters()
-    # Consultar
-    consulta = Abogado.query
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    if "fecha_desde" in request.form:
-        consulta = consulta.filter(Abogado.fecha >= request.form["fecha_desde"])
-    if "fecha_hasta" in request.form:
-        consulta = consulta.filter(Abogado.fecha <= request.form["fecha_hasta"])
-    if "numero" in request.form:
-        consulta = consulta.filter_by(numero=safe_string(request.form["numero"]))
-    if "libro" in request.form:
-        consulta = consulta.filter_by(libro=safe_string(request.form["libro"]))
-    if "nombre" in request.form:
-        consulta = consulta.filter(Abogado.nombre.like("%" + safe_string(request.form["nombre"]) + "%"))
-    registros = consulta.order_by(Abogado.id.desc()).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for abogado in registros:
-        data.append(
-            {
-                "fecha": abogado.fecha.strftime("%Y-%m-%d 00:00:00"),
-                "numero": abogado.numero,
-                "libro": abogado.libro,
-                "detalle": {
-                    "nombre": abogado.nombre,
-                    "url": url_for("abogados.detail", abogado_id=abogado.id),
-                },
-            }
-        )
-    # Entregar JSON
-    return output_datatable_json(draw, total, data)
 
 
 @abogados.route("/abogados/<int:abogado_id>")
