@@ -50,7 +50,7 @@ def datatable_json():
                     "url": url_for("distritos.detail", distrito_id=resultado.id),
                 },
                 "nombre_corto": resultado.nombre_corto,
-                "estatus": resultado.estatus,
+                "es_distrito_judicial": resultado.es_distrito_judicial,
             }
         )
     # Entregar JSON
