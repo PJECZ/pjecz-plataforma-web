@@ -39,88 +39,62 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ list.config_datatable() }}
     <script>
-        $('#oficinas_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/oficinas/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
+        configDataTable['ajax']['url'] = '/oficinas/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "detalle" },
+            { data: "descripcion_corta" },
+            { data: "domicilio" },
+            { data: "distrito" },
+            { data: "apertura" },
+            { data: "cierre" },
+            { data: "limite_personas" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
             },
-            columns: [
-                { data: "detalle" },
-                { data: "descripcion_corta" },
-                { data: "domicilio" },
-                { data: "distrito" },
-                { data: "apertura" },
-                { data: "cierre" },
-                { data: "limite_personas" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+            {
+                targets: 1, // descripcion_corta
+                data: null,
+                render: function(data, type, row, meta) {
+                    return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                }
+            },
+            {
+                targets: 2, // domicilio
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.completo.length > 32) {
+                        texto = data.completo.substr(0, 32) + '…';
+                    } else {
+                        texto = data.completo;
                     }
-                },
-                {
-                    targets: 1,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
-                    }
-                },
-                {
-                    targets: 2,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.completo.length > 32) {
-                            texto = data.completo.substr(0, 32) + '…';
-                        } else {
-                            texto = data.completo;
-                        }
-                        if (data.url == '') {
-                            return texto;
-                        } else {
-                            return '<a href="' + data.url + '">' + texto + '</a>';
-                        }
-                    }
-                },
-                {
-                    targets: 3,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.nombre_corto;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
-                        }
+                    if (data.url == '') {
+                        return texto;
+                    } else {
+                        return '<a href="' + data.url + '">' + texto + '</a>';
                     }
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+            },
+            {
+                targets: 3, // distrito
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre_corto;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                    }
                 }
             }
-        });
+        ];
+        $('#oficinas_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}
