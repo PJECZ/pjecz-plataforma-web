@@ -6,7 +6,7 @@
 {% block title %}REPSVM Agresor{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(repsvm_agresor.nombre) %}
+    {% call topbar.page_buttons('REPSVM Agresor') %}
         {{ topbar.button_previous('Agresores', url_for('repsvm_agresores.list_active')) }}
         {% if current_user.can_edit('REPSVM AGRESORES') %}
             {{ topbar.button_edit('Editar', url_for('repsvm_agresores.edit', repsvm_agresor_id=repsvm_agresor.id)) }}
@@ -19,12 +19,13 @@
 {% block content %}
     {% call detail.card(estatus=repsvm_agresor.estatus) %}
         {{ detail.label_value_big('Nombre', repsvm_agresor.nombre) }}
-        {{ detail.label_value('Distrito', repsvm_agresor.distrito.nombre) }}
-        {{ detail.label_value('Tipo de Juzgado', repsvm_agresor.materia_tipo_juzgado.descripcion) }}
+        {{ detail.label_value('Distrito', repsvm_agresor.distrito.nombre, url_for('distritos.detail', distrito_id=repsvm_agresor.distrito_id)) }}
+        {{ detail.label_value('Consecutivo', repsvm_agresor.consecutivo) }}
+        {{ detail.label_value('Tipo de Juzgado', repsvm_agresor.materia_tipo_juzgado.descripcion, url_for('materias_tipos_juzgados.detail', materia_tipo_juzgado_id=repsvm_agresor.materia_tipo_juzgado_id)) }}
         {{ detail.label_value('Numero de causa', repsvm_agresor.numero_causa) }}
         {{ detail.label_value('Pena impuesta', repsvm_agresor.pena_impuesta) }}
-        {{ detail.label_value('Delito especifico', repsvm_agresor.repsvm_delito_especifico.descripcion) }}
-        {{ detail.label_value('Delito general', repsvm_agresor.repsvm_delito_especifico.repsvm_delito_generico.nombre) }}
+        {{ detail.label_value('Delito especifico', repsvm_agresor.repsvm_delito_especifico.descripcion, url_for('repsvm_delitos_especificos.detail', repsvm_delito_especifico_id=repsvm_agresor.repsvm_delito_especifico_id)) }}
+        {{ detail.label_value('Delito generico', repsvm_agresor.repsvm_delito_especifico.repsvm_delito_generico.nombre, url_for('repsvm_delitos_genericos.detail', repsvm_delito_generico_id=repsvm_agresor.repsvm_delito_especifico.repsvm_delito_generico_id)) }}
         {{ detail.label_value('Observaciones', repsvm_agresor.observaciones) }}
         {{ detail.label_value('V.P. Sentencia', 'URL', repsvm_agresor.sentencia_url) }}
     {% endcall %}

@@ -35,50 +35,24 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ list.config_datatable() }}
     <script>
-        $('#peritos_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/peritos/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
-            },
-            columns: [
-                { data: "detalle" },
-                { data: "perito_tipo_nombre" },
-                { data: "distrito_nombre" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                    }
-                }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+        configDataTable['ajax']['url'] = '/peritos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "detalle" },
+            { data: "perito_tipo" },
+            { data: "distrito" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: [0, 1, 2], // detalle, perito_tipo_nombre, distrito
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
                 }
             }
-        });
+        ];
+        $('#peritos_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}

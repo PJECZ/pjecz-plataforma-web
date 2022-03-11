@@ -27,6 +27,54 @@ def before_request():
     """Permiso por defecto"""
 
 
+@oficinas.route("/oficinas/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Oficinas"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = Oficina.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "distrito_id" in request.form:
+        consulta = consulta.filter(Oficina.distrito_id == request.form["distrito_id"])
+    if "domicilio_id" in request.form:
+        consulta = consulta.filter_by(domicilio_id=request.form["domicilio_id"])
+    if "clave" in request.form:
+        consulta = consulta.filter(Oficina.clave.contains(safe_string(request.form["clave"])))
+    if "descripcion" in request.form:
+        consulta = consulta.filter(Oficina.descripcion.contains(safe_string(request.form["descripcion"])))
+    registros = consulta.order_by(Oficina.clave).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "clave": resultado.clave,
+                    "url": url_for("oficinas.detail", oficina_id=resultado.id),
+                },
+                "descripcion_corta": resultado.descripcion_corta,
+                "domicilio": {
+                    "completo": resultado.domicilio.completo,
+                    "url": url_for("domicilios.detail", domicilio_id=resultado.domicilio_id) if current_user.can_view("DOMICILIOS") else "",
+                },
+                "distrito": {
+                    "nombre_corto": resultado.distrito.nombre_corto,
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
+                },
+                "apertura": resultado.apertura.strftime("%H:%M"),
+                "cierre": resultado.cierre.strftime("%H:%M"),
+                "limite_personas": resultado.limite_personas,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @oficinas.route("/oficinas")
 def list_active():
     """Listado de Oficinas activas"""
@@ -74,54 +122,6 @@ def search():
             estatus="A",
         )
     return render_template("oficinas/search.jinja2", form=form_search)
-
-
-@oficinas.route("/oficinas/datatable_json", methods=["GET", "POST"])
-def datatable_json():
-    """DataTable JSON para listado de Oficinas"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = get_datatable_parameters()
-    # Consultar
-    consulta = Oficina.query
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    if "distrito_id" in request.form:
-        consulta = consulta.filter(Oficina.distrito_id == request.form["distrito_id"])
-    if "domicilio_id" in request.form:
-        consulta = consulta.filter_by(domicilio_id=request.form["domicilio_id"])
-    if "clave" in request.form:
-        consulta = consulta.filter(Oficina.clave.contains(safe_string(request.form["clave"])))
-    if "descripcion" in request.form:
-        consulta = consulta.filter(Oficina.descripcion.contains(safe_string(request.form["descripcion"])))
-    registros = consulta.order_by(Oficina.clave).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for resultado in registros:
-        data.append(
-            {
-                "detalle": {
-                    "clave": resultado.clave,
-                    "url": url_for("oficinas.detail", oficina_id=resultado.id),
-                },
-                "descripcion_corta": resultado.descripcion_corta,
-                "domicilio": {
-                    "completo": resultado.domicilio.completo,
-                    "url": url_for("domicilios.detail", domicilio_id=resultado.domicilio_id) if current_user.can_view("DOMICILIOS") else "",
-                },
-                "distrito": {
-                    "nombre_corto": resultado.distrito.nombre_corto,
-                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
-                },
-                "apertura": resultado.apertura.strftime("%H:%M"),
-                "cierre": resultado.cierre.strftime("%H:%M"),
-                "limite_personas": resultado.limite_personas,
-            }
-        )
-    # Entregar JSON
-    return output_datatable_json(draw, total, data)
 
 
 @oficinas.route("/oficinas/<int:oficina_id>")

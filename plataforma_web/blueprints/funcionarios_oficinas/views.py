@@ -25,29 +25,6 @@ def before_request():
     """Permiso por defecto"""
 
 
-@funcionarios_oficinas.route("/funcionarios_oficinas")
-def list_active():
-    """Listado de Funcionarios Oficinas activos"""
-    return render_template(
-        "funcionarios_oficinas/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Funcionarios Oficinas",
-        estatus="A",
-    )
-
-
-@funcionarios_oficinas.route("/funcionarios_oficinas/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_inactive():
-    """Listado de Funcionarios Oficinas inactivos"""
-    return render_template(
-        "funcionarios_oficinas/list.jinja2",
-        filtros=json.dumps({"estatus": "B"}),
-        titulo="Funcionarios Oficinas inactivos",
-        estatus="B",
-    )
-
-
 @funcionarios_oficinas.route("/funcionarios_oficinas/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Funcionarios Oficinas"""
@@ -79,19 +56,38 @@ def datatable_json():
                     "url": url_for("funcionarios.detail", funcionario_id=resultado.funcionario_id) if current_user.can_view("FUNCIONARIOS") else "",
                 },
                 "funcionario_nombre": resultado.funcionario.nombre,
-                "funcionario_email": resultado.funcionario.email,
-                "funcionario_puesto": resultado.funcionario.puesto,
                 "oficina": {
                     "clave": resultado.oficina.clave,
                     "url": url_for("oficinas.detail", oficina_id=resultado.oficina_id) if current_user.can_view("OFICINAS") else "",
                 },
                 "oficina_descripcion_corta": resultado.oficina.descripcion_corta,
-                "oficina_domicilio_completo": resultado.oficina.domicilio.completo,
-                "oficina_distrito_nombre_corto": resultado.oficina.distrito.nombre_corto,
             }
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@funcionarios_oficinas.route("/funcionarios_oficinas")
+def list_active():
+    """Listado de Funcionarios Oficinas activos"""
+    return render_template(
+        "funcionarios_oficinas/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Funcionarios Oficinas",
+        estatus="A",
+    )
+
+
+@funcionarios_oficinas.route("/funcionarios_oficinas/inactivos")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def list_inactive():
+    """Listado de Funcionarios Oficinas inactivos"""
+    return render_template(
+        "funcionarios_oficinas/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Funcionarios Oficinas inactivos",
+        estatus="B",
+    )
 
 
 @funcionarios_oficinas.route("/funcionarios_oficinas/<int:funcionario_oficina_id>")
