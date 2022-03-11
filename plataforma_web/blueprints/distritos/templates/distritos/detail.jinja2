@@ -28,10 +28,10 @@
             <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Claves</th>
-                        <th>Descripciones cortas</th>
-                        <th>Órganos Jurisdiccionales</th>
-                        <th>Materias</th>
+                        <th>Clave</th>
+                        <th>Descripción corta</th>
+                        <th>Órgano Jurisdiccional</th>
+                        <th>Materia</th>
                     </tr>
                 </thead>
             </table>
@@ -42,11 +42,11 @@
             <table id="oficinas_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Claves</th>
-                        <th>Descripciones</th>
-                        <th>Domicilios</th>
-                        <th>Aperturas</th>
-                        <th>Cierres</th>
+                        <th>Clave</th>
+                        <th>Descripción</th>
+                        <th>Domicilio</th>
+                        <th>Apertura</th>
+                        <th>Cierre</th>
                         <th>L. P.</th>
                     </tr>
                 </thead>
@@ -58,15 +58,15 @@
             <table id="repsvm_agresores_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>IDs</th>
+                        <th>ID</th>
                         <th>Consecutivo</th>
-                        <th>T. Juzgados</th>
-                        <th>Delitos Específicos</th>
-                        <th>T. Sentencias</th>
-                        <th>Nombres</th>
+                        <th>T. Juzgado</th>
+                        <th>Delito Específico</th>
+                        <th>T. Sentencia</th>
+                        <th>Nombre</th>
                         <th>No. Causa</th>
-                        <th>Penas Impuestas</th>
-                        <th>URL</th>
+                        <th>Pena Impuesta</th>
+                        <th>Sentencia URL</th>
                     </tr>
                 </thead>
             </table>
@@ -88,16 +88,27 @@
                 { data: "detalle" },
                 { data: "descripcion_corta" },
                 { data: "organo_jurisdiccional" },
-                { data: "materia_nombre" }
+                { data: "materia" }
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: 0,
+                    targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
+                },
+            {
+                targets: 3, // materia
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
                 }
+            }
             ];
             $('#autoridades_datatable').DataTable(configDataTable);
         </script>
@@ -116,21 +127,21 @@
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: 0,
+                    targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
                 },
                 {
-                    targets: 1,
+                    targets: 1, // descripcion_corta
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 48 ? data.substr(0, 48) + '…' : data);
                     }
                 },
                 {
-                    targets: 2,
+                    targets: 2, // domicilio
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.completo.length > 32) {
@@ -166,14 +177,14 @@
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: 0, // ID
+                    targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: 2, // Materia Tipo Juzgado
+                    targets: 2, // materia_tipo_juzgado
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url != '') {
@@ -183,7 +194,7 @@
                     }
                 },
                 {
-                    targets: 3, // Delito Especifico
+                    targets: 3, // repsvm_delito_especifico
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.descripcion.length > 16)
@@ -197,7 +208,7 @@
                     }
                 },
                 {
-                    targets: 4, // Tipo Sentencia
+                    targets: 4, // repsvm_tipo_sentencia
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.nombre.length > 16)
@@ -211,7 +222,7 @@
                     }
                 },
                 {
-                    targets: 5, // Nombre
+                    targets: 5, // nombre
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.length > 48)
@@ -221,7 +232,7 @@
                     }
                 },
                 {
-                    targets: [6, 7], // No. Causa y Pena
+                    targets: [6, 7], // numero_causa, pena_impuesta
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.length > 16)
@@ -231,7 +242,7 @@
                     }
                 },
                 {
-                    targets: 8, // Sentencia URL
+                    targets: 8, // sentencia_url
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != '') {
