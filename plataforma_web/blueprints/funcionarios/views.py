@@ -27,6 +27,58 @@ def before_request():
     """Permiso por defecto"""
 
 
+@funcionarios.route("/funcionarios/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Funcionarios"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = Funcionario.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "nombres" in request.form:
+        consulta = consulta.filter(Funcionario.nombres.contains(safe_string(request.form["nombres"])))
+    if "apellido_paterno" in request.form:
+        consulta = consulta.filter(Funcionario.apellido_paterno.contains(safe_string(request.form["apellido_paterno"])))
+    if "apellido_materno" in request.form:
+        consulta = consulta.filter(Funcionario.apellido_materno.contains(safe_string(request.form["apellido_materno"])))
+    if "curp" in request.form:
+        consulta = consulta.filter(Funcionario.curp.contains(safe_string(request.form["curp"])))
+    if "puesto" in request.form:
+        consulta = consulta.filter(Funcionario.puesto.contains(safe_string(request.form["puesto"])))
+    if "email" in request.form:
+        consulta = consulta.filter(Funcionario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
+    if "en_funciones" in request.form and request.form["en_funciones"] == "true":
+        consulta = consulta.filter(Funcionario.en_funciones == True)
+    if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
+        consulta = consulta.filter(Funcionario.en_sentencias == True)
+    if "en_soportes" in request.form and request.form["en_soportes"] == "true":
+        consulta = consulta.filter(Funcionario.en_soportes == True)
+    if "en_tesis_jurisprudencias" in request.form and request.form["en_tesis_jurisprudencias"] == "true":
+        consulta = consulta.filter(Funcionario.en_tesis_jurisprudencias == True)
+    registros = consulta.order_by(Funcionario.curp).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "curp": resultado.curp,
+                    "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
+                },
+                "nombre": resultado.nombre,
+                "email": resultado.email,
+                "puesto": resultado.puesto,
+                "en_funciones": resultado.en_funciones,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @funcionarios.route("/funcionarios")
 def list_active():
     """Listado de Funcionarios activos y en funciones"""
@@ -127,58 +179,6 @@ def search():
             estatus="A",
         )
     return render_template("funcionarios/search.jinja2", form=form_search)
-
-
-@funcionarios.route("/funcionarios/datatable_json", methods=["GET", "POST"])
-def datatable_json():
-    """DataTable JSON para listado de Funcionarios"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = get_datatable_parameters()
-    # Consultar
-    consulta = Funcionario.query
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    if "nombres" in request.form:
-        consulta = consulta.filter(Funcionario.nombres.contains(safe_string(request.form["nombres"])))
-    if "apellido_paterno" in request.form:
-        consulta = consulta.filter(Funcionario.apellido_paterno.contains(safe_string(request.form["apellido_paterno"])))
-    if "apellido_materno" in request.form:
-        consulta = consulta.filter(Funcionario.apellido_materno.contains(safe_string(request.form["apellido_materno"])))
-    if "curp" in request.form:
-        consulta = consulta.filter(Funcionario.curp.contains(safe_string(request.form["curp"])))
-    if "puesto" in request.form:
-        consulta = consulta.filter(Funcionario.puesto.contains(safe_string(request.form["puesto"])))
-    if "email" in request.form:
-        consulta = consulta.filter(Funcionario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
-    if "en_funciones" in request.form and request.form["en_funciones"] == "true":
-        consulta = consulta.filter(Funcionario.en_funciones == True)
-    if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
-        consulta = consulta.filter(Funcionario.en_sentencias == True)
-    if "en_soportes" in request.form and request.form["en_soportes"] == "true":
-        consulta = consulta.filter(Funcionario.en_soportes == True)
-    if "en_tesis_jurisprudencias" in request.form and request.form["en_tesis_jurisprudencias"] == "true":
-        consulta = consulta.filter(Funcionario.en_tesis_jurisprudencias == True)
-    registros = consulta.order_by(Funcionario.curp).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for resultado in registros:
-        data.append(
-            {
-                "detalle": {
-                    "curp": resultado.curp,
-                    "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
-                },
-                "nombre": resultado.nombre,
-                "email": resultado.email,
-                "puesto": resultado.puesto,
-                "en_funciones": resultado.en_funciones,
-            }
-        )
-    # Entregar JSON
-    return output_datatable_json(draw, total, data)
 
 
 @funcionarios.route("/funcionarios/<int:funcionario_id>")
