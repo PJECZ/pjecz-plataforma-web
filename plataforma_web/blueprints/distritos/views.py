@@ -1,17 +1,19 @@
 """
 Distritos, vistas
 """
-from flask import Blueprint, flash, render_template, redirect, url_for
+import json
+from flask import Blueprint, flash, render_template, redirect, request, url_for
 from flask_login import current_user, login_required
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.distritos.forms import DistritoForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "DISTRITOS"
 
@@ -25,12 +27,42 @@ def before_request():
     """Permiso por defecto"""
 
 
+@distritos.route("/distritos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Distritos"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = Distrito.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(Distrito.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("distritos.detail", distrito_id=resultado.id),
+                },
+                "nombre_corto": resultado.nombre_corto,
+                "estatus": resultado.estatus,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @distritos.route("/distritos")
 def list_active():
     """Listado de Distritos activos"""
     return render_template(
         "distritos/list.jinja2",
-        distritos=Distrito.query.filter(Distrito.estatus == "A").all(),
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Distritos",
         estatus="A",
     )
@@ -42,7 +74,7 @@ def list_inactive():
     """Listado de Distritos inactivos"""
     return render_template(
         "distritos/list.jinja2",
-        distritos=Distrito.query.filter(Distrito.estatus == "B").all(),
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Distritos inactivos",
         estatus="B",
     )
