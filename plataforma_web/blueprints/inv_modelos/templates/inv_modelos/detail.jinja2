@@ -22,23 +22,24 @@
         {{ detail.label_value('Marca', modelo.marca.nombre) }}
         {{ detail.label_value('Descripcion', modelo.descripcion) }}
     {% endcall %}
-    {% call list.card('Equipos') %}
-        <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Descripción</th>
-                    <th>Inventario</th>
-                    <th>No. serie</th>
-                    <th>Fecha adquisición</th>
-                    <th>Marca</th>
-                    <th>Custodio</th> 
-                </tr>
-            </thead>
-            
-        </table>
-    {% endcall %}
+    {% if current_user.can_view('INV EQUIPOS') %}
+        {% call detail.card('Equipos') %}
+            <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Inventario</th>
+                        <th>No. serie</th>
+                        <th>Fecha adquisición</th>
+                        <th>Marca</th>
+                        <th>Red</th>
+                        <th>Custodio</th> 
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
-
 
 {% block custom_javascript %}
     {% if current_user.can_edit('INV MODELOS') %}
@@ -46,60 +47,37 @@
         {% if modelo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + modelo.descripcion + '?') }}{% endif %}
     {% endif %}
     {# script para cargar equipos relacionados con este modelo #}
-    <script>
-        $('#inv_equipos_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/inv_equipos/datatable_json",
-                type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                dataType: "json",
-                dataSrc: "data",
-                data: { "estatus": "A", "modelo_id": {{modelo.id}} }
-            },
-            columns: [
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('INV EQUIPOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'modelo_id': {{ modelo.id}} };
+            configDataTable['columns'] = [
                 { data: "descripcion" },
                 { data: "numero_inventario" },
                 { data: "numero_serie" },
                 { data: "adquisicion_fecha" },
                 { data: "marca" },
+                { data: "red" },
                 { data: "usuario" },
-            ],
-            columnDefs: [
-                {
-                    targets: [0,4],
+            ];
+            configDataTable['columnDefs'] = [
+                 {
+                    targets: [0,4,5],
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                     }
                 },
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
-        });
-    </script>
+            ];
+            $('#inv_equipos_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %} 
 {% endblock %}

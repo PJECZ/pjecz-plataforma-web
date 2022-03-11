@@ -4,14 +4,12 @@ INV REDES, vistas
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from werkzeug.datastructures import CombinedMultiDict
 
-from lib import datatables
-from lib.safe_string import safe_string, safe_message
+from lib.datatables import get_datatable_parameters, output_datatable_json
+from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
+
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_redes.models import INVRedes
 from plataforma_web.blueprints.inv_redes.forms import INVRedesForm
@@ -28,14 +26,42 @@ def before_request():
     """Permiso por defecto"""
 
 
+@inv_redes.route("/inv_redes/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de INV REDES"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = INVRedes.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(INVRedes.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("inv_redes.detail", red_id=resultado.id),
+                },
+                "tipo": resultado.tipo,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @inv_redes.route("/inv_redes")
 def list_active():
-    """Listado de Redes activos"""
-    activos = INVRedes.query.filter(INVRedes.estatus == "A").all()
+    """Listado de INV REDES activos"""
     return render_template(
         "inv_redes/list.jinja2",
-        redes=activos,
-        titulo="Redes",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="INV REDES",
         estatus="A",
     )
 
@@ -43,12 +69,11 @@ def list_active():
 @inv_redes.route("/inv_redes/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Red inactivos"""
-    inactivos = INVRedes.query.filter(INVRedes.estatus == "B").all()
+    """Listado de INV REDES inactivos"""
     return render_template(
         "inv_redes/list.jinja2",
-        redes=inactivos,
-        titulo="Redes inactivos",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="INV REDES inactivos",
         estatus="B",
     )
 
@@ -87,20 +112,12 @@ def edit(red_id):
     """Editar Red"""
     red = INVRedes.query.get_or_404(red_id)
     form = INVRedesForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form)
-            validacion = True
-        except Exception as err:
-            flash(f"Nombre de la red incorrecto. {str(err)}", "warning")
-            validacion = False
-        if validacion:
-            red.nombre = safe_string(form.nombre.data)
-            red.tipo = safe_string(form.tipo.data)
-            red.save()
-            flash(f"Red {red.nombre} guardado.", "success")
-            return redirect(url_for("inv_redes.detail", red_id=red.id))
+        red.nombre = safe_string(form.nombre.data)
+        red.tipo = form.tipo.data
+        red.save()
+        flash(f"Red {red.nombre} guardado.", "success")
+        return redirect(url_for("inv_redes.detail", red_id=red.id))
     form.nombre.data = red.nombre
     form.tipo.data = red.tipo
     return render_template("inv_redes/edit.jinja2", form=form, red=red)

@@ -41,27 +41,16 @@
         {{ detail.label_value('Número puerto', equipo.numero_puerto) }}
     {% endcall %}
     {# Listado de Componentes #}
-    {% if componentes %}
-        {% call detail.card(title='Componentes') %}
+    {% if current_user.can_view('INV COMPONENTES') %}
+        {% call detail.card('Componentes') %}
             <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Descripciones</th>
+                        <th>Descricpión</th>
                         <th>Cantidad</th>
-                        <th>Version</th>
+                        <th>Versión</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for componente in componentes %}
-                        {% if componente.estatus == "A" %}
-                        <tr>
-                            <td><a href="{{ url_for('inv_componentes.detail', componente_id=componente.id) }}">{{ componente.descripcion }}</a></td>
-                            <td>{{ componente.cantidad }}</td>
-                            <td>{{ componente.version }}</td> 
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
             </table>
         {% endcall %}
     {% endif %}
@@ -94,4 +83,26 @@
         {% if equipo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + equipo.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ list.datatable('inv_equipos_fotos_datatable') }}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('INV COMPONENTES') %}
+        <script>
+            configDataTable['ajax']['url'] = '/inv_componentes/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'equipo_id': {{ equipo.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "cantidad" },
+                { data: "version" },
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            ];
+            $('#inv_componentes_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
 {% endblock %}

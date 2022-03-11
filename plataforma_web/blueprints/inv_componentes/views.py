@@ -9,12 +9,11 @@ from dateutil.relativedelta import relativedelta
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_componentes.models import INVComponente
 from plataforma_web.blueprints.inv_componentes.forms import INVComponenteForm
@@ -30,6 +29,36 @@ inv_componentes = Blueprint("inv_componentes", __name__, template_folder="templa
 @permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
+
+
+@inv_componentes.route("/inv_componentes/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de INV COMPONENTES"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = INVComponente.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(INVComponente.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "descripcion": resultado.descripcion,
+                    "url": url_for("inv_componentes.detail", componente_id=resultado.id),
+                },
+                "cantidad": resultado.cantidad,
+                "version": resultado.version,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
 
 
 @inv_componentes.route("/inv_componentes")
@@ -93,40 +122,6 @@ def new(equipo_id):
             flash(f"Componentes {componente.descripcion} guardado.", "success")
             return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
     return render_template("inv_componentes/new.jinja2", form=form, equipo=equipo)
-
-
-@inv_componentes.route("/inv_componentes/datatable_json", methods=["GET", "POST"])
-def datatable_json():
-    """DataTable JSON para listado de Componentes"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = datatables.get_parameters()
-    # Consultar
-    consulta = INVComponente.query
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-
-    if "descripcion" in request.form:
-        consulta = consulta.orde_by(INVComponente.descripcion.like("%" + safe_string(request.form["descripcion"]) + "%"))
-
-    registros = consulta.order_by(INVComponente.descripcion.desc()).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for resultado in registros:
-        data.append(
-            {
-                "detalle": {
-                    "descripcion": resultado.descripcion,
-                    "url": url_for("inv_componentes.detail", componente_id=resultado.id),
-                },
-                "cantidad": resultado.cantidad,
-                "version": resultado.version,
-            }
-        )
-    # Entregar JSON
-    return datatables.output(draw, total, data)
 
 
 @inv_componentes.route("/inv_componentes/edicion/<int:componente_id>", methods=["GET", "POST"])

@@ -117,6 +117,7 @@
     {{ detail.moment_js(moment) }}
     {{ detail.datatable('roles_datatable') }}
     {{ modals.custom_javascript('Eliminar', '¿Eliminar ese rol del usuario?', 'DeleteRolUsuario') }}
+    {{ detail.config_datatable() }}
     <script>
         $('#soportes_tickets_datatable').DataTable({
             processing: true,
@@ -226,27 +227,14 @@
         {# script datatables inventarios custodias#}
         {% if current_user.can_view('INV CUSTODIAS') %}
             <script>
-            $('#inv_custodias_datatable').DataTable({
-                processing: true,
-                serverSide: true,
-                ordering: false,
-                searching: false,
-                responsive: true,
-                scrollX: true,
-                ajax: {
-                    url: "/inv_custodias/datatable_json",
-                    type: "POST",
-                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                    dataType: "json",
-                    dataSrc: "data",
-                    data: { "estatus": "A", "usuario_id": {{usuario.id}} }
-                },
-                columns: [
+                configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{usuario.id}} };
+                configDataTable['columns'] = [
                     { data: "id" },
                     { data: "fecha" },
                     { data: "oficina" },
-                ],
-                columnDefs: [
+                ];
+                configDataTable['columnDefs'] = [
                     {
                         targets: 0,
                         data: null,
@@ -261,23 +249,9 @@
                             return '<a href="' + data.url + '">' + data.clave + '</a>';
                         }
                     },
-                ],
-                language: {
-                    lengthMenu: "Mostrar _MENU_",
-                    search: "Filtrar:",
-                    zeroRecords: "No se encontraron registros",
-                    info: "Total de registros _TOTAL_ ",
-                    infoEmpty: "No hay registros",
-                    infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                    oPaginate: {
-                        sFirst: "Primero",
-                        sLast: "Último",
-                        sNext: "Siguiente",
-                        sPrevious: "Anterior"
-                    }
-                }
-            });
-        </script>
-    {% endif %}
+                ];
+                $('#inv_custodias_datatable').DataTable(configDataTable);
+            </script>
+        {% endif %}   
 {% endblock %}
     

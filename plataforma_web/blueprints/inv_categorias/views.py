@@ -5,7 +5,7 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -21,16 +21,48 @@ MODULO = "INV CATEGORIAS"
 inv_categorias = Blueprint("inv_categorias", __name__, template_folder="templates")
 
 
-@inv_categorias.route("/inv_categorias")
+@inv_categorias.before_request
 @login_required
 @permission_required(MODULO, Permiso.VER)
+def before_request():
+    """Permiso por defecto"""
+
+
+@inv_categorias.route("/inv_categorias/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de INV CATEGORIAS"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = INVCategoria.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(INVCategoria.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("inv_categorias.detail", categoria_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@inv_categorias.route("/inv_categorias")
 def list_active():
-    """Listado de Categorias activos"""
-    activos = INVCategoria.query.filter(INVCategoria.estatus == "A").all()
+    """Listado de INV CATEGORIAS activos"""
     return render_template(
         "inv_categorias/list.jinja2",
-        categorias=activos,
-        titulo="Categorias",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="INV CATEGORIAS",
         estatus="A",
     )
 
@@ -38,12 +70,11 @@ def list_active():
 @inv_categorias.route("/inv_categorias/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Categorias inactivos"""
-    inactivos = INVCategoria.query.filter(INVCategoria.estatus == "B").all()
+    """Listado de INV CATEGORIAS inactivos"""
     return render_template(
         "inv_categorias/list.jinja2",
-        categorias=inactivos,
-        titulo="Categorias inactivos",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="INV CATEGORIAS inactivos",
         estatus="B",
     )
 

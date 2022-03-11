@@ -4,19 +4,14 @@ INVENTARIOS CUSTODIAS, vistas
 import json
 
 from datetime import date
-from dateutil.relativedelta import relativedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
-from plataforma_web.blueprints.inv_equipos.models import INVEquipo
-from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
+
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_custodias.models import INVCustodia
 from plataforma_web.blueprints.usuarios.models import Usuario
@@ -34,6 +29,44 @@ inv_custodias = Blueprint("inv_custodias", __name__, template_folder="templates"
 @permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
+
+
+@inv_custodias.route("/inv_custodias/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de INV CUSTODIAS"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = INVCustodia.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "usuario_id" in request.form:
+        usuario = Usuario.query.get(request.form["usuario_id"])
+        if usuario:
+            consulta = consulta.filter(INVCustodia.usuario == usuario)
+    registros = consulta.order_by(INVCustodia.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "id": {
+                    "custodia_id": resultado.id,
+                    "url": url_for("inv_custodias.detail", custodia_id=resultado.id),
+                },
+                "nombre_completo": resultado.nombre_completo,
+                "fecha": resultado.fecha.strftime("%Y-%m-%d"),
+                "oficina": {
+                    "clave": resultado.usuario.oficina.clave,
+                    "url": url_for("oficinas.detail", oficina_id=resultado.usuario.oficina_id) if current_user.can_view("OFICINAS") else "",
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
 
 
 @inv_custodias.route("/inv_custodias/")
@@ -88,44 +121,6 @@ def new(usuario_id):
     form.usuario.data = str(f"{usuario.nombre}")
     form.oficina.data = str(f"{usuario.oficina.clave} - {usuario.oficina.descripcion_corta}")
     return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
-
-
-@inv_custodias.route("/inv_custodias/datatable_json", methods=["GET", "POST"])
-def datatable_json():
-    """DataTable JSON para listado de Custodias"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = get_datatable_parameters()
-    # Consultar
-    consulta = INVCustodia.query
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    if "usuario_id" in request.form:
-        consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
-    # if "oficina_id" in request.form:
-    #     consulta = consulta.join(Usuario).filter(Usuario.oficina_id == request.form["oficina_id"])
-    registros = consulta.order_by(INVCustodia.creado.desc()).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for resultado in registros:
-        data.append(
-            {
-                "id": {
-                    "custodia_id": resultado.id,
-                    "url": url_for("inv_custodias.detail", custodia_id=resultado.id),
-                },
-                "nombre_completo": resultado.nombre_completo,
-                "fecha": resultado.fecha.strftime("%Y-%m-%d"),
-                "oficina": {
-                    "clave": resultado.usuario.oficina.clave,
-                    "url": url_for("oficinas.detail", oficina_id=resultado.usuario.oficina_id) if current_user.can_view("OFICINAS") else "",
-                },
-            }
-        )
-    # Entregar JSON
-    return output_datatable_json(draw, total, data)
 
 
 @inv_custodias.route("/inv_custodias/edicion/<int:custodia_id>", methods=["GET", "POST"])

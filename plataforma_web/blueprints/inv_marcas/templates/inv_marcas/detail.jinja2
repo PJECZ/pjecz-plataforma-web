@@ -2,7 +2,6 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
-{% import 'macros/list.jinja2' as list %}
 
 {% block title %}Marcas{% endblock %}
 
@@ -21,24 +20,17 @@
     {% call detail.card() %}
         {{ detail.label_value('Marca', marca.nombre) }}
     {% endcall %}
-    {% if modelos %}
-        {% call list.card('Modelos') %}
+    {% if current_user.can_view('INV MODELOS') %}
+        {% call detail.card('Modelos') %}
             <table id="inv_modelos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Modelos</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for modelo in modelos %}
-                        <tr>
-                            <td><a href="{{ url_for('inv_modelos.detail', modelo_id=modelo.id) }}">{{ modelo.descripcion | truncate(48) }}</a></td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
             </table>
         {% endcall %}
-    {% endif %}    
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -46,6 +38,24 @@
         {% if marca.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + marca.nombre + '?') }}{% endif %}
         {% if marca.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + marca.nombre + '?') }}{% endif %}
     {% endif %}
-    {{ list.datatable('inv_modelos_datatable') }}
-
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('INV MODELOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/inv_modelos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'marca_id': {{ marca.id}} };
+            configDataTable['columns'] = [
+                { data: 'detalle' }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            ];
+            $('#inv_modelos_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
 {% endblock %}

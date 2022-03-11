@@ -29,6 +29,7 @@
                     <th>Adquisicion Fecha</th>
                     <th>Marca</th>
                     <th>Modelo</th>
+                    <th>Red</th> 
                     <th>Custodio</th> 
                     <th>Custodia id</th> 
                 </tr>
@@ -39,71 +40,45 @@
 {% endblock %}
 
 {% block custom_javascript %}
-{# script para traer datos ajax en datatables#}
-   <script>
-        $('#inv_equipos_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/inv_equipos/datatable_json",
-                type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
-            },
-            columns: [
-                { data: "descripcion" },
-                { data: "numero_inventario" },
-                { data: "numero_serie" },
-                { data: "adquisicion_fecha" },
-                { data: "marca" },
-                { data: "modelo" },
-                { data: "usuario" },
-                { data: "custodia_id" },
-            ],
-            columnDefs: [
-               {
-                    targets: [0,4,5],
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                    }
-                },
-                {
-                    targets: 6,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
-                    }
-                },
-                {
-                    targets: 7,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+    {{ list.config_datatable() }}
+    {# script para traer datos ajax en datatables#}
+    <script>
+        configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "descripcion" },
+            { data: "numero_inventario" },
+            { data: "numero_serie" },
+            { data: "adquisicion_fecha" },
+            { data: "marca" },
+            { data: "modelo" },
+            { data: "red" },
+            { data: "usuario" },
+            { data: "custodia_id" },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: [0,4,5,6], //descripcion, marca, modelo, red
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
                 }
-            }
-        });
+            },
+            {
+                targets: 7, //usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                }
+            },
+            {
+                targets: 8, // custodia_id
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+        ];
+        $('#inv_equipos_datatable').DataTable(configDataTable);
     </script>
-
 {% endblock %}

@@ -5,12 +5,10 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from lib import datatables
-from lib.safe_string import safe_string, safe_message
+from lib.datatables import get_datatable_parameters, output_datatable_json
+from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_marcas.models import INVMarca
 from plataforma_web.blueprints.inv_modelos.models import INVModelo
@@ -22,16 +20,48 @@ MODULO = "INV MARCAS"
 inv_marcas = Blueprint("inv_marcas", __name__, template_folder="templates")
 
 
-@inv_marcas.route("/inv_marcas")
+@inv_marcas.before_request
 @login_required
 @permission_required(MODULO, Permiso.VER)
+def before_request():
+    """Permiso por defecto"""
+
+
+@inv_marcas.route("/inv_marcas/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de INV MARCAS"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = INVMarca.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(INVMarca.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("inv_marcas.detail", marca_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@inv_marcas.route("/inv_marcas")
 def list_active():
-    """Listado de Marcas activos"""
-    activos = INVMarca.query.filter(INVMarca.estatus == "A").all()
+    """Listado de INV MARCAS activos"""
     return render_template(
         "inv_marcas/list.jinja2",
-        marcas=activos,
-        titulo="Marcas",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="INV MARCAS",
         estatus="A",
     )
 
@@ -39,12 +69,11 @@ def list_active():
 @inv_marcas.route("/inv_marcas/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Marcas inactivos"""
-    inactivos = INVMarca.query.filter(INVMarca.estatus == "B").all()
+    """Listado de INV MARCAS inactivos"""
     return render_template(
         "inv_marcas/list.jinja2",
-        marcas=inactivos,
-        titulo="Marcas inactivos",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="INV MARCAS inactivos",
         estatus="B",
     )
 

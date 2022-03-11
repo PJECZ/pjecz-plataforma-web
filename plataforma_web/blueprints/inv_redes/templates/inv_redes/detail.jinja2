@@ -21,11 +21,70 @@
         {{ detail.label_value('Nombre', red.nombre) }}
         {{ detail.label_value('Tipo', red.tipo) }}
     {% endcall %}
+    {% if current_user.can_view('INV EQUIPOS') %}
+        {% call detail.card('Equipos') %}
+            <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Inventario</th>
+                        <th>No. serie</th>
+                        <th>Fecha adquisición</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Custodio</th> 
+                        <th>Custodia id</th> 
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('INV REDES') %}
         {% if red.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + red.nombre + '?') }}{% endif %}
         {% if red.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + red.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('INV EQUIPOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'red_id': {{ red.id}} };
+            configDataTable['columns'] = [
+                { data: "descripcion" },
+                { data: "numero_inventario" },
+                { data: "numero_serie" },
+                { data: "adquisicion_fecha" },
+                { data: "marca" },
+                { data: "modelo" },
+                { data: "usuario" },
+                { data: "custodia_id" },
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: [0,4,5], //descripcion, marca, modelo
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+                {
+                    targets: 6, //usuario
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                    }
+                },
+                {
+                    targets: 7, // custodia_id
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+            ];
+            $('#inv_equipos_datatable').DataTable(configDataTable);
+        </script>
     {% endif %}
 {% endblock %}

@@ -36,6 +36,7 @@
                         <th>Fecha adquisición</th>
                         <th>Marca</th>
                         <th>Modelo</th>
+                        <th>Red</th>
                     </tr>
                 </thead>
                 
@@ -52,53 +53,30 @@
         {% if custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + custodia.nombre_completo + '?') }}{% endif %}
         {% if custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + custodia.nombre_completo + '?') }}{% endif %}
     {% endif %}
-    <script>
-    $('#inv_equipos_datatable').DataTable({
-        processing: true,
-        serverSide: true,
-        ordering: false,
-        searching: false,
-        responsive: true,
-        scrollX: true,
-        ajax: {
-            url: "/inv_equipos/datatable_json",
-            type: "POST",
-            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-            dataType: "json",
-            dataSrc: "data",
-            data:{ "estatus": "A", "custodia_id": {{custodia.id}} }
-        },
-        columns: [
-            { data: "descripcion" },
-            { data: "numero_inventario" },
-            { data: "numero_serie" },
-            { data: "adquisicion_fecha" },
-            { data: "marca" },
-            { data: "modelo" },
-        ],
-        columnDefs: [
-            {
-                targets: [0,4,5],
-                data: null,
-                render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                }
-            },
-        ],
-        language: {
-            lengthMenu: "Mostrar _MENU_",
-            search: "Filtrar:",
-            zeroRecords: "No se encontraron registros",
-            info: "Total de registros _TOTAL_ ",
-            infoEmpty: "No hay registros",
-            infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-            oPaginate: {
-                sFirst: "Primero",
-                sLast: "Último",
-                sNext: "Siguiente",
-                sPrevious: "Anterior"
-            }
-        }
-    });
-    </script>
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('INV EQUIPOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'custodia_id': {{ custodia.id}} };
+            configDataTable['columns'] = [
+                { data: "descripcion" },
+                { data: "numero_inventario" },
+                { data: "numero_serie" },
+                { data: "adquisicion_fecha" },
+                { data: "marca" },
+                { data: "modelo" },
+                { data: "red" },
+            ];
+            configDataTable['columnDefs'] = [
+                 {
+                    targets: [0,4,5,6], //descripcion, marca, modelo, red
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+            ];
+            $('#inv_equipos_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
 {% endblock %}

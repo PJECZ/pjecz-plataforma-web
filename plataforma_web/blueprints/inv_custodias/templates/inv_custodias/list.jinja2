@@ -25,65 +25,37 @@
                     <th>Oficina</th>
                 </tr>
             </thead>
-            
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-   <script>
-        $('#inv_custodias_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/inv_custodias/datatable_json",
-                type: "POST",
-                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
-            },
-            columns: [
-                { data: "id" },
-                { data: "nombre_completo" },
-                { data: "fecha" },
-                { data: "oficina" },
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
-                    }
-                },
-                {
-                    targets: 3,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
-                    }
-                },
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "id" },
+            { data: "nombre_completo" },
+            { data: "fecha" },
+            { data: "oficina" },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0,
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
                 }
-            }
-        });
+            },
+            {
+                targets: 3,
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            },
+        ];
+        $('#inv_custodias_datatable').DataTable(configDataTable);
     </script>
-
 {% endblock %}

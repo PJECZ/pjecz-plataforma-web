@@ -18,26 +18,44 @@
 {% endblock %}
 
 {% block content %}
-    {% call list.card() %}
-        <table id="inv_modelos_datatable" class="table display nowrap" style="width:100%">
+{% call list.card() %}
+        <table id="inv_modelos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Marca</th>
                     <th>Modelo</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for modelo in modelos %}
-                <tr>
-                    <td><a href="{{ url_for('inv_marcas.detail', marca_id=modelo.id) }}">{{ modelo.marca.nombre }}</a></td>
-                    <td><a href="{{ url_for('inv_modelos.detail', modelo_id=modelo.id) }}">{{ modelo.descripcion }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('inv_modelos_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/inv_modelos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'marca' },
+            { data: 'detalle' },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 1, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                }
+            }
+        ];
+        $('#inv_modelos_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}
+ 
