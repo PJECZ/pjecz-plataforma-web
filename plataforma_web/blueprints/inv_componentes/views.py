@@ -15,9 +15,9 @@ from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_componentes.models import INVComponente
-from plataforma_web.blueprints.inv_componentes.forms import INVComponenteForm
-from plataforma_web.blueprints.inv_equipos.models import INVEquipo
+from plataforma_web.blueprints.inv_componentes.models import InvComponente
+from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm
+from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 
 MODULO = "INV COMPONENTES"
 
@@ -37,12 +37,12 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
-    consulta = INVComponente.query
+    consulta = InvComponente.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(INVComponente.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvComponente.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -87,7 +87,7 @@ def list_inactive():
 @inv_componentes.route("/inv_componentes/<int:componente_id>")
 def detail(componente_id):
     """Detalle de un Componentes"""
-    componente = INVComponente.query.get_or_404(componente_id)
+    componente = InvComponente.query.get_or_404(componente_id)
     return render_template("inv_componentes/detail.jinja2", componente=componente)
 
 
@@ -96,11 +96,11 @@ def detail(componente_id):
 def new(equipo_id):
     """Nuevo Componentes"""
     # Validar equipo
-    equipo = INVEquipo.query.get_or_404(equipo_id)
+    equipo = InvEquipo.query.get_or_404(equipo_id)
     if equipo.estatus != "A":
         flash("El equipo no es activo.", "warning")
         return redirect(url_for("inv_equipos.list_active"))
-    form = INVComponenteForm()
+    form = InvComponenteForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -111,7 +111,7 @@ def new(equipo_id):
             validacion = False
 
         if validacion:
-            componente = INVComponente(
+            componente = InvComponente(
                 categoria=form.nombre.data,
                 equipo=equipo,
                 descripcion=safe_string(form.descripcion.data),
@@ -128,8 +128,8 @@ def new(equipo_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(componente_id):
     """Editar Componentes"""
-    componente = INVComponente.query.get_or_404(componente_id)
-    form = INVComponenteForm()
+    componente = InvComponente.query.get_or_404(componente_id)
+    form = InvComponenteForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -156,7 +156,7 @@ def edit(componente_id):
 
 def _validar_form(form, inv_equipo_id, same=False):
     if not same:
-        descripcion_existente = INVComponente.query.filter(INVComponente.descripcion == safe_string(form.descripcion.data)).filter(INVComponente.inv_equipo_id == inv_equipo_id).first()
+        descripcion_existente = InvComponente.query.filter(InvComponente.descripcion == safe_string(form.descripcion.data)).filter(InvComponente.inv_equipo_id == inv_equipo_id).first()
         if descripcion_existente:
             raise Exception("La descripción ya está en uso.")
     return True
@@ -166,7 +166,7 @@ def _validar_form(form, inv_equipo_id, same=False):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(componente_id):
     """Eliminar Componentes"""
-    componente = INVComponente.query.get_or_404(componente_id)
+    componente = InvComponente.query.get_or_404(componente_id)
     if componente.estatus == "A":
         componente.delete()
         flash(f"Componentes {componente.descripcion} eliminado.", "success")
@@ -177,7 +177,7 @@ def delete(componente_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(componente_id):
     """Recuperar Componentes"""
-    componente = INVComponente.query.get_or_404(componente_id)
+    componente = InvComponente.query.get_or_404(componente_id)
     if componente.estatus == "B":
         componente.recover()
         flash(f"Componentes {componente.descripcion} recuperado.", "success")

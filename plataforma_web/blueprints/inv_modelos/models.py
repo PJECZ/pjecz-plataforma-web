@@ -6,8 +6,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class INVModelo(db.Model, UniversalMixin):
-    """INVModelo"""
+class InvModelo(db.Model, UniversalMixin):
+    """InvModelo"""
 
     # Nombre de la tabla
     __tablename__ = "inv_modelos"
@@ -17,13 +17,13 @@ class INVModelo(db.Model, UniversalMixin):
 
     # Clave foránea
     inv_marca_id = db.Column(db.Integer, db.ForeignKey("inv_marcas.id"), index=True, nullable=False)
-    marca = db.relationship("INVMarca", back_populates="modelos")
+    marca = db.relationship("InvMarca", back_populates="modelos")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
-    equipos = db.relationship("INVEquipo", back_populates="modelo")
+    equipos = db.relationship("InvEquipo", back_populates="modelo")
 
     @property
     def marca_modelo(self):
@@ -32,4 +32,4 @@ class INVModelo(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<INVModelo>"
+        return "<InvModelo>"

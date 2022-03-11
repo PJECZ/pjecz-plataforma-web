@@ -7,8 +7,8 @@ from wtforms import IntegerField, StringField, SubmitField, DateField
 from wtforms.validators import DataRequired, Length, Optional
 
 
-class INVCustodiaForm(FlaskForm):
-    """Formulario INVCustodia"""
+class InvCustodiaForm(FlaskForm):
+    """Formulario InvCustodia"""
 
     usuario = StringField("Usuario")
     oficina = StringField("Oficina")

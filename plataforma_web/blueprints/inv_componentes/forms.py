@@ -8,16 +8,16 @@ from wtforms.validators import DataRequired, Length, Optional
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
-from plataforma_web.blueprints.inv_categorias.models import INVCategoria
+from plataforma_web.blueprints.inv_categorias.models import InvCategoria
 
 
 def categorias_opciones():
     """Seleccionar la categoria para select"""
-    return INVCategoria.query.filter_by(estatus="A").order_by(INVCategoria.nombre).all()
+    return InvCategoria.query.filter_by(estatus="A").order_by(InvCategoria.nombre).all()
 
 
-class INVComponenteForm(FlaskForm):
-    """Formulario INVComponente"""
+class InvComponenteForm(FlaskForm):
+    """Formulario InvComponente"""
 
     equipo = StringField("Numero inventario equipo")  # solo lectrua
     nombre = QuerySelectField(label="Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])

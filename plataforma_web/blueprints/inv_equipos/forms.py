@@ -4,24 +4,24 @@ Equipos, formularios
 
 from flask_wtf import FlaskForm
 from wtforms import DateField, IntegerField, StringField, SubmitField
-from wtforms.validators import DataRequired, Length, Optional, IPAddress, MacAddress
+from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
-from plataforma_web.blueprints.inv_modelos.models import INVModelo
-from plataforma_web.blueprints.inv_redes.models import INVRedes
+from plataforma_web.blueprints.inv_modelos.models import InvModelo
+from plataforma_web.blueprints.inv_redes.models import InvRedes
 
 
 def modelos_opciones():
     """Seleccionar la modelo para select"""
-    return INVModelo.query.filter_by(estatus="A").order_by(INVModelo.descripcion).all()
+    return InvModelo.query.filter_by(estatus="A").order_by(InvModelo.descripcion).all()
 
 
 def redes_opciones():
     """Seleccionar la modelo para select"""
-    return INVRedes.query.filter_by(estatus="A").order_by(INVRedes.nombre).all()
+    return InvRedes.query.filter_by(estatus="A").order_by(InvRedes.nombre).all()
 
 
-class INVEquipoForm(FlaskForm):
+class InvEquipoForm(FlaskForm):
     """Formulario InvEquipo"""
 
     custodia = StringField("Custodia")
@@ -31,7 +31,7 @@ class INVEquipoForm(FlaskForm):
     modelo = QuerySelectField(label="Modelo", query_factory=modelos_opciones, get_label="marca_modelo", validators=[DataRequired()])  # solo lectrua
     red = QuerySelectField(label="Red", query_factory=redes_opciones, get_label="nombre", validators=[Optional()])  # solo lectrua
     adquisicion_fecha = DateField("Fecha de adquisición", validators=[Optional()])
-    numero_serie = IntegerField("Número de serie", validators=[Optional()])
+    numero_serie = StringField("Número de serie", validators=[Optional()])
     numero_inventario = IntegerField("Número de inventario", validators=[Optional()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
     direccion_ip = StringField("Dirección IP", validators=[Optional()])

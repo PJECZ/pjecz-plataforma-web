@@ -14,10 +14,10 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
-from plataforma_web.blueprints.inv_equipos.models import INVEquipo
+from plataforma_web.blueprints.inv_equipos_fotos.models import InvEquipoFoto
+from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 
-from plataforma_web.blueprints.inv_equipos_fotos.forms import INVEquipoFotoNewForm
+from plataforma_web.blueprints.inv_equipos_fotos.forms import InvEquipoFotoNewForm
 
 MODULO = "INV EQUIPOS FOTOS"
 SUBDIRECTORIO = "inv equipo_fotos"
@@ -35,7 +35,7 @@ def before_request():
 @inv_equipos_fotos.route("/inv_equipos_fotos/<int:equipo_foto_id>")
 def detail(equipo_foto_id):
     """Detalle de un Soporte equipo"""
-    equipo_foto = INVEquipoFoto.query.get_or_404(equipo_foto_id)
+    equipo_foto = InvEquipoFoto.query.get_or_404(equipo_foto_id)
     return render_template(
         "inv_equipos_fotos/detail.jinja2",
         equipo_foto=equipo_foto,
@@ -46,13 +46,13 @@ def detail(equipo_foto_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new(equipo_id):
     """Adjuntar Archivos al equipo"""
-    equipo = INVEquipo.query.get_or_404(equipo_id)
-    # archivo = INVEquipoFile
+    equipo = InvEquipo.query.get_or_404(equipo_id)
+    # archivo = InvEquipoFile
     detalle_url = url_for("inv_equipos.detail", equipo_id=equipo.id)
     if equipo.estatus != "A":
         flash("No puede adjuntar un archivo a un equipo eliminado.", "warning")
         return redirect(detalle_url)
-    form = INVEquipoFotoNewForm(CombinedMultiDict((request.files, request.form)))
+    form = InvEquipoFotoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
         es_valido = True
         # Validar la descripción
@@ -74,7 +74,7 @@ def new(equipo_id):
         # Si es válido
         if es_valido:
             # Insertar el registro, para obtener el ID
-            equipo_foto = INVEquipoFoto(
+            equipo_foto = InvEquipoFoto(
                 equipo=equipo,
                 descripcion=safe_string(descripcion),
             )

@@ -1,5 +1,5 @@
 """
-Categorias, vistas
+Inventarios Categorías, vistas
 """
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -9,12 +9,10 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_categorias.models import INVCategoria
+from plataforma_web.blueprints.inv_categorias.models import InvCategoria
 
-from plataforma_web.blueprints.inv_categorias.forms import INVCategoriaForm
+from plataforma_web.blueprints.inv_categorias.forms import InvCategoriaForm
 
 MODULO = "INV CATEGORIAS"
 
@@ -34,12 +32,12 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
-    consulta = INVCategoria.query
+    consulta = InvCategoria.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(INVCategoria.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvCategoria.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -62,7 +60,7 @@ def list_active():
     return render_template(
         "inv_categorias/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="INV CATEGORIAS",
+        titulo="Categorías",
         estatus="A",
     )
 
@@ -82,7 +80,7 @@ def list_inactive():
 @inv_categorias.route("/inv_categorias/<int:categoria_id>")
 def detail(categoria_id):
     """Detalle de un Categorias"""
-    categoria = INVCategoria.query.get_or_404(categoria_id)
+    categoria = InvCategoria.query.get_or_404(categoria_id)
     return render_template("inv_categorias/detail.jinja2", categoria=categoria)
 
 
@@ -90,7 +88,7 @@ def detail(categoria_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Categoria"""
-    form = INVCategoriaForm()
+    form = InvCategoriaForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -101,7 +99,7 @@ def new():
             validacion = False
 
         if validacion:
-            categoria = INVCategoria(nombre=safe_string(form.nombre.data))
+            categoria = InvCategoria(nombre=safe_string(form.nombre.data))
             categoria.save()
             flash(f"Categorias {categoria.nombre} guardado.", "success")
             return redirect(url_for("inv_categorias.detail", categoria_id=categoria.id))
@@ -112,8 +110,8 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(categoria_id):
     """Editar Categoria"""
-    categoria = INVCategoria.query.get_or_404(categoria_id)
-    form = INVCategoriaForm()
+    categoria = InvCategoria.query.get_or_404(categoria_id)
+    form = InvCategoriaForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -134,7 +132,7 @@ def edit(categoria_id):
 
 def _validar_form(form, same=False):
     if not same:
-        nombre_existente = INVCategoria.query.filter(INVCategoria.nombre == safe_string(form.nombre.data)).first()
+        nombre_existente = InvCategoria.query.filter(InvCategoria.nombre == safe_string(form.nombre.data)).first()
         if nombre_existente:
             raise Exception("El nombre ya está registrado.")
     return True
@@ -144,7 +142,7 @@ def _validar_form(form, same=False):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(categoria_id):
     """Eliminar Categorias"""
-    categoria = INVCategoria.query.get_or_404(categoria_id)
+    categoria = InvCategoria.query.get_or_404(categoria_id)
     if categoria.estatus == "A":
         categoria.delete()
         flash(f"Categorias {categoria.nombre} eliminado.", "success")
@@ -155,7 +153,7 @@ def delete(categoria_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(categoria_id):
     """Recuperar Categorias"""
-    categoria = INVCategoria.query.get_or_404(categoria_id)
+    categoria = InvCategoria.query.get_or_404(categoria_id)
     if categoria.estatus == "B":
         categoria.recover()
         flash(f"Categorias {categoria.nombre} recuperado.", "success")

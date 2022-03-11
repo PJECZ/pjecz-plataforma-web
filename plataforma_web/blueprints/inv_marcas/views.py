@@ -10,10 +10,10 @@ from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_marcas.models import INVMarca
-from plataforma_web.blueprints.inv_modelos.models import INVModelo
+from plataforma_web.blueprints.inv_marcas.models import InvMarca
+from plataforma_web.blueprints.inv_modelos.models import InvModelo
 
-from plataforma_web.blueprints.inv_marcas.forms import INVMarcaForm
+from plataforma_web.blueprints.inv_marcas.forms import InvMarcaForm
 
 MODULO = "INV MARCAS"
 
@@ -33,12 +33,12 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
-    consulta = INVMarca.query
+    consulta = InvMarca.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(INVMarca.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvMarca.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -81,8 +81,8 @@ def list_inactive():
 @inv_marcas.route("/inv_marcas/<int:marca_id>")
 def detail(marca_id):
     """Detalle de un Marcas"""
-    marca = INVMarca.query.get_or_404(marca_id)
-    modelos = INVModelo.query.filter(INVModelo.inv_marca_id == marca_id).all()
+    marca = InvMarca.query.get_or_404(marca_id)
+    modelos = InvModelo.query.filter(InvModelo.inv_marca_id == marca_id).all()
     return render_template("inv_marcas/detail.jinja2", marca=marca, modelos=modelos)
 
 
@@ -90,7 +90,7 @@ def detail(marca_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Marcas"""
-    form = INVMarcaForm()
+    form = InvMarcaForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -101,7 +101,7 @@ def new():
             validacion = False
 
         if validacion:
-            marca = INVMarca(nombre=safe_string(form.nombre.data))
+            marca = InvMarca(nombre=safe_string(form.nombre.data))
             marca.save()
             flash(f"Marcas {marca.nombre} guardado.", "success")
             return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
@@ -112,8 +112,8 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(marca_id):
     """Editar Marcas"""
-    marca = INVMarca.query.get_or_404(marca_id)
-    form = INVMarcaForm()
+    marca = InvMarca.query.get_or_404(marca_id)
+    form = InvMarcaForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -134,7 +134,7 @@ def edit(marca_id):
 
 def _validar_form(form, same=False):
     if not same:
-        nombre_existente = INVMarca.query.filter(INVMarca.nombre == safe_string(form.nombre.data)).first()
+        nombre_existente = InvMarca.query.filter(InvMarca.nombre == safe_string(form.nombre.data)).first()
         if nombre_existente:
             raise Exception("El nombre ya está registrado")
     return True
@@ -144,7 +144,7 @@ def _validar_form(form, same=False):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(marca_id):
     """Eliminar Marcas"""
-    marca = INVMarca.query.get_or_404(marca_id)
+    marca = InvMarca.query.get_or_404(marca_id)
     if marca.estatus == "A":
         marca.delete()
         flash(f"Marcas {marca.nombre} eliminado.", "success")
@@ -155,7 +155,7 @@ def delete(marca_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(marca_id):
     """Recuperar Marcas"""
-    marca = INVMarca.query.get_or_404(marca_id)
+    marca = InvMarca.query.get_or_404(marca_id)
     if marca.estatus == "B":
         marca.recover()
         flash(f"Marcas {marca.nombre} recuperado.", "success")

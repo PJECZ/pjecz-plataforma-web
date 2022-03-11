@@ -6,8 +6,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class INVCustodia(db.Model, UniversalMixin):
-    """INVCustodia"""
+class InvCustodia(db.Model, UniversalMixin):
+    """InvCustodia"""
 
     # Nombre de la tabla
     __tablename__ = "inv_custodias"
@@ -25,8 +25,8 @@ class INVCustodia(db.Model, UniversalMixin):
     nombre_completo = db.Column(db.String(256))
 
     # Hijos
-    equipos = db.relationship("INVEquipo", back_populates="custodia")
+    equipos = db.relationship("InvEquipo", back_populates="custodia")
 
     def __repr__(self):
         """Representación"""
-        return "<INVCustodia>"
+        return "<InvCustodia>"

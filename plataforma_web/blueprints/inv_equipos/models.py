@@ -6,8 +6,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class INVEquipo(db.Model, UniversalMixin):
-    """INVEquipo"""
+class InvEquipo(db.Model, UniversalMixin):
+    """InvEquipo"""
 
     # Nombre de la tabla
     __tablename__ = "inv_equipos"
@@ -17,11 +17,11 @@ class INVEquipo(db.Model, UniversalMixin):
 
     # Clave foránea
     inv_custodia_id = db.Column(db.Integer, db.ForeignKey("inv_custodias.id"), index=True, nullable=False)
-    custodia = db.relationship("INVCustodia", back_populates="equipos")
+    custodia = db.relationship("InvCustodia", back_populates="equipos")
     inv_modelo_id = db.Column(db.Integer, db.ForeignKey("inv_modelos.id"), index=True, nullable=False)
-    modelo = db.relationship("INVModelo", back_populates="equipos")
+    modelo = db.relationship("InvModelo", back_populates="equipos")
     inv_red_id = db.Column(db.Integer, db.ForeignKey("inv_redes.id"), index=True, nullable=False)
-    red = db.relationship("INVRedes", back_populates="equipos")
+    red = db.relationship("InvRedes", back_populates="equipos")
 
     # Columnas
     adquisicion_fecha = db.Column(db.Date())
@@ -35,8 +35,8 @@ class INVEquipo(db.Model, UniversalMixin):
     numero_puerto = db.Column(db.Integer())
 
     # Hijos
-    componentes = db.relationship("INVComponente", back_populates="equipo")
-    fotos = db.relationship("INVEquipoFoto", back_populates="equipo")
+    componentes = db.relationship("InvComponente", back_populates="equipo")
+    fotos = db.relationship("InvEquipoFoto", back_populates="equipo")
 
     def __repr__(self):
         """Representación"""

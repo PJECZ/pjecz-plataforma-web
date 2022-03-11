@@ -6,8 +6,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class INVEquipoFoto(db.Model, UniversalMixin):
-    """INVEquipoFoto"""
+class InvEquipoFoto(db.Model, UniversalMixin):
+    """InvEquipoFoto"""
 
     # Nombre de la tabla
     __tablename__ = "inv_equipos_fotos"
@@ -17,7 +17,7 @@ class INVEquipoFoto(db.Model, UniversalMixin):
 
     # Claves foránea para el ticket
     inv_equipo_id = db.Column(db.Integer, db.ForeignKey("inv_equipos.id"), index=True, nullable=False)
-    equipo = db.relationship("INVEquipo", back_populates="fotos")
+    equipo = db.relationship("InvEquipo", back_populates="fotos")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
@@ -26,4 +26,4 @@ class INVEquipoFoto(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<INVEquipoFoto>"
+        return "<InvEquipoFoto>"

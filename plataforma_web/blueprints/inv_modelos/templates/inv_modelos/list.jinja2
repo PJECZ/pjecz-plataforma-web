@@ -6,7 +6,11 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
+        {{ topbar.button('Custodias', url_for('inv_custodias.list_active'),'mdi:security-network') }}
+        {{ topbar.button('Equipos', url_for('inv_equipos.list_active'),'mdi:desktop-classic') }}
+        {{ topbar.button('Marcas', url_for('inv_marcas.list_active'), 'mdi:bookmark-multiple') }}
+        {{ topbar.button('Categorías', url_for('inv_categorias.list_active'),'mdi:car-wrench') }}
+        {{ topbar.button('Redes', url_for('inv_redes.list_active'), 'mdi:access-point-network') }}
         {% if current_user.can_edit('INV MODELOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_modelos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_modelos.list_active')) }}{% endif %}
@@ -18,7 +22,7 @@
 {% endblock %}
 
 {% block content %}
-{% call list.card() %}
+    {% call list.card() %}
         <table id="inv_modelos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>

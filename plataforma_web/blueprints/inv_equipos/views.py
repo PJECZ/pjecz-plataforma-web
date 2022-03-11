@@ -10,18 +10,18 @@ from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
-from plataforma_web.blueprints.inv_redes.models import INVRedes
+from plataforma_web.blueprints.inv_redes.models import InvRedes
 
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_equipos.models import INVEquipo
-from plataforma_web.blueprints.inv_componentes.models import INVComponente
-from plataforma_web.blueprints.inv_equipos_fotos.models import INVEquipoFoto
-from plataforma_web.blueprints.inv_custodias.models import INVCustodia
-from plataforma_web.blueprints.inv_modelos.models import INVModelo
+from plataforma_web.blueprints.inv_equipos.models import InvEquipo
+from plataforma_web.blueprints.inv_componentes.models import InvComponente
+from plataforma_web.blueprints.inv_equipos_fotos.models import InvEquipoFoto
+from plataforma_web.blueprints.inv_custodias.models import InvCustodia
+from plataforma_web.blueprints.inv_modelos.models import InvModelo
 
-from plataforma_web.blueprints.inv_equipos.forms import INVEquipoForm
+from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm
 
 MODULO = "INV EQUIPOS"
 MESES_FUTUROS = 6  # Un año a futuro, para las fechas
@@ -42,24 +42,26 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
-    consulta = INVEquipo.query
+    consulta = InvEquipo.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
-        usuario = INVCustodia.query.get(request.form["usuario_id"])
+        usuario = InvCustodia.query.get(request.form["usuario_id"])
         if usuario:
-            consulta = consulta.filter(INVEquipo.custodia == usuario)
+            consulta = consulta.filter(InvEquipo.custodia == usuario)
+    if "custodia_id" in request.form:
+        consulta = consulta.filter_by(inv_custodia_id=request.form["custodia_id"])
     if "modelo_id" in request.form:
-        modelo = INVModelo.query.get(request.form["modelo_id"])
+        modelo = InvModelo.query.get(request.form["modelo_id"])
         if modelo:
-            consulta = consulta.filter(INVEquipo.modelo == modelo)
+            consulta = consulta.filter(InvEquipo.modelo == modelo)
     if "red_id" in request.form:
-        red = INVRedes.query.get(request.form["red_id"])
+        red = InvRedes.query.get(request.form["red_id"])
         if red:
-            consulta = consulta.filter(INVEquipo.red == red)
-    registros = consulta.order_by(INVEquipo.id).offset(start).limit(rows_per_page).all()
+            consulta = consulta.filter(InvEquipo.red == red)
+    registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -122,9 +124,9 @@ def list_inactive():
 @inv_equipos.route("/inv_equipos/<int:equipo_id>")
 def detail(equipo_id):
     """Detalle de un Equipos"""
-    equipo = INVEquipo.query.get_or_404(equipo_id)
-    componentes = INVComponente.query.filter(INVComponente.inv_equipo_id == equipo_id).all()
-    fotos = INVEquipoFoto.query.filter(INVEquipoFoto.inv_equipo_id == equipo_id).all()
+    equipo = InvEquipo.query.get_or_404(equipo_id)
+    componentes = InvComponente.query.filter(InvComponente.inv_equipo_id == equipo_id).all()
+    fotos = InvEquipoFoto.query.filter(InvEquipoFoto.inv_equipo_id == equipo_id).all()
     return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
 
 
@@ -132,11 +134,11 @@ def detail(equipo_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new(inv_custodia_id):
     """Nuevo Equipos"""
-    custodia = INVCustodia.query.get_or_404(inv_custodia_id)
+    custodia = InvCustodia.query.get_or_404(inv_custodia_id)
     if custodia.estatus != "A":
         flash("El usuario no es activo.", "warning")
         return redirect(url_for("inv_custodia.list_active"))
-    form = INVEquipoForm()
+    form = InvEquipoForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -147,7 +149,7 @@ def new(inv_custodia_id):
             validacion = False
 
         if validacion:
-            equipo = INVEquipo(
+            equipo = InvEquipo(
                 custodia=custodia,
                 modelo=form.modelo.data,
                 red=form.red.data,
@@ -175,8 +177,8 @@ def new(inv_custodia_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(equipo_id):
     """Editar Equipos"""
-    equipo = INVEquipo.query.get_or_404(equipo_id)
-    form = INVEquipoForm()
+    equipo = InvEquipo.query.get_or_404(equipo_id)
+    form = InvEquipoForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -229,7 +231,7 @@ def validar_fecha(fecha):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(equipo_id):
     """Eliminar Equipos"""
-    equipo = INVEquipo.query.get_or_404(equipo_id)
+    equipo = InvEquipo.query.get_or_404(equipo_id)
     if equipo.estatus == "A":
         equipo.delete()
         flash(f"Equipos {equipo.numero_inventario} eliminado.", "success")
@@ -240,7 +242,7 @@ def delete(equipo_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(equipo_id):
     """Recuperar Equipos"""
-    equipo = INVEquipo.query.get_or_404(equipo_id)
+    equipo = InvEquipo.query.get_or_404(equipo_id)
     if equipo.estatus == "B":
         equipo.recover()
         flash(f"Equipos {equipo.numero_inventario} recuperado.", "success")

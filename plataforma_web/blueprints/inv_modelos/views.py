@@ -8,13 +8,13 @@ from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
-from plataforma_web.blueprints.inv_marcas.models import INVMarca
+from plataforma_web.blueprints.inv_marcas.models import InvMarca
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_modelos.models import INVModelo
-from plataforma_web.blueprints.inv_modelos.forms import INVModeloForm, INVModeloEditForm
+from plataforma_web.blueprints.inv_modelos.models import InvModelo
+from plataforma_web.blueprints.inv_modelos.forms import InvModeloForm, InvModeloEditForm
 
 
 MODULO = "INV MODELOS"
@@ -35,16 +35,16 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
-    consulta = INVModelo.query
+    consulta = InvModelo.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
     if "marca_id" in request.form:
-        marca = INVMarca.query.get(request.form["marca_id"])
+        marca = InvMarca.query.get(request.form["marca_id"])
         if marca:
-            consulta = consulta.filter(INVModelo.marca == marca)
-    registros = consulta.order_by(INVModelo.id).offset(start).limit(rows_per_page).all()
+            consulta = consulta.filter(InvModelo.marca == marca)
+    registros = consulta.order_by(InvModelo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -88,7 +88,7 @@ def list_inactive():
 @inv_modelos.route("/inv_modelos/<int:modelo_id>")
 def detail(modelo_id):
     """Detalle de un Modelos"""
-    modelo = INVModelo.query.get_or_404(modelo_id)
+    modelo = InvModelo.query.get_or_404(modelo_id)
     return render_template("inv_modelos/detail.jinja2", modelo=modelo)
 
 
@@ -96,7 +96,7 @@ def detail(modelo_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Modelos"""
-    form = INVModeloForm()
+    form = InvModeloForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -106,7 +106,7 @@ def new():
             flash(f"Creación de la descripcion incorrecta. {str(err)}", "warning")
             validacion = False
         if validacion:
-            modelo = INVModelo(
+            modelo = InvModelo(
                 marca=form.nombre.data,
                 descripcion=safe_string(form.descripcion.data),
             )
@@ -120,8 +120,8 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(modelo_id):
     """Editar Modelo"""
-    modelo = INVModelo.query.get_or_404(modelo_id)
-    form = INVModeloEditForm()
+    modelo = InvModelo.query.get_or_404(modelo_id)
+    form = InvModeloEditForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -143,7 +143,7 @@ def edit(modelo_id):
 
 def _validar_form(form, same=False):
     if not same:
-        descripcion_existente = INVModelo.query.filter(INVModelo.descripcion == safe_string(form.descripcion.data)).first()
+        descripcion_existente = InvModelo.query.filter(InvModelo.descripcion == safe_string(form.descripcion.data)).first()
         if descripcion_existente:
             raise Exception("La descripción ya está en uso. ")
 
@@ -152,7 +152,7 @@ def _validar_form(form, same=False):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(modelo_id):
     """Eliminar Modelo"""
-    modelo = INVModelo.query.get_or_404(modelo_id)
+    modelo = InvModelo.query.get_or_404(modelo_id)
     if modelo.estatus == "A":
         modelo.delete()
         flash(f"Modelo {modelo.descripcion} eliminado.", "success")
@@ -163,7 +163,7 @@ def delete(modelo_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(modelo_id):
     """Recuperar Modelo"""
-    modelo = INVModelo.query.get_or_404(modelo_id)
+    modelo = InvModelo.query.get_or_404(modelo_id)
     if modelo.estatus == "B":
         modelo.recover()
         flash(f"Modelo {modelo.descripcion} recuperado.", "success")

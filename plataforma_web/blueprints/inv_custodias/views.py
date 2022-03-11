@@ -13,10 +13,10 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_custodias.models import INVCustodia
+from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.usuarios.models import Usuario
 
-from plataforma_web.blueprints.inv_custodias.forms import INVCustodiaForm
+from plataforma_web.blueprints.inv_custodias.forms import InvCustodiaForm
 
 MODULO = "INV CUSTODIAS"
 MESES_FUTUROS = 6  # Un año a futuro, para las fechas
@@ -37,7 +37,7 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
-    consulta = INVCustodia.query
+    consulta = InvCustodia.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
@@ -45,8 +45,8 @@ def datatable_json():
     if "usuario_id" in request.form:
         usuario = Usuario.query.get(request.form["usuario_id"])
         if usuario:
-            consulta = consulta.filter(INVCustodia.usuario == usuario)
-    registros = consulta.order_by(INVCustodia.id).offset(start).limit(rows_per_page).all()
+            consulta = consulta.filter(InvCustodia.usuario == usuario)
+    registros = consulta.order_by(InvCustodia.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -95,7 +95,7 @@ def list_inactive():
 @inv_custodias.route("/inv_custodias/<int:custodia_id>")
 def detail(custodia_id):
     """Detalle de un Custodias"""
-    custodia = INVCustodia.query.get_or_404(custodia_id)
+    custodia = InvCustodia.query.get_or_404(custodia_id)
     return render_template("inv_custodias/detail.jinja2", custodia=custodia)
 
 
@@ -104,7 +104,7 @@ def detail(custodia_id):
 def new(usuario_id):
     """Nuevo Custodias"""
     usuario = Usuario.query.get_or_404(usuario_id)
-    form = INVCustodiaForm()
+    form = InvCustodiaForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -114,7 +114,7 @@ def new(usuario_id):
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
         if validacion:
-            custodia = INVCustodia(fecha=form.fecha.data, usuario=usuario, nombre_completo=usuario.nombre, curp=usuario.curp)
+            custodia = InvCustodia(fecha=form.fecha.data, usuario=usuario, nombre_completo=usuario.nombre, curp=usuario.curp)
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
@@ -127,8 +127,8 @@ def new(usuario_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(custodia_id):
     """Editar Custodias"""
-    custodia = INVCustodia.query.get_or_404(custodia_id)
-    form = INVCustodiaForm()
+    custodia = InvCustodia.query.get_or_404(custodia_id)
+    form = InvCustodiaForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -159,7 +159,7 @@ def validar_fecha(fecha):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(custodia_id):
     """Eliminar Custodias"""
-    custodia = INVCustodia.query.get_or_404(custodia_id)
+    custodia = InvCustodia.query.get_or_404(custodia_id)
     if custodia.estatus == "A":
         custodia.delete()
         flash(f"Custodias {custodia.nombre_completo} eliminado.", "success")
@@ -170,7 +170,7 @@ def delete(custodia_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(custodia_id):
     """Recuperar Custodias"""
-    custodia = INVCustodia.query.get_or_404(custodia_id)
+    custodia = InvCustodia.query.get_or_404(custodia_id)
     if custodia.estatus == "B":
         custodia.recover()
         flash(f"Custodias {custodia.nombre_completo} recuperado.", "success")

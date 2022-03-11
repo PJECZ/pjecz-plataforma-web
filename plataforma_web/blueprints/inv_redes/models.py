@@ -8,8 +8,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class INVRedes(db.Model, UniversalMixin):
-    """INVRedes"""
+class InvRedes(db.Model, UniversalMixin):
+    """InvRedes"""
 
     TIPOS = OrderedDict(
         [
@@ -31,8 +31,8 @@ class INVRedes(db.Model, UniversalMixin):
     tipo = db.Column(db.Enum(*TIPOS, name="tipos_redes", native_enum=False), index=True, nullable=False)
 
     # Hijos
-    equipos = db.relationship("INVEquipo", back_populates="red")
+    equipos = db.relationship("InvEquipo", back_populates="red")
 
     def __repr__(self):
         """Representación"""
-        return "<INVRedes>"
+        return "<InvRedes>"
