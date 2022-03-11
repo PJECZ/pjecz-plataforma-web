@@ -18,12 +18,11 @@
         <table id="autoridades_funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>IDs</th>
-                    <th>Autoridades</th>
-                    <th>Descripciones cortas</th>
-                    <th>CURPs</th>
-                    <th>Nombres</th>
-                    <th>Puestos</th>
+                    <th>ID</th>
+                    <th>Autoridad</th>
+                    <th>Autoridad descripción corta</th>
+                    <th>Funcionario CURP</th>
+                    <th>Funcionario nombre</th>
                 </tr>
             </thead>
         </table>
@@ -31,82 +30,48 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ list.config_datatable() }}
     <script>
-        $('#autoridades_funcionarios_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/autoridades_funcionarios/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
+        configDataTable['ajax']['url'] = '/autoridades_funcionarios/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "detalle" },
+            { data: "autoridad" },
+            { data: "autoridad_descripcion_corta" },
+            { data: "funcionario" },
+            { data: "funcionario_nombre" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
             },
-            columns: [
-                { data: "detalle" },
-                { data: "autoridad" },
-                { data: "autoridad_descripcion_corta" },
-                { data: "funcionario" },
-                { data: "funcionario_nombre" },
-                { data: "funcionario_puesto" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: 1,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.clave;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
-                        }
-                    }
-                },
-                {
-                    targets: 3,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.curp;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.curp + '</a>';
-                        }
-                    }
-                },
-                {
-                    targets: [2, 4, 5],
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+            {
+                targets: 1, // autoridad
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.clave;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+            },
+            {
+                targets: 3, // funcionario
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.curp;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.curp + '</a>';
+                    }
                 }
             }
-        });
+        ];
+        $('#autoridades_funcionarios_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}

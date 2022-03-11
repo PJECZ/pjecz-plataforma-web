@@ -41,10 +41,8 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>CURP</th>
-                        <th>Nombres completos</th>
-                        <th>e-mail</th>
-                        <th>Puesto</th>
+                        <th>Funcionario CURP</th>
+                        <th>Funcionario nombre</th>
                     </tr>
                 </thead>
             </table>
@@ -71,132 +69,73 @@
         {% if oficina.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar ' + oficina.clave + '?') }}{% endif %}
         {% if oficina.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar ' + oficina.clave + '?') }}{% endif %}
     {% endif %}
+    {{ detail.config_datatable() }}
     {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
         <script>
-            $('#funcionarios_oficinas_datatable').DataTable({
-                processing: true,
-                serverSide: true,
-                ordering: false,
-                searching: false,
-                responsive: true,
-                scrollX: true,
-                ajax: {
-                    url: "/funcionarios_oficinas/datatable_json",
-                    type: "POST",
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                    dataType: "json",
-                    dataSrc: "data",
-                    data: { "estatus": "A", "oficina_id": {{ oficina.id }} }
-                },
-                columns: [
-                    { data: "detalle" },
-                    { data: "funcionario" },
-                    { data: "funcionario_nombre" },
-                    { data: "funcionario_email" },
-                    { data: "funcionario_puesto" }
-                ],
-                columnDefs: [
-                    {
-                        targets: 0,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.id + '</a>';
-                        }
-                    },
-                    {
-                        targets: 1,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            if (data.url == '') {
-                                return data.curp;
-                            } else {
-                                return '<a href="' + data.url + '">' + data.curp + '</a>';
-                            }
-                        }
+            configDataTable['ajax']['url'] = '/funcionarios_oficinas/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id}} };
+            configDataTable['columns'] = [
+                { data: 'detalle' },
+                { data: 'funcionario' },
+                { data: 'funcionario_nombre' }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
-                ],
-                language: {
-                    lengthMenu: "Mostrar _MENU_",
-                    search: "Filtrar:",
-                    zeroRecords: "No se encontraron registros",
-                    info: "Total de registros _TOTAL_ ",
-                    infoEmpty: "No hay registros",
-                    infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                    oPaginate: {
-                        sFirst: "Primero",
-                        sLast: "Último",
-                        sNext: "Siguiente",
-                        sPrevious: "Anterior"
+                },
+                {
+                    targets: 1, // funcionario
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.curp + '</a>';
                     }
                 }
-            });
+            ];
+            $('#funcionarios_oficinas_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
     {% if current_user.can_view('USUARIOS') %}
         <script>
-            $('#usuarios_datatable').DataTable({
-                processing: true,
-                serverSide: true,
-                ordering: false,
-                searching: false,
-                responsive: true,
-                scrollX: true,
-                ajax: {
-                    url: "/usuarios/datatable_json",
-                    type: "POST",
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                    dataType: "json",
-                    dataSrc: "data",
-                    data: {"estatus": "A", "oficina_id": {{ oficina.id }}}
-                },
-                columns: [
-                    { data: "detalle" },
-                    { data: "nombre" },
-                    { data: "puesto" },
-                    { data: "autoridad" }
-                ],
-                columnDefs: [
-                    {
-                        targets: 0,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.email + '</a>';
-                        }
-                    },
-                    {
-                        targets: [1, 2],
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return (data.length > 48 ? data.substr(0, 48) + '…' : data);
-                        }
-                    },
-                    {
-                        targets: 3,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            if (data.url == '') {
-                                return data.clave;
-                            } else {
-                                return '<a href="' + data.url + '">' + data.clave + '</a>';
-                            }
-                        }
+            configDataTable['ajax']['url'] = '/usuarios/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "nombre" },
+                { data: "puesto" },
+                { data: "autoridad" }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
                     }
-                ],
-                language: {
-                    lengthMenu: "Mostrar _MENU_",
-                    search: "Filtrar:",
-                    zeroRecords: "No se encontraron registros",
-                    info: "Total de registros _TOTAL_ ",
-                    infoEmpty: "No hay registros",
-                    infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                    oPaginate: {
-                        sFirst: "Primero",
-                        sLast: "Último",
-                        sNext: "Siguiente",
-                        sPrevious: "Anterior"
+                },
+                {
+                    targets: [1, 2], // nombre, puesto
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                    }
+                },
+                {
+                    targets: 3, // autoridad
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.clave;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
                     }
                 }
-            });
+            ];
+            $('#usuarios_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
 {% endblock %}
