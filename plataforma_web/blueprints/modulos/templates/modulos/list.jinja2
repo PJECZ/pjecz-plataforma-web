@@ -46,5 +46,41 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('modulos_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/modulos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'icono' },
+            { data: 'en_navegacion' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 1, // icono
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<span class="iconify" data-icon="' + data.icono + '" style="font-size: 1.4em"></span>';
+                }
+            },
+            {
+                targets: 2, // en_navegacion
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return 'SI';
+                    }
+                    return '';
+                }
+            }
+        ];
+        $('#modulos_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}

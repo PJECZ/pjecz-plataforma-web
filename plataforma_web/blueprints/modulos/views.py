@@ -1,9 +1,12 @@
 """
 Modulos, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -24,12 +27,42 @@ def before_request():
     """Permiso por defecto"""
 
 
+@modulos.route("/modulos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Modulos"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = Modulo.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(Modulo.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("modulos.detail", modulo_id=resultado.id),
+                },
+                "icono": resultado.icono,
+                "en_navegacion": resultado.en_navegacion,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @modulos.route("/modulos")
 def list_active():
     """Listado de Modulos activos"""
     return render_template(
         "modulos/list.jinja2",
-        modulos=Modulo.query.filter_by(estatus="A").all(),
+        filtros=json.dumps({"estatus": "A"}),
         titulo="Módulos",
         estatus="A",
     )
@@ -41,7 +74,7 @@ def list_inactive():
     """Listado de Modulos inactivos"""
     return render_template(
         "modulos/list.jinja2",
-        modulos=Modulo.query.filter_by(estatus="B").all(),
+        filtros=json.dumps({"estatus": "B"}),
         titulo="Módulos inactivos",
         estatus="B",
     )
