@@ -32,15 +32,6 @@
                     <th>En menú de navegación</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for modulo in modulos %}
-                <tr>
-                    <td><a href="{{ url_for('modulos.detail', modulo_id=modulo.id) }}">{{ modulo.nombre }}</a></td>
-                    <td><span class="iconify" data-icon="{{ modulo.icono }}" style="font-size: 1.4em"></span></td>
-                    <td>{% if modulo.en_navegacion %}SI{% endif %}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
