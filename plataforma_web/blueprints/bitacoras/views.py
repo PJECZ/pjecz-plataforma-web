@@ -5,10 +5,10 @@ from flask import Blueprint, render_template, url_for
 from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "BITACORAS"
 
@@ -32,7 +32,7 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Bitacora.query
-    registros = consulta.order_by(Bitacora.creado.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Bitacora.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar un listado de diccionarios
     data = []

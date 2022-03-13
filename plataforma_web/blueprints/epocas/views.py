@@ -1,9 +1,11 @@
 """
 Epocas, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -25,28 +27,54 @@ def before_request():
     """Permiso por defecto"""
 
 
-@epocas.route("/epocas")
+@epocas.route('/epocas/datatable_json', methods=['GET', 'POST'])
+def datatable_json():
+    """DataTable JSON para listado de Epocas"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = Epoca.query
+    if 'estatus' in request.form:
+        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    else:
+        consulta = consulta.filter_by(estatus='A')
+    registros = consulta.order_by(Epoca.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                'detalle': {
+                    'nombre': resultado.nombre,
+                    'url': url_for('epocas.detail', epoca_id=resultado.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@epocas.route('/epocas')
 def list_active():
-    """Listado de Epocas activas"""
-    epocas_activas = Epoca.query.filter(Epoca.estatus == "A").all()
+    """Listado de Epocas activos"""
     return render_template(
-        "epocas/list.jinja2",
-        epocas=epocas_activas,
-        titulo="Épocas",
-        estatus="A",
+        'epocas/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Epocas',
+        estatus='A',
     )
 
 
-@epocas.route("/epocas/inactivos")
+@epocas.route('/epocas/inactivos')
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de Epocas inactivas"""
-    epocas_inactivas = Epoca.query.filter(Epoca.estatus == "B").all()
+    """Listado de Epocas inactivos"""
     return render_template(
-        "epocas/list.jinja2",
-        epocas=epocas_inactivas,
-        titulo="Épocas inactivas",
-        estatus="B",
+        'epocas/list.jinja2',
+        filtros=json.dumps({'estatus': 'B'}),
+        titulo='Epocas inactivos',
+        estatus='B',
     )
 
 

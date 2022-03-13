@@ -27,17 +27,27 @@
                     <th>Nombres</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for epoca in epocas %}
-                <tr>
-                    <td><a href="{{ url_for('epocas.detail', epoca_id=epoca.id) }}">{{ epoca.nombre }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('epocas_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/epocas/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            }
+        ];
+        $('#epocas_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}
