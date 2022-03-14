@@ -1,0 +1,27 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Componente{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Componente para ' + equipo.modelo.descripcion ) }}
+{% endblock %}
+
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'equipo_id': equipo.id} %}  
+        {% call f.form_tag('inv_componentes.new', fid='componente_form', **form_kwargs) %}
+            {% call f.form_group(form.equipo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.marca, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.descripcion_equipo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.cantidad) %}{% endcall %}
+            {% call f.form_group(form.version) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

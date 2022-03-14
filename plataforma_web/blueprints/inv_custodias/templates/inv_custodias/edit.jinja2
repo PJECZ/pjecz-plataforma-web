@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Custodia{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + custodia.nombre_completo) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'custodia_id': custodia.id} %}
+        {% call f.form_tag('inv_custodias.edit', fid='custodia_id_form', **form_kwargs) %}
+            {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

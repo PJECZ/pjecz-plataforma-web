@@ -91,6 +91,22 @@
             </table>
         {% endcall %}
     {% endif %}
+    {% if current_user.can_view('INV CUSTODIAS') %}
+        {% call list.card('Custodias') %}
+            <table id="inv_custodias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>IDs</th>
+                        <th>Fecha</th>
+                        <th>Oficina</th>
+                    </tr>
+                </thead>
+            </table>
+            {% if current_user.can_insert('INV CUSTODIAS') %}
+                <a href="{{ url_for('inv_custodias.new', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -101,6 +117,7 @@
     {{ detail.moment_js(moment) }}
     {{ detail.datatable('roles_datatable') }}
     {{ modals.custom_javascript('Eliminar', '¿Eliminar ese rol del usuario?', 'DeleteRolUsuario') }}
+    {{ detail.config_datatable() }}
     <script>
         $('#soportes_tickets_datatable').DataTable({
             processing: true,
@@ -207,4 +224,34 @@
             }
         });
         </script>
+        {# script datatables inventarios custodias#}
+        {% if current_user.can_view('INV CUSTODIAS') %}
+            <script>
+                configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{usuario.id}} };
+                configDataTable['columns'] = [
+                    { data: "id" },
+                    { data: "fecha" },
+                    { data: "oficina" },
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 2,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                    },
+                ];
+                $('#inv_custodias_datatable').DataTable(configDataTable);
+            </script>
+        {% endif %}   
 {% endblock %}
+    
