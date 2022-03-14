@@ -472,14 +472,14 @@ def done(soporte_ticket_id):
 @soportes_tickets.route("/soportes_tickets/cerrar/<int:soporte_ticket_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def close(soporte_ticket_id):
-    """Para CERRAR un ticket este debe estar TRABAJANDO y ser funcionario de soportes"""
+    """Para CERRAR un ticket debe ser funcionario de soportes"""
     ticket = SoporteTicket.query.get_or_404(soporte_ticket_id)
     detalle_url = url_for("soportes_tickets.detail", soporte_ticket_id=ticket.id)
     if ticket.estatus != "A":
         flash("No puede cerrar un ticket eliminado.", "warning")
         return redirect(detalle_url)
-    if ticket.estado != "TRABAJANDO":
-        flash("No puede cerrar este ticket que no está TRABAJANDO.", "warning")
+    if ticket.estado not in ("SIN ATENDER", "TRABAJANDO", "PENDIENTE"):
+        flash("No puede cerrar este ticket que no está SIN ATENDER, TRABAJANDO o PENDIENTE.", "warning")
         return redirect(detalle_url)
     funcionario = _get_funcionario_if_is_soporte()
     if funcionario is None:

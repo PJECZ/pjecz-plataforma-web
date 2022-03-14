@@ -246,7 +246,10 @@ def datatable_json():
                     "clave": resultado.autoridad.clave,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
                 },
-                "oficina_clave": resultado.oficina.clave,
+                "oficina": {
+                    "clave": resultado.oficina.clave,
+                    "url": url_for("oficinas.detail", oficina_id=resultado.oficina_id) if current_user.can_view("OFICINAS") else "",
+                },
                 "workspace": resultado.workspace,
             }
         )

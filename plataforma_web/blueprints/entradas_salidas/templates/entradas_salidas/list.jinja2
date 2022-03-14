@@ -30,57 +30,31 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ list.config_datatable() }}
     <script>
-        $('#entradas_salidas_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/entradas_salidas/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {}
-            },
-            columns: [
-                { data: "creado" },
-                { data: "tipo" },
-                { data: "usuario" },
-            ],
-            order: [[ 0, "desc" ]],
-            columnDefs: [
-                {
-                    targets: 0,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
-                    }
-                },
-                {
-                    targets: 2,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.email + '</a>';
-                    }
+        configDataTable['ajax']['url'] = '/entradas_salidas/datatable_json';
+        configDataTable['ajax']['data'] = {}; // Sin filtros
+        configDataTable['columns'] = [
+            { data: "creado" },
+            { data: "tipo" },
+            { data: "usuario" },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // creado
+                type: "date",
+                render: function (data, type, row) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+            },
+            {
+                targets: 2, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.email + '</a>';
                 }
             }
-        });
+        ];
+        $('#entradas_salidas_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}
