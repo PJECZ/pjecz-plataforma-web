@@ -152,7 +152,6 @@
             $('#funcionarios_oficinas_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
-    {{ detail.config_datatable() }}
     {% if current_user.can_view('SOPORTES TICKETS') %}
         <script>
             configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
