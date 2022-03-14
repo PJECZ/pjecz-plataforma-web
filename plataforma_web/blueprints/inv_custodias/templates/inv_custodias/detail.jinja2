@@ -39,7 +39,6 @@
                         <th>Red</th>
                     </tr>
                 </thead>
-                
             </table>
             {% if current_user.can_insert('INV EQUIPOS') %}
                 <a href="{{ url_for('inv_equipos.new', inv_custodia_id=custodia.id) }}" class="btn btn-primary">Agregar</a>

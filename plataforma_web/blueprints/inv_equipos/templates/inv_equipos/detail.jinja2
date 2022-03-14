@@ -27,11 +27,11 @@
         {{ detail.label_value('Usuario', equipo.custodia.nombre_completo) }}
         {{ detail.label_value('Marca', equipo.modelo.marca.nombre) }}
         {{ detail.label_value('Modelo', equipo.modelo.descripcion) }}
-        {{ detail.label_value('Red', equipo.red.nombre) }}
+        {{ detail.label_value('Fecha de adquisición', moment(equipo.adquisicion_fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Inventario', equipo.numero_inventario) }}
         {{ detail.label_value('No. serie', equipo.numero_serie) }}
-        {{ detail.label_value('Fecha de adquisición', equipo.adquisicion_fecha) }}
         {{ detail.label_value('Descripción', equipo.descripcion) }}
+        {{ detail.label_value('Red', equipo.red.nombre) }}
         {{ detail.label_value('Dirección IP', equipo.direccion_ip) }}
         {{ detail.label_value('Dirección MAC', equipo.direccion_mac) }}
         {{ detail.label_value('Número nodo', equipo.numero_nodo) }}
@@ -82,8 +82,9 @@
         {% if equipo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + equipo.descripcion + '?') }}{% endif %}
         {% if equipo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + equipo.descripcion + '?') }}{% endif %}
     {% endif %}
-    {{ list.datatable('inv_equipos_fotos_datatable') }}
+    {{ detail.moment_js(moment) }}
     {{ detail.config_datatable() }}
+    {{ list.datatable('inv_equipos_fotos_datatable') }}
     {% if current_user.can_view('INV COMPONENTES') %}
         <script>
             configDataTable['ajax']['url'] = '/inv_componentes/datatable_json';
