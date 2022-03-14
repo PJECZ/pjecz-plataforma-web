@@ -28,6 +28,45 @@ def before_request():
     """Permiso por defecto"""
 
 
+@identidades_generos.route("/identidades_generos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Identidades Géneros"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = IdentidadGenero.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "nombre_actual" in request.form:
+        consulta = consulta.filter(IdentidadGenero.nombre_actual.like("%" + safe_string(request.form["nombre_actual"]) + "%"))
+    if "nombre_anterior" in request.form:
+        consulta = consulta.filter(IdentidadGenero.nombre_anterior.like("%" + safe_string(request.form["nombre_anterior"]) + "%"))
+    if "lugar_nacimiento" in request.form:
+        consulta = consulta.filter(IdentidadGenero.lugar_nacimiento.like("%" + safe_string(request.form["lugar_nacimiento"]) + "%"))
+    registros = consulta.order_by(IdentidadGenero.nombre_actual).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "nombre_actual": resultado.nombre_actual,
+                    "url": url_for("identidades_generos.detail", identidad_genero_id=resultado.id),
+                },
+                "nombre_anterior": resultado.nombre_anterior,
+                "fecha_nacimiento": resultado.fecha_nacimiento.strftime("%Y-%m-%d 00:00:00"),
+                "lugar_nacimiento": resultado.lugar_nacimiento,
+                "genero_anterior": resultado.genero_anterior,
+                "genero_actual": resultado.genero_actual,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @identidades_generos.route("/identidades_generos")
 def list_active():
     """Listado de Identidades Géneros activos"""
@@ -80,45 +119,6 @@ def search():
             estatus="A",
         )
     return render_template("identidades_generos/search.jinja2", form=form_search)
-
-
-@identidades_generos.route("/identidades_generos/datatable_json", methods=["GET", "POST"])
-def datatable_json():
-    """DataTable JSON para listado de Identidades Géneros"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = get_datatable_parameters()
-    # Consultar
-    consulta = IdentidadGenero.query
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    if "nombre_actual" in request.form:
-        consulta = consulta.filter(IdentidadGenero.nombre_actual.like("%" + safe_string(request.form["nombre_actual"]) + "%"))
-    if "nombre_anterior" in request.form:
-        consulta = consulta.filter(IdentidadGenero.nombre_anterior.like("%" + safe_string(request.form["nombre_anterior"]) + "%"))
-    if "lugar_nacimiento" in request.form:
-        consulta = consulta.filter(IdentidadGenero.lugar_nacimiento.like("%" + safe_string(request.form["lugar_nacimiento"]) + "%"))
-    registros = consulta.order_by(IdentidadGenero.nombre_actual).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for resultado in registros:
-        data.append(
-            {
-                "detalle": {
-                    "nombre_actual": resultado.nombre_actual,
-                    "url": url_for("identidades_generos.detail", identidad_genero_id=resultado.id),
-                },
-                "nombre_anterior": resultado.nombre_anterior,
-                "fecha_nacimiento": resultado.fecha_nacimiento.strftime("%Y-%m-%d 00:00:00"),
-                "lugar_nacimiento": resultado.lugar_nacimiento,
-                "genero_anterior": resultado.genero_anterior,
-                "genero_actual": resultado.genero_actual,
-            }
-        )
-    # Entregar JSON
-    return output_datatable_json(draw, total, data)
 
 
 @identidades_generos.route("/identidades_generos/<int:identidad_genero_id>")

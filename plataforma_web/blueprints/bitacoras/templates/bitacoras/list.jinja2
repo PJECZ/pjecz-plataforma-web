@@ -20,9 +20,9 @@
         <table id="bitacoras_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Tiempos</th>
-                    <th>Usuarios</th>
-                    <th>Descripciones</th>
+                    <th>Tiempo</th>
+                    <th>Usuario</th>
+                    <th>Descripción</th>
                 </tr>
             </thead>
         </table>
@@ -30,64 +30,38 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ list.config_datatable() }}
     <script>
-        $('#bitacoras_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/bitacoras/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {}
-            },
-            columns: [
-                { data: "creado" },
-                { data: "usuario" },
-                { data: "vinculo" }
-            ],
-            order: [[ 0, "desc" ]],
-            columnDefs: [
-                {
-                    targets: 0,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
-                    }
-                },
-                {
-                    targets: 1,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.email + '</a>';
-                    }
-                },
-                {
-                    targets: 2,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '" target="_blank">' + data.descripcion + ' <span class="iconify" data-icon="mdi:open-in-new"></span></a>';
-                    }
+        configDataTable['ajax']['url'] = '/bitacoras/datatable_json';
+        configDataTable['ajax']['data'] = {}; // Sin filtros
+        configDataTable['columns'] = [
+            { data: "creado" },
+            { data: "usuario" },
+            { data: "vinculo" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // creado
+                type: "date",
+                render: function (data, type, row) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+            },
+            {
+                targets: 1, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.email + '</a>';
+                }
+            },
+            {
+                targets: 2, // vinculo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '" target="_blank">' + data.descripcion + ' <span class="iconify" data-icon="mdi:open-in-new"></span></a>';
                 }
             }
-        });
+        ];
+        $('#bitacoras_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}
