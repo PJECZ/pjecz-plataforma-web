@@ -25,6 +25,7 @@ class REPSVMAgresor(db.Model, UniversalMixin):
     repsvm_tipo_sentencia = db.relationship("REPSVMTipoSentencia", back_populates="repsvm_agresores")
 
     # Columnas
+    consecutivo = db.Column(db.Integer, nullable=False)
     nombre = db.Column(db.String(256), nullable=False)
     numero_causa = db.Column(db.String(256), nullable=False)
     pena_impuesta = db.Column(db.String(256), nullable=False)

@@ -32,19 +32,46 @@
                     <th>En menú de navegación</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for modulo in modulos %}
-                <tr>
-                    <td><a href="{{ url_for('modulos.detail', modulo_id=modulo.id) }}">{{ modulo.nombre }}</a></td>
-                    <td><span class="iconify" data-icon="{{ modulo.icono }}" style="font-size: 1.4em"></span></td>
-                    <td>{% if modulo.en_navegacion %}SI{% endif %}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('modulos_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/modulos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'icono' },
+            { data: 'en_navegacion' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 1, // icono
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<span class="iconify" data-icon="' + data + '" style="font-size: 1.4em"></span>';
+                }
+            },
+            {
+                targets: 2, // en_navegacion
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return 'SI';
+                    }
+                    return '';
+                }
+            }
+        ];
+        $('#modulos_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}

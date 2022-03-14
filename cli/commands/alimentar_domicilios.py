@@ -30,14 +30,40 @@ def alimentar_domicilios():
             if domicilio_id != contador + 1:
                 click.echo(f"  AVISO: domicilio_id {domicilio_id} no es consecutivo")
                 continue
+            elementos = []
+            calle = safe_string(row["calle"], max_len=256)
+            num_ext = safe_string(row["num_ext"], max_len=24)
+            num_int = safe_string(row["num_int"], max_len=24)
+            colonia = safe_string(row["colonia"], max_len=256)
+            municipio = safe_string(row["municipio"], max_len=64)
+            estado = safe_string(row["estado"], max_len=64)
+            cp = int(row["cp"])
+            if calle:
+                elementos.append(calle)
+            if num_ext:
+                elementos.append(f"#{num_ext}")
+            if num_int:
+                elementos.append("num_int")
+            if colonia:
+                elementos.append(colonia)
+            if municipio:
+                elementos.append(municipio)
+            if estado:
+                elementos.append(estado)
+            if cp:
+                elementos.append(f"C.P. {cp}")
+            completo = " ".join(elementos)
+            if completo.startswith("NO DEFINIDO"):
+                completo = "NO DEFINIDO"
             Domicilio(
-                estado=safe_string(row["estado"], max_len=64),
-                municipio=safe_string(row["municipio"], max_len=64),
-                calle=safe_string(row["calle"], max_len=256),
-                num_ext=safe_string(row["num_ext"], max_len=24),
-                num_int=safe_string(row["num_int"], max_len=24),
-                colonia=safe_string(row["colonia"], max_len=256),
-                cp=int(row["cp"]),
+                estado=estado,
+                municipio=municipio,
+                calle=calle,
+                num_ext=num_ext,
+                num_int=num_int,
+                colonia=colonia,
+                cp=cp,
+                completo=completo,
                 estatus=row["estatus"],
             ).save()
             contador += 1

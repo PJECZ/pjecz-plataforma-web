@@ -49,73 +49,47 @@
         {% if domicilio.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar el domicilio en la calle: ' + domicilio.calle + '?') }}{% endif %}
         {% if domicilio.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar el domicilio en la calle: ' + domicilio.calle + '?') }}{% endif %}
     {% endif %}
+    {{ detail.config_datatable() }}
     {% if current_user.can_view('OFICINAS') %}
         <script>
-            $('#oficinas_datatable').DataTable({
-                processing: true,
-                serverSide: true,
-                ordering: false,
-                searching: false,
-                responsive: true,
-                scrollX: true,
-                ajax: {
-                    url: "/oficinas/datatable_json",
-                    type: "POST",
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                    dataType: "json",
-                    dataSrc: "data",
-                    data: { "estatus": "A", "domicilio_id": {{ domicilio.id }} }
-                },
-                columns: [
-                    { data: "detalle" },
-                    { data: "descripcion_corta" },
-                    { data: "distrito" },
-                    { data: "apertura" },
-                    { data: "cierre" },
-                    { data: "limite_personas" }
-                ],
-                columnDefs: [
-                    {
-                        targets: 0,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
-                        }
-                    },
-                    {
-                        targets: 1,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return (data.length > 48 ? data.substr(0, 48) + '…' : data);
-                        }
-                    },
-                    {
-                        targets: 2,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            if (data.url == '') {
-                                return data.nombre_corto;
-                            } else {
-                                return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
-                            }
-                        }
+            configDataTable['ajax']['url'] = '/oficinas/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'domicilio_id': {{ domicilio.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "descripcion_corta" },
+                { data: "distrito" },
+                { data: "apertura" },
+                { data: "cierre" },
+                { data: "limite_personas" }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
-                ],
-                language: {
-                    lengthMenu: "Mostrar _MENU_",
-                    search: "Filtrar:",
-                    zeroRecords: "No se encontraron registros",
-                    info: "Total de registros _TOTAL_ ",
-                    infoEmpty: "No hay registros",
-                    infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                    oPaginate: {
-                        sFirst: "Primero",
-                        sLast: "Último",
-                        sNext: "Siguiente",
-                        sPrevious: "Anterior"
+                },
+                {
+                    targets: 1, // descripcion_corta
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                    }
+                },
+                {
+                    targets: 2, // distrito
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre_corto;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                        }
                     }
                 }
-            });
+            ];
+            $('#oficinas_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
     {{ detail.moment_js(moment) }}

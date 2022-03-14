@@ -7,12 +7,12 @@ from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades_funcionarios.forms import AutoridadFuncionarioWithFuncionarioForm
 from plataforma_web.blueprints.autoridades_funcionarios.models import AutoridadFuncionario
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "AUTORIDADES FUNCIONARIOS"
 
@@ -24,6 +24,48 @@ autoridades_funcionarios = Blueprint("autoridades_funcionarios", __name__, templ
 @permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
+
+
+@autoridades_funcionarios.route("/autoridades_funcionarios/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Autoridades Funcionarios"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = AutoridadFuncionario.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "autoridad_id" in request.form:
+        consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
+    if "funcionario_id" in request.form:
+        consulta = consulta.filter_by(funcionario_id=request.form["funcionario_id"])
+    registros = consulta.order_by(AutoridadFuncionario.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=resultado.id),
+                },
+                "autoridad": {
+                    "clave": resultado.autoridad.clave,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
+                },
+                "autoridad_descripcion_corta": resultado.autoridad.descripcion_corta,
+                "funcionario": {
+                    "curp": resultado.funcionario.curp,
+                    "url": url_for("funcionarios.detail", funcionario_id=resultado.funcionario_id) if current_user.can_view("FUNCIONARIOS") else "",
+                },
+                "funcionario_nombre": resultado.funcionario.nombre,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
 
 
 @autoridades_funcionarios.route("/autoridades_funcionarios")
@@ -47,49 +89,6 @@ def list_inactive():
         titulo="Autoridades Funcionarios inactivos",
         estatus="B",
     )
-
-
-@autoridades_funcionarios.route("/autoridades_funcionarios/datatable_json", methods=["GET", "POST"])
-def datatable_json():
-    """DataTable JSON para listado de Autoridades Funcionarios"""
-    # Tomar parámetros de Datatables
-    draw, start, rows_per_page = get_datatable_parameters()
-    # Consultar
-    consulta = AutoridadFuncionario.query
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    if "autoridad_id" in request.form:
-        consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
-    if "funcionario_id" in request.form:
-        consulta = consulta.filter_by(funcionario_id=request.form["funcionario_id"])
-    registros = consulta.order_by(AutoridadFuncionario.id.desc()).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
-    # Elaborar datos para DataTable
-    data = []
-    for resultado in registros:
-        data.append(
-            {
-                "detalle": {
-                    "id": resultado.id,
-                    "url": url_for("autoridades_funcionarios.detail", autoridad_funcionario_id=resultado.id),
-                },
-                "autoridad": {
-                    "clave": resultado.autoridad.clave,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
-                },
-                "autoridad_descripcion_corta": resultado.autoridad.descripcion_corta,
-                "funcionario": {
-                    "curp": resultado.funcionario.curp,
-                    "url": url_for("funcionarios.detail", funcionario_id=resultado.funcionario_id) if current_user.can_view("FUNCIONARIOS") else "",
-                },
-                "funcionario_nombre": resultado.funcionario.nombre,
-                "funcionario_puesto": resultado.funcionario.puesto,
-            }
-        )
-    # Entregar JSON
-    return output_datatable_json(draw, total, data)
 
 
 @autoridades_funcionarios.route("/autoridades_funcionarios/<int:autoridad_funcionario_id>")

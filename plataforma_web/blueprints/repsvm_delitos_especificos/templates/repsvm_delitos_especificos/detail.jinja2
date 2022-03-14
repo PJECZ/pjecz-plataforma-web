@@ -6,7 +6,7 @@
 {% block title %}REPSVM Delito Específico{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(repsvm_delito_especifico.descripcion) %}
+    {% call topbar.page_buttons('REPSVM Delito Específico') %}
         {{ topbar.button_previous('Delitos Especificos', url_for('repsvm_delitos_especificos.list_active')) }}
         {% if current_user.can_edit('REPSVM DELITOS ESPECIFICOS') %}
             {{ topbar.button_edit('Editar', url_for('repsvm_delitos_especificos.edit', repsvm_delito_especifico_id=repsvm_delito_especifico.id)) }}
@@ -28,6 +28,7 @@
                     <tr>
                         <th>IDs</th>
                         <th>Distritos</th>
+                        <th>Consecutivo</th>
                         <th>T. Juzgados</th>
                         <th>T. Sentencias</th>
                         <th>Nombres</th>
@@ -54,6 +55,7 @@
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "distrito" },
+                { data: "consecutivo" },
                 { data: "materia_tipo_juzgado" },
                 { data: "repsvm_tipo_sentencia" },
                 { data: "nombre" },
@@ -80,7 +82,7 @@
                 }
             },
             {
-                targets: 2, // Materia Tipo Juzgado
+                targets: 3, // Materia Tipo Juzgado
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url != '') {
@@ -90,7 +92,7 @@
                 }
             },
             {
-                targets: 3, // Tipo Sentencia
+                targets: 4, // Tipo Sentencia
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.nombre.length > 16)
@@ -104,7 +106,7 @@
                 }
             },
             {
-                targets: 4, // Nombre
+                targets: 5, // Nombre
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 48)
@@ -114,7 +116,7 @@
                 }
             },
             {
-                targets: [5, 6], // No. Causa y Pena
+                targets: [6, 7], // No. Causa y Pena
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 16)
@@ -124,7 +126,7 @@
                 }
             },
             {
-                targets: 7, // Sentencia URL
+                targets: 8, // Sentencia URL
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data != '') {

@@ -24,20 +24,30 @@
         <table id="peritos_tipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Tipos de Peritos</th>
+                    <th>Nombres</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for perito_tipo in peritos_tipos %}
-                <tr>
-                    <td><a href="{{ url_for('peritos_tipos.detail', perito_tipo_id=perito_tipo.id) }}">{{ perito_tipo.nombre }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('peritos_tipos_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/peritos_tipos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            }
+        ];
+        $('#peritos_tipos_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}
