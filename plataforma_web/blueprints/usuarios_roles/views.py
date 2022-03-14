@@ -27,29 +27,6 @@ def before_request():
     """Permiso por defecto"""
 
 
-@usuarios_roles.route("/usuarios_roles")
-def list_active():
-    """Listado de Usuarios Roles activos"""
-    return render_template(
-        "usuarios_roles/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Usuarios Roles",
-        estatus="A",
-    )
-
-
-@usuarios_roles.route("/usuarios_roles/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_inactive():
-    """Listado de Usuarios Roles inactivos"""
-    return render_template(
-        "usuarios_roles/list.jinja2",
-        filtros=json.dumps({"estatus": "B"}),
-        titulo="Usuarios Roles inactivos",
-        estatus="B",
-    )
-
-
 @usuarios_roles.route("/usuarios_roles/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Usuarios Roles"""
@@ -90,6 +67,29 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@usuarios_roles.route("/usuarios_roles")
+def list_active():
+    """Listado de Usuarios Roles activos"""
+    return render_template(
+        "usuarios_roles/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Usuarios Roles",
+        estatus="A",
+    )
+
+
+@usuarios_roles.route("/usuarios_roles/inactivos")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def list_inactive():
+    """Listado de Usuarios Roles inactivos"""
+    return render_template(
+        "usuarios_roles/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Usuarios Roles inactivos",
+        estatus="B",
+    )
 
 
 @usuarios_roles.route("/usuarios_roles/<int:usuario_rol_id>")
