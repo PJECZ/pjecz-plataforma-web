@@ -2,9 +2,11 @@
 Escrituras, vistas
 """
 import datetime
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_expediente, safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -26,28 +28,64 @@ def before_request():
     """Permiso por defecto"""
 
 
-@escrituras.route("/escrituras")
+@escrituras.route('/escrituras/datatable_json', methods=['GET', 'POST'])
+def datatable_json():
+    """DataTable JSON para listado de Escrituras"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = Escritura.query
+    if 'estatus' in request.form:
+        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    else:
+        consulta = consulta.filter_by(estatus='A')
+    registros = consulta.order_by(Escritura.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                'detalle': {
+                    'id': resultado.id,
+                    'url': url_for('escrituras.detail', escritura_id=resultado.id),
+                },
+                'distrito': {
+                    'nombre_corto': resultado.autoridad.distrito.nombre_corto,
+                    'url': url_for('distritos.detail', distrito_id=resultado.autoridad.distrito_id) if current_user.can_view('DISTRITOS') else '',
+                },
+                'autoridad': {
+                    'clave': resultado.autoridad.clave,
+                    'url': url_for('autoridades.detail', autoridad_id=resultado.autoridad_id) if current_user.can_view('AUTORIDADES') else '',
+                },
+                'etapa': resultado.etapa,
+                'expediente': resultado.expediente,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@escrituras.route('/escrituras')
 def list_active():
-    """Listado de Escrituras activas"""
-    escrituras_activas = Escritura.query.filter(Escritura.estatus == "A").all()
+    """Listado de Escrituras activos"""
     return render_template(
-        "escrituras/list.jinja2",
-        escrituras=escrituras_activas,
-        titulo="Escrituras",
-        estatus="A",
+        'escrituras/list.jinja2',
+        filtros=json.dumps({'estatus': 'A'}),
+        titulo='Escrituras',
+        estatus='A',
     )
 
 
-@escrituras.route("/escrituras/inactivos")
+@escrituras.route('/escrituras/inactivos')
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Escrituras inactivos"""
-    escrituras_inactivas = Escritura.query.filter(Escritura.estatus == "B").all()
     return render_template(
-        "escrituras/list.jinja2",
-        escrituras=escrituras_inactivas,
-        titulo="Escrituras inactivos",
-        estatus="B",
+        'escrituras/list.jinja2',
+        filtros=json.dumps({'estatus': 'B'}),
+        titulo='Escrituras inactivos',
+        estatus='B',
     )
 
 

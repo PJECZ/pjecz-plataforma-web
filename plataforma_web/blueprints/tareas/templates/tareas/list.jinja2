@@ -30,20 +30,37 @@
                     <th>Ha terminado</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for tarea in tareas %}
-                <tr>
-                    <td>{{ tarea.creado }}</td>
-                    <td>{{ tarea.nombre }}</td>
-                    <td>{{ tarea.descripcion }}</td>
-                    <td>{% if tarea.ha_terminado %}Terminado{% else %}Continua{% endif %}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable_times('tareas_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/tareas/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'creado' },
+            { data: 'nombre' },
+            { data: 'descripcion' },
+            { data: 'ha_terminado' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // creado
+                type: "date",
+                render: function (data, type, row) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 3, // ha_terminado
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) { return 'Si'; } else { return ''; }
+                }
+            }
+        ];
+        $('#tareas_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}

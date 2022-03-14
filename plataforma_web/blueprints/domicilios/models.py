@@ -25,7 +25,6 @@ class Domicilio(db.Model, UniversalMixin):
     completo = db.Column(db.String(1024), nullable=False, default="", server_default="")
 
     # Hijos
-    cit_clientes = db.relationship("CitCliente", back_populates="domicilio")
     oficinas = db.relationship("Oficina", back_populates="domicilio")
 
     def __repr__(self):

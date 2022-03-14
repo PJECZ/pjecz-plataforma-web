@@ -15,10 +15,6 @@ from plataforma_web.blueprints.bitacoras.views import bitacoras
 from plataforma_web.blueprints.cid_procedimientos.views import cid_procedimientos
 from plataforma_web.blueprints.cid_formatos.views import cid_formatos
 from plataforma_web.blueprints.cid_registros.views import cid_registros
-from plataforma_web.blueprints.cit_citas.view import cit_citas
-from plataforma_web.blueprints.cit_clientes.views import cit_clientes
-from plataforma_web.blueprints.cit_citas_expedientes.views import cit_citas_expedientes
-from plataforma_web.blueprints.cit_dias_inhabiles.views import cit_dias_inhabiles
 from plataforma_web.blueprints.distritos.views import distritos
 from plataforma_web.blueprints.domicilios.views import domicilios
 from plataforma_web.blueprints.edictos.views import edictos
@@ -40,9 +36,6 @@ from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.peritos_tipos.views import peritos_tipos
 from plataforma_web.blueprints.permisos.views import permisos
-from plataforma_web.blueprints.rep_graficas.views import rep_graficas
-from plataforma_web.blueprints.rep_reportes.views import rep_reportes
-from plataforma_web.blueprints.rep_resultados.views import rep_resultados
 from plataforma_web.blueprints.repsvm_agresores.views import repsvm_agresores
 from plataforma_web.blueprints.repsvm_delitos_especificos.views import repsvm_delitos_especificos
 from plataforma_web.blueprints.repsvm_delitos_genericos.views import repsvm_delitos_genericos
@@ -95,10 +88,6 @@ def create_app():
     app.register_blueprint(cid_procedimientos)
     app.register_blueprint(cid_formatos)
     app.register_blueprint(cid_registros)
-    app.register_blueprint(cit_citas)
-    app.register_blueprint(cit_citas_expedientes)
-    app.register_blueprint(cit_clientes)
-    app.register_blueprint(cit_dias_inhabiles)
     app.register_blueprint(distritos)
     app.register_blueprint(domicilios)
     app.register_blueprint(edictos)
@@ -120,9 +109,6 @@ def create_app():
     app.register_blueprint(peritos)
     app.register_blueprint(peritos_tipos)
     app.register_blueprint(permisos)
-    app.register_blueprint(rep_graficas)
-    app.register_blueprint(rep_reportes)
-    app.register_blueprint(rep_resultados)
     app.register_blueprint(repsvm_agresores)
     app.register_blueprint(repsvm_delitos_especificos)
     app.register_blueprint(repsvm_delitos_genericos)
