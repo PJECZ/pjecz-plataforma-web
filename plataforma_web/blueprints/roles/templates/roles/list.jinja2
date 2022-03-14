@@ -30,17 +30,27 @@
                     <th>Roles</th>
                 </tr>
             </thead>
-            <tbody>
-            {% for rol in roles %}
-                <tr>
-                    <td><a href="{{ url_for('roles.detail', rol_id=rol.id) }}">{{ rol.nombre }}</a></td>
-                </tr>
-            {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('roles_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/roles/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            }
+        ];
+        $('#roles_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}

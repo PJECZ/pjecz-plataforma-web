@@ -33,7 +33,7 @@
     {{ list.config_datatable() }}
     <script>
         configDataTable['ajax']['url'] = '/entradas_salidas/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['ajax']['data'] = {}; // Sin filtros
         configDataTable['columns'] = [
             { data: "creado" },
             { data: "tipo" },

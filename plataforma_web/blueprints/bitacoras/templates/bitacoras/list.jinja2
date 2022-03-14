@@ -20,9 +20,9 @@
         <table id="bitacoras_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Tiempos</th>
-                    <th>Usuarios</th>
-                    <th>Descripciones</th>
+                    <th>Tiempo</th>
+                    <th>Usuario</th>
+                    <th>Descripción</th>
                 </tr>
             </thead>
         </table>
@@ -33,7 +33,7 @@
     {{ list.config_datatable() }}
     <script>
         configDataTable['ajax']['url'] = '/bitacoras/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['ajax']['data'] = {}; // Sin filtros
         configDataTable['columns'] = [
             { data: "creado" },
             { data: "usuario" },

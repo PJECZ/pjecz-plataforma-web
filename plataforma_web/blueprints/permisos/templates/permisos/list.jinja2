@@ -27,9 +27,10 @@
         <table id="permisos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Nombres</th>
-                    <th>Modulos</th>
-                    <th>Niveles</th>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Módulo</th>
+                    <th>Nivel</th>
                 </tr>
             </thead>
         </table>
@@ -37,73 +38,47 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ list.config_datatable() }}
     <script>
-        $('#permisos_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/permisos/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
+        configDataTable['ajax']['url'] = '/permisos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "detalle" },
+            { data: "rol" },
+            { data: "modulo" },
+            { data: "nivel" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
             },
-            columns: [
-                { data: "detalle" },
-                { data: "rol" },
-                { data: "modulo" },
-                { data: "nivel" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
+            {
+                targets: 1, // rol
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
-                },
-                {
-                    targets: 1,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.nombre;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                        }
-                    }
                 }
-                {
-                    targets: 2,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.nombre;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                        }
+            },
+            {
+                targets: 2, // modulo
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
-                }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
                 }
             }
-        });
+        ];
+        $('#permisos_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}

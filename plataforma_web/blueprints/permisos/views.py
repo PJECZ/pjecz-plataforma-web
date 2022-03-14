@@ -8,13 +8,13 @@ from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.forms import PermisoNewWithModuloForm, PermisoNewWithRolForm, PermisoEditForm
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.roles.models import Rol
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "PERMISOS"
 
@@ -26,29 +26,6 @@ permisos = Blueprint("permisos", __name__, template_folder="templates")
 @permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
-
-
-@permisos.route("/permisos")
-def list_active():
-    """Listado de Permisos activos"""
-    return render_template(
-        "permisos/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Permisos",
-        estatus="A",
-    )
-
-
-@permisos.route("/permisos/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_inactive():
-    """Listado de Permisos inactivos"""
-    return render_template(
-        "permisos/list.jinja2",
-        filtros=json.dumps({"estatus": "B"}),
-        titulo="Permisos inactivos",
-        estatus="B",
-    )
 
 
 @permisos.route("/permisos/datatable_json", methods=["GET", "POST"])
@@ -90,6 +67,29 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@permisos.route("/permisos")
+def list_active():
+    """Listado de Permisos activos"""
+    return render_template(
+        "permisos/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Permisos",
+        estatus="A",
+    )
+
+
+@permisos.route("/permisos/inactivos")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def list_inactive():
+    """Listado de Permisos inactivos"""
+    return render_template(
+        "permisos/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Permisos inactivos",
+        estatus="B",
+    )
 
 
 @permisos.route("/permisos/<int:permiso_id>")

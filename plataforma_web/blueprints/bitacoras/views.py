@@ -15,14 +15,6 @@ MODULO = "BITACORAS"
 bitacoras = Blueprint("bitacoras", __name__, template_folder="templates")
 
 
-@bitacoras.route("/bitacoras")
-@login_required
-@permission_required(MODULO, Permiso.VER)
-def list_active():
-    """Listado de bitácoras"""
-    return render_template("bitacoras/list.jinja2")
-
-
 @bitacoras.route("/bitacoras/datatable_json", methods=["GET", "POST"])
 @login_required
 @permission_required(MODULO, Permiso.VER)
@@ -52,3 +44,11 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@bitacoras.route("/bitacoras")
+@login_required
+@permission_required(MODULO, Permiso.VER)
+def list_active():
+    """Listado de bitácoras"""
+    return render_template("bitacoras/list.jinja2")
