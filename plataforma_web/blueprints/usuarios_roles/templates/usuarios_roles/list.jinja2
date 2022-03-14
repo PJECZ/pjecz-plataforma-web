@@ -39,81 +39,55 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ list.config_datatable() }}
     <script>
-        $('#usuarios_roles_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/usuarios_roles/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
+        configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: "detalle" },
+            { data: "usuario" },
+            { data: "usuario_nombre" },
+            { data: "usuario_puesto" },
+            { data: "rol" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
             },
-            columns: [
-                { data: "detalle" },
-                { data: "usuario" },
-                { data: "usuario_nombre" },
-                { data: "usuario_puesto" },
-                { data: "rol" }
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: 1,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.email;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.email + '</a>';
-                        }
-                    }
-                },
-                {
-                    targets: 4,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.nombre;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                        }
-                    }
-                },
-                {
-                    targets: [2, 3],
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+            {
+                targets: 1, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.email;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
                     }
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+            },
+            {
+                targets: [2, 3], // usuario_nombre, usuario_puesto
+                data: null,
+                render: function(data, type, row, meta) {
+                    return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+                }
+            },
+            {
+                targets: 4, // rol
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
                 }
             }
-        });
+        ];
+        $('#usuarios_roles_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}

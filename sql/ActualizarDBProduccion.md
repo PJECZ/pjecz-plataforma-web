@@ -30,25 +30,6 @@ Asi puede ejecutar con su usuario con cuenta en postgresql de altos privilegios
 
     eliminar-y-crear-pjecz-plataforma-web
 
-## Paso 2: Usar un contenedor PgAdmin4 para copiar-pegar los comandos SQL
-
-Este comando levanta un contenedor PgAdmin4 que puede comunicarse al servidor local
-
-    podman run --rm \
-        --env-file .env \
-        --name pgadmin4 \
-        -p 8086:80 \
-        --network slirp4netns:allow_host_loopback=true \
-        dpage/pgadmin4:latest
-
-Mantenga corriendo este contenedor en su propia terminal. Con CTRL-C se termina.
-
-Ingrese en su navegador de internet
-
-    http://127.0.0.1:8086
-
-Configure PgAdmin4 para que se conecte a 10.0.2.2 con su usuario con roles mayores
-
 ## Paso 3: Escribir un archivo SQL con todas las instrucciones para crear o modificar
 
 Escriba los comandos SQL para crear o modificar la base de datos, por ejemplo en `sql/2022-XX-XX-descripcion.sql`
