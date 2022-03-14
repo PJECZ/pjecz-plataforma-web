@@ -1,5 +1,5 @@
 """
-INV REDES, modelos
+Inventarios Redes, modelos
 """
 
 from collections import OrderedDict

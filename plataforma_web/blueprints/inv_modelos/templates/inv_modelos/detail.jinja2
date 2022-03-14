@@ -27,13 +27,12 @@
             <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Descripción</th>
-                        <th>Inventario</th>
-                        <th>No. serie</th>
-                        <th>Fecha adquisición</th>
+                        <th>ID</th>
+                        <th>Fecha de adquisición</th>
                         <th>Marca</th>
+                        <th>Descripción del equipo</th>
                         <th>Red</th>
-                        <th>Custodio</th> 
+                        <th>Usuario</th> 
                     </tr>
                 </thead>
             </table>
@@ -53,24 +52,30 @@
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'modelo_id': {{ modelo.id}} };
             configDataTable['columns'] = [
-                { data: "descripcion" },
-                { data: "numero_inventario" },
-                { data: "numero_serie" },
+                { data: "id" },
                 { data: "adquisicion_fecha" },
                 { data: "marca" },
+                { data: "descripcion" },
                 { data: "red" },
                 { data: "usuario" },
             ];
             configDataTable['columnDefs'] = [
-                 {
-                    targets: [0,4,5],
+                {
+                    targets: [0], // id
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.equipo_id + '</a>';
+                    }
+                },
+                {
+                    targets: [2,4],
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
                 {
-                    targets: 6,
+                    targets: 5,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';

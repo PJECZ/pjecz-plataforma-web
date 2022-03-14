@@ -45,8 +45,18 @@
         $(document).ready(function() {
             $('#red').addClass('js-example-placeholder-single js-states form-control');
             $('#modelo').addClass('js-example-placeholder-single js-states form-control');
-            $('#red').prop("selectedIndex", -1); //poner en blanco el select
             $('#modelo').prop("selectedIndex", -1); //poner en blanco el select
+            $('#red').prop("selectedIndex", -1); //poner en blanco el select 
+            $('#modelo').each(function(){
+                if($(this).text() == '{{form.modelo}}'){
+                    $('#modelo').val( $(this).val() );
+                }
+            });
+            $('#red').each(function() {
+                if($(this).text() == '{{form.red}}') {
+                    $("#red").val( $(this).val() );
+                }
+            });
             $(".js-example-placeholder-single").select2({
                 placeholder: "Selecciona campo",
                 allowClear: true

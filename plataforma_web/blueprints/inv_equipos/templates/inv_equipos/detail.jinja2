@@ -15,9 +15,6 @@
             {% if equipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos.delete', equipo_id=equipo.id)) }}{% endif %}
             {% if equipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_equipos.recover', equipo_id=equipo.id)) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('INV COMPONENTES') %}
-            {{ topbar.button_new('Agregar componentes', url_for('inv_componentes.new', equipo_id=equipo.id)) }}
-        {% endif %}
         {% if current_user.can_insert('INV EQUIPOS FOTOS') %}
             {{ topbar.button('Subir Foto', url_for('inv_equipos_fotos.new', equipo_id=equipo.id), 'mdi:file-upload') }}
         {% endif %}
@@ -26,13 +23,14 @@
 
 {% block content %}
     {% call detail.card(estatus=equipo.estatus) %}
-        {{ detail.label_value('Custodia', equipo.custodia.nombre_completo) }}
+        {{ detail.label_value('ID', equipo.id) }}
+        {{ detail.label_value('Usuario', equipo.custodia.nombre_completo) }}
         {{ detail.label_value('Marca', equipo.modelo.marca.nombre) }}
         {{ detail.label_value('Modelo', equipo.modelo.descripcion) }}
-        {{ detail.label_value('Nombre Red', equipo.red.nombre) }}
-        {{ detail.label_value('No. Inventario', equipo.numero_inventario) }}
+        {{ detail.label_value('Red', equipo.red.nombre) }}
+        {{ detail.label_value('Inventario', equipo.numero_inventario) }}
         {{ detail.label_value('No. serie', equipo.numero_serie) }}
-        {{ detail.label_value('Adquisicion Fecha', equipo.adquisicion_fecha) }}
+        {{ detail.label_value('Fecha de adquisición', equipo.adquisicion_fecha) }}
         {{ detail.label_value('Descripción', equipo.descripcion) }}
         {{ detail.label_value('Dirección IP', equipo.direccion_ip) }}
         {{ detail.label_value('Dirección MAC', equipo.direccion_mac) }}
@@ -40,21 +38,23 @@
         {{ detail.label_value('Número switch', equipo.numero_switch) }}
         {{ detail.label_value('Número puerto', equipo.numero_puerto) }}
     {% endcall %}
-    {# Listado de Componentes #}
     {% if current_user.can_view('INV COMPONENTES') %}
         {% call detail.card('Componentes') %}
             <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Descricpión</th>
+                        <th>Categoría</th>
+                        <th>Descripción</th>
                         <th>Cantidad</th>
                         <th>Versión</th>
                     </tr>
                 </thead>
             </table>
+            {% if current_user.can_insert('INV COMPONENTES') %}
+                <a href="{{ url_for('inv_componentes.new', equipo_id=equipo.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
         {% endcall %}
     {% endif %}
-    {# Listado de Fotos #}
     {% if fotos %}
         {% call list.card('Fotos Adjuntas') %}
             <table id="inv__equipos_fotos_datatable" class="table display nowrap" style="width:100%">
@@ -89,13 +89,21 @@
             configDataTable['ajax']['url'] = '/inv_componentes/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'equipo_id': {{ equipo.id}} };
             configDataTable['columns'] = [
+                { data: "categoria" },
                 { data: "detalle" },
                 { data: "cantidad" },
                 { data: "version" },
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: 0, // detalle
+                    targets: 0, // categoria
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';

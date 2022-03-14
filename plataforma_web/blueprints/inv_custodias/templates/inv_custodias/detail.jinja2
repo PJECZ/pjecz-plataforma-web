@@ -18,24 +18,24 @@
 
 {% block content %}
     {% call detail.card(estatus=custodia.estatus) %} 
-        {{ detail.label_value('Custodia de equipo', custodia.nombre_completo, url_for('usuarios.detail', usuario_id=custodia.usuario_id)) }}
-        {{ detail.label_value('Email', custodia.usuario.email) }}
+        {{ detail.label_value('ID', custodia.id) }}
+        {{ detail.label_value('Usuario', custodia.nombre_completo, url_for('usuarios.detail', usuario_id=custodia.usuario_id)) }}
         {{ detail.label_value('Curp', custodia.curp) }}
         {{ detail.label_value('Oficina', custodia.usuario.oficina.clave + ' - ' + custodia.usuario.oficina.descripcion_corta) }}
         {{ detail.label_value('Puesto', custodia.usuario.puesto) }}
-        {{ detail.label_value('Fecha', custodia.fecha) }}
+        {{ detail.label_value('Fecha', moment(custodia.fecha, local=True).format("DD MMM YYYY")) }}
+         
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS')  %}
         {% call detail.card('Equipos') %}
             <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}  display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Descripción</th>
-                        <th>Inventario</th>
-                        <th>No. serie</th>
-                        <th>Fecha adquisición</th>
+                        <th>ID</th>
+                        <th>Fecha de adquisición</th>
                         <th>Marca</th>
                         <th>Modelo</th>
+                        <th>Descripción del equipo</th>
                         <th>Red</th>
                     </tr>
                 </thead>
@@ -53,23 +53,30 @@
         {% if custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + custodia.nombre_completo + '?') }}{% endif %}
         {% if custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + custodia.nombre_completo + '?') }}{% endif %}
     {% endif %}
+    {{ detail.moment_js(moment) }}
     {{ detail.config_datatable() }}
     {% if current_user.can_view('INV EQUIPOS') %}
         <script>
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'custodia_id': {{ custodia.id}} };
             configDataTable['columns'] = [
-                { data: "descripcion" },
-                { data: "numero_inventario" },
-                { data: "numero_serie" },
+                { data: "id" },
                 { data: "adquisicion_fecha" },
                 { data: "marca" },
                 { data: "modelo" },
+                { data: "descripcion" },
                 { data: "red" },
             ];
             configDataTable['columnDefs'] = [
-                 {
-                    targets: [0,4,5,6], //descripcion, marca, modelo, red
+                {
+                    targets: [0], // id
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.equipo_id + '</a>';
+                    }
+                },
+                {
+                    targets: [2,3,5], // marca, modelo, red
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';

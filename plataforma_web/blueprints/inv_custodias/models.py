@@ -20,7 +20,7 @@ class InvCustodia(db.Model, UniversalMixin):
     usuario = db.relationship("Usuario", back_populates="custodias")
 
     # Columnas
-    fecha = db.Column(db.Date(), nullable=False)
+    fecha = db.Column(db.Date, nullable=False, index=True)
     curp = db.Column(db.String(256), nullable=True)
     nombre_completo = db.Column(db.String(256))
 

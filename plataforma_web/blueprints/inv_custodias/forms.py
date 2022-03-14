@@ -1,10 +1,10 @@
 """
-Custodias, formularios
+Inventarios Custodias, formularios
 """
 
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, SubmitField, DateField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms import StringField, SubmitField, DateField
+from wtforms.validators import DataRequired
 
 
 class InvCustodiaForm(FlaskForm):

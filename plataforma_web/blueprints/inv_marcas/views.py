@@ -1,9 +1,9 @@
 """
-Modelos, vistas
+Inventarios Modelos, vistas
 """
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required
+from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
@@ -61,7 +61,7 @@ def list_active():
     return render_template(
         "inv_marcas/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="INV MARCAS",
+        titulo="Marcas",
         estatus="A",
     )
 
@@ -73,7 +73,7 @@ def list_inactive():
     return render_template(
         "inv_marcas/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="INV MARCAS inactivos",
+        titulo="Marcas inactivos",
         estatus="B",
     )
 

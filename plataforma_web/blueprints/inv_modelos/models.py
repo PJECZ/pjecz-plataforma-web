@@ -1,5 +1,5 @@
 """
-INV MODELOS, modelos
+Inventarios Modelos, modelos
 """
 
 from plataforma_web.extensions import db

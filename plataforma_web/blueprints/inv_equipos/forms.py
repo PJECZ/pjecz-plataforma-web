@@ -1,5 +1,5 @@
 """
-Equipos, formularios
+Inventarios Equipos, formularios
 """
 
 from flask_wtf import FlaskForm
@@ -29,7 +29,7 @@ class InvEquipoForm(FlaskForm):
     email = StringField("Email")
     oficina = StringField("Oficina")
     modelo = QuerySelectField(label="Modelo", query_factory=modelos_opciones, get_label="marca_modelo", validators=[DataRequired()])  # solo lectrua
-    red = QuerySelectField(label="Red", query_factory=redes_opciones, get_label="nombre", validators=[Optional()])  # solo lectrua
+    red = QuerySelectField(label="Red", query_factory=redes_opciones, get_label="nombre", validators=[DataRequired()])  # solo lectrua
     adquisicion_fecha = DateField("Fecha de adquisición", validators=[Optional()])
     numero_serie = StringField("Número de serie", validators=[Optional()])
     numero_inventario = IntegerField("Número de inventario", validators=[Optional()])

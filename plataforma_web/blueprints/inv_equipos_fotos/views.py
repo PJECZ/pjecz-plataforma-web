@@ -1,12 +1,10 @@
 """
-INV equipo_fotoS, vistas
+Inventarios Equipos Fotos, vistas
 """
-from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
-from lib import datatables
 from lib.safe_string import safe_string, safe_message
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from plataforma_web.blueprints.usuarios.decorators import permission_required

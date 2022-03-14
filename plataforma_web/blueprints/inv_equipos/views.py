@@ -1,12 +1,11 @@
 """
-INVENTARIOS EQUIPOS, vistas
+Inventarios Equipos, vistas
 """
 
 import json
 from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required
-
+from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
@@ -68,12 +67,11 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "descripcion": {
-                    "nombre": resultado.descripcion,
+                "id": {
+                    "equipo_id": resultado.id,
                     "url": url_for("inv_equipos.detail", equipo_id=resultado.id),
                 },
-                "numero_inventario": resultado.numero_inventario if resultado.numero_inventario is not None else "-",
-                "numero_serie": resultado.numero_serie if resultado.numero_inventario is not None else "-",
+                "descripcion": resultado.descripcion,
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d") if resultado.adquisicion_fecha is not None else "-",
                 "usuario": {
                     "nombre_completo": resultado.custodia.usuario.nombre,

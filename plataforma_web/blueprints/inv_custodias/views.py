@@ -1,8 +1,7 @@
 """
-INVENTARIOS CUSTODIAS, vistas
+Inventarios Custodias, vistas
 """
 import json
-
 from datetime import date
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -11,12 +10,12 @@ from flask_login import current_user, login_required
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 from plataforma_web.blueprints.inv_custodias.forms import InvCustodiaForm
+
 
 MODULO = "INV CUSTODIAS"
 MESES_FUTUROS = 6  # Un año a futuro, para las fechas

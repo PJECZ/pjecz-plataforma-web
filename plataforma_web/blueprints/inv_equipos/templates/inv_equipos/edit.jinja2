@@ -45,14 +45,16 @@
         $(document).ready(function() {
             $('#red').addClass('js-example-placeholder-single js-states form-control');
             $('#modelo').addClass('js-example-placeholder-single js-states form-control');
+            $('#modelo').each(function() {
+                if($(this).text() == '{{equipo.modelo}}') {
+                    $("#modelo").val( $(this).val() );
+                }
+            });
             $('#red').each(function() {
-                if('{{equipo.red}}' == 'None')
-                    $("#red").prop("selectedIndex", -1); // Poner en blanco el select
                 if($(this).text() == '{{equipo.red}}') {
                     $("#red").val( $(this).val() );
                 }
             });
-            
             $(".js-example-placeholder-single").select2({
                 placeholder: "Selecciona campo",
                 allowClear: true,

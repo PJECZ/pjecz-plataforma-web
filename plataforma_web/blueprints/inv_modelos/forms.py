@@ -1,9 +1,9 @@
 """
-Modelos, formularios
+Inventarios Modelos, formularios
 """
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 

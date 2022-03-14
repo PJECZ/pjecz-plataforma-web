@@ -1,17 +1,13 @@
 """
-INVENTARIOS COMPONENTES, vistas
+Inventarios Componentes, vistas
 """
 import json
-
-from datetime import date
-from dateutil.relativedelta import relativedelta
-
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required
-
+from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
+from plataforma_web.blueprints.inv_categorias.models import InvCategoria
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.permisos.models import Permiso
@@ -42,6 +38,12 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "equipo_id" in request.form:
+        consulta = consulta.filter_by(inv_equipo_id=request.form["equipo_id"])
+    if "categoria_id" in request.form:
+        categoria = InvCategoria.query.get(request.form["categoria_id"])
+        if categoria:
+            consulta = consulta.filter(InvComponente.categoria == categoria)
     registros = consulta.order_by(InvComponente.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -52,6 +54,10 @@ def datatable_json():
                 "detalle": {
                     "descripcion": resultado.descripcion,
                     "url": url_for("inv_componentes.detail", componente_id=resultado.id),
+                },
+                "categoria": {
+                    "nombre": resultado.categoria.nombre,
+                    "url": url_for("inv_categorias.detail", categoria_id=resultado.categoria.id),
                 },
                 "cantidad": resultado.cantidad,
                 "version": resultado.version,
@@ -121,6 +127,10 @@ def new(equipo_id):
             componente.save()
             flash(f"Componentes {componente.descripcion} guardado.", "success")
             return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
+    form.equipo.data = equipo.id
+    form.marca.data = equipo.modelo.marca.nombre
+    form.descripcion_equipo.data = equipo.descripcion
+    form.usuario.data = equipo.custodia.nombre_completo
     return render_template("inv_componentes/new.jinja2", form=form, equipo=equipo)
 
 
@@ -151,6 +161,10 @@ def edit(componente_id):
     form.descripcion.data = safe_string(componente.descripcion)
     form.cantidad.data = componente.cantidad
     form.version.data = componente.version
+    form.equipo.data = componente.equipo.id
+    form.marca.data = componente.equipo.modelo.marca.nombre
+    form.descripcion_equipo.data = componente.equipo.descripcion
+    form.usuario.data = componente.equipo.custodia.nombre_completo
     return render_template("inv_componentes/edit.jinja2", form=form, componente=componente)
 
 

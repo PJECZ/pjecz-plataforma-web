@@ -1,5 +1,5 @@
 """
-INV MODELOS, vistas
+Inventarios Modelos, vistas
 """
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -68,7 +68,7 @@ def list_active():
     return render_template(
         "inv_modelos/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="INV MODELOS",
+        titulo="Modelos",
         estatus="A",
     )
 
@@ -80,7 +80,7 @@ def list_inactive():
     return render_template(
         "inv_modelos/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="INV MODELOS inactivos",
+        titulo="Modelos inactivos",
         estatus="B",
     )
 
