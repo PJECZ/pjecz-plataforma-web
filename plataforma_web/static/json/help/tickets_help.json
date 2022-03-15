@@ -1,0 +1,68 @@
+{
+    "titulo": "Ayuda para el Módulo de Tickets",
+    "descripcion": "Descripción detallada para la utilización del módulo de tickets. Módulo para la solicitación de soporte técnico al personal de informática, mediante el reporte del problema con una descripción detallada del problema, la cual llamamos ticket.",
+    "secciones": [
+      {
+        "id": "new_ticket",
+        "subtitulo": "Nuevo Ticket",
+        "descripcion": [
+          "Se puede solicitar ayuda al departamento de informática al crear un nuevo ticket.",
+          "Para ello ingrese presionando el botón de <strong>+ Nuevo Ticket</strong>. Lo cual lo llevara a la pantalla de captura.",
+          "Usted será identificado, tanto en nombre como en ubicación.",
+          "Ahora solo describa su problema lo más detalladamente posible, le recomendamos seguir las instrucciones o requisitos para describir su problema del listado que se encuentra al final de la página.",
+          "Eligiendo la clasificación de su problema verá como las opciones del listado de categorías se reduce.",
+          "Una vez creado el ticket, se agregará al inicio de su descripción la categoría elegida y comenzará en un estado inicial de 'SIN ATENDER' <i>(véase apartado de estados para más información)<i> y su categoría será 'NO DEFINIDO', hasta que un técnico lea su redacción y determine quién podría resolver su problema."
+        ]
+      },
+      {
+        "id": "ticket_adjuntar_archivo",
+        "subtitulo": "Adjuntar archivo a un Ticket",
+        "descripcion": [
+          "En la pantalla de detalle de un ticket, que se encuentre en estado de SIN ATENDER o TRABAJANDO, puede enviar una imagen o archivo que se necesite como requisito para la ayuda.",
+          "Presione sobre el botón <span class='btn-sm btn-primary'>Adjuntar Archivo</span> y seleccione el archivo a enviar.",
+          "Agregue una descripción en el campo <strong>Descripción del archivo</strong> y presione el botón de <span class='btn-sm btn-success'>Subir Archivo</span>"
+        ]
+      },
+      {
+        "id": "edit_ticket",
+        "subtitulo": "Editar un Ticket",
+        "descripcion": [
+          "Si desea agregar nuevos comentarios o hacer pequeños cambios a la descripción de su problema, puede editar su ticket.",
+          "Entre a la pantalla de detalle de ticket y presione sobre el botón <span class='btn-sm btn-secondary'>Editar</span>."
+        ]
+      },
+      {
+        "id": "cancel_ticket",
+        "subtitulo": "Cancelar un Ticket",
+        "descripcion": [
+          "Si ya a resulto su problema y no necesita más la ayuda del equipo de informática, puede 'CANCELAR' su ticket, y así ya no pasará por el proceso de trabajo del equipo de soporte técnico.",
+          "Presione sobre el ID del ticket en cuestión e ira a la pantalla de detalle del ticket. Ahora presione sobre el botón de <span class='btn-sm btn-danger'>Cancelar</span> y en la ventana emergente confirme que desea cancelar el ticket."
+        ]
+      },
+      {
+        "id": "ticket_estado",
+        "subtitulo": "Estado de un Ticket",
+        "descripcion": [
+          "Son los estados por los que puede pasar, terminar o estar un ticket creado.",
+          "<strong style='color:#7d6608; background-color:#fef9e7;'>SIN ATENDER</strong>: Es el estado inicial de cualquier ticket. Comienza por entrar al sistema y se mantienen así hasta que un técnico del personal lo revisa y decida trabajar en él. Como el propio estado lo indica, se encuentra sin atender por el momento.",
+          "<strong style='color:#154360; background-color:#ebf5fb;'>TRABAJANDO</strong>: Un técnico ya clasificó y se encuentra trabajando en solucionar su problema.",
+          "<strong style='color:#e53935; background-color:#fdedec;'>CANCELADO</strong>: Si usted ya no desea ser atendido, por ejemplo por que pudo resolver su problema, puede pasar a éste estado y será ignorado por el personal de soporto técnico.",
+          "<strong style='color:#4a235a; background-color:#f5eef8;'>PENDIENTE</strong>: Se necesita esperar más tiempo de lo esperado para resolver su problema, podría tardar más de lo conveniente, pero se sigue trabajando en ello.",
+          "<strong style='color:#0b5345; background-color:#eafaf1;'>TERMINADO</strong>: Se le ha dado una solución satisfactoria a su problema.",
+          "<strong style='color:#546e7a; background-color:#eceff1;'>CERRADO</strong>: Se le ha dado una solución no satisfactoria pero justa a su problema, posiblemente necesite crear otro ticket para llegar a una solución más definitiva. Por lo pronto ya no se trabajará en este asunto."
+        ]
+      },
+      {
+        "id": "list_tickets",
+        "subtitulo": "Listado de Tickets",
+        "descripcion": [
+          "Es el listado de tickets que ha solicitado. Como se observa tienen las siguientes columnas:",
+          "<strong>ID</strong>: Presionando sobre él lo llevará al detalle del ticket.",
+          "<strong>Descripción</strong>: Es donde usted detalló su problema, puede contener la clasificación como principio del texto, esto nos ayuda a entender mejor su problema.",
+          "<strong>Categoría</strong>: Es como el equipo de soporte clasificó su problema.",
+          "<strong>Estado</strong>Es el estado del ticket en el que se encuentra <i>(véase apartado de Estado de un Ticket para más información)</i>.",
+          "<strong>Respuesta/Solución</strong>: Se describe la solución que se le dio a dicho ticket por parte del equipo de soporte técnico."
+        ]
+      }
+    ]
+  }

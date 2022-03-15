@@ -69,7 +69,7 @@ def before_request():
 def list_active():
     """Listado de Tickets: Si es usuario un listado sencillo, si es de soporte los tickets Sin Atender"""
     if _get_funcionario_if_is_soporte() is None:
-        return render_template("soportes_tickets/list_user.jinja2")
+        return render_template("soportes_tickets/list_user.jinja2", help_tickets=help_tickets("list_active"))
     return render_template("soportes_tickets/list_open.jinja2")
 
 
@@ -284,11 +284,7 @@ def new():
         return redirect(bitacora.url)
     form.usuario.data = current_user.nombre  # Read only
     form.oficina.data = current_user.oficina.descripcion  # Read only
-    return render_template(
-        "soportes_tickets/new.jinja2",
-        form=form,
-        filtros=json.dumps({"estatus": "A", "instrucciones": True}),
-    )
+    return render_template("soportes_tickets/new.jinja2", form=form, filtros=json.dumps({"estatus": "A", "instrucciones": True}), help_tickets=help_tickets("new"))
 
 
 @soportes_tickets.route("/soportes_tickets/edicion/<int:soporte_ticket_id>", methods=["GET", "POST"])
@@ -324,7 +320,7 @@ def edit(soporte_ticket_id):
     form.categoria.data = ticket.soporte_categoria.nombre
     form.tecnico.data = ticket.funcionario.nombre
     form.estado.data = ticket.estado
-    return render_template("soportes_tickets/edit.jinja2", form=form, soporte_ticket=ticket)
+    return render_template("soportes_tickets/edit.jinja2", form=form, soporte_ticket=ticket, help_tickets=help_tickets("edit"))
 
 
 @soportes_tickets.route("/soportes_tickets/tomar/<int:soporte_ticket_id>", methods=["GET", "POST"])
@@ -695,3 +691,11 @@ def search():
 
     # Mostrar el formulario de busqueda
     return render_template("soportes_tickets/search.jinja2", form=form_search)
+
+
+def help_tickets(seccion: str):
+    """Cargar archivo de ayuda"""
+    archivo_ayuda = open("plataforma_web/static/json/help/tickets_help.json", "r")
+    data = json.load(archivo_ayuda)
+    archivo_ayuda.close()
+    return render_template("help.jinja2", titulo=data["titulo"], descripcion=data["descripcion"], secciones=data["secciones"], seccion_id=seccion)
