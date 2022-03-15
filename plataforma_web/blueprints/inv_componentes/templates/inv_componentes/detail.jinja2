@@ -1,0 +1,35 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Componentes{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Componente: ' + componente.categoria.nombre) %}
+        {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active', equipo_id=componente.inv_equipo_id)) }}
+        {% if current_user.can_edit('INV COMPONENTES') %}
+            {{ topbar.button_edit('Editar', url_for('inv_componentes.edit', componente_id=componente.id)) }}
+            {% if componente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_componentes.delete', componente_id=componente.id)) }}{% endif %}
+            {% if componente.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_componentes.recover', componente_id=componente.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=componente.estatus) %}
+        {{ detail.label_value('Descripción del equipo', componente.equipo.descripcion, url_for('inv_equipos.detail', equipo_id=componente.equipo.id)) }}
+        {{ detail.label_value('Custodia', componente.equipo.custodia.nombre_completo, url_for('inv_custodias.detail', custodia_id=componente.equipo.custodia.id)) }}
+        {{ detail.label_value('Categoria', componente.categoria.nombre) }}
+        {{ detail.label_value('Descripción', componente.descripcion) }}
+        {{ detail.label_value('Cantidad', componente.cantidad) }}
+        {{ detail.label_value('Versión', componente.version) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('INV COMPONENTES') %}
+        {% if componente.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + componente.descripcion + '?') }}{% endif %}
+        {% if componente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + componente.descripcion + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

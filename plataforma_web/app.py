@@ -56,6 +56,14 @@ from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_
 from plataforma_web.blueprints.usuarios.views import usuarios
 from plataforma_web.blueprints.usuarios_roles.views import usuarios_roles
 from plataforma_web.blueprints.ventanillas.views import ventanillas
+from plataforma_web.blueprints.inv_equipos.views import inv_equipos
+from plataforma_web.blueprints.inv_marcas.views import inv_marcas
+from plataforma_web.blueprints.inv_modelos.views import inv_modelos
+from plataforma_web.blueprints.inv_redes.views import inv_redes
+from plataforma_web.blueprints.inv_componentes.views import inv_componentes
+from plataforma_web.blueprints.inv_categorias.views import inv_categorias
+from plataforma_web.blueprints.inv_custodias.views import inv_custodias
+from plataforma_web.blueprints.inv_equipos_fotos.views import inv_equipos_fotos
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -121,6 +129,14 @@ def create_app():
     app.register_blueprint(usuarios_roles)
     app.register_blueprint(ubicaciones_expedientes)
     app.register_blueprint(ventanillas)
+    app.register_blueprint(inv_equipos)
+    app.register_blueprint(inv_marcas)
+    app.register_blueprint(inv_modelos)
+    app.register_blueprint(inv_redes)
+    app.register_blueprint(inv_componentes)
+    app.register_blueprint(inv_categorias)
+    app.register_blueprint(inv_custodias)
+    app.register_blueprint(inv_equipos_fotos)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)

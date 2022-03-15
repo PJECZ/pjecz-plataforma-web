@@ -1,0 +1,88 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
+
+{% block title %}Modelos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Modelo:  ' + modelo.descripcion) %}
+        {{ topbar.button_previous('Modelos', url_for('inv_modelos.list_active')) }}
+        {% if current_user.can_edit('INV MODELOS') %}
+            {{ topbar.button_edit('Editar', url_for('inv_modelos.edit', modelo_id=modelo.id)) }}
+            {% if modelo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_modelos.delete', modelo_id=modelo.id)) }}{% endif %}
+            {% if modelo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_modelos.recover', modelo_id=modelo.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {{ detail.label_value('Marca', modelo.marca.nombre) }}
+        {{ detail.label_value('Descripcion', modelo.descripcion) }}
+    {% endcall %}
+    {% if current_user.can_view('INV EQUIPOS') %}
+        {% call detail.card('Equipos') %}
+            <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha de adquisición</th>
+                        <th>Marca</th>
+                        <th>Descripción del equipo</th>
+                        <th>Red</th>
+                        <th>Usuario</th> 
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('INV MODELOS') %}
+        {% if modelo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + modelo.descripcion + '?') }}{% endif %}
+        {% if modelo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + modelo.descripcion + '?') }}{% endif %}
+    {% endif %}
+    {# script para cargar equipos relacionados con este modelo #}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('INV EQUIPOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'modelo_id': {{ modelo.id}} };
+            configDataTable['columns'] = [
+                { data: "id" },
+                { data: "adquisicion_fecha" },
+                { data: "marca" },
+                { data: "descripcion" },
+                { data: "red" },
+                { data: "usuario" },
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: [0], // id
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.equipo_id + '</a>';
+                    }
+                },
+                {
+                    targets: [2,4],
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+                {
+                    targets: 5,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                    }
+                },
+            ];
+            $('#inv_equipos_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %} 
+{% endblock %}
