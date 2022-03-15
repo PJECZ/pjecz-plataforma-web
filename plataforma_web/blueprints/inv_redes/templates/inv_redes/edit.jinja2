@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Red{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + red.nombre) }}
+
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'red_id': red.id} %}
+        {% call f.form_tag('inv_redes.edit', fid='red_form', **form_kwargs) %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.tipo) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Equipos{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    {#<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-5-theme/1.2.0/select2-bootstrap-5-theme.min.css" integrity="sha512-ZaFewc2ndIrsFWmG9gZR9zfJtR1Q+bvikASGXnQlUtoGj1PLDTyDabWdLbjC/YmyqTH8Txi/RdYcQW5Xpah3Ig==" crossorigin="anonymous" referrerpolicy="no-referrer" />#}
+     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> 
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar Equipo: ' + equipo.descripcion) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'equipo_id': equipo.id} %}
+        {% call f.form_tag('inv_equipos.edit', fid='equipo_id_form', **form_kwargs) %}
+            {% call f.form_group(form.custodia, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.email, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.puesto, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.modelo) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}
+            {% call f.form_group(form.numero_serie) %}{% endcall %}
+            {% call f.form_group(form.numero_inventario) %}{% endcall %}
+            {% call f.form_group(form.red) %}{% endcall %}
+            {% call f.form_group(form.direccion_ip) %}{% endcall %}
+            {% call f.form_group(form.direccion_mac) %}{% endcall %}
+            {% call f.form_group(form.numero_nodo) %}{% endcall %}
+            {% call f.form_group(form.numero_switch) %}{% endcall %}
+            {% call f.form_group(form.numero_puerto) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#red').addClass('js-example-placeholder-single js-states form-control');
+            $('#modelo').addClass('js-example-placeholder-single js-states form-control');
+            $('#modelo').each(function() {
+                if($(this).text() == '{{equipo.modelo}}') {
+                    $("#modelo").val( $(this).val() );
+                }
+            });
+            $('#red').each(function() {
+                if($(this).text() == '{{equipo.red}}') {
+                    $("#red").val( $(this).val() );
+                }
+            });
+            $(".js-example-placeholder-single").select2({
+                placeholder: "Selecciona campo",
+                allowClear: true,
+            });
+        });
+    </script>
+{% endblock%}

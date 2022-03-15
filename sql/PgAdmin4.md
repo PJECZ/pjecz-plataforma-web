@@ -1,6 +1,13 @@
 # PgAdmin4
 
-Este comando levanta un contenedor PgAdmin4 que puede comunicarse al servidor local
+Debe de tener un archivo `.env` donde escribira los parametros para el contenedor
+
+    PGADMIN_DEFAULT_EMAIL=guillermo.valdes@pjecz.gob.mx
+    PGADMIN_DEFAULT_PASSWORD=********
+
+Cambie al directorio donde esta ese archivo `.env`
+
+Ejecute este comando que levanta un contenedor PgAdmin4 que puede comunicarse al servidor local
 
     podman run --rm \
         --env-file .env \
