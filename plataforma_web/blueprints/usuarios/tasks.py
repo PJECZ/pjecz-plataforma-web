@@ -1,6 +1,5 @@
 """
 Usuarios, tareas para ejecutar en el fondo
-
 - definir_oficinas: Definir las oficinas a partir de una relacion entre email y oficina
 - enviar_reporte: Enviar via correo electronico el reporte de usuarios
 - estandarizar: Estandarizar nombres, apellidos y puestos en mayusculas
@@ -47,8 +46,6 @@ db.app = app
 locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 
 USUARIOS_EMAILS_DISTRITOS_CSV = "seed/usuarios_emails_distritos.csv"
-
-USUARIOS_OFICINAS_CSV = "seed/usuarios_oficinas.csv"
 
 
 def definir_oficinas():
@@ -120,56 +117,9 @@ def definir_oficinas():
             if contador % 100 == 0:
                 bitacora.info("Procesados %d", contador)
 
-        # Cargar archivo CSV usuarios oficinas
-        oficina_relacion_email = Path(USUARIOS_OFICINAS_CSV)
-        if not oficina_relacion_email.exists():
-            mensaje = "No se encontró {oficina_relacion_email.name}"
-            set_task_error(mensaje)
-            bitacora.error(mensaje)
-            return
-        if not oficina_relacion_email.is_file():
-            mensaje = "No es un archivo {oficina_relacion_email.name}"
-            set_task_error(mensaje)
-            bitacora.error(mensaje)
-            return
-        contador1 = 0
-        usuarios_cambiados_contador1 = 0
-        usuarios_sin_cambios_contador1 = 0
-        emails_no_encontrados1 = 0
-        with open(ruta, encoding="utf8") as puntero:
-            rows = csv.DictReader(puntero)
-            for row in rows:
-                clave_oficina = row["clave"]
-                usuario_email = row["email"]
-                # consultar el usuario que coincida con el email:
-                # SELECT * FROM usuarios WHERE email = {usuario_email}
-                usuario_c = Usuario.query.filter_by(email=usuario_email).first()
-                # verifica si el usuario existe
-                if usuario_c is None:
-                    emails_no_encontrados1 += 1
-                    bitacora.warning("Al asignar oficina id: No se encontró el email %s", usuario_email)
-                else:
-                    # verifica si el usuario YA tiene asignada una oficina
-                    if usuario_c.oficina_id != 1:
-                        usuarios_sin_cambios_contador1 += 1
-                        bitacora.warning("Usuario {usuario_c.email} ya tiene asignada id oficina")
-                    else:
-                        # Si no tienen oficina, consultar mediante la clave:
-                        # SELECT id FROM oficinas WHERE 'clave' = {clave_oficina}
-                        usuario_c.oficina_id = Oficina.query.get().filter_by(clave=clave_oficina)
-                        # Guardar los cambios
-                        usuario_c.save()
-                        # sumar al contador
-                        usuarios_cambiados_contador1 += 1
-                contador1 += 1
-                if contador1 % 100 == 0:
-                    bitacora.info("Usuarios asignados a una oficina %d", contador1)
-
     # Terminar
     set_task_progress(100)
-    mensaje_final = (
-        f"Terminado definir oficinas satisfactoriamente con {contador}  usuarios actualizados con oficina asignada {contador1}"
-    )
+    mensaje_final = f"Terminado definir oficinas satisfactoriamente con {contador} usuarios actualizados"
     bitacora.info(mensaje_final)
     return mensaje_final
 
@@ -218,12 +168,7 @@ def estandarizar():
         puesto = safe_string(usuario.puesto)
         if puesto == "":
             puesto = "ND"
-        if (
-            nombres != usuario.nombres
-            or apellido_paterno != usuario.apellido_paterno
-            or apellido_materno != usuario.apellido_materno
-            or puesto != usuario.puesto
-        ):
+        if nombres != usuario.nombres or apellido_paterno != usuario.apellido_paterno or apellido_materno != usuario.apellido_materno or puesto != usuario.puesto:
             usuario.nombres = nombres
             usuario.apellido_paterno = apellido_paterno
             usuario.apellido_materno = apellido_materno
