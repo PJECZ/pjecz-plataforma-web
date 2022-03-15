@@ -6,35 +6,35 @@
             "id": "negritas",
             "subtitulo": "Negritas",
             "descripcion": [
-                "<i class='fas fa-bold'></i> Si selecciona un texto y presiona sobre este botón hará que el texto quede resaltado en negritas. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
+                "<i class='iconify' data-icon='fa:bold'></i> Si selecciona un texto y presiona sobre este botón hará que el texto quede resaltado en negritas. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
             ]
         },
         {
             "id": "italicas",
             "subtitulo": "Italicas",
             "descripcion": [
-                "<i class='fas fa-italic'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea en italicas. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
+                "<i class='iconify' data-icon='fa-solid:italic'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea en italicas. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
             ]
         },
         {
             "id": "subrayado",
             "subtitulo": "Subrayado",
             "descripcion": [
-                "<i class='fas fa-underline'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea con un formato de subrayado. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
+                "<i class='iconify' data-icon='fa:underline'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea con un formato de subrayado. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
             ]
         },
         {
             "id": "tachado",
             "subtitulo": "Tachado",
             "descripcion": [
-                "<i class='fas fa-strikethrough'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea con un formato de tachado. Texto con una línea transversal. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
+                "<i class='iconify' data-icon='fa-strikethrough'></i> Si selecciona un texto y presiona sobre este botón hará que el texto se vea con un formato de tachado. Texto con una línea transversal. Si no tiene seleccionado ningún texto puede presionarlo y comenzar a escribir con este formato habilitado."
             ]
         },
         {
             "id": "citado",
             "subtitulo": "Citado",
             "descripcion": [
-                "<i class='fas fa-quote-right'></i> Este formato es comunmente utilizado para resaltar un texto citado con anterioridad en una conversación.",
+                "<i class='iconify' data-icon='fa-quote-right'></i> Este formato es comunmente utilizado para resaltar un texto citado con anterioridad en una conversación.",
                 "Coloca al lado izquierdo del texto una línea y desplaza el texto un poco hacia la derecha."
             ]
         },
@@ -42,14 +42,14 @@
             "id": "codigo",
             "subtitulo": "Código - Texto monoespaciado",
             "descripcion": [
-                "<i class='fas fa-code'></i> Este formato es comunmente utilizado para mostrar texto con un ancho no variable, conservando la anchura de los caracteres. Muy utilizado para explicación de texto oficiales."
+                "<i class='iconify' data-icon='fa-code'></i> Este formato es comunmente utilizado para mostrar texto con un ancho no variable, conservando la anchura de los caracteres. Muy utilizado para explicación de texto oficiales."
             ]
         },
         {
             "id": "link",
             "subtitulo": "Hipervinculo",
             "descripcion": [
-                "<i class='fas fa-link'></i> Permite insertar un hipervinculo a una dirección en internet.",
+                "<i class='iconify' data-icon='fa-link'></i> Permite insertar un hipervinculo a una dirección en internet.",
                 "Para utilizarlo debe seleccionar el texto que desea utilizar como enlace y presionar sobre el botón. Esto abrira una pequeña ventana donde debe indicar la dirección URL de internet."
             ]
         },
@@ -57,42 +57,42 @@
             "id": "listas_ordenadas",
             "subtitulo": "Listado Ordenado",
             "descripcion": [
-                "<i class='fas fa-list-ol'></i> Pude insertar un listado ordenado numéricamente seleccionando el texto deseado y presionando sobre este botón."
+                "<i class='iconify' data-icon='fa-list-ol'></i> Pude insertar un listado ordenado numéricamente seleccionando el texto deseado y presionando sobre este botón."
             ]
         },
         {
             "id": "listas_desordenado",
             "subtitulo": "Viñetas",
             "descripcion": [
-                "<i class='fas fa-list-ul'></i> Pude insertar un listado de viñetas seleccionando el texto deseado y presionando sobre el botón."
+                "<i class='iconify' data-icon='fa-list-ul'></i> Pude insertar un listado de viñetas seleccionando el texto deseado y presionando sobre el botón."
             ]
         },
         {
             "id": "subexponente",
             "subtitulo": "Subindice",
             "descripcion": [
-                "<i class='fas fa-subscript'></i> Pude insertar texto por debajo de la línea actual de escritura (subindice) seleccionando el texto deseado y presionando sobre este botón."
+                "<i class='iconify' data-icon='fa-subscript'></i> Pude insertar texto por debajo de la línea actual de escritura (subindice) seleccionando el texto deseado y presionando sobre este botón."
             ]
         },
         {
             "id": "exponente",
             "subtitulo": "Exponente",
             "descripcion": [
-                "<i class='fas fa-superscript'></i> Pude insertar texto en formato exponencial."
+                "<i class='iconify' data-icon='fa-superscript'></i> Pude insertar texto en formato exponencial."
             ]
         },
         {
             "id": "anadir_sangria",
             "subtitulo": "Añadir Sangría",
             "descripcion": [
-                "<i class='fas fa-indent'></i> Pude agregar sangría o incrementar el espaciado izquierdo del parrafo colocando el cursor sobre el parrafo deseado y presionando sobre este botón."
+                "<i class='iconify' data-icon='fa-indent'></i> Pude agregar sangría o incrementar el espaciado izquierdo del parrafo colocando el cursor sobre el parrafo deseado y presionando sobre este botón."
             ]
         },
         {
             "id": "eliminar_sangria",
             "subtitulo": "Eliminar Sangría",
             "descripcion": [
-                "<i class='fas fa-indent'></i> Pude eliminar sangría o disminuir el espaciado izquierdo del parrafo colocando el cursor sobre el parrafo deseado y presionando sobre este botón."
+                "<i class='iconify' data-icon='fa-indent'></i> Pude eliminar sangría o disminuir el espaciado izquierdo del parrafo colocando el cursor sobre el parrafo deseado y presionando sobre este botón."
             ]
         },
         {
@@ -130,14 +130,14 @@
             "id": "alineacion",
             "subtitulo": "Alineación del texto",
             "descripcion": [
-                "<i class='fas fa-align-left'></i> Pude cambiar la alineación del texto entre las opciones: Cargado a la izquierda, cargado a la derecha, centrado o justificado."
+                "<i class='iconify' data-icon='fa-align-left'></i> Pude cambiar la alineación del texto entre las opciones: Cargado a la izquierda, cargado a la derecha, centrado o justificado."
             ]
         },
         {
             "id": "eliminar_formato",
             "subtitulo": "Eliminación del Formato",
             "descripcion": [
-                "<i class='fas fa-remove-format'></i> Pude eliminar o quitar todos los cambios del formato que haya hecho sin cambiar el contenido del texto en sí."
+                "<i class='iconify' data-icon='fa-solid:remove-format'></i> Pude eliminar o quitar todos los cambios del formato que haya hecho sin cambiar el contenido del texto en sí."
             ]
         }
     ]

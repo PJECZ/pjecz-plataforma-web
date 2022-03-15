@@ -10,8 +10,6 @@
     {{ quill.head() }}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <!-- font awesom-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Botón Atrás a la izquierda, botón Siguiente a la derecha -->
     <style>
         #atras { float: left; box-sizing: border-box; }
@@ -70,43 +68,43 @@
                         {% endcall %}
                         <!-- Step Objetivo -->
                         {% call quill.step('Objetivo', back_onclick='javascript:guardar_objetivo()', next_onclick='javascript:guardar_objetivo()', save_onclick='javascript:guardar_objetivo()') %}
-                            <div id="obj_pop"><a tabindex="0" class="popover-objetivo" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
+                            <div id="obj_pop"><a tabindex="0" class="popover-objetivo" data-bs-toggle="popover"><i class="iconify" data-icon="fa-solid:info-circle"></i></a></div>
                             {{ quill.div(div_id='objetivo_quill') }}
                             <div style="display: none;">{% call f.form_group(form.objetivo, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Step Alcance -->
                         {% call quill.step('Alcance', back_onclick='javascript:guardar_alcance()', next_onclick='javascript:guardar_alcance()', save_onclick='javascript:guardar_alcance()') %}
-                            <div id="alcance_pop"><a tabindex="0" class="popover-alcance" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
+                            <div id="alcance_pop"><a tabindex="0" class="popover-alcance" data-bs-toggle="popover"><i class="iconify" data-icon="fa-solid:info-circle"></i></a></div>
                             {{ quill.div(div_id='alcance_quill') }}
                             <div style="display: none;">{% call f.form_group(form.alcance, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Step Documentos -->
                         {% call quill.step('Documentos de Referencia', back_onclick='javascript:guardar_documentos()', next_onclick='javascript:guardar_documentos()', save_onclick='javascript:guardar_documentos()') %}
-                            <div id="docu_pop"><a tabindex="0" class="popover-documento" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
+                            <div id="docu_pop"><a tabindex="0" class="popover-documento" data-bs-toggle="popover"><i class="iconify" data-icon="fa-solid:info-circle"></i></a></div>
                             {{ quill.div(div_id='documentos_quill') }}
                             <div style="display: none;">{% call f.form_group(form.documentos, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Step Definiciones -->
                         {% call quill.step('Definiciones', back_onclick='javascript:guardar_definiciones()', next_onclick='javascript:guardar_definiciones()', save_onclick='javascript:guardar_definiciones()') %}
-                            <div id="def_pop"><a tabindex="0" class="popover-definiciones" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
+                            <div id="def_pop"><a tabindex="0" class="popover-definiciones" data-bs-toggle="popover"><i class="iconify" data-icon="fa-solid:info-circle"></i></a></div>
                             {{ quill.div(div_id='definiciones_quill') }}
                             <div style="display: none;">{% call f.form_group(form.definiciones, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Responsabilidades -->
                         {% call quill.step('Responsabilidades', back_onclick='javascript:guardar_responsabilidades()', next_onclick='javascript:guardar_responsabilidades()', save_onclick='javascript:guardar_responsabilidades()') %}
-                            <div id="respo_pop"><a tabindex="0" class="popover-respon" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
+                            <div id="respo_pop"><a tabindex="0" class="popover-respon" data-bs-toggle="popover"><i class="iconify" data-icon="fa-solid:info-circle"></i></a></div>
                             {{ quill.div(div_id='responsabilidades_quill') }}
                             <div style="display: none;">{% call f.form_group(form.responsabilidades, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Desarrollo -->
                         {% call quill.step('Desarrollo', back_onclick='javascript:guardar_desarrollo()', next_onclick='javascript:guardar_desarrollo()', save_onclick='javascript:guardar_desarrollo()') %}
-                            <div id="desar_pop"><a tabindex="0" class="popover-desarrollo" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
+                            <div id="desar_pop"><a tabindex="0" class="popover-desarrollo" data-bs-toggle="popover"><i class="iconify" data-icon="fa-solid:info-circle"></i></a></div>
                             {{ quill.div(div_id='desarrollo_quill') }}
                             <div style="display: none;">{% call f.form_group(form.desarrollo, readonly=true) %}{% endcall %}</div>
                         {% endcall %}
                         <!-- Registros -->
                         {% call quill.step('Registros', back_onclick='javascript:guardar_registros()', next_onclick='javascript:guardar_registros()', save_onclick='javascript:guardar_registros()') %}
-                            <div id="regis_pop"><a tabindex="0" class="popover-registro" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
+                            <div id="regis_pop"><a tabindex="0" class="popover-registro" data-bs-toggle="popover"><i class="iconify" data-icon="fa-solid:info-circle"></i></a></div>
                             {% call add_data.div_container('form-alert1-reg') %}
                                 {% call add_data.form_create() %}
                                         {% call add_data.input_form('2','text','registro_codigo','Código') %}{% endcall %}
@@ -137,7 +135,7 @@
                         {% endcall %}
                         <!-- Control de cambios -->
                         {% call quill.step('Control de Cambios', back_onclick='javascript:guardar_control_cambios()', next_onclick='javascript:guardar_control_cambios()', save_onclick='javascript:guardar_control_cambios()') %}
-                            <div id="control_pop"><a tabindex="0" class="popover-control" data-bs-toggle="popover"><i class="fas fa-info-circle"></i></a></div>
+                            <div id="control_pop"><a tabindex="0" class="popover-control" data-bs-toggle="popover"><i class="iconify" data-icon="fa-solid:info-circle"></i></a></div>
                              {% call add_data.div_container('form-alert1-camb') %}
                                 {% call add_data.form_create() %}
                                         {% call add_data.input_form('2','text','control_revision','No. Revision') %}{% endcall %}
