@@ -69,7 +69,9 @@ def before_request():
 def list_active():
     """Listado de Tickets: Si es usuario un listado sencillo, si es de soporte los tickets Sin Atender"""
     if _get_funcionario_if_is_soporte() is None:
-        return render_template("soportes_tickets/list_user.jinja2")
+        return render_template("soportes_tickets/list_user.jinja2",
+            titulo="Tickets",
+            filtros=json.dumps({"estatus" : "A"}),)
     return render_template("soportes_tickets/list_open.jinja2")
 
 
