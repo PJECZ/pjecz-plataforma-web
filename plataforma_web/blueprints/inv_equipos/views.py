@@ -9,7 +9,7 @@ from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
-from plataforma_web.blueprints.inv_redes.models import InvRedes
+from plataforma_web.blueprints.inv_redes.models import InvRed
 
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -57,7 +57,7 @@ def datatable_json():
         if modelo:
             consulta = consulta.filter(InvEquipo.modelo == modelo)
     if "red_id" in request.form:
-        red = InvRedes.query.get(request.form["red_id"])
+        red = InvRed.query.get(request.form["red_id"])
         if red:
             consulta = consulta.filter(InvEquipo.red == red)
     registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()

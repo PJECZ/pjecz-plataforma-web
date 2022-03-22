@@ -24,14 +24,14 @@
 {% block content %}
     {% call detail.card(estatus=equipo.estatus) %}
         {{ detail.label_value('ID', equipo.id) }}
-        {{ detail.label_value('Usuario', equipo.custodia.nombre_completo) }}
-        {{ detail.label_value('Marca', equipo.modelo.marca.nombre) }}
-        {{ detail.label_value('Modelo', equipo.modelo.descripcion) }}
+        {{ detail.label_value('Usuario', equipo.custodia.nombre_completo, url_for('usuarios.detail', usuario_id=equipo.custodia.usuario_id)) }}
+        {{ detail.label_value('Marca', equipo.modelo.marca.nombre, url_for('inv_marcas.detail', marca_id=equipo.modelo.marca.id)) }}
+        {{ detail.label_value('Modelo', equipo.modelo.descripcion, url_for('inv_modelos.detail', modelo_id=equipo.inv_modelo_id)) }}
         {{ detail.label_value('Fecha de adquisición', moment(equipo.adquisicion_fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Inventario', equipo.numero_inventario) }}
         {{ detail.label_value('No. serie', equipo.numero_serie) }}
         {{ detail.label_value('Descripción', equipo.descripcion) }}
-        {{ detail.label_value('Red', equipo.red.nombre) }}
+        {{ detail.label_value('Red', equipo.red.nombre, url_for('inv_redes.detail', red_id=equipo.inv_red_id)) }}
         {{ detail.label_value('Dirección IP', equipo.direccion_ip) }}
         {{ detail.label_value('Dirección MAC', equipo.direccion_mac) }}
         {{ detail.label_value('Número nodo', equipo.numero_nodo) }}

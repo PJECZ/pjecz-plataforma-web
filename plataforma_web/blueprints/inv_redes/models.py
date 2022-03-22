@@ -8,8 +8,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class InvRedes(db.Model, UniversalMixin):
-    """InvRedes"""
+class InvRed(db.Model, UniversalMixin):
+    """InvRed"""
 
     TIPOS = OrderedDict(
         [
@@ -35,4 +35,4 @@ class InvRedes(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<InvRedes>"
+        return "<InvRed>"

@@ -131,6 +131,7 @@ def new(equipo_id):
     form.marca.data = equipo.modelo.marca.nombre
     form.descripcion_equipo.data = equipo.descripcion
     form.usuario.data = equipo.custodia.nombre_completo
+    form.descripcion.data = form.nombre.data
     return render_template("inv_componentes/new.jinja2", form=form, equipo=equipo)
 
 

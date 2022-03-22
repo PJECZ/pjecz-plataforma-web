@@ -56,7 +56,11 @@ def datatable_json():
                     "custodia_id": resultado.id,
                     "url": url_for("inv_custodias.detail", custodia_id=resultado.id),
                 },
-                "nombre_completo": resultado.nombre_completo,
+                "usuario": {
+                    "nombre": resultado.nombre_completo,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id),
+                },
+                # "nombre_completo": resultado.nombre_completo,
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                 "oficina": {
                     "clave": resultado.usuario.oficina.clave,
