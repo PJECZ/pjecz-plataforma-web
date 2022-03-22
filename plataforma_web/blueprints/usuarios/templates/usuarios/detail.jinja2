@@ -20,79 +20,106 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=usuario.estatus) %}
-        {{ detail.label_value_big('Nombre', usuario.nombre) }}
-        {{ detail.label_value('Puesto', usuario.puesto) }}
-        {{ detail.label_value('CURP', usuario.curp) }}
-        {{ detail.label_value('e-mail', usuario.email) }}
-        {% if current_user.can_view("DISTRITOS") %}
-            {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
-        {% else %}
-            {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre) }}
-        {% endif %}
-        {% if current_user.can_view("AUTORIDADES") %}
-            {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
-        {% else %}
-            {{ detail.label_value('Autoridad', usuario.autoridad.descripcion) }}
-        {% endif %}
-        {% if current_user.can_view("OFICINAS") %}
-            {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
-        {% else %}
-            {{ detail.label_value('Oficina', usuario.oficina.descripcion) }}
-        {% endif %}
-        {{ detail.label_value('Teléfono celular', usuario.telefono_celular) }}
-        {{ detail.label_value('Workspace', usuario.workspace) }}
-        {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
-    {% endcall %}
-    {% if current_user.can_view('SOPORTES TICKETS') %}
-        {% call list.card('Tickets') %}
-            <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Creación</th>
-                        <th>Categoría</th>
-                        <th>Oficina</th>
-                        <th>Estado</th>
-                        <th>Técnico</th>
-                        <th>Descripción</th>
-                        <th>Solución/Cancelación</th>
-                    </tr>
-                </thead>
-            </table>
-        {% endcall %}
-    {% endif %}
-    {% if current_user.can_view('INV CUSTODIAS') %}
-        {% call list.card('Custodias') %}
-            <table id="inv_custodias_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Oficina</th>
-                    </tr>
-                </thead>
-            </table>
-            {% if current_user.can_insert('INV CUSTODIAS') %}
-                <a href="{{ url_for('inv_custodias.new', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="detalles-tab" data-bs-toggle="tab" data-bs-target="#tab_detalles" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Detalles</button>
+            {% if current_user.can_view('SOPORTES TICKETS') %}
+            <button class="nav-link" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tab_tickets" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Soporte Tickets</button>
+            {%endif%}
+            {% if current_user.can_view('INV CUSTODIAS') %}
+            <button class="nav-link" id="custodias-tab" data-bs-toggle="tab" data-bs-target="#tab_custodias" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Custodias</button>
+            {%endif%}
+            {% if current_user.can_view('USUARIOS ROLES') %}
+            <button class="nav-link" id="roles-tab" data-bs-toggle="tab" data-bs-target="#tab_roles" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Roles</button>
+            {%endif%}
+        </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="tab_detalles" role="tabpanel" aria-labelledby="detalles-tab">
+            {% call detail.card(estatus=usuario.estatus) %}
+                {{ detail.label_value_big('Nombre', usuario.nombre) }}
+                {{ detail.label_value('Puesto', usuario.puesto) }}
+                {{ detail.label_value('CURP', usuario.curp) }}
+                {{ detail.label_value('e-mail', usuario.email) }}
+                {% if current_user.can_view("DISTRITOS") %}
+                    {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
+                {% else %}
+                    {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre) }}
+                {% endif %}
+                {% if current_user.can_view("AUTORIDADES") %}
+                    {{ detail.label_value('Autoridad', usuario.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=usuario.autoridad_id)) }}
+                {% else %}
+                    {{ detail.label_value('Autoridad', usuario.autoridad.descripcion) }}
+                {% endif %}
+                {% if current_user.can_view("OFICINAS") %}
+                    {{ detail.label_value('Oficina', usuario.oficina.descripcion, url_for('oficinas.detail', oficina_id=usuario.oficina_id)) }}
+                {% else %}
+                    {{ detail.label_value('Oficina', usuario.oficina.descripcion) }}
+                {% endif %}
+                {{ detail.label_value('Teléfono celular', usuario.telefono_celular) }}
+                {{ detail.label_value('Workspace', usuario.workspace) }}
+                {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
+            {% endcall %}
+        </div>
+        <div class="tab-pane fade" id="tab_tickets" role="tabpanel" aria-labelledby="tickets-tab">
+            {% if current_user.can_view('SOPORTES TICKETS') %}
+                {% call list.card() %}
+                    <table id="soportes_tickets_datatable" class="table display nowrap init" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Creación</th>
+                                <th>Categoría</th>
+                                <th>Oficina</th>
+                                <th>Estado</th>
+                                <th>Técnico</th>
+                                <th>Descripción</th>
+                                <th>Solución/Cancelación</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% endcall %}
             {% endif %}
-        {% endcall %}
-    {% endif %}
-    {% if current_user.can_view('USUARIOS ROLES') %}
-        {% call detail.card("Roles") %}
-            <table id="usuarios_roles_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Rol</th>
-                    </tr>
-                </thead>
-            </table>
-            {% if current_user.can_insert('USUARIOS ROLES') %}
-                <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+        </div>
+        <div class="tab-pane fade" id="tab_custodias" role="tabpanel" aria-labelledby="custodias-tab">
+            {% if current_user.can_view('INV CUSTODIAS') %}
+                {% call list.card() %}
+                    <table id="inv_custodias_datatable" class="table display nowrap init" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Oficina</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    {% if current_user.can_insert('INV CUSTODIAS') %}
+                        <a href="{{ url_for('inv_custodias.new', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+                    {% endif %}
+                {% endcall %}
             {% endif %}
-        {% endcall %}
-    {% endif %}
+        </div>
+        <div class="tab-pane fade" id="tab_roles" role="tabpanel" aria-labelledby="roles-tab">
+        {% if current_user.can_view('USUARIOS ROLES') %}
+            {% call detail.card() %}
+                <table id="usuarios_roles_datatable" class="table display nowrap init" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Rol</th>
+                        </tr>
+                    </thead>
+                </table>
+                {% if current_user.can_insert('USUARIOS ROLES') %}
+                    <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+                {% endif %}
+            {% endcall %}
+        {% endif %}
+        </div>
+    </div>
+    
+    
 {% endblock %}
 
 {% block custom_javascript %}
@@ -105,142 +132,156 @@
     {{ detail.config_datatable() }}
     {% if current_user.can_view('USUARIOS ROLES') %}
         <script>
-            configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
-            configDataTable['columns'] = [
-                { data: "detalle" },
-                { data: "rol" }
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: 1, // rol
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.nombre;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+        
+            if( $("#usuarios_roles_datatable").hasClass("init") ){
+
+                configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
+                configDataTable['columns'] = [
+                    { data: "detalle" },
+                    { data: "rol" }
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0, // detalle
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 1, // rol
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data.url == '') {
+                                return data.nombre;
+                            } else {
+                                return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                            }
                         }
                     }
-                }
-            ];
-            $('#usuarios_roles_datatable').DataTable(configDataTable);
+                ];
+                $('#usuarios_roles_datatable').removeClass("init");
+                $('#usuarios_roles_datatable').DataTable(configDataTable);
+            }
         </script>
     {% endif %}
     {% if current_user.can_view('SOPORTES TICKETS') %}
         <script>
-            configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
-            configDataTable['columns'] = [
-                { data: "id" },
-                { data: "creacion" },
-                { data: "categoria" },
-                { data: "oficina" },
-                { data: "estado" },
-                { data: "tecnico" },
-                { data: "descripcion" },
-                { data: "soluciones" }
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // id
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
+
+            if( $("#soportes_tickets_datatable").hasClass("init") ){
+        
+                configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
+                configDataTable['columns'] = [
+                    { data: "id" },
+                    { data: "creacion" },
+                    { data: "categoria" },
+                    { data: "oficina" },
+                    { data: "estado" },
+                    { data: "tecnico" },
+                    { data: "descripcion" },
+                    { data: "soluciones" }
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0, // id
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 1, // creacion
+                        type: "date",
+                        render: function(data, type, row, meta) {
+                            return moment.utc(data).local().format("YYYY-MM-DD HH:mm a");
+                        }
+                    },
+                    {
+                        targets: [2, 5], // categoria, tecnico
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if(data.nombre.length > 24)
+                                texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
+                            else
+                                texto = data.nombre;
+                            if(data.url == '')
+                                return texto;
+                            else
+                                return '<a href="' + data.url + '">' + texto + '</a>';
+                        }
+                    },
+                    {
+                        targets: 3, //oficina
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
+                            if(data.url == '')
+                                return texto;
+                            else
+                                return '<a href="' + data.url + '">' + texto + '</a>';
+                        }
+                    },
+                    {
+                        targets: [6, 7], // descripcion, soluciones
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data != null)
+                                if (data.length > 24)   {
+                                    return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
+                                } else {
+                                    return data;
+                                }
+                            return '—';
+                        }
                     }
-                },
-                {
-                    targets: 1, // creacion
-                    type: "date",
-                    render: function(data, type, row, meta) {
-                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm a");
+                ];
+                configDataTable['rowCallback'] = function(row, data) {
+                    switch (data.estado)    {
+                        case "SIN ATENDER": $(row).css("background-color", "#fef9e7");  break;
+                        case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
+                        case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
+                        case "PENDIENTE":   $(row).css("background-color", "#f5eef8");  break;
+                        case "TERMINADO":   $(row).css("background-color", "#eafaf1");  break;
+                        case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
                     }
-                },
-                {
-                    targets: [2, 5], // categoria, tecnico
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if(data.nombre.length > 24)
-                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
-                        else
-                            texto = data.nombre;
-                        if(data.url == '')
-                            return texto;
-                        else
-                            return '<a href="' + data.url + '">' + texto + '</a>';
-                    }
-                },
-                {
-                    targets: 3, //oficina
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        texto = '<span title="' + data.nombre + '">' + data.clave + '</span>';
-                        if(data.url == '')
-                            return texto;
-                        else
-                            return '<a href="' + data.url + '">' + texto + '</a>';
-                    }
-                },
-                {
-                    targets: [6, 7], // descripcion, soluciones
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data != null)
-                            if (data.length > 24)   {
-                                return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
-                            } else {
-                                return data;
-                            }
-                        return '—';
-                    }
-                }
-            ];
-            configDataTable['rowCallback'] = function(row, data) {
-                switch (data.estado)    {
-                    case "SIN ATENDER": $(row).css("background-color", "#fef9e7");  break;
-                    case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
-                    case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
-                    case "PENDIENTE":   $(row).css("background-color", "#f5eef8");  break;
-                    case "TERMINADO":   $(row).css("background-color", "#eafaf1");  break;
-                    case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
-                }
-            };
-            $('#soportes_tickets_datatable').DataTable(configDataTable);
+                };
+                $('#soportes_tickets_datatable').removeClass("init");
+                $('#soportes_tickets_datatable').DataTable(configDataTable);
+            }
         </script>
     {% endif %}
     {% if current_user.can_view('INV CUSTODIAS') %}
         <script>
-            configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{usuario.id}} };
-            configDataTable['columns'] = [
-                { data: "id" },
-                { data: "fecha" },
-                { data: "oficina" },
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // id
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+            if($('#inv_custodias_datatable').hasClass("init")){
+
+                configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{usuario.id}} };
+                configDataTable['columns'] = [
+                    { data: "id" },
+                    { data: "fecha" },
+                    { data: "oficina" },
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0, // id
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 2, // oficina
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
                     }
-                },
-                {
-                    targets: 2, // oficina
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
-                    }
-                }
-            ];
-            $('#inv_custodias_datatable').DataTable(configDataTable);
+                ];
+                $('#inv_custodias_datatable').removeClass("init");
+                $('#inv_custodias_datatable').DataTable(configDataTable);
+            }
         </script>
     {% endif %}
 {% endblock %}
