@@ -1,0 +1,25 @@
+{# creamos las pestañas #}
+{%- macro header() -%}
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            {{caller()}}
+        </div>
+    </nav>
+{%- endmacro -%}
+
+{%- macro button(id, target_aria, label, status="") -%}
+    <button class="nav-link {{status}}" id="{{ id }}" data-bs-toggle="tab" data-bs-target="#{{ target_aria }}" type="button" role="tab" aria-controls="{{ target_aria }}" aria-selected="true">{{label}}</button>
+{%- endmacro -%}
+
+{# creamos el contenido para las pestañas #}
+{%- macro content() -%}
+    <div class="tab-content" id="nav-tabContent">
+        {{caller()}}
+    </div>
+{%- endmacro -%}
+
+{%-macro div_content(id, id_btn, status="")-%}
+    <div class="tab-pane fade show {{status}}" id="{{ id }}" role="tabpanel" aria-labelledby="{{ id_btn }}">
+        {{caller()}}  
+    </div>
+{%- endmacro -%}

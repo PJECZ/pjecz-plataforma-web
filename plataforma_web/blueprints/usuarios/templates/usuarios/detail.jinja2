@@ -3,6 +3,7 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/list.jinja2' as list %}
+{% import 'macros/tabs.jinja2' as tabs %}
 
 {% block title %}Usuario{% endblock %}
 
@@ -20,23 +21,14 @@
 {% endblock %}
 
 {% block content %}
-
-    <nav>
-        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <button class="nav-link active" id="detalles-tab" data-bs-toggle="tab" data-bs-target="#tab_detalles" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Detalles</button>
-            {% if current_user.can_view('SOPORTES TICKETS') %}
-            <button class="nav-link" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tab_tickets" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Soporte Tickets</button>
-            {%endif%}
-            {% if current_user.can_view('INV CUSTODIAS') %}
-            <button class="nav-link" id="custodias-tab" data-bs-toggle="tab" data-bs-target="#tab_custodias" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Custodias</button>
-            {%endif%}
-            {% if current_user.can_view('USUARIOS ROLES') %}
-            <button class="nav-link" id="roles-tab" data-bs-toggle="tab" data-bs-target="#tab_roles" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Roles</button>
-            {%endif%}
-        </div>
-    </nav>
-    <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="tab_detalles" role="tabpanel" aria-labelledby="detalles-tab">
+    {% call tabs.header() %}
+        {{tabs.button('detalles-tab', 'tab_detalles', 'Detalles','active')}}
+        {{tabs.button('tickets-tab', 'tab_tickets', 'Soporte Tickets')}}
+        {{tabs.button('custodias-tab', 'tab_custodias', 'Custodias')}}
+        {{tabs.button('roles-tab', 'tab_roles', 'Roles')}}
+    {% endcall %}
+    {% call tabs.content()%}
+        {% call tabs.div_content('tab_detalles','detalles-tab','active')%}
             {% call detail.card(estatus=usuario.estatus) %}
                 {{ detail.label_value_big('Nombre', usuario.nombre) }}
                 {{ detail.label_value('Puesto', usuario.puesto) }}
@@ -61,11 +53,11 @@
                 {{ detail.label_value('Workspace', usuario.workspace) }}
                 {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
             {% endcall %}
-        </div>
-        <div class="tab-pane fade" id="tab_tickets" role="tabpanel" aria-labelledby="tickets-tab">
+        {%endcall%}
+        {% call tabs.div_content('tab_tickets','tickets-tab')%}
             {% if current_user.can_view('SOPORTES TICKETS') %}
                 {% call list.card() %}
-                    <table id="soportes_tickets_datatable" class="table display nowrap init" style="width:100%;">
+                    <table id="soportes_tickets_datatable" class="table display nowrap init_tabs" style="width:100%;">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -81,11 +73,11 @@
                     </table>
                 {% endcall %}
             {% endif %}
-        </div>
-        <div class="tab-pane fade" id="tab_custodias" role="tabpanel" aria-labelledby="custodias-tab">
+        {%endcall%}
+        {% call tabs.div_content('tab_custodias','custodias-tab')%}
             {% if current_user.can_view('INV CUSTODIAS') %}
                 {% call list.card() %}
-                    <table id="inv_custodias_datatable" class="table display nowrap init" style="width:100%">
+                    <table id="inv_custodias_datatable" class="table display nowrap init_tabs" style="width:100%;">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -99,27 +91,25 @@
                     {% endif %}
                 {% endcall %}
             {% endif %}
-        </div>
-        <div class="tab-pane fade" id="tab_roles" role="tabpanel" aria-labelledby="roles-tab">
-        {% if current_user.can_view('USUARIOS ROLES') %}
-            {% call detail.card() %}
-                <table id="usuarios_roles_datatable" class="table display nowrap init" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Rol</th>
-                        </tr>
-                    </thead>
-                </table>
-                {% if current_user.can_insert('USUARIOS ROLES') %}
-                    <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
-                {% endif %}
-            {% endcall %}
-        {% endif %}
-        </div>
-    </div>
-    
-    
+        {% endcall %}
+        {% call tabs.div_content('tab_roles','roles-tab') %}
+            {% if current_user.can_view('USUARIOS ROLES') %}
+                {% call detail.card() %}
+                    <table id="usuarios_roles_datatable" class="table display nowrap init_tabs" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Rol</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    {% if current_user.can_insert('USUARIOS ROLES') %}
+                        <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+                    {% endif %}
+                {% endcall %}
+            {% endif %}
+        {% endcall %}
+    {%endcall%}  
 {% endblock %}
 
 {% block custom_javascript %}
@@ -132,45 +122,41 @@
     {{ detail.config_datatable() }}
     {% if current_user.can_view('USUARIOS ROLES') %}
         <script>
-        
-            if( $("#usuarios_roles_datatable").hasClass("init") ){
-
-                configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
-                configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
-                configDataTable['columns'] = [
-                    { data: "detalle" },
-                    { data: "rol" }
-                ];
-                configDataTable['columnDefs'] = [
-                    {
-                        targets: 0, // detalle
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.id + '</a>';
-                        }
-                    },
-                    {
-                        targets: 1, // rol
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            if (data.url == '') {
-                                return data.nombre;
-                            } else {
-                                return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                            }
+        $('#roles-tab').on('show.bs.tab', function(){
+            configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "rol" }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // rol
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
                         }
                     }
-                ];
-                $('#usuarios_roles_datatable').removeClass("init");
-                $('#usuarios_roles_datatable').DataTable(configDataTable);
-            }
+                }
+            ];
+            $('#usuarios_roles_datatable').DataTable().destroy();
+            $('#usuarios_roles_datatable').DataTable(configDataTable);
+        });
         </script>
     {% endif %}
     {% if current_user.can_view('SOPORTES TICKETS') %}
         <script>
-
-            if( $("#soportes_tickets_datatable").hasClass("init") ){
-        
+        $('#tickets-tab').on('show.bs.tab', function(){
                 configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
                 configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
                 configDataTable['columns'] = [
@@ -247,41 +233,40 @@
                         case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
                     }
                 };
-                $('#soportes_tickets_datatable').removeClass("init");
+                $('#soportes_tickets_datatable').DataTable().destroy();
                 $('#soportes_tickets_datatable').DataTable(configDataTable);
-            }
+        });
         </script>
     {% endif %}
     {% if current_user.can_view('INV CUSTODIAS') %}
         <script>
-            if($('#inv_custodias_datatable').hasClass("init")){
-
-                configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
-                configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{usuario.id}} };
-                configDataTable['columns'] = [
-                    { data: "id" },
-                    { data: "fecha" },
-                    { data: "oficina" },
-                ];
-                configDataTable['columnDefs'] = [
-                    {
-                        targets: 0, // id
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
-                        }
-                    },
-                    {
-                        targets: 2, // oficina
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
-                        }
+        $('#custodias-tab').on('show.bs.tab', function(){
+            configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{usuario.id}} };
+            configDataTable['columns'] = [
+                { data: "id" },
+                { data: "fecha" },
+                { data: "oficina" },
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // id
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
                     }
-                ];
-                $('#inv_custodias_datatable').removeClass("init");
-                $('#inv_custodias_datatable').DataTable(configDataTable);
-            }
+                },
+                {
+                    targets: 2, // oficina
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                }
+            ];
+            $('#inv_custodias_datatable').DataTable().destroy();
+            $('#inv_custodias_datatable').DataTable(configDataTable);
+        });
         </script>
     {% endif %}
 {% endblock %}
