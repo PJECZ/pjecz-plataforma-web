@@ -18,6 +18,7 @@
 
 {% block content %}
     {% call detail.card() %}
+        {{ detail.label_value('ID', categoria.id) }}
         {{ detail.label_value('Categoría', categoria.nombre) }}
     {% endcall %}
 {% endblock %}

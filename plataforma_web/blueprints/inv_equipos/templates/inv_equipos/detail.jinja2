@@ -43,6 +43,7 @@
             <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Categoría</th>
                         <th>Descripción</th>
                         <th>Cantidad</th>
@@ -90,8 +91,9 @@
             configDataTable['ajax']['url'] = '/inv_componentes/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'equipo_id': {{ equipo.id}} };
             configDataTable['columns'] = [
-                { data: "categoria" },
                 { data: "detalle" },
+                { data: "categoria" },
+                { data: "descripcion" },
                 { data: "cantidad" },
                 { data: "version" },
             ];
@@ -100,16 +102,9 @@
                     targets: 0, // categoria
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
-                {
-                    targets: 1, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                    }
-                }
             ];
             $('#inv_componentes_datatable').DataTable(configDataTable);
         </script>
