@@ -69,7 +69,9 @@ def before_request():
 def list_active():
     """Listado de Tickets: Si es usuario un listado sencillo, si es de soporte los tickets Sin Atender"""
     if _get_funcionario_if_is_soporte() is None:
-        return render_template("soportes_tickets/list_user.jinja2")
+        return render_template("soportes_tickets/list_user.jinja2",
+            titulo="Tickets",
+            filtros=json.dumps({"estatus" : "A"}),)
     return render_template("soportes_tickets/list_open.jinja2")
 
 
@@ -149,7 +151,7 @@ def datatable_json():
     funcionario = _get_funcionario_if_is_soporte()
 
     # Si es funcionario de soporte y se van a separar los tickets POR ATENDER
-    if funcionario and "estado" in request.form and "soportes_tickets_abiertos" in request.form:
+    if funcionario and "estado" in request.form and "soportes_tickets_abiertos" in request.form and not "buscar" in request.form:
         # Si la tabla es de...
         if request.form["soportes_tickets_abiertos"] == "CERCANOS":
             # Tickets CERCANOS
@@ -176,7 +178,7 @@ def datatable_json():
                 consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.not_in(roles_ids))
         # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
         consulta = consulta.order_by(SoporteTicket.id)
-    elif funcionario and "estado" in request.form and "soporte_tickets_trabajando" in request.form:
+    elif funcionario and "estado" in request.form and "soporte_tickets_trabajando" in request.form and not "buscar" in request.form:
         # Es funcionario de soporte y se van a separar los tickets TRABAJANDO
         if request.form["soporte_tickets_trabajando"] == "MIOS":
             consulta = consulta.filter(SoporteTicket.funcionario == funcionario)
@@ -687,7 +689,7 @@ def search():
 
         # Mostrar listado con los resultados
         return render_template(
-            "soportes_tickets/list.jinja2",
+            "soportes_tickets/list_user.jinja2",
             filtros=json.dumps(busqueda),
             titulo="Tickets con " + ", ".join(titulos),
             estatus="A",
