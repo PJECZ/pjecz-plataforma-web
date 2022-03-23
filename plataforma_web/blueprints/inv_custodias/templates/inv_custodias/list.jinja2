@@ -40,7 +40,7 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "id" },
-            { data: "nombre_completo" },
+            { data: "usuario" },
             { data: "fecha" },
             { data: "oficina" },
         ];
@@ -50,6 +50,13 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+                }
+            },
+            {
+                targets: 1,
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
                 }
             },
             {
