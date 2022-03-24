@@ -11,8 +11,8 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_redes.models import InvRedes
-from plataforma_web.blueprints.inv_redes.forms import InvRedesForm
+from plataforma_web.blueprints.inv_redes.models import InvRed
+from plataforma_web.blueprints.inv_redes.forms import InvRedForm
 
 MODULO = "INV REDES"
 
@@ -32,12 +32,12 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
-    consulta = InvRedes.query
+    consulta = InvRed.query
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(InvRedes.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvRed.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -81,7 +81,7 @@ def list_inactive():
 @inv_redes.route("/inv_redes/<int:red_id>")
 def detail(red_id):
     """Detalle de un Red"""
-    red = InvRedes.query.get_or_404(red_id)
+    red = InvRed.query.get_or_404(red_id)
     return render_template("inv_redes/detail.jinja2", red=red)
 
 
@@ -89,7 +89,7 @@ def detail(red_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Red"""
-    form = InvRedesForm()
+    form = InvRedForm()
     validacion = False
     if form.validate_on_submit():
         try:
@@ -99,7 +99,7 @@ def new():
             flash(f"Nombre de la red incorrecto. {str(err)}", "warning")
             validacion = False
         if validacion:
-            red = InvRedes(nombre=safe_string(form.nombre.data), tipo=safe_string(form.tipo.data))
+            red = InvRed(nombre=safe_string(form.nombre.data), tipo=safe_string(form.tipo.data))
             red.save()
             flash(f"Red {red.nombre} guardado.", "success")
             return redirect(url_for("inv_redes.detail", red_id=red.id))
@@ -110,8 +110,8 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(red_id):
     """Editar Red"""
-    red = InvRedes.query.get_or_404(red_id)
-    form = InvRedesForm()
+    red = InvRed.query.get_or_404(red_id)
+    form = InvRedForm()
     if form.validate_on_submit():
         red.nombre = safe_string(form.nombre.data)
         red.tipo = form.tipo.data
@@ -125,7 +125,7 @@ def edit(red_id):
 
 def _validar_form(form, same=False):
     if not same:
-        nombre_existente = InvRedes.query.filter(InvRedes.nombre == safe_string(form.nombre.data)).first()
+        nombre_existente = InvRed.query.filter(InvRed.nombre == safe_string(form.nombre.data)).first()
         if nombre_existente:
             raise Exception("El nombre ya está registrado, verifique en el listado de inactivos")
     return True
@@ -135,7 +135,7 @@ def _validar_form(form, same=False):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(red_id):
     """Eliminar Red"""
-    red = InvRedes.query.get_or_404(red_id)
+    red = InvRed.query.get_or_404(red_id)
     if red.estatus == "A":
         red.delete()
         flash(f"Red {red.nombre} eliminado.", "success")
@@ -146,7 +146,7 @@ def delete(red_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(red_id):
     """Recuperar Red"""
-    red = InvRedes.query.get_or_404(red_id)
+    red = InvRed.query.get_or_404(red_id)
     if red.estatus == "B":
         red.recover()
         flash(f"Red {red.nombre} recuperado.", "success")

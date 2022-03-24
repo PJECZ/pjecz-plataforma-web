@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Tickets') %}
+    {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_insert('SOPORTES TICKETS') %}
             {{ topbar.button_new('Nuevo Ticket', url_for('soportes_tickets.new')) }}
         {% endif %}
@@ -58,7 +58,7 @@
                 headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
                 dataSrc: "data",
-                data: { "estatus": "A" }
+                data: {{ filtros }}
             },
             columns: [
                 { data: "id" },

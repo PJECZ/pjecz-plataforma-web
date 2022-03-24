@@ -26,6 +26,7 @@
         <table id="inv_categorias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Nombres</th>
                 </tr>
             </thead>
@@ -39,14 +40,15 @@
         configDataTable['ajax']['url'] = '/inv_categorias/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: 'detalle' }
+            { data: 'detalle' },
+            { data: 'nombre' },
         ];
         configDataTable['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '">' + data.id_categoria + '</a>';
                 }
             }
         ];

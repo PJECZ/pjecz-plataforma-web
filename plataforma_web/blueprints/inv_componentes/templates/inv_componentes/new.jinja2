@@ -25,3 +25,16 @@
         {% endcall %}
     {% endcall %}
 {% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        let nombreCat = document.getElementById('nombre');
+        let descriptCat = document.getElementById('descripcion');
+        
+        nombreCat.onchange = function(){
+            let nameText = this.options[this.selectedIndex].innerHTML;
+            descriptCat.value = nameText; 
+        }
+    </script>
+{% endblock %}
+

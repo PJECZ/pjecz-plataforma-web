@@ -20,7 +20,7 @@
     {% call detail.card(estatus=componente.estatus) %}
         {{ detail.label_value('Descripción del equipo', componente.equipo.descripcion, url_for('inv_equipos.detail', equipo_id=componente.equipo.id)) }}
         {{ detail.label_value('Custodia', componente.equipo.custodia.nombre_completo, url_for('inv_custodias.detail', custodia_id=componente.equipo.custodia.id)) }}
-        {{ detail.label_value('Categoria', componente.categoria.nombre) }}
+        {{ detail.label_value('Categoría', componente.categoria.nombre) }}
         {{ detail.label_value('Descripción', componente.descripcion) }}
         {{ detail.label_value('Cantidad', componente.cantidad) }}
         {{ detail.label_value('Versión', componente.version) }}

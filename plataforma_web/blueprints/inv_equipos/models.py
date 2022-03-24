@@ -21,7 +21,7 @@ class InvEquipo(db.Model, UniversalMixin):
     inv_modelo_id = db.Column(db.Integer, db.ForeignKey("inv_modelos.id"), index=True, nullable=False)
     modelo = db.relationship("InvModelo", back_populates="equipos")
     inv_red_id = db.Column(db.Integer, db.ForeignKey("inv_redes.id"), index=True, nullable=False)
-    red = db.relationship("InvRedes", back_populates="equipos")
+    red = db.relationship("InvRed", back_populates="equipos")
 
     # Columnas
     adquisicion_fecha = db.Column(db.Date())
