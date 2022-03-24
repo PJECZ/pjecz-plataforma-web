@@ -49,17 +49,17 @@ def datatable_json():
     if "usuario_id" in request.form:
         usuario = InvCustodia.query.get(request.form["usuario_id"])
         if usuario:
-            consulta = consulta.filter(InvEquipo.custodia == usuario)
+            consulta = consulta.filter(InvEquipo.inv_custodia == usuario)
     if "custodia_id" in request.form:
         consulta = consulta.filter_by(inv_custodia_id=request.form["custodia_id"])
     if "modelo_id" in request.form:
         modelo = InvModelo.query.get(request.form["modelo_id"])
         if modelo:
-            consulta = consulta.filter(InvEquipo.modelo == modelo)
+            consulta = consulta.filter(InvEquipo.inv_modelo == modelo)
     if "red_id" in request.form:
         red = InvRed.query.get(request.form["red_id"])
         if red:
-            consulta = consulta.filter(InvEquipo.red == red)
+            consulta = consulta.filter(InvEquipo.inv_red == red)
     registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -74,22 +74,22 @@ def datatable_json():
                 "descripcion": resultado.descripcion,
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d") if resultado.adquisicion_fecha is not None else "-",
                 "usuario": {
-                    "nombre_completo": resultado.custodia.usuario.nombre,
-                    "url": url_for("usuarios.detail", usuario_id=resultado.custodia.usuario_id),
+                    "nombre_completo": resultado.inv_custodia.usuario.nombre,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.inv_custodia.usuario_id),
                 },
                 "custodia_id": {
-                    "id": resultado.custodia.id,
-                    "url": url_for("inv_custodias.detail", custodia_id=resultado.custodia.id),
+                    "id": resultado.inv_custodia.id,
+                    "url": url_for("inv_custodias.detail", custodia_id=resultado.inv_custodia.id),
                 },
                 "marca": {
-                    "nombre": resultado.modelo.marca.nombre,
-                    "url": url_for("inv_marcas.detail", marca_id=resultado.modelo.marca.id),
+                    "nombre": resultado.inv_modelo.inv_marca.nombre,
+                    "url": url_for("inv_marcas.detail", marca_id=resultado.inv_modelo.inv_marca.id),
                 },
                 "modelo": {
-                    "nombre": resultado.modelo.descripcion,
-                    "url": url_for("inv_modelos.detail", modelo_id=resultado.modelo.id),
+                    "nombre": resultado.inv_modelo.descripcion,
+                    "url": url_for("inv_modelos.detail", modelo_id=resultado.inv_modelo.id),
                 },
-                "red": {"nombre": resultado.red.nombre, "url": url_for("inv_redes.detail", red_id=resultado.red.id)},
+                "red": {"nombre": resultado.inv_red.nombre, "url": url_for("inv_redes.detail", red_id=resultado.inv_red.id)},
             }
         )
     # Entregar JSON
@@ -148,9 +148,9 @@ def new(inv_custodia_id):
 
         if validacion:
             equipo = InvEquipo(
-                custodia=custodia,
-                modelo=form.modelo.data,
-                red=form.red.data,
+                inv_custodia=custodia,
+                inv_modelo=form.modelo.data,
+                inv_red=form.red.data,
                 adquisicion_fecha=form.adquisicion_fecha.data,
                 numero_serie=form.numero_serie.data,
                 numero_inventario=form.numero_inventario.data,
@@ -186,8 +186,8 @@ def edit(equipo_id):
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
         if validacion:
-            equipo.modelo = form.modelo.data
-            equipo.red = form.red.data
+            equipo.inv_modelo = form.modelo.data
+            equipo.inv_red = form.red.data
             equipo.adquisicion_fecha = form.adquisicion_fecha.data
             equipo.numero_serie = form.numero_serie.data
             equipo.numero_invenatario = form.numero_inventario.data
@@ -200,8 +200,8 @@ def edit(equipo_id):
             equipo.save()
             flash(f"Equipos {equipo.descripcion} guardado.", "success")
             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
-    form.modelo.data = equipo.modelo
-    form.red.data = equipo.red
+    form.modelo.data = equipo.inv_modelo
+    form.red.data = equipo.inv_red
     form.adquisicion_fecha.data = equipo.adquisicion_fecha
     form.numero_serie.data = equipo.numero_serie
     form.numero_inventario.data = equipo.numero_inventario
@@ -211,10 +211,10 @@ def edit(equipo_id):
     form.numero_nodo.data = equipo.numero_nodo
     form.numero_switch.data = equipo.numero_switch
     form.numero_puerto.data = equipo.numero_puerto
-    form.custodia.data = equipo.custodia.nombre_completo
-    form.email.data = equipo.custodia.usuario.email
-    form.puesto.data = equipo.custodia.usuario.puesto
-    form.oficina.data = str(f"{equipo.custodia.usuario.oficina.clave} - {equipo.custodia.usuario.oficina.descripcion_corta}")
+    form.custodia.data = equipo.inv_custodia.nombre_completo
+    form.email.data = equipo.inv_custodia.usuario.email
+    form.puesto.data = equipo.inv_custodia.usuario.puesto
+    form.oficina.data = str(f"{equipo.inv_custodia.usuario.oficina.clave} - {equipo.inv_custodia.usuario.oficina.descripcion_corta}")
     return render_template("inv_equipos/edit.jinja2", form=form, equipo=equipo)
 
 

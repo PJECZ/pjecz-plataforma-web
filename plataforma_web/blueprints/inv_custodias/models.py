@@ -25,7 +25,7 @@ class InvCustodia(db.Model, UniversalMixin):
     nombre_completo = db.Column(db.String(256))
 
     # Hijos
-    equipos = db.relationship("InvEquipo", back_populates="custodia")
+    equipos = db.relationship("InvEquipo", back_populates="inv_custodia")
 
     def __repr__(self):
         """Representación"""

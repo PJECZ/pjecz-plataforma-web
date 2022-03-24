@@ -15,23 +15,23 @@
             {% if equipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos.delete', equipo_id=equipo.id)) }}{% endif %}
             {% if equipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_equipos.recover', equipo_id=equipo.id)) }}{% endif %}
         {% endif %}
-        {% if current_user.can_insert('INV EQUIPOS FOTOS') %}
+        {#{% if current_user.can_insert('INV EQUIPOS FOTOS') %}
             {{ topbar.button('Subir Foto', url_for('inv_equipos_fotos.new', equipo_id=equipo.id), 'mdi:file-upload') }}
-        {% endif %}
+        {% endif %}#}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call detail.card(estatus=equipo.estatus) %}
         {{ detail.label_value('ID', equipo.id) }}
-        {{ detail.label_value('Usuario', equipo.custodia.nombre_completo, url_for('usuarios.detail', usuario_id=equipo.custodia.usuario_id)) }}
-        {{ detail.label_value('Marca', equipo.modelo.marca.nombre, url_for('inv_marcas.detail', marca_id=equipo.modelo.marca.id)) }}
-        {{ detail.label_value('Modelo', equipo.modelo.descripcion, url_for('inv_modelos.detail', modelo_id=equipo.inv_modelo_id)) }}
+        {{ detail.label_value('Usuario', equipo.inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=equipo.inv_custodia.usuario_id)) }}
+        {{ detail.label_value('Marca', equipo.inv_modelo.inv_marca.nombre, url_for('inv_marcas.detail', marca_id=equipo.inv_modelo.inv_marca.id)) }}
+        {{ detail.label_value('Modelo', equipo.inv_modelo.descripcion, url_for('inv_modelos.detail', modelo_id=equipo.inv_modelo_id)) }}
         {{ detail.label_value('Fecha de adquisición', moment(equipo.adquisicion_fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Inventario', equipo.numero_inventario) }}
         {{ detail.label_value('No. serie', equipo.numero_serie) }}
         {{ detail.label_value('Descripción', equipo.descripcion) }}
-        {{ detail.label_value('Red', equipo.red.nombre, url_for('inv_redes.detail', red_id=equipo.inv_red_id)) }}
+        {{ detail.label_value('Red', equipo.inv_red.nombre, url_for('inv_redes.detail', red_id=equipo.inv_red_id)) }}
         {{ detail.label_value('Dirección IP', equipo.direccion_ip) }}
         {{ detail.label_value('Dirección MAC', equipo.direccion_mac) }}
         {{ detail.label_value('Número nodo', equipo.numero_nodo) }}
@@ -56,26 +56,21 @@
             {% endif %}
         {% endcall %}
     {% endif %}
-    {% if fotos %}
-        {% call list.card('Fotos Adjuntas') %}
-            <table id="inv__equipos_fotos_datatable" class="table display nowrap" style="width:100%">
+    {% if current_user.can_view('INV EQUIPOS FOTOS') %}
+        {% call detail.card('Fotos Adjuntas') %}
+            <table id="inv_equipos_fotos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>Descripción</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for foto in fotos %}
-                        <tr>
-                            <td><a href="{{ url_for('inv_equipos_fotos.detail', equipo_foto_id=foto.id) }}">{{ foto.archivo }}</a></td>
-                            <td>{{ foto.descripcion | truncate(48) }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
             </table>
+            {% if current_user.can_insert('INV EQUIPOS FOTOS') %}
+                <a href="{{ url_for('inv_equipos_fotos.new', equipo_id=equipo.id) }}" class="btn btn-primary">Adjuntar Foto</a>
+            {% endif %}
         {% endcall %}
-    {% endif %}    
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -107,6 +102,27 @@
                 },
             ];
             $('#inv_componentes_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
+    {% if current_user.can_view('INV EQUIPOS FOTOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/inv_equipos_fotos/datatable_json';
+            configDataTable['ajax']['data'] = {'estatus': "A", 'equipo_id': {{ equipo.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "descripcion" },
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // categoria
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                },
+            ];
+            $('#inv_equipos_fotos_datatable').DataTable().destroy();
+            $('#inv_equipos_fotos_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
 {% endblock %}

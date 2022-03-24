@@ -17,18 +17,18 @@ class InvModelo(db.Model, UniversalMixin):
 
     # Clave foránea
     inv_marca_id = db.Column(db.Integer, db.ForeignKey("inv_marcas.id"), index=True, nullable=False)
-    marca = db.relationship("InvMarca", back_populates="modelos")
+    inv_marca = db.relationship("InvMarca", back_populates="modelos")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
-    equipos = db.relationship("InvEquipo", back_populates="modelo")
+    equipos = db.relationship("InvEquipo", back_populates="inv_modelo")
 
     @property
     def marca_modelo(self):
         """Junta marca y modelo"""
-        return self.marca.nombre + " - " + self.descripcion
+        return self.inv_marca.nombre + " - " + self.descripcion
 
     def __repr__(self):
         """Representación"""
