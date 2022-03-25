@@ -43,7 +43,7 @@ def datatable_json():
     if "marca_id" in request.form:
         marca = InvMarca.query.get(request.form["marca_id"])
         if marca:
-            consulta = consulta.filter(InvModelo.marca == marca)
+            consulta = consulta.filter(InvModelo.inv_marca == marca)
     registros = consulta.order_by(InvModelo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -55,7 +55,7 @@ def datatable_json():
                     "descripcion": resultado.descripcion,
                     "url": url_for("inv_modelos.detail", modelo_id=resultado.id),
                 },
-                "marca": {"nombre": resultado.marca.nombre, "url": url_for("inv_marcas.detail", marca_id=resultado.inv_marca_id)},
+                "marca": {"nombre": resultado.inv_marca.nombre, "url": url_for("inv_marcas.detail", marca_id=resultado.inv_marca_id)},
             }
         )
     # Entregar JSON
@@ -92,10 +92,11 @@ def detail(modelo_id):
     return render_template("inv_modelos/detail.jinja2", modelo=modelo)
 
 
-@inv_modelos.route("/inv_modelos/nuevo", methods=["GET", "POST"])
+@inv_modelos.route("/inv_modelos/nuevo/<int:marca_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new():
+def new(marca_id):
     """Nuevo Modelos"""
+    marca = InvMarca.query.get_or_404(marca_id)
     form = InvModeloForm()
     validacion = False
     if form.validate_on_submit():
@@ -107,13 +108,14 @@ def new():
             validacion = False
         if validacion:
             modelo = InvModelo(
-                marca=form.nombre.data,
+                inv_marca=marca,
                 descripcion=safe_string(form.descripcion.data),
             )
             modelo.save()
             flash(f"Modelos {modelo.descripcion} guardado.", "success")
             return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
-    return render_template("inv_modelos/new.jinja2", form=form)
+    form.nombre.data = marca.nombre
+    return render_template("inv_modelos/new.jinja2", form=form, marca=marca)
 
 
 @inv_modelos.route("/inv_modelos/edicion/<int:modelo_id>", methods=["GET", "POST"])
@@ -136,7 +138,7 @@ def edit(modelo_id):
             modelo.save()
             flash(f"Modelo {modelo.descripcion} guardado.", "success")
             return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
-    form.nombre.data = modelo.marca.nombre
+    form.nombre.data = modelo.inv_marca.nombre
     form.descripcion.data = modelo.descripcion
     return render_template("inv_modelos/edit.jinja2", form=form, modelo=modelo)
 
@@ -155,7 +157,7 @@ def delete(modelo_id):
     modelo = InvModelo.query.get_or_404(modelo_id)
     if modelo.estatus == "A":
         modelo.delete()
-        flash(f"Modelo {modelo.descripcion} eliminado.", "success")
+        flash(f"Modelo { modelo.descripcion} eliminado.", "success")
     return redirect(url_for("inv_modelos.detail", modelo_id=modelo.id))
 
 

@@ -17,7 +17,7 @@ class InvCustodia(db.Model, UniversalMixin):
 
     # Clave foránea
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
-    usuario = db.relationship("Usuario", back_populates="custodias")
+    usuario = db.relationship("Usuario", back_populates="inv_custodias")
 
     # Columnas
     fecha = db.Column(db.Date, nullable=False, index=True)
@@ -25,7 +25,7 @@ class InvCustodia(db.Model, UniversalMixin):
     nombre_completo = db.Column(db.String(256))
 
     # Hijos
-    equipos = db.relationship("InvEquipo", back_populates="custodia")
+    equipos = db.relationship("InvEquipo", back_populates="inv_custodia")
 
     def __repr__(self):
         """Representación"""

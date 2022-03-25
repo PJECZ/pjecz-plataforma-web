@@ -18,8 +18,8 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card() %}
-        {{ detail.label_value('Marca', modelo.marca.nombre) }}
+    {% call detail.card(estatus=modelo.estatus) %}
+        {{ detail.label_value('Marca', modelo.inv_marca.nombre) }}
         {{ detail.label_value('Descripcion', modelo.descripcion) }}
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS') %}
@@ -45,7 +45,6 @@
         {% if modelo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + modelo.descripcion + '?') }}{% endif %}
         {% if modelo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + modelo.descripcion + '?') }}{% endif %}
     {% endif %}
-    {# script para cargar equipos relacionados con este modelo #}
     {{ detail.config_datatable() }}
     {% if current_user.can_view('INV EQUIPOS') %}
         <script>

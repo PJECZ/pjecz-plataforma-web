@@ -6,7 +6,7 @@
 {% block title %}Componentes{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Componente: ' + componente.categoria.nombre) %}
+    {% call topbar.page_buttons('Componente: ' + componente.inv_categoria.nombre) %}
         {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active', equipo_id=componente.inv_equipo_id)) }}
         {% if current_user.can_edit('INV COMPONENTES') %}
             {{ topbar.button_edit('Editar', url_for('inv_componentes.edit', componente_id=componente.id)) }}
@@ -18,9 +18,9 @@
 
 {% block content %}
     {% call detail.card(estatus=componente.estatus) %}
-        {{ detail.label_value('Descripción del equipo', componente.equipo.descripcion, url_for('inv_equipos.detail', equipo_id=componente.equipo.id)) }}
-        {{ detail.label_value('Custodia', componente.equipo.custodia.nombre_completo, url_for('inv_custodias.detail', custodia_id=componente.equipo.custodia.id)) }}
-        {{ detail.label_value('Categoría', componente.categoria.nombre) }}
+        {{ detail.label_value('Descripción del equipo', componente.inv_equipo.descripcion, url_for('inv_equipos.detail', equipo_id=componente.inv_equipo.id)) }}
+        {{ detail.label_value('Custodia', componente.inv_equipo.inv_custodia.nombre_completo, url_for('inv_custodias.detail', custodia_id=componente.inv_equipo.inv_custodia.id)) }}
+        {{ detail.label_value('Categoría', componente.inv_categoria.nombre) }}
         {{ detail.label_value('Descripción', componente.descripcion) }}
         {{ detail.label_value('Cantidad', componente.cantidad) }}
         {{ detail.label_value('Versión', componente.version) }}
