@@ -47,6 +47,9 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     puesto = db.Column(db.String(256), default="", server_default="")
     telefono_celular = db.Column(db.String(256), default="", server_default="")
     workspace = db.Column(db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False), index=True, nullable=False)
+    telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
+    extension = db.Column(db.String(24), nullable=False, default="", server_default="")
+    fotografia_url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")

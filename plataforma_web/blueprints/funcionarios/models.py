@@ -21,13 +21,16 @@ class Funcionario(db.Model, UniversalMixin):
     curp = db.Column(db.String(18), unique=True, index=True)
     email = db.Column(db.String(256), unique=True, index=True)
     puesto = db.Column(db.String(256), default="", server_default="")
-    # numero_empleado
-    # telefono_celular
-    # area
     en_funciones = db.Column(db.Boolean, nullable=False, default=True)
     en_sentencias = db.Column(db.Boolean, nullable=False, default=False)
     en_soportes = db.Column(db.Boolean, nullable=False, default=False)
     en_tesis_jurisprudencias = db.Column(db.Boolean, nullable=False, default=False)
+    telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
+    extension = db.Column(db.String(24), nullable=False, default="", server_default="")
+    domicilio_oficial = db.Column(db.String(512), nullable=False, default="", server_default="")
+    ingreso_fecha = db.Column(db.Date(), nullable=False)
+    puesto_clave = db.Column(db.String(32), default="", server_default="")
+    fotografia_url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     # Hijos
     autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="funcionario", lazy="noload")
