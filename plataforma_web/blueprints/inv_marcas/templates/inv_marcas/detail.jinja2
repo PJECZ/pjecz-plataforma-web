@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card() %}
+    {% call detail.card(estatus=marca.estatus) %}
         {{ detail.label_value('Marca', marca.nombre) }}
     {% endcall %}
     {% if current_user.can_view('INV MODELOS') %}

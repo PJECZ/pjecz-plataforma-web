@@ -31,7 +31,7 @@ class InvRed(db.Model, UniversalMixin):
     tipo = db.Column(db.Enum(*TIPOS, name="tipos_redes", native_enum=False), index=True, nullable=False)
 
     # Hijos
-    equipos = db.relationship("InvEquipo", back_populates="red")
+    equipos = db.relationship("InvEquipo", back_populates="inv_red")
 
     def __repr__(self):
         """Representación"""

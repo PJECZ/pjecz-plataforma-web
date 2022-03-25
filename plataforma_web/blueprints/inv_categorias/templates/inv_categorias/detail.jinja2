@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card() %}
+    {% call detail.card(estatus=categoria.estatus) %}
         {{ detail.label_value('ID', categoria.id) }}
         {{ detail.label_value('Categoría', categoria.nombre) }}
     {% endcall %}

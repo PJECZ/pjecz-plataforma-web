@@ -5,8 +5,8 @@
 {% block title %}INV Foto{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Equipo ' + equipo_foto.equipo.id | string) %}
-        {{ topbar.button_previous('Equipo detalle', url_for('inv_equipos.detail', equipo_id=equipo_foto.equipo.id)) }}
+    {% call topbar.page_buttons('Equipo ' + equipo_foto.inv_equipo.id | string) %}
+        {{ topbar.button_previous('Equipo detalle', url_for('inv_equipos.detail', equipo_id=equipo_foto.inv_equipo.id)) }}
     {% endcall %}
 {% endblock %}
 
@@ -19,6 +19,5 @@
             {{ detail.label_value('Imágen previa') }}
             <a href="{{ equipo_foto.url }}"><img src="{{ equipo_foto.url }}" style="max-width: 500px; height: auto;"/></a>
         {% endif %}
-        
     {% endcall %}
 {% endblock %}

@@ -21,7 +21,7 @@ class InvMarca(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
-    modelos = db.relationship("InvModelo", back_populates="marca")
+    modelos = db.relationship("InvModelo", back_populates="inv_marca")
 
     def __repr__(self):
         """Representación"""

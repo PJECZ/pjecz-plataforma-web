@@ -28,7 +28,7 @@
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS')  %}
         {% call detail.card('Equipos') %}
-            <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}  display nowrap" style="width:100%">
+            <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>ID</th>
