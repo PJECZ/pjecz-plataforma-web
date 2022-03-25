@@ -190,7 +190,7 @@ def edit(equipo_id):
             equipo.inv_red = form.red.data
             equipo.adquisicion_fecha = form.adquisicion_fecha.data
             equipo.numero_serie = form.numero_serie.data
-            equipo.numero_invenatario = form.numero_inventario.data
+            equipo.numero_inventario = form.numero_inventario.data
             equipo.descripcion = safe_string(form.descripcion.data)
             equipo.direccion_ip = form.direccion_ip.data
             equipo.direccion_mac = form.direccion_mac.data
