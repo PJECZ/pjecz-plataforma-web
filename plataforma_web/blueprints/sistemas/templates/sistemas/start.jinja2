@@ -6,10 +6,13 @@
 
 {% block custom_head %}
     <style>
-        .img-support{ height:auto; width:500px; }
-        .img-support-us{ height:auto; width:400px; }
+        .img-support{ height:auto; width:300px; }
+        .img-call{ height:auto; width:300px; }
+        .img-support-us{ height:auto; width:300px; }
         .box { align-items: center; display: flex; justify-content: center; }
         .btn-ticket{ display:inline-block; }
+        .item-align-ticket{ margin-left:20%; }
+        .item-align{ margin-left:40%; }
     </style>
 {% endblock %}
 
@@ -25,28 +28,54 @@
         {# Cambio de pantalla si no tiene privilegios para crear tickets #}
         {% if  current_user.can_edit("SOPORTES TICKETS")%}
             <div class="row" >
-                <div class="box col-8 col-md-8 mb-2 align-middle" >
+                <div class="box col-6 col-md-6 mb-2 align-middle" >
                     <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
                 </div>
-                <div class="col-4 col-sm-4 mb-2 align-self-center">
-                    <h4>¿Necesitas soporte técnico?</h4>
-                    <span class="col-6 col-sm-6 mx-auto">
-                        <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket">Crear un nuevo ticket</a>
+                <div class="box col-6 col-md-6 mb-2 align-self-center" >
+                    <img src="{{ url_for('static', filename='images/call5.png') }}" class="img-fluid img-call"/>
+                </div>
+
+                <!-- Force next columns to break to new line -->
+                <div class="w-100"></div>
+                
+                <div class="col-6 col-md-6 col-sm-6 mb-2 align-self-center">
+                    <h4 class="text-center">¿Necesitas soporte técnico?</h4>
+                    <span class="col-6 col-sm-6 mb-2 align-self-center">
+                        <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket item-align-ticket btn-start">Crear un nuevo ticket</a>
                     </span>
-                    <span class="col-6 col-sm-6 mx-auto">
-                        <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket" >Mis tickets</a>
+                    <span class="col-6 col-sm-6 mb-2 align-self-center">
+                        <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket btn-start" >Mis tickets</a>
+                    </span>
+                </div>
+                <div class="col-6 col-md-6 col-sm-6 col-sm-6 mb-2 align-self-center">
+                    <h4 class="text-center">Conoce los nuevos teléfonos</h4>
+                    <span class="col-6 col-sm-6 mb-2 align-self-center">
+                        <a href="{{url_for('funcionarios.list_active')}}" class="btn btn-primary flex-wrap btn-ticket item-align">Directorios</a>
                     </span>
                 </div>
             </div>
         {% else %}
             <div class="row" >
-                <div class="box col-6 col-md-6 mb-2 align-middle" >
+                <div class="box col-6 col-sm-6 mb-2 align-self-center" >
                     <img src="{{ url_for('static', filename='images/soporte_2.png') }}" class="img-fluid img-support-us"/>
                 </div>
-                <div class="col-6 col-sm-6 mb-2 align-self-center align-middle">
-                    <h4>Bienvenido al sistema</h4> 
-                    <p>Note que ha ingresado con una cuenta que <strong>no es personal.</strong> </p>
-                    <p>Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx . </p>
+                <div class="box col-6 col-sm-6 mb-2 align-self-center" >
+                    <img src="{{ url_for('static', filename='images/call5.png') }}" class="img-fluid img-call"/>
+                </div>
+
+                <!-- Force next columns to break to new line -->
+                <div class="w-100"></div>
+
+                <div class="col-6 col-sm-6 mb-2 align-self-center">
+                    <h4 class="text-center">Bienvenido al sistema</h4> 
+                    <p class="text-justify mx-5">Note que ha ingresado con una cuenta que <strong>no es personal.</strong> </p>
+                    <p class="text-justify mx-5">Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx . </p>
+                </div>
+                <div class="col-6 col-sm-6 mb-2 align-left">
+                    <h4 class="text-center">Conoce los nuevos teléfonos</h4>
+                    <span class="col-6 col-sm-6 mb-2 align-self-center">
+                        <a href="{{url_for('funcionarios.list_active')}}" class="btn btn-start btn-primary btn-ticket flex-wrap item-align btn-start">Directorios</a>
+                    </span>
                 </div>
             </div>
         {% endif%}
@@ -133,4 +162,12 @@
         const versiones_json = "{{ url_for('static', filename='json/versions.json') }}";
     </script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/versions.js') }}"></script>
+    <script>
+        $(document).ready(function(){
+            if(window.innerWidth < 576){
+                $('.btn-start').addClass('mx-auto');
+            }
+        });
+
+    </script>
 {% endblock %}
