@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Centro de Trabajo{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(centro_trabajo.clave) %}
+        {{ topbar.button_previous('Centros de Trabajo', url_for('centros_trabajos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=centro_trabajo.estatus) %}
+        {{ detail.label_value_big('Clave', centro_trabajo.clave) }}
+        {{ detail.label_value('Nombre', centro_trabajo.columna_1) }}
+        {{ detail.label_value('Área', centro_trabajo.columna_2) }}
+        {{ detail.label_value('Fecha', moment(lista_de_acuerdo.fecha, local=True).format('DD MMM YYYY')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

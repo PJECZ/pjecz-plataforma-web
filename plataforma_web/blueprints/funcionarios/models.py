@@ -14,6 +14,10 @@ class Funcionario(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
+    # Clave foránea
+    centro_trabajo_id = db.Column(db.Integer, db.ForeignKey("centros_trabajos.id"), index=True, nullable=False)
+    centro_trabajo = db.relationship("CentroTrabajo", back_populates="funcionarios")
+
     # Columnas
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
@@ -34,9 +38,9 @@ class Funcionario(db.Model, UniversalMixin):
 
     # Hijos
     autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="funcionario", lazy="noload")
-    funcionarios_oficinas = db.relationship('FuncionarioOficina', back_populates='funcionario', lazy="noload")
+    funcionarios_oficinas = db.relationship("FuncionarioOficina", back_populates="funcionario", lazy="noload")
     soportes_tickets = db.relationship("SoporteTicket", back_populates="funcionario", lazy="noload")
-    tesis_jurisprudencias_funcionarios = db.relationship('TesisJurisprudenciaFuncionario', back_populates='funcionario', lazy="noload")
+    tesis_jurisprudencias_funcionarios = db.relationship("TesisJurisprudenciaFuncionario", back_populates="funcionario", lazy="noload")
 
     @property
     def nombre(self):
