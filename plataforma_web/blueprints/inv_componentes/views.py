@@ -43,7 +43,7 @@ def datatable_json():
     if "categoria_id" in request.form:
         categoria = InvCategoria.query.get(request.form["categoria_id"])
         if categoria:
-            consulta = consulta.filter(InvComponente.categoria == categoria)
+            consulta = consulta.filter(InvComponente.inv_categoria == categoria)
     registros = consulta.order_by(InvComponente.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -56,7 +56,7 @@ def datatable_json():
                     "url": url_for("inv_componentes.detail", componente_id=resultado.id),
                 },
                 "descripcion": resultado.descripcion,
-                "categoria": resultado.categoria.nombre,
+                "categoria": resultado.inv_categoria.nombre,
                 "cantidad": resultado.cantidad,
                 "version": resultado.version,
             }
@@ -116,8 +116,8 @@ def new(equipo_id):
 
         if validacion:
             componente = InvComponente(
-                categoria=form.nombre.data,
-                equipo=equipo,
+                inv_categoria=form.nombre.data,
+                inv_equipo=equipo,
                 descripcion=safe_string(form.descripcion.data),
                 cantidad=form.cantidad.data,
                 version=form.version.data,
@@ -126,9 +126,9 @@ def new(equipo_id):
             flash(f"Componentes {componente.descripcion} guardado.", "success")
             return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
     form.equipo.data = equipo.id
-    form.marca.data = equipo.modelo.marca.nombre
+    form.marca.data = equipo.inv_modelo.inv_marca.nombre
     form.descripcion_equipo.data = equipo.descripcion
-    form.usuario.data = equipo.custodia.nombre_completo
+    form.usuario.data = equipo.inv_custodia.nombre_completo
     return render_template("inv_componentes/new.jinja2", form=form, equipo=equipo)
 
 
@@ -154,14 +154,14 @@ def edit(componente_id):
             componente.save()
             flash(f"Componentes {componente.descripcion} guardado.", "success")
             return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
-    form.nombre.data = componente.categoria
+    form.nombre.data = componente.inv_categoria
     form.descripcion.data = safe_string(componente.descripcion)
     form.cantidad.data = componente.cantidad
     form.version.data = componente.version
-    form.equipo.data = componente.equipo.id
-    form.marca.data = componente.equipo.modelo.marca.nombre
-    form.descripcion_equipo.data = componente.equipo.descripcion
-    form.usuario.data = componente.equipo.custodia.nombre_completo
+    form.equipo.data = componente.inv_equipo.id
+    form.marca.data = componente.inv_equipo.inv_modelo.inv_marca.nombre
+    form.descripcion_equipo.data = componente.inv_equipo.descripcion
+    form.usuario.data = componente.inv_equipo.inv_custodia.nombre_completo
     return render_template("inv_componentes/edit.jinja2", form=form, componente=componente)
 
 
