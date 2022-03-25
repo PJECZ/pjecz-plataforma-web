@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from plataforma_web.blueprints.inv_modelos.models import InvModelo
-from plataforma_web.blueprints.inv_redes.models import InvRedes
+from plataforma_web.blueprints.inv_redes.models import InvRed
 
 
 def modelos_opciones():
@@ -18,7 +18,7 @@ def modelos_opciones():
 
 def redes_opciones():
     """Seleccionar la modelo para select"""
-    return InvRedes.query.filter_by(estatus="A").order_by(InvRedes.nombre).all()
+    return InvRed.query.filter_by(estatus="A").order_by(InvRed.nombre).all()
 
 
 class InvEquipoForm(FlaskForm):

@@ -6,7 +6,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string
+from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.inv_categorias.models import InvCategoria
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -52,13 +52,11 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "descripcion": resultado.descripcion,
+                    "id": resultado.id,
                     "url": url_for("inv_componentes.detail", componente_id=resultado.id),
                 },
-                "categoria": {
-                    "nombre": resultado.categoria.nombre,
-                    "url": url_for("inv_categorias.detail", categoria_id=resultado.categoria.id),
-                },
+                "descripcion": resultado.descripcion,
+                "categoria": resultado.categoria.nombre,
                 "cantidad": resultado.cantidad,
                 "version": resultado.version,
             }
@@ -148,7 +146,6 @@ def edit(componente_id):
         except Exception as err:
             flash(f"El componente es incorrecto: {str(err)}", "warning")
             validacion = False
-
         if validacion:
             componente.categoria = form.nombre.data
             componente.descripcion = safe_string(form.descripcion.data)
@@ -183,7 +180,8 @@ def delete(componente_id):
     componente = InvComponente.query.get_or_404(componente_id)
     if componente.estatus == "A":
         componente.delete()
-        flash(f"Componentes {componente.descripcion} eliminado.", "success")
+        flash(safe_message(f"Eliminar componente {componente.descripcion}"), "success")
+        return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
     return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
 
 
@@ -194,5 +192,6 @@ def recover(componente_id):
     componente = InvComponente.query.get_or_404(componente_id)
     if componente.estatus == "B":
         componente.recover()
-        flash(f"Componentes {componente.descripcion} recuperado.", "success")
+        flash(safe_message(f"Recuperado componente {componente.descripcion}"), "success")
+        return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
     return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
