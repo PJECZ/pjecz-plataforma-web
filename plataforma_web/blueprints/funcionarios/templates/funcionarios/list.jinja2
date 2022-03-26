@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('CENTROS TRABAJOS') %}
+            {{ topbar.button('Centros de Trabajo', url_for('centros_trabajos.list_active'), 'mdi:folder') }}
+        {% endif %}
         {{ topbar.button_list_active('En funciones', url_for('funcionarios.list_active')) }}
         {{ topbar.button_list_active('En sentencias', url_for('funcionarios.list_active_en_sentencias')) }}
         {{ topbar.button_list_active('En soportes', url_for('funcionarios.list_active_en_soportes')) }}

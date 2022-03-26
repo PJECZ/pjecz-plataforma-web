@@ -6,7 +6,7 @@
 {% block title %}Centro de Trabajo{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(centro_trabajo.clave) %}
+    {% call topbar.page_buttons('Centro de Trabajo') %}
         {{ topbar.button_previous('Centros de Trabajo', url_for('centros_trabajos.list_active')) }}
     {% endcall %}
 {% endblock %}
@@ -14,9 +14,9 @@
 {% block content %}
     {% call detail.card(estatus=centro_trabajo.estatus) %}
         {{ detail.label_value_big('Clave', centro_trabajo.clave) }}
-        {{ detail.label_value('Nombre', centro_trabajo.columna_1) }}
-        {{ detail.label_value('Área', centro_trabajo.columna_2) }}
-        {{ detail.label_value('Fecha', moment(lista_de_acuerdo.fecha, local=True).format('DD MMM YYYY')) }}
+        {{ detail.label_value('Nombre', centro_trabajo.nombre) }}
+        {{ detail.label_value('Área', centro_trabajo.area) }}
+        {{ detail.label_value('Distrito', centro_trabajo.distrito.nombre, url_for('distritos.detail', distrito_id=centro_trabajo.distrito_id)) }}
     {% endcall %}
 {% endblock %}
 

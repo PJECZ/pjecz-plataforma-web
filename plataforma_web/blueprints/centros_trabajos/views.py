@@ -48,7 +48,7 @@ def datatable_json():
                 "nombre": resultado.nombre,
                 "area": resultado.area,
                 "distrito": {
-                    "nombre_corto": resultado.nombre_corto,
+                    "nombre_corto": resultado.distrito.nombre_corto,
                     "url": url_for("distritos.detail", distrito_id=resultado.distrito_id),
                 },
             }
