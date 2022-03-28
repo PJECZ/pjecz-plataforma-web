@@ -9,12 +9,13 @@
         {% if current_user.can_edit('CENTROS TRABAJOS') %}
             {{ topbar.button('Centros de Trabajo', url_for('centros_trabajos.list_active'), 'mdi:home-group') }}
         {% endif %}
-        {{ topbar.button_list_active('En funciones', url_for('funcionarios.list_active')) }}
-        {{ topbar.button_list_active('En sentencias', url_for('funcionarios.list_active_en_sentencias')) }}
-        {{ topbar.button_list_active('En soportes', url_for('funcionarios.list_active_en_soportes')) }}
-        {{ topbar.button_list_active('En tesis y jurisprudencias', url_for('funcionarios.list_active_en_tesis_jurisprudencias')) }}
-        {% if current_user.can_edit('FUNCIONARIOS') %}
+        {% if current_user.can_admin('FUNCIONARIOS') %}
+            {{ topbar.button_list_active('En funciones', url_for('funcionarios.list_active_en_funciones')) }}
+            {{ topbar.button_list_active('En sentencias', url_for('funcionarios.list_active_en_sentencias')) }}
+            {{ topbar.button_list_active('En soportes', url_for('funcionarios.list_active_en_soportes')) }}
+            {{ topbar.button_list_active('En tesis y jurisprudencias', url_for('funcionarios.list_active_en_tesis_jurisprudencias')) }}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('funcionarios.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('funcionarios.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('FUNCIONARIOS') %}
             {{ topbar.button_new('Nuevo Funcionario', url_for('funcionarios.new')) }}
@@ -28,10 +29,11 @@
         <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>CURP</th>
-                    <th>Nombres completos</th>
                     <th>e-mail</th>
+                    <th>Nombre</th>
                     <th>Puesto</th>
+                    <th>Teléfono</th>
+                    <th>Extensión</th>
                 </tr>
             </thead>
         </table>
@@ -46,19 +48,20 @@
         configDataTable['columns'] = [
             { data: "detalle" },
             { data: "nombre" },
-            { data: "email" },
-            { data: "puesto" }
+            { data: "puesto" },
+            { data: "telefono" },
+            { data: "extension" }
         ];
         configDataTable['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.curp + '</a>';
+                    return '<a href="' + data.url + '">' + data.email + '</a>';
                 }
             },
             {
-                targets: [1, 3], // nombre, puesto
+                targets: [1, 2], // nombre, puesto
                 data: null,
                 render: function(data, type, row, meta) {
                     return (data.length > 48 ? data.substr(0, 48) + '…' : data);

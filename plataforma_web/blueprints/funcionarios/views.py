@@ -66,13 +66,13 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "curp": resultado.curp,
+                    "email": resultado.email,
                     "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "email": resultado.email,
                 "puesto": resultado.puesto,
-                "en_funciones": resultado.en_funciones,
+                "telefono": resultado.telefono,
+                "extension": resultado.extension,
             }
         )
     # Entregar JSON
@@ -81,6 +81,18 @@ def datatable_json():
 
 @funcionarios.route("/funcionarios")
 def list_active():
+    """Listado de Funcionarios - Directorio"""
+    return render_template(
+        "funcionarios/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "en_funciones": True}),
+        titulo="Directorio",
+        estatus="A",
+    )
+
+
+@funcionarios.route("/funcionarios/en_funciones")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def list_active_en_funciones():
     """Listado de Funcionarios activos y en funciones"""
     return render_template(
         "funcionarios/list.jinja2",
@@ -91,6 +103,7 @@ def list_active():
 
 
 @funcionarios.route("/funcionarios/en_sentencias")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active_en_sentencias():
     """Listado de Funcionarios activos y en sentencias"""
     return render_template(
@@ -102,6 +115,7 @@ def list_active_en_sentencias():
 
 
 @funcionarios.route("/funcionarios/en_soportes")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active_en_soportes():
     """Listado de Funcionarios activos y en soportes"""
     return render_template(
@@ -113,6 +127,7 @@ def list_active_en_soportes():
 
 
 @funcionarios.route("/funcionarios/en_tesis_jurisprudencias")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active_en_tesis_jurisprudencias():
     """Listado de Funcionarios activos y en tesis y jurisprudencias"""
     return render_template(
@@ -124,7 +139,7 @@ def list_active_en_tesis_jurisprudencias():
 
 
 @funcionarios.route("/funcionarios/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_inactive():
     """Listado de Funcionarios inactivos"""
     return render_template(
@@ -325,7 +340,7 @@ def recover(funcionario_id):
 
 
 @funcionarios.route("/funcionarios/limpiar_oficinas/<int:funcionario_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def clean(funcionario_id):
     """Limpiar funcionarios_oficinas"""
     # Validar el funcionario
@@ -346,7 +361,7 @@ def clean(funcionario_id):
 
 
 @funcionarios.route("/funcionarios/asignar_oficinas/<int:funcionario_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def insert_offices(funcionario_id):
     """Asignar funcionarios_oficinas a partir de una direccion"""
     # Validar el funcionario
