@@ -178,6 +178,7 @@ def sincronizar():
     total = None
     funcionarios_presentes_contador = 0
     funcionarios_insertados_contador = 0
+    funcionarios_actualizados_contador = 0
     personas_omitidas_contador = 0
     while True:
         # Llamar a la API Personas
@@ -226,7 +227,7 @@ def sincronizar():
                 centro_trabajo_clave = historial_puesto_data["centro_trabajo"]
                 centro_trabajo = CentroTrabajo.query.filter(CentroTrabajo.clave == centro_trabajo_clave).first()
                 if centro_trabajo is None:
-                    bitacora.error("No se encuentra el centro de trabajo \"%s\"", centro_trabajo_clave)
+                    bitacora.error('No se encuentra el centro de trabajo "%s"', centro_trabajo_clave)
                     personas_omitidas_contador += 1
                     continue
                 # Consultar funcionario
@@ -244,18 +245,32 @@ def sincronizar():
                         puesto=puesto,
                         ingreso_fecha=INGRESO_FECHA_POR_DEFECTO,
                     ).save()
-                elif funcionario.centro_trabajo != centro_trabajo or funcionario.nombres != nombres or funcionario.apellido_paterno != apellido_paterno or funcionario.apellido_materno != apellido_materno or funcionario.puesto != puesto:
+                else:
                     # Actualizar funcionario
-                    funcionario.centro_trabajo = centro_trabajo
-                    funcionario.nombres = nombres
-                    funcionario.apellido_paterno = apellido_paterno
-                    funcionario.apellido_materno = apellido_materno
-                    funcionario.puesto = puesto
-                    funcionario.ingreso_fecha = INGRESO_FECHA_POR_DEFECTO
-                    # funcionario.puesto_clave =
-                    # funcionario.fotografia_url =
-                    funcionario.save()
-                    funcionarios_presentes_contador += 1
+                    ha_cambiado = False
+                    if funcionario.centro_trabajo != centro_trabajo:
+                        funcionario.centro_trabajo = centro_trabajo
+                        ha_cambiado = True
+                    if funcionario.nombres != nombres:
+                        funcionario.nombres = nombres
+                        ha_cambiado = True
+                    if funcionario.apellido_paterno != apellido_paterno:
+                        funcionario.apellido_paterno = apellido_paterno
+                        ha_cambiado = True
+                    if funcionario.apellido_materno != apellido_materno:
+                        funcionario.apellido_materno = apellido_materno
+                        ha_cambiado = True
+                    if funcionario.puesto != puesto:
+                        funcionario.puesto = puesto
+                        ha_cambiado = True
+                    if funcionario.telefono != centro_trabajo.telefono:
+                        funcionario.telefono = centro_trabajo.telefono
+                        ha_cambiado = True
+                    if ha_cambiado:
+                        funcionario.save()
+                        funcionarios_actualizados_contador += 1
+                    else:
+                        funcionarios_presentes_contador += 1
             else:
                 personas_omitidas_contador += 1
         # Saltar
@@ -266,8 +281,10 @@ def sincronizar():
     # Terminar
     if funcionarios_insertados_contador > 0:
         bitacora.info("Se han insertado %s", funcionarios_insertados_contador)
+    if funcionarios_actualizados_contador > 0:
+        bitacora.info("Se han actualizado %s", funcionarios_actualizados_contador)
     if funcionarios_presentes_contador > 0:
-        bitacora.info("Hay %s ya presentes", funcionarios_presentes_contador)
+        bitacora.info("Hay %s ya presentes que no se cambiaron", funcionarios_presentes_contador)
     if personas_omitidas_contador > 0:
         bitacora.info("Se omitieron %s porque les faltan datos", personas_omitidas_contador)
     set_task_progress(100)
