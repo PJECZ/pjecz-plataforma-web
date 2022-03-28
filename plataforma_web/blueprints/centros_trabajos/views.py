@@ -2,14 +2,18 @@
 Centrso de Trabajo, vistas
 """
 import json
-from flask import Blueprint, render_template, request, url_for
+from flask import Blueprint, flash, render_template, redirect, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-
-from plataforma_web.blueprints.permisos.models import Permiso
+from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.centros_trabajos.forms import CentroTrabajoForm
 from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
 
 MODULO = "CENTROS TRABAJOS"
 
@@ -85,3 +89,30 @@ def detail(centro_trabajo_id):
     """Detalle de un Centro de Trabajo"""
     centro_trabajo = CentroTrabajo.query.get_or_404(centro_trabajo_id)
     return render_template("centros_trabajos/detail.jinja2", centro_trabajo=centro_trabajo)
+
+
+@centros_trabajos.route("/centros_trabajos/edicion/<int:centro_trabajo_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(centro_trabajo_id):
+    """Editar Centro de Trabajo"""
+    centro_trabajo = CentroTrabajo.query.get_or_404(centro_trabajo_id)
+    form = CentroTrabajoForm()
+    if form.validate_on_submit():
+        centro_trabajo.nombre = safe_string(form.nombre.data)
+        centro_trabajo.telefono = safe_string(form.telefono.data)
+        centro_trabajo.distrito = form.distrito.data
+        centro_trabajo.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Centro de Trabajo {centro_trabajo.nombre}"),
+            url=url_for("centros_trabajos.detail", centro_trabajo_id=centro_trabajo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.clave.data = centro_trabajo.clave  # Read only
+    form.nombre.data = centro_trabajo.nombre
+    form.telefono.data = centro_trabajo.telefono
+    form.distrito.data = centro_trabajo.distrito
+    return render_template("centros_trabajos/edit.jinja2", form=form, centro_trabajo=centro_trabajo)
