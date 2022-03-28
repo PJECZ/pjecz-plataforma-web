@@ -14,6 +14,7 @@ from plataforma_web.extensions import db
 
 from cli.commands.alimentar_autoridades import alimentar_autoridades
 from cli.commands.alimentar_autoridades_funcionarios import alimentar_autoridades_funcionarios
+from cli.commands.alimentar_centros_trabajos import alimentar_centros_trabajos
 from cli.commands.alimentar_distritos import alimentar_distritos
 from cli.commands.alimentar_domicilios import alimentar_domicilios
 from cli.commands.alimentar_funcionarios import alimentar_funcionarios
@@ -29,6 +30,7 @@ from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
 
 from cli.commands.respaldar_autoridades import respaldar_autoridades
+from cli.commands.respaldar_centros_trabajos import respaldar_centros_trabajos
 from cli.commands.respaldar_distritos import respaldar_distritos
 from cli.commands.respaldar_domicilios import respaldar_domicilios
 from cli.commands.respaldar_funcionarios import respaldar_funcionarios
@@ -80,6 +82,7 @@ def alimentar():
     alimentar_oficinas()
     alimentar_usuarios()
     alimentar_usuarios_roles()
+    alimentar_centros_trabajos()
     alimentar_funcionarios()
     alimentar_autoridades_funcionarios()
     alimentar_peritos_tipos()
@@ -99,6 +102,7 @@ def reiniciar(ctx):
 def respaldar():
     """Respaldar"""
     respaldar_autoridades()
+    respaldar_centros_trabajos()
     respaldar_distritos()
     respaldar_domicilios()
     respaldar_funcionarios()

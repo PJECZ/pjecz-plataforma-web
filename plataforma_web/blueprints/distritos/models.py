@@ -21,6 +21,7 @@ class Distrito(db.Model, UniversalMixin):
 
     # Hijos
     autoridades = db.relationship("Autoridad", back_populates="distrito")
+    centros_trabajos = db.relationship("CentroTrabajo", back_populates="distrito", lazy="noload")
     peritos = db.relationship("Perito", back_populates="distrito", lazy="noload")
     oficinas = db.relationship("Oficina", back_populates="distrito", lazy="noload")
     repsvm_agresores = db.relationship("REPSVMAgresor", back_populates="distrito", lazy="noload")

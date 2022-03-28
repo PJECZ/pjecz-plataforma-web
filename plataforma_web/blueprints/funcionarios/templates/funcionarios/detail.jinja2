@@ -22,8 +22,17 @@
         {{ detail.label_value('Apellido paterno', funcionario.apellido_paterno) }}
         {{ detail.label_value('Apellido materno', funcionario.apellido_materno) }}
         {{ detail.label_value('CURP', funcionario.curp) }}
-        {{ detail.label_value('Puesto', funcionario.puesto) }}
         {{ detail.label_value('e-mail', funcionario.email) }}
+        {{ detail.label_value('Puesto', funcionario.puesto) }}
+        {{ detail.label_value('Clave del puesto', funcionario.puesto_clave) }}
+        {{ detail.label_value('Área', funcionario.centro_trabajo.area) }}
+        {{ detail.label_value('Centro de Trabajo', funcionario.centro_trabajo.nombre) }}
+        {{ detail.label_value('Centro de Trabajo clave', funcionario.centro_trabajo.clave, url_for('centros_trabajos.detail', centro_trabajo_id=funcionario.centro_trabajo_id)) }}
+        {{ detail.label_value('Teléfono', funcionario.telefono) }}
+        {{ detail.label_value('Extensión', funcionario.extension) }}
+        {{ detail.label_value('Domicilio oficial', funcionario.domicilio_oficial) }}
+        {{ detail.label_value('Fecha de ingreso', funcionario.ingreso_fecha) }}
+        {{ detail.label_value('Fotografía URL', funcionario.fotografia_url) }}
         {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
         {{ detail.label_value_boolean('En sentencias', funcionario.en_sentencias) }}
         {{ detail.label_value_boolean('En soportes', funcionario.en_soportes) }}

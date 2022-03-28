@@ -31,6 +31,8 @@ def alimentar_oficinas():
             if oficina_id != contador + 1:
                 click.echo(f"  AVISO: oficina_id {oficina_id} no es consecutivo")
                 continue
+            telefono = safe_string(row["telefono"]) if "telefono" in row else ""
+            extension = safe_string(row["extension"]) if "extension" in row else ""
             Oficina(
                 domicilio_id=int(row["domicilio_id"]),
                 distrito_id=int(row["distrito_id"]),
@@ -41,6 +43,8 @@ def alimentar_oficinas():
                 apertura=datetime.strptime(row["apertura"], "%H:%M:%S"),
                 cierre=datetime.strptime(row["cierre"], "%H:%M:%S"),
                 limite_personas=int(row["limite_personas"]),
+                telefono=telefono,
+                extension=extension,
                 estatus=row["estatus"],
             ).save()
             contador += 1

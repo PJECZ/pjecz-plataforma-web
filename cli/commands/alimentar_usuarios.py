@@ -4,7 +4,9 @@ Alimentar usuarios
 from pathlib import Path
 import csv
 import click
+
 from lib.pwgen import generar_contrasena
+from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.oficinas.models import Oficina
@@ -57,6 +59,10 @@ def alimentar_usuarios():
             if usuario_id != contador + 1:
                 click.echo(f"  AVISO: usuario_id {usuario_id} no es consecutivo")
                 continue
+            # Directorio
+            telefono = safe_string(row["telefono"]) if "telefono" in row else ""
+            extension = safe_string(row["extension"]) if "extension" in row else ""
+            fotografia_url = safe_string(row["fotografia_url"]) if "fotografia_url" in row else ""
             # Insertar
             Usuario(
                 autoridad=autoridad,
@@ -69,6 +75,9 @@ def alimentar_usuarios():
                 puesto=row["puesto"],
                 telefono_celular=row["telefono_celular"],
                 workspace=row["workspace"],
+                telefono=telefono,
+                extension=extension,
+                fotografia_url=fotografia_url,
                 estatus=row["estatus"],
                 contrasena=pwd_context.hash(generar_contrasena()),
             ).save()
