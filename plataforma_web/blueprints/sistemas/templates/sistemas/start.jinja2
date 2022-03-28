@@ -42,12 +42,12 @@
             <div class="w-100"></div>
             {% if  current_user.can_edit("SOPORTES TICKETS")%}
                 <div class="col-6 col-md-6 mb-2">
-                    <h4 class="text-center">¿Necesitas soporte técnico?</h4>
-                    <div class="col-md-9 offset-md-3">
-                        <span class="col-sm-5 offset-sm-2 col-md-6 offset-md-0 ">
+                    <h4 class="text-center offset-md-1">¿Necesitas soporte técnico?</h4>
+                    <div class="col-md-12 offset-md-3">
+                        <span class="col-sm-5 offset-sm-3 col-md-6 offset-md-0 ">
                             <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket ml-auto">Crear un nuevo ticket</a>
                         </span>
-                        <span class="col-sm-5 offset-sm-2 col-md-6 offset-md-0 ">
+                        <span class="col-sm-5 offset-sm-3 col-md-6 offset-md-0 ">
                             <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket ml-auto" >Mis tickets</a>
                         </span>
                     </div>
