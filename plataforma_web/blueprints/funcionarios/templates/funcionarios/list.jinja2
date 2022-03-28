@@ -25,6 +25,14 @@
 {% endblock %}
 
 {% block content %}
+    {% call list.card('Conoce el nuevo directorio telefónico') %}
+        <ul>
+            <li>Nuestra Institución está modernizando su sistema de telefonía. Hay nuevos números y extensiones telefónicas.</li>
+            <li>Usa el botón Buscar que está arriba a la derecha y escribe parte del nombre para encontrar los datos de una persona.</li>
+            <li><strong>No imprimas este directorio;</strong> cambia frecuentemente y se gasta papel. Usa Plataforma Web como directorio telefónico.</li>
+            <li>Si encuentras información errónea, crea un Ticket solicitando la corrección.</li>
+        </ul>
+    {% endcall %}
     {% call list.card() %}
         <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>

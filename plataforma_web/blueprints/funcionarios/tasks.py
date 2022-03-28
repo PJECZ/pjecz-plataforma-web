@@ -15,10 +15,12 @@ from dotenv import load_dotenv
 from sqlalchemy import or_
 
 from lib.tasks import set_task_progress, set_task_error
+from lib.safe_string import safe_string
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
+from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
 from plataforma_web.blueprints.domicilios.models import Domicilio
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.funcionarios_oficinas.models import FuncionarioOficina
@@ -142,15 +144,23 @@ def sincronizar():
     # Iniciar
     bitacora.info("Inicia sincronizar")
 
-    # Iniciar sesion
+    # Tomar variables del entorno
     base_url = os.getenv("RRHH_PERSONAL_API_URL")
     username = os.getenv("RRHH_PERSONAL_API_USERNAME")
     password = os.getenv("RRHH_PERSONAL_API_PASSWORD")
-    response = requests.post(
-        url=f"{base_url}/token",
-        data={"username": username, "password": password},
-        headers={"content-type": "application/x-www-form-urlencoded"},
-    )
+
+    # Iniciar sesion
+    try:
+        response = requests.post(
+            url=f"{base_url}/token",
+            data={"username": username, "password": password},
+            headers={"content-type": "application/x-www-form-urlencoded"},
+        )
+    except ConnectionError as error:
+        mensaje = f"No se pudo conectar con la API de RRHH Personal: {error}"
+        set_task_error(mensaje)
+        bitacora.error(mensaje)
+        return
     if response.status_code != 200:
         mensaje = f"Fallo el inicio de sesion con error {response.status_code}"
         set_task_error(mensaje)
@@ -167,7 +177,7 @@ def sincronizar():
     funcionarios_insertados_contador = 0
     personas_omitidas_contador = 0
     while True:
-        # Llamar a la API v1 personas
+        # Llamar a la API Personas
         bitacora.info("Consultando desde el registro %s", offset)
         response = requests.get(
             url=f"{base_url}/v1/personas",
@@ -179,26 +189,62 @@ def sincronizar():
             set_task_error(mensaje)
             bitacora.error(mensaje)
             return
-        data = response.json()
+        personas_response = response.json()
         if total is None:
-            total = data["total"]
+            total = personas_response["total"]
             bitacora.info("Total: %d", total)
         # Comparar
-        for persona_datos in data["items"]:
-            curp = persona_datos["curp"]
-            email = persona_datos["email"]
+        for persona_data in personas_response["items"]:
+            persona_id = persona_data["id"]
+            nombres = (safe_string(persona_data["nombres"]),)
+            apellido_paterno = (safe_string(persona_data["apellido_primero"]),)
+            apellido_materno = (safe_string(persona_data["apellido_segundo"]),)
+            curp = persona_data["curp"]
+            email = persona_data["email"]
             if curp != "" and email != "" and email.endswith("@coahuila.gob.mx"):
+                # Llamar a la API Historial de Puestos
+                response = requests.get(
+                    url=f"{base_url}/v1/historial_puestos",
+                    headers={"authorization": f"Bearer {token}"},
+                    params={"persona_id": persona_id, "limit": limit, "offset": offset},
+                )
+                if response.status_code != 200:
+                    mensaje = f"Fallo la consulta de historial de puestos con error {response.status_code}"
+                    set_task_error(mensaje)
+                    bitacora.error(mensaje)
+                    return
+                historial_puestos_response = response.json()
+                if historial_puestos_response["total"] == 0:
+                    personas_omitidas_contador += 1
+                    continue
+                historial_puesto_data = historial_puestos_response["items"][0]  # Tomar el primero que debe ser el mas reciente
+                # Consultar el Centro de Trabajo
+                centro_trabajo_clave = historial_puesto_data["centro_trabajo"]
+                centro_trabajo = CentroTrabajo.query.filter(CentroTrabajo.clave == centro_trabajo_clave).first()
+                if centro_trabajo is None:
+                    bitacora.error("No se encuentra el centro de trabajo %s", centro_trabajo_clave)
+                    personas_omitidas_contador += 1
+                    continue
+                # Consultar funcionario
                 funcionario = Funcionario.query.filter(or_(Funcionario.curp == curp, Funcionario.email == email)).first()
                 if funcionario is None:
+                    # Insertar funcionario
                     funcionarios_insertados_contador += 1
                     Funcionario(
-                        nombres=persona_datos["nombres"],
-                        apellido_paterno=persona_datos["apellido_primero"],
-                        apellido_materno=persona_datos["apellido_segundo"],
+                        centro_trabajo=centro_trabajo,
+                        nombres=nombres,
+                        apellido_paterno=apellido_paterno,
+                        apellido_materno=apellido_materno,
                         curp=curp,
                         email=email,
                     ).save()
-                else:
+                elif funcionario.centro_trabajo != centro_trabajo or funcionario.nombres != nombres or funcionario.apellido_paterno != apellido_paterno or funcionario.apellido_materno != apellido_materno:
+                    # Actualizar funcionario
+                    funcionario.centro_trabajo = centro_trabajo
+                    funcionario.nombres = nombres
+                    funcionario.apellido_paterno = apellido_paterno
+                    funcionario.apellido_materno = apellido_materno
+                    funcionario.save()
                     funcionarios_presentes_contador += 1
             else:
                 personas_omitidas_contador += 1

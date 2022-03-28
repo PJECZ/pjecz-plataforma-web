@@ -37,15 +37,23 @@ def sincronizar():
     # Iniciar
     bitacora.info("Inicia sincronizar")
 
-    # Iniciar sesion
+    # Tomar variables del entorno
     base_url = os.getenv("RRHH_PERSONAL_API_URL")
     username = os.getenv("RRHH_PERSONAL_API_USERNAME")
     password = os.getenv("RRHH_PERSONAL_API_PASSWORD")
-    response = requests.post(
-        url=f"{base_url}/token",
-        data={"username": username, "password": password},
-        headers={"content-type": "application/x-www-form-urlencoded"},
-    )
+
+    # Iniciar sesion
+    try:
+        response = requests.post(
+            url=f"{base_url}/token",
+            data={"username": username, "password": password},
+            headers={"content-type": "application/x-www-form-urlencoded"},
+        )
+    except Exception as error:
+        mensaje = f"No se pudo conectar con la API de RRHH Personal: {error}"
+        set_task_error(mensaje)
+        bitacora.error(mensaje)
+        return
     if response.status_code != 200:
         mensaje = f"Fallo el inicio de sesion con error {response.status_code}"
         set_task_error(mensaje)
@@ -96,7 +104,7 @@ def sincronizar():
                     CentroTrabajo(
                         clave=clave,
                         nombre=centro_trabajo_datos["nombre"],
-                        area=centro_trabajo_datos["area"],
+                        area="NO DEFINIDO",
                         distrito=distrito_no_definido,
                     ).save()
                 else:
