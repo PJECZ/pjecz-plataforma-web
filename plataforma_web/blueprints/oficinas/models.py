@@ -28,6 +28,8 @@ class Oficina(db.Model, UniversalMixin):
     apertura = db.Column(db.Time(), nullable=False)
     cierre = db.Column(db.Time(), nullable=False)
     limite_personas = db.Column(db.Integer(), nullable=False)
+    telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
+    extension = db.Column(db.String(24), nullable=False, default="", server_default="")
 
     # Hijos
     funcionarios_oficinas = db.relationship("FuncionarioOficina", back_populates="oficina", lazy="noload")

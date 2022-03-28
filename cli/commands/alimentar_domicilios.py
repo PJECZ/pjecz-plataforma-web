@@ -55,6 +55,7 @@ def alimentar_domicilios():
             completo = " ".join(elementos)
             if completo.startswith("NO DEFINIDO"):
                 completo = "NO DEFINIDO"
+            numeracion_telefonica = safe_string(row["numeracion_telefonica"]) if "numeracion_telefonica" in row else ""
             Domicilio(
                 estado=estado,
                 municipio=municipio,
@@ -64,6 +65,7 @@ def alimentar_domicilios():
                 colonia=colonia,
                 cp=cp,
                 completo=completo,
+                numeracion_telefonica=numeracion_telefonica,
                 estatus=row["estatus"],
             ).save()
             contador += 1
