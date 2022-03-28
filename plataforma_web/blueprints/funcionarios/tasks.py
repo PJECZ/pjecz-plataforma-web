@@ -6,7 +6,6 @@ Funcionarios, tareas para ejecutar en el fondo
 - enviar_reporte: Enviar via correo electronico el reporte de funcionarios
 - sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
-import imp
 import locale
 import logging
 import os
@@ -208,9 +207,12 @@ def sincronizar():
             break
         offset += limit
     # Terminar
-    bitacora.info("Se han insertado %s funcionarios", funcionarios_insertados_contador)
-    bitacora.info("Hay %s personas ya presentes en funcionarios, se omiten", funcionarios_presentes_contador)
-    bitacora.info("En %s personas no hay CURP o email coahuila.gob.mx", personas_omitidas_contador)
+    if funcionarios_insertados_contador > 0:
+        bitacora.info("Se han insertado %s", funcionarios_insertados_contador)
+    if funcionarios_presentes_contador > 0:
+        bitacora.info("Hay %s ya presentes", funcionarios_presentes_contador)
+    if personas_omitidas_contador > 0:
+        bitacora.info("Se omitieron %s porque les faltan datos", personas_omitidas_contador)
     set_task_progress(100)
     mensaje_final = "Terminado sincronizar satisfactoriamente"
     bitacora.info(mensaje_final)
