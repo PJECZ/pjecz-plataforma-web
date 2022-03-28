@@ -53,7 +53,7 @@ def datatable_json():
                 "telefono": resultado.telefono,
                 "distrito": {
                     "nombre_corto": resultado.distrito.nombre_corto,
-                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id),
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
                 },
             }
         )

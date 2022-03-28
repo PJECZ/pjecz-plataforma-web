@@ -40,6 +40,7 @@
                     <th>e-mail</th>
                     <th>Nombre</th>
                     <th>Puesto</th>
+                    <th>Centro de Trabajo</th>
                     <th>Teléfono</th>
                     <th>Extensión</th>
                 </tr>
@@ -57,6 +58,7 @@
             { data: "detalle" },
             { data: "nombre" },
             { data: "puesto" },
+            { data: "centro_trabajo" },
             { data: "telefono" },
             { data: "extension" }
         ];
@@ -72,9 +74,21 @@
                 targets: [1, 2], // nombre, puesto
                 data: null,
                 render: function(data, type, row, meta) {
-                    return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                    return (data.length > 24 ? data.substr(0, 24) + '…' : data);
                 }
-            }
+            },
+            {
+                targets: 3, // centro_trabajo
+                data: null,
+                render: function(data, type, row, meta) {
+                    texto = (data.nombre.length > 24 ? data.nombre.substr(0, 24) + '…' : data.nombre);
+                    if (data.url == '') {
+                        return texto;
+                    } else {
+                        return '<a href="' + data.url + '">' + texto + '</a>';
+                    }
+                }
+            },
         ];
         $('#funcionarios_datatable').DataTable(configDataTable);
     </script>

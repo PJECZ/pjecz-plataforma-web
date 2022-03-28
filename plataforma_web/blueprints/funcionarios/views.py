@@ -73,6 +73,10 @@ def datatable_json():
                 },
                 "nombre": resultado.nombre,
                 "puesto": resultado.puesto,
+                "centro_trabajo": {
+                    "nombre": resultado.centro_trabajo.nombre,
+                    "url": url_for("centros_trabajos.detail", centro_trabajo_id=resultado.centro_trabajo_id) if current_user.can_view("CENTROS TRABAJOS") else "",
+                },
                 "telefono": resultado.telefono,
                 "extension": resultado.extension,
             }
