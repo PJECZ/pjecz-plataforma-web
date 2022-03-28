@@ -47,7 +47,7 @@
     {% if value != None and value != '' %}
         <div class="row">
             <div class="col-md-3 text-end">
-                {{ label }}
+                <span style="font-size:{{font_size}}em">{{ label }}</span>
             </div>
             <div class="col-md-9">
                 <span style="font-size:{{font_size}}em">{% if link %} <a href="{{ link }}">{{ value }}</a> {% else %} {{ value }} {% endif %}</span>

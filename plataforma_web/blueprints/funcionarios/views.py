@@ -11,7 +11,7 @@ from lib.safe_string import safe_email, safe_message, safe_string
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.funcionarios.models import Funcionario
-from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioSearchForm, FuncionarioDomicilioForm
+from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioAdminForm, FuncionarioSearchForm, FuncionarioDomicilioForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -174,11 +174,6 @@ def search():
             if apellido_materno != "":
                 busqueda["apellido_materno"] = apellido_materno
                 titulos.append("apellido materno " + apellido_materno)
-        if form_search.curp.data:
-            curp = safe_string(form_search.curp.data)
-            if curp != "":
-                busqueda["curp"] = curp
-                titulos.append("CURP " + curp)
         if form_search.puesto.data:
             puesto = safe_string(form_search.puesto.data)
             if puesto != "":
@@ -248,12 +243,12 @@ def new():
     return render_template("funcionarios/new.jinja2", form=form)
 
 
-@funcionarios.route("/funcionarios/edicion/<int:funcionario_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
-def edit(funcionario_id):
-    """Editar Funcionario"""
+@funcionarios.route("/funcionarios/edicion_admin/<int:funcionario_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def edit_admin(funcionario_id):
+    """Editar Funcionario para administrador"""
     funcionario = Funcionario.query.get_or_404(funcionario_id)
-    form = FuncionarioForm()
+    form = FuncionarioAdminForm()
     if form.validate_on_submit():
         es_valido = True
         # Si cambia el CURP verificar que no este en uso
@@ -278,6 +273,8 @@ def edit(funcionario_id):
             funcionario.curp = curp
             funcionario.email = email
             funcionario.puesto = safe_string(form.puesto.data)
+            funcionario.telefono = safe_string(form.telefono.data)
+            funcionario.extension = safe_string(form.extension.data)
             funcionario.en_funciones = form.en_funciones.data
             funcionario.en_sentencias = form.en_sentencias.data
             funcionario.en_soportes = form.en_soportes.data
@@ -298,10 +295,39 @@ def edit(funcionario_id):
     form.curp.data = funcionario.curp
     form.email.data = funcionario.email
     form.puesto.data = funcionario.puesto
+    form.telefono.data = funcionario.telefono
+    form.extension.data = funcionario.extension
     form.en_funciones.data = funcionario.en_funciones
     form.en_sentencias.data = funcionario.en_sentencias
     form.en_soportes.data = funcionario.en_soportes
     form.en_tesis_jurisprudencias.data = funcionario.en_tesis_jurisprudencias
+    return render_template("funcionarios/edit_admin.jinja2", form=form, funcionario=funcionario)
+
+
+@funcionarios.route("/funcionarios/edicion/<int:funcionario_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(funcionario_id):
+    """Editar Funcionario solo es para cambiar telefono y extension"""
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    form = FuncionarioForm()
+    if form.validate_on_submit():
+        funcionario.telefono = safe_string(form.telefono.data)
+        funcionario.extension = safe_string(form.extension.data)
+        funcionario.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado funcionario {funcionario.nombre}"),
+            url=url_for("funcionarios.detail", funcionario_id=funcionario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.nombre.data = funcionario.nombre  # Read only
+    form.puesto.data = funcionario.puesto  # Read only
+    form.email.data = funcionario.email  # Read only
+    form.telefono.data = funcionario.telefono
+    form.extension.data = funcionario.extension
     return render_template("funcionarios/edit.jinja2", form=form, funcionario=funcionario)
 
 
@@ -386,7 +412,6 @@ def insert_offices(funcionario_id):
         return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
     # Mostrar el formulario para solicitar el domicilio
     form.funcionario_nombre.data = funcionario.nombre  # Read only
-    form.funcionario_curp.data = funcionario.curp  # Read only
     form.funcionario_puesto.data = funcionario.puesto  # Read only
     form.funcionario_email.data = funcionario.email  # Read only
     return render_template("funcionarios/insert_offices.jinja2", form=form, funcionario=funcionario)

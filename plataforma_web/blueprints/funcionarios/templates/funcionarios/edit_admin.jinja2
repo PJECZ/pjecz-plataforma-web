@@ -12,11 +12,18 @@
     {% call f.card() %}
         {% set form_kwargs = {'funcionario_id': funcionario.id} %}
         {% call f.form_tag('funcionarios.edit', fid='funcionario_form', **form_kwargs) %}
-            {% call f.form_group(form.nombre, readonly=True) %}{% endcall %}
-            {% call f.form_group(form.puesto, readonly=True) %}{% endcall %}
-            {% call f.form_group(form.email, readonly=True) %}{% endcall %}
+            {% call f.form_group(form.nombres) %}{% endcall %}
+            {% call f.form_group(form.apellido_paterno) %}{% endcall %}
+            {% call f.form_group(form.apellido_materno) %}{% endcall %}
+            {% call f.form_group(form.curp) %}{% endcall %}
+            {% call f.form_group(form.puesto) %}{% endcall %}
+            {% call f.form_group(form.email) %}{% endcall %}
             {% call f.form_group(form.telefono) %}{% endcall %}
             {% call f.form_group(form.extension) %}{% endcall %}
+            {% call f.form_group(form.en_funciones) %}{% endcall %}
+            {% call f.form_group(form.en_sentencias) %}{% endcall %}
+            {% call f.form_group(form.en_soportes) %}{% endcall %}
+            {% call f.form_group(form.en_tesis_jurisprudencias) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
