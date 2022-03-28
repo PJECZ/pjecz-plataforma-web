@@ -10,9 +10,8 @@
         .img-call{ height:auto; width:300px; }
         .img-support-us{ height:auto; width:300px; }
         .box { align-items: center; display: flex; justify-content: center; }
-        .btn-ticket{ display:inline-block; }
-        .item-align-ticket{ margin-left:20%; }
-        .item-align{ margin-left:40%; }
+        .btn-ticket{ display:inline-block;}
+        .btn-dir{ display:inline-block; margin-left: 50px;}
     </style>
 {% endblock %}
 
@@ -26,59 +25,47 @@
         <h1 class="text-center">Plataforma Web</h1>
         <br />
         {# Cambio de pantalla si no tiene privilegios para crear tickets #}
-        {% if  current_user.can_edit("SOPORTES TICKETS")%}
-            <div class="row" >
-                <div class="box col-6 col-md-6 mb-2 align-middle" >
+        <div class="row" >
+            {% if  current_user.can_edit("SOPORTES TICKETS")%}
+                <div class="box col-6 col-md-6 mb-2" >
                     <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
                 </div>
-                <div class="box col-6 col-md-6 mb-2 align-self-center" >
-                    <img src="{{ url_for('static', filename='images/call5.png') }}" class="img-fluid img-call"/>
-                </div>
-
-                <!-- Force next columns to break to new line -->
-                <div class="w-100"></div>
-                
-                <div class="col-6 col-md-6 col-sm-6 mb-2 align-self-center">
-                    <h4 class="text-center">¿Necesitas soporte técnico?</h4>
-                    <span class="col-6 col-sm-6 mb-2 align-self-center">
-                        <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket item-align-ticket btn-start">Crear un nuevo ticket</a>
-                    </span>
-                    <span class="col-6 col-sm-6 mb-2 align-self-center">
-                        <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket btn-start" >Mis tickets</a>
-                    </span>
-                </div>
-                <div class="col-6 col-md-6 col-sm-6 col-sm-6 mb-2 align-self-center">
-                    <h4 class="text-center">Conoce los nuevos teléfonos</h4>
-                    <span class="col-6 col-sm-6 mb-2 align-self-center">
-                        <a href="{{url_for('funcionarios.list_active')}}" class="btn btn-primary flex-wrap btn-ticket item-align">Directorios</a>
-                    </span>
-                </div>
-            </div>
-        {% else %}
-            <div class="row" >
-                <div class="box col-6 col-sm-6 mb-2 align-self-center" >
+            {% else %}
+                <div class="box col-6 col-md-6 mb-2" >
                     <img src="{{ url_for('static', filename='images/soporte_2.png') }}" class="img-fluid img-support-us"/>
                 </div>
-                <div class="box col-6 col-sm-6 mb-2 align-self-center" >
-                    <img src="{{ url_for('static', filename='images/call5.png') }}" class="img-fluid img-call"/>
-                </div>
-
-                <!-- Force next columns to break to new line -->
-                <div class="w-100"></div>
-
-                <div class="col-6 col-sm-6 mb-2 align-self-center">
-                    <h4 class="text-center">Bienvenido al sistema</h4> 
-                    <p class="text-justify mx-5">Note que ha ingresado con una cuenta que <strong>no es personal.</strong> </p>
-                    <p class="text-justify mx-5">Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx . </p>
-                </div>
-                <div class="col-6 col-sm-6 mb-2 align-left">
-                    <h4 class="text-center">Conoce los nuevos teléfonos</h4>
-                    <span class="col-6 col-sm-6 mb-2 align-self-center">
-                        <a href="{{url_for('funcionarios.list_active')}}" class="btn btn-start btn-primary btn-ticket flex-wrap item-align btn-start">Directorios</a>
-                    </span>
-                </div>
+            {% endif %}
+            <div class="box col-6 col-md-6 mb-2" >
+                <img src="{{ url_for('static', filename='images/call5.png') }}" class="img-fluid img-call"/>
             </div>
-        {% endif%}
+            <!-- Force next columns to break to new line -->
+            <div class="w-100"></div>
+            {% if  current_user.can_edit("SOPORTES TICKETS")%}
+                <div class="col-6 col-md-6 mb-2">
+                    <h4 class="text-center">¿Necesitas soporte técnico?</h4>
+                    <div class="col-md-9 offset-md-3">
+                        <span class="col-sm-5 offset-sm-2 col-md-6 offset-md-0 ">
+                            <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket ml-auto">Crear un nuevo ticket</a>
+                        </span>
+                        <span class="col-sm-5 offset-sm-2 col-md-6 offset-md-0 ">
+                            <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket ml-auto" >Mis tickets</a>
+                        </span>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-6 col-md-6 mb-2">
+                    <h4 class="text-center">Bienvenido al sistema</h4> 
+                    <p class="text-justify offset-sm-2">Note que ha ingresado con una cuenta que <strong>no es personal.fhdh</strong> </p>
+                    <p class="text-justify offset-sm-2">Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx . </p>
+                </div>
+            {% endif %}
+            <div class="col-6 col-md-6 mb-2">
+                <h4 class="text-center">Conoce los nuevos teléfonos</h4>
+                <span class="col-auto offset-sm-4 aling-item-center">
+                    <a href="{{url_for('funcionarios.list_active')}}" class="btn btn-primary btn-dir ml-auto">Directorios</a>
+                </span>
+            </div>
+        </div>
     {% endcall %}
     {# Tarjetas #}
     <div id="tarjetas" class="row">
@@ -162,12 +149,4 @@
         const versiones_json = "{{ url_for('static', filename='json/versions.json') }}";
     </script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/versions.js') }}"></script>
-    <script>
-        $(document).ready(function(){
-            if(window.innerWidth < 576){
-                $('.btn-start').addClass('mx-auto');
-            }
-        });
-
-    </script>
 {% endblock %}
