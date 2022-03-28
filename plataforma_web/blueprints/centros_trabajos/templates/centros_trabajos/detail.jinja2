@@ -15,11 +15,57 @@
     {% call detail.card(estatus=centro_trabajo.estatus) %}
         {{ detail.label_value_big('Clave', centro_trabajo.clave) }}
         {{ detail.label_value('Nombre', centro_trabajo.nombre) }}
-        {{ detail.label_value('Área', centro_trabajo.area) }}
+        {{ detail.label_value('Teléfono', centro_trabajo.telefono) }}
         {{ detail.label_value('Distrito', centro_trabajo.distrito.nombre, url_for('distritos.detail', distrito_id=centro_trabajo.distrito_id)) }}
     {% endcall %}
+    {% if current_user.can_view('FUNCIONARIOS') %}
+        {% call detail.card('Funcionarios') %}
+            <table id="funcionarios_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>e-mail</th>
+                        <th>Nombre</th>
+                        <th>Puesto</th>
+                        <th>Teléfono</th>
+                        <th>Extensión</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('FUNCIONARIOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/funcionarios/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'centro_trabajo_id': {{ centro_trabajo.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "nombre" },
+                { data: "puesto" },
+                { data: "telefono" },
+                { data: "extension" }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
+                    }
+                },
+                {
+                    targets: [1, 2], // nombre, puesto
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 48 ? data.substr(0, 48) + '…' : data);
+                    }
+                }
+            ];
+            $('#funcionarios_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

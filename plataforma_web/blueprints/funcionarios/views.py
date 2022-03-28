@@ -38,6 +38,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "centro_trabajo_id" in request.form:
+        consulta = consulta.filter(Funcionario.centro_trabajo_id == request.form["centro_trabajo_id"])
     if "nombres" in request.form:
         consulta = consulta.filter(Funcionario.nombres.contains(safe_string(request.form["nombres"])))
     if "apellido_paterno" in request.form:

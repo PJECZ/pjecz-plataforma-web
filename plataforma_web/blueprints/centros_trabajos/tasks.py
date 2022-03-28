@@ -104,7 +104,7 @@ def sincronizar():
                     CentroTrabajo(
                         clave=clave,
                         nombre=centro_trabajo_datos["nombre"],
-                        area="NO DEFINIDO",
+                        telefono="ND",
                         distrito=distrito_no_definido,
                     ).save()
                 else:

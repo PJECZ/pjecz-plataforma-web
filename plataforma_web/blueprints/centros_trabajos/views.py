@@ -34,7 +34,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(CentroTrabajo.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(CentroTrabajo.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -46,7 +46,7 @@ def datatable_json():
                     "url": url_for("centros_trabajos.detail", centro_trabajo_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "area": resultado.area,
+                "telefono": resultado.telefono,
                 "distrito": {
                     "nombre_corto": resultado.distrito.nombre_corto,
                     "url": url_for("distritos.detail", distrito_id=resultado.distrito_id),

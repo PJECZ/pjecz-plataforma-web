@@ -6,6 +6,7 @@ Funcionarios, tareas para ejecutar en el fondo
 - enviar_reporte: Enviar via correo electronico el reporte de funcionarios
 - sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
+from datetime import datetime
 import locale
 import logging
 import os
@@ -40,6 +41,8 @@ app.app_context().push()
 db.app = app
 
 locale.setlocale(locale.LC_TIME, "es_MX.utf8")
+
+INGRESO_FECHA_POR_DEFECTO = datetime(2000, 1, 1)
 
 
 def asignar_oficinas(funcionario_id: int, domicilio_id: int):
@@ -170,7 +173,7 @@ def sincronizar():
     bitacora.info("Token recibido")
 
     # Bucle de consultas a la API
-    limit = 50
+    limit = 10
     offset = 0
     total = None
     funcionarios_presentes_contador = 0
@@ -206,7 +209,7 @@ def sincronizar():
                 response = requests.get(
                     url=f"{base_url}/v1/historial_puestos",
                     headers={"authorization": f"Bearer {token}"},
-                    params={"persona_id": persona_id, "limit": limit, "offset": offset},
+                    params={"persona_id": persona_id, "limit": 1, "offset": 0},
                 )
                 if response.status_code != 200:
                     mensaje = f"Fallo la consulta de historial de puestos con error {response.status_code}"
@@ -218,11 +221,12 @@ def sincronizar():
                     personas_omitidas_contador += 1
                     continue
                 historial_puesto_data = historial_puestos_response["items"][0]  # Tomar el primero que debe ser el mas reciente
+                puesto = historial_puesto_data["puesto_funcion_nombre"]
                 # Consultar el Centro de Trabajo
                 centro_trabajo_clave = historial_puesto_data["centro_trabajo"]
                 centro_trabajo = CentroTrabajo.query.filter(CentroTrabajo.clave == centro_trabajo_clave).first()
                 if centro_trabajo is None:
-                    bitacora.error("No se encuentra el centro de trabajo %s", centro_trabajo_clave)
+                    bitacora.error("No se encuentra el centro de trabajo \"%s\"", centro_trabajo_clave)
                     personas_omitidas_contador += 1
                     continue
                 # Consultar funcionario
@@ -237,19 +241,26 @@ def sincronizar():
                         apellido_materno=apellido_materno,
                         curp=curp,
                         email=email,
+                        puesto=puesto,
+                        ingreso_fecha=INGRESO_FECHA_POR_DEFECTO,
                     ).save()
-                elif funcionario.centro_trabajo != centro_trabajo or funcionario.nombres != nombres or funcionario.apellido_paterno != apellido_paterno or funcionario.apellido_materno != apellido_materno:
+                elif funcionario.centro_trabajo != centro_trabajo or funcionario.nombres != nombres or funcionario.apellido_paterno != apellido_paterno or funcionario.apellido_materno != apellido_materno or funcionario.puesto != puesto:
                     # Actualizar funcionario
                     funcionario.centro_trabajo = centro_trabajo
                     funcionario.nombres = nombres
                     funcionario.apellido_paterno = apellido_paterno
                     funcionario.apellido_materno = apellido_materno
+                    funcionario.puesto = puesto
+                    funcionario.ingreso_fecha = INGRESO_FECHA_POR_DEFECTO
+                    # funcionario.puesto_clave =
+                    # funcionario.fotografia_url =
                     funcionario.save()
                     funcionarios_presentes_contador += 1
             else:
                 personas_omitidas_contador += 1
         # Saltar
         if offset + limit >= total:
+            bitacora.info("Se han procesado %d personas", offset + limit)
             break
         offset += limit
     # Terminar
