@@ -13,6 +13,9 @@
             {% if componente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_componentes.delete', componente_id=componente.id)) }}{% endif %}
             {% if componente.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_componentes.recover', componente_id=componente.id)) }}{% endif %}
         {% endif %}
+        {% if current_user.can_insert('INV COMPONENTES') %}
+            {{ topbar.button_new('Más componentes', url_for('inv_componentes.new', equipo_id=componente.inv_equipo.id))}}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
