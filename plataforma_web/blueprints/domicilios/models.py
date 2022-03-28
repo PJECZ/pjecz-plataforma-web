@@ -23,6 +23,7 @@ class Domicilio(db.Model, UniversalMixin):
     colonia = db.Column(db.String(256), nullable=False, default="", server_default="")
     cp = db.Column(db.Integer(), nullable=False)
     completo = db.Column(db.String(1024), nullable=False, default="", server_default="")
+    numeracion_telefonica = db.Column(db.String(256), nullable=False, default="", server_default="")
 
     # Hijos
     oficinas = db.relationship("Oficina", back_populates="domicilio")
