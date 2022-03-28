@@ -1,0 +1,65 @@
+{# botón submit #}
+{%- macro submit_button(f) -%}
+    {{ f(class="btn btn-success text-white", **kwargs) }}
+{%- endmacro -%}
+
+{# etiqueta #}
+{%- macro field_label(f) -%}
+    <label class="sr-only" for="{{ f.id }}">
+        {{ f.label.text }}
+    </label>
+{%- endmacro -%}
+
+{#
+  <label class="sr-only" for="inlineFormInputName2">Name</label>
+  <input type="text" class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Jane Doe">
+#}
+
+{# errores de validación si los hay #}
+{%- macro field_errors(f) -%}
+    {% if f.errors %}
+        <ul class="list-unstyled text-danger field-error">
+            {% for error in f.errors %}
+                <li>{{ error | e }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{%- endmacro -%}
+
+{# un campo del formulario #}
+{%- macro field(f, css_class='form-control mb-2 mr-sm-2') -%}
+    {{ f(class=css_class, **kwargs) }}
+{%- endmacro -%}
+
+{# un grupo de un formulario, con errores si los hay #}
+{%- macro form_group(f, css_class='') -%}
+    {% if f.errors %}
+        {% set css_class = css_class + ' has-error ' + kwargs.pop('class', '') %}
+    {% endif %}
+    {% if f.type == 'HiddenField' %}
+        {{ field(f, **kwargs) }}
+        {{ caller () }}
+    {% elif f.type == 'SubmitField' %}
+        {{ field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+    {% else %}
+        {{ field_label(f) }}
+        {{ field(f, **kwargs) }}
+        {{ field_errors(f) }}
+        {{ caller () }}
+    {% endif %}
+{%- endmacro -%}
+
+{# un formulario inline, que contiene un token CSRF y campos ocultos #}
+{%- macro form_tag(endpoint, fid='', css_class='form-inline', method='post') -%}
+    <form action="{{ url_for(endpoint, **kwargs) }}" method="{{ method }}" id="{{ fid }}" class="{{ css_class }}" role="form">
+        {{ form.hidden_tag() }}
+        {{ caller () }}
+    </form>
+{%- endmacro -%}
+
+{#
+  <label class="sr-only" for="inlineFormInputName2">Name</label>
+  <input type="text" class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Jane Doe">
+#}

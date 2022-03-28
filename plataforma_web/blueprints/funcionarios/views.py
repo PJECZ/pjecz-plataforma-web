@@ -93,6 +93,7 @@ def list_active():
         filtros=json.dumps({"estatus": "A", "en_funciones": True}),
         titulo="Directorio",
         estatus="A",
+        form=FuncionarioSearchForm(),
     )
 
 
@@ -193,6 +194,7 @@ def search():
             filtros=json.dumps(busqueda),
             titulo="Funcionarios con " + ", ".join(titulos),
             estatus="A",
+            form=form_search,
         )
     return render_template("funcionarios/search.jinja2", form=form_search)
 

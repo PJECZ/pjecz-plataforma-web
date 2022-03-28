@@ -1,4 +1,5 @@
 {% extends 'layouts/app.jinja2' %}
+{% import 'macros/form_inline.jinja2' as f with context %}
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
@@ -33,7 +34,34 @@
             <li>Si encuentras información errónea, crea un Ticket solicitando la corrección.</li>
         </ul>
     {% endcall %}
+<div>
+<form class="form-inline">
+  <label class="sr-only" for="inlineFormInputName2">Name</label>
+  <input type="text" class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Jane Doe">
+  <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
+  <div class="input-group mb-2 mr-sm-2">
+    <div class="input-group-prepend">
+      <div class="input-group-text">@</div>
+    </div>
+    <input type="text" class="form-control" id="inlineFormInputGroupUsername2" placeholder="Username">
+  </div>
+  <div class="form-check mb-2 mr-sm-2">
+    <input class="form-check-input" type="checkbox" id="inlineFormCheck">
+    <label class="form-check-label" for="inlineFormCheck">
+      Remember me
+    </label>
+  </div>
+  <button type="submit" class="btn btn-primary mb-2">Submit</button>
+</form>
+</div>
     {% call list.card() %}
+        {% call f.form_tag('funcionarios.search', fid='funcionario_search_form') %}
+            {% call f.form_group(form.nombres, placeholder='Nombre') %}{% endcall %}
+            {% call f.form_group(form.apellido_paterno, placeholder='Primer apellido') %}{% endcall %}
+            {% call f.form_group(form.puesto, placeholder='Puesto') %}{% endcall %}
+            {% call f.form_group(form.email, placeholder='e-mail') %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
         <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
