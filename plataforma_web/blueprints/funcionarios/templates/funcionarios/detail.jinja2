@@ -1,6 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/tabs.jinja2' as tabs %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Funcionario{% endblock %}
@@ -8,6 +9,9 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(funcionario.nombre) %}
         {{ topbar.button_previous('Directorio', url_for('funcionarios.list_active')) }}
+        {% if current_user.can_view('CENTROS TRABAJOS') %}
+            {{ topbar.button('Centros de Trabajo', url_for('centros_trabajos.list_active'), 'mdi:home-group') }}
+        {% endif %}
         {% if current_user.can_admin('FUNCIONARIOS') %}
             {{ topbar.button_edit('Editar', url_for('funcionarios.edit_admin', funcionario_id=funcionario.id)) }}
             {% if funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('funcionarios.delete', funcionario_id=funcionario.id)) }}{% endif %}
@@ -19,6 +23,7 @@
 {% endblock %}
 
 {% block content %}
+    {# Informacion del funcionario a la vista de quienes usan el directorio #}
     {% call detail.card(estatus=funcionario.estatus) %}
         {{ detail.label_value_big('Puesto', funcionario.puesto, font_size=1.5) }}
         {{ detail.label_value('Centro de Trabajo', funcionario.centro_trabajo.nombre) }}
@@ -26,6 +31,7 @@
         {{ detail.label_value_big('Teléfono', funcionario.telefono, font_size=1.5) }}
         {{ detail.label_value_big('Extensión', funcionario.extension, font_size=1.5) }}
     {% endcall %}
+    {# Informacion sensible que NO esta a la vista de todos #}
     {% if current_user.can_admin('FUNCIONARIOS') %}
         {% call detail.card(estatus=funcionario.estatus) %}
             {{ detail.label_value('CURP', funcionario.curp) }}
@@ -38,199 +44,233 @@
             {{ detail.label_value('Domicilio oficial', funcionario.domicilio_oficial) }}
             {{ detail.label_value('Fecha de ingreso', funcionario.ingreso_fecha) }}
             {{ detail.label_value('Fotografía URL', funcionario.fotografia_url) }}
-            {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
-            {{ detail.label_value_boolean('En sentencias', funcionario.en_sentencias) }}
-            {{ detail.label_value_boolean('En soportes', funcionario.en_soportes) }}
-            {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') and funcionario.en_sentencias %}
-        {% call detail.card('Autoridades') %}
-            <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Autoridad</th>
-                        <th>Autoridad descripción corta</th>
-                    </tr>
-                </thead>
-            </table>
-            {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
-                <a href="{{ url_for('autoridades_funcionarios.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
-            {% endif %}
+    {# Tabs #}
+    {% call tabs.header() %}
+        {{ tabs.button('banderas-tab', 'tab_banderas', 'Banderas', 'active') }}
+        {% if current_user.can_view('SOPORTES TICKETS') and funcionario.en_soportes %}
+            {{ tabs.button('tickets-tab', 'tab_tickets', 'Tickets') }}
+        {% endif %}
+        {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') and funcionario.en_sentencias %}
+            {{ tabs.button('autoridades-tab', 'tab_autoridades', 'Autoridades') }}
+        {% endif %}
+        {% if current_user.can_view('FUNCIONARIOS OFICINAS') and funcionario.en_soportes %}
+            {{ tabs.button('oficinas-tab', 'tab_oficinas', 'Oficinas') }}
+        {% endif %}
+    {% endcall %}
+    {% call tabs.content() %}
+        {% call tabs.div_content('tab_banderas', 'banderas-tab', 'active') %}
+            {% call detail.card() %}
+                {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
+                {{ detail.label_value_boolean('En sentencias', funcionario.en_sentencias) }}
+                {{ detail.label_value_boolean('En soportes', funcionario.en_soportes) }}
+                {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
+            {% endcall %}
         {% endcall %}
-    {% endif %}
-    {% if current_user.can_view('FUNCIONARIOS OFICINAS') and funcionario.en_soportes %}
-        {% call detail.card('Oficinas') %}
-            <table id="funcionarios_oficinas_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Clave</th>
-                        <th>Descripción corta</th>
-                    </tr>
-                </thead>
-            </table>
-            {% if current_user.can_insert('FUNCIONARIOS OFICINAS') %}
-                <a href="{{ url_for('funcionarios_oficinas.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
-            {% endif %}
-            {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
-                <a href="{{ url_for('funcionarios.clean', funcionario_id=funcionario.id) }}" class="btn btn-primary">Limpiar</a>
-                <a href="{{ url_for('funcionarios.insert_offices', funcionario_id=funcionario.id) }}" class="btn btn-primary">Asignar domicilio</a>
-            {% endif %}
-        {% endcall %}
-    {% endif %}
-    {% if current_user.can_view('SOPORTES TICKETS') and funcionario.en_soportes %}
-        {% call detail.card('Tickets') %}
-            <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Categoría</th>
-                        <th>Estado</th>
-                        <th>Descripción</th>
-                        <th>Solución/Cancelación</th>
-                    </tr>
-                </thead>
-            </table>
-        {% endcall %}
-    {% endif %}
+        {% if current_user.can_view('SOPORTES TICKETS') and funcionario.en_soportes %}
+            {% call tabs.div_content('tab_tickets', 'tickets-tab') %}
+                {% call detail.card() %}
+                    <table id="soportes_tickets_datatable" class="table display nowrap" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Categoría</th>
+                                <th>Estado</th>
+                                <th>Descripción</th>
+                                <th>Solución/Cancelación</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% endcall %}
+            {% endcall %}
+        {% endif %}
+        {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') and funcionario.en_sentencias %}
+            {% call tabs.div_content('tab_autoridades', 'autoridades-tab') %}
+                {% call detail.card() %}
+                    <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Autoridad</th>
+                                <th>Autoridad descripción corta</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    {% if current_user.can_insert('AUTORIDADES FUNCIONARIOS') %}
+                        <a href="{{ url_for('autoridades_funcionarios.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
+                    {% endif %}
+                {% endcall %}
+            {% endcall %}
+        {% endif %}
+        {% if current_user.can_view('FUNCIONARIOS OFICINAS') and funcionario.en_soportes %}
+            {% call tabs.div_content('tab_oficinas', 'oficinas-tab') %}
+                {% call detail.card() %}
+                    <table id="funcionarios_oficinas_datatable" class="table display nowrap" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Clave</th>
+                                <th>Descripción corta</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    {% if current_user.can_insert('FUNCIONARIOS OFICINAS') %}
+                        <a href="{{ url_for('funcionarios_oficinas.new_with_funcionario', funcionario_id=funcionario.id) }}" class="btn btn-primary">Agregar</a>
+                    {% endif %}
+                    {% if current_user.can_edit('FUNCIONARIOS OFICINAS') %}
+                        <a href="{{ url_for('funcionarios.clean', funcionario_id=funcionario.id) }}" class="btn btn-primary">Limpiar</a>
+                        <a href="{{ url_for('funcionarios.insert_offices', funcionario_id=funcionario.id) }}" class="btn btn-primary">Asignar domicilio</a>
+                    {% endif %}
+                {% endcall %}
+            {% endcall %}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('FUNCIONARIOS') %}
+    {% if current_user.can_admin('FUNCIONARIOS') %}
         {% if funcionario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + funcionario.nombre + '?') }}{% endif %}
         {% if funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + funcionario.nombre + '?') }}{% endif %}
     {% endif %}
     {{ detail.config_datatable() }}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') and funcionario.en_sentencias %}
         <script>
-            configDataTable['ajax']['url'] = '/autoridades_funcionarios/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
-            configDataTable['columns'] = [
-                { data: "detalle" },
-                { data: "autoridad" },
-                { data: "autoridad_descripcion_corta" }
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: 1, // autoridad
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.clave;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+            $('#autoridades-tab').on('show.bs.tab', function(){
+                configDataTable['ajax']['url'] = '/autoridades_funcionarios/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
+                configDataTable['columns'] = [
+                    { data: "detalle" },
+                    { data: "autoridad" },
+                    { data: "autoridad_descripcion_corta" }
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0, // detalle
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 1, // autoridad
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data.url == '') {
+                                return data.clave;
+                            } else {
+                                return '<a href="' + data.url + '">' + data.clave + '</a>';
+                            }
                         }
                     }
-                }
-            ];
-            $('#autoridades_funcionarios_datatable').DataTable(configDataTable);
+                ];
+                $('#autoridades_funcionarios_datatable').DataTable().destroy();;
+                $('#autoridades_funcionarios_datatable').DataTable(configDataTable);
+            });
         </script>
     {% endif %}
     {% if current_user.can_view('FUNCIONARIOS OFICINAS') and funcionario.en_soportes %}
         <script>
-            configDataTable['ajax']['url'] = '/funcionarios_oficinas/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
-            configDataTable['columns'] = [
-                { data: "detalle" },
-                { data: "oficina" },
-                { data: "oficina_descripcion_corta" }
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: 1, // oficina
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url == '') {
-                            return data.clave;
-                        } else {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+            $('#oficinas-tab').on('show.bs.tab', function(){
+                configDataTable['ajax']['url'] = '/funcionarios_oficinas/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
+                configDataTable['columns'] = [
+                    { data: "detalle" },
+                    { data: "oficina" },
+                    { data: "oficina_descripcion_corta" }
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0, // detalle
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 1, // oficina
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data.url == '') {
+                                return data.clave;
+                            } else {
+                                return '<a href="' + data.url + '">' + data.clave + '</a>';
+                            }
                         }
                     }
-                }
-            ];
-            $('#funcionarios_oficinas_datatable').DataTable(configDataTable);
+                ];
+                $('#funcionarios_oficinas_datatable').DataTable().destroy();;
+                $('#funcionarios_oficinas_datatable').DataTable(configDataTable);
+            });
         </script>
     {% endif %}
     {% if current_user.can_view('SOPORTES TICKETS') %}
         <script>
-            configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
-            configDataTable['columns'] = [
-                { data: "id" },
-                { data: "categoria" },
-                { data: "estado" },
-                { data: "descripcion" },
-                { data: "soluciones" }
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // id
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: 1, // categoria
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if(data.nombre.length > 32)
-                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 32) + '…' + '</span>';
-                        else
-                            texto = data.nombre;
-                        if(data.url == '')
-                            return texto;
-                        else
-                            return '<a href="' + data.url + '">' + texto + '</a>';
-                    }
-                },
-                {
-                    targets: 2, // estado
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<strong>' + data + '</strong>';
-                    }
-                },
-                {
-                    targets: [3, 4], // descripcion y soluciones
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data != null)
-                            if(data.length > 32)
-                                return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+            $('#tickets-tab').on('show.bs.tab', function(){
+                configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
+                configDataTable['columns'] = [
+                    { data: "id" },
+                    { data: "categoria" },
+                    { data: "estado" },
+                    { data: "descripcion" },
+                    { data: "soluciones" }
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0, // id
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 1, // categoria
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if(data.nombre.length > 32)
+                                texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 32) + '…' + '</span>';
                             else
-                                return data;
-                        return '—';
+                                texto = data.nombre;
+                            if(data.url == '')
+                                return texto;
+                            else
+                                return '<a href="' + data.url + '">' + texto + '</a>';
+                        }
+                    },
+                    {
+                        targets: 2, // estado
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<strong>' + data + '</strong>';
+                        }
+                    },
+                    {
+                        targets: [3, 4], // descripcion y soluciones
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data != null)
+                                if(data.length > 32)
+                                    return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                                else
+                                    return data;
+                            return '—';
+                        }
+                    },
+                ];
+                configDataTable['rowCallback'] = function(row, data) {
+                    switch (data.estado)    {
+                        case "SIN ATENDER": $(row).css("background-color", "#fef9e7");  break;
+                        case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
+                        case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
+                        case "PENDIENTE":   $(row).css("background-color", "#f5eef8");  break;
+                        case "TERMINADO":   $(row).css("background-color", "#eafaf1");  break;
+                        case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
                     }
-                },
-            ];
-            configDataTable['rowCallback'] = function(row, data) {
-                switch (data.estado)    {
-                    case "SIN ATENDER": $(row).css("background-color", "#fef9e7");  break;
-                    case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
-                    case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
-                    case "PENDIENTE":   $(row).css("background-color", "#f5eef8");  break;
-                    case "TERMINADO":   $(row).css("background-color", "#eafaf1");  break;
-                    case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
-                }
-            };
-            $('#soportes_tickets_datatable').DataTable(configDataTable);
+                };
+                $('#soportes_tickets_datatable').DataTable().destroy();;
+                $('#soportes_tickets_datatable').DataTable(configDataTable);
+            });
         </script>
     {% endif %}
 {% endblock %}

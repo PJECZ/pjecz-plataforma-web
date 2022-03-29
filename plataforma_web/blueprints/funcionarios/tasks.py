@@ -263,7 +263,7 @@ def sincronizar():
                     if funcionario.puesto != puesto:
                         funcionario.puesto = puesto
                         ha_cambiado = True
-                    if funcionario.telefono != centro_trabajo.telefono:
+                    if (funcionario.telefono == "" or funcionario.telefono == "ND") and funcionario.telefono != centro_trabajo.telefono:
                         funcionario.telefono = centro_trabajo.telefono
                         ha_cambiado = True
                     if ha_cambiado:
@@ -275,7 +275,7 @@ def sincronizar():
                 personas_omitidas_contador += 1
         # Saltar
         if offset + limit >= total:
-            bitacora.info("Se han procesado %d personas", offset + limit)
+            bitacora.info("Se han procesado %d personas con %d insertados y %d actualizados", offset + limit, funcionarios_insertados_contador, funcionarios_actualizados_contador)
             break
         offset += limit
     # Terminar
