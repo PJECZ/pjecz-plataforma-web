@@ -4,7 +4,7 @@ Centros de Trabjo, formularios
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Optional
 
 from plataforma_web.blueprints.distritos.models import Distrito
 
@@ -22,3 +22,10 @@ class CentroTrabajoForm(FlaskForm):
     telefono = StringField("Teléfono", validators=[DataRequired(), Length(max=256)])
     distrito = QuerySelectField("Distrito", query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
+
+
+class CentroTrabajoSearchForm(FlaskForm):
+    """ Formulario para buscar Centros de Trabajo """
+    clave = StringField("Clave", validators=[Optional(), Length(max=16)])
+    nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
+    buscar = SubmitField('Buscar')
