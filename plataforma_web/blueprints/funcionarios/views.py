@@ -11,7 +11,7 @@ from lib.safe_string import safe_email, safe_message, safe_string
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.funcionarios.models import Funcionario
-from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioSearchForm, FuncionarioDomicilioForm
+from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioAdminForm, FuncionarioSearchForm, FuncionarioListSearchForm, FuncionarioDomicilioForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -38,6 +38,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "centro_trabajo_id" in request.form:
+        consulta = consulta.filter(Funcionario.centro_trabajo_id == request.form["centro_trabajo_id"])
     if "nombres" in request.form:
         consulta = consulta.filter(Funcionario.nombres.contains(safe_string(request.form["nombres"])))
     if "apellido_paterno" in request.form:
@@ -49,7 +51,7 @@ def datatable_json():
     if "puesto" in request.form:
         consulta = consulta.filter(Funcionario.puesto.contains(safe_string(request.form["puesto"])))
     if "email" in request.form:
-        consulta = consulta.filter(Funcionario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
+        consulta = consulta.filter(Funcionario.email.contains(safe_email(request.form["email"], search_fragment=True)))
     if "en_funciones" in request.form and request.form["en_funciones"] == "true":
         consulta = consulta.filter(Funcionario.en_funciones == True)
     if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
@@ -58,7 +60,7 @@ def datatable_json():
         consulta = consulta.filter(Funcionario.en_soportes == True)
     if "en_tesis_jurisprudencias" in request.form and request.form["en_tesis_jurisprudencias"] == "true":
         consulta = consulta.filter(Funcionario.en_tesis_jurisprudencias == True)
-    registros = consulta.order_by(Funcionario.curp).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Funcionario.email).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -66,13 +68,17 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "curp": resultado.curp,
+                    "email": resultado.email,
                     "url": url_for("funcionarios.detail", funcionario_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "email": resultado.email,
                 "puesto": resultado.puesto,
-                "en_funciones": resultado.en_funciones,
+                "centro_trabajo": {
+                    "nombre": resultado.centro_trabajo.nombre,
+                    "url": url_for("centros_trabajos.detail", centro_trabajo_id=resultado.centro_trabajo_id) if current_user.can_view("CENTROS TRABAJOS") else "",
+                },
+                "telefono": resultado.telefono,
+                "extension": resultado.extension,
             }
         )
     # Entregar JSON
@@ -81,6 +87,19 @@ def datatable_json():
 
 @funcionarios.route("/funcionarios")
 def list_active():
+    """Listado de Funcionarios - Directorio"""
+    return render_template(
+        "funcionarios/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "en_funciones": True}),
+        titulo="Directorio",
+        estatus="A",
+        form=FuncionarioListSearchForm(),
+    )
+
+
+@funcionarios.route("/funcionarios/en_funciones")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def list_active_en_funciones():
     """Listado de Funcionarios activos y en funciones"""
     return render_template(
         "funcionarios/list.jinja2",
@@ -91,6 +110,7 @@ def list_active():
 
 
 @funcionarios.route("/funcionarios/en_sentencias")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active_en_sentencias():
     """Listado de Funcionarios activos y en sentencias"""
     return render_template(
@@ -102,6 +122,7 @@ def list_active_en_sentencias():
 
 
 @funcionarios.route("/funcionarios/en_soportes")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active_en_soportes():
     """Listado de Funcionarios activos y en soportes"""
     return render_template(
@@ -113,6 +134,7 @@ def list_active_en_soportes():
 
 
 @funcionarios.route("/funcionarios/en_tesis_jurisprudencias")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active_en_tesis_jurisprudencias():
     """Listado de Funcionarios activos y en tesis y jurisprudencias"""
     return render_template(
@@ -124,7 +146,7 @@ def list_active_en_tesis_jurisprudencias():
 
 
 @funcionarios.route("/funcionarios/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_inactive():
     """Listado de Funcionarios inactivos"""
     return render_template(
@@ -157,11 +179,6 @@ def search():
             if apellido_materno != "":
                 busqueda["apellido_materno"] = apellido_materno
                 titulos.append("apellido materno " + apellido_materno)
-        if form_search.curp.data:
-            curp = safe_string(form_search.curp.data)
-            if curp != "":
-                busqueda["curp"] = curp
-                titulos.append("CURP " + curp)
         if form_search.puesto.data:
             puesto = safe_string(form_search.puesto.data)
             if puesto != "":
@@ -177,6 +194,7 @@ def search():
             filtros=json.dumps(busqueda),
             titulo="Funcionarios con " + ", ".join(titulos),
             estatus="A",
+            form=form_search,
         )
     return render_template("funcionarios/search.jinja2", form=form_search)
 
@@ -192,7 +210,7 @@ def detail(funcionario_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Funcionario"""
-    form = FuncionarioForm()
+    form = FuncionarioAdminForm()
     if form.validate_on_submit():
         es_valido = True
         # Validar que el CURP no se repita
@@ -213,6 +231,8 @@ def new():
                 curp=curp,
                 email=email,
                 puesto=safe_string(form.puesto.data),
+                telefono = safe_string(form.telefono.data),
+                extension = safe_string(form.extension.data),
                 en_funciones=form.en_funciones.data,
                 en_sentencias=form.en_sentencias.data,
                 en_soportes=form.en_soportes.data,
@@ -231,12 +251,12 @@ def new():
     return render_template("funcionarios/new.jinja2", form=form)
 
 
-@funcionarios.route("/funcionarios/edicion/<int:funcionario_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
-def edit(funcionario_id):
-    """Editar Funcionario"""
+@funcionarios.route("/funcionarios/edicion_admin/<int:funcionario_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def edit_admin(funcionario_id):
+    """Editar Funcionario para administrador"""
     funcionario = Funcionario.query.get_or_404(funcionario_id)
-    form = FuncionarioForm()
+    form = FuncionarioAdminForm()
     if form.validate_on_submit():
         es_valido = True
         # Si cambia el CURP verificar que no este en uso
@@ -261,6 +281,8 @@ def edit(funcionario_id):
             funcionario.curp = curp
             funcionario.email = email
             funcionario.puesto = safe_string(form.puesto.data)
+            funcionario.telefono = safe_string(form.telefono.data)
+            funcionario.extension = safe_string(form.extension.data)
             funcionario.en_funciones = form.en_funciones.data
             funcionario.en_sentencias = form.en_sentencias.data
             funcionario.en_soportes = form.en_soportes.data
@@ -281,10 +303,39 @@ def edit(funcionario_id):
     form.curp.data = funcionario.curp
     form.email.data = funcionario.email
     form.puesto.data = funcionario.puesto
+    form.telefono.data = funcionario.telefono
+    form.extension.data = funcionario.extension
     form.en_funciones.data = funcionario.en_funciones
     form.en_sentencias.data = funcionario.en_sentencias
     form.en_soportes.data = funcionario.en_soportes
     form.en_tesis_jurisprudencias.data = funcionario.en_tesis_jurisprudencias
+    return render_template("funcionarios/edit_admin.jinja2", form=form, funcionario=funcionario)
+
+
+@funcionarios.route("/funcionarios/edicion/<int:funcionario_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(funcionario_id):
+    """Editar Funcionario solo es para cambiar telefono y extension"""
+    funcionario = Funcionario.query.get_or_404(funcionario_id)
+    form = FuncionarioForm()
+    if form.validate_on_submit():
+        funcionario.telefono = safe_string(form.telefono.data)
+        funcionario.extension = safe_string(form.extension.data)
+        funcionario.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado funcionario {funcionario.nombre}"),
+            url=url_for("funcionarios.detail", funcionario_id=funcionario.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    form.nombre.data = funcionario.nombre  # Read only
+    form.puesto.data = funcionario.puesto  # Read only
+    form.email.data = funcionario.email  # Read only
+    form.telefono.data = funcionario.telefono
+    form.extension.data = funcionario.extension
     return render_template("funcionarios/edit.jinja2", form=form, funcionario=funcionario)
 
 
@@ -325,7 +376,7 @@ def recover(funcionario_id):
 
 
 @funcionarios.route("/funcionarios/limpiar_oficinas/<int:funcionario_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def clean(funcionario_id):
     """Limpiar funcionarios_oficinas"""
     # Validar el funcionario
@@ -346,7 +397,7 @@ def clean(funcionario_id):
 
 
 @funcionarios.route("/funcionarios/asignar_oficinas/<int:funcionario_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def insert_offices(funcionario_id):
     """Asignar funcionarios_oficinas a partir de una direccion"""
     # Validar el funcionario
@@ -369,7 +420,6 @@ def insert_offices(funcionario_id):
         return redirect(url_for("funcionarios.detail", funcionario_id=funcionario.id))
     # Mostrar el formulario para solicitar el domicilio
     form.funcionario_nombre.data = funcionario.nombre  # Read only
-    form.funcionario_curp.data = funcionario.curp  # Read only
     form.funcionario_puesto.data = funcionario.puesto  # Read only
     form.funcionario_email.data = funcionario.email  # Read only
     return render_template("funcionarios/insert_offices.jinja2", form=form, funcionario=funcionario)

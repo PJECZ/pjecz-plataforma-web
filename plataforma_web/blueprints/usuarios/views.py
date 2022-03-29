@@ -226,7 +226,7 @@ def datatable_json():
     if "puesto" in request.form:
         consulta = consulta.filter(Usuario.puesto.contains(safe_string(request.form["puesto"])))
     if "email" in request.form:
-        consulta = consulta.filter(Usuario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
+        consulta = consulta.filter(Usuario.email.contains(safe_email(request.form["email"], search_fragment=True)))
     if "workspace" in request.form:
         consulta = consulta.filter(Usuario.workspace == safe_string(request.form["email"]))
     registros = consulta.order_by(Usuario.email).offset(start).limit(rows_per_page).all()
