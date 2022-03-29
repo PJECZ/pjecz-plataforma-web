@@ -106,6 +106,7 @@ def list_active_en_funciones():
         filtros=json.dumps({"estatus": "A", "en_funciones": True}),
         titulo="Funcionarios en funciones",
         estatus="A",
+        form=FuncionarioListSearchForm(),
     )
 
 
@@ -118,6 +119,7 @@ def list_active_en_sentencias():
         filtros=json.dumps({"estatus": "A", "en_sentencias": True}),
         titulo="Funcionarios en sentencias",
         estatus="A",
+        form=FuncionarioListSearchForm(),
     )
 
 
@@ -130,6 +132,7 @@ def list_active_en_soportes():
         filtros=json.dumps({"estatus": "A", "en_soportes": True}),
         titulo="Funcionarios en soportes",
         estatus="A",
+        form=FuncionarioListSearchForm(),
     )
 
 
@@ -142,6 +145,7 @@ def list_active_en_tesis_jurisprudencias():
         filtros=json.dumps({"estatus": "A", "en_tesis_jurisprudencias": True}),
         titulo="Funcionarios en tesis y jurisprudencias",
         estatus="A",
+        form=FuncionarioListSearchForm(),
     )
 
 
@@ -154,6 +158,7 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="Funcionarios inactivos",
         estatus="B",
+        form=FuncionarioListSearchForm(),
     )
 
 
@@ -179,6 +184,11 @@ def search():
             if apellido_materno != "":
                 busqueda["apellido_materno"] = apellido_materno
                 titulos.append("apellido materno " + apellido_materno)
+        if form_search.curp.data:
+            curp = safe_string(form_search.curp.data)
+            if curp != "":
+                busqueda["curp"] = curp
+                titulos.append("CURP " + curp)
         if form_search.puesto.data:
             puesto = safe_string(form_search.puesto.data)
             if puesto != "":
@@ -207,7 +217,7 @@ def detail(funcionario_id):
 
 
 @funcionarios.route("/funcionarios/nuevo", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.CREAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def new():
     """Nuevo Funcionario"""
     form = FuncionarioAdminForm()
@@ -340,7 +350,7 @@ def edit(funcionario_id):
 
 
 @funcionarios.route("/funcionarios/eliminar/<int:funcionario_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(funcionario_id):
     """Eliminar Funcionario"""
     funcionario = Funcionario.query.get_or_404(funcionario_id)
@@ -358,7 +368,7 @@ def delete(funcionario_id):
 
 
 @funcionarios.route("/funcionarios/recuperar/<int:funcionario_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(funcionario_id):
     """Recuperar Funcionario"""
     funcionario = Funcionario.query.get_or_404(funcionario_id)
