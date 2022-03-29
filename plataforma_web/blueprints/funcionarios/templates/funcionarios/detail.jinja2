@@ -101,7 +101,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('FUNCIONARIOS') %}
+    {% if current_user.can_admin('FUNCIONARIOS') %}
         {% if funcionario.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + funcionario.nombre + '?') }}{% endif %}
         {% if funcionario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + funcionario.nombre + '?') }}{% endif %}
     {% endif %}

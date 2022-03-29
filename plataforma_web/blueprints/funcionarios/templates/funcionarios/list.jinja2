@@ -20,8 +20,8 @@
         {% endif %}
         {% if current_user.can_insert('FUNCIONARIOS') %}
             {{ topbar.button_new('Nuevo Funcionario', url_for('funcionarios.new')) }}
+            {{ topbar.button_search('Buscar', url_for('funcionarios.search')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('funcionarios.search')) }}
     {% endcall %}
 {% endblock %}
 
