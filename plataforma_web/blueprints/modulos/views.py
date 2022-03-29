@@ -136,7 +136,7 @@ def edit(modulo_id):
         # Si es valido actualizar
         if es_valido:
             modulo.nombre = nombre
-            modulo.nombre_corto = safe_string(form.nombre_corto.data)
+            modulo.nombre_corto = safe_string(form.nombre_corto.data, to_uppercase=False, do_unidecode=False)
             modulo.icono = form.icono.data
             modulo.ruta = form.ruta.data
             modulo.en_navegacion = form.en_navegacion.data == 1

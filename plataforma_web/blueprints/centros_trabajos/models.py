@@ -1,15 +1,15 @@
 """
-Centrso de Trabajos, modelos
+Centros de Trabajos, modelos
 """
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class CentroTrabajo(db.Model, UniversalMixin):
-    """ CentroTrabajo """
+    """CentroTrabajo"""
 
     # Nombre de la tabla
-    __tablename__ = 'centros_trabajos'
+    __tablename__ = "centros_trabajos"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -21,11 +21,11 @@ class CentroTrabajo(db.Model, UniversalMixin):
     # Columnas
     clave = db.Column(db.String(16), unique=True, nullable=False)
     nombre = db.Column(db.String(256), nullable=False)
-    area = db.Column(db.String(256), nullable=False)
+    telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
 
     # Hijos
-    funcionarios = db.relationship('Funcionario', back_populates='centro_trabajo')
+    funcionarios = db.relationship("Funcionario", back_populates="centro_trabajo")
 
     def __repr__(self):
-        """ Representación """
-        return '<CentroTrabajo>'
+        """Representación"""
+        return f"<CentroTrabajo {self.clave}>"

@@ -1,0 +1,54 @@
+{# etiqueta #}
+{%- macro field_label(f) -%}
+    <label class="form-label" for="{{ f.id }}">
+        {{ f.label.text }}
+    </label>
+{%- endmacro -%}
+
+{# errores de validación si los hay #}
+{%- macro field_errors(f) -%}
+    {% if f.errors %}
+        <ul class="list-unstyled text-danger field-error">
+            {% for error in f.errors %}
+                <li>{{ error | e }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{%- endmacro -%}
+
+{# un campo del formulario #}
+{%- macro field(f, css_class='form-control') -%}
+    {{ f(class=css_class, **kwargs) }}
+{%- endmacro -%}
+
+{# un grupo de un formulario, con errores si los hay #}
+{%- macro form_group(f, css_class='') -%}
+    {% if f.errors %}
+        {% set css_class = css_class + ' has-error ' + kwargs.pop('class', '') %}
+    {% endif %}
+    {% if f.type == 'HiddenField' %}
+        {{ field(f, **kwargs) }}
+        {{ caller () }}
+    {% elif f.type == 'SubmitField' %}
+        <div class="col d-grid gap-2">
+            {{ field(f, class="btn btn-primary text-white", **kwargs) }}
+            {{ caller () }}
+        </div>
+    {% else %}
+        <div class="col {{css_class}}">
+            {{ field(f, **kwargs) }}
+            {{ field_errors(f) }}
+            {{ caller () }}
+        </div>
+    {% endif %}
+{%- endmacro -%}
+
+{# un formulario inline, que contiene un token CSRF y campos ocultos #}
+{%- macro form_tag(endpoint, fid='', css_class='', method='post') -%}
+    <form action="{{ url_for(endpoint, **kwargs) }}" method="{{ method }}" id="{{ fid }}" class="{{ css_class }}" role="form">
+        <div class="row">
+            {{ form.hidden_tag() }}
+            {{ caller () }}
+        </div>
+    </form>
+{%- endmacro -%}
