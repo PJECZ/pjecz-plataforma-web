@@ -23,7 +23,7 @@ class InvModelo(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
-    inv_equipos = db.relationship("InvEquipo", back_populates="inv_modelo")
+    inv_equipos = db.relationship("InvEquipo", back_populates="inv_modelo", lazy="noload")
 
     @property
     def marca_modelo(self):

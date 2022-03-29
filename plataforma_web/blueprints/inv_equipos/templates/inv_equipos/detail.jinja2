@@ -15,9 +15,6 @@
             {% if equipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos.delete', equipo_id=equipo.id)) }}{% endif %}
             {% if equipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_equipos.recover', equipo_id=equipo.id)) }}{% endif %}
         {% endif %}
-        {#{% if current_user.can_insert('INV EQUIPOS FOTOS') %}
-            {{ topbar.button('Subir Foto', url_for('inv_equipos_fotos.new', equipo_id=equipo.id), 'mdi:file-upload') }}
-        {% endif %}#}
     {% endcall %}
 {% endblock %}
 

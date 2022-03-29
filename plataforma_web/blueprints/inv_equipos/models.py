@@ -35,8 +35,8 @@ class InvEquipo(db.Model, UniversalMixin):
     numero_puerto = db.Column(db.Integer())
 
     # Hijos
-    inv_componentes = db.relationship("InvComponente", back_populates="inv_equipo")
-    inv_equipos_fotos = db.relationship("InvEquipoFoto", back_populates="inv_equipo")
+    inv_componentes = db.relationship("InvComponente", back_populates="inv_equipo", lazy="noload")
+    inv_equipos_fotos = db.relationship("InvEquipoFoto", back_populates="inv_equipo", lazy="noload")
 
     def __repr__(self):
         """Representación"""
