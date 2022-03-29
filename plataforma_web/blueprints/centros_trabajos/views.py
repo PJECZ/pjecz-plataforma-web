@@ -6,11 +6,11 @@ from flask import Blueprint, flash, render_template, redirect, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_clave, safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.centros_trabajos.forms import CentroTrabajoForm
+from plataforma_web.blueprints.centros_trabajos.forms import CentroTrabajoForm, CentroTrabajoSearchForm
 from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
@@ -38,6 +38,10 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "clave" in request.form:
+        consulta = consulta.filter(CentroTrabajo.clave.contains(safe_clave(request.form["clave"])))
+    if "nombre" in request.form:
+        consulta = consulta.filter(CentroTrabajo.nombre.contains(safe_string(request.form["nombre"])))
     registros = consulta.order_by(CentroTrabajo.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -69,6 +73,7 @@ def list_active():
         filtros=json.dumps({"estatus": "A"}),
         titulo="Centros de Trabajo",
         estatus="A",
+        form=CentroTrabajoSearchForm(),
     )
 
 
@@ -81,7 +86,35 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="Centros de Trabajo inactivos",
         estatus="B",
+        form=CentroTrabajoSearchForm(),
     )
+
+
+@centros_trabajos.route("/centros_trabajos/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Centros de Trabajo"""
+    form_search = CentroTrabajoSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.clave.data:
+            clave = safe_clave(form_search.clave.data)
+            if clave != "":
+                busqueda["clave"] = clave
+                titulos.append("clave " + clave)
+        if form_search.nombre.data:
+            nombre = safe_string(form_search.nombre.data)
+            if nombre != "":
+                busqueda["nombre"] = nombre
+                titulos.append("nombre " + nombre)
+        return render_template(
+            "centros_trabajos/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Centros de Trabajo con " + ", ".join(titulos),
+            estatus="A",
+            form=form_search,
+        )
+    return render_template("centros_trabajos/search.jinja2", form=form_search)
 
 
 @centros_trabajos.route("/centros_trabajos/<int:centro_trabajo_id>")
