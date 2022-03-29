@@ -17,7 +17,7 @@ def domicilios_opciones():
 
 
 class FuncionarioAdminForm(FlaskForm):
-    """Formulario Funcionario para administrador"""
+    """Formulario para agregar y modificar funcionarios con privilegios de administrador"""
 
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
@@ -35,7 +35,7 @@ class FuncionarioAdminForm(FlaskForm):
 
 
 class FuncionarioForm(FlaskForm):
-    """Formulario Funcionario"""
+    """Formulario para editar un funcionario"""
 
     nombre = StringField("Nombre")  # Read only
     puesto = StringField("Puesto")  # Read only
@@ -46,7 +46,7 @@ class FuncionarioForm(FlaskForm):
 
 
 class FuncionarioListSearchForm(FlaskForm):
-    """Formulario de búsqueda de Funcionarios"""
+    """Formulario para buscar rapidamente en el listado"""
 
     nombres = StringField("Nombres", validators=[Optional(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[Optional(), Length(max=256)])
@@ -55,11 +55,12 @@ class FuncionarioListSearchForm(FlaskForm):
 
 
 class FuncionarioSearchForm(FlaskForm):
-    """Formulario de búsqueda de Funcionarios"""
+    """Formulario de búsqueda de funcionarios"""
 
     nombres = StringField("Nombres", validators=[Optional(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[Optional(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
+    curp = StringField("CURP", validators=[Optional(), Length(max=18)])
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[Optional(), Length(max=256)])
     buscar = SubmitField("Buscar")

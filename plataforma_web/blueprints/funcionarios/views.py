@@ -184,6 +184,11 @@ def search():
             if apellido_materno != "":
                 busqueda["apellido_materno"] = apellido_materno
                 titulos.append("apellido materno " + apellido_materno)
+        if form_search.curp.data:
+            curp = safe_string(form_search.curp.data)
+            if curp != "":
+                busqueda["curp"] = curp
+                titulos.append("CURP " + curp)
         if form_search.puesto.data:
             puesto = safe_string(form_search.puesto.data)
             if puesto != "":
