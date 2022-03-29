@@ -8,6 +8,9 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(centro_trabajo.nombre) %}
         {{ topbar.button_previous('Centros de Trabajo', url_for('centros_trabajos.list_active')) }}
+        {% if current_user.can_view('FUNCIONARIOS') %}
+            {{ topbar.button('Funcionarios', url_for('funcionarios.list_active'), 'mdi:account') }}
+        {% endif %}
         {% if current_user.can_edit('CENTROS TRABAJOS') %}
             {{ topbar.button_edit('Editar', url_for('centros_trabajos.edit', centro_trabajo_id=centro_trabajo.id)) }}
         {% endif %}

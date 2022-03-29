@@ -8,6 +8,9 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(funcionario.nombre) %}
         {{ topbar.button_previous('Directorio', url_for('funcionarios.list_active')) }}
+        {% if current_user.can_view('CENTROS TRABAJOS') %}
+            {{ topbar.button('Centros de Trabajo', url_for('centros_trabajos.list_active'), 'mdi:home-group') }}
+        {% endif %}
         {% if current_user.can_admin('FUNCIONARIOS') %}
             {{ topbar.button_edit('Editar', url_for('funcionarios.edit_admin', funcionario_id=funcionario.id)) }}
             {% if funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('funcionarios.delete', funcionario_id=funcionario.id)) }}{% endif %}
