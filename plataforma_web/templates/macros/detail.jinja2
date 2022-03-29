@@ -43,18 +43,14 @@
 {%- endmacro -%}
 
 {# Detail big value #}
-{%- macro label_value_big(label, value, link='') -%}
+{%- macro label_value_big(label, value, link='', font_size=2) -%}
     {% if value != None and value != '' %}
         <div class="row">
             <div class="col-md-3 text-end">
-                <!-- No se muestra el label -->
+                <span style="font-size:{{font_size}}em">{{ label }}</span>
             </div>
             <div class="col-md-9">
-                {% if link %}
-                <h3><a href="{{ link }}">{{ value }}</a></h3>
-                {% else %}
-                <h3>{{ value }}</h3>
-                {% endif %}
+                <span style="font-size:{{font_size}}em">{% if link %} <a href="{{ link }}">{{ value }}</a> {% else %} {{ value }} {% endif %}</span>
             </div>
         </div>
     {% endif %}

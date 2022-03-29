@@ -6,38 +6,44 @@
 {% block title %}Funcionario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Funcionario ' + funcionario.nombre) %}
-        {{ topbar.button_previous('Funcionarios', url_for('funcionarios.list_active')) }}
-        {% if current_user.can_edit('FUNCIONARIOS') %}
-            {{ topbar.button_edit('Editar', url_for('funcionarios.edit', funcionario_id=funcionario.id)) }}
+    {% call topbar.page_buttons(funcionario.nombre) %}
+        {{ topbar.button_previous('Directorio', url_for('funcionarios.list_active')) }}
+        {% if current_user.can_admin('FUNCIONARIOS') %}
+            {{ topbar.button_edit('Editar', url_for('funcionarios.edit_admin', funcionario_id=funcionario.id)) }}
             {% if funcionario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('funcionarios.delete', funcionario_id=funcionario.id)) }}{% endif %}
             {% if funcionario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('funcionarios.recover', funcionario_id=funcionario.id)) }}{% endif %}
+        {% elif current_user.can_edit('FUNCIONARIOS') %}
+            {{ topbar.button_edit('Editar', url_for('funcionarios.edit', funcionario_id=funcionario.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call detail.card(estatus=funcionario.estatus) %}
-        {{ detail.label_value('Nombres', funcionario.nombres) }}
-        {{ detail.label_value('Apellido paterno', funcionario.apellido_paterno) }}
-        {{ detail.label_value('Apellido materno', funcionario.apellido_materno) }}
-        {{ detail.label_value('CURP', funcionario.curp) }}
-        {{ detail.label_value('e-mail', funcionario.email) }}
-        {{ detail.label_value('Puesto', funcionario.puesto) }}
-        {{ detail.label_value('Clave del puesto', funcionario.puesto_clave) }}
-        {{ detail.label_value('Área', funcionario.centro_trabajo.area) }}
+        {{ detail.label_value_big('Puesto', funcionario.puesto, font_size=1.5) }}
         {{ detail.label_value('Centro de Trabajo', funcionario.centro_trabajo.nombre) }}
-        {{ detail.label_value('Centro de Trabajo clave', funcionario.centro_trabajo.clave, url_for('centros_trabajos.detail', centro_trabajo_id=funcionario.centro_trabajo_id)) }}
-        {{ detail.label_value('Teléfono', funcionario.telefono) }}
-        {{ detail.label_value('Extensión', funcionario.extension) }}
-        {{ detail.label_value('Domicilio oficial', funcionario.domicilio_oficial) }}
-        {{ detail.label_value('Fecha de ingreso', funcionario.ingreso_fecha) }}
-        {{ detail.label_value('Fotografía URL', funcionario.fotografia_url) }}
-        {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
-        {{ detail.label_value_boolean('En sentencias', funcionario.en_sentencias) }}
-        {{ detail.label_value_boolean('En soportes', funcionario.en_soportes) }}
-        {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
+        {{ detail.label_value('e-mail', funcionario.email) }}
+        {{ detail.label_value_big('Teléfono', funcionario.telefono, font_size=1.5) }}
+        {{ detail.label_value_big('Extensión', funcionario.extension, font_size=1.5) }}
     {% endcall %}
+    {% if current_user.can_admin('FUNCIONARIOS') %}
+        {% call detail.card(estatus=funcionario.estatus) %}
+            {{ detail.label_value('CURP', funcionario.curp) }}
+            {% if current_user.can_view('CENTROS TRABAJOS') %}
+                {{ detail.label_value('Clave del Centro de Trabajo', funcionario.centro_trabajo.clave, url_for('centros_trabajos.detail', centro_trabajo_id=funcionario.centro_trabajo_id)) }}
+            {% else %}
+                {{ detail.label_value('Clave del Centro de Trabajo', funcionario.centro_trabajo.clave) }}
+            {% endif %}
+            {{ detail.label_value('Clave del puesto', funcionario.puesto_clave) }}
+            {{ detail.label_value('Domicilio oficial', funcionario.domicilio_oficial) }}
+            {{ detail.label_value('Fecha de ingreso', funcionario.ingreso_fecha) }}
+            {{ detail.label_value('Fotografía URL', funcionario.fotografia_url) }}
+            {{ detail.label_value_boolean('En funciones', funcionario.en_funciones) }}
+            {{ detail.label_value_boolean('En sentencias', funcionario.en_sentencias) }}
+            {{ detail.label_value_boolean('En soportes', funcionario.en_soportes) }}
+            {{ detail.label_value_boolean('En tesis y jurisprudencias', funcionario.en_tesis_jurisprudencias) }}
+        {% endcall %}
+    {% endif %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') and funcionario.en_sentencias %}
         {% call detail.card('Autoridades') %}
             <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
