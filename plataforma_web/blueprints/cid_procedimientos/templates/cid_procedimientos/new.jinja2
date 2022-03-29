@@ -374,13 +374,13 @@
     </script>
     <script>
         $(document).ready(function(){
-            $('#elaboro_email').addClass('js-example-placeholder-single js-states form-control');
-            $('#reviso_email').addClass('js-example-placeholder-single js-states form-control');
-            $('#aprobo_email').addClass('js-example-placeholder-single js-states form-control');
+            $('#elaboro_email').addClass('js-data-example-ajax js-states form-control');
+            $('#reviso_email').addClass('js-data-example-ajax js-states form-control');
+            $('#aprobo_email').addClass('js-data-example-ajax js-states form-control');
             $("#elaboro_email").prop("selectedIndex", -1); // Poner en blanco el select
             $("#reviso_email").prop("selectedIndex", -1); // Poner en blanco el select
             $("#aprobo_email").prop("selectedIndex", -1); // Poner en blanco el select
-            $(".js-example-placeholder-single").select2({
+            $(".js-data-example-ajax").select2({
                 // --- Carga de emails por Ajax --- //
                 ajax: {
                     url: '/cid_procedimientos/usuarios_email',
