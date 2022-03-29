@@ -159,5 +159,63 @@
             "{% endif %}"
         ],
         "description": "JavaScript de DataTable"
+    },
+    "Jinja2 tabs import": {
+        "scope": "jinja-html",
+        "prefix": "j2_tabs_import",
+        "body": "{% import 'macros/tabs.jinja2' as tabs %}",
+        "description": "Tabs importar macro"
+    },
+    "Jinja2 tabs basic": {
+        "scope": "jinja-html",
+        "prefix": "j2_tabs_basic",
+        "body": [
+            "{% call tabs.header() %}",
+            "\t{{ tabs.button('xxx-tab', 'tab_xxx', 'Xxx', 'active') }}",
+            "\t{{ tabs.button('yyy-tab', 'tab_yyy', 'Yyy') }}",
+            "\t{{ tabs.button('zzz-tab', 'tab_zzz', 'Zzz') }}",
+            "{% endcall %}",
+            "{% call tabs.content() %}",
+            "\t{% call tabs.div_content('tab_xxx', 'xxx-tab', 'active') %}",
+            "\t{% endcall %}",
+            "\t{% call tabs.div_content('tab_yyy', 'yyy-tab') %}",
+            "\t{% endcall %}",
+            "\t{% call tabs.div_content('tab_zzz', 'zzz-tab') %}",
+            "\t{% endcall %}",
+            "{% endcall %}",
+        ],
+        "description": "Tabs basicos"
+    },
+    "Jinja2 tabs if": {
+        "scope": "jinja-html",
+        "prefix": "j2_tabs_if",
+        "body": [
+            "{% call tabs.header() %}",
+            "\t{% if current_user.can_view('XXX') %}",
+            "\t\t{{ tabs.button('xxx-tab', 'tab_xxx', 'Xxx', 'active') }}",
+            "\t{% endif %}",
+            "\t{% if current_user.can_view('YYY') %}",
+            "\t\t{{ tabs.button('yyy-tab', 'tab_yyy', 'Yyy') }}",
+            "\t{% endif %}",
+            "\t{% if current_user.can_view('ZZZ') %}",
+            "\t\t{{ tabs.button('zzz-tab', 'tab_zzz', 'Zzz') }}",
+            "\t{% endif %}",
+            "{% endcall %}",
+            "{% call tabs.content() %}",
+            "\t{% if current_user.can_view('XXX') %}",
+            "\t\t{% call tabs.div_content('tab_xxx', 'xxx-tab', 'active') %}",
+            "\t\t{% endcall %}",
+            "\t{% endif %}",
+            "\t{% if current_user.can_view('YYY') %}",
+            "\t\t{% call tabs.div_content('tab_yyy', 'yyy-tab') %}",
+            "\t\t{% endcall %}",
+            "\t{% endif %}",
+            "\t{% if current_user.can_view('ZZZ') %}",
+            "\t\t{% call tabs.div_content('tab_zzz', 'zzz-tab') %}",
+            "\t\t{% endcall %}",
+            "\t{% endif %}",
+            "{% endcall %}",
+        ],
+        "description": "Tabs condicionados"
     }
 }
