@@ -11,7 +11,7 @@ from lib.safe_string import safe_email, safe_message, safe_string
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.funcionarios.models import Funcionario
-from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioAdminForm, FuncionarioSearchForm, FuncionarioDomicilioForm
+from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioAdminForm, FuncionarioSearchForm, FuncionarioListSearchForm, FuncionarioDomicilioForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -51,7 +51,7 @@ def datatable_json():
     if "puesto" in request.form:
         consulta = consulta.filter(Funcionario.puesto.contains(safe_string(request.form["puesto"])))
     if "email" in request.form:
-        consulta = consulta.filter(Funcionario.email.contains(safe_string(request.form["email"], to_uppercase=False)))
+        consulta = consulta.filter(Funcionario.email.contains(safe_email(request.form["email"], search_fragment=True)))
     if "en_funciones" in request.form and request.form["en_funciones"] == "true":
         consulta = consulta.filter(Funcionario.en_funciones == True)
     if "en_sentencias" in request.form and request.form["en_sentencias"] == "true":
@@ -93,7 +93,7 @@ def list_active():
         filtros=json.dumps({"estatus": "A", "en_funciones": True}),
         titulo="Directorio",
         estatus="A",
-        form=FuncionarioSearchForm(),
+        form=FuncionarioListSearchForm(),
     )
 
 
@@ -210,7 +210,7 @@ def detail(funcionario_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Funcionario"""
-    form = FuncionarioForm()
+    form = FuncionarioAdminForm()
     if form.validate_on_submit():
         es_valido = True
         # Validar que el CURP no se repita
@@ -231,6 +231,8 @@ def new():
                 curp=curp,
                 email=email,
                 puesto=safe_string(form.puesto.data),
+                telefono = safe_string(form.telefono.data),
+                extension = safe_string(form.extension.data),
                 en_funciones=form.en_funciones.data,
                 en_sentencias=form.en_sentencias.data,
                 en_soportes=form.en_soportes.data,

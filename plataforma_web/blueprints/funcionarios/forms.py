@@ -45,6 +45,15 @@ class FuncionarioForm(FlaskForm):
     guardar = SubmitField("Guardar")
 
 
+class FuncionarioListSearchForm(FlaskForm):
+    """Formulario de búsqueda de Funcionarios"""
+
+    nombres = StringField("Nombres", validators=[Optional(), Length(max=256)])
+    apellido_paterno = StringField("Apellido paterno", validators=[Optional(), Length(max=256)])
+    email = StringField("e-mail", validators=[Optional(), Length(max=256)])
+    buscar = SubmitField("Buscar")
+
+
 class FuncionarioSearchForm(FlaskForm):
     """Formulario de búsqueda de Funcionarios"""
 

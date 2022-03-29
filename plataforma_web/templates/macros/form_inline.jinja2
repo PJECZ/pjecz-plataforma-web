@@ -1,19 +1,9 @@
-{# botón submit #}
-{%- macro submit_button(f) -%}
-    {{ f(class="btn btn-success text-white", **kwargs) }}
-{%- endmacro -%}
-
 {# etiqueta #}
 {%- macro field_label(f) -%}
-    <label class="sr-only" for="{{ f.id }}">
+    <label class="form-label" for="{{ f.id }}">
         {{ f.label.text }}
     </label>
 {%- endmacro -%}
-
-{#
-  <label class="sr-only" for="inlineFormInputName2">Name</label>
-  <input type="text" class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Jane Doe">
-#}
 
 {# errores de validación si los hay #}
 {%- macro field_errors(f) -%}
@@ -27,7 +17,7 @@
 {%- endmacro -%}
 
 {# un campo del formulario #}
-{%- macro field(f, css_class='form-control mb-2 mr-sm-2') -%}
+{%- macro field(f, css_class='form-control') -%}
     {{ f(class=css_class, **kwargs) }}
 {%- endmacro -%}
 
@@ -40,26 +30,25 @@
         {{ field(f, **kwargs) }}
         {{ caller () }}
     {% elif f.type == 'SubmitField' %}
-        {{ field(f, **kwargs) }}
-        {{ field_errors(f) }}
-        {{ caller () }}
+        <div class="col d-grid gap-2">
+            {{ field(f, class="btn btn-primary text-white", **kwargs) }}
+            {{ caller () }}
+        </div>
     {% else %}
-        {{ field_label(f) }}
-        {{ field(f, **kwargs) }}
-        {{ field_errors(f) }}
-        {{ caller () }}
+        <div class="col {{css_class}}">
+            {{ field(f, **kwargs) }}
+            {{ field_errors(f) }}
+            {{ caller () }}
+        </div>
     {% endif %}
 {%- endmacro -%}
 
 {# un formulario inline, que contiene un token CSRF y campos ocultos #}
-{%- macro form_tag(endpoint, fid='', css_class='form-inline', method='post') -%}
+{%- macro form_tag(endpoint, fid='', css_class='', method='post') -%}
     <form action="{{ url_for(endpoint, **kwargs) }}" method="{{ method }}" id="{{ fid }}" class="{{ css_class }}" role="form">
-        {{ form.hidden_tag() }}
-        {{ caller () }}
+        <div class="row">
+            {{ form.hidden_tag() }}
+            {{ caller () }}
+        </div>
     </form>
 {%- endmacro -%}
-
-{#
-  <label class="sr-only" for="inlineFormInputName2">Name</label>
-  <input type="text" class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Jane Doe">
-#}

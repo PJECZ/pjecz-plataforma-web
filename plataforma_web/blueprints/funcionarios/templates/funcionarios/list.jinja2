@@ -26,42 +26,29 @@
 {% endblock %}
 
 {% block content %}
-    {% call list.card('Conoce el nuevo directorio telefónico') %}
-        <ul>
-            <li>Nuestra Institución está modernizando su sistema de telefonía. Hay nuevos números y extensiones telefónicas.</li>
-            <li>Usa el botón Buscar que está arriba a la derecha y escribe parte del nombre para encontrar los datos de una persona.</li>
-            <li><strong>No imprimas este directorio;</strong> cambia frecuentemente y se gasta papel. Usa Plataforma Web como directorio telefónico.</li>
-            <li>Si encuentras información errónea, crea un Ticket solicitando la corrección.</li>
-        </ul>
-    {% endcall %}
-<div>
-<form class="form-inline">
-  <label class="sr-only" for="inlineFormInputName2">Name</label>
-  <input type="text" class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Jane Doe">
-  <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
-  <div class="input-group mb-2 mr-sm-2">
-    <div class="input-group-prepend">
-      <div class="input-group-text">@</div>
-    </div>
-    <input type="text" class="form-control" id="inlineFormInputGroupUsername2" placeholder="Username">
-  </div>
-  <div class="form-check mb-2 mr-sm-2">
-    <input class="form-check-input" type="checkbox" id="inlineFormCheck">
-    <label class="form-check-label" for="inlineFormCheck">
-      Remember me
-    </label>
-  </div>
-  <button type="submit" class="btn btn-primary mb-2">Submit</button>
-</form>
-</div>
     {% call list.card() %}
         {% call f.form_tag('funcionarios.search', fid='funcionario_search_form') %}
-            {% call f.form_group(form.nombres, placeholder='Nombre') %}{% endcall %}
-            {% call f.form_group(form.apellido_paterno, placeholder='Primer apellido') %}{% endcall %}
-            {% call f.form_group(form.puesto, placeholder='Puesto') %}{% endcall %}
-            {% call f.form_group(form.email, placeholder='e-mail') %}{% endcall %}
-            {{ form.buscar() }}
+            <div class="col d-grid gap-2">
+                <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUsaElDirectorio" aria-expanded="false" aria-controls="collapseUsaElDirectorio">
+                    Uso
+                </button>
+            </div>
+            {% call f.form_group(form.nombres, css_class='col-sm-3', placeholder='Nombre') %}{% endcall %}
+            {% call f.form_group(form.apellido_paterno, css_class='col-sm-3', placeholder='Primer apellido') %}{% endcall %}
+            {% call f.form_group(form.email, css_class='col-sm-3', placeholder='e-mail') %}{% endcall %}
+            {% call f.form_group(form.buscar) %}{% endcall %}
         {% endcall %}
+        <div class="collapse" id="collapseUsaElDirectorio">
+            <h4 class="mt-3">Usa el nuevo directorio</h4>
+            <ul>
+                <li>Nuestra Institución está modernizando su sistema de telefonía. Hay nuevos números y extensiones telefónicas.</li>
+                <li>Escribe parte del nombre, del primer apellido o del correo electrónico y <strong>ENTER</strong> para encontrar a un funcionario.</li>
+                <li><strong>No imprimas este directorio;</strong> cambia frecuentemente y se gasta papel, toner y energía.</li>
+                <li>Si encuentras información errónea, crea un Ticket solicitando la corrección.</li>
+            </ul>
+        </div>
+    {% endcall %}
+    {% call list.card() %}
         <table id="funcionarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -78,6 +65,9 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <script>
+        $(document).ready(function() { $("#nombres").focus(); });
+    </script>
     {{ list.config_datatable() }}
     <script>
         configDataTable['ajax']['url'] = '/funcionarios/datatable_json';
