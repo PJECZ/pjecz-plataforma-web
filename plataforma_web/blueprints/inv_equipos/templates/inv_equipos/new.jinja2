@@ -47,7 +47,7 @@
             $('#modelo').addClass('js-example-placeholder-single js-states form-control');
             
             $('#modelo').each(function(){
-                 if('{{form.modelo}}' == 'None'){
+                if('{{form.modelo}}' == 'None'){
                     $("#modelo").prop("selectedIndex", -1); // Poner en blanco el select
                 }
                 if($(this).text() == '{{form.modelo}}'){
