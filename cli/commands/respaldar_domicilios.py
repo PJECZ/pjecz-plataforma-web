@@ -29,6 +29,7 @@ def respaldar_domicilios(salida: str = "domicilios.csv"):
                 "num_int",
                 "colonia",
                 "cp",
+                "numeracion_telefonica",
                 "estatus",
             ]
         )
@@ -43,6 +44,7 @@ def respaldar_domicilios(salida: str = "domicilios.csv"):
                     domicilio.num_int,
                     domicilio.colonia,
                     domicilio.cp,
+                    domicilio.numeracion_telefonica,
                     domicilio.estatus,
                 ]
             )
