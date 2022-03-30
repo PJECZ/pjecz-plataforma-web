@@ -2,7 +2,7 @@
 CID Procedimientos, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import DateField, IntegerField, StringField, SubmitField
+from wtforms import DateField, IntegerField, StringField, SubmitField, SelectField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length, Optional
 
@@ -12,8 +12,8 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 
 def usuarios_email_opciones():
     """Seleccionar correo electronico de usuarios: opciones para select"""
-    # TODO Optimizar la consulta de usuarios porque son muchos
-    return ""#Usuario.query.filter_by(estatus="A").order_by(Usuario.email).all()
+    # TODO: Optimizar la consulta de usuarios porque son muchos
+    return ""  # Usuario.query.filter_by(estatus="A").order_by(Usuario.email).all()
 
 
 class CIDProcedimientoForm(FlaskForm):
@@ -43,13 +43,13 @@ class CIDProcedimientoForm(FlaskForm):
     # Step Autorizaciones
     elaboro_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     elaboro_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    elaboro_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email", validators=[Optional()])
+    elaboro_email = SelectField(label="Correo", coerce=str, validators=[Optional()], validate_choice=False)
     reviso_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     reviso_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    reviso_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email", validators=[Optional()])
+    reviso_email = SelectField(label="Correo", coerce=str, validators=[Optional()], validate_choice=False)
     aprobo_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     aprobo_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    aprobo_email = QuerySelectField(label="Correo", query_factory=usuarios_email_opciones, get_label="email", validators=[Optional()])
+    aprobo_email = SelectField(label="Correo", coerce=str, validators=[Optional()], validate_choice=False)
     autorizaciones = JSONField("Autorizaciones", validators=[Optional()])
     # Guardar
     guardar = SubmitField("Guardar")

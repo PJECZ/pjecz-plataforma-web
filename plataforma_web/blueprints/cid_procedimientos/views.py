@@ -1,7 +1,6 @@
 """
 CID Procedimientos, vistas
 """
-import email
 import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
@@ -118,22 +117,22 @@ def new():
             elaboro_nombre = ""
             elaboro_email = ""
         else:
-            elaboro_nombre = elaboro.nombre
-            elaboro_email = elaboro.email
+            elaboro_nombre = form.elaboro_nombre.data
+            elaboro_email = elaboro
         reviso = form.reviso_email.data
         if reviso is None:
             reviso_nombre = ""
             reviso_email = ""
         else:
-            reviso_nombre = reviso.nombre
-            reviso_email = reviso.email
+            reviso_nombre = form.reviso_nombre.data
+            reviso_email = reviso
         aprobo = form.aprobo_email.data
         if aprobo is None:
             aprobo_nombre = ""
             aprobo_email = ""
         else:
-            aprobo_nombre = aprobo.nombre
-            aprobo_email = aprobo.email
+            aprobo_nombre = form.aprobo_nombre.data
+            aprobo_email = aprobo
         registros_data = form.registros.data
         if registros_data is None:
             registros = {}
@@ -200,27 +199,28 @@ def edit(cid_procedimiento_id):
         redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
+
         elaboro = form.elaboro_email.data
-        if elaboro is None:
+        if elaboro is None or elaboro is "":
             elaboro_nombre = ""
             elaboro_email = ""
         else:
-            elaboro_nombre = elaboro.nombre
-            elaboro_email = elaboro.email
+            elaboro_nombre = form.elaboro_nombre.data
+            elaboro_email = elaboro
         reviso = form.reviso_email.data
         if reviso is None:
             reviso_nombre = ""
             reviso_email = ""
         else:
-            reviso_nombre = reviso.nombre
-            reviso_email = reviso.email
+            reviso_nombre = form.reviso_nombre.data
+            reviso_email = reviso
         aprobo = form.aprobo_email.data
         if aprobo is None:
             aprobo_nombre = ""
             aprobo_email = ""
         else:
-            aprobo_nombre = aprobo.nombre
-            aprobo_email = aprobo.email
+            aprobo_nombre = form.aprobo_nombre.data
+            aprobo_email = aprobo
         registros_d = form.registros.data
         if registros_d is None:
             registros = {}
@@ -606,15 +606,9 @@ def users_email():
     for usuario in consulta:
         results.append(
             {
-                "id": usuario.id,
+                "id": usuario.email,
                 "text": usuario.email,
                 "nombre": usuario.nombre,
             }
         )
-
-    return {
-        "results": results,
-        "pagination": {
-            "more": False
-        }
-    }
+    return {"results": results, "pagination": {"more": False}}
