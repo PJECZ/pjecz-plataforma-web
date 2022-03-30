@@ -29,9 +29,16 @@ def respaldar_funcionarios(salida: str = "funcionarios.csv"):
                 "curp",
                 "email",
                 "puesto",
+                "telefono",
+                "extension",
+                "domicilio_oficial",
+                "ingreso_fecha",
+                "puesto_clave",
+                "fotografia_url",
                 "en_funciones",
                 "en_sentencias",
                 "en_soportes",
+                "en_tesis_jurisprudencias",
                 "estatus",
             ]
         )
@@ -50,9 +57,16 @@ def respaldar_funcionarios(salida: str = "funcionarios.csv"):
                     funcionario.curp,
                     funcionario.email,
                     funcionario.puesto,
+                    funcionario.telefono,
+                    funcionario.extension,
+                    funcionario.domicilio_oficial,
+                    funcionario.ingreso_fecha,
+                    funcionario.puesto_clave,
+                    funcionario.fotografia_url,
                     int(funcionario.en_funciones),
                     int(funcionario.en_sentencias),
                     int(funcionario.en_soportes),
+                    int(funcionario.en_tesis_jurisprudencias),
                     funcionario.estatus,
                 ]
             )
