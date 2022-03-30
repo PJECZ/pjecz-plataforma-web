@@ -33,6 +33,7 @@ def respaldar_usuarios_roles(salida: str = "usuarios_roles.csv"):
                 "telefono_celular",
                 "workspace",
                 "roles",
+                "fotografia_url",
                 "estatus",
             ]
         )
@@ -55,6 +56,7 @@ def respaldar_usuarios_roles(salida: str = "usuarios_roles.csv"):
                     usuario.telefono_celular,
                     usuario.workspace,
                     ",".join(roles_list),
+                    usuario.fotografia_url,
                     usuario.estatus,
                 ]
             )

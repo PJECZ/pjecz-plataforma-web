@@ -28,7 +28,7 @@
 			"\tdescripcion = db.Column(db.String(256), nullable=False)",
 			"",
 			"\t# Hijos",
-			"\t${8:plural_hijos} = db.relationship('${9:Clase_hijo}', back_populates='${10:singular_esta_clase}')",
+			"\t${8:plural_hijos} = db.relationship('${9:Clase_hijo}', back_populates='${10:singular_esta_clase}', lazy='noload')",
 			"",
 			"\tdef __repr__(self):",
 			"\t\t\"\"\" Representación \"\"\"",
