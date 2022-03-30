@@ -49,6 +49,7 @@ def alimentar_funcionarios():
                 en_funciones=(int(row["en_funciones"]) == 1),
                 en_sentencias=(int(row["en_sentencias"]) == 1),
                 en_soportes=(int(row["en_soportes"]) == 1),
+                en_tesis_jurisprudencias=(int(row["en_tesis_jurisprudencias"]) == 1),
                 telefono=telefono,
                 extension=extension,
                 domicilio_oficial=domicilio_oficial,

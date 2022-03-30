@@ -31,7 +31,7 @@ def alimentar_centros_trabajos():
             CentroTrabajo(
                 clave=row["clave"],
                 nombre=row["nombre"],
-                area=row["area"],
+                telefono=row["telefono"],
                 distrito_id=int(row["distrito_id"]),
                 estatus=row["estatus"],
             ).save()
