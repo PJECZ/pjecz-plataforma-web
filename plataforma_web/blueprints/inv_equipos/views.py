@@ -5,18 +5,18 @@ Inventarios Equipos, vistas
 import json
 from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string
+from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.inv_redes.models import InvRed
 
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
-from plataforma_web.blueprints.inv_componentes.models import InvComponente
-from plataforma_web.blueprints.inv_equipos_fotos.models import InvEquipoFoto
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.inv_modelos.models import InvModelo
 
@@ -120,12 +120,12 @@ def list_inactive():
 
 
 @inv_equipos.route("/inv_equipos/<int:equipo_id>")
+@login_required
+@permission_required(MODULO, Permiso.VER)
 def detail(equipo_id):
     """Detalle de un Equipos"""
     equipo = InvEquipo.query.get_or_404(equipo_id)
-    componentes = InvComponente.query.filter(InvComponente.inv_equipo_id == equipo_id).all()
-    fotos = InvEquipoFoto.query.filter(InvEquipoFoto.inv_equipo_id == equipo_id).all()
-    return render_template("inv_equipos/detail.jinja2", equipo=equipo, componentes=componentes, fotos=fotos)
+    return render_template("inv_equipos/detail.jinja2", equipo=equipo)
 
 
 @inv_equipos.route("/inv_equipos/nuevo/<int:inv_custodia_id>", methods=["GET", "POST"])
@@ -162,7 +162,14 @@ def new(inv_custodia_id):
                 numero_puerto=form.numero_puerto.data,
             )
             equipo.save()
-            flash(f"Equipos {equipo.descripcion} guardado.", "success")
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo equipo {equipo.descripcion}"),
+                url=url_for("inv_equipos.detail", equipo_id=equipo.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
     form.custodia.data = custodia.nombre_completo
     form.email.data = custodia.usuario.email
@@ -198,7 +205,15 @@ def edit(equipo_id):
             equipo.numero_switch = form.numero_switch.data
             equipo.numero_puerto = form.numero_puerto.data
             equipo.save()
-            flash(f"Equipos {equipo.descripcion} guardado.", "success")
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nuevo equipo {equipo.descripcion}"),
+                url=url_for("inv_equipos.detail", equipo_id=equipo.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            # flash(f"Equipos {equipo.descripcion} guardado.", "success")
             return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
     form.modelo.data = equipo.inv_modelo
     form.red.data = equipo.inv_red
@@ -232,7 +247,14 @@ def delete(equipo_id):
     equipo = InvEquipo.query.get_or_404(equipo_id)
     if equipo.estatus == "A":
         equipo.delete()
-        flash(f"Equipos {equipo.numero_inventario} eliminado.", "success")
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado equipo {equipo.descripcion}"),
+            url=url_for("inv_equipos.detail", equipo_id=equipo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
 
 
@@ -243,5 +265,12 @@ def recover(equipo_id):
     equipo = InvEquipo.query.get_or_404(equipo_id)
     if equipo.estatus == "B":
         equipo.recover()
-        flash(f"Equipos {equipo.numero_inventario} recuperado.", "success")
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperar equipo {equipo.descripcion}"),
+            url=url_for("inv_equipos.detail", equipo_id=equipo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
     return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
