@@ -28,6 +28,7 @@ python-dateutil
 python-dotenv
 pytz
 quill-delta[html]
+ratelimit
 rq
 sendgrid
 SQLAlchemy
