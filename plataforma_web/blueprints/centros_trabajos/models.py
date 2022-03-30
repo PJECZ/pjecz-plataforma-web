@@ -24,7 +24,7 @@ class CentroTrabajo(db.Model, UniversalMixin):
     telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
 
     # Hijos
-    funcionarios = db.relationship("Funcionario", back_populates="centro_trabajo")
+    funcionarios = db.relationship("Funcionario", back_populates="centro_trabajo", lazy="noload")
 
     def __repr__(self):
         """Representación"""
