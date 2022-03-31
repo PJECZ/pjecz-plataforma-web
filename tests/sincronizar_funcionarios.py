@@ -164,37 +164,9 @@ def main():
                     # Datos del puesto
                     puesto_funcion = get_puesto_funcion(base_url, token, historial_puesto["puesto_funcion_id"])
                     puesto_clave = safe_clave(puesto_funcion["puesto_clave"])
-                # Datos de personas domicilios
-                domicilio_oficial = ""
-                domicilio = get_personas_domicilios(base_url, token, persona_id)
-                if domicilio:
-                    calle = safe_string(domicilio["calle"])
-                    numero_exterior = safe_string(domicilio["numero_exterior"])
-                    numero_interior = safe_string(domicilio["numero_interior"])
-                    colonia = safe_string(domicilio["colonia"])
-                    municipio = safe_string(domicilio["municipio"])
-                    entidad = safe_string(domicilio["entidad"])
-                    # pais = safe_string(domicilio["pais"])
-                    codigo_postal = int(domicilio["codigo_postal"])
-                    elementos = []
-                    if calle and numero_exterior and numero_interior:
-                        elementos.append(f"{calle} #{numero_exterior}-{numero_interior}")
-                    elif calle and numero_exterior:
-                        elementos.append(f"{calle} #{numero_exterior}")
-                    elif calle:
-                        elementos.append(calle)
-                    if colonia:
-                        elementos.append(colonia)
-                    if municipio:
-                        elementos.append(municipio)
-                    if entidad and codigo_postal > 0:
-                        elementos.append(f"{entidad}, C.P. {codigo_postal}")
-                    elif entidad:
-                        elementos.append(entidad)
-                    domicilio_oficial = ", ".join(elementos)
                 # Acumular datos
-                datos.append([nombre[:24], curp, email[:16], ingreso_fecha, centro_trabajo_clave, puesto_clave, puesto[:24], domicilio_oficial[:64]])
-            print(tabulate(datos, headers=["Nombre", "CURP", "Email", "Ingreso", "Centro de trabajo", "Clave del puesto", "Puesto", "Dom. oficial"]))
+                datos.append([nombre[:24], curp, email[:16], ingreso_fecha, centro_trabajo_clave, puesto_clave, puesto[:24]])
+            print(tabulate(datos, headers=["Nombre", "CURP", "Email", "Ingreso", "Centro de trabajo", "Clave del puesto", "Puesto"]))
             offset += limit
             if offset >= total:
                 break
