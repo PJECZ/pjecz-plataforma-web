@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from ratelimit import limits, sleep_and_retry
 from tabulate import tabulate
 
+from lib.safe_string import safe_clave, safe_string
+
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
@@ -92,8 +94,8 @@ def main():
             datos = []
             for centro_trabajo in centros_trabajos:
                 accion = ""
-                clave = centro_trabajo["clave"]
-                nombre = centro_trabajo["nombre"]
+                clave = safe_clave(centro_trabajo["clave"])
+                nombre = safe_string(centro_trabajo["nombre"])
                 consulta = CentroTrabajo.query.filter(CentroTrabajo.clave == clave).first()
                 if consulta is None:
                     accion = "Insertado"
