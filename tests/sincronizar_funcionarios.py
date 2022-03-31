@@ -62,7 +62,7 @@ def get_personas(base_url, token, limit, offset):
 @sleep_and_retry
 @limits(calls=LLAMADOS_CANTIDAD, period=DOS_SEGUNDOS)
 def get_historial_puestos(base_url, token, persona_id):
-    """Consultar historial de puestos, entrega un listado con solo un elemento"""
+    """Consultar historial de puestos, entrega un elemento (el mas reciente) de encontrarse"""
     response = requests.get(
         url=f"{base_url}/v1/historial_puestos",
         headers={"authorization": f"Bearer {token}"},
@@ -73,12 +73,13 @@ def get_historial_puestos(base_url, token, persona_id):
     respuesta = response.json()
     if "total" not in respuesta or "items" not in respuesta:
         raise ResponseJSONError("Error en la respuesta, falta el total o el items")
-    return respuesta["total"], respuesta["items"]
+    if respuesta["total"] > 0:
+        return respuesta["items"][0] # Entrega el unico elemento del listado
+    return None
 
 
 def main():
     """Procedimiento principal"""
-    encabezados = ["Nombre", "Centro de Trabajo"]
     base_url = os.getenv("RRHH_PERSONAL_API_URL", None)
     username = os.getenv("RRHH_PERSONAL_API_USERNAME", None)
     password = os.getenv("RRHH_PERSONAL_API_PASSWORD", None)
@@ -89,24 +90,23 @@ def main():
         total = None
         while True:
             total, personas = get_personas(base_url, token, limit, offset)
-            print(f"Voy en el offset {offset}...")
+            print(f"Voy en el offset {offset} de {total}...")
             datos = []
             for persona in personas:
                 nombre = f"{persona['nombres']} {persona['apellido_primero']} {persona['apellido_segundo']}"
                 centro_trabajo_clave = None
-                total_historial_puestos, historial_puestos = get_historial_puestos(base_url, token, persona["id"]) # Entrega un listado con solo un elemento
-                if total_historial_puestos > 0:
-                    historial_puesto = historial_puestos[0] # Se toma el unico elemento del listado
+                historial_puesto = get_historial_puestos(base_url, token, persona["id"])
+                if historial_puesto:
                     centro_trabajo_clave = historial_puesto["centro_trabajo"]
                 datos.append([nombre, centro_trabajo_clave])
-            print(tabulate(datos, headers=encabezados))
+            print(tabulate(datos, headers=["Nombre", "Centro de Trabajo"]))
             offset += limit
             if offset >= total:
                 break
     except requests.ConnectionError as error:
         print(f"Error de conexion: {error}")
     except requests.Timeout as error:
-        print(f"Error porque no responde: {error}")
+        print(f"Error de falta de respuesta a tiempo: {error}")
     except (ConfigurationError, ResponseJSONError, StatusCodeNot200Error) as error:
         print(error)
     return

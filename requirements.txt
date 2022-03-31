@@ -33,6 +33,7 @@ rq
 sendgrid
 SQLAlchemy
 SQLAlchemy-Utils
+tabulate
 Unidecode
 Werkzeug==2.0.2
 WTForms >=2.3.3,<3.0.0
