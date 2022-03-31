@@ -14,8 +14,8 @@
             {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', equipo_id=equipo.id)) }}
             {% if equipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos.delete', equipo_id=equipo.id)) }}{% endif %}
             {% if equipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_equipos.recover', equipo_id=equipo.id)) }}{% endif %}
-        {# {% elif current_user.can_edit('INV EQUIPOS') %}
-            {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', equipo_id=equipo.id)) }} #}
+        {% elif current_user.can_edit('INV EQUIPOS') %}
+            {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', equipo_id=equipo.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}

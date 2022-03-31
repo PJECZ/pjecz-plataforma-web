@@ -20,7 +20,7 @@ from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.inv_modelos.models import InvModelo
 
-from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm
+from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm
 
 MODULO = "INV EQUIPOS"
 MESES_FUTUROS = 6  # Un año a futuro, para las fechas
@@ -60,6 +60,12 @@ def datatable_json():
         red = InvRed.query.get(request.form["red_id"])
         if red:
             consulta = consulta.filter(InvEquipo.inv_red == red)
+    if "descripcion" in request.form:
+        consulta = consulta.filter(InvEquipo.descripcion.contains(safe_string(request.form["descripcion"])))
+    if "numero_serie" in request.form:
+        consulta = consulta.filter(InvEquipo.numero_serie.contains(request.form["numero_serie"]))
+    if "adquisicion_fecha" in request.form:
+        consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["adquisicion_fecha"])
     registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -238,6 +244,35 @@ def validar_fecha(fecha):
     if fecha is not None and fecha > date.today():
         raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {date.today()}")
     return True
+
+
+@inv_equipos.route("/inv_equipos/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Equipos"""
+    form_search = InvEquipoSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.descripcion.data:
+            descripcion = safe_string(form_search.descripcion.data)
+            if descripcion != "":
+                busqueda["descripcion"] = descripcion
+                titulos.append("descripcion " + descripcion)
+        if form_search.numero_serie.data:
+            numero_serie = form_search.numero_serie.data
+            if numero_serie != "":
+                busqueda["numero_serie"] = numero_serie
+                titulos.append("numero serie" + numero_serie)
+        if form_search.adquisicion_fecha.data:
+            busqueda["adquisicion_fecha"] = form_search.adquisicion_fecha.data.strftime("%Y-%m-%d")
+            titulos.append("fecha de asignacion de equipo" + form_search.adquisicion_fecha.data.strftime("%Y-%m-%d"))
+        return render_template(
+            "inv_equipos/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Equipos con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("inv_equipos/search.jinja2", form=form_search)
 
 
 @inv_equipos.route("/inv_equipos/eliminar/<int:equipo_id>")

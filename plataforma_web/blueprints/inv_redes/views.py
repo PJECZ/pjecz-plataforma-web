@@ -12,7 +12,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_redes.models import InvRed
-from plataforma_web.blueprints.inv_redes.forms import InvRedForm
+from plataforma_web.blueprints.inv_redes.forms import InvRedForm, InvRedSearchForm
 
 MODULO = "INV REDES"
 
@@ -37,6 +37,10 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "nombre" in request.form:
+        consulta = consulta.filter(InvRed.nombre.contains(safe_string(request.form["nombre"])))
+    if "tipo" in request.form:
+        consulta = consulta.filter(InvRed.tipo.contains(safe_string(request.form["tipo"])))
     registros = consulta.order_by(InvRed.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -129,6 +133,32 @@ def _validar_form(form, same=False):
         if nombre_existente:
             raise Exception("El nombre ya está registrado, verifique en el listado de inactivos")
     return True
+
+
+@inv_redes.route("/inv_redes/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar redes"""
+    form_search = InvRedSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.nombre.data:
+            nombre = safe_string(form_search.nombre.data)
+            if nombre != "":
+                busqueda["nombre"] = nombre
+                titulos.append("nombre " + nombre)
+        if form_search.tipo.data:
+            tipo = safe_string(form_search.tipo.data)
+            if tipo != "":
+                busqueda["tipo"] = tipo
+                titulos.append("tipo " + tipo)
+        return render_template(
+            "inv_redes/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="redes con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("inv_redes/search.jinja2", form=form_search)
 
 
 @inv_redes.route("/inv_redes/eliminar/<int:red_id>")

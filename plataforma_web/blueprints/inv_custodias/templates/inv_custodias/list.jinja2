@@ -15,6 +15,7 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_custodias.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_custodias.list_active')) }}{% endif %}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('inv_custodias.search')) }}
     {% endcall %}
 {% endblock %}
 

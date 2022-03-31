@@ -8,13 +8,14 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
+from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.usuarios.models import Usuario
 
-from plataforma_web.blueprints.inv_custodias.forms import InvCustodiaForm
+from plataforma_web.blueprints.inv_custodias.forms import InvCustodiaForm, InvCustodiaSearchForm
 
 
 MODULO = "INV CUSTODIAS"
@@ -45,6 +46,10 @@ def datatable_json():
         usuario = Usuario.query.get(request.form["usuario_id"])
         if usuario:
             consulta = consulta.filter(InvCustodia.usuario == usuario)
+    if "fecha" in request.form:
+        consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha"])
+    if "nombre_completo" in request.form:
+        consulta = consulta.filter(InvCustodia.nombre_completo.contains(safe_string(request.form["nombre_completo"])))
     registros = consulta.order_by(InvCustodia.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -60,7 +65,6 @@ def datatable_json():
                     "nombre": resultado.nombre_completo,
                     "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id),
                 },
-                # "nombre_completo": resultado.nombre_completo,
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                 "oficina": {
                     "clave": resultado.usuario.oficina.clave,
@@ -156,6 +160,30 @@ def validar_fecha(fecha):
     if fecha is not None and fecha > date.today():
         raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {date.today()}")
     return True
+
+
+@inv_custodias.route("/inv_custodias/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Custodias"""
+    form_search = InvCustodiaSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.nombre_completo.data:
+            nombre_completo = safe_string(form_search.nombre_completo.data)
+            if nombre_completo != "":
+                busqueda["nombre_completo"] = nombre_completo
+                titulos.append("nombre_completo " + nombre_completo)
+        if form_search.fecha.data:
+            busqueda["fecha"] = form_search.fecha.data.strftime("%Y-%m-%d")
+            titulos.append("fecha de custodia" + form_search.fecha.data.strftime("%Y-%m-%d"))
+        return render_template(
+            "inv_custodias/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Custodias con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("inv_custodias/search.jinja2", form=form_search)
 
 
 @inv_custodias.route("/inv_custodias/eliminar/<int:custodia_id>")
