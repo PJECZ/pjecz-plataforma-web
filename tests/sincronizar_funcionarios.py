@@ -13,6 +13,8 @@ from lib.safe_string import safe_clave, safe_email, safe_string
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
+from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
+from plataforma_web.blueprints.funcionarios.models import Funcionario
 
 load_dotenv()  # Take environment variables from .env
 
@@ -100,10 +102,10 @@ def get_puesto_funcion(base_url, token, puesto_funcion_id):
 
 @sleep_and_retry
 @limits(calls=LLAMADOS_CANTIDAD, period=CUATRO_SEGUNDOS)
-def get_personas_domicilios(base_url, token, persona_id):
-    """Consultar domicilios de las personas, entrega un elemento (el mas reciente) de encontrarse"""
+def get_personas_fotografias(base_url, token, persona_id):
+    """Consultar fotografias de las personas, entrega un elemento (el mas reciente) de encontrarse"""
     response = requests.get(
-        url=f"{base_url}/v1/personas_domicilios",
+        url=f"{base_url}/v1/personas_fotografias",
         headers={"authorization": f"Bearer {token}"},
         params={"persona_id": persona_id, "limit": 1, "offset": 0},
     )
@@ -146,9 +148,18 @@ def main():
                 nombres = safe_string(persona["nombres"])
                 apellido_paterno = safe_string(persona["apellido_primero"])
                 apellido_materno = safe_string(persona["apellido_segundo"])
+                if nombres == "" or apellido_paterno == "":
+                    print(f"Se omite la persona {persona_id} porque faltan datos del nombre")
+                    continue
                 nombre = f"{nombres} {apellido_paterno} {apellido_materno}"
                 curp = safe_string(persona["curp"], max_len=18)
+                if curp == "":
+                    print(f"Se omite la persona {persona_id} porque falta la CURP")
+                    continue
                 email = safe_email(persona["email"])
+                if email == "" or not email.endswith("@coahuila.gob.mx"):
+                    print(f"Se omite la persona {persona_id} porque falta o no es de coahuila.gob.mx el email")
+                    continue
                 if persona["fecha_ingreso_pj"] is not None:
                     ingreso_fecha = datetime.strptime(persona["fecha_ingreso_pj"], "%Y-%m-%d").date()
                 else:
@@ -158,15 +169,53 @@ def main():
                 puesto_clave = ""
                 centro_trabajo_clave = ""
                 historial_puesto = get_historial_puestos(base_url, token, persona_id)
-                if historial_puesto and historial_puesto["fecha_termino"] is None:  # La fecha de termino vacia significa que esta activo
+                if historial_puesto is None:
+                    print(f"Se omite la persona {persona_id} porque no tiene historial de puestos")
+                    continue
+                en_funciones = False
+                if historial_puesto["fecha_termino"] is not None:  # La fecha de termino vacia significa que esta en funciones
+                    en_funciones = True
                     puesto = safe_string(historial_puesto["puesto_funcion_nombre"])
                     centro_trabajo_clave = safe_clave(historial_puesto["centro_trabajo"])
                     # Datos del puesto
                     puesto_funcion = get_puesto_funcion(base_url, token, historial_puesto["puesto_funcion_id"])
                     puesto_clave = safe_clave(puesto_funcion["puesto_clave"])
-                # Acumular datos
-                datos.append([nombre[:24], curp, email[:16], ingreso_fecha, centro_trabajo_clave, puesto_clave, puesto[:24]])
-            print(tabulate(datos, headers=["Nombre", "CURP", "Email", "Ingreso", "Centro de trabajo", "Clave del puesto", "Puesto"]))
+                # Datos de fotografias
+                fotografia_url = ""
+                fotografia = get_personas_fotografias(base_url, token, persona_id)
+                if fotografia and (fotografia["url"] is not None or fotografia["url"] != ""):
+                    fotografia_archivo = fotografia["archivo"]
+                    fotografia_url = fotografia["url"]
+                # Decidir entre insertar o actualizar
+                accion = ""
+                funcionario = Funcionario.query.filter_by(curp=curp).first()
+                if funcionario is None:
+                    accion = "Insertado"
+                    Funcionario(
+                        nombres=nombres,
+                        apellido_paterno=apellido_paterno,
+                        apellido_materno=apellido_materno,
+                        curp=curp,
+                        email=email,
+                        puesto=puesto,
+                        puesto_clave=puesto_clave,
+                        ingreso_fecha=ingreso_fecha,
+                        fotografia_url=fotografia_url,
+                        en_funciones=en_funciones,
+                    ).save()
+                    insertados_contador += 1
+                else:
+                    if email != funcionario.email:
+                        pass
+                    if nombres != funcionario.nombres:
+                        pass
+                    if apellido_paterno != funcionario.apellido_paterno:
+                        pass
+                    if apellido_materno != funcionario.apellido_materno:
+                        pass
+                # Acumular datos para tabulate
+                datos.append([nombre[:24], curp, email[:16], ingreso_fecha, centro_trabajo_clave, puesto_clave, puesto[:24], fotografia_archivo, accion])
+            print(tabulate(datos, headers=["Nombre", "CURP", "Email", "Ingreso", "Centro de trabajo", "Clave del puesto", "Puesto", "Fotografia", "Accion"]))
             offset += limit
             if offset >= total:
                 break
