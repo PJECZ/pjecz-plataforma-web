@@ -201,21 +201,21 @@ def edit(cid_procedimiento_id):
     if form.validate_on_submit():
 
         elaboro = form.elaboro_email.data
-        if elaboro is None or elaboro is "":
+        if elaboro is None or elaboro == "":
             elaboro_nombre = ""
             elaboro_email = ""
         else:
             elaboro_nombre = form.elaboro_nombre.data
             elaboro_email = elaboro
         reviso = form.reviso_email.data
-        if reviso is None:
+        if reviso is None or reviso == "":
             reviso_nombre = ""
             reviso_email = ""
         else:
             reviso_nombre = form.reviso_nombre.data
             reviso_email = reviso
         aprobo = form.aprobo_email.data
-        if aprobo is None:
+        if aprobo is None or aprobo == "":
             aprobo_nombre = ""
             aprobo_email = ""
         else:
