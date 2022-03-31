@@ -2,9 +2,10 @@
 Sinconizar centros de trabajos con la API de RRHH Personal
 """
 import os
-import requests
+
 from dotenv import load_dotenv
 from ratelimit import limits, sleep_and_retry
+import requests
 from tabulate import tabulate
 
 from lib.safe_string import safe_clave, safe_string
@@ -81,6 +82,7 @@ def main():
     base_url = os.getenv("RRHH_PERSONAL_API_URL", None)
     username = os.getenv("RRHH_PERSONAL_API_USERNAME", None)
     password = os.getenv("RRHH_PERSONAL_API_PASSWORD", None)
+    # Bloque try/except para manejar errores
     try:
         token = get_token(base_url, username, password)
         limit = 10
