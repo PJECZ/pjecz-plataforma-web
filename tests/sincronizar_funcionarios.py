@@ -62,7 +62,7 @@ def get_personas(base_url, token, limit, offset):
 @sleep_and_retry
 @limits(calls=LLAMADOS_CANTIDAD, period=DOS_SEGUNDOS)
 def get_historial_puestos(base_url, token, persona_id):
-    """Consultar historial de puestos"""
+    """Consultar historial de puestos, entrega un listado con solo un elemento"""
     response = requests.get(
         url=f"{base_url}/v1/historial_puestos",
         headers={"authorization": f"Bearer {token}"},
