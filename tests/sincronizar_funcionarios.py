@@ -211,7 +211,7 @@ def main():
                 if funcionario is None:
                     funcionario_con_mismo_email = Funcionario.query.filter_by(email=email).first()
                     if funcionario_con_mismo_email is not None:
-                        print(f"Se omite la persona {persona_id} porque el email {email} ya esta registrado")
+                        bitacora.warning("Se omite insertar la persona %d porque el email %s ya esta registrado", persona_id, email)
                         continue
                     accion = "Insertado"
                     centro_trabajo = CentroTrabajo.query.filter_by(clave=centro_trabajo_clave).first()
@@ -236,7 +236,7 @@ def main():
                     if email != funcionario.email:
                         funcionario_con_mismo_email = Funcionario.query.filter_by(email=email).first()
                         if funcionario_con_mismo_email is not None:
-                            print(f"Se omite la persona {persona_id} porque el email {email} ya esta registrado")
+                            bitacora.warning("Se omite actualizar la persona %d porque el email %s ya esta registrado", persona_id, email)
                             continue
                         ha_cambiado = True
                         funcionario.email = email
