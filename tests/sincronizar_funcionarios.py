@@ -2,6 +2,7 @@
 Sinconizar funcionarios con la API de RRHH Personal
 """
 from datetime import datetime, date
+import logging
 import os
 
 from dotenv import load_dotenv
@@ -121,10 +122,25 @@ def get_personas_fotografias(base_url, token, persona_id):
 
 def main():
     """Procedimiento principal"""
+    # Logging
+    bitacora = logging.getLogger(__name__)
+    bitacora.setLevel(logging.INFO)
+    formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
+    empunadura = logging.FileHandler("sincronizar_funcionarios.log")
+    empunadura.setFormatter(formato)
+    bitacora.addHandler(empunadura)
+    bitacora.info("Inicia")
     # Iniciar SQLAlchemy
     app = create_app()
     app.app_context().push()
     db.app = app
+    # Consultar el centro de trabajo NO DEFINIDO
+    centro_trabajo_no_definido = CentroTrabajo.query.filter_by(nombre="NO DEFINIDO").first()
+    if centro_trabajo_no_definido is None:
+        mensaje_error = "No se encontro el centro de trabajo NO DEFINIDO"
+        bitacora.error(mensaje_error)
+        print(mensaje_error)
+        return
     # Obtener variables de entorno
     base_url = os.getenv("RRHH_PERSONAL_API_URL", None)
     username = os.getenv("RRHH_PERSONAL_API_USERNAME", None)
@@ -149,20 +165,24 @@ def main():
                 apellido_paterno = safe_string(persona["apellido_primero"])
                 apellido_materno = safe_string(persona["apellido_segundo"])
                 if nombres == "" or apellido_paterno == "":
-                    print(f"Se omite la persona {persona_id} porque faltan datos del nombre")
+                    bitacora.warning("Se omite la persona %d porque falta el nombre o el primer apellido", persona_id)
                     continue
                 nombre = f"{nombres} {apellido_paterno} {apellido_materno}"
                 curp = safe_string(persona["curp"], max_len=18)
                 if curp == "":
-                    print(f"Se omite la persona {persona_id} porque falta la CURP")
+                    bitacora.warning("Se omite la persona %d porque falta o es incorrecto el CURP", persona_id)
                     continue
                 email = safe_email(persona["email"])
-                if email == "" or not email.endswith("@coahuila.gob.mx"):
-                    print(f"Se omite la persona {persona_id} porque falta o no es de coahuila.gob.mx el email")
+                if email == "":
+                    bitacora.warning("Se omite la persona %d porque falta el email", persona_id)
+                    continue
+                if not email.endswith("@coahuila.gob.mx"):
+                    bitacora.warning("Se omite la persona %d porque el email %s no es de coahuila", persona_id, email)
                     continue
                 if persona["fecha_ingreso_pj"] is not None:
                     ingreso_fecha = datetime.strptime(persona["fecha_ingreso_pj"], "%Y-%m-%d").date()
                 else:
+                    bitacora.warning("A la persona %d se le define una fecha de ingreso por defecto", persona_id)
                     ingreso_fecha = date(1900, 1, 1)
                 # Datos de historial de puestos
                 puesto = ""
@@ -170,10 +190,10 @@ def main():
                 centro_trabajo_clave = ""
                 historial_puesto = get_historial_puestos(base_url, token, persona_id)
                 if historial_puesto is None:
-                    print(f"Se omite la persona {persona_id} porque no tiene historial de puestos")
+                    bitacora.warning("Se omite la persona %d porque no tiene historial de puestos", persona_id)
                     continue
                 en_funciones = False
-                if historial_puesto["fecha_termino"] is not None:  # La fecha de termino vacia significa que esta en funciones
+                if historial_puesto["fecha_termino"] is None:  # La fecha de termino vacia significa que esta en funciones
                     en_funciones = True
                     puesto = safe_string(historial_puesto["puesto_funcion_nombre"])
                     centro_trabajo_clave = safe_clave(historial_puesto["centro_trabajo"])
@@ -184,14 +204,21 @@ def main():
                 fotografia_url = ""
                 fotografia = get_personas_fotografias(base_url, token, persona_id)
                 if fotografia and (fotografia["url"] is not None or fotografia["url"] != ""):
-                    fotografia_archivo = fotografia["archivo"]
                     fotografia_url = fotografia["url"]
                 # Decidir entre insertar o actualizar
                 accion = ""
                 funcionario = Funcionario.query.filter_by(curp=curp).first()
                 if funcionario is None:
+                    funcionario_con_mismo_email = Funcionario.query.filter_by(email=email).first()
+                    if funcionario_con_mismo_email is not None:
+                        print(f"Se omite la persona {persona_id} porque el email {email} ya esta registrado")
+                        continue
                     accion = "Insertado"
+                    centro_trabajo = CentroTrabajo.query.filter_by(clave=centro_trabajo_clave).first()
+                    if centro_trabajo is None:
+                        centro_trabajo = centro_trabajo_no_definido
                     Funcionario(
+                        centro_trabajo=centro_trabajo,
                         nombres=nombres,
                         apellido_paterno=apellido_paterno,
                         apellido_materno=apellido_materno,
@@ -205,20 +232,52 @@ def main():
                     ).save()
                     insertados_contador += 1
                 else:
+                    ha_cambiado = False
                     if email != funcionario.email:
-                        pass
+                        funcionario_con_mismo_email = Funcionario.query.filter_by(email=email).first()
+                        if funcionario_con_mismo_email is not None:
+                            print(f"Se omite la persona {persona_id} porque el email {email} ya esta registrado")
+                            continue
+                        ha_cambiado = True
+                        funcionario.email = email
                     if nombres != funcionario.nombres:
-                        pass
+                        ha_cambiado = True
+                        funcionario.nombres = nombres
                     if apellido_paterno != funcionario.apellido_paterno:
-                        pass
+                        ha_cambiado = True
+                        funcionario.apellido_paterno = apellido_paterno
                     if apellido_materno != funcionario.apellido_materno:
-                        pass
+                        ha_cambiado = True
+                        funcionario.apellido_materno = apellido_materno
+                    if puesto != funcionario.puesto:
+                        ha_cambiado = True
+                        funcionario.puesto = puesto
+                    if puesto_clave != funcionario.puesto_clave:
+                        ha_cambiado = True
+                        funcionario.puesto_clave = puesto_clave
+                    if ingreso_fecha != funcionario.ingreso_fecha:
+                        ha_cambiado = True
+                        funcionario.ingreso_fecha = ingreso_fecha
+                    if fotografia_url != funcionario.fotografia_url:
+                        ha_cambiado = True
+                        funcionario.fotografia_url = fotografia_url
+                    if en_funciones != funcionario.en_funciones:
+                        ha_cambiado = True
+                        funcionario.en_funciones = en_funciones
+                    if ha_cambiado:
+                        accion = "Actualizado"
+                        funcionario.save()
+                        actualizados_contador += 1
                 # Acumular datos para tabulate
-                datos.append([nombre[:24], curp, email[:16], ingreso_fecha, centro_trabajo_clave, puesto_clave, puesto[:24], fotografia_archivo, accion])
-            print(tabulate(datos, headers=["Nombre", "CURP", "Email", "Ingreso", "Centro de trabajo", "Clave del puesto", "Puesto", "Fotografia", "Accion"]))
+                datos.append([nombre[:24], curp, email[:16], ingreso_fecha, centro_trabajo_clave, puesto_clave, puesto[:24], fotografia_url[-24:], en_funciones, accion])
+            print(tabulate(datos, headers=["Nombre", "CURP", "Email", "Ingreso", "C. de T.", "C. del Puesto", "Puesto", "Fotografia URL", "EF", "Accion"]))
+            print()
             offset += limit
             if offset >= total:
                 break
+        mensaje_final = f"Se insertaron {insertados_contador} y se actualizaron {actualizados_contador} funcionarios"
+        bitacora.info("Termina. %s", mensaje_final)
+        print(mensaje_final)
     except requests.ConnectionError as error:
         print(f"Error de conexion: {error}")
     except requests.Timeout as error:
