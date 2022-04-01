@@ -8,10 +8,12 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Custodia: ' + custodia.nombre_completo) %}
         {{ topbar.button_previous('Custodias', url_for('inv_custodias.list_active')) }}
-        {% if current_user.can_edit('INV CUSTODIAS') %}
+        {% if current_user.can_admin('INV CUSTODIAS') %}
             {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', custodia_id=custodia.id)) }}
             {% if custodia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_custodias.delete', custodia_id=custodia.id)) }}{% endif %}
             {% if custodia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_custodias.recover', custodia_id=custodia.id)) }}{% endif %}
+        {% elif current_user.can_edit('INV CUSTODIAS') %}
+            {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', custodia_id=custodia.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
