@@ -2,13 +2,19 @@
 Funcionarios, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, SubmitField
+from wtforms import BooleanField, DateField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, Optional, Regexp
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from lib.safe_string import CURP_REGEXP
 
+from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
 from plataforma_web.blueprints.domicilios.models import Domicilio
+
+
+def centros_trabajos_opciones():
+    """ Centros de Trabajo: opciones para select """
+    return CentroTrabajo.query.filter_by(estatus='A').order_by(CentroTrabajo.nombre).all()
 
 
 def domicilios_opciones():
@@ -31,6 +37,8 @@ class FuncionarioAdminForm(FlaskForm):
     en_sentencias = BooleanField("En sentencias", validators=[Optional()])
     en_soportes = BooleanField("En soportes", validators=[Optional()])
     en_tesis_jurisprudencias = BooleanField("En tesis y jurisprudencias", validators=[Optional()])
+    centro_trabajo = QuerySelectField("Centro de trabajo", query_factory=centros_trabajos_opciones, get_label="nombre", validators=[DataRequired()])
+    ingreso_fecha = DateField("Fecha de ingreso", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 

@@ -9,6 +9,7 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_email, safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.funcionarios.forms import FuncionarioForm, FuncionarioAdminForm, FuncionarioSearchForm, FuncionarioListSearchForm, FuncionarioDomicilioForm
@@ -241,12 +242,14 @@ def new():
                 curp=curp,
                 email=email,
                 puesto=safe_string(form.puesto.data),
-                telefono = safe_string(form.telefono.data),
-                extension = safe_string(form.extension.data),
+                telefono=safe_string(form.telefono.data),
+                extension=safe_string(form.extension.data),
                 en_funciones=form.en_funciones.data,
                 en_sentencias=form.en_sentencias.data,
                 en_soportes=form.en_soportes.data,
                 en_tesis_jurisprudencias=form.en_tesis_jurisprudencias.data,
+                centro_trabajo=form.centro_trabajo.data,
+                ingreso_fecha=form.ingreso_fecha.data,
             )
             funcionario.save()
             bitacora = Bitacora(
@@ -258,6 +261,9 @@ def new():
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
+    centro_trabajo_no_definido = CentroTrabajo.query.filter_by(nombre="NO DEFINIDO").first()
+    if centro_trabajo_no_definido is not None:
+        form.centro_trabajo.data = centro_trabajo_no_definido
     return render_template("funcionarios/new.jinja2", form=form)
 
 
@@ -297,6 +303,8 @@ def edit_admin(funcionario_id):
             funcionario.en_sentencias = form.en_sentencias.data
             funcionario.en_soportes = form.en_soportes.data
             funcionario.en_tesis_jurisprudencias = form.en_tesis_jurisprudencias.data
+            funcionario.centro_trabajo = form.centro_trabajo.data
+            funcionario.ingreso_fecha = form.ingreso_fecha.data
             funcionario.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -319,6 +327,8 @@ def edit_admin(funcionario_id):
     form.en_sentencias.data = funcionario.en_sentencias
     form.en_soportes.data = funcionario.en_soportes
     form.en_tesis_jurisprudencias.data = funcionario.en_tesis_jurisprudencias
+    form.centro_trabajo.data = funcionario.centro_trabajo
+    form.ingreso_fecha.data = funcionario.ingreso_fecha
     return render_template("funcionarios/edit_admin.jinja2", form=form, funcionario=funcionario)
 
 
