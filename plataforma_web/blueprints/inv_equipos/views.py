@@ -1,7 +1,6 @@
 """
 Inventarios Equipos, vistas
 """
-
 import json
 from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -9,21 +8,16 @@ from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
-from plataforma_web.blueprints.inv_redes.models import InvRed
-
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
-from plataforma_web.blueprints.inv_modelos.models import InvModelo
-
 from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm
+from plataforma_web.blueprints.inv_equipos.models import InvEquipo
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "INV EQUIPOS"
-MESES_FUTUROS = 6  # Un año a futuro, para las fechas
 
 inv_equipos = Blueprint("inv_equipos", __name__, template_folder="templates")
 
@@ -46,20 +40,12 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "usuario_id" in request.form:
-        usuario = InvCustodia.query.get(request.form["usuario_id"])
-        if usuario:
-            consulta = consulta.filter(InvEquipo.inv_custodia == usuario)
-    if "custodia_id" in request.form:
-        consulta = consulta.filter_by(inv_custodia_id=request.form["custodia_id"])
-    if "modelo_id" in request.form:
-        modelo = InvModelo.query.get(request.form["modelo_id"])
-        if modelo:
-            consulta = consulta.filter(InvEquipo.inv_modelo == modelo)
-    if "red_id" in request.form:
-        red = InvRed.query.get(request.form["red_id"])
-        if red:
-            consulta = consulta.filter(InvEquipo.inv_red == red)
+    if "inv_custodia_id" in request.form:
+        consulta = consulta.filter_by(inv_custodia_id=request.form["inv_custodia_id"])
+    if "inv_modelo_id" in request.form:
+        consulta = consulta.filter_by(inv_modelo=request.form["inv_modelo_id"])
+    if "inv_red_id" in request.form:
+        consulta = consulta.filter_by(inv_red=request.form["inv_red_id"])
     if "descripcion" in request.form:
         consulta = consulta.filter(InvEquipo.descripcion.contains(safe_string(request.form["descripcion"])))
     if "numero_serie" in request.form:
@@ -81,21 +67,24 @@ def datatable_json():
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d") if resultado.adquisicion_fecha is not None else "-",
                 "usuario": {
                     "nombre_completo": resultado.inv_custodia.usuario.nombre,
-                    "url": url_for("usuarios.detail", usuario_id=resultado.inv_custodia.usuario_id),
+                    "url": url_for("usuarios.detail", usuario_id=resultado.inv_custodia.usuario_id) if current_user.can_view("USUARIOS") else "",
                 },
-                "custodia_id": {
+                "inv_custodia_id": {
                     "id": resultado.inv_custodia.id,
-                    "url": url_for("inv_custodias.detail", custodia_id=resultado.inv_custodia.id),
+                    "url": url_for("inv_custodias.detail", inv_custodia_id=resultado.inv_custodia.id) if current_user.can_view("INV CUSTODIAS") else "",
                 },
-                "marca": {
+                "inv_marca": {
                     "nombre": resultado.inv_modelo.inv_marca.nombre,
-                    "url": url_for("inv_marcas.detail", marca_id=resultado.inv_modelo.inv_marca.id),
+                    "url": url_for("inv_marcas.detail", inv_marca_id=resultado.inv_modelo.inv_marca.id) if current_user.can_view("INV MARCAS") else "",
                 },
-                "modelo": {
+                "inv_modelo": {
                     "nombre": resultado.inv_modelo.descripcion,
-                    "url": url_for("inv_modelos.detail", modelo_id=resultado.inv_modelo.id),
+                    "url": url_for("inv_modelos.detail", inv_modelo_id=resultado.inv_modelo.id) if current_user.can_view("INV MODELOS") else "",
                 },
-                "red": {"nombre": resultado.inv_red.nombre, "url": url_for("inv_redes.detail", red_id=resultado.inv_red.id)},
+                "inv_red": {
+                    "nombre": resultado.inv_red.nombre,
+                    "url": url_for("inv_redes.detail", inv_red_id=resultado.inv_red.id) if current_user.can_view("INV REDES") else "",
+                },
             }
         )
     # Entregar JSON
@@ -125,38 +114,37 @@ def list_inactive():
     )
 
 
-@inv_equipos.route("/inv_equipos/<int:equipo_id>")
+@inv_equipos.route("/inv_equipos/<int:inv_equipo_id>")
 @login_required
 @permission_required(MODULO, Permiso.VER)
-def detail(equipo_id):
+def detail(inv_equipo_id):
     """Detalle de un Equipos"""
-    equipo = InvEquipo.query.get_or_404(equipo_id)
-    return render_template("inv_equipos/detail.jinja2", equipo=equipo)
+    inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
+    return render_template("inv_equipos/detail.jinja2", inv_equipo=inv_equipo)
 
 
 @inv_equipos.route("/inv_equipos/nuevo/<int:inv_custodia_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new(inv_custodia_id):
     """Nuevo Equipos"""
-    custodia = InvCustodia.query.get_or_404(inv_custodia_id)
-    if custodia.estatus != "A":
-        flash("El usuario no es activo.", "warning")
+    inv_custodia = InvCustodia.query.get_or_404(inv_custodia_id)
+    if inv_custodia.estatus != "A":
+        flash("La custodia no es activa.", "error")
         return redirect(url_for("inv_custodia.list_active"))
     form = InvEquipoForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            validar_fecha(form.adquisicion_fecha.data)
-            validacion = True
-        except Exception as err:
-            flash(f"La fecha es incorrecta: {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
-            equipo = InvEquipo(
-                inv_custodia=custodia,
-                inv_modelo=form.modelo.data,
-                inv_red=form.red.data,
+        es_valido = True
+        # Validar la fecha de adquisicion, no se permiten fechas futuras
+        adquisicion_fecha = form.adquisicion_fecha.data
+        if adquisicion_fecha is not None and adquisicion_fecha > date.today():
+            es_valido = False
+            flash("La fecha de adquisición no puede ser futura.", "warning")
+        # Si es valido insertar
+        if es_valido:
+            inv_equipo = InvEquipo(
+                inv_custodia=inv_custodia,
+                inv_modelo=form.inv_modelo.data,
+                inv_red=form.inv_red.data,
                 adquisicion_fecha=form.adquisicion_fecha.data,
                 numero_serie=form.numero_serie.data,
                 numero_inventario=form.numero_inventario.data,
@@ -167,21 +155,21 @@ def new(inv_custodia_id):
                 numero_switch=form.numero_switch.data,
                 numero_puerto=form.numero_puerto.data,
             )
-            equipo.save()
+            inv_equipo.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Nuevo equipo {equipo.descripcion}"),
-                url=url_for("inv_equipos.detail", equipo_id=equipo.id),
+                descripcion=safe_message(f"Nuevo equipo {inv_equipo.descripcion}"),
+                url=url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id),
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
-            return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
-    form.custodia.data = custodia.nombre_completo
-    form.email.data = custodia.usuario.email
-    form.puesto.data = custodia.usuario.puesto
-    form.oficina.data = str(f"{custodia.usuario.oficina.clave} - {custodia.usuario.oficina.descripcion_corta}")
-    return render_template("inv_equipos/new.jinja2", form=form, custodia=custodia)
+            return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))
+    form.custodia.data = inv_custodia.nombre_completo
+    form.email.data = inv_custodia.usuario.email
+    form.puesto.data = inv_custodia.usuario.puesto
+    form.oficina.data = str(f"{inv_custodia.usuario.oficina.clave} - {inv_custodia.usuario.oficina.descripcion_corta}")
+    return render_template("inv_equipos/new.jinja2", form=form, custodia=inv_custodia)
 
 
 @inv_equipos.route("/inv_equipos/edicion/<int:equipo_id>", methods=["GET", "POST"])
@@ -237,13 +225,6 @@ def edit(equipo_id):
     form.puesto.data = equipo.inv_custodia.usuario.puesto
     form.oficina.data = str(f"{equipo.inv_custodia.usuario.oficina.clave} - {equipo.inv_custodia.usuario.oficina.descripcion_corta}")
     return render_template("inv_equipos/edit.jinja2", form=form, equipo=equipo)
-
-
-def validar_fecha(fecha):
-    """Validar Fecha"""
-    if fecha is not None and fecha > date.today():
-        raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {date.today()}")
-    return True
 
 
 @inv_equipos.route("/inv_equipos/buscar", methods=["GET", "POST"])

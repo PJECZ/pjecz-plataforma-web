@@ -121,7 +121,12 @@ def new(usuario_id):
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
         if validacion:
-            custodia = InvCustodia(fecha=form.fecha.data, usuario=usuario, nombre_completo=usuario.nombre, curp=usuario.curp)
+            custodia = InvCustodia(
+                fecha=form.fecha.data,
+                usuario=usuario,
+                nombre_completo=usuario.nombre,
+                curp=usuario.curp,
+            )
             custodia.save()
             flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
             return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))

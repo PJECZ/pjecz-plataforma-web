@@ -5,12 +5,12 @@
 {% block title %}Editar Categoria{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar categoría' + categoria.nombre) }}
+    {{ topbar.page('Editar categoría' + inv_categoria.nombre) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'categoria_id': categoria.id} %}
+        {% set form_kwargs = {'inv_categoria_id': inv_categoria.id} %}
         {% call f.form_tag('inv_categorias.edit', fid='categoria_form', **form_kwargs) %}
             {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}

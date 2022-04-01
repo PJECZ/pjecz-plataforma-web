@@ -1,7 +1,6 @@
 """
 Inventarios Componentes, modelos
 """
-
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -26,8 +25,6 @@ class InvComponente(db.Model, UniversalMixin):
     cantidad = db.Column(db.Integer(), nullable=False)
     version = db.Column(db.String(256))
 
-    # Hijos
-
     def __repr__(self):
         """Representación"""
-        return "<InvComponente>"
+        return f"<InvComponente {self.id}>"

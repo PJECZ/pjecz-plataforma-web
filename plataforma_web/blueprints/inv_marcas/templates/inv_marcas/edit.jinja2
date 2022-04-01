@@ -5,12 +5,12 @@
 {% block title %}Editar Marca{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar ' + marca.nombre) }}
+    {{ topbar.page('Editar ' + inv_marca.nombre) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'marca_id': marca.id} %}
+        {% set form_kwargs = {'inv_marca_id': inv_marca.id} %}
         {% call f.form_tag('inv_marcas.edit', fid='marca_form', **form_kwargs) %}
             {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}

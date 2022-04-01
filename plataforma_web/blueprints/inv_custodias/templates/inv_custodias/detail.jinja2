@@ -19,14 +19,14 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=custodia.estatus) %} 
+    {% call detail.card(estatus=custodia.estatus) %}
         {{ detail.label_value('ID', custodia.id) }}
         {{ detail.label_value('Usuario', custodia.nombre_completo, url_for('usuarios.detail', usuario_id=custodia.usuario_id)) }}
         {{ detail.label_value('Curp', custodia.curp) }}
-        {{ detail.label_value('Oficina', custodia.usuario.oficina.clave + ' - ' + custodia.usuario.oficina.descripcion_corta) }}
+        {{ detail.label_value('Oficina', custodia.usuario.oficina.clave_nombre, url_for('oficinas.detail', oficina_id=custodia.usuario.oficina_id)) }}
         {{ detail.label_value('Puesto', custodia.usuario.puesto) }}
         {{ detail.label_value('Fecha', moment(custodia.fecha, local=True).format("DD MMM YYYY")) }}
-         
+
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS')  %}
         {% call detail.card('Equipos') %}
