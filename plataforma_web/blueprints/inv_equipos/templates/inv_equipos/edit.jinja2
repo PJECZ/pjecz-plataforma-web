@@ -15,7 +15,7 @@
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'equipo_id': inv_equipo.id} %}
+        {% set form_kwargs = {'inv_equipo_id': inv_equipo.id} %}
         {% call f.form_tag('inv_equipos.edit', fid='equipo_id_form', **form_kwargs) %}
             {% call f.form_group(form.custodia, readonly=true) %}{% endcall %}
             {% call f.form_group(form.email, readonly=true) %}{% endcall %}
@@ -42,16 +42,16 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#red').addClass('js-example-placeholder-single js-states form-control');
-            $('#modelo').addClass('js-example-placeholder-single js-states form-control');
-            $('#modelo').each(function() {
-                if($(this).text() == '{{equipo.modelo}}') {
-                    $("#modelo").val( $(this).val() );
+            $('#inv_red').addClass('js-example-placeholder-single js-states form-control');
+            $('#inv_modelo').addClass('js-example-placeholder-single js-states form-control');
+            $('#inv_modelo').each(function() {
+                if($(this).text() == '{{inv_equipo.inv_modelo}}') {
+                    $("#inv_modelo").val( $(this).val() );
                 }
             });
-            $('#red').each(function() {
-                if($(this).text() == '{{equipo.red}}') {
-                    $("#red").val( $(this).val() );
+            $('#inv_red').each(function() {
+                if($(this).text() == '{{inv_equipo.inv_red}}') {
+                    $("#inv_red").val( $(this).val() );
                 }
             });
             $(".js-example-placeholder-single").select2({

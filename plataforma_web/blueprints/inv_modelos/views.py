@@ -124,7 +124,7 @@ def new(inv_marca_id):
 def edit(inv_modelo_id):
     """Editar Modelo"""
     inv_modelo = InvModelo.query.get_or_404(inv_modelo_id)
-    form = InvModeloEditForm()
+    form = InvModeloForm()
     if form.validate_on_submit():
         es_valido = True
         # Validar que no exista esa descripción

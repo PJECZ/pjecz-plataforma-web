@@ -20,11 +20,50 @@
     {% call detail.card(estatus=inv_categoria.estatus) %}
         {{ detail.label_value('Categoría', inv_categoria.nombre) }}
     {% endcall %}
+    {% if current_user.can_view('INV COMPONENTES') %}
+        {% call detail.card('Componentes') %}
+            <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Versión</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('INV CATEGORIAS') %}
         {% if inv_categoria.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + inv_categoria.nombre + '?') }}{% endif %}
         {% if inv_categoria.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + inv_categoria.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('INV COMPONENTES') %}
+        <script>
+            configDataTable['ajax']['url'] = '/inv_componentes/datatable_json';
+            configDataTable['ajax']['data'] = {'estatus': "A", 'inv_categoria_id': {{ inv_categoria.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "cantidad" },
+                { data: "version" },
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.descripcion;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        }
+                    }
+                }
+            ];
+            $('#inv_componentes_datatable').DataTable(configDataTable);
+        </script>
     {% endif %}
 {% endblock %}

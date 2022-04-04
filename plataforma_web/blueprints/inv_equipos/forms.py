@@ -24,10 +24,10 @@ def inv_redes_opciones():
 class InvEquipoForm(FlaskForm):
     """Formulario InvEquipo"""
 
-    custodia = StringField("Custodia") # Read only
-    puesto = StringField("Puesto") # Read only
-    email = StringField("Email") # Read only
-    oficina = StringField("Oficina") # Read only
+    custodia = StringField("Custodia")  # Read only
+    puesto = StringField("Puesto")  # Read only
+    email = StringField("Email")  # Read only
+    oficina = StringField("Oficina")  # Read only
     inv_modelo = QuerySelectField(label="Modelo", query_factory=inv_modelos_opciones, get_label="marca_modelo", validators=[DataRequired()])
     inv_red = QuerySelectField(label="Red", query_factory=inv_redes_opciones, get_label="nombre", validators=[DataRequired()])
     adquisicion_fecha = DateField("Fecha de adquisición", validators=[Optional()])
@@ -47,5 +47,6 @@ class InvEquipoSearchForm(FlaskForm):
 
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     numero_serie = StringField("Número de serie", validators=[Optional()])
-    adquisicion_fecha = DateField("Fecha de adquisición", validators=[Optional()])
+    fecha_desde = DateField("Fecha desde", validators=[DataRequired()])
+    fecha_hasta = DateField("Fecha hasta", validators=[DataRequired()])
     buscar = SubmitField("Buscar")

@@ -10,7 +10,7 @@ from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_componentes.models import InvComponente
-from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm
+from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm, InvComponenteEditForm
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -41,7 +41,7 @@ def datatable_json():
         consulta = consulta.filter_by(inv_equipo_id=request.form["inv_equipo_id"])
     if "inv_categoria_id" in request.form:
         consulta = consulta.filter_by(inv_categoria_id=request.form["inv_categoria_id"])
-    registros = consulta.order_by(InvComponente.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvComponente.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -49,10 +49,9 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "descripcion": resultado.descripcion,
                     "url": url_for("inv_componentes.detail", inv_componente_id=resultado.id),
                 },
-                "descripcion": resultado.descripcion,
                 "inv_categoria": {
                     "nombre": resultado.inv_categoria.nombre,
                     "url": url_for("inv_categorias.detail", inv_categoria_id=resultado.inv_categoria_id) if current_user.can_view("INV CATEGORIAS") else "",
@@ -106,20 +105,20 @@ def new(inv_equipo_id):
         return redirect(url_for("inv_equipos.list_active"))
     form = InvComponenteForm()
     if form.validate_on_submit():
-        componente = InvComponente(
+        inv_componente = InvComponente(
             inv_categoria=form.nombre.data,
             inv_equipo=inv_equipo,
             descripcion=safe_string(form.descripcion.data),
             cantidad=form.cantidad.data,
             version=form.version.data,
         )
-        componente.save()
-        flash(f"Componentes {componente.descripcion} guardado.", "success")
-        return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
+        inv_componente.save()
+        flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
+        return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
     form.inv_equipo.data = inv_equipo.id
-    form.inv_marca.data = inv_equipo.inv_modelo.inv_marca.nombre # Read only
-    form.descripcion_equipo.data = inv_equipo.descripcion # Read only
-    form.usuario.data = inv_equipo.inv_custodia.nombre_completo # Read only
+    form.inv_marca.data = inv_equipo.inv_modelo.inv_marca.nombre  # Read only
+    form.descripcion_equipo.data = inv_equipo.descripcion  # Read only
+    form.usuario.data = inv_equipo.inv_custodia.nombre_completo  # Read only
     return render_template("inv_componentes/new.jinja2", form=form, inv_equipo=inv_equipo)
 
 
@@ -128,7 +127,7 @@ def new(inv_equipo_id):
 def edit(inv_componente_id):
     """Editar Componentes"""
     inv_componente = InvComponente.query.get_or_404(inv_componente_id)
-    form = InvComponenteForm()
+    form = InvComponenteEditForm()
     if form.validate_on_submit():
         inv_componente.categoria = form.nombre.data
         inv_componente.descripcion = safe_string(form.descripcion.data)
@@ -137,7 +136,7 @@ def edit(inv_componente_id):
         inv_componente.save()
         flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
         return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
-    form.nombre.data = inv_componente.inv_categoria
+    form.nombre.data = inv_componente.inv_categoria.nombre
     form.descripcion.data = safe_string(inv_componente.descripcion)
     form.cantidad.data = inv_componente.cantidad
     form.version.data = inv_componente.version

@@ -50,6 +50,10 @@ def datatable_json():
         consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha"])
     if "nombre_completo" in request.form:
         consulta = consulta.filter(InvCustodia.nombre_completo.contains(safe_string(request.form["nombre_completo"])))
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha_hasta"])
     registros = consulta.order_by(InvCustodia.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -112,24 +116,24 @@ def new(usuario_id):
     """Nuevo Custodias"""
     usuario = Usuario.query.get_or_404(usuario_id)
     form = InvCustodiaForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            validar_fecha(form.fecha.data)
-            validacion = True
-        except Exception as err:
-            flash(f"La fecha es incorrecta: {str(err)}", "warning")
-            validacion = False
-        if validacion:
-            custodia = InvCustodia(
+        es_valido = True
+        # Validar la fecha de custodia nueva, no se permiten fechas futuras
+        fecha = form.fecha.data
+        if fecha is not None and fecha > date.today():
+            es_valido = False
+            flash("La fecha de custodia no puede ser futura.", "warning")
+        # Si es valido insertar
+        if es_valido:
+            inv_custodia = InvCustodia(
                 fecha=form.fecha.data,
                 usuario=usuario,
                 nombre_completo=usuario.nombre,
                 curp=usuario.curp,
             )
-            custodia.save()
-            flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+            inv_custodia.save()
+            flash(f"Custodias {inv_custodia.nombre_completo} guardado.", "success")
+            return redirect(url_for("inv_custodias.detail", inv_custodia_id=inv_custodia.id))
     form.usuario.data = str(f"{usuario.nombre}")
     form.oficina.data = str(f"{usuario.oficina.clave} - {usuario.oficina.descripcion_corta}")
     return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
@@ -143,13 +147,14 @@ def edit(inv_custodia_id):
     form = InvCustodiaForm()
     validacion = False
     if form.validate_on_submit():
-        try:
-            validar_fecha(form.fecha.data)
-            validacion = True
-        except Exception as err:
-            flash(f"La fecha es incorrecta: {str(err)}", "warning")
-            validacion = False
-        if validacion:
+        es_valido = True
+        # validar que la actualización de la fecha de custodia, no se permiten fechas futuras
+        fecha = form.fecha.data
+        if fecha is not None and fecha > date.today():
+            es_valido = False
+            flash("La fecha de custodia no puede ser futura.", "warning")
+        # Si es valido insertar
+        if es_valido:
             inv_custodia.fecha = form.fecha.data
             inv_custodia.save()
             flash(f"Custodias {inv_custodia.nombre_completo} guardado.", "success")
@@ -158,13 +163,6 @@ def edit(inv_custodia_id):
     form.usuario.data = inv_custodia.usuario.nombre
     form.oficina.data = str(f"{inv_custodia.usuario.oficina.clave} - {inv_custodia.usuario.oficina.descripcion_corta}")
     return render_template("inv_custodias/edit.jinja2", form=form, inv_custodia=inv_custodia)
-
-
-def validar_fecha(fecha):
-    """Validar Fecha"""
-    if fecha is not None and fecha > date.today():
-        raise Exception(f"La fecha no esta dentro del rango a futuro, lo máximo permitido es: {date.today()}")
-    return True
 
 
 @inv_custodias.route("/inv_custodias/buscar", methods=["GET", "POST"])
@@ -179,9 +177,12 @@ def search():
             if nombre_completo != "":
                 busqueda["nombre_completo"] = nombre_completo
                 titulos.append("nombre_completo " + nombre_completo)
-        if form_search.fecha.data:
-            busqueda["fecha"] = form_search.fecha.data.strftime("%Y-%m-%d")
-            titulos.append("fecha de custodia" + form_search.fecha.data.strftime("%Y-%m-%d"))
+        if form_search.fecha_desde.data:
+            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
+            titulos.append("fecha desde " + busqueda["fecha_desde"])
+        if form_search.fecha_hasta.data:
+            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
+            titulos.append("fecha hasta " + busqueda["fecha_hasta"])
         return render_template(
             "inv_custodias/list.jinja2",
             filtros=json.dumps(busqueda),
@@ -191,23 +192,23 @@ def search():
     return render_template("inv_custodias/search.jinja2", form=form_search)
 
 
-@inv_custodias.route("/inv_custodias/eliminar/<int:custodia_id>")
+@inv_custodias.route("/inv_custodias/eliminar/<int:inv_custodia_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def delete(custodia_id):
+def delete(inv_custodia_id):
     """Eliminar Custodias"""
-    custodia = InvCustodia.query.get_or_404(custodia_id)
-    if custodia.estatus == "A":
-        custodia.delete()
-        flash(f"Custodias {custodia.nombre_completo} eliminado.", "success")
-    return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+    inv_custodia = InvCustodia.query.get_or_404(inv_custodia_id)
+    if inv_custodia.estatus == "A":
+        inv_custodia.delete()
+        flash(f"Custodias {inv_custodia.nombre_completo} eliminado.", "success")
+    return redirect(url_for("inv_custodias.detail", inv_custodia_id=inv_custodia.id))
 
 
-@inv_custodias.route("/inv_custodias/recuperar/<int:custodia_id>")
+@inv_custodias.route("/inv_custodias/recuperar/<int:inv_custodia_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def recover(custodia_id):
+def recover(inv_custodia_id):
     """Recuperar Custodias"""
-    custodia = InvCustodia.query.get_or_404(custodia_id)
-    if custodia.estatus == "B":
-        custodia.recover()
-        flash(f"Custodias {custodia.nombre_completo} recuperado.", "success")
-    return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+    inv_custodia = InvCustodia.query.get_or_404(inv_custodia_id)
+    if inv_custodia.estatus == "B":
+        inv_custodia.recover()
+        flash(f"Custodias {inv_custodia.nombre_completo} recuperado.", "success")
+    return redirect(url_for("inv_custodias.detail", inv_custodia_id=inv_custodia.id))

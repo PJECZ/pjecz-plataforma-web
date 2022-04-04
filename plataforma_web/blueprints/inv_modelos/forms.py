@@ -21,11 +21,3 @@ class InvModeloForm(FlaskForm):
     nombre = StringField("Marca", validators=[DataRequired()])  # solo lectrua
     descripcion = StringField("Descripción del modelo", validators=[DataRequired(), Length(max=512)])
     guardar = SubmitField("Guardar")
-
-
-class InvModeloEditForm(FlaskForm):
-    """Formulario InvModelo"""
-
-    nombre = StringField("Marca")  # solo lectrua
-    descripcion = StringField("Descripción del modelo", validators=[DataRequired(), Length(max=512)])
-    guardar = SubmitField("Guardar")

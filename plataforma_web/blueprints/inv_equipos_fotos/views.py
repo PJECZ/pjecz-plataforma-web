@@ -129,18 +129,18 @@ def new(inv_equipo_id):
         # Si es válido
         if es_valido:
             # Insertar el registro, para obtener el ID
-            equipo_foto = InvEquipoFoto(
+            inv_equipo_foto = InvEquipoFoto(
                 inv_equipo=inv_equipo,
                 descripcion=safe_string(descripcion),
             )
-            equipo_foto.save()
+            inv_equipo_foto.save()
             # Subir el archivo a la nube
             try:
-                storage.set_filename(hashed_id=equipo_foto.encode_id(), description=descripcion)
+                storage.set_filename(hashed_id=inv_equipo_foto.encode_id(), description=descripcion)
                 storage.upload(archivo.stream.read())
-                equipo_foto.archivo = archivo.filename  # Conservar el nombre original
-                equipo_foto.url = storage.url
-                equipo_foto.save()
+                inv_equipo_foto.archivo = archivo.filename  # Conservar el nombre original
+                inv_equipo_foto.url = storage.url
+                inv_equipo_foto.save()
             except NotConfiguredError:
                 flash("No se ha configurado el almacenamiento en la nube.", "warning")
             except Exception:
@@ -149,10 +149,10 @@ def new(inv_equipo_id):
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Subida de archivo {equipo_foto.archivo} al equipo {equipo.id}."),
+                descripcion=safe_message(f"Subida de archivo {inv_equipo_foto.archivo} al equipo {inv_equipo.id}."),
                 url=detalle_url,
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    return render_template("inv_equipos_fotos/new.jinja2", form=form, equipo=equipo)
+    return render_template("inv_equipos_fotos/new.jinja2", form=form, inv_equipo=inv_equipo)

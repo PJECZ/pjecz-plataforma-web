@@ -63,14 +63,22 @@
                 targets: [2,3,5], // inv_marca, inv_modelo, inv_red
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
                 }
             },
             {
                 targets: 6, // usuario
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                    if (data.url == '') {
+                        return data.nombre_completo;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
+                    }
                 }
             },
         ];
