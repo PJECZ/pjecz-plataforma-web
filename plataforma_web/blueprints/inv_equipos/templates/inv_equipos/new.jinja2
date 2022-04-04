@@ -8,26 +8,25 @@
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 {% endblock %}
-   
+
 {% block topbar_actions %}
     {{ topbar.page('Nuevo Equipo ') }}
 {% endblock %}
 
-
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'inv_custodia_id': custodia.id} %} 
+        {% set form_kwargs = {'inv_custodia_id': custodia.id} %}
         {% call f.form_tag('inv_equipos.new', fid='equipo_form', **form_kwargs) %}
             {% call f.form_group(form.custodia, readonly=true) %}{% endcall %}
             {% call f.form_group(form.email, readonly=true) %}{% endcall %}
             {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
             {% call f.form_group(form.puesto, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.modelo) %}{% endcall %}
+            {% call f.form_group(form.inv_modelo) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}
             {% call f.form_group(form.numero_serie) %}{% endcall %}
             {% call f.form_group(form.numero_inventario) %}{% endcall %}
-            {% call f.form_group(form.red) %}{% endcall %}
+            {% call f.form_group(form.inv_red) %}{% endcall %}
             {% call f.form_group(form.direccion_ip) %}{% endcall %}
             {% call f.form_group(form.direccion_mac) %}{% endcall %}
             {% call f.form_group(form.numero_nodo) %}{% endcall %}
@@ -45,7 +44,7 @@
         $(document).ready(function() {
             $('#red').addClass('js-example-placeholder-single js-states form-control');
             $('#modelo').addClass('js-example-placeholder-single js-states form-control');
-            
+
             $('#modelo').each(function(){
                 if('{{form.modelo}}' == 'None'){
                     $("#modelo").prop("selectedIndex", -1); // Poner en blanco el select
@@ -62,7 +61,7 @@
                     $("#red").val( $(this).val() );
                 }
             });
-            
+
             $(".js-example-placeholder-single").select2({
                 placeholder: "Selecciona campo",
                 allowClear: true

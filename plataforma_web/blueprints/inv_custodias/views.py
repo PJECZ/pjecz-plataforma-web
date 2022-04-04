@@ -57,13 +57,13 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "id": {
-                    "custodia_id": resultado.id,
-                    "url": url_for("inv_custodias.detail", custodia_id=resultado.id),
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("inv_custodias.detail", inv_custodia_id=resultado.id),
                 },
                 "usuario": {
                     "nombre": resultado.nombre_completo,
-                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id),
+                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id) if current_user.can_view("USUARIOS") else "",
                 },
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                 "oficina": {
@@ -99,11 +99,11 @@ def list_inactive():
     )
 
 
-@inv_custodias.route("/inv_custodias/<int:custodia_id>")
-def detail(custodia_id):
+@inv_custodias.route("/inv_custodias/<int:inv_custodia_id>")
+def detail(inv_custodia_id):
     """Detalle de un Custodias"""
-    custodia = InvCustodia.query.get_or_404(custodia_id)
-    return render_template("inv_custodias/detail.jinja2", custodia=custodia)
+    inv_custodia = InvCustodia.query.get_or_404(inv_custodia_id)
+    return render_template("inv_custodias/detail.jinja2", inv_custodia=inv_custodia)
 
 
 @inv_custodias.route("/inv_custodias/nuevo/<int:usuario_id>", methods=["GET", "POST"])
@@ -135,11 +135,11 @@ def new(usuario_id):
     return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
 
 
-@inv_custodias.route("/inv_custodias/edicion/<int:custodia_id>", methods=["GET", "POST"])
+@inv_custodias.route("/inv_custodias/edicion/<int:inv_custodia_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def edit(custodia_id):
+def edit(inv_custodia_id):
     """Editar Custodias"""
-    custodia = InvCustodia.query.get_or_404(custodia_id)
+    inv_custodia = InvCustodia.query.get_or_404(inv_custodia_id)
     form = InvCustodiaForm()
     validacion = False
     if form.validate_on_submit():
@@ -150,14 +150,14 @@ def edit(custodia_id):
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
         if validacion:
-            custodia.fecha = form.fecha.data
-            custodia.save()
-            flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
-    form.fecha.data = custodia.fecha
-    form.usuario.data = custodia.usuario.nombre
-    form.oficina.data = str(f"{custodia.usuario.oficina.clave} - {custodia.usuario.oficina.descripcion_corta}")
-    return render_template("inv_custodias/edit.jinja2", form=form, custodia=custodia)
+            inv_custodia.fecha = form.fecha.data
+            inv_custodia.save()
+            flash(f"Custodias {inv_custodia.nombre_completo} guardado.", "success")
+            return redirect(url_for("inv_custodias.detail", inv_custodia_id=inv_custodia.id))
+    form.fecha.data = inv_custodia.fecha
+    form.usuario.data = inv_custodia.usuario.nombre
+    form.oficina.data = str(f"{inv_custodia.usuario.oficina.clave} - {inv_custodia.usuario.oficina.descripcion_corta}")
+    return render_template("inv_custodias/edit.jinja2", form=form, inv_custodia=inv_custodia)
 
 
 def validar_fecha(fecha):

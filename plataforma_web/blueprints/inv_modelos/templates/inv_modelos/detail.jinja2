@@ -51,30 +51,30 @@
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'inv_modelo_id': {{ inv_modelo.id}} };
             configDataTable['columns'] = [
-                { data: "id" },
+                { data: "detalle" },
                 { data: "adquisicion_fecha" },
-                { data: "marca" },
+                { data: "inv_marca" },
                 { data: "descripcion" },
-                { data: "red" },
+                { data: "inv_red" },
                 { data: "usuario" },
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: [0], // id
+                    targets: [0], // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.equipo_id + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: [2,4],
+                    targets: [2,4], // inv_marca, inv_red
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
                 {
-                    targets: 5,
+                    targets: 5, // usuario
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';

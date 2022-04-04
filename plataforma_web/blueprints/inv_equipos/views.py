@@ -43,9 +43,9 @@ def datatable_json():
     if "inv_custodia_id" in request.form:
         consulta = consulta.filter_by(inv_custodia_id=request.form["inv_custodia_id"])
     if "inv_modelo_id" in request.form:
-        consulta = consulta.filter_by(inv_modelo=request.form["inv_modelo_id"])
+        consulta = consulta.filter_by(inv_modelo_id=request.form["inv_modelo_id"])
     if "inv_red_id" in request.form:
-        consulta = consulta.filter_by(inv_red=request.form["inv_red_id"])
+        consulta = consulta.filter_by(inv_red_id=request.form["inv_red_id"])
     if "descripcion" in request.form:
         consulta = consulta.filter(InvEquipo.descripcion.contains(safe_string(request.form["descripcion"])))
     if "numero_serie" in request.form:
@@ -59,9 +59,9 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "id": {
-                    "equipo_id": resultado.id,
-                    "url": url_for("inv_equipos.detail", equipo_id=resultado.id),
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("inv_equipos.detail", inv_equipo_id=resultado.id),
                 },
                 "descripcion": resultado.descripcion,
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d") if resultado.adquisicion_fecha is not None else "-",
@@ -172,11 +172,11 @@ def new(inv_custodia_id):
     return render_template("inv_equipos/new.jinja2", form=form, custodia=inv_custodia)
 
 
-@inv_equipos.route("/inv_equipos/edicion/<int:equipo_id>", methods=["GET", "POST"])
+@inv_equipos.route("/inv_equipos/edicion/<int:inv_equipo_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def edit(equipo_id):
+def edit(inv_equipo_id):
     """Editar Equipos"""
-    equipo = InvEquipo.query.get_or_404(equipo_id)
+    inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
     form = InvEquipoForm()
     validacion = False
     if form.validate_on_submit():
@@ -187,43 +187,43 @@ def edit(equipo_id):
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
         if validacion:
-            equipo.inv_modelo = form.modelo.data
-            equipo.inv_red = form.red.data
-            equipo.adquisicion_fecha = form.adquisicion_fecha.data
-            equipo.numero_serie = form.numero_serie.data
-            equipo.numero_inventario = form.numero_inventario.data
-            equipo.descripcion = safe_string(form.descripcion.data)
-            equipo.direccion_ip = form.direccion_ip.data
-            equipo.direccion_mac = form.direccion_mac.data
-            equipo.numero_nodo = form.numero_nodo.data
-            equipo.numero_switch = form.numero_switch.data
-            equipo.numero_puerto = form.numero_puerto.data
-            equipo.save()
+            inv_equipo.inv_modelo = form.modelo.data
+            inv_equipo.inv_red = form.red.data
+            inv_equipo.adquisicion_fecha = form.adquisicion_fecha.data
+            inv_equipo.numero_serie = form.numero_serie.data
+            inv_equipo.numero_inventario = form.numero_inventario.data
+            inv_equipo.descripcion = safe_string(form.descripcion.data)
+            inv_equipo.direccion_ip = form.direccion_ip.data
+            inv_equipo.direccion_mac = form.direccion_mac.data
+            inv_equipo.numero_nodo = form.numero_nodo.data
+            inv_equipo.numero_switch = form.numero_switch.data
+            inv_equipo.numero_puerto = form.numero_puerto.data
+            inv_equipo.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Nuevo equipo {equipo.descripcion}"),
-                url=url_for("inv_equipos.detail", equipo_id=equipo.id),
+                descripcion=safe_message(f"Nuevo equipo {inv_equipo.descripcion}"),
+                url=url_for("inv_equipos.detail", equipo_id=inv_equipo.id),
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
-            # flash(f"Equipos {equipo.descripcion} guardado.", "success")
-            return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
-    form.modelo.data = equipo.inv_modelo
-    form.red.data = equipo.inv_red
-    form.adquisicion_fecha.data = equipo.adquisicion_fecha
-    form.numero_serie.data = equipo.numero_serie
-    form.numero_inventario.data = equipo.numero_inventario
-    form.descripcion.data = safe_string(equipo.descripcion)
-    form.direccion_ip.data = equipo.direccion_ip
-    form.direccion_mac.data = equipo.direccion_mac
-    form.numero_nodo.data = equipo.numero_nodo
-    form.numero_switch.data = equipo.numero_switch
-    form.numero_puerto.data = equipo.numero_puerto
-    form.custodia.data = equipo.inv_custodia.nombre_completo
-    form.email.data = equipo.inv_custodia.usuario.email
-    form.puesto.data = equipo.inv_custodia.usuario.puesto
-    form.oficina.data = str(f"{equipo.inv_custodia.usuario.oficina.clave} - {equipo.inv_custodia.usuario.oficina.descripcion_corta}")
+            # flash(f"Equipos {inv_equipo.descripcion} guardado.", "success")
+            return redirect(url_for("inv_equipos.detail", equipo_id=inv_equipo.id))
+    form.inv_modelo.data = inv_equipo.inv_modelo
+    form.inv_red.data = inv_equipo.inv_red
+    form.adquisicion_fecha.data = inv_equipo.adquisicion_fecha
+    form.numero_serie.data = inv_equipo.numero_serie
+    form.numero_inventario.data = inv_equipo.numero_inventario
+    form.descripcion.data = safe_string(inv_equipo.descripcion)
+    form.direccion_ip.data = inv_equipo.direccion_ip
+    form.direccion_mac.data = inv_equipo.direccion_mac
+    form.numero_nodo.data = inv_equipo.numero_nodo
+    form.numero_switch.data = inv_equipo.numero_switch
+    form.numero_puerto.data = inv_equipo.numero_puerto
+    form.custodia.data = inv_equipo.inv_custodia.nombre_completo
+    form.email.data = inv_equipo.inv_custodia.usuario.email
+    form.puesto.data = inv_equipo.inv_custodia.usuario.puesto
+    form.oficina.data = str(f"{inv_equipo.inv_custodia.usuario.oficina.clave} - {inv_equipo.inv_custodia.usuario.oficina.descripcion_corta}")
     return render_template("inv_equipos/edit.jinja2", form=form, equipo=equipo)
 
 
