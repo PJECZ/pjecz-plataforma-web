@@ -40,3 +40,12 @@ class InvEquipoForm(FlaskForm):
     numero_switch = IntegerField("Número de switch", validators=[Optional()])
     numero_puerto = IntegerField("Número de puerto", validators=[Optional()])
     guardar = SubmitField("Guardar")
+
+
+class InvEquipoSearchForm(FlaskForm):
+    """Formulario Buscar Equipos"""
+
+    descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
+    numero_serie = StringField("Número de serie", validators=[Optional()])
+    adquisicion_fecha = DateField("Fecha de adquisición", validators=[Optional()])
+    buscar = SubmitField("Buscar")

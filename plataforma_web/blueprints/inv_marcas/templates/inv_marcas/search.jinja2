@@ -1,0 +1,18 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Buscar Marcas{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Buscar Marcas') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('inv_marcas.search', fid='marca_search_form') %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

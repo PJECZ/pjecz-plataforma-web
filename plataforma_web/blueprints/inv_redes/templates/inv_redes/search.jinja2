@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Buscar Redes{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Buscar Redes') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('inv_redes.search', fid='red_search_form') %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.tipo) %}{% endcall %}
+            {{ form.buscar() }}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $("#tipo").prop("selectedIndex", -1); // Poner en blanco el select Tipo
+    </script>
+{% endblock %}

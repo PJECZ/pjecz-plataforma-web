@@ -18,6 +18,7 @@
         {% if current_user.can_insert('INV MARCAS') %}
             {{ topbar.button_new('Nueva Marca', url_for('inv_marcas.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('inv_marcas.search')) }}
     {% endcall %}
 {% endblock %}
 

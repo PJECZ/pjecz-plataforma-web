@@ -17,11 +17,11 @@ class InvEquipo(db.Model, UniversalMixin):
 
     # Clave foránea
     inv_custodia_id = db.Column(db.Integer, db.ForeignKey("inv_custodias.id"), index=True, nullable=False)
-    inv_custodia = db.relationship("InvCustodia", back_populates="equipos")
+    inv_custodia = db.relationship("InvCustodia", back_populates="inv_equipos")
     inv_modelo_id = db.Column(db.Integer, db.ForeignKey("inv_modelos.id"), index=True, nullable=False)
-    inv_modelo = db.relationship("InvModelo", back_populates="equipos")
+    inv_modelo = db.relationship("InvModelo", back_populates="inv_equipos")
     inv_red_id = db.Column(db.Integer, db.ForeignKey("inv_redes.id"), index=True, nullable=False)
-    inv_red = db.relationship("InvRed", back_populates="equipos")
+    inv_red = db.relationship("InvRed", back_populates="inv_equipos")
 
     # Columnas
     adquisicion_fecha = db.Column(db.Date())
@@ -35,8 +35,8 @@ class InvEquipo(db.Model, UniversalMixin):
     numero_puerto = db.Column(db.Integer())
 
     # Hijos
-    componentes = db.relationship("InvComponente", back_populates="inv_equipo")
-    fotos = db.relationship("InvEquipoFoto", back_populates="inv_equipo")
+    inv_componentes = db.relationship("InvComponente", back_populates="inv_equipo", lazy="noload")
+    inv_equipos_fotos = db.relationship("InvEquipoFoto", back_populates="inv_equipo", lazy="noload")
 
     def __repr__(self):
         """Representación"""

@@ -13,7 +13,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_marcas.models import InvMarca
 from plataforma_web.blueprints.inv_modelos.models import InvModelo
 
-from plataforma_web.blueprints.inv_marcas.forms import InvMarcaForm
+from plataforma_web.blueprints.inv_marcas.forms import InvMarcaForm, InvMarcaSearchForm
 
 MODULO = "INV MARCAS"
 
@@ -38,6 +38,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "nombre" in request.form:
+        consulta = consulta.filter(InvMarca.nombre.contains(safe_string(request.form["nombre"])))
     registros = consulta.order_by(InvMarca.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -138,6 +140,27 @@ def _validar_form(form, same=False):
         if nombre_existente:
             raise Exception("El nombre ya está registrado")
     return True
+
+
+@inv_marcas.route("/inv_marcas/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Marcas"""
+    form_search = InvMarcaSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.nombre.data:
+            nombre = safe_string(form_search.nombre.data)
+            if nombre != "":
+                busqueda["nombre"] = nombre
+                titulos.append("nombre " + nombre)
+        return render_template(
+            "inv_marcas/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Marcas con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("inv_marcas/search.jinja2", form=form_search)
 
 
 @inv_marcas.route("/inv_marcas/eliminar/<int:marca_id>")
