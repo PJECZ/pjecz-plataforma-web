@@ -47,14 +47,14 @@
         ];
         configDataTable['columnDefs'] = [
             {
-                targets: 0,
+                targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
             },
             {
-                targets: 1,
+                targets: 1, // usuario
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
@@ -65,7 +65,7 @@
                 }
             },
             {
-                targets: 3,
+                targets: 3, // oficina
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {

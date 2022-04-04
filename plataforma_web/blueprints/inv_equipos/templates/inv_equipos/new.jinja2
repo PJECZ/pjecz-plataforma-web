@@ -2,7 +2,7 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Equipos{% endblock %}
+{% block title %}Nuevo Equipo{% endblock %}
 
 {% block custom_head %}
     <!-- Select2 bootstrap -->
@@ -10,12 +10,12 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Equipo ') }}
+    {{ topbar.page('Nuevo Equipo') }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'inv_custodia_id': custodia.id} %}
+        {% set form_kwargs = {'inv_custodia_id': inv_custodia.id} %}
         {% call f.form_tag('inv_equipos.new', fid='equipo_form', **form_kwargs) %}
             {% call f.form_group(form.custodia, readonly=true) %}{% endcall %}
             {% call f.form_group(form.email, readonly=true) %}{% endcall %}

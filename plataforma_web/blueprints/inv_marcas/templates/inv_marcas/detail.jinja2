@@ -3,10 +3,10 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Marcas{% endblock %}
+{% block title %}Marca{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Marca:  ' + inv_marca.nombre) %}
+    {% call topbar.page_buttons('Marca ' + inv_marca.nombre) %}
         {{ topbar.button_previous('Marcas', url_for('inv_marcas.list_active')) }}
         {% if current_user.can_edit('INV MARCAS') %}
             {{ topbar.button_edit('Editar', url_for('inv_marcas.edit', inv_marca_id=inv_marca.id)) }}

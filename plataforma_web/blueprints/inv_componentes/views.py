@@ -114,7 +114,7 @@ def new(inv_equipo_id):
         )
         inv_componente.save()
         flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
-        return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
+        return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo_id))
     form.inv_equipo.data = inv_equipo.id
     form.inv_marca.data = inv_equipo.inv_modelo.inv_marca.nombre  # Read only
     form.descripcion_equipo.data = inv_equipo.descripcion  # Read only

@@ -2,14 +2,14 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Anexar Foto - Equipo{% endblock %}
+{% block title %}Agregar foto al equipo{% endblock %}
 
 {% block custom_head %}
     {{ f.drop_zone_css() }}
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Anexar Foto al Equipo ' + inv_equipo.id | string) }}
+    {{ topbar.page('Agregar foto al equipo ' + inv_equipo.id | string) }}
 {% endblock %}
 
 {% block content %}
