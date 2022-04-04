@@ -32,4 +32,4 @@ class InvModelo(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<InvModelo>"
+        return f"<InvModelo {self.id}>"

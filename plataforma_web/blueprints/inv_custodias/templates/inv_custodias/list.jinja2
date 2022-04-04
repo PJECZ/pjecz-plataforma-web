@@ -40,7 +40,7 @@
         configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: "id" },
+            { data: "detalle" },
             { data: "usuario" },
             { data: "fecha" },
             { data: "oficina" },
@@ -50,7 +50,7 @@
                 targets: 0,
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
             },
             {

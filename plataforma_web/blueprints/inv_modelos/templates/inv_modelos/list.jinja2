@@ -23,8 +23,8 @@
         <table id="inv_modelos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Marca</th>
                     <th>Modelo</th>
+                    <th>Marca</th>
                 </tr>
             </thead>
         </table>
@@ -37,26 +37,29 @@
         configDataTable['ajax']['url'] = '/inv_modelos/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: 'marca' },
             { data: 'detalle' },
+            { data: 'marca' },
         ];
         configDataTable['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                 }
             },
             {
-                targets: 1, // detalle
+                targets: 1, // marca
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
                 }
-            }
+            },
         ];
         $('#inv_modelos_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}
- 
