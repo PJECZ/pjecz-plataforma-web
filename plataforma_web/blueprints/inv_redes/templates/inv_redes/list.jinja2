@@ -18,7 +18,6 @@
         {% if current_user.can_insert('INV REDES') %}
             {{ topbar.button_new('Nueva Red', url_for('inv_redes.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('inv_redes.search')) }}
     {% endcall %}
 {% endblock %}
 

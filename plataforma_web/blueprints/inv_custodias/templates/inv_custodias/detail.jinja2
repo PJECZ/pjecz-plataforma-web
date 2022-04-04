@@ -6,27 +6,27 @@
 {% block title %}custodias{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Custodia: ' + custodia.nombre_completo) %}
+    {% call topbar.page_buttons('Custodia: ' + inv_custodia.nombre_completo) %}
         {{ topbar.button_previous('Custodias', url_for('inv_custodias.list_active')) }}
         {% if current_user.can_admin('INV CUSTODIAS') %}
-            {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', custodia_id=custodia.id)) }}
-            {% if custodia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_custodias.delete', custodia_id=custodia.id)) }}{% endif %}
-            {% if custodia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_custodias.recover', custodia_id=custodia.id)) }}{% endif %}
+            {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', inv_custodia_id=inv_custodia.id)) }}
+            {% if inv_custodia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_custodias.delete', inv_custodia_id=inv_custodia.id)) }}{% endif %}
+            {% if inv_custodia.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_custodias.recover', inv_custodia_id=inv_custodia.id)) }}{% endif %}
         {% elif current_user.can_edit('INV CUSTODIAS') %}
-            {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', custodia_id=custodia.id)) }}
+            {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', inv_custodia_id=inv_custodia.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=custodia.estatus) %} 
-        {{ detail.label_value('ID', custodia.id) }}
-        {{ detail.label_value('Usuario', custodia.nombre_completo, url_for('usuarios.detail', usuario_id=custodia.usuario_id)) }}
-        {{ detail.label_value('Curp', custodia.curp) }}
-        {{ detail.label_value('Oficina', custodia.usuario.oficina.clave + ' - ' + custodia.usuario.oficina.descripcion_corta) }}
-        {{ detail.label_value('Puesto', custodia.usuario.puesto) }}
-        {{ detail.label_value('Fecha', moment(custodia.fecha, local=True).format("DD MMM YYYY")) }}
-         
+    {% call detail.card(estatus=inv_custodia.estatus) %}
+        {{ detail.label_value('ID', inv_custodia.id) }}
+        {{ detail.label_value('Usuario', inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=inv_custodia.usuario_id)) }}
+        {{ detail.label_value('Curp', inv_custodia.curp) }}
+        {{ detail.label_value('Oficina', inv_custodia.usuario.oficina.clave_nombre, url_for('oficinas.detail', oficina_id=inv_custodia.usuario.oficina_id)) }}
+        {{ detail.label_value('Puesto', inv_custodia.usuario.puesto) }}
+        {{ detail.label_value('Fecha', moment(inv_custodia.fecha, local=True).format("DD MMM YYYY")) }}
+
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS')  %}
         {% call detail.card('Equipos') %}
@@ -43,7 +43,7 @@
                 </thead>
             </table>
             {% if current_user.can_insert('INV EQUIPOS') %}
-                <a href="{{ url_for('inv_equipos.new', inv_custodia_id=custodia.id) }}" class="btn btn-primary">Agregar</a>
+                <a href="{{ url_for('inv_equipos.new', inv_custodia_id=inv_custodia.id) }}" class="btn btn-primary">Agregar</a>
             {% endif %}
         {% endcall %}
     {% endif %}
@@ -51,33 +51,33 @@
 
 {% block custom_javascript %}
     {% if current_user.can_edit('INV CUSTODIAS') %}
-        {% if custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + custodia.nombre_completo + '?') }}{% endif %}
-        {% if custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + custodia.nombre_completo + '?') }}{% endif %}
+        {% if inv_custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + inv_custodia.nombre_completo + '?') }}{% endif %}
+        {% if inv_custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + inv_custodia.nombre_completo + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
     {{ detail.config_datatable() }}
     {% if current_user.can_view('INV EQUIPOS') %}
         <script>
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'custodia_id': {{ custodia.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'inv_custodia_id': {{ inv_custodia.id}} };
             configDataTable['columns'] = [
-                { data: "id" },
+                { data: "detalle" },
                 { data: "adquisicion_fecha" },
-                { data: "marca" },
-                { data: "modelo" },
+                { data: "inv_marca" },
+                { data: "inv_modelo" },
                 { data: "descripcion" },
-                { data: "red" },
+                { data: "inv_red" },
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: [0], // id
+                    targets: [0], // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.equipo_id + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: [2,3,5], // marca, modelo, red
+                    targets: [2,3,5], // inv_marca, inv_modelo, inv_red
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';

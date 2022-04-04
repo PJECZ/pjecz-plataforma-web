@@ -19,8 +19,8 @@ def categorias_opciones():
 class InvComponenteForm(FlaskForm):
     """Formulario InvComponente"""
 
-    equipo = StringField("ID equipo")  # solo lectrua
-    marca = StringField("Marca")  # solo lectrua
+    inv_equipo = StringField("ID equipo")  # solo lectrua
+    inv_marca = StringField("Marca")  # solo lectrua
     descripcion_equipo = StringField("Descripción del equipo")  # solo lectrua
     usuario = StringField("Usuario")  # solo lectrua
     nombre = QuerySelectField(label="Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
