@@ -3,10 +3,10 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}custodias{% endblock %}
+{% block title %}Custodia{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Custodia: ' + inv_custodia.nombre_completo) %}
+    {% call topbar.page_buttons('Custodia ' + inv_custodia.id | string) %}
         {{ topbar.button_previous('Custodias', url_for('inv_custodias.list_active')) }}
         {% if current_user.can_admin('INV CUSTODIAS') %}
             {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', inv_custodia_id=inv_custodia.id)) }}
@@ -21,7 +21,11 @@
 {% block content %}
     {% call detail.card(estatus=inv_custodia.estatus) %}
         {{ detail.label_value('ID', inv_custodia.id) }}
-        {{ detail.label_value('Usuario', inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=inv_custodia.usuario_id)) }}
+        {% if current_user.can_view('USUARIOS') %}
+            {{ detail.label_value('Usuario', inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=inv_custodia.usuario_id)) }}
+        {% else %}
+            {{ detail.label_value('Usuario', inv_custodia.nombre_completo) }}
+        {% endif %}
         {{ detail.label_value('Curp', inv_custodia.curp) }}
         {{ detail.label_value('Oficina', inv_custodia.usuario.oficina.clave_nombre, url_for('oficinas.detail', oficina_id=inv_custodia.usuario.oficina_id)) }}
         {{ detail.label_value('Puesto', inv_custodia.usuario.puesto) }}

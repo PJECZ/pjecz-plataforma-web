@@ -3,10 +3,10 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Redes{% endblock %}
+{% block title %}Red{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Red:  ' + inv_red.nombre) %}
+    {% call topbar.page_buttons('Red ' + inv_red.nombre) %}
         {{ topbar.button_previous('Redes', url_for('inv_redes.list_active')) }}
         {% if current_user.can_edit('INV REDES') %}
             {{ topbar.button_edit('Editar', url_for('inv_redes.edit', inv_red_id=inv_red.id)) }}
@@ -31,7 +31,7 @@
                         <th>Marca</th>
                         <th>Modelo</th>
                         <th>Descripción</th>
-                        <th>Usuario</th>
+                        <th>Nombre completo en la custodia</th>
                     </tr>
                 </thead>
             </table>
@@ -55,7 +55,7 @@
                 { data: "inv_marca" },
                 { data: "inv_modelo" },
                 { data: "descripcion" },
-                { data: "usuario" },
+                { data: "nombre_completo" },
             ];
             configDataTable['columnDefs'] = [
                 {
@@ -70,13 +70,6 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                    }
-                },
-                {
-                    targets: 5, // usuario
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                     }
                 },
             ];

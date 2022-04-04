@@ -14,17 +14,26 @@
             {% if inv_componente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_componentes.delete', inv_componente_id=inv_componente.id)) }}{% endif %}
             {% if inv_componente.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_componentes.recover', inv_componente_id=inv_componente.id)) }}{% endif %}
         {% endif %}
-        {# {% if current_user.can_insert('INV COMPONENTES') %}
-            {{ topbar.button_new('Más componentes', url_for('inv_componentes.new', inv_equipo_id=inv_componente.inv_equipo.id))}}
-        {% endif %} #}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call detail.card(estatus=inv_componente.estatus) %}
-        {{ detail.label_value('Descripción del equipo', inv_componente.inv_equipo.descripcion, url_for('inv_equipos.detail', inv_equipo_id=inv_componente.inv_equipo.id)) }}
-        {{ detail.label_value('Custodia', inv_componente.inv_equipo.inv_custodia.nombre_completo, url_for('inv_custodias.detail', inv_custodia_id=inv_componente.inv_equipo.inv_custodia.id)) }}
-        {{ detail.label_value('Categoría', inv_componente.inv_categoria.nombre, url_for('inv_categorias.detail', inv_categoria_id=inv_componente.inv_categoria.id)) }}
+        {% if current_user.can_view('INV EQUIPOS') %}
+            {{ detail.label_value('Descripción del equipo', inv_componente.inv_equipo.descripcion, url_for('inv_equipos.detail', inv_equipo_id=inv_componente.inv_equipo.id)) }}
+        {% else %}
+            {{ detail.label_value('Descripción del equipo', inv_componente.inv_equipo.descripcion) }}
+        {% endif %}
+        {% if current_user.can_view('INV CUSTODIAS') %}
+            {{ detail.label_value('Custodia', inv_componente.inv_equipo.inv_custodia.nombre_completo, url_for('inv_custodias.detail', inv_custodia_id=inv_componente.inv_equipo.inv_custodia.id)) }}
+        {% else %}
+            {{ detail.label_value('Custodia', inv_componente.inv_equipo.inv_custodia.nombre_completo) }}
+        {% endif %}
+        {% if current_user.can_view('INV CATEGORIAS') %}
+            {{ detail.label_value('Categoría', inv_componente.inv_categoria.nombre, url_for('inv_categorias.detail', inv_categoria_id=inv_componente.inv_categoria.id)) }}
+        {% else %}
+            {{ detail.label_value('Categoría', inv_componente.inv_categoria.nombre) }}
+        {% endif %}
         {{ detail.label_value('Descripción', inv_componente.descripcion) }}
         {{ detail.label_value('Cantidad', inv_componente.cantidad) }}
         {{ detail.label_value('Versión', inv_componente.version) }}

@@ -5,7 +5,7 @@
 {% block title %}Editar Custodia{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar ' + inv_custodia.nombre_completo) }}
+    {{ topbar.page('Editar ' + inv_custodia.id | string) }}
 {% endblock %}
 
 {% block content %}

@@ -30,7 +30,7 @@
                     <th>Modelo</th>
                     <th>Descripción del Equipo</th>
                     <th>Red</th>
-                    <th>Usuario</th>
+                    <th>Nombre completo en la custodia</th>
                 </tr>
             </thead>
 
@@ -50,7 +50,7 @@
             { data: "inv_modelo" },
             { data: "descripcion" },
             { data: "inv_red" },
-            { data: "usuario" },
+            { data: "nombre_completo" },
         ];
         configDataTable['columnDefs'] = [
             {
@@ -67,17 +67,6 @@
                         return data.nombre;
                     } else {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                    }
-                }
-            },
-            {
-                targets: 6, // usuario
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.url == '') {
-                        return data.nombre_completo;
-                    } else {
-                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                     }
                 }
             },

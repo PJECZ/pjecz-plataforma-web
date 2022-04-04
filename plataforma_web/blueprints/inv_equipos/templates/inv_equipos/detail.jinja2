@@ -4,11 +4,10 @@
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/list.jinja2' as list %}
 
-
-{% block title %}Equipos{% endblock %}
+{% block title %}Equipo{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Equipo: ' + inv_equipo.descripcion) %}
+    {% call topbar.page_buttons('Equipo ' + inv_equipo.inv_equipo_id | string) %}
         {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
         {% if current_user.can_admin('INV EQUIPOS') %}
             {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', inv_equipo_id=inv_equipo.id)) }}
@@ -23,9 +22,21 @@
 {% block content %}
     {% call detail.card(estatus=inv_equipo.estatus) %}
         {{ detail.label_value('ID', inv_equipo.id) }}
-        {{ detail.label_value('Usuario', inv_equipo.inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=inv_equipo.inv_custodia.usuario_id)) }}
-        {{ detail.label_value('Marca', inv_equipo.inv_modelo.inv_marca.nombre, url_for('inv_marcas.detail', inv_marca_id=inv_equipo.inv_modelo.inv_marca.id)) }}
-        {{ detail.label_value('Modelo', inv_equipo.inv_modelo.descripcion, url_for('inv_modelos.detail', inv_modelo_id=inv_equipo.inv_modelo_id)) }}
+        {% if current_user.can_view('USUARIOS') %}
+            {{ detail.label_value('Usuario', inv_equipo.inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=inv_equipo.inv_custodia.usuario_id)) }}
+        {% else %}
+            {{ detail.label_value('Usuario', inv_equipo.inv_custodia.nombre_completo) }}
+        {% endif %}
+        {% if current_user.can_view('INV MARCAS') %}
+            {{ detail.label_value('Marca', inv_equipo.inv_modelo.inv_marca.nombre, url_for('inv_marcas.detail', inv_marca_id=inv_equipo.inv_modelo.inv_marca.id)) }}
+        {% else %}
+            {{ detail.label_value('Marca', inv_equipo.inv_modelo.inv_marca.nombre) }}
+        {% endif %}
+        {% if current_user.can_view('INV MODELOS') %}
+            {{ detail.label_value('Modelo', inv_equipo.inv_modelo.descripcion, url_for('inv_modelos.detail', inv_modelo_id=inv_equipo.inv_modelo_id)) }}
+        {% else %}
+            {{ detail.label_value('Modelo', inv_equipo.inv_modelo.descripcion) }}
+        {% endif %}
         {{ detail.label_value('Fecha de adquisición', moment(inv_equipo.adquisicion_fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Inventario', inv_equipo.numero_inventario) }}
         {{ detail.label_value('No. serie', inv_equipo.numero_serie) }}

@@ -2,15 +2,15 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Redes{% endblock %}
+{% block title %}Nueva Red{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Redes') }}
+    {{ topbar.page('Nueva Red') }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('inv_redes.new', fid='red_form') %}
+        {% call f.form_tag('inv_redes.new', fid='inv_red_form') %}
             {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.tipo) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}

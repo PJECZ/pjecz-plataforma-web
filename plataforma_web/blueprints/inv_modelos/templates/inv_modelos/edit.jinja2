@@ -5,13 +5,13 @@
 {% block title %}Editar Modelo{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar Modelo: ' + inv_modelo.descripcion) }}
+    {{ topbar.page('Editar Modelo ' + inv_modelo.descripcion) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'inv_modelo_id': inv_modelo.id} %}
-        {% call f.form_tag('inv_modelos.edit', fid='modelo_form', **form_kwargs) %}
+        {% call f.form_tag('inv_modelos.edit', fid='inv_modelo_form', **form_kwargs) %}
             {% call f.form_group(form.nombre, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
