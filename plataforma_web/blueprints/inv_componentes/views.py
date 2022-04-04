@@ -10,7 +10,7 @@ from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_componentes.models import InvComponente
-from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm
+from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm, InvComponenteEditForm
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -127,7 +127,7 @@ def new(inv_equipo_id):
 def edit(inv_componente_id):
     """Editar Componentes"""
     inv_componente = InvComponente.query.get_or_404(inv_componente_id)
-    form = InvComponenteForm()
+    form = InvComponenteEditForm()
     if form.validate_on_submit():
         inv_componente.categoria = form.nombre.data
         inv_componente.descripcion = safe_string(form.descripcion.data)
@@ -136,7 +136,7 @@ def edit(inv_componente_id):
         inv_componente.save()
         flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
         return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
-    form.nombre.data = inv_componente.inv_categoria
+    form.nombre.data = inv_componente.inv_categoria.nombre
     form.descripcion.data = safe_string(inv_componente.descripcion)
     form.cantidad.data = inv_componente.cantidad
     form.version.data = inv_componente.version
