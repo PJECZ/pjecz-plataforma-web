@@ -121,15 +121,15 @@ def new(usuario_id):
             flash(f"La fecha es incorrecta: {str(err)}", "warning")
             validacion = False
         if validacion:
-            custodia = InvCustodia(
+            inv_custodia = InvCustodia(
                 fecha=form.fecha.data,
                 usuario=usuario,
                 nombre_completo=usuario.nombre,
                 curp=usuario.curp,
             )
-            custodia.save()
-            flash(f"Custodias {custodia.nombre_completo} guardado.", "success")
-            return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+            inv_custodia.save()
+            flash(f"Custodias {inv_custodia.nombre_completo} guardado.", "success")
+            return redirect(url_for("inv_custodias.detail", inv_custodia_id=inv_custodia.id))
     form.usuario.data = str(f"{usuario.nombre}")
     form.oficina.data = str(f"{usuario.oficina.clave} - {usuario.oficina.descripcion_corta}")
     return render_template("inv_custodias/new.jinja2", form=form, usuario=usuario)
@@ -191,23 +191,23 @@ def search():
     return render_template("inv_custodias/search.jinja2", form=form_search)
 
 
-@inv_custodias.route("/inv_custodias/eliminar/<int:custodia_id>")
+@inv_custodias.route("/inv_custodias/eliminar/<int:inv_custodia_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def delete(custodia_id):
+def delete(inv_custodia_id):
     """Eliminar Custodias"""
-    custodia = InvCustodia.query.get_or_404(custodia_id)
-    if custodia.estatus == "A":
-        custodia.delete()
-        flash(f"Custodias {custodia.nombre_completo} eliminado.", "success")
-    return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+    inv_custodia = InvCustodia.query.get_or_404(inv_custodia_id)
+    if inv_custodia.estatus == "A":
+        inv_custodia.delete()
+        flash(f"Custodias {inv_custodia.nombre_completo} eliminado.", "success")
+    return redirect(url_for("inv_custodias.detail", inv_custodia_id=inv_custodia.id))
 
 
-@inv_custodias.route("/inv_custodias/recuperar/<int:custodia_id>")
+@inv_custodias.route("/inv_custodias/recuperar/<int:inv_custodia_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def recover(custodia_id):
+def recover(inv_custodia_id):
     """Recuperar Custodias"""
-    custodia = InvCustodia.query.get_or_404(custodia_id)
-    if custodia.estatus == "B":
-        custodia.recover()
-        flash(f"Custodias {custodia.nombre_completo} recuperado.", "success")
-    return redirect(url_for("inv_custodias.detail", custodia_id=custodia.id))
+    inv_custodia = InvCustodia.query.get_or_404(inv_custodia_id)
+    if inv_custodia.estatus == "B":
+        inv_custodia.recover()
+        flash(f"Custodias {inv_custodia.nombre_completo} recuperado.", "success")
+    return redirect(url_for("inv_custodias.detail", inv_custodia_id=inv_custodia.id))

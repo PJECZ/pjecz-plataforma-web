@@ -22,6 +22,7 @@
         <table id="inv_componentes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>id</th>
                     <th>Descripción</th>
                     <th>Cantidad</th>
                     <th>Versión</th>
@@ -38,6 +39,7 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "detalle" },
+            { data: "descripcion" },
             { data: "cantidad" },
             { data: "version" },
         ];
@@ -46,7 +48,11 @@
                 targets: 0,
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    if (data.url == '') {
+                        return data.id;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
                 }
             }
         ];

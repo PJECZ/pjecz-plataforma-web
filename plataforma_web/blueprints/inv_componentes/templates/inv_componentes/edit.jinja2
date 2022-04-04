@@ -5,15 +5,15 @@
 {% block title %}Editar Componentes{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar ' + componente.descripcion) }}
+    {{ topbar.page('Editar ' + inv_componente.descripcion) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'componente_id': componente.id} %}
-        {% call f.form_tag('inv_componentes.edit', fid='componente_id_form', **form_kwargs) %}
-            {% call f.form_group(form.equipo, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.marca, readonly=true) %}{% endcall %}
+        {% set form_kwargs = {'inv_componente_id': inv_componente.id} %}
+        {% call f.form_tag('inv_componentes.edit', fid='inv_componente_id_form', **form_kwargs) %}
+            {% call f.form_group(form.inv_equipo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.inv_marca, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion_equipo, readonly=true) %}{% endcall %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
             {% call f.form_group(form.nombre, readonly=true) %}{% endcall %}

@@ -180,17 +180,17 @@ def edit(inv_equipo_id):
     """Editar Equipos"""
     inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
     form = InvEquipoForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            validar_fecha(form.adquisicion_fecha.data)
-            validacion = True
-        except Exception as err:
-            flash(f"La fecha es incorrecta: {str(err)}", "warning")
-            validacion = False
-        if validacion:
-            inv_equipo.inv_modelo = form.modelo.data
-            inv_equipo.inv_red = form.red.data
+        es_valido = True
+        # Validar la fecha de adquisicion, no se permiten fechas futuras
+        adquisicion_fecha = form.adquisicion_fecha.data
+        if adquisicion_fecha is not None and adquisicion_fecha > date.today():
+            es_valido = False
+            flash("La fecha de adquisición no puede ser futura.", "warning")
+        # Si es valido insertar
+        if es_valido:
+            inv_equipo.inv_modelo = form.inv_modelo.data
+            inv_equipo.inv_red = form.inv_red.data
             inv_equipo.adquisicion_fecha = form.adquisicion_fecha.data
             inv_equipo.numero_serie = form.numero_serie.data
             inv_equipo.numero_inventario = form.numero_inventario.data
@@ -205,12 +205,12 @@ def edit(inv_equipo_id):
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
                 descripcion=safe_message(f"Nuevo equipo {inv_equipo.descripcion}"),
-                url=url_for("inv_equipos.detail", equipo_id=inv_equipo.id),
+                url=url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id),
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
             # flash(f"Equipos {inv_equipo.descripcion} guardado.", "success")
-            return redirect(url_for("inv_equipos.detail", equipo_id=inv_equipo.id))
+            return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))
     form.inv_modelo.data = inv_equipo.inv_modelo
     form.inv_red.data = inv_equipo.inv_red
     form.adquisicion_fecha.data = inv_equipo.adquisicion_fecha
@@ -226,7 +226,7 @@ def edit(inv_equipo_id):
     form.email.data = inv_equipo.inv_custodia.usuario.email
     form.puesto.data = inv_equipo.inv_custodia.usuario.puesto
     form.oficina.data = str(f"{inv_equipo.inv_custodia.usuario.oficina.clave} - {inv_equipo.inv_custodia.usuario.oficina.descripcion_corta}")
-    return render_template("inv_equipos/edit.jinja2", form=form, equipo=equipo)
+    return render_template("inv_equipos/edit.jinja2", form=form, inv_equipo=inv_equipo)
 
 
 @inv_equipos.route("/inv_equipos/buscar", methods=["GET", "POST"])
@@ -261,37 +261,37 @@ def search():
     return render_template("inv_equipos/search.jinja2", form=form_search)
 
 
-@inv_equipos.route("/inv_equipos/eliminar/<int:equipo_id>")
+@inv_equipos.route("/inv_equipos/eliminar/<int:inv_equipo_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def delete(equipo_id):
+def delete(inv_equipo_id):
     """Eliminar Equipos"""
-    equipo = InvEquipo.query.get_or_404(equipo_id)
-    if equipo.estatus == "A":
-        equipo.delete()
+    inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
+    if inv_equipo.estatus == "A":
+        inv_equipo.delete()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado equipo {equipo.descripcion}"),
-            url=url_for("inv_equipos.detail", equipo_id=equipo.id),
+            descripcion=safe_message(f"Eliminado equipo {inv_equipo.descripcion}"),
+            url=url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-    return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+    return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))
 
 
-@inv_equipos.route("/inv_equipos/recuperar/<int:equipo_id>")
+@inv_equipos.route("/inv_equipos/recuperar/<int:inv_equipo_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def recover(equipo_id):
+def recover(inv_equipo_id):
     """Recuperar Equipos"""
-    equipo = InvEquipo.query.get_or_404(equipo_id)
-    if equipo.estatus == "B":
-        equipo.recover()
+    inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
+    if inv_equipo.estatus == "B":
+        inv_equipo.recover()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Recuperar equipo {equipo.descripcion}"),
-            url=url_for("inv_equipos.detail", equipo_id=equipo.id),
+            descripcion=safe_message(f"Recuperar equipo {inv_equipo.descripcion}"),
+            url=url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-    return redirect(url_for("inv_equipos.detail", equipo_id=equipo.id))
+    return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))

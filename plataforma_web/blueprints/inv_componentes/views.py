@@ -41,7 +41,7 @@ def datatable_json():
         consulta = consulta.filter_by(inv_equipo_id=request.form["inv_equipo_id"])
     if "inv_categoria_id" in request.form:
         consulta = consulta.filter_by(inv_categoria_id=request.form["inv_categoria_id"])
-    registros = consulta.order_by(InvComponente.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvComponente.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -49,10 +49,9 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "descripcion": resultado.descripcion,
                     "url": url_for("inv_componentes.detail", inv_componente_id=resultado.id),
                 },
-                "descripcion": resultado.descripcion,
                 "inv_categoria": {
                     "nombre": resultado.inv_categoria.nombre,
                     "url": url_for("inv_categorias.detail", inv_categoria_id=resultado.inv_categoria_id) if current_user.can_view("INV CATEGORIAS") else "",
@@ -106,20 +105,20 @@ def new(inv_equipo_id):
         return redirect(url_for("inv_equipos.list_active"))
     form = InvComponenteForm()
     if form.validate_on_submit():
-        componente = InvComponente(
+        inv_componente = InvComponente(
             inv_categoria=form.nombre.data,
             inv_equipo=inv_equipo,
             descripcion=safe_string(form.descripcion.data),
             cantidad=form.cantidad.data,
             version=form.version.data,
         )
-        componente.save()
-        flash(f"Componentes {componente.descripcion} guardado.", "success")
-        return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
+        inv_componente.save()
+        flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
+        return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
     form.inv_equipo.data = inv_equipo.id
-    form.inv_marca.data = inv_equipo.inv_modelo.inv_marca.nombre # Read only
-    form.descripcion_equipo.data = inv_equipo.descripcion # Read only
-    form.usuario.data = inv_equipo.inv_custodia.nombre_completo # Read only
+    form.inv_marca.data = inv_equipo.inv_modelo.inv_marca.nombre  # Read only
+    form.descripcion_equipo.data = inv_equipo.descripcion  # Read only
+    form.usuario.data = inv_equipo.inv_custodia.nombre_completo  # Read only
     return render_template("inv_componentes/new.jinja2", form=form, inv_equipo=inv_equipo)
 
 
