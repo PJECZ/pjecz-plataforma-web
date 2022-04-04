@@ -47,5 +47,6 @@ class InvEquipoSearchForm(FlaskForm):
 
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     numero_serie = StringField("Número de serie", validators=[Optional()])
-    adquisicion_fecha = DateField("Fecha de adquisición", validators=[Optional()])
+    fecha_desde = DateField("Fecha desde", validators=[Optional()])
+    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")

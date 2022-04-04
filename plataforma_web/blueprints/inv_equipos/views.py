@@ -64,8 +64,10 @@ def datatable_json():
         consulta = consulta.filter(InvEquipo.descripcion.contains(safe_string(request.form["descripcion"])))
     if "numero_serie" in request.form:
         consulta = consulta.filter(InvEquipo.numero_serie.contains(request.form["numero_serie"]))
-    if "adquisicion_fecha" in request.form:
-        consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["adquisicion_fecha"])
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["fecha_hasta"])
     registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -263,9 +265,12 @@ def search():
             if numero_serie != "":
                 busqueda["numero_serie"] = numero_serie
                 titulos.append("numero serie" + numero_serie)
-        if form_search.adquisicion_fecha.data:
-            busqueda["adquisicion_fecha"] = form_search.adquisicion_fecha.data.strftime("%Y-%m-%d")
-            titulos.append("fecha de asignacion de equipo" + form_search.adquisicion_fecha.data.strftime("%Y-%m-%d"))
+        if form_search.fecha_desde.data:
+            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
+            titulos.append("fecha desde " + busqueda["fecha_desde"])
+        if form_search.fecha_hasta.data:
+            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
+            titulos.append("fecha hasta " + busqueda["fecha_hasta"])
         return render_template(
             "inv_equipos/list.jinja2",
             filtros=json.dumps(busqueda),

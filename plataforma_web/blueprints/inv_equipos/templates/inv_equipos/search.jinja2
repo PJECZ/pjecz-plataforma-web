@@ -13,7 +13,8 @@
         {% call f.form_tag('inv_equipos.search', fid='equipo_search_form') %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.numero_serie) %}{% endcall %}
-            {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}
+            {% call f.form_group(form.fecha_desde) %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     {% endcall %}
