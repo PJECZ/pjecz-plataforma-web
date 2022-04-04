@@ -42,8 +42,8 @@
             <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Categoría</th>
                         <th>Descripción</th>
+                        <th>Categoría</th>
                         <th>Cantidad</th>
                         <th>Versión</th>
                     </tr>
@@ -94,7 +94,7 @@
                     targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' + data.descripcion+ '</a>';
                     }
                 },
                 {
