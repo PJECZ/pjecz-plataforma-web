@@ -8,50 +8,49 @@
 {% block title %}Equipos{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Equipo: ' + equipo.descripcion) %}
+    {% call topbar.page_buttons('Equipo: ' + inv_equipo.descripcion) %}
         {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
         {% if current_user.can_admin('INV EQUIPOS') %}
-            {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', equipo_id=equipo.id)) }}
-            {% if equipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos.delete', equipo_id=equipo.id)) }}{% endif %}
-            {% if equipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_equipos.recover', equipo_id=equipo.id)) }}{% endif %}
+            {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', inv_equipo_id=inv_equipo.id)) }}
+            {% if inv_equipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos.delete', inv_equipo_id=inv_equipo.id)) }}{% endif %}
+            {% if inv_equipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_equipos.recover', inv_equipo_id=inv_equipo.id)) }}{% endif %}
         {% elif current_user.can_edit('INV EQUIPOS') %}
-            {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', equipo_id=equipo.id)) }}
+            {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', inv_equipo_id=inv_equipo.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=equipo.estatus) %}
-        {{ detail.label_value('ID', equipo.id) }}
-        {{ detail.label_value('Usuario', equipo.inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=equipo.inv_custodia.usuario_id)) }}
-        {{ detail.label_value('Marca', equipo.inv_modelo.inv_marca.nombre, url_for('inv_marcas.detail', marca_id=equipo.inv_modelo.inv_marca.id)) }}
-        {{ detail.label_value('Modelo', equipo.inv_modelo.descripcion, url_for('inv_modelos.detail', modelo_id=equipo.inv_modelo_id)) }}
-        {{ detail.label_value('Fecha de adquisición', moment(equipo.adquisicion_fecha, local=True).format("DD MMM YYYY")) }}
-        {{ detail.label_value('Inventario', equipo.numero_inventario) }}
-        {{ detail.label_value('No. serie', equipo.numero_serie) }}
-        {{ detail.label_value('Descripción', equipo.descripcion) }}
-        {{ detail.label_value('Red', equipo.inv_red.nombre, url_for('inv_redes.detail', red_id=equipo.inv_red_id)) }}
-        {{ detail.label_value('Dirección IP', equipo.direccion_ip) }}
-        {{ detail.label_value('Dirección MAC', equipo.direccion_mac) }}
-        {{ detail.label_value('Número nodo', equipo.numero_nodo) }}
-        {{ detail.label_value('Número switch', equipo.numero_switch) }}
-        {{ detail.label_value('Número puerto', equipo.numero_puerto) }}
+    {% call detail.card(estatus=inv_equipo.estatus) %}
+        {{ detail.label_value('ID', inv_equipo.id) }}
+        {{ detail.label_value('Usuario', inv_equipo.inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=inv_equipo.inv_custodia.usuario_id)) }}
+        {{ detail.label_value('Marca', inv_equipo.inv_modelo.inv_marca.nombre, url_for('inv_marcas.detail', inv_marca_id=inv_equipo.inv_modelo.inv_marca.id)) }}
+        {{ detail.label_value('Modelo', inv_equipo.inv_modelo.descripcion, url_for('inv_modelos.detail', inv_modelo_id=inv_equipo.inv_modelo_id)) }}
+        {{ detail.label_value('Fecha de adquisición', moment(inv_equipo.adquisicion_fecha, local=True).format("DD MMM YYYY")) }}
+        {{ detail.label_value('Inventario', inv_equipo.numero_inventario) }}
+        {{ detail.label_value('No. serie', inv_equipo.numero_serie) }}
+        {{ detail.label_value('Descripción', inv_equipo.descripcion) }}
+        {{ detail.label_value('Red', inv_equipo.inv_red.nombre, url_for('inv_redes.detail', inv_red_id=inv_equipo.inv_red_id)) }}
+        {{ detail.label_value('Dirección IP', inv_equipo.direccion_ip) }}
+        {{ detail.label_value('Dirección MAC', inv_equipo.direccion_mac) }}
+        {{ detail.label_value('Número nodo', inv_equipo.numero_nodo) }}
+        {{ detail.label_value('Número switch', inv_equipo.numero_switch) }}
+        {{ detail.label_value('Número puerto', inv_equipo.numero_puerto) }}
     {% endcall %}
     {% if current_user.can_view('INV COMPONENTES') %}
         {% call detail.card('Componentes') %}
             <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Categoría</th>
                         <th>Descripción</th>
+                        <th>Categoría</th>
                         <th>Cantidad</th>
                         <th>Versión</th>
                     </tr>
                 </thead>
             </table>
             {% if current_user.can_insert('INV COMPONENTES') %}
-                <a href="{{ url_for('inv_componentes.new', equipo_id=equipo.id) }}" class="btn btn-primary">Agregar</a>
+                <a href="{{ url_for('inv_componentes.new', inv_equipo_id=inv_equipo.id) }}" class="btn btn-primary">Agregar</a>
             {% endif %}
         {% endcall %}
     {% endif %}
@@ -66,7 +65,7 @@
                 </thead>
             </table>
             {% if current_user.can_insert('INV EQUIPOS FOTOS') %}
-                <a href="{{ url_for('inv_equipos_fotos.new', equipo_id=equipo.id) }}" class="btn btn-primary">Adjuntar Foto</a>
+                <a href="{{ url_for('inv_equipos_fotos.new', inv_equipo_id=inv_equipo.id) }}" class="btn btn-primary">Adjuntar Foto</a>
             {% endif %}
         {% endcall %}
     {% endif %}
@@ -74,8 +73,8 @@
 
 {% block custom_javascript %}
     {% if current_user.can_edit('INV EQUIPOS') %}
-        {% if equipo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + equipo.descripcion + '?') }}{% endif %}
-        {% if equipo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + equipo.descripcion + '?') }}{% endif %}
+        {% if inv_equipo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + inv_equipo.descripcion + '?') }}{% endif %}
+        {% if inv_equipo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + inv_equipo.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
     {{ detail.config_datatable() }}
@@ -83,20 +82,26 @@
     {% if current_user.can_view('INV COMPONENTES') %}
         <script>
             configDataTable['ajax']['url'] = '/inv_componentes/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'equipo_id': {{ equipo.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'inv_equipo_id': {{ inv_equipo.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
-                { data: "categoria" },
-                { data: "descripcion" },
+                { data: "inv_categoria" },
                 { data: "cantidad" },
                 { data: "version" },
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: 0, // categoria
+                    targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                        return '<a href="' + data.url + '">' + data.descripcion+ '</a>';
+                    }
+                },
+                {
+                    targets: 1, // inv_categoria
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
             ];
@@ -106,7 +111,7 @@
     {% if current_user.can_view('INV EQUIPOS FOTOS') %}
         <script>
             configDataTable['ajax']['url'] = '/inv_equipos_fotos/datatable_json';
-            configDataTable['ajax']['data'] = {'estatus': "A", 'equipo_id': {{ equipo.id}} };
+            configDataTable['ajax']['data'] = {'estatus': "A", 'inv_equipo_id': {{ inv_equipo.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "descripcion" },

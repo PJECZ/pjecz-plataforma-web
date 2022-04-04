@@ -44,8 +44,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "equipo_id" in request.form:
-        consulta = consulta.filter_by(inv_equipo_id=request.form["equipo_id"])
+    if "inv_equipo_id" in request.form:
+        consulta = consulta.filter_by(inv_equipo_id=request.form["inv_equipo_id"])
     registros = consulta.order_by(InvEquipoFoto.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -55,7 +55,7 @@ def datatable_json():
             {
                 "detalle": {
                     "nombre": resultado.archivo,
-                    "url": url_for("inv_equipos_fotos.detail", equipo_foto_id=resultado.id),
+                    "url": url_for("inv_equipos_fotos.detail", inv_equipo_foto_id=resultado.id),
                 },
                 "descripcion": resultado.descripcion,
             }
@@ -87,24 +87,24 @@ def list_inactive():
     )
 
 
-@inv_equipos_fotos.route("/inv_equipos_fotos/<int:equipo_foto_id>")
-def detail(equipo_foto_id):
+@inv_equipos_fotos.route("/inv_equipos_fotos/<int:inv_equipo_foto_id>")
+def detail(inv_equipo_foto_id):
     """Detalle de un Soporte equipo"""
-    equipo_foto = InvEquipoFoto.query.get_or_404(equipo_foto_id)
+    inv_equipo_foto = InvEquipoFoto.query.get_or_404(inv_equipo_foto_id)
     return render_template(
         "inv_equipos_fotos/detail.jinja2",
-        equipo_foto=equipo_foto,
+        inv_equipo_foto=inv_equipo_foto,
     )
 
 
-@inv_equipos_fotos.route("/inv_equipos_fotos/nuevo/<int:equipo_id>", methods=["GET", "POST"])
+@inv_equipos_fotos.route("/inv_equipos_fotos/nuevo/<int:inv_equipo_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new(equipo_id):
+def new(inv_equipo_id):
     """Adjuntar Archivos al equipo"""
-    equipo = InvEquipo.query.get_or_404(equipo_id)
+    inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
     # archivo = InvEquipoFile
-    detalle_url = url_for("inv_equipos.detail", equipo_id=equipo.id)
-    if equipo.estatus != "A":
+    detalle_url = url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id)
+    if inv_equipo.estatus != "A":
         flash("No puede adjuntar un archivo a un equipo eliminado.", "warning")
         return redirect(detalle_url)
     form = InvEquipoFotoNewForm(CombinedMultiDict((request.files, request.form)))
@@ -129,18 +129,18 @@ def new(equipo_id):
         # Si es válido
         if es_valido:
             # Insertar el registro, para obtener el ID
-            equipo_foto = InvEquipoFoto(
-                inv_equipo=equipo,
+            inv_equipo_foto = InvEquipoFoto(
+                inv_equipo=inv_equipo,
                 descripcion=safe_string(descripcion),
             )
-            equipo_foto.save()
+            inv_equipo_foto.save()
             # Subir el archivo a la nube
             try:
-                storage.set_filename(hashed_id=equipo_foto.encode_id(), description=descripcion)
+                storage.set_filename(hashed_id=inv_equipo_foto.encode_id(), description=descripcion)
                 storage.upload(archivo.stream.read())
-                equipo_foto.archivo = archivo.filename  # Conservar el nombre original
-                equipo_foto.url = storage.url
-                equipo_foto.save()
+                inv_equipo_foto.archivo = archivo.filename  # Conservar el nombre original
+                inv_equipo_foto.url = storage.url
+                inv_equipo_foto.save()
             except NotConfiguredError:
                 flash("No se ha configurado el almacenamiento en la nube.", "warning")
             except Exception:
@@ -149,10 +149,10 @@ def new(equipo_id):
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Subida de archivo {equipo_foto.archivo} al equipo {equipo.id}."),
+                descripcion=safe_message(f"Subida de archivo {inv_equipo_foto.archivo} al equipo {inv_equipo.id}."),
                 url=detalle_url,
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    return render_template("inv_equipos_fotos/new.jinja2", form=form, equipo=equipo)
+    return render_template("inv_equipos_fotos/new.jinja2", form=form, inv_equipo=inv_equipo)

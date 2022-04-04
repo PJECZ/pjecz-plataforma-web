@@ -12,7 +12,8 @@
     {% call f.card() %}
         {% call f.form_tag('inv_custodias.search', fid='custodia_search_form') %}
             {% call f.form_group(form.nombre_completo) %}{% endcall %}
-            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.fecha_desde) %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     {% endcall %}

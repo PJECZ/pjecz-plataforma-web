@@ -19,11 +19,25 @@ def categorias_opciones():
 class InvComponenteForm(FlaskForm):
     """Formulario InvComponente"""
 
-    equipo = StringField("ID equipo")  # solo lectrua
-    marca = StringField("Marca")  # solo lectrua
+    inv_equipo = StringField("ID equipo")  # solo lectrua
+    inv_marca = StringField("Marca")  # solo lectrua
     descripcion_equipo = StringField("Descripción del equipo")  # solo lectrua
     usuario = StringField("Usuario")  # solo lectrua
     nombre = QuerySelectField(label="Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
+    cantidad = IntegerField("Cantidad (Número entero apartir de 1)", validators=[DataRequired()])
+    version = StringField("Versión", validators=[Optional(), Length(max=512)])
+    guardar = SubmitField("Guardar")
+
+
+class InvComponenteEditForm(FlaskForm):
+    """Formulario InvComponente"""
+
+    inv_equipo = StringField("ID equipo")  # solo lectrua
+    inv_marca = StringField("Marca")  # solo lectrua
+    descripcion_equipo = StringField("Descripción del equipo")  # solo lectrua
+    usuario = StringField("Usuario")  # solo lectrua
+    nombre = StringField("Categoria")  # solo lectrua
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
     cantidad = IntegerField("Cantidad (Número entero apartir de 1)", validators=[DataRequired()])
     version = StringField("Versión", validators=[Optional(), Length(max=512)])

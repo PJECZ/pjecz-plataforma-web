@@ -40,7 +40,7 @@
         configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: "id" },
+            { data: "detalle" },
             { data: "usuario" },
             { data: "fecha" },
             { data: "oficina" },
@@ -50,21 +50,29 @@
                 targets: 0,
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
             },
             {
                 targets: 1,
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
                 }
             },
             {
                 targets: 3,
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    if (data.url == '') {
+                        return data.clave;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
                 }
             },
         ];

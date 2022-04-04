@@ -3,17 +3,16 @@ Inventarios Componentes, vistas
 """
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
-from plataforma_web.blueprints.inv_categorias.models import InvCategoria
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_componentes.models import InvComponente
-from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm
+from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm, InvComponenteEditForm
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "INV COMPONENTES"
 
@@ -38,13 +37,11 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "equipo_id" in request.form:
-        consulta = consulta.filter_by(inv_equipo_id=request.form["equipo_id"])
-    if "categoria_id" in request.form:
-        categoria = InvCategoria.query.get(request.form["categoria_id"])
-        if categoria:
-            consulta = consulta.filter(InvComponente.inv_categoria == categoria)
-    registros = consulta.order_by(InvComponente.id).offset(start).limit(rows_per_page).all()
+    if "inv_equipo_id" in request.form:
+        consulta = consulta.filter_by(inv_equipo_id=request.form["inv_equipo_id"])
+    if "inv_categoria_id" in request.form:
+        consulta = consulta.filter_by(inv_categoria_id=request.form["inv_categoria_id"])
+    registros = consulta.order_by(InvComponente.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -52,11 +49,13 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
-                    "url": url_for("inv_componentes.detail", componente_id=resultado.id),
+                    "descripcion": resultado.descripcion,
+                    "url": url_for("inv_componentes.detail", inv_componente_id=resultado.id),
                 },
-                "descripcion": resultado.descripcion,
-                "categoria": resultado.inv_categoria.nombre,
+                "inv_categoria": {
+                    "nombre": resultado.inv_categoria.nombre,
+                    "url": url_for("inv_categorias.detail", inv_categoria_id=resultado.inv_categoria_id) if current_user.can_view("INV CATEGORIAS") else "",
+                },
                 "cantidad": resultado.cantidad,
                 "version": resultado.version,
             }
@@ -88,110 +87,85 @@ def list_inactive():
     )
 
 
-@inv_componentes.route("/inv_componentes/<int:componente_id>")
-def detail(componente_id):
+@inv_componentes.route("/inv_componentes/<int:inv_componente_id>")
+def detail(inv_componente_id):
     """Detalle de un Componentes"""
-    componente = InvComponente.query.get_or_404(componente_id)
-    return render_template("inv_componentes/detail.jinja2", componente=componente)
+    inv_componente = InvComponente.query.get_or_404(inv_componente_id)
+    return render_template("inv_componentes/detail.jinja2", inv_componente=inv_componente)
 
 
-@inv_componentes.route("/inv_componentes/nuevo/<int:equipo_id>", methods=["GET", "POST"])
+@inv_componentes.route("/inv_componentes/nuevo/<int:inv_equipo_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new(equipo_id):
+def new(inv_equipo_id):
     """Nuevo Componentes"""
     # Validar equipo
-    equipo = InvEquipo.query.get_or_404(equipo_id)
-    if equipo.estatus != "A":
+    inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
+    if inv_equipo.estatus != "A":
         flash("El equipo no es activo.", "warning")
         return redirect(url_for("inv_equipos.list_active"))
     form = InvComponenteForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form, equipo_id)
-            validacion = True
-        except Exception as err:
-            flash(f"La descripcion es incorrecta: {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
-            componente = InvComponente(
-                inv_categoria=form.nombre.data,
-                inv_equipo=equipo,
-                descripcion=safe_string(form.descripcion.data),
-                cantidad=form.cantidad.data,
-                version=form.version.data,
-            )
-            componente.save()
-            flash(f"Componentes {componente.descripcion} guardado.", "success")
-            return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
-    form.equipo.data = equipo.id
-    form.marca.data = equipo.inv_modelo.inv_marca.nombre
-    form.descripcion_equipo.data = equipo.descripcion
-    form.usuario.data = equipo.inv_custodia.nombre_completo
-    return render_template("inv_componentes/new.jinja2", form=form, equipo=equipo)
+        inv_componente = InvComponente(
+            inv_categoria=form.nombre.data,
+            inv_equipo=inv_equipo,
+            descripcion=safe_string(form.descripcion.data),
+            cantidad=form.cantidad.data,
+            version=form.version.data,
+        )
+        inv_componente.save()
+        flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
+        return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
+    form.inv_equipo.data = inv_equipo.id
+    form.inv_marca.data = inv_equipo.inv_modelo.inv_marca.nombre  # Read only
+    form.descripcion_equipo.data = inv_equipo.descripcion  # Read only
+    form.usuario.data = inv_equipo.inv_custodia.nombre_completo  # Read only
+    return render_template("inv_componentes/new.jinja2", form=form, inv_equipo=inv_equipo)
 
 
-@inv_componentes.route("/inv_componentes/edicion/<int:componente_id>", methods=["GET", "POST"])
+@inv_componentes.route("/inv_componentes/edicion/<int:inv_componente_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def edit(componente_id):
+def edit(inv_componente_id):
     """Editar Componentes"""
-    componente = InvComponente.query.get_or_404(componente_id)
-    form = InvComponenteForm()
-    validacion = False
+    inv_componente = InvComponente.query.get_or_404(inv_componente_id)
+    form = InvComponenteEditForm()
     if form.validate_on_submit():
-        try:
-            _validar_form(form, componente.inv_equipo_id, True)
-            validacion = True
-        except Exception as err:
-            flash(f"El componente es incorrecto: {str(err)}", "warning")
-            validacion = False
-        if validacion:
-            componente.categoria = form.nombre.data
-            componente.descripcion = safe_string(form.descripcion.data)
-            componente.cantidad = form.cantidad.data
-            componente.version = form.version.data
-            componente.save()
-            flash(f"Componentes {componente.descripcion} guardado.", "success")
-            return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
-    form.nombre.data = componente.inv_categoria
-    form.descripcion.data = safe_string(componente.descripcion)
-    form.cantidad.data = componente.cantidad
-    form.version.data = componente.version
-    form.equipo.data = componente.inv_equipo.id
-    form.marca.data = componente.inv_equipo.inv_modelo.inv_marca.nombre
-    form.descripcion_equipo.data = componente.inv_equipo.descripcion
-    form.usuario.data = componente.inv_equipo.inv_custodia.nombre_completo
-    return render_template("inv_componentes/edit.jinja2", form=form, componente=componente)
+        inv_componente.categoria = form.nombre.data
+        inv_componente.descripcion = safe_string(form.descripcion.data)
+        inv_componente.cantidad = form.cantidad.data
+        inv_componente.version = form.version.data
+        inv_componente.save()
+        flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
+        return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
+    form.nombre.data = inv_componente.inv_categoria.nombre
+    form.descripcion.data = safe_string(inv_componente.descripcion)
+    form.cantidad.data = inv_componente.cantidad
+    form.version.data = inv_componente.version
+    form.inv_equipo.data = inv_componente.inv_equipo.id
+    form.inv_marca.data = inv_componente.inv_equipo.inv_modelo.inv_marca.nombre
+    form.descripcion_equipo.data = inv_componente.inv_equipo.descripcion
+    form.usuario.data = inv_componente.inv_equipo.inv_custodia.nombre_completo
+    return render_template("inv_componentes/edit.jinja2", form=form, inv_componente=inv_componente)
 
 
-def _validar_form(form, inv_equipo_id, same=False):
-    if not same:
-        descripcion_existente = InvComponente.query.filter(InvComponente.descripcion == safe_string(form.descripcion.data)).filter(InvComponente.inv_equipo_id == inv_equipo_id).first()
-        if descripcion_existente:
-            raise Exception("La descripción ya está en uso.")
-    return True
-
-
-@inv_componentes.route("/inv_componentes/eliminar/<int:componente_id>")
+@inv_componentes.route("/inv_componentes/eliminar/<int:inv_componente_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def delete(componente_id):
+def delete(inv_componente_id):
     """Eliminar Componentes"""
-    componente = InvComponente.query.get_or_404(componente_id)
-    if componente.estatus == "A":
-        componente.delete()
-        flash(safe_message(f"Eliminar componente {componente.descripcion}"), "success")
-        return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
-    return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
+    inv_componente = InvComponente.query.get_or_404(inv_componente_id)
+    if inv_componente.estatus == "A":
+        inv_componente.delete()
+        flash(safe_message(f"Eliminar componente {inv_componente.descripcion}"), "success")
+        return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
+    return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
 
 
-@inv_componentes.route("/inv_componentes/recuperar/<int:componente_id>")
+@inv_componentes.route("/inv_componentes/recuperar/<int:inv_componente_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def recover(componente_id):
+def recover(inv_componente_id):
     """Recuperar Componentes"""
-    componente = InvComponente.query.get_or_404(componente_id)
-    if componente.estatus == "B":
-        componente.recover()
-        flash(safe_message(f"Recuperado componente {componente.descripcion}"), "success")
-        return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
-    return redirect(url_for("inv_componentes.detail", componente_id=componente.id))
+    inv_componente = InvComponente.query.get_or_404(inv_componente_id)
+    if inv_componente.estatus == "B":
+        inv_componente.recover()
+        flash(safe_message(f"Recuperado componente {inv_componente.descripcion}"), "success")
+        return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
+    return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))

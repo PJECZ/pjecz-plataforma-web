@@ -10,7 +10,7 @@
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'marca_id': marca.id} %}
+        {% set form_kwargs = {'inv_marca_id': inv_marca.id} %}
         {% call f.form_tag('inv_modelos.new', fid='modelo_form', **form_kwargs) %}
             {% call f.form_group(form.nombre, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
