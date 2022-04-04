@@ -159,30 +159,37 @@ def main():
             datos = []
             for persona in personas:
                 accion = ""
+                en_funciones = True
                 # Datos de personas
                 persona_id = int(persona["id"])
                 nombres = safe_string(persona["nombres"])
                 apellido_paterno = safe_string(persona["apellido_primero"])
                 apellido_materno = safe_string(persona["apellido_segundo"])
-                if nombres == "" or apellido_paterno == "":
-                    bitacora.warning("Se omite la persona %d porque falta el nombre o el primer apellido", persona_id)
-                    continue
                 nombre = f"{nombres} {apellido_paterno} {apellido_materno}"
+                if nombres == "" or apellido_paterno == "":
+                    bitacora.warning("Se omite %s (%d) porque falta el nombre o el primer apellido", nombre, persona_id)
+                    continue
                 curp = safe_string(persona["curp"], max_len=18)
                 if curp == "":
-                    bitacora.warning("Se omite la persona %d porque falta o es incorrecto el CURP", persona_id)
+                    bitacora.warning("Se omite %s (%d) porque falta o es incorrecto el CURP", nombre, persona_id)
                     continue
                 email = safe_email(persona["email"])
                 if email == "":
-                    bitacora.warning("Se omite la persona %d porque falta el email", persona_id)
+                    bitacora.warning("Se omite %s (%d) porque falta el email", nombre, persona_id)
                     continue
                 if not email.endswith("@coahuila.gob.mx"):
-                    bitacora.warning("Se omite la persona %d porque el email %s no es de coahuila", persona_id, email)
+                    bitacora.warning("Se omite %s (%d) porque el email %s no es de coahuila.gob.mx", nombre, persona_id, email)
                     continue
+                if persona["situacion"] == "B":
+                    bitacora.info("A %s (%d) esta en Baja por lo que NO esta en funciones", nombre, persona_id)
+                    en_funciones = False
+                if persona["situacion"] == "A.D.SUS":
+                    bitacora.info("A %s (%d) esta Suspendida por lo que NO esta en funciones", nombre, persona_id)
+                    en_funciones = False
                 if persona["fecha_ingreso_pj"] is not None:
                     ingreso_fecha = datetime.strptime(persona["fecha_ingreso_pj"], "%Y-%m-%d").date()
                 else:
-                    bitacora.warning("A la persona %d se le define una fecha de ingreso por defecto", persona_id)
+                    bitacora.info("A %s (%d) se le define una fecha de ingreso por defecto", nombre, persona_id)
                     ingreso_fecha = date(1900, 1, 1)
                 # Datos de historial de puestos
                 puesto = ""
@@ -190,16 +197,17 @@ def main():
                 centro_trabajo_clave = ""
                 historial_puesto = get_historial_puestos(base_url, token, persona_id)
                 if historial_puesto is None:
-                    bitacora.warning("Se omite la persona %d porque no tiene historial de puestos", persona_id)
-                    continue
-                en_funciones = False
-                if historial_puesto["fecha_termino"] is None:  # La fecha de termino vacia significa que esta en funciones
-                    en_funciones = True
+                    bitacora.info("A %s (%d) NO tiene historial de puestos por lo que NO esta en funciones", nombre, persona_id)
+                    en_funciones = False
+                if en_funciones and historial_puesto["fecha_termino"] is None:  # La fecha de termino vacia significa que esta en funciones
                     puesto = safe_string(historial_puesto["puesto_funcion_nombre"])
                     centro_trabajo_clave = safe_clave(historial_puesto["centro_trabajo"])
                     # Datos del puesto
                     puesto_funcion = get_puesto_funcion(base_url, token, historial_puesto["puesto_funcion_id"])
                     puesto_clave = safe_clave(puesto_funcion["puesto_clave"])
+                else:
+                    bitacora.info("A %s (%d) NO tiene un historial de puesto abierto por lo que NO esta en funciones", nombre, persona_id)
+                    en_funciones = False
                 # Datos de fotografias
                 fotografia_url = ""
                 fotografia = get_personas_fotografias(base_url, token, persona_id)
@@ -211,7 +219,7 @@ def main():
                 if funcionario is None:
                     funcionario_con_mismo_email = Funcionario.query.filter_by(email=email).first()
                     if funcionario_con_mismo_email is not None:
-                        bitacora.warning("Se omite insertar la persona %d porque el email %s ya esta registrado", persona_id, email)
+                        bitacora.warning("Se omite insertar %s (%d) porque el email %s ya esta registrado", nombre, persona_id, email)
                         continue
                     accion = "Insertado"
                     centro_trabajo = CentroTrabajo.query.filter_by(clave=centro_trabajo_clave).first()
@@ -236,7 +244,7 @@ def main():
                     if email != funcionario.email:
                         funcionario_con_mismo_email = Funcionario.query.filter_by(email=email).first()
                         if funcionario_con_mismo_email is not None:
-                            bitacora.warning("Se omite actualizar la persona %d porque el email %s ya esta registrado", persona_id, email)
+                            bitacora.warning("Se omite actualizar %s (%d) porque el email %s ya esta registrado", nombre, persona_id, email)
                             continue
                         ha_cambiado = True
                         funcionario.email = email
