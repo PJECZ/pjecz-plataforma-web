@@ -42,23 +42,23 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#red').addClass('js-example-placeholder-single js-states form-control');
-            $('#modelo').addClass('js-example-placeholder-single js-states form-control');
+            $('#inv_red').addClass('js-example-placeholder-single js-states form-control');
+            $('#inv_modelo').addClass('js-example-placeholder-single js-states form-control');
 
             $('#modelo').each(function(){
                 if('{{form.modelo}}' == 'None'){
-                    $("#modelo").prop("selectedIndex", -1); // Poner en blanco el select
+                    $("#inv_modelo").prop("selectedIndex", -1); // Poner en blanco el select
                 }
-                if($(this).text() == '{{form.modelo}}'){
-                    $('#modelo').val( $(this).val() );
+                if($(this).text() == '{{form.inv_modelo}}'){
+                    $('#inv_modelo').val( $(this).val() );
                 }
             });
             $('#red').each(function() {
-                if('{{form.red}}' == 'None'){
-                    $("#red").prop("selectedIndex", -1); // Poner en blanco el select
+                if('{{form.inv_red}}' == 'None'){
+                    $("#inv_red").prop("selectedIndex", -1); // Poner en blanco el select
                 }
-                if($(this).text() == '{{form.red}}') {
-                    $("#red").val( $(this).val() );
+                if($(this).text() == '{{form.inv_red}}') {
+                    $("#inv_red").val( $(this).val() );
                 }
             });
 

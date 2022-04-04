@@ -25,4 +25,4 @@ class InvEquipoFoto(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<InvEquipoFoto>"
+        return f"<InvEquipoFoto {self.id}>"
