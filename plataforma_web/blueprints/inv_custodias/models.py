@@ -1,7 +1,6 @@
 """
 Inventarios Custodias, modelos
 """
-
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -29,4 +28,4 @@ class InvCustodia(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<InvCustodia>"
+        return f"<InvCustodia {self.id}>"

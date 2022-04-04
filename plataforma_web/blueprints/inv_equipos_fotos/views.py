@@ -1,7 +1,6 @@
 """
 Inventarios Equipos Fotos, vistas
 """
-
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -13,12 +12,12 @@ from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExte
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.inv_equipos_fotos.models import InvEquipoFoto
+from plataforma_web.blueprints.inv_equipos_fotos.forms import InvEquipoFotoNewForm
+from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_equipos_fotos.models import InvEquipoFoto
-from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 
-from plataforma_web.blueprints.inv_equipos_fotos.forms import InvEquipoFotoNewForm
 
 MODULO = "INV EQUIPOS FOTOS"
 SUBDIRECTORIO = "inv equipo_fotos"

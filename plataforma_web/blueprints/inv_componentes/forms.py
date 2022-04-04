@@ -1,7 +1,6 @@
 """
 Inventarios Componentes, formularios
 """
-
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional

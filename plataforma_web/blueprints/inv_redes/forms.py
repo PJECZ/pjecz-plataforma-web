@@ -14,11 +14,3 @@ class InvRedForm(FlaskForm):
     nombre = StringField("Nombre", validators=[DataRequired(), Length(max=256)])
     tipo = SelectField("Tipo", choices=InvRed.TIPOS, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
-
-
-class InvRedSearchForm(FlaskForm):
-    """Formulario buscar InvRed"""
-
-    nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
-    tipo = SelectField("Tipo", choices=InvRed.TIPOS, validators=[Optional()])
-    buscar = SubmitField("Buscar")
