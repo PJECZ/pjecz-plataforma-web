@@ -9,7 +9,7 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
 
 from plataforma_web.blueprints.inv_marcas.models import InvMarca
-from plataforma_web.blueprints.inv_modelos.forms import InvModeloForm, InvModeloEditForm
+from plataforma_web.blueprints.inv_modelos.forms import InvModeloForm
 from plataforma_web.blueprints.inv_modelos.models import InvModelo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required

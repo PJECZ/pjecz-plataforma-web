@@ -8,7 +8,6 @@
     {{ topbar.page('Nuevo Componente para ' + inv_equipo.inv_modelo.descripcion ) }}
 {% endblock %}
 
-
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'inv_equipo_id': inv_equipo.id} %}  

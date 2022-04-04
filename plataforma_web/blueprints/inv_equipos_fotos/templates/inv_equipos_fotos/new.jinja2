@@ -15,7 +15,7 @@
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'inv_equipo_id': inv_equipo.id} %}
-        {% call f.form_tag_multipart('inv_equipos_fotos.new', fid='foto_form', **form_kwargs) %}
+        {% call f.form_tag_multipart('inv_equipos_fotos.new', fid='inv_equipo_foto_form', **form_kwargs) %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.drop_zone_wrapper() %}
                 {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}

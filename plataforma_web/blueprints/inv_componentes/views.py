@@ -8,10 +8,10 @@ from flask_login import current_user, login_required
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 
-from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_componentes.models import InvComponente
 from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm, InvComponenteEditForm
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
+from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "INV COMPONENTES"

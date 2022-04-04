@@ -145,7 +145,6 @@ def edit(inv_custodia_id):
     """Editar Custodias"""
     inv_custodia = InvCustodia.query.get_or_404(inv_custodia_id)
     form = InvCustodiaForm()
-    validacion = False
     if form.validate_on_submit():
         es_valido = True
         # validar que la actualización de la fecha de custodia, no se permiten fechas futuras
