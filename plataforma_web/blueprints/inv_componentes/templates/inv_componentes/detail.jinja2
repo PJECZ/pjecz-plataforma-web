@@ -3,10 +3,10 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Componentes{% endblock %}
+{% block title %}Componente{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Componente: ' + inv_componente.inv_categoria.nombre) %}
+    {% call topbar.page_buttons('Componente ' + inv_componente.inv_categoria.nombre) %}
         {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active', inv_equipo_id=inv_componente.inv_equipo_id)) }}
         {% if current_user.can_edit('INV COMPONENTES') %}
             {{ topbar.button_edit('Editar', url_for('inv_componentes.edit', inv_componente_id=inv_componente.id)) }}
