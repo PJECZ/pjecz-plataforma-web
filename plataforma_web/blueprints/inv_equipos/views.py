@@ -148,6 +148,7 @@ def new(inv_custodia_id):
                 numero_serie=form.numero_serie.data,
                 numero_inventario=form.numero_inventario.data,
                 descripcion=safe_string(form.descripcion.data),
+                tipo=form.tipo.data,
                 direccion_ip=form.direccion_ip.data,
                 direccion_mac=form.direccion_mac.data,
                 numero_nodo=form.numero_nodo.data,
@@ -192,6 +193,7 @@ def edit(inv_equipo_id):
             inv_equipo.numero_serie = form.numero_serie.data
             inv_equipo.numero_inventario = form.numero_inventario.data
             inv_equipo.descripcion = safe_string(form.descripcion.data)
+            inv_equipo.tipo = form.tipo.data
             inv_equipo.direccion_ip = form.direccion_ip.data
             inv_equipo.direccion_mac = form.direccion_mac.data
             inv_equipo.numero_nodo = form.numero_nodo.data
@@ -214,6 +216,7 @@ def edit(inv_equipo_id):
     form.numero_serie.data = inv_equipo.numero_serie
     form.numero_inventario.data = inv_equipo.numero_inventario
     form.descripcion.data = safe_string(inv_equipo.descripcion)
+    form.tipo.data = inv_equipo.tipo
     form.direccion_ip.data = inv_equipo.direccion_ip
     form.direccion_mac.data = inv_equipo.direccion_mac
     form.numero_nodo.data = inv_equipo.numero_nodo
