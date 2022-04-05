@@ -8,9 +8,9 @@ from flask_login import login_required
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
 
-from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.inv_categorias.forms import InvCategoriaForm
 from plataforma_web.blueprints.inv_categorias.models import InvCategoria
+from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "INV CATEGORIAS"
@@ -55,7 +55,7 @@ def datatable_json():
 
 @inv_categorias.route("/inv_categorias")
 def list_active():
-    """Listado de INV CATEGORIAS activos"""
+    """Listado de Inv Categorías activos"""
     return render_template(
         "inv_categorias/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
@@ -67,7 +67,7 @@ def list_active():
 @inv_categorias.route("/inv_categorias/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de INV CATEGORIAS inactivos"""
+    """Listado de Inv Categorías inactivos"""
     return render_template(
         "inv_categorias/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
@@ -94,7 +94,7 @@ def new():
         nombre = safe_string(form.nombre.data)
         inv_categoria_existente = InvCategoria.query.filter_by(nombre=nombre).first()
         if inv_categoria_existente:
-            flash("Ya existe una categoria con ese nombre.", "warning")
+            flash("Ya existe una categoría con ese nombre.", "warning")
             es_valido = False
         # Si es valido insertar
         if es_valido:

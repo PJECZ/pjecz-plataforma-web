@@ -45,15 +45,15 @@
             $('#inv_red').addClass('js-example-placeholder-single js-states form-control');
             $('#inv_modelo').addClass('js-example-placeholder-single js-states form-control');
 
-            $('#modelo').each(function(){
-                if('{{form.modelo}}' == 'None'){
+            $('#inv_modelo').each(function(){
+                if('{{form.inv_modelo}}' == 'None'){
                     $("#inv_modelo").prop("selectedIndex", -1); // Poner en blanco el select
                 }
                 if($(this).text() == '{{form.inv_modelo}}'){
                     $('#inv_modelo').val( $(this).val() );
                 }
             });
-            $('#red').each(function() {
+            $('#inv_red').each(function() {
                 if('{{form.inv_red}}' == 'None'){
                     $("#inv_red").prop("selectedIndex", -1); // Poner en blanco el select
                 }

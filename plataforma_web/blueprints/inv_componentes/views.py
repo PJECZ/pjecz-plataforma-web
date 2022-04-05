@@ -49,9 +49,10 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "descripcion": resultado.descripcion,
+                    "id": resultado.id,
                     "url": url_for("inv_componentes.detail", inv_componente_id=resultado.id),
                 },
+                "descripcion": resultado.descripcion,
                 "inv_categoria": {
                     "nombre": resultado.inv_categoria.nombre,
                     "url": url_for("inv_categorias.detail", inv_categoria_id=resultado.inv_categoria_id) if current_user.can_view("INV CATEGORIAS") else "",

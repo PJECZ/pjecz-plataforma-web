@@ -53,8 +53,9 @@
             <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Descripción</th>
+                        <th>ID</th>
                         <th>Categoría</th>
+                        <th>Descripción</th>
                         <th>Cantidad</th>
                         <th>Versión</th>
                     </tr>
@@ -97,6 +98,7 @@
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "inv_categoria" },
+                { data: "descripcion" },
                 { data: "cantidad" },
                 { data: "version" },
             ];
@@ -105,7 +107,7 @@
                     targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion+ '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {

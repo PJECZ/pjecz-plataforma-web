@@ -25,6 +25,7 @@
             <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Descripción</th>
                         <th>Cantidad</th>
                         <th>Versión</th>
@@ -47,6 +48,7 @@
             configDataTable['ajax']['data'] = {'estatus': "A", 'inv_categoria_id': {{ inv_categoria.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
+                { data: "descripcion" },
                 { data: "cantidad" },
                 { data: "version" },
             ];
@@ -56,9 +58,9 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url == '') {
-                            return data.descripcion;
+                            return data.id;
                         } else {
-                            return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
                         }
                     }
                 }
