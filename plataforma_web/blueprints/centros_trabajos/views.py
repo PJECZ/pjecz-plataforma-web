@@ -134,6 +134,7 @@ def edit(centro_trabajo_id):
         centro_trabajo.nombre = safe_string(form.nombre.data)
         centro_trabajo.telefono = safe_string(form.telefono.data)
         centro_trabajo.distrito = form.distrito.data
+        centro_trabajo.domicilio = form.domicilio.data
         centro_trabajo.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -148,4 +149,5 @@ def edit(centro_trabajo_id):
     form.nombre.data = centro_trabajo.nombre
     form.telefono.data = centro_trabajo.telefono
     form.distrito.data = centro_trabajo.distrito
+    form.domicilio.data = centro_trabajo.domicilio
     return render_template("centros_trabajos/edit.jinja2", form=form, centro_trabajo=centro_trabajo)

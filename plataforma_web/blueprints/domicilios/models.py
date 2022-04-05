@@ -26,7 +26,8 @@ class Domicilio(db.Model, UniversalMixin):
     numeracion_telefonica = db.Column(db.String(256), nullable=False, default="", server_default="")
 
     # Hijos
-    oficinas = db.relationship("Oficina", back_populates="domicilio")
+    centros_trabajos = db.relationship("CentroTrabajo", back_populates="domicilio", lazy="noload")
+    oficinas = db.relationship("Oficina", back_populates="domicilio", lazy="noload")
 
     def elaborar_completo(self):
         """Elaborar completo"""
