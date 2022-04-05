@@ -2,10 +2,10 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}INV Foto{% endblock %}
+{% block title %}Foto del equipo{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Equipo ' + inv_equipo_foto.inv_equipo.id | string) %}
+    {% call topbar.page_buttons('Equipo ' + inv_equipo_foto.inv_equipo_id | string) %}
         {{ topbar.button_previous('Equipo detalle', url_for('inv_equipos.detail', inv_equipo_id=inv_equipo_foto.inv_equipo.id)) }}
     {% endcall %}
 {% endblock %}

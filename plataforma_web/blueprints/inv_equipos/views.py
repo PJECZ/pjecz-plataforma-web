@@ -67,10 +67,7 @@ def datatable_json():
                 },
                 "descripcion": resultado.descripcion,
                 "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d") if resultado.adquisicion_fecha is not None else "-",
-                "usuario": {
-                    "nombre_completo": resultado.inv_custodia.usuario.nombre,
-                    "url": url_for("usuarios.detail", usuario_id=resultado.inv_custodia.usuario_id) if current_user.can_view("USUARIOS") else "",
-                },
+                "nombre_completo": resultado.inv_custodia.nombre_completo,
                 "inv_custodia_id": {
                     "id": resultado.inv_custodia.id,
                     "url": url_for("inv_custodias.detail", inv_custodia_id=resultado.inv_custodia.id) if current_user.can_view("INV CUSTODIAS") else "",
@@ -171,7 +168,7 @@ def new(inv_custodia_id):
     form.email.data = inv_custodia.usuario.email
     form.puesto.data = inv_custodia.usuario.puesto
     form.oficina.data = str(f"{inv_custodia.usuario.oficina.clave} - {inv_custodia.usuario.oficina.descripcion_corta}")
-    return render_template("inv_equipos/new.jinja2", form=form, custodia=inv_custodia)
+    return render_template("inv_equipos/new.jinja2", form=form, inv_custodia=inv_custodia)
 
 
 @inv_equipos.route("/inv_equipos/edicion/<int:inv_equipo_id>", methods=["GET", "POST"])

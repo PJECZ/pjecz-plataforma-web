@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar Equipo: ' + inv_equipo.descripcion) }}
+    {{ topbar.page('Editar Equipo ' + inv_equipo.id | string) }}
 {% endblock %}
 
 {% block content %}

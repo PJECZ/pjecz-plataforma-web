@@ -4,7 +4,7 @@
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/list.jinja2' as list %}
 
-{% block title %}Modelos{% endblock %}
+{% block title %}Modelo{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Modelo:  ' + inv_modelo.descripcion) %}
@@ -19,7 +19,11 @@
 
 {% block content %}
     {% call detail.card(estatus=inv_modelo.estatus) %}
-        {{ detail.label_value('Marca', inv_modelo.inv_marca.nombre) }}
+        {% if current_user.can_view('INV MARCAS') %}
+            {{ detail.label_value('Marca', inv_modelo.inv_marca.nombre, url_for('inv_marcas.detail', inv_marca_id=inv_modelo.inv_marca_id)) }}
+        {% else %}
+            {{ detail.label_value('Marca', inv_modelo.inv_marca.nombre) }}
+        {% endif %}
         {{ detail.label_value('Descripcion', inv_modelo.descripcion) }}
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS') %}
@@ -32,7 +36,7 @@
                         <th>Marca</th>
                         <th>Descripción del equipo</th>
                         <th>Red</th>
-                        <th>Usuario</th>
+                        <th>Nombre completo en la custodia</th>
                     </tr>
                 </thead>
             </table>
@@ -56,7 +60,7 @@
                 { data: "inv_marca" },
                 { data: "descripcion" },
                 { data: "inv_red" },
-                { data: "usuario" },
+                { data: "nombre_completo" },
             ];
             configDataTable['columnDefs'] = [
                 {
@@ -71,13 +75,6 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                    }
-                },
-                {
-                    targets: 5, // usuario
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
                     }
                 },
             ];
