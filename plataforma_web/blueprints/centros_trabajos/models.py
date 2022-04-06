@@ -24,7 +24,6 @@ class CentroTrabajo(db.Model, UniversalMixin):
     clave = db.Column(db.String(16), unique=True, nullable=False)
     nombre = db.Column(db.String(256), nullable=False)
     telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
-    domicilio_completo = db.Column(db.String(1024), nullable=False, default="", server_default="")
 
     # Hijos
     funcionarios = db.relationship("Funcionario", back_populates="centro_trabajo", lazy="noload")

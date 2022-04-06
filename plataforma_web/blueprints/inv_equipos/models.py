@@ -2,7 +2,6 @@
 Inventarios Equipos, modelos
 """
 from collections import OrderedDict
-from operator import index
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 

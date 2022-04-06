@@ -17,7 +17,6 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 
 from plataforma_web.blueprints.inv_custodias.forms import InvCustodiaForm, InvCustodiaSearchForm
 
-
 MODULO = "INV CUSTODIAS"
 MESES_FUTUROS = 6  # Un año a futuro, para las fechas
 
