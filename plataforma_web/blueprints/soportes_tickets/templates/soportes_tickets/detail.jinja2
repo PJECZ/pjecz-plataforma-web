@@ -142,9 +142,6 @@
             {% endcall %}
         {% endcall %}
     {% endcall %}
-    <hr>
-    <p class="act"><b>Active Tab</b>: <span></span></p>
-    <p class="prev"><b>Previous Tab</b>: <span></span></p>
 {% endblock %}
 
 {% block custom_javascript %}
@@ -168,14 +165,15 @@
         }
     </script>
     <script>
-        //$('#tickets-tab').on('show.bs.tab', function(){ alert('estas en detalle')});
-        $('#archivo-adjunto-tab').on('show.bs.tab', function(){ console.log('#archivo-adjunto-tab')});
+        $('#archivo-adjunto-tab').on('show.bs.tab', function(){
+            console.log('archivo-adjunto-tab');
+        });
     </script>
     {% if current_user.can_view('INV CUSTODIAS') %}
         <script>
         $('#custodias-tab').on('show.bs.tab', function(){
             configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
-            configDataTable['ajax']['data'] = {{ filtros }};
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ soporte_ticket.usuario.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "fecha" },
