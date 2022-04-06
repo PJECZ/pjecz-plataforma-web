@@ -17,6 +17,8 @@ class CentroTrabajo(db.Model, UniversalMixin):
     # Claves foráneas
     distrito_id = db.Column(db.Integer, db.ForeignKey("distritos.id"), index=True, nullable=False)
     distrito = db.relationship("Distrito", back_populates="centros_trabajos")
+    domicilio_id = db.Column(db.Integer, db.ForeignKey('domicilios.id'), index=True, nullable=False)
+    domicilio = db.relationship('Domicilio', back_populates='centros_trabajos')
 
     # Columnas
     clave = db.Column(db.String(16), unique=True, nullable=False)

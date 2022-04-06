@@ -7,6 +7,9 @@
 {% block custom_head %}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .radiobutton_inline { display: flex; }
+    </style>
 {% endblock %}
 
 {% block topbar_actions %}
@@ -23,6 +26,7 @@
             {% call f.form_group(form.puesto, readonly=true) %}{% endcall %}
             {% call f.form_group(form.inv_modelo) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.tipo, css_class="radiobutton_inline") %}{% endcall %}
             {% call f.form_group(form.adquisicion_fecha) %}{% endcall %}
             {% call f.form_group(form.numero_serie) %}{% endcall %}
             {% call f.form_group(form.numero_inventario) %}{% endcall %}
@@ -45,15 +49,15 @@
             $('#inv_red').addClass('js-example-placeholder-single js-states form-control');
             $('#inv_modelo').addClass('js-example-placeholder-single js-states form-control');
 
-            $('#modelo').each(function(){
-                if('{{form.modelo}}' == 'None'){
+            $('#inv_modelo').each(function(){
+                if('{{form.inv_modelo}}' == 'None'){
                     $("#inv_modelo").prop("selectedIndex", -1); // Poner en blanco el select
                 }
                 if($(this).text() == '{{form.inv_modelo}}'){
                     $('#inv_modelo').val( $(this).val() );
                 }
             });
-            $('#red').each(function() {
+            $('#inv_red').each(function() {
                 if('{{form.inv_red}}' == 'None'){
                     $("#inv_red").prop("selectedIndex", -1); // Poner en blanco el select
                 }

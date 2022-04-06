@@ -37,6 +37,7 @@
         {% else %}
             {{ detail.label_value('Modelo', inv_equipo.inv_modelo.descripcion) }}
         {% endif %}
+        {{ detail.label_value('Tipo de equipo', inv_equipo.tipo) }}
         {{ detail.label_value('Fecha de adquisición', moment(inv_equipo.adquisicion_fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Inventario', inv_equipo.numero_inventario) }}
         {{ detail.label_value('No. serie', inv_equipo.numero_serie) }}
@@ -53,8 +54,9 @@
             <table id="inv_componentes_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Descripción</th>
+                        <th>ID</th>
                         <th>Categoría</th>
+                        <th>Descripción</th>
                         <th>Cantidad</th>
                         <th>Versión</th>
                     </tr>
@@ -97,6 +99,7 @@
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "inv_categoria" },
+                { data: "descripcion" },
                 { data: "cantidad" },
                 { data: "version" },
             ];
@@ -105,7 +108,7 @@
                     targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion+ '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {

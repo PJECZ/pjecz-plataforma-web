@@ -7,13 +7,13 @@ from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_clave, safe_string, safe_message
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.centros_trabajos.forms import CentroTrabajoForm, CentroTrabajoSearchForm
 from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "CENTROS TRABAJOS"
 
@@ -134,6 +134,7 @@ def edit(centro_trabajo_id):
         centro_trabajo.nombre = safe_string(form.nombre.data)
         centro_trabajo.telefono = safe_string(form.telefono.data)
         centro_trabajo.distrito = form.distrito.data
+        centro_trabajo.domicilio = form.domicilio.data
         centro_trabajo.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -148,4 +149,5 @@ def edit(centro_trabajo_id):
     form.nombre.data = centro_trabajo.nombre
     form.telefono.data = centro_trabajo.telefono
     form.distrito.data = centro_trabajo.distrito
+    form.domicilio.data = centro_trabajo.domicilio
     return render_template("centros_trabajos/edit.jinja2", form=form, centro_trabajo=centro_trabajo)
