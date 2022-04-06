@@ -6,10 +6,10 @@ from flask.helpers import url_for
 from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.entradas_salidas.models import EntradaSalida
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "ENTRADAS SALIDAS"
 
