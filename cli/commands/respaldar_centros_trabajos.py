@@ -26,6 +26,7 @@ def respaldar_centros_trabajos(salida: str = "centros_trabajos.csv"):
                 "nombre",
                 "telefono",
                 "distrito_id",
+                "domicilio_id",
                 "estatus",
             ]
         )
@@ -37,6 +38,7 @@ def respaldar_centros_trabajos(salida: str = "centros_trabajos.csv"):
                     centro_trabajo.nombre,
                     centro_trabajo.telefono,
                     centro_trabajo.distrito_id,
+                    centro_trabajo.domicilio_id,
                     centro_trabajo.estatus,
                 ]
             )
