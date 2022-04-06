@@ -1,12 +1,26 @@
 """
 Inventarios Equipos, modelos
 """
+from collections import OrderedDict
+from operator import index
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class InvEquipo(db.Model, UniversalMixin):
     """InvEquipo"""
+
+    TIPO = OrderedDict(
+        [
+            ("COMPUTADORA", "COMPUTADORA"),
+            ("VIDEOGRABACION", "VIDEOGRABACION"),
+            ("IMPRESORA", "IMPRESORA"),
+            ("TELEFONIA", "TELEFONIA"),
+            ("SERVIDOR", "SERVIDOR"),
+            ("SCANNER", "SCANNER"),
+            ("OTROS", "OTROS"),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "inv_equipos"
@@ -27,6 +41,7 @@ class InvEquipo(db.Model, UniversalMixin):
     numero_serie = db.Column(db.String(256))
     numero_inventario = db.Column(db.Integer())
     descripcion = db.Column(db.String(256), nullable=False)
+    tipo = db.Column(db.Enum(*TIPO, name="tipos", native_enum=False), index=True, nullable=False)
     direccion_ip = db.Column(db.String(256))
     direccion_mac = db.Column(db.String(256))
     numero_nodo = db.Column(db.Integer())
