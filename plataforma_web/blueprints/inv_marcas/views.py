@@ -7,13 +7,11 @@ from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_marcas.models import InvMarca
-from plataforma_web.blueprints.inv_modelos.models import InvModelo
-
 from plataforma_web.blueprints.inv_marcas.forms import InvMarcaForm
+from plataforma_web.blueprints.inv_marcas.models import InvMarca
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "INV MARCAS"
 
@@ -38,7 +36,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(InvMarca.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvMarca.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -47,7 +45,7 @@ def datatable_json():
             {
                 "detalle": {
                     "nombre": resultado.nombre,
-                    "url": url_for("inv_marcas.detail", marca_id=resultado.id),
+                    "url": url_for("inv_marcas.detail", inv_marca_id=resultado.id),
                 },
             }
         )
@@ -78,12 +76,11 @@ def list_inactive():
     )
 
 
-@inv_marcas.route("/inv_marcas/<int:marca_id>")
-def detail(marca_id):
+@inv_marcas.route("/inv_marcas/<int:inv_marca_id>")
+def detail(inv_marca_id):
     """Detalle de un Marcas"""
-    marca = InvMarca.query.get_or_404(marca_id)
-    modelos = InvModelo.query.filter(InvModelo.inv_marca_id == marca_id).all()
-    return render_template("inv_marcas/detail.jinja2", marca=marca, modelos=modelos)
+    inv_marca = InvMarca.query.get_or_404(inv_marca_id)
+    return render_template("inv_marcas/detail.jinja2", inv_marca=inv_marca)
 
 
 @inv_marcas.route("/inv_marcas/nuevo", methods=["GET", "POST"])
@@ -91,72 +88,64 @@ def detail(marca_id):
 def new():
     """Nuevo Marcas"""
     form = InvMarcaForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form)
-            validacion = True
-        except Exception as err:
-            flash(f"Nombre de la marca incorrecto. {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
-            marca = InvMarca(nombre=safe_string(form.nombre.data))
-            marca.save()
-            flash(f"Marcas {marca.nombre} guardado.", "success")
-            return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
+        es_valido = True
+        # Validar que no exista ese nombre
+        nombre = safe_string(form.nombre.data)
+        inv_marca_existente = InvMarca.query.filter_by(nombre=nombre).first()
+        if inv_marca_existente:
+            flash("Ya existe una marca con ese nombre.", "warning")
+            es_valido = False
+        # Si es valido insertar
+        if es_valido:
+            inv_marca = InvMarca(nombre=safe_string(form.nombre.data))
+            inv_marca.save()
+            flash(f"Marcas {inv_marca.nombre} guardado.", "success")
+            return redirect(url_for("inv_marcas.detail", inv_marca_id=inv_marca.id))
     return render_template("inv_marcas/new.jinja2", form=form)
 
 
-@inv_marcas.route("/inv_marcas/edicion/<int:marca_id>", methods=["GET", "POST"])
+@inv_marcas.route("/inv_marcas/edicion/<int:inv_marca_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def edit(marca_id):
+def edit(inv_marca_id):
     """Editar Marcas"""
-    marca = InvMarca.query.get_or_404(marca_id)
+    inv_marca = InvMarca.query.get_or_404(inv_marca_id)
     form = InvMarcaForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form, True)
-            validacion = True
-        except Exception as err:
-            flash(f"Actualización de la marca incorrecta. {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
-            marca.nombre = safe_string(form.nombre.data)
-            marca.save()
-            flash(f"Marcas {marca.nombre} guardado.", "success")
-            return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
-    form.nombre.data = marca.nombre
-    return render_template("inv_marcas/edit.jinja2", form=form, marca=marca)
-
-
-def _validar_form(form, same=False):
-    if not same:
-        nombre_existente = InvMarca.query.filter(InvMarca.nombre == safe_string(form.nombre.data)).first()
-        if nombre_existente:
-            raise Exception("El nombre ya está registrado")
-    return True
+        es_valido = True
+        # Validar que no exista ese nombre
+        nombre = safe_string(form.nombre.data)
+        inv_marca_existente = InvMarca.query.filter_by(nombre=nombre).first()
+        if inv_marca_existente and inv_marca_existente.id != inv_marca.id:
+            flash("Ya existe una marca con ese nombre.", "warning")
+            es_valido = False
+        # Si es valido actualizar
+        if es_valido:
+            inv_marca.nombre = safe_string(form.nombre.data)
+            inv_marca.save()
+            flash(f"Marcas {inv_marca.nombre} guardado.", "success")
+            return redirect(url_for("inv_marcas.detail", inv_marca_id=inv_marca.id))
+    form.nombre.data = inv_marca.nombre
+    return render_template("inv_marcas/edit.jinja2", form=form, inv_marca=inv_marca)
 
 
-@inv_marcas.route("/inv_marcas/eliminar/<int:marca_id>")
+@inv_marcas.route("/inv_marcas/eliminar/<int:inv_marca_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def delete(marca_id):
+def delete(inv_marca_id):
     """Eliminar Marcas"""
-    marca = InvMarca.query.get_or_404(marca_id)
-    if marca.estatus == "A":
-        marca.delete()
-        flash(f"Marcas {marca.nombre} eliminado.", "success")
-    return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
+    inv_marca = InvMarca.query.get_or_404(inv_marca_id)
+    if inv_marca.estatus == "A":
+        inv_marca.delete()
+        flash(f"Marcas {inv_marca.nombre} eliminado.", "success")
+    return redirect(url_for("inv_marcas.detail", inv_marca_id=inv_marca.id))
 
 
-@inv_marcas.route("/inv_marcas/recuperar/<int:marca_id>")
+@inv_marcas.route("/inv_marcas/recuperar/<int:inv_marca_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def recover(marca_id):
+def recover(inv_marca_id):
     """Recuperar Marcas"""
-    marca = InvMarca.query.get_or_404(marca_id)
-    if marca.estatus == "B":
-        marca.recover()
-        flash(f"Marcas {marca.nombre} recuperado.", "success")
-    return redirect(url_for("inv_marcas.detail", marca_id=marca.id))
+    inv_marca = InvMarca.query.get_or_404(inv_marca_id)
+    if inv_marca.estatus == "B":
+        inv_marca.recover()
+        flash(f"Marcas {inv_marca.nombre} recuperado.", "success")
+    return redirect(url_for("inv_marcas.detail", inv_marca_id=inv_marca.id))

@@ -38,7 +38,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(Modulo.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Modulo.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -136,7 +136,7 @@ def edit(modulo_id):
         # Si es valido actualizar
         if es_valido:
             modulo.nombre = nombre
-            modulo.nombre_corto = safe_string(form.nombre_corto.data)
+            modulo.nombre_corto = safe_string(form.nombre_corto.data, to_uppercase=False, do_unidecode=False)
             modulo.icono = form.icono.data
             modulo.ruta = form.ruta.data
             modulo.en_navegacion = form.en_navegacion.data == 1

@@ -1,9 +1,9 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
-{% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/tabs.jinja2' as tabs %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Usuario{% endblock %}
 
@@ -22,13 +22,13 @@
 
 {% block content %}
     {% call tabs.header() %}
-        {{tabs.button('detalles-tab', 'tab_detalles', 'Detalles','active')}}
-        {{tabs.button('tickets-tab', 'tab_tickets', 'Soporte Tickets')}}
-        {{tabs.button('custodias-tab', 'tab_custodias', 'Custodias')}}
-        {{tabs.button('roles-tab', 'tab_roles', 'Roles')}}
+        {{ tabs.button('detalles-tab', 'tab_detalles', 'Detalles', 'active') }}
+        {{ tabs.button('tickets-tab', 'tab_tickets', 'Soporte Tickets') }}
+        {{ tabs.button('custodias-tab', 'tab_custodias', 'Custodias') }}
+        {{ tabs.button('roles-tab', 'tab_roles', 'Roles') }}
     {% endcall %}
-    {% call tabs.content()%}
-        {% call tabs.div_content('tab_detalles','detalles-tab','active')%}
+    {% call tabs.content() %}
+        {% call tabs.div_content('tab_detalles', 'detalles-tab', 'active') %}
             {% call detail.card(estatus=usuario.estatus) %}
                 {{ detail.label_value_big('Nombre', usuario.nombre) }}
                 {{ detail.label_value('Puesto', usuario.puesto) }}
@@ -53,8 +53,8 @@
                 {{ detail.label_value('Workspace', usuario.workspace) }}
                 {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
             {% endcall %}
-        {%endcall%}
-        {% call tabs.div_content('tab_tickets','tickets-tab')%}
+        {% endcall %}
+        {% call tabs.div_content('tab_tickets', 'tickets-tab') %}
             {% if current_user.can_view('SOPORTES TICKETS') %}
                 {% call list.card() %}
                     <table id="soportes_tickets_datatable" class="table display nowrap init_tabs" style="width:100%;">
@@ -73,8 +73,8 @@
                     </table>
                 {% endcall %}
             {% endif %}
-        {%endcall%}
-        {% call tabs.div_content('tab_custodias','custodias-tab')%}
+        {% endcall %}
+        {% call tabs.div_content('tab_custodias', 'custodias-tab') %}
             {% if current_user.can_view('INV CUSTODIAS') %}
                 {% call list.card() %}
                     <table id="inv_custodias_datatable" class="table display nowrap init_tabs" style="width:100%;">
@@ -92,7 +92,7 @@
                 {% endcall %}
             {% endif %}
         {% endcall %}
-        {% call tabs.div_content('tab_roles','roles-tab') %}
+        {% call tabs.div_content('tab_roles', 'roles-tab') %}
             {% if current_user.can_view('USUARIOS ROLES') %}
                 {% call detail.card() %}
                     <table id="usuarios_roles_datatable" class="table display nowrap init_tabs" style="width:100%;">
@@ -109,7 +109,7 @@
                 {% endcall %}
             {% endif %}
         {% endcall %}
-    {%endcall%}  
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -244,7 +244,7 @@
             configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{usuario.id}} };
             configDataTable['columns'] = [
-                { data: "id" },
+                { data: "detalle" },
                 { data: "fecha" },
                 { data: "oficina" },
             ];
@@ -253,7 +253,7 @@
                     targets: 0, // id
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {

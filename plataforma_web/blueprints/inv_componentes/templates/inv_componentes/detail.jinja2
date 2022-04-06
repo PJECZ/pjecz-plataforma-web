@@ -3,33 +3,46 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Componentes{% endblock %}
+{% block title %}Componente{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Componente: ' + componente.categoria.nombre) %}
-        {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active', equipo_id=componente.inv_equipo_id)) }}
+    {% call topbar.page_buttons('Componente ' + inv_componente.inv_categoria.nombre) %}
+        {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active', inv_equipo_id=inv_componente.inv_equipo_id)) }}
         {% if current_user.can_edit('INV COMPONENTES') %}
-            {{ topbar.button_edit('Editar', url_for('inv_componentes.edit', componente_id=componente.id)) }}
-            {% if componente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_componentes.delete', componente_id=componente.id)) }}{% endif %}
-            {% if componente.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_componentes.recover', componente_id=componente.id)) }}{% endif %}
+            {{ topbar.button_edit('Editar', url_for('inv_componentes.edit', inv_componente_id=inv_componente.id)) }}
+            {{ topbar.button_new('Más componentes', url_for('inv_componentes.new', inv_equipo_id=inv_componente.inv_equipo.id))}}
+            {% if inv_componente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_componentes.delete', inv_componente_id=inv_componente.id)) }}{% endif %}
+            {% if inv_componente.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_componentes.recover', inv_componente_id=inv_componente.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=componente.estatus) %}
-        {{ detail.label_value('Descripción del equipo', componente.equipo.descripcion, url_for('inv_equipos.detail', equipo_id=componente.equipo.id)) }}
-        {{ detail.label_value('Custodia', componente.equipo.custodia.nombre_completo, url_for('inv_custodias.detail', custodia_id=componente.equipo.custodia.id)) }}
-        {{ detail.label_value('Categoría', componente.categoria.nombre) }}
-        {{ detail.label_value('Descripción', componente.descripcion) }}
-        {{ detail.label_value('Cantidad', componente.cantidad) }}
-        {{ detail.label_value('Versión', componente.version) }}
+    {% call detail.card(estatus=inv_componente.estatus) %}
+        {% if current_user.can_view('INV EQUIPOS') %}
+            {{ detail.label_value('Descripción del equipo', inv_componente.inv_equipo.descripcion, url_for('inv_equipos.detail', inv_equipo_id=inv_componente.inv_equipo.id)) }}
+        {% else %}
+            {{ detail.label_value('Descripción del equipo', inv_componente.inv_equipo.descripcion) }}
+        {% endif %}
+        {% if current_user.can_view('INV CUSTODIAS') %}
+            {{ detail.label_value('Custodia', inv_componente.inv_equipo.inv_custodia.nombre_completo, url_for('inv_custodias.detail', inv_custodia_id=inv_componente.inv_equipo.inv_custodia.id)) }}
+        {% else %}
+            {{ detail.label_value('Custodia', inv_componente.inv_equipo.inv_custodia.nombre_completo) }}
+        {% endif %}
+        {% if current_user.can_view('INV CATEGORIAS') %}
+            {{ detail.label_value('Categoría', inv_componente.inv_categoria.nombre, url_for('inv_categorias.detail', inv_categoria_id=inv_componente.inv_categoria.id)) }}
+        {% else %}
+            {{ detail.label_value('Categoría', inv_componente.inv_categoria.nombre) }}
+        {% endif %}
+        {{ detail.label_value('Descripción', inv_componente.descripcion) }}
+        {{ detail.label_value('Cantidad', inv_componente.cantidad) }}
+        {{ detail.label_value('Versión', inv_componente.version) }}
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('INV COMPONENTES') %}
-        {% if componente.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + componente.descripcion + '?') }}{% endif %}
-        {% if componente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + componente.descripcion + '?') }}{% endif %}
+        {% if inv_componente.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + inv_componente.descripcion + '?') }}{% endif %}
+        {% if inv_componente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + inv_componente.descripcion + '?') }}{% endif %}
     {% endif %}
 {% endblock %}

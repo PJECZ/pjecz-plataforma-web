@@ -409,10 +409,10 @@
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function(){
-            $('#elaboro_email').addClass('js-example-placeholder-single js-states form-control');
-            $('#reviso_email').addClass('js-example-placeholder-single js-states form-control');
-            $('#aprobo_email').addClass('js-example-placeholder-single js-states form-control');
+         $(document).ready(function(){
+            $('#elaboro_email').addClass('js-example-data-ajax js-states form-control');
+            $('#reviso_email').addClass('js-example-data-ajax js-states form-control');
+            $('#aprobo_email').addClass('js-example-data-ajax js-states form-control');
             $('#elaboro_email option').each(function() {
                 if($(this).text() == '{{cid_procedimiento.elaboro_email}}') {
                     $("#elaboro_email").val( $(this).val() );
@@ -424,8 +424,12 @@
                     $("#aprobo_email").val( $(this).val() );
                 }
             });
-            $(".js-example-placeholder-single").select2({
+            $(".js-example-data-ajax").select2({
                 // --- Carga de emails por Ajax --- //
+                
+                placeholder: "correo",
+                minimumInputLength: 4,
+                allowClear: true,
                 ajax: {
                     url: '/cid_procedimientos/usuarios_email',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
@@ -433,13 +437,33 @@
                     delay: 250,
                     type: "POST",
                     data: function (params) {
-                        return { 'searchString': params.term };
-                    }
-                },
-                placeholder: "correo",
-                minimumInputLength: 4,
-                allowClear: true
+                        return { 'searchString': params.term }
+                    },
+
+                }
             });
+
+            let data = {
+                id: '{{cid_procedimiento.elaboro_email}}',
+                text: '{{cid_procedimiento.elaboro_email}}'
+            };
+            let newOption = new Option(data.text, data.id, false, false);
+            $('#elaboro_email').append(newOption).trigger('change');
+
+            let data_reviso = {
+                id: '{{cid_procedimiento.reviso_email}}',
+                text: '{{cid_procedimiento.reviso_email}}'
+            };
+            let newOptionReviso = new Option(data_reviso.text, data_reviso.id, false, false);
+            $('#reviso_email').append(newOptionReviso).trigger('change');
+
+            let data_aprobo = {
+                id: '{{cid_procedimiento.aprobo_email}}',
+                text: '{{cid_procedimiento.aprobo_email}}'
+            };
+            let newOptionAprobo = new Option(data_aprobo.text, data_aprobo.id, false, false);
+            $('#aprobo_email').append(newOptionAprobo).trigger('change');
+
         });
     </script>
     <!-- En este script se crean los popovers con la información de cada paso en el procedimiento -->

@@ -47,6 +47,9 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     puesto = db.Column(db.String(256), default="", server_default="")
     telefono_celular = db.Column(db.String(256), default="", server_default="")
     workspace = db.Column(db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False), index=True, nullable=False)
+    telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
+    extension = db.Column(db.String(24), nullable=False, default="", server_default="")
+    fotografia_url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")
@@ -54,7 +57,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     entradas_salidas = db.relationship("EntradaSalida", back_populates="usuario", lazy="noload")
     mensajes = db.relationship("Mensaje", back_populates="destinatario", lazy="noload")
     mensajes_respuestas = db.relationship("MensajeRespuesta", back_populates="autor", lazy="noload")
-    custodias = db.relationship("InvCustodia", back_populates="usuario", lazy="noload")
+    inv_custodias = db.relationship("InvCustodia", back_populates="usuario", lazy="noload")
     soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
     tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
     turnos = db.relationship("Turno", back_populates="usuario", lazy="noload")

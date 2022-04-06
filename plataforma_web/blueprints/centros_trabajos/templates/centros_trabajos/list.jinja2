@@ -1,0 +1,78 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form_inline.jinja2' as f with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Centros de Trabajos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('FUNCIONARIOS') %}
+            {{ topbar.button('Directorio', url_for('funcionarios.list_active'), 'mdi:account') }}
+        {% endif %}
+        {% if current_user.can_edit('CENTROS TRABAJOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('centros_trabajos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('centros_trabajos.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        {% call f.form_tag('centros_trabajos.search', fid='centro_trabajo_search_form') %}
+            {% call f.form_group(form.clave, css_class='col-sm-4', placeholder='Clave') %}{% endcall %}
+            {% call f.form_group(form.nombre, css_class='col-sm-6', placeholder='Nombre') %}{% endcall %}
+            {% call f.form_group(form.buscar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+    {% call list.card() %}
+        <table id="centros_trabajos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Clave</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Distrito</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        $(document).ready(function() { $("#nombre").focus(); });
+    </script>
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/centros_trabajos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'nombre' },
+            { data: 'telefono' },
+            { data: 'distrito' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            },
+            {
+                targets: 3, // distrito
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre_corto;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                    }
+                }
+            },
+        ];
+        $('#centros_trabajos_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}

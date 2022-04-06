@@ -15,6 +15,7 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('inv_custodias.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('inv_custodias.list_active')) }}{% endif %}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('inv_custodias.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -39,31 +40,39 @@
         configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: "id" },
+            { data: "detalle" },
             { data: "usuario" },
             { data: "fecha" },
             { data: "oficina" },
         ];
         configDataTable['columnDefs'] = [
             {
-                targets: 0,
+                targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.custodia_id + '</a>';
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
             },
             {
-                targets: 1,
+                targets: 1, // usuario
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
                 }
             },
             {
-                targets: 3,
+                targets: 3, // oficina
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    if (data.url == '') {
+                        return data.clave;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
                 }
             },
         ];

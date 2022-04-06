@@ -23,9 +23,30 @@ class Domicilio(db.Model, UniversalMixin):
     colonia = db.Column(db.String(256), nullable=False, default="", server_default="")
     cp = db.Column(db.Integer(), nullable=False)
     completo = db.Column(db.String(1024), nullable=False, default="", server_default="")
+    numeracion_telefonica = db.Column(db.String(256), nullable=False, default="", server_default="")
 
     # Hijos
-    oficinas = db.relationship("Oficina", back_populates="domicilio")
+    centros_trabajos = db.relationship("CentroTrabajo", back_populates="domicilio", lazy="noload")
+    oficinas = db.relationship("Oficina", back_populates="domicilio", lazy="noload")
+
+    def elaborar_completo(self):
+        """Elaborar completo"""
+        elementos = []
+        if self.calle and self.num_ext and self.num_int:
+            elementos.append(f"{self.calle} #{self.num_ext}-{self.num_int}")
+        elif self.calle and self.num_ext:
+            elementos.append(f"{self.calle} #{self.num_ext}")
+        elif self.calle:
+            elementos.append(self.calle)
+        if self.colonia:
+            elementos.append(self.colonia)
+        if self.municipio:
+            elementos.append(self.municipio)
+        if self.estado and self.cp > 0:
+            elementos.append(f"{self.estado}, C.P. {self.cp}")
+        elif self.estado:
+            elementos.append(self.estado)
+        return ", ".join(elementos)
 
     def __repr__(self):
         """Representación"""

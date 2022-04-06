@@ -2,20 +2,20 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Anexar Foto - Equipo{% endblock %}
+{% block title %}Agregar foto al equipo{% endblock %}
 
 {% block custom_head %}
     {{ f.drop_zone_css() }}
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Anexar Foto al Equipo ' + equipo.id | string) }}
+    {{ topbar.page('Agregar foto al equipo ' + inv_equipo.id | string) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'equipo_id': equipo.id} %}
-        {% call f.form_tag_multipart('inv_equipos_fotos.new', fid='foto_form', **form_kwargs) %}
+        {% set form_kwargs = {'inv_equipo_id': inv_equipo.id} %}
+        {% call f.form_tag_multipart('inv_equipos_fotos.new', fid='inv_equipo_foto_form', **form_kwargs) %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.drop_zone_wrapper() %}
                 {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}

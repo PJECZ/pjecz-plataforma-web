@@ -6,10 +6,8 @@
 
 {% block custom_head %}
     <style>
-        .img-support{ height:auto; width:500px; }
-        .img-support-us{ height:auto; width:400px; }
-        .box { align-items: center; display: flex; justify-content: center; }
-        .btn-ticket{ display:inline-block; }
+        .btn-tickets { display: inline-block; margin: 2px 0; }
+        .btn-directorio { display: inline-block; margin: 2px 0; }
     </style>
 {% endblock %}
 
@@ -20,36 +18,49 @@
 {% block content %}
     {# Plataforma Web #}
     {% call start.card() %}
-        <h1 class="text-center">Plataforma Web</h1>
-        <br />
-        {# Cambio de pantalla si no tiene privilegios para crear tickets #}
-        {% if  current_user.can_edit("SOPORTES TICKETS")%}
+        <div class="container">
             <div class="row" >
-                <div class="box col-8 col-md-8 mb-2 align-middle" >
-                    <img src="{{ url_for('static', filename='images/soporte_3.png') }}" class="img-fluid img-support"/>
-                </div>
-                <div class="col-4 col-sm-4 mb-2 align-self-center">
-                    <h4>¿Necesitas soporte técnico?</h4>
-                    <span class="col-6 col-sm-6 mx-auto">
-                        <a href="{{url_for('soportes_tickets.new')}}"class="btn btn-success btn-ticket">Crear un nuevo ticket</a>
-                    </span>
-                    <span class="col-6 col-sm-6 mx-auto">
-                        <a href="{{url_for('soportes_tickets.list_active')}}" class="btn btn-primary btn-ticket" >Mis tickets</a>
-                    </span>
+                <div class="col-12 mb-2">
+                    <h1 class="text-center">Plataforma Web</h1>
                 </div>
             </div>
-        {% else %}
             <div class="row" >
-                <div class="box col-6 col-md-6 mb-2 align-middle" >
-                    <img src="{{ url_for('static', filename='images/soporte_2.png') }}" class="img-fluid img-support-us"/>
-                </div>
-                <div class="col-6 col-sm-6 mb-2 align-self-center align-middle">
-                    <h4>Bienvenido al sistema</h4> 
-                    <p>Note que ha ingresado con una cuenta que <strong>no es personal.</strong> </p>
-                    <p>Para solicitar Soporte Técnico a Informática use su cuenta <u>personal</u> sea coahuila.gob.mx ó pjecz.gob.mx . </p>
-                </div>
+                {% if current_user.can_edit("SOPORTES TICKETS")%}
+                    {# Si tiene privilegios para crear tickets col-md-12 offset-md-3 #}
+                    <div class="col-md-6 col-sm-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/soportes-tickets.png" class="img-fluid mb-2">
+                            <h4>¿Necesitas soporte técnico?</h4>
+                            <p>
+                                <a href="{{ url_for('soportes_tickets.new') }}"class="btn btn-success btn-tickets ml-auto">Crear un nuevo ticket</a>
+                                <a href="{{ url_for('soportes_tickets.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis tickets</a>
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    {# No tiene privilegios para crear tickets #}
+                    <div class="col-md-6 col-sm-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/soportes-tickets-deshabilitado.png" class="img-fluid mb-2">
+                            <h4>Bienvenido al sistema</h4>
+                            <p>Ha ingresado con una cuenta que <strong>no es personal.</strong> Para solicitar Soporte Técnico a Informática use su cuenta coahuila.gob.mx ó pjecz.gob.mx.</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if current_user.can_view("FUNCIONARIOS")%}
+                    {# Directorio #}
+                    <div class="col-md-6 col-sm-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/directorio.png" class="img-fluid mb-2">
+                            <h4>¿Buscas un teléfono?</h4>
+                            <p>
+                                <a href="{{ url_for('funcionarios.list_active') }}" class="btn btn-primary btn-directorio">Directorio</a>
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-        {% endif%}
+        </div>
     {% endcall %}
     {# Tarjetas #}
     <div id="tarjetas" class="row">
@@ -96,38 +107,38 @@
 
 {% block custom_javascript %}
     <!-- Tarjetas -->
-{% if current_user.autoridad.audiencia_categoria != "NO DEFINIDO" %}
-    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_audiencias.js') }}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            obtener_autoridades_audiencias('/inicio/audiencias_json', '#autoridades_audiencias_container', '#autoridades_audiencias_spinner');
-        });
-    </script>
-{% endif %}
-{% if current_user.autoridad.directorio_edictos != "" %}
-    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_edictos.js') }}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            obtener_autoridades_edictos('/inicio/edictos_json', '#autoridades_edictos_container', '#autoridades_edictos_spinner');
-        });
-    </script>
-{% endif %}
-{% if current_user.autoridad.directorio_listas_de_acuerdos != "" %}
-    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_listas_de_acuerdos.js') }}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            obtener_autoridades_listas_de_acuerdos('/inicio/listas_de_acuerdos_json', '#autoridades_listas_de_acuerdos_container', '#autoridades_listas_de_acuerdos_spinner');
-        });
-    </script>
-{% endif %}
-{% if current_user.autoridad.directorio_sentencias != "" %}
-    <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_sentencias.js') }}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            obtener_autoridades_sentencias('/inicio/sentencias_json', '#autoridades_sentencias_container', '#autoridades_sentencias_spinner');
-        });
-    </script>
-{% endif %}
+    {% if current_user.autoridad.audiencia_categoria != "NO DEFINIDO" %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_audiencias.js') }}"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                obtener_autoridades_audiencias('/inicio/audiencias_json', '#autoridades_audiencias_container', '#autoridades_audiencias_spinner');
+            });
+        </script>
+    {% endif %}
+    {% if current_user.autoridad.directorio_edictos != "" %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_edictos.js') }}"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                obtener_autoridades_edictos('/inicio/edictos_json', '#autoridades_edictos_container', '#autoridades_edictos_spinner');
+            });
+        </script>
+    {% endif %}
+    {% if current_user.autoridad.directorio_listas_de_acuerdos != "" %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_listas_de_acuerdos.js') }}"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                obtener_autoridades_listas_de_acuerdos('/inicio/listas_de_acuerdos_json', '#autoridades_listas_de_acuerdos_container', '#autoridades_listas_de_acuerdos_spinner');
+            });
+        </script>
+    {% endif %}
+    {% if current_user.autoridad.directorio_sentencias != "" %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/autoridades_sentencias.js') }}"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                obtener_autoridades_sentencias('/inicio/sentencias_json', '#autoridades_sentencias_container', '#autoridades_sentencias_spinner');
+            });
+        </script>
+    {% endif %}
     <!-- Versiones -->
     <script type="text/javascript">
         const versiones_json = "{{ url_for('static', filename='json/versions.json') }}";

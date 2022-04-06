@@ -5,13 +5,13 @@
 {% block title %}Editar Custodia{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar ' + custodia.nombre_completo) }}
+    {{ topbar.page('Editar ' + inv_custodia.id | string) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% set form_kwargs = {'custodia_id': custodia.id} %}
-        {% call f.form_tag('inv_custodias.edit', fid='custodia_id_form', **form_kwargs) %}
+        {% set form_kwargs = {'inv_custodia_id': inv_custodia.id} %}
+        {% call f.form_tag('inv_custodias.edit', fid='inv_custodia_id_form', **form_kwargs) %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
             {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}

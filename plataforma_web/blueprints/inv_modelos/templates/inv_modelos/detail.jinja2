@@ -4,23 +4,27 @@
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/list.jinja2' as list %}
 
-{% block title %}Modelos{% endblock %}
+{% block title %}Modelo{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Modelo:  ' + modelo.descripcion) %}
-        {{ topbar.button_previous('Modelos', url_for('inv_modelos.list_active')) }}
+    {% call topbar.page_buttons('Modelo ' + inv_modelo.descripcion) %}
+        {{ topbar.button_previous('Modelos', url_for('inv_marcas.list_active')) }}
         {% if current_user.can_edit('INV MODELOS') %}
-            {{ topbar.button_edit('Editar', url_for('inv_modelos.edit', modelo_id=modelo.id)) }}
-            {% if modelo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_modelos.delete', modelo_id=modelo.id)) }}{% endif %}
-            {% if modelo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_modelos.recover', modelo_id=modelo.id)) }}{% endif %}
+            {{ topbar.button_edit('Editar', url_for('inv_modelos.edit', inv_modelo_id=inv_modelo.id)) }}
+            {% if inv_modelo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_modelos.delete', inv_modelo_id=inv_modelo.id)) }}{% endif %}
+            {% if inv_modelo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_modelos.recover', inv_modelo_id=inv_modelo.id)) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card() %}
-        {{ detail.label_value('Marca', modelo.marca.nombre) }}
-        {{ detail.label_value('Descripcion', modelo.descripcion) }}
+    {% call detail.card(estatus=inv_modelo.estatus) %}
+        {% if current_user.can_view('INV MARCAS') %}
+            {{ detail.label_value('Marca', inv_modelo.inv_marca.nombre, url_for('inv_marcas.detail', inv_marca_id=inv_modelo.inv_marca_id)) }}
+        {% else %}
+            {{ detail.label_value('Marca', inv_modelo.inv_marca.nombre) }}
+        {% endif %}
+        {{ detail.label_value('Descripcion', inv_modelo.descripcion) }}
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS') %}
         {% call detail.card('Equipos') %}
@@ -29,10 +33,9 @@
                     <tr>
                         <th>ID</th>
                         <th>Fecha de adquisición</th>
-                        <th>Marca</th>
                         <th>Descripción del equipo</th>
                         <th>Red</th>
-                        <th>Usuario</th> 
+                        <th>Nombre completo en la custodia</th>
                     </tr>
                 </thead>
             </table>
@@ -42,47 +45,38 @@
 
 {% block custom_javascript %}
     {% if current_user.can_edit('INV MODELOS') %}
-        {% if modelo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + modelo.descripcion + '?') }}{% endif %}
-        {% if modelo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + modelo.descripcion + '?') }}{% endif %}
+        {% if inv_modelo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + inv_modelo.descripcion + '?') }}{% endif %}
+        {% if inv_modelo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + inv_modelo.descripcion + '?') }}{% endif %}
     {% endif %}
-    {# script para cargar equipos relacionados con este modelo #}
     {{ detail.config_datatable() }}
     {% if current_user.can_view('INV EQUIPOS') %}
         <script>
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'modelo_id': {{ modelo.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'inv_modelo_id': {{ inv_modelo.id}} };
             configDataTable['columns'] = [
-                { data: "id" },
+                { data: "detalle" },
                 { data: "adquisicion_fecha" },
-                { data: "marca" },
                 { data: "descripcion" },
-                { data: "red" },
-                { data: "usuario" },
+                { data: "inv_red" },
+                { data: "nombre_completo" },
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: [0], // id
+                    targets: [0], // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.equipo_id + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: [2,4],
+                    targets: [3], // inv_red
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 },
-                {
-                    targets: 5,
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre_completo + '</a>';
-                    }
-                },
             ];
             $('#inv_equipos_datatable').DataTable(configDataTable);
         </script>
-    {% endif %} 
+    {% endif %}
 {% endblock %}

@@ -7,12 +7,11 @@ from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-
-from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_redes.models import InvRed
 from plataforma_web.blueprints.inv_redes.forms import InvRedForm
+from plataforma_web.blueprints.inv_redes.models import InvRed
+from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "INV REDES"
 
@@ -28,7 +27,7 @@ def before_request():
 
 @inv_redes.route("/inv_redes/datatable_json", methods=["GET", "POST"])
 def datatable_json():
-    """DataTable JSON para listado de INV REDES"""
+    """DataTable JSON para listado de Redes"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
@@ -46,7 +45,7 @@ def datatable_json():
             {
                 "detalle": {
                     "nombre": resultado.nombre,
-                    "url": url_for("inv_redes.detail", red_id=resultado.id),
+                    "url": url_for("inv_redes.detail", inv_red_id=resultado.id),
                 },
                 "tipo": resultado.tipo,
             }
@@ -78,11 +77,11 @@ def list_inactive():
     )
 
 
-@inv_redes.route("/inv_redes/<int:red_id>")
-def detail(red_id):
+@inv_redes.route("/inv_redes/<int:inv_red_id>")
+def detail(inv_red_id):
     """Detalle de un Red"""
-    red = InvRed.query.get_or_404(red_id)
-    return render_template("inv_redes/detail.jinja2", red=red)
+    inv_red = InvRed.query.get_or_404(inv_red_id)
+    return render_template("inv_redes/detail.jinja2", inv_red=inv_red)
 
 
 @inv_redes.route("/inv_redes/nuevo", methods=["GET", "POST"])
@@ -90,64 +89,66 @@ def detail(red_id):
 def new():
     """Nuevo Red"""
     form = InvRedForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form)
-            validacion = True
-        except Exception as err:
-            flash(f"Nombre de la red incorrecto. {str(err)}", "warning")
-            validacion = False
-        if validacion:
+        es_valido = True
+        # Validar que no exista ese nombre
+        nombre = safe_string(form.nombre.data)
+        inv_red_existente = InvRed.query.filter_by(nombre=nombre).first()
+        if inv_red_existente:
+            flash("Ya existe una red con ese nombre.", "warning")
+            es_valido = False
+        # Si es valido insertar
+        if es_valido:
             red = InvRed(nombre=safe_string(form.nombre.data), tipo=safe_string(form.tipo.data))
             red.save()
             flash(f"Red {red.nombre} guardado.", "success")
-            return redirect(url_for("inv_redes.detail", red_id=red.id))
+            return redirect(url_for("inv_redes.list_active"))
     return render_template("inv_redes/new.jinja2", form=form)
 
 
-@inv_redes.route("/inv_redes/edicion/<int:red_id>", methods=["GET", "POST"])
+@inv_redes.route("/inv_redes/edicion/<int:inv_red_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def edit(red_id):
+def edit(inv_red_id):
     """Editar Red"""
-    red = InvRed.query.get_or_404(red_id)
+    inv_red = InvRed.query.get_or_404(inv_red_id)
     form = InvRedForm()
     if form.validate_on_submit():
-        red.nombre = safe_string(form.nombre.data)
-        red.tipo = form.tipo.data
-        red.save()
-        flash(f"Red {red.nombre} guardado.", "success")
-        return redirect(url_for("inv_redes.detail", red_id=red.id))
-    form.nombre.data = red.nombre
-    form.tipo.data = red.tipo
-    return render_template("inv_redes/edit.jinja2", form=form, red=red)
+        es_valido = True
+        # Validar que no exista ese nombre
+        nombre = safe_string(form.nombre.data)
+        inv_red_existente = InvRed.query.filter_by(nombre=nombre).first()
+        if inv_red_existente and inv_red_existente.id != inv_red.id:
+            flash("Ya existe una red con ese nombre.", "warning")
+            es_valido = False
+        # Si es valido actualizar
+        if es_valido:
+            inv_red.nombre = safe_string(form.nombre.data)
+            inv_red.tipo = form.tipo.data
+            inv_red.save()
+            flash(f"Red {inv_red.nombre} guardado.", "success")
+            return redirect(url_for("inv_redes.detail", inv_red_id=inv_red.id))
+    form.nombre.data = inv_red.nombre
+    form.tipo.data = inv_red.tipo
+    return render_template("inv_redes/edit.jinja2", form=form, inv_red=inv_red)
 
 
-def _validar_form(form, same=False):
-    if not same:
-        nombre_existente = InvRed.query.filter(InvRed.nombre == safe_string(form.nombre.data)).first()
-        if nombre_existente:
-            raise Exception("El nombre ya está registrado, verifique en el listado de inactivos")
-    return True
-
-
-@inv_redes.route("/inv_redes/eliminar/<int:red_id>")
+@inv_redes.route("/inv_redes/eliminar/<int:inv_red_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def delete(red_id):
+def delete(inv_red_id):
     """Eliminar Red"""
-    red = InvRed.query.get_or_404(red_id)
-    if red.estatus == "A":
-        red.delete()
-        flash(f"Red {red.nombre} eliminado.", "success")
-    return redirect(url_for("inv_redes.detail", red_id=red.id))
+    inv_red = InvRed.query.get_or_404(inv_red_id)
+    if inv_red.estatus == "A":
+        inv_red.delete()
+        flash(f"Red {inv_red.nombre} eliminado.", "success")
+    return redirect(url_for("inv_redes.detail", inv_red_id=inv_red.id))
 
 
-@inv_redes.route("/inv_redes/recuperar/<int:red_id>")
+@inv_redes.route("/inv_redes/recuperar/<int:inv_red_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def recover(red_id):
+def recover(inv_red_id):
     """Recuperar Red"""
-    red = InvRed.query.get_or_404(red_id)
-    if red.estatus == "B":
-        red.recover()
-        flash(f"Red {red.nombre} recuperado.", "success")
-    return redirect(url_for("inv_redes.detail", red_id=red.id))
+    inv_red = InvRed.query.get_or_404(inv_red_id)
+    if inv_red.estatus == "B":
+        inv_red.recover()
+        flash(f"Red {inv_red.nombre} recuperado.", "success")
+    return redirect(url_for("inv_redes.detail", inv_red_id=inv_red.id))

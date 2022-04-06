@@ -16,7 +16,7 @@ class InvEquipoFoto(db.Model, UniversalMixin):
 
     # Claves foránea para el ticket
     inv_equipo_id = db.Column(db.Integer, db.ForeignKey("inv_equipos.id"), index=True, nullable=False)
-    equipo = db.relationship("InvEquipo", back_populates="fotos")
+    inv_equipo = db.relationship("InvEquipo", back_populates="inv_equipos_fotos")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
@@ -25,4 +25,4 @@ class InvEquipoFoto(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<InvEquipoFoto>"
+        return f"<InvEquipoFoto {self.id}>"

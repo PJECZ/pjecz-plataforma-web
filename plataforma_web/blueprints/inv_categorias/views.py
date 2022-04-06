@@ -7,12 +7,11 @@ from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
-from plataforma_web.blueprints.usuarios.decorators import permission_required
-
-from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.inv_categorias.models import InvCategoria
 
 from plataforma_web.blueprints.inv_categorias.forms import InvCategoriaForm
+from plataforma_web.blueprints.inv_categorias.models import InvCategoria
+from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "INV CATEGORIAS"
 
@@ -37,7 +36,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    registros = consulta.order_by(InvCategoria.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvCategoria.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -45,10 +44,9 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id_categoria": resultado.id,
-                    "url": url_for("inv_categorias.detail", categoria_id=resultado.id),
+                    "nombre": resultado.nombre,
+                    "url": url_for("inv_categorias.detail", inv_categoria_id=resultado.id),
                 },
-                "nombre": resultado.nombre,
             }
         )
     # Entregar JSON
@@ -57,7 +55,7 @@ def datatable_json():
 
 @inv_categorias.route("/inv_categorias")
 def list_active():
-    """Listado de INV CATEGORIAS activos"""
+    """Listado de Inv Categorías activos"""
     return render_template(
         "inv_categorias/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
@@ -69,7 +67,7 @@ def list_active():
 @inv_categorias.route("/inv_categorias/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de INV CATEGORIAS inactivos"""
+    """Listado de Inv Categorías inactivos"""
     return render_template(
         "inv_categorias/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
@@ -78,11 +76,11 @@ def list_inactive():
     )
 
 
-@inv_categorias.route("/inv_categorias/<int:categoria_id>")
-def detail(categoria_id):
+@inv_categorias.route("/inv_categorias/<int:inv_categoria_id>")
+def detail(inv_categoria_id):
     """Detalle de un Categorias"""
-    categoria = InvCategoria.query.get_or_404(categoria_id)
-    return render_template("inv_categorias/detail.jinja2", categoria=categoria)
+    inv_categoria = InvCategoria.query.get_or_404(inv_categoria_id)
+    return render_template("inv_categorias/detail.jinja2", inv_categoria=inv_categoria)
 
 
 @inv_categorias.route("/inv_categorias/nuevo", methods=["GET", "POST"])
@@ -90,72 +88,64 @@ def detail(categoria_id):
 def new():
     """Nuevo Categoria"""
     form = InvCategoriaForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form)
-            validacion = True
-        except Exception as err:
-            flash(f"Nombre de la categoria incorrecto. {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
-            categoria = InvCategoria(nombre=safe_string(form.nombre.data))
-            categoria.save()
-            flash(f"Categorias {categoria.nombre} guardado.", "success")
-            return redirect(url_for("inv_categorias.detail", categoria_id=categoria.id))
+        es_valido = True
+        # Validar que no exista ese nombre
+        nombre = safe_string(form.nombre.data)
+        inv_categoria_existente = InvCategoria.query.filter_by(nombre=nombre).first()
+        if inv_categoria_existente:
+            flash("Ya existe una categoría con ese nombre.", "warning")
+            es_valido = False
+        # Si es valido insertar
+        if es_valido:
+            inv_categoria = InvCategoria(nombre=safe_string(form.nombre.data))
+            inv_categoria.save()
+            flash(f"Categorias {inv_categoria.nombre} guardado.", "success")
+            return redirect(url_for("inv_categorias.list_active"))
     return render_template("inv_categorias/new.jinja2", form=form)
 
 
-@inv_categorias.route("/inv_categorias/edicion/<int:categoria_id>", methods=["GET", "POST"])
+@inv_categorias.route("/inv_categorias/edicion/<int:inv_categoria_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def edit(categoria_id):
+def edit(inv_categoria_id):
     """Editar Categoria"""
-    categoria = InvCategoria.query.get_or_404(categoria_id)
+    inv_categoria = InvCategoria.query.get_or_404(inv_categoria_id)
     form = InvCategoriaForm()
-    validacion = False
     if form.validate_on_submit():
-        try:
-            _validar_form(form, True)
-            validacion = True
-        except Exception as err:
-            flash(f"Actualización de la categoria incorrecta. {str(err)}", "warning")
-            validacion = False
-
-        if validacion:
-            categoria.nombre = safe_string(form.nombre.data)
-            categoria.save()
-            flash(f"Categorias {categoria.nombre} guardado.", "success")
-            return redirect(url_for("inv_categorias.detail", categoria_id=categoria.id))
-    form.nombre.data = categoria.nombre
-    return render_template("inv_categorias/edit.jinja2", form=form, categoria=categoria)
-
-
-def _validar_form(form, same=False):
-    if not same:
-        nombre_existente = InvCategoria.query.filter(InvCategoria.nombre == safe_string(form.nombre.data)).first()
-        if nombre_existente:
-            raise Exception("El nombre ya está registrado.")
-    return True
+        es_valido = True
+        # Validar que no exista ese nombre
+        nombre = safe_string(form.nombre.data)
+        inv_categoria_existente = InvCategoria.query.filter_by(nombre=nombre).first()
+        if inv_categoria_existente and inv_categoria_existente.id != inv_categoria.id:
+            flash("Ya existe una categoria con ese nombre.", "warning")
+            es_valido = False
+        # Si es valido actualizar
+        if es_valido:
+            inv_categoria.nombre = safe_string(form.nombre.data)
+            inv_categoria.save()
+            flash(f"Categorias {inv_categoria.nombre} guardado.", "success")
+            return redirect(url_for("inv_categorias.detail", inv_categoria_id=inv_categoria.id))
+    form.nombre.data = inv_categoria.nombre
+    return render_template("inv_categorias/edit.jinja2", form=form, inv_categoria=inv_categoria)
 
 
-@inv_categorias.route("/inv_categorias/eliminar/<int:categoria_id>")
+@inv_categorias.route("/inv_categorias/eliminar/<int:inv_categoria_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def delete(categoria_id):
+def delete(inv_categoria_id):
     """Eliminar Categorias"""
-    categoria = InvCategoria.query.get_or_404(categoria_id)
-    if categoria.estatus == "A":
-        categoria.delete()
-        flash(f"Categorias {categoria.nombre} eliminado.", "success")
-    return redirect(url_for("inv_categorias.detail", categoria_id=categoria.id))
+    inv_categoria = InvCategoria.query.get_or_404(inv_categoria_id)
+    if inv_categoria.estatus == "A":
+        inv_categoria.delete()
+        flash(f"Categorias {inv_categoria.nombre} eliminado.", "success")
+    return redirect(url_for("inv_categorias.detail", inv_categoria_id=inv_categoria.id))
 
 
-@inv_categorias.route("/inv_categorias/recuperar/<int:categoria_id>")
+@inv_categorias.route("/inv_categorias/recuperar/<int:inv_categoria_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
-def recover(categoria_id):
+def recover(inv_categoria_id):
     """Recuperar Categorias"""
-    categoria = InvCategoria.query.get_or_404(categoria_id)
-    if categoria.estatus == "B":
-        categoria.recover()
-        flash(f"Categorias {categoria.nombre} recuperado.", "success")
-    return redirect(url_for("inv_categorias.detail", categoria_id=categoria.id))
+    inv_categoria = InvCategoria.query.get_or_404(inv_categoria_id)
+    if inv_categoria.estatus == "B":
+        inv_categoria.recover()
+        flash(f"Categorias {inv_categoria.nombre} recuperado.", "success")
+    return redirect(url_for("inv_categorias.detail", inv_categoria_id=inv_categoria.id))
