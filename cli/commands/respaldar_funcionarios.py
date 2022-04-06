@@ -5,6 +5,7 @@ from pathlib import Path
 import csv
 import click
 
+from plataforma_web.blueprints.autoridades_funcionarios.models import AutoridadFuncionario
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 
 
@@ -44,9 +45,8 @@ def respaldar_funcionarios(salida: str = "funcionarios.csv"):
         )
         for funcionario in funcionarios:
             autoridades_claves = []
-            for autoridad_funcionario in funcionario.autoridades_funcionarios:
-                if autoridad_funcionario.estatus == "A":
-                    autoridades_claves.append(autoridad_funcionario.autoridad.clave)
+            for autoridad_funcionario in AutoridadFuncionario.query.filter_by(funcionario_id=funcionario.id).filter_by(estatus='A').all():
+                autoridades_claves.append(autoridad_funcionario.autoridad.clave)
             respaldo.writerow(
                 [
                     funcionario.id,
