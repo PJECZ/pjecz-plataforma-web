@@ -34,7 +34,7 @@ class InvEquipoForm(FlaskForm):
     numero_serie = StringField("Número de serie", validators=[Optional()])
     numero_inventario = IntegerField("Número de inventario", validators=[Optional()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
-    tipo = RadioField("Tipo de equipo: ", choices=InvEquipo.TIPO, default="OTRO", validators=[DataRequired()])
+    tipo = RadioField("Tipo de equipo", choices=InvEquipo.TIPO, default="OTRO", validators=[DataRequired()])
     direccion_ip = StringField("Dirección IP", validators=[Optional()])
     direccion_mac = StringField("Dirección MAC", validators=[Optional()])
     numero_nodo = IntegerField("Número de nodo", validators=[Optional()])

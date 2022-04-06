@@ -27,6 +27,11 @@
         {% else %}
             {{ detail.label_value('Distrito', centro_trabajo.distrito.nombre) }}
         {% endif %}
+        {% if current_user.can_view("DOMICILIOS") %}
+            {{ detail.label_value('Domicilio', centro_trabajo.domicilio.completo, url_for('domicilios.detail', domicilio_id=centro_trabajo.domicilio_id)) }}
+        {% else %}
+            {{ detail.label_value('Domicilio', centro_trabajo.domicilio.completo) }}
+        {% endif %}
     {% endcall %}
     {% if current_user.can_view('FUNCIONARIOS') %}
         {% call detail.card('Funcionarios') %}

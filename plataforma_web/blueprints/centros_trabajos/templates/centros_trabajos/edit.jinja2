@@ -4,6 +4,11 @@
 
 {% block title %}Editar Centro de Trabajo{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Editar ' + centro_trabajo.nombre) }}
 {% endblock %}
@@ -16,7 +21,37 @@
             {% call f.form_group(form.nombre) %}{% endcall %}
             {% call f.form_group(form.telefono) %}{% endcall %}
             {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.domicilio) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
 {% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#distrito').addClass('js-distrito-placeholder-single js-states form-control');
+            $('#distrito').each(function() {
+                if($(this).text() == '{{centro_trabajo.distrito.nombre}}') {
+                    $("#distrito").val( $(this).val() );
+                }
+            });
+            $(".js-distrito-placeholder-single").select2({
+                placeholder: "Distrito",
+                allowClear: false
+            });
+            $('#domicilio').addClass('js-domicilio-placeholder-single js-states form-control');
+            $('#domicilio').each(function() {
+                if($(this).text() == '{{centro_trabajo.domicilio.completo}}') {
+                    $("#domicilio").val( $(this).val() );
+                }
+            });
+            $(".js-domicilio-placeholder-single").select2({
+                placeholder: "Domicilio",
+                allowClear: false
+            });
+        });
+    </script>
+{% endblock%}

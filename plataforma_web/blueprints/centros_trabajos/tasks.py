@@ -5,19 +5,19 @@ Centros de Trabajo, tareas para ejecutar en el fondo
 """
 import logging
 import os
-import requests
 
 from dotenv import load_dotenv
+from ratelimit import limits, sleep_and_retry
+import requests
 
+from lib.api_oauth2 import ConfigurationError, StatusCodeNot200Error, ResponseJSONError, get_token
+from lib.safe_string import safe_clave, safe_string
 from lib.tasks import set_task_progress, set_task_error
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
-
 from plataforma_web.blueprints.centros_trabajos.models import CentroTrabajo
 from plataforma_web.blueprints.distritos.models import Distrito
-
-load_dotenv()  # Take environment variables from .env
 
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
@@ -26,103 +26,84 @@ empunadura = logging.FileHandler("centros_trabajos.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 
-app = create_app()
-app.app_context().push()
-db.app = app
+load_dotenv()  # Take environment variables from .env
+
+LLAMADOS_CANTIDAD = 2
+CUATRO_SEGUNDOS = 4
+
+
+@sleep_and_retry
+@limits(calls=LLAMADOS_CANTIDAD, period=CUATRO_SEGUNDOS)
+def get_centros_trabajos(base_url, token, limit, offset):
+    """Consultar centros de trabajo"""
+    response = requests.get(
+        url=f"{base_url}/v1/centros_trabajos",
+        headers={"authorization": f"Bearer {token}"},
+        params={"limit": limit, "offset": offset},
+    )
+    if response.status_code != 200:
+        raise StatusCodeNot200Error(f"Error de status code: {response.status_code}")
+    respuesta = response.json()
+    if "total" not in respuesta or "items" not in respuesta:
+        raise ResponseJSONError("Error en la respuesta, falta el total o el items")
+    return respuesta["total"], respuesta["items"]
 
 
 def sincronizar():
     """Sincronizar funcionarios con la API de RRHH Personal"""
-
+    # Iniciar SQLAlchemy
+    app = create_app()
+    app.app_context().push()
+    db.app = app
     # Iniciar
     bitacora.info("Inicia sincronizar")
-
+    # Consultar el distrito NO DEFINIDO
+    distrito_no_definido = Distrito.query.filter(Distrito.nombre == "NO DEFINIDO").first()
+    if distrito_no_definido is None:
+        return # Error: No se encontró el distrito NO DEFINIDO
     # Tomar variables del entorno
     base_url = os.getenv("RRHH_PERSONAL_API_URL")
     username = os.getenv("RRHH_PERSONAL_API_USERNAME")
     password = os.getenv("RRHH_PERSONAL_API_PASSWORD")
-
-    # Iniciar sesion
+    # Bloque try/except para manejar errores
     try:
-        response = requests.post(
-            url=f"{base_url}/token",
-            data={"username": username, "password": password},
-            headers={"content-type": "application/x-www-form-urlencoded"},
-        )
-    except Exception as error:
-        mensaje = f"No se pudo conectar con la API de RRHH Personal: {error}"
-        set_task_error(mensaje)
-        bitacora.error(mensaje)
-        return
-    if response.status_code != 200:
-        mensaje = f"Fallo el inicio de sesion con error {response.status_code}"
-        set_task_error(mensaje)
-        bitacora.error(mensaje)
-        return
-    token = response.json()["access_token"]
-    bitacora.info("Token recibido")
-
-    # Obtener el distrito NO DEFINIDO
-    distrito_no_definido = Distrito.query.filter(Distrito.nombre == "NO DEFINIDO").first()
-    if distrito_no_definido is None:
-        mensaje = "No se encuentra el distrito NO DEFINIDO"
-        set_task_error(mensaje)
-        bitacora.error(mensaje)
-        return
-
-    # Bucle de consultas a la API
-    limit = 50
-    offset = 0
-    total = None
-    centros_trabajos_presentes_contador = 0
-    centros_trabajos_insertados_contador = 0
-    centros_trabajos_omitidas_contador = 0
-    while True:
-        # Llamar a la API v1 centros_trabajos
-        bitacora.info("Consultando desde el registro %s", offset)
-        response = requests.get(
-            url=f"{base_url}/v1/centros_trabajos",
-            headers={"authorization": f"Bearer {token}"},
-            params={"limit": limit, "offset": offset},
-        )
-        if response.status_code != 200:
-            mensaje = f"Fallo la consulta de centros de trabajo con error {response.status_code}"
-            set_task_error(mensaje)
-            bitacora.error(mensaje)
-            return
-        data = response.json()
-        if total is None:
-            total = data["total"]
-            bitacora.info("Total: %d", total)
-        # Comparar
-        for centro_trabajo_datos in data["items"]:
-            clave = centro_trabajo_datos["clave"]
-            if clave != "":
-                funcionario = CentroTrabajo.query.filter(CentroTrabajo.clave == clave).first()
-                if funcionario is None:
-                    centros_trabajos_insertados_contador += 1
+        token = get_token(base_url, username, password)
+        limit = 200
+        offset = 0
+        total = None
+        insertados_contador = 0
+        actualizados_contador = 0
+        while True:
+            total, centros_trabajos = get_centros_trabajos(base_url, token, limit, offset)
+            bitacora.info("Voy en el offset %d de %d...", offset, total)
+            for centro_trabajo in centros_trabajos:
+                clave = safe_clave(centro_trabajo["clave"])
+                nombre = safe_string(centro_trabajo["nombre"])
+                consulta = CentroTrabajo.query.filter(CentroTrabajo.clave == clave).first()
+                if consulta is None:
+                    # Insertar
                     CentroTrabajo(
                         clave=clave,
-                        nombre=centro_trabajo_datos["nombre"],
+                        nombre=nombre,
                         telefono="ND",
                         distrito=distrito_no_definido,
                     ).save()
-                else:
-                    centros_trabajos_presentes_contador += 1
-            else:
-                centros_trabajos_omitidas_contador += 1
-        # Saltar
-        if offset + limit >= total:
-            break
-        offset += limit
-    # Terminar
-    if centros_trabajos_insertados_contador > 0:
-        bitacora.info("Se han insertado %s", centros_trabajos_insertados_contador)
-    if centros_trabajos_presentes_contador > 0:
-        bitacora.info("Hay %s ya presentes", centros_trabajos_presentes_contador)
-    if centros_trabajos_omitidas_contador > 0:
-        bitacora.info("Se omitieron %s porque les faltan datos", centros_trabajos_omitidas_contador)
-    set_task_progress(100)
-    mensaje_final = "Terminado sincronizar satisfactoriamente"
-    bitacora.info(mensaje_final)
+                    insertados_contador += 1
+                elif nombre != consulta.nombre:
+                    # Actualizar
+                    consulta.nombre = nombre
+                    consulta.save()
+                    actualizados_contador += 1
+            offset += limit
+            if offset >= total:
+                break
+        bitacora.info("Se insertaron %d y se actualizaron %d centros de trabajo", insertados_contador, actualizados_contador)
+    except requests.ConnectionError as error:
+        bitacora.error("Error de conexion: %s", error)
+    except requests.Timeout as error:
+        bitacora.error("Error de falta de respuesta a tiempo: %s", error)
+    except (ConfigurationError, ResponseJSONError, StatusCodeNot200Error) as error:
+        bitacora.error(error)
+    # Terminado
+    bitacora.info("Termino sincronizar")
     return

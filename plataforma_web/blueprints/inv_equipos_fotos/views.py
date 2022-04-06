@@ -18,9 +18,8 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-
 MODULO = "INV EQUIPOS FOTOS"
-SUBDIRECTORIO = "inv equipo_fotos"
+SUBDIRECTORIO = "inv_equipo_fotos"
 
 inv_equipos_fotos = Blueprint("inv_equipos_fotos", __name__, template_folder="templates")
 
