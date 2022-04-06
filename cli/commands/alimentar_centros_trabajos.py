@@ -33,6 +33,7 @@ def alimentar_centros_trabajos():
                 nombre=row["nombre"],
                 telefono=row["telefono"],
                 distrito_id=int(row["distrito_id"]),
+                domicilio_id=int(row["domicilio_id"]),
                 estatus=row["estatus"],
             ).save()
             contador += 1

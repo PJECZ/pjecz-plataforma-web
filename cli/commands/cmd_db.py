@@ -18,6 +18,9 @@ from cli.commands.alimentar_centros_trabajos import alimentar_centros_trabajos
 from cli.commands.alimentar_distritos import alimentar_distritos
 from cli.commands.alimentar_domicilios import alimentar_domicilios
 from cli.commands.alimentar_funcionarios import alimentar_funcionarios
+from cli.commands.alimentar_inv_categorias import alimentar_inv_categorias
+from cli.commands.alimentar_inv_marcas_modelos import alimentar_inv_marcas_modelos
+from cli.commands.alimentar_inv_redes import alimentar_inv_redes
 from cli.commands.alimentar_materias import alimentar_materias
 from cli.commands.alimentar_materias_tipos_juicios import alimentar_materias_tipos_juicios
 from cli.commands.alimentar_modulos import alimentar_modulos
@@ -34,6 +37,9 @@ from cli.commands.respaldar_centros_trabajos import respaldar_centros_trabajos
 from cli.commands.respaldar_distritos import respaldar_distritos
 from cli.commands.respaldar_domicilios import respaldar_domicilios
 from cli.commands.respaldar_funcionarios import respaldar_funcionarios
+from cli.commands.respaldar_inv_categorias import respaldar_inv_categorias
+from cli.commands.respaldar_inv_marcas_modelos import respaldar_inv_marcas_modelos
+from cli.commands.respaldar_inv_redes import respaldar_inv_redes
 from cli.commands.respaldar_materias_tipos_juicios import respaldar_materias_tipos_juicios
 from cli.commands.respaldar_materias import respaldar_materias
 from cli.commands.respaldar_modulos import respaldar_modulos
@@ -80,6 +86,9 @@ def alimentar():
     alimentar_autoridades()
     alimentar_domicilios()
     alimentar_oficinas()
+    alimentar_inv_categorias()
+    alimentar_inv_marcas_modelos()
+    alimentar_inv_redes()
     alimentar_usuarios()
     alimentar_usuarios_roles()
     alimentar_centros_trabajos()
@@ -112,6 +121,9 @@ def respaldar():
     respaldar_roles_permisos()
     respaldar_usuarios_roles()
     respaldar_oficinas()
+    respaldar_inv_categorias()
+    respaldar_inv_marcas_modelos()
+    respaldar_inv_redes()
     respaldar_peritos_tipos()
     respaldar_soportes_categorias()
     click.echo("Termina respaldar.")
