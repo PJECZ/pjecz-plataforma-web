@@ -1,8 +1,9 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
-{% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/list.jinja2' as list %}
+{% import 'macros/tabs.jinja2' as tabs %}
+{% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Soporte Ticket{% endblock %}
 
@@ -57,64 +58,93 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=soporte_ticket.estatus) %}
-        <div id="estado">
-            {{ detail.label_value_big('Estado', soporte_ticket.estado) }}
-        </div>
-        <div class="fs-5">
-            {{ detail.label_value('Descripción', soporte_ticket.descripcion) }}
-        </div>
-        {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
-        {% if current_user.can_view('USUARIOS') %}
-            {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre, url_for('usuarios.detail', usuario_id=soporte_ticket.usuario_id)) }}
-        {% else %}
-            {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
-        {% endif %}
-        {% if current_user.can_view('OFICINAS') %}
-            {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave_nombre, url_for('oficinas.detail', oficina_id=soporte_ticket.usuario.oficina_id)) }}
-        {% else %}
-            {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave_nombre) }}
-        {% endif %}
-        {% if current_user.can_view('SOPORTES CATEGORIAS') %}
-            {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre, url_for('soportes_categorias.detail', soporte_categoria_id=soporte_ticket.soporte_categoria_id)) }}
-        {% else %}
-            {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
-        {% endif %}
-        {% if soporte_ticket.funcionario_id != 1 %}
-            {% if current_user.can_view('FUNCIONARIOS') %}
-                {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre, url_for('funcionarios.detail', funcionario_id=soporte_ticket.funcionario_id)) }}
-            {% else %}
-                {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
+    {% call tabs.header() %}
+        {{ tabs.button('detalles-tab', 'tab_detalles', 'Detalle', 'active') }}
+        {{ tabs.button('custodias-tab', 'tab_custodias', 'Custodia') }}
+        {{ tabs.button('archivo-adjunto-tab', 'tab_archivo_adjunto', 'Archivos adjuntos') }}
+    {% endcall %}
+    {% call tabs.content() %}
+        {% call tabs.div_content('tab_detalles', 'detalles-tab', 'active') %}
+            {% call detail.card(estatus=soporte_ticket.estatus) %}
+                <div id="estado">
+                    {{ detail.label_value_big('Estado', soporte_ticket.estado) }}
+                </div>
+                <div class="fs-5">
+                    {{ detail.label_value('Descripción', soporte_ticket.descripcion) }}
+                </div>
+                {{ detail.label_value('Creado', moment(soporte_ticket.creado).format('llll')) }}
+                {% if current_user.can_view('USUARIOS') %}
+                    {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre, url_for('usuarios.detail', usuario_id=soporte_ticket.usuario_id)) }}
+                {% else %}
+                    {{ detail.label_value('Usuario', soporte_ticket.usuario.nombre) }}
+                {% endif %}
+                {% if current_user.can_view('OFICINAS') %}
+                    {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave_nombre, url_for('oficinas.detail', oficina_id=soporte_ticket.usuario.oficina_id)) }}
+                {% else %}
+                    {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave_nombre) }}
+                {% endif %}
+                {% if current_user.can_view('SOPORTES CATEGORIAS') %}
+                    {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre, url_for('soportes_categorias.detail', soporte_categoria_id=soporte_ticket.soporte_categoria_id)) }}
+                {% else %}
+                    {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre) }}
+                {% endif %}
+                {% if soporte_ticket.funcionario_id != 1 %}
+                    {% if current_user.can_view('FUNCIONARIOS') %}
+                        {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre, url_for('funcionarios.detail', funcionario_id=soporte_ticket.funcionario_id)) }}
+                    {% else %}
+                        {{ detail.label_value('Técnico', soporte_ticket.funcionario.nombre) }}
+                    {% endif %}
+                {% endif %}
+                {% if soporte_ticket.estado in ('CERRADO', 'TERMINADO') %}
+                    {{ detail.label_value('Resolución', moment(soporte_ticket.resolucion).format('llll')) }}
+                {% endif %}
+                <div class="fs-5">
+                    {{ detail.label_value('Respuesta/Solucion', soporte_ticket.soluciones) }}
+                </div>
+            {% endcall %}
+        {% endcall %}
+        {% call tabs.div_content('tab_custodias', 'custodias-tab') %}
+            {% if current_user.can_view('INV CUSTODIAS') %}
+                {% call detail.card() %}
+                    <table id="inv_custodias_datatable" class="table display nowrap" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Oficina</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% endcall %}
             {% endif %}
-        {% endif %}
-        {% if soporte_ticket.estado in ('CERRADO', 'TERMINADO') %}
-            {{ detail.label_value('Resolución', moment(soporte_ticket.resolucion).format('llll')) }}
-        {% endif %}
-        <div class="fs-5">
-            {{ detail.label_value('Respuesta/Solucion', soporte_ticket.soluciones) }}
-        </div>
+        {% endcall %}
+        {% call tabs.div_content('tab_archivo_adjunto', 'archivo-adjunto-tab') %}
+            {% call list.card('Archivos Adjuntos') %}
+                <table id="soportes_archivos_datatable" class="table display nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for archivo in archivos %}
+                        <tr>
+                            <td><a href="{{ url_for('soportes_adjuntos.detail', soporte_adjunto_id=archivo.id) }}">{{ archivo.archivo }}</a></td>
+                            <td>{{ archivo.descripcion | truncate(48) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if soporte_ticket.estado == 'SIN ATENDER' or soporte_ticket.estado == 'TRABAJANDO' %}
+                    <a href="{{ url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id) }}" class="btn btn-primary">Adjuntar Archivo</a>
+                {% endif %}
+            {% endcall %}
+        {% endcall %}
     {% endcall %}
-    {% call list.card('Archivos Adjuntos') %}
-        <table id="soportes_archivos_datatable" class="table display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for archivo in archivos %}
-                <tr>
-                    <td><a href="{{ url_for('soportes_adjuntos.detail', soporte_adjunto_id=archivo.id) }}">{{ archivo.archivo }}</a></td>
-                    <td>{{ archivo.descripcion | truncate(48) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% if soporte_ticket.estado == 'SIN ATENDER' or soporte_ticket.estado == 'TRABAJANDO' %}
-            <a href="{{ url_for('soportes_adjuntos.new', soporte_ticket_id=soporte_ticket.id) }}" class="btn btn-primary">Adjuntar Archivo</a>
-        {% endif %}
-    {% endcall %}
+    <hr>
+    <p class="act"><b>Active Tab</b>: <span></span></p>
+    <p class="prev"><b>Previous Tab</b>: <span></span></p>
 {% endblock %}
 
 {% block custom_javascript %}
@@ -137,4 +167,39 @@
             case "CERRADO":     $('.card-body').css("background-color", "#eceff1"); $('.card').css("border-color", "#546e7a"); $('#estado').css("color", "#546e7a"); break;
         }
     </script>
+    <script>
+        //$('#tickets-tab').on('show.bs.tab', function(){ alert('estas en detalle')});
+        $('#archivo-adjunto-tab').on('show.bs.tab', function(){ console.log('#archivo-adjunto-tab')});
+    </script>
+    {% if current_user.can_view('INV CUSTODIAS') %}
+        <script>
+        $('#custodias-tab').on('show.bs.tab', function(){
+            configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
+            configDataTable['ajax']['data'] = {{ filtros }};
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "fecha" },
+                { data: "oficina" },
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // id
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 2, // oficina
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                }
+            ];
+            $('#inv_custodias_datatable').DataTable().destroy();
+            $('#inv_custodias_datatable').DataTable(configDataTable);
+        });
+        </script>
+    {% endif %}
 {% endblock %}
