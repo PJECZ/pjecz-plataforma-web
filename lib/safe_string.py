@@ -73,7 +73,7 @@ def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True):
     if do_unidecode:
         new_string = re.sub(r"[^a-zA-Z0-9()/-]+", " ", unidecode(input_str))
     else:
-        new_string = re.sub(r"[^a-zñA-ZÑ0-9()/-]+", " ", input_str)
+        new_string = re.sub(r"[^a-záéíóúüñA-ZÁÉÍÓÚÜÑ0-9()/-]+", " ", input_str)
     removed_multiple_spaces = re.sub(r"\s+", " ", new_string)
     final = removed_multiple_spaces.strip()
     if to_uppercase:
