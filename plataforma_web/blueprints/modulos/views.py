@@ -100,7 +100,7 @@ def new():
         else:
             modulo = Modulo(
                 nombre=nombre,
-                nombre_corto=form.nombre_corto.data,
+                nombre_corto=safe_string(form.nombre_corto.data, to_uppercase=False, do_unidecode=False),
                 icono=form.icono.data,
                 ruta=form.ruta.data,
                 en_navegacion=form.en_navegacion.data == 1,
