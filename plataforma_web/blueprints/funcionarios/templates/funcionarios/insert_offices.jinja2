@@ -18,7 +18,6 @@
         {% set form_kwargs = {'funcionario_id': funcionario.id} %}
         {% call f.form_tag('funcionarios.insert_offices', fid='insert_offices_form', **form_kwargs) %}
             {% call f.form_group(form.funcionario_nombre, readonly=True) %}{% endcall %}
-            {% call f.form_group(form.funcionario_curp, readonly=True) %}{% endcall %}
             {% call f.form_group(form.funcionario_puesto, readonly=True) %}{% endcall %}
             {% call f.form_group(form.funcionario_email, readonly=True) %}{% endcall %}
             {% call f.form_group(form.domicilio) %}{% endcall %}
@@ -30,7 +29,6 @@
 {% block custom_javascript %}
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <!-- Select2 bootstrap domicilios -->
     <script>
         $(document).ready(function(){
             $('#domicilio').addClass('js-example-placeholder-single js-states form-control');
