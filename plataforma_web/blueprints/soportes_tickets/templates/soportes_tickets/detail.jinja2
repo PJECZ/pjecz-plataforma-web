@@ -154,6 +154,7 @@
         {{ modals.custom_javascript('Cancelar Ticket', '¿Deseas cancelar este ticket?', 'cancelar') }}
     {% endif %}
     {{ list.datatable('soportes_archivos_datatable') }}
+    {{ detail.config_datatable() }}
     <script>
         switch ("{{ soporte_ticket.estado }}")    {
             case "SIN ATENDER": $('.card-body').css("background-color", "#fef9e7"); $('.card').css("border-color", "#7d6608"); $('#estado').css("color", "#7d6608"); break;
@@ -173,7 +174,7 @@
         <script>
         $('#custodias-tab').on('show.bs.tab', function(){
             configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ soporte_ticket.usuario.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ soporte_ticket.usuario_id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "fecha" },
