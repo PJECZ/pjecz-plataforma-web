@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/form_inline.jinja2' as f with context %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/tabs.jinja2' as tabs %}
@@ -104,19 +105,51 @@
             {% endcall %}
         {% endcall %}
         {% call tabs.div_content('tab_custodias', 'custodias-tab') %}
-            {% if current_user.can_view('INV CUSTODIAS') %}
                 {% call detail.card() %}
-                    <table id="inv_custodias_datatable" class="table display nowrap" style="width:100%">
+                    <table class="table display nowrap" style="width:100%">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Fecha</th>
                                 <th>Oficina</th>
+                                <th>Usuario</th>
                             </tr>
                         </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ inv_custodias.id }}</td>
+                                <td>{{ inv_custodias.fecha }}</td>
+                                <td>{{ inv_custodias.oficina }}</td>
+                                <td>{{ inv_custodias.nombre_completo }}</td>
+                            </tr>
+                        </tbody>
                     </table>
+                    <div class="d-grid gap-2  d-md-block">
+                        <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUsaelEquipo" aria-expanded="false" aria-controls="collapseUsaelEquipo">
+                            Ver equipos usuario
+                        </button>
+                        <button class="btn btn-primary " type="button" data-bs-toggle="collapse" data-bs-target="#collapseUsaelEquipoAll" aria-expanded="false" aria-controls="collapseUsaelEquipoAll">
+                            Ver Equipos cercanos al usuario
+                        </button>
+                    </div>
+                    <div class="collapse" id="collapseUsaelEquipo">
+                        <h4 class="mt-3">Equipos asignados al usuario solicitante del ticket {{ soporte_ticket.id}}</h4>
+                        {% if current_user.can_view('INV EQUIPOS')  %}
+                            <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha de adquisición</th>
+                                        <th>Marca</th>
+                                        <th>Modelo</th>
+                                        <th>Descripción del equipo</th>
+                                        <th>Red</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        {% endif %}
+                    </div>
                 {% endcall %}
-            {% endif %}
         {% endcall %}
         {% call tabs.div_content('tab_archivo_adjunto', 'archivo-adjunto-tab') %}
             {% call list.card('Archivos Adjuntos') %}
@@ -170,34 +203,38 @@
             console.log('archivo-adjunto-tab');
         });
     </script>
-    {% if current_user.can_view('INV CUSTODIAS') %}
+    {% if current_user.can_view('INV EQUIPOS') %}
         <script>
         $('#custodias-tab').on('show.bs.tab', function(){
-            configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ soporte_ticket.usuario_id}} };
+            configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'inv_custodia_id': {{ inv_custodias.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
-                { data: "fecha" },
-                { data: "oficina" },
+                { data: "adquisicion_fecha" },
+                { data: "inv_marca" },
+                { data: "inv_modelo" },
+                { data: "descripcion" },
+                { data: "inv_red" },
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: 0, // id
+                    targets: [0], // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: 2, // oficina
+                    targets: [2,3,5], // inv_marca, inv_modelo, inv_red
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
-                }
+                },
             ];
-            $('#inv_custodias_datatable').DataTable().destroy();
-            $('#inv_custodias_datatable').DataTable(configDataTable);
+            $('#inv_equipos_datatable').DataTable().destroy();
+            $('#inv_equipos_datatable').DataTable(configDataTable);
+           console.log('custodias-tab');
         });
         </script>
     {% endif %}
