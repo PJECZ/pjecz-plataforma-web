@@ -60,10 +60,6 @@ def _owns_ticket(soporte_ticket: SoporteTicket):
     return False
 
 
-def get_custodias_if_ticket_create():
-    inv_custodias = InvCustodia.query.filter(InvCustodia.usuario_id == InvCustodia.id).order_by(InvCustodia.id).first()
-
-
 @soportes_tickets.before_request
 @login_required
 @permission_required(MODULO, Permiso.VER)

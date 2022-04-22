@@ -56,13 +56,6 @@ def datatable_json():
         consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["fecha_hasta"])
-    if "oficina_id" in request.form:
-        usuarios = Usuario.query.filter(Usuario.oficina_id == request.form["oficina_id"])
-        for user in usuarios:
-            custodias = InvCustodia.query.filter(InvCustodia.usuario_id == user.id)
-            for custodia in custodias:
-                consulta = consulta.filter(InvEquipo.inv_custodia_id == custodia.id)
-
     registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

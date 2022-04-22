@@ -105,76 +105,22 @@
             {% endcall %}
         {% endcall %}
         {% call tabs.div_content('tab_custodias', 'custodias-tab') %}
-                {% call detail.card() %}
-                    <table class="table display nowrap" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Fecha</th>
-                                <th>Oficina</th>
-                                <th>Usuario</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ inv_custodias.id }}</td>
-                                <td>{{ inv_custodias.fecha }}</td>
-                                <td>{{ inv_custodias.usuario.oficina.clave_nombre }}</td>
-                                <td>{{ inv_custodias.usuario_id }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="accordion" id="accordionEquipos">
-                        <div class="d-grid gap-2  d-md-block">
-                            <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEquipos" aria-expanded="true" aria-controls="collapseEquipos">
-                                Ver equipos usuario
-                            </button>
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEquiposAll" aria-expanded="true" aria-controls="collapseEquiposAll">
-                                Ver Equipos cercanos al usuario
-                            </button>
-                        </div>
-
-                        <div class="accordion-item">
-                            {#mis equipos#}
-                            <div id="collapseEquipos" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionEquipos">
-                                <h4 class="mt-3">Equipos asignados al usuario solicitante del ticket {{ soporte_ticket.id}}</h4>
-                                {% if current_user.can_view('INV EQUIPOS')  %}
-                                    <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Fecha de adquisición</th>
-                                                <th>Marca</th>
-                                                <th>Modelo</th>
-                                                <th>Descripción del equipo</th>
-                                                <th>Red</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            {#Equipos cerncanos#}
-                            <div id="collapseEquiposAll" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionEquipos">
-                                <h4 class="mt-3">Equipos relacionados con el usuario {{ soporte_ticket.id}}</h4>
-                                {% if current_user.can_view('INV EQUIPOS')  %}
-                                    <table id="inv_equipos_all_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Fecha de adquisición</th>
-                                                <th>Marca</th>
-                                                <th>Modelo</th>
-                                                <th>Descripción del equipo</th>
-                                                <th>Red</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
+                {% call detail.card('Equipos de custodia: ' +  inv_custodias.id | string ) %}
+                    {% if current_user.can_view('INV EQUIPOS')  %}
+                        <p class="mt-3"></p>
+                        <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha de adquisición</th>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Descripción del equipo</th>
+                                    <th>Red</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    {% endif %}
                 {% endcall %}
         {% endcall %}
         {% call tabs.div_content('tab_archivo_adjunto', 'archivo-adjunto-tab') %}
@@ -262,7 +208,7 @@
             $('#inv_equipos_datatable').DataTable(configDataTable);
 
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ inv_custodias.usuario.oficina.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ inv_custodias.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "adquisicion_fecha" },
