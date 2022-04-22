@@ -205,37 +205,9 @@
                 },
             ];
             $('#inv_equipos_datatable').DataTable().destroy();
+            $('#inv_equipos_datatables').DataTable().draw('full-reset');
             $('#inv_equipos_datatable').DataTable(configDataTable);
 
-            configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ inv_custodias.id}} };
-            configDataTable['columns'] = [
-                { data: "detalle" },
-                { data: "adquisicion_fecha" },
-                { data: "inv_marca" },
-                { data: "inv_modelo" },
-                { data: "descripcion" },
-                { data: "inv_red" },
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: [0], // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: [2,3,5], // inv_marca, inv_modelo, inv_red
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                    }
-                },
-            ];
-            $('#inv_equipos_all_datatable').DataTable().destroy();
-            $('#inv_equipos_all_datatable').DataTable(configDataTable);
-           
         });
         </script>
     {% endif %}
