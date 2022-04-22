@@ -14,8 +14,10 @@ from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.usuarios.models import Usuario
 
 MODULO = "INV EQUIPOS"
 
@@ -54,6 +56,13 @@ def datatable_json():
         consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["fecha_hasta"])
+    if "oficina_id" in request.form:
+        usuarios = Usuario.query.filter(Usuario.oficina_id == request.form["oficina_id"])
+        for user in usuarios:
+            custodias = InvCustodia.query.filter(InvCustodia.usuario_id == user.id)
+            for custodia in custodias:
+                consulta = consulta.filter(InvEquipo.inv_custodia_id == custodia.id)
+
     registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

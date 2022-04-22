@@ -62,10 +62,6 @@ def _owns_ticket(soporte_ticket: SoporteTicket):
 
 def get_custodias_if_ticket_create():
     inv_custodias = InvCustodia.query.filter(InvCustodia.usuario_id == InvCustodia.id).order_by(InvCustodia.id).first()
-    if inv_custodias is None:
-        return None  # no existe la custodia
-    if inv_custodias.estatus != "A":
-        return None  # La custodia no esta activa
 
 
 @soportes_tickets.before_request
@@ -258,8 +254,8 @@ def detail(soporte_ticket_id):
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
     archivos = SoporteAdjunto.query.filter(SoporteAdjunto.soporte_ticket_id == soporte_ticket_id).all()
-    inv_custodias = InvCustodia.query.filter(InvCustodia.usuario_id == InvCustodia.id).order_by(InvCustodia.id).first()
-    inv_equipos = InvEquipo.query.filter(InvEquipo.inv_custodia_id == soporte_ticket_id).all()
+    inv_custodias = InvCustodia.query.filter(InvCustodia.usuario_id == ticket.usuario_id).order_by(InvCustodia.id.desc()).first()
+    inv_equipos = InvEquipo.query.filter(InvEquipo.inv_custodia_id == inv_custodias.usuario_id).all()
     return render_template(
         "soportes_tickets/detail.jinja2",
         soporte_ticket=ticket,
