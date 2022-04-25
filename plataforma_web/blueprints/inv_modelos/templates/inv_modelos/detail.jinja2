@@ -8,7 +8,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Modelo ' + inv_modelo.descripcion) %}
-        {{ topbar.button_previous('Modelos', url_for('inv_marcas.list_active')) }}
+        {{ topbar.button_previous('Modelos', url_for('inv_modelos.list_active')) }}
         {% if current_user.can_edit('INV MODELOS') %}
             {{ topbar.button_edit('Editar', url_for('inv_modelos.edit', inv_modelo_id=inv_modelo.id)) }}
             {% if inv_modelo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_modelos.delete', inv_modelo_id=inv_modelo.id)) }}{% endif %}

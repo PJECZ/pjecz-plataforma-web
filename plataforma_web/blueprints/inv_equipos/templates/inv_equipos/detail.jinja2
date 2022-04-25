@@ -23,9 +23,9 @@
     {% call detail.card(estatus=inv_equipo.estatus) %}
         {{ detail.label_value('ID', inv_equipo.id) }}
         {% if current_user.can_view('USUARIOS') %}
-            {{ detail.label_value('Usuario', inv_equipo.inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=inv_equipo.inv_custodia.usuario_id)) }}
+            {{ detail.label_value('Custodia', inv_equipo.inv_custodia.nombre_completo, url_for('inv_custodias.detail', inv_custodia_id=inv_equipo.inv_custodia_id)) }}
         {% else %}
-            {{ detail.label_value('Usuario', inv_equipo.inv_custodia.nombre_completo) }}
+            {{ detail.label_value('Custodia', inv_equipo.inv_custodia.nombre_completo) }}
         {% endif %}
         {% if current_user.can_view('INV MARCAS') %}
             {{ detail.label_value('Marca', inv_equipo.inv_modelo.inv_marca.nombre, url_for('inv_marcas.detail', inv_marca_id=inv_equipo.inv_modelo.inv_marca.id)) }}
