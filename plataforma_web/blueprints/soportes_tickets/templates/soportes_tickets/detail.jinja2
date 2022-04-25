@@ -177,7 +177,8 @@
     </script>
     {% if current_user.can_view('INV EQUIPOS') %}
         <script>
-        $('#custodias-tab').on('show.bs.tab', function(){
+        $('#custodias-tab').on('shown.bs.tab', function(){
+            $('#inv_equipos_datatable').DataTable().destroy();
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'inv_custodia_id': {{ inv_custodias.id}} };
             configDataTable['columns'] = [
@@ -200,11 +201,15 @@
                     targets: [2,3,5], // inv_marca, inv_modelo, inv_red
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
                     }
                 },
             ];
-            $('#inv_equipos_datatable').DataTable().destroy();
+            //$('#inv_equipos_datatable').DataTable({  scrollX: true });
             $('#inv_equipos_datatable').DataTable(configDataTable);
 
         });
