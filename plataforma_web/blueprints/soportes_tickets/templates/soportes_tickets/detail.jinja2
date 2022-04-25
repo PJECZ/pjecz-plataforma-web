@@ -61,7 +61,7 @@
 {% block content %}
     {% call tabs.header() %}
         {{ tabs.button('detalles-tab', 'tab_detalles', 'Detalle', 'active') }}
-        {{ tabs.button('custodias-tab', 'tab_custodias', 'Custodia') }}
+        {{ tabs.button('custodias-tab', 'tab_custodias', 'Equipos') }}
         {{ tabs.button('archivo-adjunto-tab', 'tab_archivo_adjunto', 'Archivos adjuntos') }}
     {% endcall %}
     {% call tabs.content() %}
@@ -171,7 +171,7 @@
         }
     </script>
     <script>
-        $('#archivo-adjunto-tab').on('show.bs.tab', function(){
+        $('#archivo-adjunto-tab').on('shown.bs.tab', function(){
             console.log('archivo-adjunto-tab');
         });
     </script>
