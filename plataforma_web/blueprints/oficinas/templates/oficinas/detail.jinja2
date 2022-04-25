@@ -1,6 +1,8 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/tabs.jinja2' as tabs %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Oficina{% endblock %}
@@ -17,51 +19,85 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=oficina.estatus) %}
-        {{ detail.label_value_big('Clave', oficina.clave) }}
-        {{ detail.label_value('Descripción', oficina.descripcion) }}
-        {{ detail.label_value('Descripción Corta', oficina.descripcion_corta) }}
-        {% if current_user.can_view('DISTRITOS') %}
-            {{ detail.label_value('Distrito', oficina.distrito.nombre, url_for('distritos.detail', distrito_id=oficina.distrito_id)) }}
-        {% else %}
-            {{ detail.label_value('Distrito', oficina.distrito.nombre) }}
-        {% endif %}
-        {% if current_user.can_view('DOMICILIOS') %}
-            {{ detail.label_value('Domicilio', oficina.domicilio.completo, url_for('domicilios.detail', domicilio_id=oficina.domicilio_id)) }}
-        {% else %}
-            {{ detail.label_value('Domicilio', oficina.domicilio.completo) }}
-        {% endif %}
-        {{ detail.label_value('Horario', oficina.apertura.strftime("%H:%M") + ' — ' + oficina.cierre.strftime("%H:%M")) }}
-        {{ detail.label_value('Límite de Personas', oficina.limite_personas) }}
-        {{ detail.label_value_boolean('Juridiccional', oficina.es_juridiccional) }}
+    {% call tabs.header() %}
+        {{ tabs.button('detalles-tab', 'tab_detalles', 'Detalles', 'active') }}
+        {{ tabs.button('funcionarios-tab', 'tab_funcionarios', 'Funcionarios') }}
+        {{ tabs.button('usuarios-tab', 'tab_usuarios', 'Usuarios') }}
+        {{ tabs.button('tickets-tab', 'tab_tickets', 'Tickets') }}
     {% endcall %}
-    {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
-        {% call detail.card('Funcionarios') %}
-            <table id="funcionarios_oficinas_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Funcionario CURP</th>
-                        <th>Funcionario nombre</th>
-                    </tr>
-                </thead>
-            </table>
+    {% call tabs.content() %}
+        {% call tabs.div_content('tab_detalles', 'detalles-tab', 'active') %}
+            {% call detail.card(estatus=oficina.estatus) %}
+                {{ detail.label_value_big('Clave', oficina.clave) }}
+                {{ detail.label_value('Descripción', oficina.descripcion) }}
+                {{ detail.label_value('Descripción Corta', oficina.descripcion_corta) }}
+                {% if current_user.can_view('DISTRITOS') %}
+                    {{ detail.label_value('Distrito', oficina.distrito.nombre, url_for('distritos.detail', distrito_id=oficina.distrito_id)) }}
+                {% else %}
+                    {{ detail.label_value('Distrito', oficina.distrito.nombre) }}
+                {% endif %}
+                {% if current_user.can_view('DOMICILIOS') %}
+                    {{ detail.label_value('Domicilio', oficina.domicilio.completo, url_for('domicilios.detail', domicilio_id=oficina.domicilio_id)) }}
+                {% else %}
+                    {{ detail.label_value('Domicilio', oficina.domicilio.completo) }}
+                {% endif %}
+                {{ detail.label_value('Horario', oficina.apertura.strftime("%H:%M") + ' — ' + oficina.cierre.strftime("%H:%M")) }}
+                {{ detail.label_value('Límite de Personas', oficina.limite_personas) }}
+                {{ detail.label_value_boolean('Juridiccional', oficina.es_juridiccional) }}
+            {% endcall %}
         {% endcall %}
-    {% endif %}
-    {% if current_user.can_view('USUARIOS') %}
-        {% call detail.card('Usuarios') %}
-            <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>e-mail</th>
-                        <th>Nombres Completos</th>
-                        <th>Puesto</th>
-                        <th>Autoridad</th>
-                    </tr>
-                </thead>
-            </table>
+        {% call tabs.div_content('tab_funcionarios', 'funcionarios-tab') %}
+            {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
+                {% call detail.card() %}
+                    <table id="funcionarios_oficinas_datatable" class="table display nowrap init_tabs" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Funcionario CURP</th>
+                                <th>Funcionario nombre</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% endcall %}
+            {% endif %}
         {% endcall %}
-    {% endif %}
+        {% call tabs.div_content('tab_usuarios', 'usuarios-tab') %}
+            {% if current_user.can_view('USUARIOS') %}
+                {% call detail.card() %}
+                    <table id="usuarios_datatable" class="table display nowrap init_tabs" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>e-mail</th>
+                                <th>Nombres Completos</th>
+                                <th>Puesto</th>
+                                <th>Autoridad</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% endcall %}
+            {% endif %}
+        {% endcall %}
+        {% call tabs.div_content('tab_tickets', 'tickets-tab') %}
+            {% if current_user.can_view('SOPORTES TICKETS') %}
+                {% call list.card() %}
+                    <table id="soportes_tickets_datatable" class="table display nowrap init_tabs" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Creación</th>
+                                <th>Usuario</th>
+                                <th>Categoría</th>
+                                <th>Estado</th>
+                                <th>Técnico</th>
+                                <th>Descripción</th>
+                                <th>Solución/Cancelación</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% endcall %}
+            {% endif %}
+        {% endcall %}
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -72,6 +108,7 @@
     {{ detail.config_datatable() }}
     {% if current_user.can_view('FUNCIONARIOS OFICINAS') %}
         <script>
+        $('#funcionarios-tab').on('show.bs.tab', function(){
             configDataTable['ajax']['url'] = '/funcionarios_oficinas/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id}} };
             configDataTable['columns'] = [
@@ -95,11 +132,14 @@
                     }
                 }
             ];
+            $('#funcionarios_oficinas_datatable').DataTable().destroy();
             $('#funcionarios_oficinas_datatable').DataTable(configDataTable);
+        });
         </script>
     {% endif %}
     {% if current_user.can_view('USUARIOS') %}
         <script>
+        $('#usuarios-tab').on('show.bs.tab', function(){
             configDataTable['ajax']['url'] = '/usuarios/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id}} };
             configDataTable['columns'] = [
@@ -135,7 +175,82 @@
                     }
                 }
             ];
+            $('#usuarios_datatable').DataTable().destroy();
             $('#usuarios_datatable').DataTable(configDataTable);
+        });
+        </script>
+    {% endif %}
+    {% if current_user.can_view('SOPORTES TICKETS') %}
+        <script>
+        $('#tickets-tab').on('show.bs.tab', function(){
+                configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id}} };
+                configDataTable['columns'] = [
+                    { data: "id" },
+                    { data: "creacion" },
+                    { data: "usuario" },
+                    { data: "categoria" },
+                    { data: "estado" },
+                    { data: "tecnico" },
+                    { data: "descripcion" },
+                    { data: "soluciones" }
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0, // id
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
+                        }
+                    },
+                    {
+                        targets: 1, // creacion
+                        type: "date",
+                        render: function(data, type, row, meta) {
+                            return moment.utc(data).local().format("YYYY-MM-DD HH:mm a");
+                        }
+                    },
+                    {
+                        targets: [2, 3, 5], // usuario, categoria, tecnico
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if(data.nombre.length > 24)
+                                texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
+                            else
+                                texto = data.nombre;
+                            if(data.url == '')
+                                return texto;
+                            else
+                                return '<a href="' + data.url + '">' + texto + '</a>';
+                        }
+                    },
+                    {
+                        targets: [6, 7], // descripcion, soluciones
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data != null)
+                                if (data.length > 24)   {
+                                    return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
+                                } else {
+                                    return data;
+                                }
+                            return '—';
+                        }
+                    }
+                ];
+                configDataTable['rowCallback'] = function(row, data) {
+                    switch (data.estado)    {
+                        case "SIN ATENDER": $(row).css("background-color", "#fef9e7");  break;
+                        case "TRABAJANDO":  $(row).css("background-color", "#ebf5fb");  break;
+                        case "CANCELADO":   $(row).css("background-color", "#fdedec");  break;
+                        case "PENDIENTE":   $(row).css("background-color", "#f5eef8");  break;
+                        case "TERMINADO":   $(row).css("background-color", "#eafaf1");  break;
+                        case "CERRADO":     $(row).css("background-color", "#eceff1");  break;
+                    }
+                };
+                $('#soportes_tickets_datatable').DataTable().destroy();
+                $('#soportes_tickets_datatable').DataTable(configDataTable);
+        });
         </script>
     {% endif %}
 {% endblock %}
