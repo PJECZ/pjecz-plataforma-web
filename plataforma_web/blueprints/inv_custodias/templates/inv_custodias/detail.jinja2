@@ -8,6 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Custodia ' + inv_custodia.id | string) %}
         {{ topbar.button_previous('Custodias', url_for('inv_custodias.list_active')) }}
+        {{ topbar.button_make('Firmar Custodia', url_for('inv_custodias.accept_reject', inv_custodia_id=inv_custodia.id))}}
         {% if current_user.can_admin('INV CUSTODIAS') %}
             {{ topbar.button_edit('Editar', url_for('inv_custodias.edit', inv_custodia_id=inv_custodia.id)) }}
             {% if inv_custodia.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_custodias.delete', inv_custodia_id=inv_custodia.id)) }}{% endif %}
@@ -57,6 +58,7 @@
     {% if current_user.can_edit('INV CUSTODIAS') %}
         {% if inv_custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + inv_custodia.nombre_completo + '?') }}{% endif %}
         {% if inv_custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + inv_custodia.nombre_completo + '?') }}{% endif %}
+        {{ modals.custom_javascript_make('Firmar', '¿Está seguro de que quiere firmarlo? Ya no podrá cambiarlo después.') }}
     {% endif %}
     {{ detail.moment_js(moment) }}
     {{ detail.config_datatable() }}
