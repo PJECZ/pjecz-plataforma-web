@@ -122,7 +122,7 @@
     {{ detail.config_datatable() }}
     {% if current_user.can_view('USUARIOS ROLES') %}
         <script>
-        $('#roles-tab').on('show.bs.tab', function(){
+        $('#roles-tab').on('shown.bs.tab', function(){
             configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
             configDataTable['columns'] = [
@@ -156,7 +156,7 @@
     {% endif %}
     {% if current_user.can_view('SOPORTES TICKETS') %}
         <script>
-        $('#tickets-tab').on('show.bs.tab', function(){
+        $('#tickets-tab').on('shown.bs.tab', function(){
                 configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
                 configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
                 configDataTable['columns'] = [
@@ -240,7 +240,7 @@
     {% endif %}
     {% if current_user.can_view('INV CUSTODIAS') %}
         <script>
-        $('#custodias-tab').on('show.bs.tab', function(){
+        $('#custodias-tab').on('shown.bs.tab', function(){
             configDataTable['ajax']['url'] = '/inv_custodias/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{usuario.id}} };
             configDataTable['columns'] = [

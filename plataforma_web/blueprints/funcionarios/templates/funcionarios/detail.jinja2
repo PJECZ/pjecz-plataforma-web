@@ -136,7 +136,7 @@
     {{ detail.config_datatable() }}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') and funcionario.en_sentencias %}
         <script>
-            $('#autoridades-tab').on('show.bs.tab', function(){
+            $('#autoridades-tab').on('shown.bs.tab', function(){
                 configDataTable['ajax']['url'] = '/autoridades_funcionarios/datatable_json';
                 configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
                 configDataTable['columns'] = [
@@ -171,7 +171,7 @@
     {% endif %}
     {% if current_user.can_view('FUNCIONARIOS OFICINAS') and funcionario.en_soportes %}
         <script>
-            $('#oficinas-tab').on('show.bs.tab', function(){
+            $('#oficinas-tab').on('shown.bs.tab', function(){
                 configDataTable['ajax']['url'] = '/funcionarios_oficinas/datatable_json';
                 configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
                 configDataTable['columns'] = [
@@ -206,7 +206,7 @@
     {% endif %}
     {% if current_user.can_view('SOPORTES TICKETS') %}
         <script>
-            $('#tickets-tab').on('show.bs.tab', function(){
+            $('#tickets-tab').on('shown.bs.tab', function(){
                 configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
                 configDataTable['ajax']['data'] = { 'estatus': "A", 'funcionario_id': {{ funcionario.id}} };
                 configDataTable['columns'] = [
