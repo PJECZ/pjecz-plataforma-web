@@ -13,6 +13,8 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.funcionarios.models import Funcionario
+from plataforma_web.blueprints.inv_custodias.models import InvCustodia
+from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
@@ -69,9 +71,11 @@ def before_request():
 def list_active():
     """Listado de Tickets: Si es usuario un listado sencillo, si es de soporte los tickets Sin Atender"""
     if _get_funcionario_if_is_soporte() is None:
-        return render_template("soportes_tickets/list_user.jinja2",
+        return render_template(
+            "soportes_tickets/list_user.jinja2",
             titulo="Tickets",
-            filtros=json.dumps({"estatus" : "A"}),)
+            filtros=json.dumps({"estatus": "A"}),
+        )
     return render_template("soportes_tickets/list_open.jinja2")
 
 
@@ -246,10 +250,14 @@ def detail(soporte_ticket_id):
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
     archivos = SoporteAdjunto.query.filter(SoporteAdjunto.soporte_ticket_id == soporte_ticket_id).all()
+    inv_custodias = InvCustodia.query.filter(InvCustodia.usuario_id == ticket.usuario_id).order_by(InvCustodia.id.desc()).first()
+    inv_equipos = InvEquipo.query.filter(InvEquipo.inv_custodia_id == inv_custodias.usuario_id).all()
     return render_template(
         "soportes_tickets/detail.jinja2",
         soporte_ticket=ticket,
         archivos=archivos,
+        inv_custodias=inv_custodias,
+        inv_equipos=inv_equipos,
         funcionario=_get_funcionario_if_is_soporte(),
     )
 

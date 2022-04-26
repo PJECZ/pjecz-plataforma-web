@@ -141,8 +141,8 @@ def new(inv_equipo_id):
                 inv_equipo_foto.save()
             except NotConfiguredError:
                 flash("No se ha configurado el almacenamiento en la nube.", "warning")
-            except Exception:
-                flash("Error al subir el archivo.", "danger")
+            except Exception as err:
+                flash(f"{err}Error al subir el archivo.", "danger")
             # Registrar la acción en la bitácora
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
