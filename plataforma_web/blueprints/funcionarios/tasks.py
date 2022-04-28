@@ -403,12 +403,15 @@ def sincronizar():
         bitacora.info("Termina. %s", mensaje_final)
         bitacora.info(mensaje_final)
     except requests.ConnectionError as error:
-        bitacora.error(f"Error de conexion: {error}")
+        mensaje_final = f"Error de conexion: {error}"
+        bitacora.error(mensaje_final)
     except requests.Timeout as error:
-        bitacora.error(f"Error de falta de respuesta a tiempo: {error}")
+        mensaje_final = f"Error de falta de respuesta a tiempo: {error}"
+        bitacora.error(mensaje_final)
     except (ConfigurationError, ResponseJSONError, StatusCodeNot200Error) as error:
-        bitacora.error(error)
+        mensaje_final = f"Error: {error}"
+        bitacora.error(mensaje_final)
 
     # Terminar
-    bitacora.info("Terminado sincronizar satisfactoriamente")
-    return
+    bitacora.info("Terminado sincronizar")
+    return mensaje_final
