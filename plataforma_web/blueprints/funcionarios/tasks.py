@@ -271,7 +271,7 @@ def sincronizar():
         # Bucle para hacer las consultas hasta que se acaben las personas
         while True:
             total, personas = get_personas(base_url, token, LIMITE_CANTIDAD, offset)
-            bitacora.info(f"Voy en el offset {offset} de {total}...")
+            bitacora.info("Voy en el offset %d de %d...", offset, total)
             for persona in personas:
                 en_funciones = True
 
