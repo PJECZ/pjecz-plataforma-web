@@ -19,8 +19,9 @@ from plataforma_web.blueprints.funcionarios.models import Funcionario
 
 load_dotenv()  # Take environment variables from .env
 
-LLAMADOS_CANTIDAD = 12
-CUATRO_SEGUNDOS = 4
+LIMITE_CANTIDAD = 40
+LLAMADOS_CANTIDAD = 20
+ESPERA_SEGUNDOS = 4
 
 
 class ConfigurationError(Exception):
@@ -53,7 +54,7 @@ def get_token(base_url, username, password):
 
 
 @sleep_and_retry
-@limits(calls=LLAMADOS_CANTIDAD, period=CUATRO_SEGUNDOS)
+@limits(calls=LLAMADOS_CANTIDAD, period=ESPERA_SEGUNDOS)
 def get_personas(base_url, token, limit, offset):
     """Consultar personas"""
     response = requests.get(
@@ -70,7 +71,7 @@ def get_personas(base_url, token, limit, offset):
 
 
 @sleep_and_retry
-@limits(calls=LLAMADOS_CANTIDAD, period=CUATRO_SEGUNDOS)
+@limits(calls=LLAMADOS_CANTIDAD, period=ESPERA_SEGUNDOS)
 def get_historial_puestos(base_url, token, persona_id):
     """Consultar historial de puestos, entrega un elemento (el mas reciente) de encontrarse"""
     response = requests.get(
@@ -89,7 +90,7 @@ def get_historial_puestos(base_url, token, persona_id):
 
 
 @sleep_and_retry
-@limits(calls=LLAMADOS_CANTIDAD, period=CUATRO_SEGUNDOS)
+@limits(calls=LLAMADOS_CANTIDAD, period=ESPERA_SEGUNDOS)
 def get_puesto_funcion(base_url, token, puesto_funcion_id):
     """Consultar un puesto funcion"""
     response = requests.get(
@@ -102,7 +103,7 @@ def get_puesto_funcion(base_url, token, puesto_funcion_id):
 
 
 @sleep_and_retry
-@limits(calls=LLAMADOS_CANTIDAD, period=CUATRO_SEGUNDOS)
+@limits(calls=LLAMADOS_CANTIDAD, period=ESPERA_SEGUNDOS)
 def get_personas_fotografias(base_url, token, persona_id):
     """Consultar fotografias de las personas, entrega un elemento (el mas reciente) de encontrarse"""
     response = requests.get(
@@ -148,13 +149,12 @@ def main():
     # Bloque try/except para manejar errores
     try:
         token = get_token(base_url, username, password)
-        limit = 10
         offset = 0
         total = None
         insertados_contador = 0
         actualizados_contador = 0
         while True:
-            total, personas = get_personas(base_url, token, limit, offset)
+            total, personas = get_personas(base_url, token, LIMITE_CANTIDAD, offset)
             print(f"Voy en el offset {offset} de {total}...")
             datos = []
             for persona in personas:
@@ -280,7 +280,7 @@ def main():
                 datos.append([nombre[:24], curp, email[:16], ingreso_fecha, centro_trabajo_clave, puesto_clave, puesto[:24], fotografia_url[-24:], en_funciones, accion])
             print(tabulate(datos, headers=["Nombre", "CURP", "Email", "Ingreso", "C. de T.", "C. del Puesto", "Puesto", "Fotografia URL", "EF", "Accion"]))
             print()
-            offset += limit
+            offset += LIMITE_CANTIDAD
             if offset >= total:
                 break
         mensaje_final = f"Se insertaron {insertados_contador} y se actualizaron {actualizados_contador} funcionarios"
