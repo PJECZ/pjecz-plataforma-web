@@ -44,6 +44,12 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "inv_custodia_id" in request.form:
         consulta = consulta.filter_by(inv_custodia_id=request.form["inv_custodia_id"])
+    if "usuario_id" in request.form:
+        inv_custodia = InvCustodia.query.filter(InvCustodia.usuario_id == request.form["usuario_id"]).order_by(InvCustodia.id.desc()).first()
+        if inv_custodia:
+            consulta = consulta.filter(InvEquipo.inv_custodia_id == inv_custodia.id)
+        else:
+            consulta = consulta.filter(InvEquipo.inv_custodia_id == "")
     if "inv_modelo_id" in request.form:
         consulta = consulta.filter_by(inv_modelo_id=request.form["inv_modelo_id"])
     if "inv_red_id" in request.form:

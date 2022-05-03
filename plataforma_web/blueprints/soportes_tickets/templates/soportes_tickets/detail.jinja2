@@ -105,7 +105,7 @@
             {% endcall %}
         {% endcall %}
         {% call tabs.div_content('tab_custodias', 'custodias-tab') %}
-                {% call detail.card('Equipos de custodia: ' +  inv_custodias.id | string ) %}
+                {% call detail.card('Equipos' ) %}
                     {% if current_user.can_view('INV EQUIPOS')  %}
                         <p class="mt-3"></p>
                         <table id="inv_equipos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
@@ -178,9 +178,8 @@
     {% if current_user.can_view('INV EQUIPOS') %}
         <script>
         $('#custodias-tab').on('shown.bs.tab', function(){
-            $('#inv_equipos_datatable').DataTable().destroy();
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'inv_custodia_id': {{ inv_custodias.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ soporte_ticket.usuario.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "adquisicion_fecha" },
@@ -209,7 +208,7 @@
                     }
                 },
             ];
-            //$('#inv_equipos_datatable').DataTable({  scrollX: true });
+            $('#inv_equipos_datatable').DataTable().destroy();
             $('#inv_equipos_datatable').DataTable(configDataTable);
 
         });
