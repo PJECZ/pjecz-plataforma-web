@@ -57,7 +57,6 @@
     {% if current_user.can_edit('INV CUSTODIAS') %}
         {% if inv_custodia.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + inv_custodia.nombre_completo + '?') }}{% endif %}
         {% if inv_custodia.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + inv_custodia.nombre_completo + '?') }}{% endif %}
-        {{ modals.custom_javascript_make('Firmar', '¿Está seguro de que quiere firmarlo? Ya no podrá cambiarlo después.') }}
     {% endif %}
     {{ detail.moment_js(moment) }}
     {{ detail.config_datatable() }}

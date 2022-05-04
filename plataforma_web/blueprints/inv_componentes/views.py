@@ -9,7 +9,7 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.inv_componentes.models import InvComponente
-from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm, InvComponenteEditForm
+from plataforma_web.blueprints.inv_componentes.forms import InvComponenteForm
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -107,7 +107,7 @@ def new(inv_equipo_id):
     form = InvComponenteForm()
     if form.validate_on_submit():
         inv_componente = InvComponente(
-            inv_categoria=form.nombre.data,
+            inv_categoria=form.categoria.data,
             inv_equipo=inv_equipo,
             descripcion=safe_string(form.descripcion.data),
             cantidad=form.cantidad.data,
@@ -128,16 +128,16 @@ def new(inv_equipo_id):
 def edit(inv_componente_id):
     """Editar Componentes"""
     inv_componente = InvComponente.query.get_or_404(inv_componente_id)
-    form = InvComponenteEditForm()
+    form = InvComponenteForm()
     if form.validate_on_submit():
-        inv_componente.categoria = form.nombre.data
+        inv_componente.inv_categoria = form.categoria.data
         inv_componente.descripcion = safe_string(form.descripcion.data)
         inv_componente.cantidad = form.cantidad.data
         inv_componente.version = form.version.data
         inv_componente.save()
         flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
         return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
-    form.nombre.data = inv_componente.inv_categoria.nombre
+    form.categoria.data = inv_componente.inv_categoria.nombre
     form.descripcion.data = safe_string(inv_componente.descripcion)
     form.cantidad.data = inv_componente.cantidad
     form.version.data = inv_componente.version

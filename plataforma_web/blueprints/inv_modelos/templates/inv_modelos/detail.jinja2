@@ -24,7 +24,7 @@
         {% else %}
             {{ detail.label_value('Marca', inv_modelo.inv_marca.nombre) }}
         {% endif %}
-        {{ detail.label_value('Descripcion', inv_modelo.descripcion) }}
+        {{ detail.label_value('Descripción', inv_modelo.descripcion) }}
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS') %}
         {% call detail.card('Equipos') %}

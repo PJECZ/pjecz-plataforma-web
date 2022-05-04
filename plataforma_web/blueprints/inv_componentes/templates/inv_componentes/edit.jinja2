@@ -16,11 +16,23 @@
             {% call f.form_group(form.inv_marca, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion_equipo, readonly=true) %}{% endcall %}
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.categoria) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.cantidad) %}{% endcall %}
             {% call f.form_group(form.version) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        let nameCat = document.getElementById('categoria');
+        let descriptCat = document.getElementById('descripcion');
+
+        nameCat.onchange = function(){
+            let nameText = this.options[this.selectedIndex].innerHTML;
+            descriptCat.value = nameText; 
+        }
+    </script>
 {% endblock %}
