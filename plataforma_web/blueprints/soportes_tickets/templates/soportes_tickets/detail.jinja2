@@ -61,7 +61,7 @@
 {% block content %}
     {% call tabs.header() %}
         {{ tabs.button('detalles-tab', 'tab_detalles', 'Detalle', 'active') }}
-        {{ tabs.button('custodias-tab', 'tab_custodias', 'Equipos') }}
+        {{ tabs.button('equipos-tab', 'tab_equipos', 'Equipos') }}
         {{ tabs.button('archivo-adjunto-tab', 'tab_archivo_adjunto', 'Archivos adjuntos') }}
     {% endcall %}
     {% call tabs.content() %}
@@ -104,7 +104,7 @@
                 </div>
             {% endcall %}
         {% endcall %}
-        {% call tabs.div_content('tab_custodias', 'custodias-tab') %}
+        {% call tabs.div_content('tab_equipos', 'equipos-tab') %}
                 {% call detail.card('Equipos' ) %}
                     {% if current_user.can_view('INV EQUIPOS')  %}
                         <p class="mt-3"></p>
@@ -177,7 +177,7 @@
     </script>
     {% if current_user.can_view('INV EQUIPOS') %}
         <script>
-        $('#custodias-tab').on('shown.bs.tab', function(){
+        $('#equipos-tab').on('shown.bs.tab', function(){
             configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ soporte_ticket.usuario.id}} };
             configDataTable['columns'] = [
@@ -214,5 +214,4 @@
         });
         </script>
     {% endif %}
-
 {% endblock %}
