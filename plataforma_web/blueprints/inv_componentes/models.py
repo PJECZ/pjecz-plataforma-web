@@ -1,12 +1,24 @@
 """
 Inventarios Componentes, modelos
 """
+from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class InvComponente(db.Model, UniversalMixin):
     """InvComponente"""
+
+    GENERACIONES = OrderedDict(
+        [
+            ("NO DEFINIDO", "No definido"),
+            ("6", "seis"),
+            ("7", "siete"),
+            ("8", "ocho"),
+            ("9", "nueve"),
+            ("10", "diez"),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "inv_componentes"
@@ -23,6 +35,13 @@ class InvComponente(db.Model, UniversalMixin):
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
     cantidad = db.Column(db.Integer(), nullable=False)
+    generacion = db.Column(
+        db.Enum(*GENERACIONES, name="generacion", native_enum=False),
+        index=True,
+        nullable=False,
+        default="NO DEFINIDO",
+        server_default="NO DEFINIDO",
+    )
     version = db.Column(db.String(256))
 
     def __repr__(self):

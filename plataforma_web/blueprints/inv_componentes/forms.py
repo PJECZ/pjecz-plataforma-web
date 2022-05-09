@@ -2,11 +2,12 @@
 Inventarios Componentes, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, SubmitField
+from wtforms import IntegerField, StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from plataforma_web.blueprints.inv_categorias.models import InvCategoria
+from plataforma_web.blueprints.inv_componentes.models import InvComponente
 
 
 def categorias_opciones():
@@ -24,5 +25,6 @@ class InvComponenteForm(FlaskForm):
     categoria = QuerySelectField(label="Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
     cantidad = IntegerField("Cantidad (Número entero apartir de 1)", validators=[DataRequired()])
+    generacion = SelectField("Generacion", choices=InvComponente.GENERACIONES, validators=[DataRequired()])
     version = StringField("Versión", validators=[Optional(), Length(max=512)])
     guardar = SubmitField("Guardar")

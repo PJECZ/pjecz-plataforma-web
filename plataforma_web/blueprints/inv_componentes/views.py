@@ -58,6 +58,7 @@ def datatable_json():
                     "url": url_for("inv_categorias.detail", inv_categoria_id=resultado.inv_categoria_id) if current_user.can_view("INV CATEGORIAS") else "",
                 },
                 "cantidad": resultado.cantidad,
+                "generacion": resultado.generacion,
                 "version": resultado.version,
             }
         )
@@ -111,6 +112,7 @@ def new(inv_equipo_id):
             inv_equipo=inv_equipo,
             descripcion=safe_string(form.descripcion.data),
             cantidad=form.cantidad.data,
+            generacion=form.generacion.data,
             version=form.version.data,
         )
         inv_componente.save()
@@ -133,13 +135,15 @@ def edit(inv_componente_id):
         inv_componente.inv_categoria = form.categoria.data
         inv_componente.descripcion = safe_string(form.descripcion.data)
         inv_componente.cantidad = form.cantidad.data
+        inv_componente.generacion = form.generacion.data
         inv_componente.version = form.version.data
         inv_componente.save()
         flash(f"Componentes {inv_componente.descripcion} guardado.", "success")
         return redirect(url_for("inv_componentes.detail", inv_componente_id=inv_componente.id))
-    form.categoria.data = inv_componente.inv_categoria.nombre
+    form.categoria.data = inv_componente.inv_categoria
     form.descripcion.data = safe_string(inv_componente.descripcion)
     form.cantidad.data = inv_componente.cantidad
+    form.generacion.data = inv_componente.generacion
     form.version.data = inv_componente.version
     form.inv_equipo.data = inv_componente.inv_equipo.id
     form.inv_marca.data = inv_componente.inv_equipo.inv_modelo.inv_marca.nombre
