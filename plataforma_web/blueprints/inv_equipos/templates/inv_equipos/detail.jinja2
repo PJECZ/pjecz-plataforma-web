@@ -7,7 +7,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Equipo ' + inv_equipo.inv_equipo_id | string) %}
-        {% if current_user.can_admin('INV EQUIPOS') %}
+        {% if current_user.can_edit('INV EQUIPOS') %}
             {{ topbar.button_previous('Equipos', url_for('inv_equipos.list_active')) }}
         {% elif current_user.can_view('INV EQUIPOS') %}
             {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
@@ -65,6 +65,7 @@
                         <th>Categoría</th>
                         <th>Descripción</th>
                         <th>Cantidad</th>
+                        <th>Generación</th>
                         <th>Versión</th>
                     </tr>
                 </thead>
@@ -107,6 +108,7 @@
                 { data: "inv_categoria" },
                 { data: "descripcion" },
                 { data: "cantidad" },
+                { data: "generacion" },
                 { data: "version" },
             ];
             configDataTable['columnDefs'] = [

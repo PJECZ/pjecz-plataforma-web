@@ -2,11 +2,12 @@
 Inventarios Componentes, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, SubmitField
+from wtforms import IntegerField, StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from plataforma_web.blueprints.inv_categorias.models import InvCategoria
+from plataforma_web.blueprints.inv_componentes.models import InvComponente
 
 
 def categorias_opciones():
@@ -21,22 +22,9 @@ class InvComponenteForm(FlaskForm):
     inv_marca = StringField("Marca")  # solo lectrua
     descripcion_equipo = StringField("Descripción del equipo")  # solo lectrua
     usuario = StringField("Usuario")  # solo lectrua
-    nombre = QuerySelectField(label="Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
+    categoria = QuerySelectField(label="Categoria", query_factory=categorias_opciones, get_label="nombre", validators=[DataRequired()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
     cantidad = IntegerField("Cantidad (Número entero apartir de 1)", validators=[DataRequired()])
-    version = StringField("Versión", validators=[Optional(), Length(max=512)])
-    guardar = SubmitField("Guardar")
-
-
-class InvComponenteEditForm(FlaskForm):
-    """Formulario InvComponente"""
-
-    inv_equipo = StringField("ID equipo")  # solo lectrua
-    inv_marca = StringField("Marca")  # solo lectrua
-    descripcion_equipo = StringField("Descripción del equipo")  # solo lectrua
-    usuario = StringField("Usuario")  # solo lectrua
-    nombre = StringField("Categoria")  # solo lectrua
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
-    cantidad = IntegerField("Cantidad (Número entero apartir de 1)", validators=[DataRequired()])
+    generacion = SelectField("Generacion", choices=InvComponente.GENERACIONES, validators=[DataRequired()])
     version = StringField("Versión", validators=[Optional(), Length(max=512)])
     guardar = SubmitField("Guardar")

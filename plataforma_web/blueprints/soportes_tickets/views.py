@@ -250,17 +250,10 @@ def detail(soporte_ticket_id):
         flash("No tiene permisos para ver ese ticket.", "warning")
         return redirect(url_for("soportes_tickets.list_active"))
     archivos = SoporteAdjunto.query.filter(SoporteAdjunto.soporte_ticket_id == soporte_ticket_id).all()
-    inv_custodias = InvCustodia.query.filter(InvCustodia.usuario_id == ticket.usuario_id).order_by(InvCustodia.id.desc()).first()
-    if inv_custodias:
-        inv_equipos = InvEquipo.query.filter(InvEquipo.inv_custodia_id == inv_custodias.usuario_id).all()
-    else:
-        inv_equipos = None
     return render_template(
         "soportes_tickets/detail.jinja2",
         soporte_ticket=ticket,
         archivos=archivos,
-        inv_custodias=inv_custodias,
-        inv_equipos=inv_equipos,
         funcionario=_get_funcionario_if_is_soporte(),
     )
 
