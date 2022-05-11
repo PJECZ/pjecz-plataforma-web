@@ -12,11 +12,13 @@ class InvComponente(db.Model, UniversalMixin):
     GENERACIONES = OrderedDict(
         [
             ("NO DEFINIDO", "No definido"),
-            ("6", "seis"),
-            ("7", "siete"),
-            ("8", "ocho"),
-            ("9", "nueve"),
-            ("10", "diez"),
+            ("6ta Gen", "Sexta"),
+            ("7ma Gen", "Septima"),
+            ("8va Gen", "Octava"),
+            ("9na Gen", "Novena"),
+            ("10ma Gen", "Decima"),
+            ("11va Gen", "Onceava"),
+            ("12va Gen", "Doceava"),
         ]
     )
 
