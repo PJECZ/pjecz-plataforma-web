@@ -18,6 +18,7 @@
 
 {% block content %}
     {% call detail.card(estatus=identidad_genero.estatus) %}
+        {{ detail.label_value_big('Procedimiento', identidad_genero.procedimiento) }}
         {{ detail.label_value('Nombre Actual', identidad_genero.nombre_actual) }}
         {{ detail.label_value('Nombre Anterior', identidad_genero.nombre_anterior) }}
         {{ detail.label_value('Fecha Nacimiento', identidad_genero.fecha_nacimiento) }}
@@ -26,7 +27,6 @@
         {{ detail.label_value('Género Actual', identidad_genero.genero_actual) }}
         {{ detail.label_value('Nombre del Padre', identidad_genero.nombre_padre) }}
         {{ detail.label_value('Nombre del Madre', identidad_genero.nombre_madre) }}
-        {{ detail.label_value('Procedimiento', identidad_genero.procedimiento) }}
     {% endcall %}
 {% endblock %}
 

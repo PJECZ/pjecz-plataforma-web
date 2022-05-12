@@ -11,6 +11,7 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('identidades_generos.search', fid='identidades_search_form') %}
+            {% call f.form_group(form.procedimiento) %}{% endcall %}
             {% call f.form_group(form.nombre_actual) %}{% endcall %}
             {% call f.form_group(form.nombre_anterior) %}{% endcall %}
             {% call f.form_group(form.lugar_nacimiento) %}{% endcall %}
