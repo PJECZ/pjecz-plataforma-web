@@ -28,8 +28,8 @@ sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
 MODULO = "SENTENCIAS"
 SUBDIRECTORIO = "Sentencias"
-LIMITE_DIAS = 7300  # 20 años
-LIMITE_ADMINISTRADORES_DIAS = 7300  # 20 años
+LIMITE_DIAS = 10950  # 30 años
+LIMITE_ADMINISTRADORES_DIAS = 10950  # 30 años
 
 
 @sentencias.before_request
