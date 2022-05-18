@@ -19,6 +19,6 @@ class InvCustodiaSearchForm(FlaskForm):
     """Formulario buscar InvCustodia"""
 
     nombre_completo = StringField("Nombre Completo", validators=[Optional()])
-    fecha_desde = DateField("Fecha desde", validators=[DataRequired()])
-    fecha_hasta = DateField("Fecha hasta", validators=[DataRequired()])
+    fecha_desde = DateField("Fecha desde", validators=[Optional()])
+    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")

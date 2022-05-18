@@ -54,7 +54,7 @@ def datatable_json():
     if "fecha_desde" in request.form:
         consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
-        consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha_hasta"])
+        consulta = consulta.filter(InvCustodia.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(InvCustodia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

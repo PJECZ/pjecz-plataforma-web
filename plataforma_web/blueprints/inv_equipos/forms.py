@@ -30,7 +30,7 @@ class InvEquipoForm(FlaskForm):
     oficina = StringField("Oficina")  # Read only
     inv_modelo = QuerySelectField(label="Modelo", query_factory=inv_modelos_opciones, get_label="marca_modelo", validators=[DataRequired()])
     inv_red = QuerySelectField(label="Red", query_factory=inv_redes_opciones, get_label="nombre", validators=[DataRequired()])
-    adquisicion_fecha = DateField("Fecha de adquisición", validators=[Optional()])
+    fecha_fabricacion = DateField("Fecha de fabricación", validators=[Optional()])
     numero_serie = StringField("Número de serie", validators=[Optional()])
     numero_inventario = IntegerField("Número de inventario", validators=[Optional()])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
@@ -48,6 +48,7 @@ class InvEquipoSearchForm(FlaskForm):
 
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     numero_serie = StringField("Número de serie", validators=[Optional()])
-    fecha_desde = DateField("Fecha desde", validators=[DataRequired()])
-    fecha_hasta = DateField("Fecha hasta", validators=[DataRequired()])
+    tipo = StringField("Tipo de equipo", validators=[Optional()])
+    fecha_desde = DateField("Fecha desde", validators=[Optional()])
+    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")
