@@ -27,7 +27,8 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Fecha adquisición</th>
+                        <th>Fecha de fabricación</th>
+                        <th>Tipo de equipo</th>
                         <th>Marca</th>
                         <th>Modelo</th>
                         <th>Descripción</th>
@@ -51,7 +52,8 @@
             configDataTable['ajax']['data'] = { 'estatus': "A", 'inv_red_id': {{ inv_red.id}} };
             configDataTable['columns'] = [
                 { data: "detalle" },
-                { data: "adquisicion_fecha" },
+                { data: "fecha_fabricacion" },
+                { data: "tipo" },
                 { data: "inv_marca" },
                 { data: "inv_modelo" },
                 { data: "descripcion" },
@@ -66,7 +68,7 @@
                     }
                 },
                 {
-                    targets: [2,3], // inv_marca, inv_modelo
+                    targets: [3,4], // inv_marca, inv_modelo
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
