@@ -19,7 +19,7 @@ from plataforma_web.blueprints.redams.forms import RedamForm
 
 MODULO = "REDAM"
 
-redams = Blueprint("redam", __name__, template_folder="templates")
+redams = Blueprint("redams", __name__, template_folder="templates")
 
 
 @redams.before_request
