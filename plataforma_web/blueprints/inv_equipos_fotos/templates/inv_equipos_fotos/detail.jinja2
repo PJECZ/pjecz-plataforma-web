@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Foto del equipo{% endblock %}
@@ -7,6 +8,10 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Equipo ' + inv_equipo_foto.inv_equipo_id | string) %}
         {{ topbar.button_previous('Equipo detalle', url_for('inv_equipos.detail', inv_equipo_id=inv_equipo_foto.inv_equipo.id)) }}
+        {% if current_user.can_edit('INV EQUIPOS FOTOS') %}
+            {% if inv_equipo_foto.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos_fotos.delete', inv_equipo_foto_id=inv_equipo_foto.id)) }}{% endif %}
+            {% if inv_equipo_foto.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_equipos_fotos.recover', inv_equipo_foto_id=inv_equipo_foto.id)) }}{% endif %}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -20,4 +25,11 @@
             <a href="{{ inv_equipo_foto.url }}"><img src="{{ inv_equipo_foto.url }}" style="max-width: 500px; height: auto;"/></a>
         {% endif %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('INV EQUIPOS FOTOS') %}
+        {% if inv_equipo_foto.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + inv_equipo_foto.descripcion + '?') }}{% endif %}
+        {% if inv_equipo_foto.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + inv_equipo_foto.descripcion + '?') }}{% endif %}
+    {% endif %}
 {% endblock %}

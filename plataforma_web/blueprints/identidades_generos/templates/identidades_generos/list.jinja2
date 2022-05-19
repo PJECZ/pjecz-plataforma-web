@@ -22,6 +22,7 @@
         <table id="identidades_generos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Procedimiento</th>
                     <th>Nombre actual</th>
                     <th>Nombre anterior</th>
                     <th>Fecha de nacimiento</th>
@@ -41,6 +42,7 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "detalle" },
+            { data: "nombre_actual" },
             { data: "nombre_anterior" },
             { data: "fecha_nacimiento" },
             { data: "lugar_nacimiento" },
@@ -52,14 +54,21 @@
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre_actual + '</a>';
+                    return '<a href="' + data.url + '">' + data.procedimiento + '</a>';
                 }
             },
             {
-                targets: 2, // fecha_nacimiento
+                targets: 3, // fecha_nacimiento
                 type: "date",
                 render: function (data, type, row) {
-                    return moment(data).format('DD/MM/YYYY');
+                    return moment(data).format("DD MMM YYYY");
+                }
+            },
+            {
+                targets: [1, 2, 4], // nombre_actual, nombre_anterior, lugar_nacimiento
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.length > 24 ? data.substr(0, 24) + '…' : data;
                 }
             }
         ];

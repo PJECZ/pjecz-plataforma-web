@@ -39,12 +39,14 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "procedimiento" in request.form:
+        consulta = consulta.filter(IdentidadGenero.procedimiento.contains(safe_expediente(request.form["procedimiento"])))
     if "nombre_actual" in request.form:
-        consulta = consulta.filter(IdentidadGenero.nombre_actual.like("%" + safe_string(request.form["nombre_actual"]) + "%"))
+        consulta = consulta.filter(IdentidadGenero.nombre_actual.contains(safe_string(request.form["nombre_actual"])))
     if "nombre_anterior" in request.form:
-        consulta = consulta.filter(IdentidadGenero.nombre_anterior.like("%" + safe_string(request.form["nombre_anterior"]) + "%"))
+        consulta = consulta.filter(IdentidadGenero.nombre_anterior.contains(safe_string(request.form["nombre_anterior"])))
     if "lugar_nacimiento" in request.form:
-        consulta = consulta.filter(IdentidadGenero.lugar_nacimiento.like("%" + safe_string(request.form["lugar_nacimiento"]) + "%"))
+        consulta = consulta.filter(IdentidadGenero.lugar_nacimiento.contains(safe_string(request.form["lugar_nacimiento"])))
     registros = consulta.order_by(IdentidadGenero.nombre_actual).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -53,9 +55,10 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "nombre_actual": resultado.nombre_actual,
+                    "procedimiento": resultado.procedimiento,
                     "url": url_for("identidades_generos.detail", identidad_genero_id=resultado.id),
                 },
+                "nombre_actual": resultado.nombre_actual,
                 "nombre_anterior": resultado.nombre_anterior,
                 "fecha_nacimiento": resultado.fecha_nacimiento.strftime("%Y-%m-%d 00:00:00"),
                 "lugar_nacimiento": resultado.lugar_nacimiento,
@@ -97,6 +100,11 @@ def search():
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
+        if form_search.procedimiento.data:
+            procedimiento = safe_expediente(form_search.procedimiento.data)
+            if procedimiento != "":
+                busqueda["procedimiento"] = procedimiento
+                titulos.append("procedimiento " + procedimiento)
         if form_search.nombre_actual.data:
             nombre_actual = safe_string(form_search.nombre_actual.data)
             if nombre_actual != "":

@@ -14,10 +14,8 @@ from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-from plataforma_web.blueprints.usuarios.models import Usuario
 
 MODULO = "INV EQUIPOS"
 
@@ -44,6 +42,12 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "inv_custodia_id" in request.form:
         consulta = consulta.filter_by(inv_custodia_id=request.form["inv_custodia_id"])
+    if "usuario_id" in request.form:
+        inv_custodia = InvCustodia.query.filter(InvCustodia.usuario_id == request.form["usuario_id"]).order_by(InvCustodia.id.desc()).first()
+        if inv_custodia:
+            consulta = consulta.filter(InvEquipo.inv_custodia_id == inv_custodia.id)
+        else:
+            consulta = consulta.filter(InvEquipo.inv_custodia_id == 0)
     if "inv_modelo_id" in request.form:
         consulta = consulta.filter_by(inv_modelo_id=request.form["inv_modelo_id"])
     if "inv_red_id" in request.form:

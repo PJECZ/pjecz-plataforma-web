@@ -154,3 +154,25 @@ def new(inv_equipo_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     return render_template("inv_equipos_fotos/new.jinja2", form=form, inv_equipo=inv_equipo)
+
+
+@inv_equipos_fotos.route("/inv_equipos_fotos/eliminar/<int:inv_equipo_foto_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(inv_equipo_foto_id):
+    """Eliminar Foto del equipo"""
+    inv_equipo_foto = InvEquipoFoto.query.get_or_404(inv_equipo_foto_id)
+    if inv_equipo_foto.estatus == "A":
+        inv_equipo_foto.delete()
+        flash(f"Foto del equipo {inv_equipo_foto.descripcion} eliminado.", "success")
+    return redirect(url_for("inv_equipos_fotos.detail", inv_equipo_foto_id=inv_equipo_foto.id))
+
+
+@inv_equipos_fotos.route("/inv_equipos_fotos/recuperar/<int:inv_equipo_foto_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(inv_equipo_foto_id):
+    """Recuperar Foto del equipo"""
+    inv_equipo_foto = InvEquipoFoto.query.get_or_404(inv_equipo_foto_id)
+    if inv_equipo_foto.estatus == "B":
+        inv_equipo_foto.recover()
+        flash(f"Foto del equipo {inv_equipo_foto.descripcion} recuperado.", "success")
+    return redirect(url_for("inv_equipos_fotos.detail", inv_equipo_foto_id=inv_equipo_foto.id))
