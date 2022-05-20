@@ -60,10 +60,8 @@ def datatable_json():
                 "nombre": resultado.nombre,
                 "expediente": resultado.expediente,
                 "fecha": resultado.fecha,
-                "autoridad": {
-                    "clave": resultado.autoridad.clave,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
-                },
+                "distrito_nombre_corto": resultado.autoridad.distrito.nombre_corto,
+                "autoridad_descripcion_corta": resultado.autoridad.descripcion_corta,
                 "observaciones": resultado.observaciones,
             }
         )
@@ -190,7 +188,7 @@ def edit(redam_id):
     form.fecha.data = redam.fecha
     form.observaciones.data = redam.observaciones
     distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # .filter_by(es_distrito_judicial=True)
-    autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()  # .filter_by(es_jurisdiccional=True).filter_by(es_notaria=False)
+    autoridades = Autoridad.query.filter_by(estatus="A").filter_by(es_notaria=False).order_by(Autoridad.clave).all()  # .filter_by(es_jurisdiccional=True)
     return render_template(
         "redams/edit.jinja2",
         form=form,

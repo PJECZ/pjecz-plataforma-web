@@ -6,7 +6,7 @@
 {% block title %}REDAM Deudor Alimentario{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(redam.nombre) %}
+    {% call topbar.page_buttons('Deudor Alimentario ' + redam.id | string) %}
         {{ topbar.button_previous('REDAM listado', url_for('redams.list_active')) }}
         {% if current_user.can_edit('REDAMS') %}
             {{ topbar.button_edit('Editar', url_for('redams.edit', redam_id=redam.id)) }}
@@ -30,7 +30,7 @@
             {{ detail.label_value('Autoridad', redam.autoridad.descripcion) }}
         {% endif %}
         {{ detail.label_value('Expediente', redam.expediente) }}
-        {{ detail.label_value('Fecha', moment(redam.fecha, local=True).format('DD MMM YYYY')) }}
+        {{ detail.label_value('Fecha de emisión de orden de inclusión', moment(redam.fecha, local=True).format('DD MMM YYYY')) }}
         {{ detail.label_value('Observaciones', redam.observaciones) }}
     {% endcall %}
 {% endblock %}
