@@ -43,6 +43,7 @@
                 {% endif %}
                 {{ detail.label_value('Horario', oficina.apertura.strftime("%H:%M") + ' — ' + oficina.cierre.strftime("%H:%M")) }}
                 {{ detail.label_value('Límite de Personas', oficina.limite_personas) }}
+                {{ detail.label_value('Tipo', oficina.tipo) }}
                 {{ detail.label_value_boolean('Juridiccional', oficina.es_juridiccional) }}
             {% endcall %}
         {% endcall %}

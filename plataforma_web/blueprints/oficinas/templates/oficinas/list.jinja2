@@ -32,6 +32,7 @@
                     <th>Apertura</th>
                     <th>Cierre</th>
                     <th>L. P.</th>
+                    <th>Tipo</th>
                 </tr>
             </thead>
         </table>
@@ -50,7 +51,8 @@
             { data: "distrito" },
             { data: "apertura" },
             { data: "cierre" },
-            { data: "limite_personas" }
+            { data: "limite_personas" },
+            { data: "tipo" },
         ];
         configDataTable['columnDefs'] = [
             {
@@ -64,7 +66,10 @@
                 targets: 1, // descripcion_corta
                 data: null,
                 render: function(data, type, row, meta) {
-                    return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    if (data.length > 32) {
+                        return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                    }
+                    return data;
                 }
             },
             {
@@ -72,7 +77,7 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.completo.length > 32) {
-                        texto = data.completo.substr(0, 32) + '…';
+                        texto = '<span title="' + data.completo + '">' + data.completo.substr(0, 32) + '…' + '</span>';
                     } else {
                         texto = data.completo;
                     }

@@ -13,6 +13,7 @@
         {% call f.form_tag('oficinas.search', fid='oficina_search_form') %}
             {% call f.form_group(form.clave) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.tipo) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     {% endcall %}

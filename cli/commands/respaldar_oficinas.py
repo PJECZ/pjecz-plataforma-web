@@ -33,6 +33,7 @@ def respaldar_oficinas(salida: str = "oficinas.csv"):
                 "limite_personas",
                 "telefono",
                 "extension",
+                "tipo",
                 "estatus",
             ]
         )
@@ -51,6 +52,7 @@ def respaldar_oficinas(salida: str = "oficinas.csv"):
                     oficina.limite_personas,
                     oficina.telefono,
                     oficina.extension,
+                    oficina.tipo,
                     oficina.estatus,
                 ]
             )
