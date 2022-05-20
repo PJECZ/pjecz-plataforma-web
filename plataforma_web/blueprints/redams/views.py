@@ -15,9 +15,9 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.redams.models import Redam
-from plataforma_web.blueprints.redams.forms import RedamForm
+from plataforma_web.blueprints.redams.forms import RedamForm, RedamSearchForm
 
-MODULO = "REDAM"
+MODULO = "REDAMS"
 
 redams = Blueprint("redams", __name__, template_folder="templates")
 
@@ -29,7 +29,7 @@ def before_request():
     """Permiso por defecto"""
 
 
-@redams.route("/redam/datatable_json", methods=["GET", "POST"])
+@redams.route("/redams/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de REDAM"""
     # Tomar parámetros de Datatables
@@ -44,6 +44,8 @@ def datatable_json():
         consulta = consulta.filter(Redam.nombre.contains(request.form["nombre"]))
     if "expediente" in request.form:
         consulta = consulta.filter(Redam.expediente.contains(request.form["expediente"]))
+    if "autoridad_id" in request.form:
+        consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
     registros = consulta.order_by(Redam.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -52,15 +54,15 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "nombre": resultado.nombre,
+                    "id": resultado.id,
                     "url": url_for("redams.detail", redam_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
                 "expediente": resultado.expediente,
                 "fecha": resultado.fecha,
                 "autoridad": {
-                    "descripcion_corta": resultado.autoridad.descripcion_corta,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id),
+                    "clave": resultado.autoridad.clave,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
                 },
                 "observaciones": resultado.observaciones,
             }
@@ -69,7 +71,7 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
-@redams.route("/redam")
+@redams.route("/redams")
 def list_active():
     """Listado de REDAM activos"""
     return render_template(
@@ -80,7 +82,7 @@ def list_active():
     )
 
 
-@redams.route("/redam/inactivos")
+@redams.route("/redams/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de REDAM inactivos"""
@@ -92,14 +94,40 @@ def list_inactive():
     )
 
 
-@redams.route("/redam/<int:redam_id>")
+@redams.route('/redams/buscar', methods=['GET', 'POST'])
+def search():
+    """Buscar REDAM"""
+    form_search = RedamSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {'estatus': 'A'}
+        titulos = []
+        if form_search.nombre.data:
+            nombre = safe_string(form_search.nombre.data)
+            if nombre != '':
+                busqueda['nombre'] = nombre
+                titulos.append('nombre ' + nombre)
+        if form_search.expediente.data:
+            expediente = safe_expediente(form_search.expediente.data)
+            if expediente != '':
+                busqueda['expediente'] = expediente
+                titulos.append('expediente ' + expediente)
+        return render_template(
+            'redams/list.jinja2',
+            filtros=json.dumps(busqueda),
+            titulo='REDAM con ' + ', '.join(titulos),
+            estatus='A',
+        )
+    return render_template('redams/search.jinja2', form=form_search)
+
+
+@redams.route("/redams/<int:redam_id>")
 def detail(redam_id):
     """Detalle de un REDAM"""
     redam = Redam.query.get_or_404(redam_id)
     return render_template("redams/detail.jinja2", redam=redam)
 
 
-@redams.route("/redam/nuevo", methods=["GET", "POST"])
+@redams.route("/redams/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo REDAM"""
@@ -123,13 +151,15 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    distritos = Distrito.query.filter_by(estatus="A").filter_by(es_distrito_judicial=True).order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter_by(estatus="A").filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).order_by(Autoridad.clave).all()
+    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # .filter_by(es_distrito_judicial=True)
+    autoridades = Autoridad.query.filter_by(estatus="A").filter_by(es_notaria=False).order_by(Autoridad.clave).all()  # .filter_by(es_jurisdiccional=True)
     return render_template(
         "redams/new.jinja2",
         form=form,
         distritos=distritos,
         autoridades=autoridades,
+        distrito_no_definido=Distrito.query.filter_by(nombre="NO DEFINIDO").first(),
+        autoridad_no_definido=Autoridad.query.filter_by(clave="ND").first(),
     )
 
 
@@ -155,14 +185,12 @@ def edit(redam_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    form.distrito.data = redam.autoridad.distrito
-    form.autoridad.data = redam.autoridad
     form.nombre.data = redam.nombre
     form.expediente.data = redam.expediente
     form.fecha.data = redam.fecha
     form.observaciones.data = redam.observaciones
-    distritos = Distrito.query.filter_by(estatus="A").filter_by(es_distrito_judicial=True).order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter_by(estatus="A").filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).order_by(Autoridad.clave).all()
+    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # .filter_by(es_distrito_judicial=True)
+    autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()  # .filter_by(es_jurisdiccional=True).filter_by(es_notaria=False)
     return render_template(
         "redams/edit.jinja2",
         form=form,
