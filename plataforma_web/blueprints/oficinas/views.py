@@ -163,6 +163,7 @@ def new():
                 limite_personas=form.limite_personas.data,
                 domicilio=form.domicilio.data,
                 distrito=form.distrito.data,
+                tipo=form.tipo.data,
             )
             oficina.save()
             bitacora = Bitacora(
@@ -204,6 +205,7 @@ def edit(oficina_id):
             oficina.apertura = form.apertura.data
             oficina.cierre = form.cierre.data
             oficina.limite_personas = form.limite_personas.data
+            oficina.tipo = form.tipo.data
             oficina.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -223,6 +225,7 @@ def edit(oficina_id):
     form.apertura.data = oficina.apertura
     form.cierre.data = oficina.cierre
     form.limite_personas.data = oficina.limite_personas
+    form.tipo.data = oficina.tipo
     return render_template("oficinas/edit.jinja2", form=form, oficina=oficina)
 
 
