@@ -46,6 +46,8 @@ def datatable_json():
         consulta = consulta.filter(Oficina.clave.contains(safe_string(request.form["clave"])))
     if "descripcion" in request.form:
         consulta = consulta.filter(Oficina.descripcion.contains(safe_string(request.form["descripcion"])))
+    if "tipo" in request.form:
+        consulta = consulta.filter_by(tipo=request.form["tipo"])
     registros = consulta.order_by(Oficina.clave).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -69,6 +71,7 @@ def datatable_json():
                 "apertura": resultado.apertura.strftime("%H:%M"),
                 "cierre": resultado.cierre.strftime("%H:%M"),
                 "limite_personas": resultado.limite_personas,
+                "tipo": resultado.tipo,
             }
         )
     # Entregar JSON
@@ -115,6 +118,11 @@ def search():
             if descripcion != "":
                 busqueda["descripcion"] = descripcion
                 titulos.append("descripción " + descripcion)
+        if form_search.tipo.data:
+            tipo = safe_string(form_search.tipo.data)
+            if tipo != "":
+                busqueda["tipo"] = tipo
+                titulos.append("tipo " + tipo)
         return render_template(
             "oficinas/list.jinja2",
             filtros=json.dumps(busqueda),

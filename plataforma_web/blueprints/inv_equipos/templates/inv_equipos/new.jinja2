@@ -48,7 +48,6 @@
         $(document).ready(function() {
             $('#inv_red').addClass('js-example-placeholder-single js-states form-control');
             $('#inv_modelo').addClass('js-example-placeholder-single js-states form-control');
-
             $('#inv_modelo').each(function(){
                 if('{{form.inv_modelo}}' == 'None'){
                     $("#inv_modelo").prop("selectedIndex", -1); // Poner en blanco el select
@@ -65,7 +64,6 @@
                     $("#inv_red").val( $(this).val() );
                 }
             });
-
             $(".js-example-placeholder-single").select2({
                 placeholder: "Selecciona campo",
                 allowClear: true
