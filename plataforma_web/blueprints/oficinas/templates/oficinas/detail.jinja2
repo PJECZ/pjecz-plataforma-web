@@ -24,6 +24,7 @@
         {{ tabs.button('funcionarios-tab', 'tab_funcionarios', 'Funcionarios') }}
         {{ tabs.button('usuarios-tab', 'tab_usuarios', 'Usuarios') }}
         {{ tabs.button('tickets-tab', 'tab_tickets', 'Tickets') }}
+        {{ tabs.button('inv-equipos-tab', 'tab_inv_equipos', 'Equipos') }}
     {% endcall %}
     {% call tabs.content() %}
         {% call tabs.div_content('tab_detalles', 'detalles-tab', 'active') %}
@@ -92,6 +93,26 @@
                                 <th>Técnico</th>
                                 <th>Descripción</th>
                                 <th>Solución/Cancelación</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% endcall %}
+            {% endif %}
+        {% endcall %}
+        {% call tabs.div_content('tab_inv_equipos', 'inv-equipos-tab') %}
+            {% if current_user.can_view('INV EQUIPOS') %}
+                {% call list.card() %}
+                    <table id="inv_equipos_datatable" class="table display nowrap" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha de fabricación</th>
+                                <th>Tipo de equipo</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Descripción del Equipo</th>
+                                <th>Red</th>
+                                <th>Nombre completo en la custodia</th>
                             </tr>
                         </thead>
                     </table>
@@ -183,7 +204,7 @@
     {% endif %}
     {% if current_user.can_view('SOPORTES TICKETS') %}
         <script>
-        $('#tickets-tab').on('shown.bs.tab', function(){
+            $('#tickets-tab').on('shown.bs.tab', function(){
                 configDataTable['ajax']['url'] = '/soportes_tickets/datatable_json';
                 configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id}} };
                 configDataTable['columns'] = [
@@ -251,7 +272,46 @@
                 };
                 $('#soportes_tickets_datatable').DataTable().destroy();
                 $('#soportes_tickets_datatable').DataTable(configDataTable);
-        });
+            });
+        </script>
+    {% endif %}
+    {% if current_user.can_view('INV EQUIPOS') %}
+        <script>
+            $('#inv-equipos-tab').on('shown.bs.tab', function(){
+                configDataTable['ajax']['url'] = '/inv_equipos/datatable_json';
+                configDataTable['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id}} };
+                configDataTable['columns'] = [
+                    { data: "detalle" },
+                    { data: "fecha_fabricacion" },
+                    { data: "tipo" },
+                    { data: "inv_marca" },
+                    { data: "inv_modelo" },
+                    { data: "descripcion" },
+                    { data: "inv_red" },
+                    { data: "nombre_completo" }
+                ];
+                configDataTable['columnDefs'] = [
+                    {
+                        targets: 0, // detalle
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + data.url + '">' + data.id + '</a>';
+                        }
+                    },
+                    {
+                        targets: [3, 4, 6], // inv_marca, inv_modelo, inv_red
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            if (data.url == '') {
+                                return data.nombre;
+                            } else {
+                                return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                            }
+                        }
+                    },
+                ];
+                $('#inv_equipos_datatable').DataTable().destroy();
+                $('#inv_equipos_datatable').DataTable(configDataTable);
+            });
         </script>
     {% endif %}
 {% endblock %}
