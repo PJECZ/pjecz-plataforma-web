@@ -11,7 +11,7 @@ Ejemplo
 from datetime import datetime, date, time, timedelta
 import pytz
 
-LIMITE_DIAS = 30  # Cantidad de días al pasado y al futuro que se permiten
+LIMITE_DIAS = 90  # Cantidad de días al pasado y al futuro que se permiten
 TIEMPO_DESDE = time(hour=8, minute=0, second=0)
 TIEMPO_HASTA = time(hour=18, minute=0, second=0)
 ZONA_HORARIA = pytz.timezone("America/Mexico_City")
