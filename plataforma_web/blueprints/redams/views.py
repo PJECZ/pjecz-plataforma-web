@@ -46,7 +46,7 @@ def datatable_json():
         consulta = consulta.filter(Redam.expediente.contains(request.form["expediente"]))
     if "autoridad_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
-    registros = consulta.order_by(Redam.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Redam.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -149,8 +149,8 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # .filter_by(es_distrito_judicial=True)
-    autoridades = Autoridad.query.filter_by(estatus="A").filter_by(es_notaria=False).order_by(Autoridad.clave).all()  # .filter_by(es_jurisdiccional=True)
+    distritos = Distrito.query.filter_by(estatus="A").filter_by(es_distrito_judicial=True).order_by(Distrito.nombre).all()
+    autoridades = Autoridad.query.filter_by(estatus="A").filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).order_by(Autoridad.clave).all()
     return render_template(
         "redams/new.jinja2",
         form=form,
@@ -187,8 +187,8 @@ def edit(redam_id):
     form.expediente.data = redam.expediente
     form.fecha.data = redam.fecha
     form.observaciones.data = redam.observaciones
-    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # .filter_by(es_distrito_judicial=True)
-    autoridades = Autoridad.query.filter_by(estatus="A").filter_by(es_notaria=False).order_by(Autoridad.clave).all()  # .filter_by(es_jurisdiccional=True)
+    distritos = Distrito.query.filter_by(estatus="A").filter_by(es_distrito_judicial=True).order_by(Distrito.nombre).all()
+    autoridades = Autoridad.query.filter_by(estatus="A").filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).order_by(Autoridad.clave).all()
     return render_template(
         "redams/edit.jinja2",
         form=form,
