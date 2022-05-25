@@ -25,7 +25,8 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Fecha de adquisición</th>
+                    <th>Fecha de fabricación</th>
+                    <th>Tipo de equipo</th>
                     <th>Marca</th>
                     <th>Modelo</th>
                     <th>Descripción del Equipo</th>
@@ -33,7 +34,6 @@
                     <th>Nombre completo en la custodia</th>
                 </tr>
             </thead>
-
         </table>
     {% endcall %}
 {% endblock %}
@@ -45,7 +45,8 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "detalle" },
-            { data: "adquisicion_fecha" },
+            { data: "fecha_fabricacion" },
+            { data: "tipo" },
             { data: "inv_marca" },
             { data: "inv_modelo" },
             { data: "descripcion" },
@@ -60,7 +61,7 @@
                 }
             },
             {
-                targets: [2,3,5], // inv_marca, inv_modelo, inv_red
+                targets: [3,4,6], // inv_marca, inv_modelo, inv_red
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {

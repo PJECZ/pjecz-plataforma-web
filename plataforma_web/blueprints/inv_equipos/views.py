@@ -14,8 +14,10 @@ from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.usuarios.models import Usuario
 
 MODULO = "INV EQUIPOS"
 
@@ -56,10 +58,17 @@ def datatable_json():
         consulta = consulta.filter(InvEquipo.descripcion.contains(safe_string(request.form["descripcion"])))
     if "numero_serie" in request.form:
         consulta = consulta.filter(InvEquipo.numero_serie.contains(request.form["numero_serie"]))
+    if "tipo" in request.form:
+        consulta = consulta.filter(InvEquipo.tipo.contains(request.form["tipo"]))
     if "fecha_desde" in request.form:
-        consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["fecha_desde"])
+        consulta = consulta.filter(InvEquipo.fecha_fabricacion >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
-        consulta = consulta.filter(InvEquipo.adquisicion_fecha >= request.form["fecha_hasta"])
+        consulta = consulta.filter(InvEquipo.fecha_fabricacion <= request.form["fecha_hasta"])
+    if "oficina_id" in request.form:
+        consulta = consulta.join(InvCustodia, Usuario)
+        consulta = consulta.filter(InvEquipo.inv_custodia_id == InvCustodia.id)
+        consulta = consulta.filter(InvCustodia.usuario_id == Usuario.id)
+        consulta = consulta.filter(Usuario.oficina_id == request.form["oficina_id"])
     registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -72,7 +81,8 @@ def datatable_json():
                     "url": url_for("inv_equipos.detail", inv_equipo_id=resultado.id),
                 },
                 "descripcion": resultado.descripcion,
-                "adquisicion_fecha": resultado.adquisicion_fecha.strftime("%Y-%m-%d") if resultado.adquisicion_fecha is not None else "-",
+                "fecha_fabricacion": resultado.fecha_fabricacion.strftime("%Y-%m-%d") if resultado.fecha_fabricacion is not None else "-",
+                "tipo": resultado.tipo,
                 "nombre_completo": resultado.inv_custodia.nombre_completo,
                 "inv_custodia_id": {
                     "id": resultado.inv_custodia.id,
@@ -140,8 +150,8 @@ def new(inv_custodia_id):
     if form.validate_on_submit():
         es_valido = True
         # Validar la fecha de adquisicion, no se permiten fechas futuras
-        adquisicion_fecha = form.adquisicion_fecha.data
-        if adquisicion_fecha is not None and adquisicion_fecha > date.today():
+        fecha_fabricacion = form.fecha_fabricacion.data
+        if fecha_fabricacion is not None and fecha_fabricacion > date.today():
             es_valido = False
             flash("La fecha de adquisición no puede ser futura.", "warning")
         # Si es valido insertar
@@ -150,7 +160,7 @@ def new(inv_custodia_id):
                 inv_custodia=inv_custodia,
                 inv_modelo=form.inv_modelo.data,
                 inv_red=form.inv_red.data,
-                adquisicion_fecha=form.adquisicion_fecha.data,
+                fecha_fabricacion=form.fecha_fabricacion.data,
                 numero_serie=form.numero_serie.data,
                 numero_inventario=form.numero_inventario.data,
                 descripcion=safe_string(form.descripcion.data),
@@ -187,15 +197,15 @@ def edit(inv_equipo_id):
     if form.validate_on_submit():
         es_valido = True
         # Validar la fecha de adquisicion, no se permiten fechas futuras
-        adquisicion_fecha = form.adquisicion_fecha.data
-        if adquisicion_fecha is not None and adquisicion_fecha > date.today():
+        fecha_fabricacion = form.fecha_fabricacion.data
+        if fecha_fabricacion is not None and fecha_fabricacion > date.today():
             es_valido = False
             flash("La fecha de adquisición no puede ser futura.", "warning")
         # Si es valido insertar
         if es_valido:
             inv_equipo.inv_modelo = form.inv_modelo.data
             inv_equipo.inv_red = form.inv_red.data
-            inv_equipo.adquisicion_fecha = form.adquisicion_fecha.data
+            inv_equipo.fecha_fabricacion = form.fecha_fabricacion.data
             inv_equipo.numero_serie = form.numero_serie.data
             inv_equipo.numero_inventario = form.numero_inventario.data
             inv_equipo.descripcion = safe_string(form.descripcion.data)
@@ -218,7 +228,7 @@ def edit(inv_equipo_id):
             return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))
     form.inv_modelo.data = inv_equipo.inv_modelo
     form.inv_red.data = inv_equipo.inv_red
-    form.adquisicion_fecha.data = inv_equipo.adquisicion_fecha
+    form.fecha_fabricacion.data = inv_equipo.fecha_fabricacion
     form.numero_serie.data = inv_equipo.numero_serie
     form.numero_inventario.data = inv_equipo.numero_inventario
     form.descripcion.data = safe_string(inv_equipo.descripcion)
@@ -252,6 +262,11 @@ def search():
             if numero_serie != "":
                 busqueda["numero_serie"] = numero_serie
                 titulos.append("numero serie" + numero_serie)
+        if form_search.tipo.data:
+            tipo_equipo = safe_string(form_search.tipo.data)
+            if tipo_equipo != "":
+                busqueda["tipo"] = tipo_equipo
+                titulos.append("tipo" + tipo_equipo)
         if form_search.fecha_desde.data:
             busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
             titulos.append("fecha desde " + busqueda["fecha_desde"])

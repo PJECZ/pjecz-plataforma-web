@@ -1,0 +1,44 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}REDAM Deudor Alimentario{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Deudor Alimentario ' + redam.id | string) %}
+        {{ topbar.button_previous('REDAM listado', url_for('redams.list_active')) }}
+        {% if current_user.can_edit('REDAMS') %}
+            {{ topbar.button_edit('Editar', url_for('redams.edit', redam_id=redam.id)) }}
+            {% if redam.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('redams.delete', redam_id=redam.id)) }}{% endif %}
+            {% if redam.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('redams.recover', redam_id=redam.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=redam.estatus) %}
+        {{ detail.label_value_big('Nombre', redam.nombre) }}
+        {% if current_user.can_view('DISTRITOS') %}
+            {{ detail.label_value('Distrito', redam.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=redam.autoridad.distrito_id)) }}
+        {% else %}
+            {{ detail.label_value('Distrito', redam.autoridad.distrito.nombre) }}
+        {% endif %}
+        {% if current_user.can_view('AUTORIDADES') %}
+            {{ detail.label_value('Autoridad', redam.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=redam.autoridad_id)) }}
+        {% else %}
+            {{ detail.label_value('Autoridad', redam.autoridad.descripcion) }}
+        {% endif %}
+        {{ detail.label_value('Expediente', redam.expediente) }}
+        {{ detail.label_value('Fecha de emisión de orden de inclusión', moment(redam.fecha, local=True).format('DD MMM YYYY')) }}
+        {{ detail.label_value('Observaciones', redam.observaciones) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('REDAMS') %}
+        {% if redam.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + redam.nombre + '?') }}{% endif %}
+        {% if redam.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + redam.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

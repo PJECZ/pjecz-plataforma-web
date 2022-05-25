@@ -9,14 +9,17 @@ from lib.universal_mixin import UniversalMixin
 class InvEquipo(db.Model, UniversalMixin):
     """InvEquipo"""
 
-    TIPO = OrderedDict(
+    TIPOS = OrderedDict(
         [
             ("COMPUTADORA", "COMPUTADORA"),
-            ("VIDEOGRABACION", "VIDEOGRABACION"),
+            ("LAPTOP", "LAPTOP"),
             ("IMPRESORA", "IMPRESORA"),
+            ("MULTIFUNCIONAL", "MULTIFUNCIONAL"),
             ("TELEFONIA", "TELEFONIA"),
             ("SERVIDOR", "SERVIDOR"),
             ("SCANNER", "SCANNER"),
+            ("SWITCH", "SWITCH"),
+            ("VIDEOGRABACION", "VIDEOGRABACION"),
             ("OTROS", "OTROS"),
         ]
     )
@@ -36,11 +39,11 @@ class InvEquipo(db.Model, UniversalMixin):
     inv_red = db.relationship("InvRed", back_populates="inv_equipos")
 
     # Columnas
-    adquisicion_fecha = db.Column(db.Date())
+    fecha_fabricacion = db.Column(db.Date())
     numero_serie = db.Column(db.String(256))
     numero_inventario = db.Column(db.Integer())
     descripcion = db.Column(db.String(256), nullable=False)
-    tipo = db.Column(db.Enum(*TIPO, name="tipos", native_enum=False), index=True, nullable=False)
+    tipo = db.Column(db.Enum(*TIPOS, name="tipos", native_enum=False), index=True, nullable=False)
     direccion_ip = db.Column(db.String(256))
     direccion_mac = db.Column(db.String(256))
     numero_nodo = db.Column(db.Integer())

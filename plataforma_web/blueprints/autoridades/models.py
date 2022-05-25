@@ -69,6 +69,7 @@ class Autoridad(db.Model, UniversalMixin):
     escrituras = db.relationship("Escritura", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
+    redams = db.relationship("Redam", back_populates="autoridad", lazy="noload")
     sentencias = db.relationship("Sentencia", back_populates="autoridad", lazy="noload")
     tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="autoridad", lazy="noload")
     transcripciones = db.relationship("Transcripcion", back_populates="autoridad", lazy="noload")

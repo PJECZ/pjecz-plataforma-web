@@ -1,0 +1,79 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Registro Estatal de Deudores Alimentarios{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('REDAMS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('redams.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('redams.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('REDAMS') %}
+            {{ topbar.button_new('Nuevo Deudor', url_for('redams.new')) }}
+        {% endif %}
+        {{ topbar.button_search('Buscar', url_for('redams.search')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="redams_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Expediente</th>
+                    <th>Fecha</th>
+                    <th>Distrito</th>
+                    <th>Autoridad</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/redams/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'nombre' },
+            { data: 'expediente' },
+            { data: 'fecha' },
+            { data: 'distrito_nombre_corto' },
+            { data: 'autoridad_descripcion_corta' },
+            { data: 'observaciones' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: [1, 6], // nombre, observaciones
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 48)
+                        return '<span title="' + data + '">' + data.substr(0, 48) + '…' + '</span>';
+                    return data;
+                }
+            },
+            {
+                targets: 3, // fecha
+                type: "date",
+                render: function (data, type, row) {
+                    return moment(data).format("DD MMM YYYY");
+                }
+            }
+        ];
+        $('#redams_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}

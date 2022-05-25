@@ -2,12 +2,13 @@
 Oficinas, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, BooleanField, TimeField, IntegerField
+from wtforms import BooleanField, IntegerField, RadioField, StringField, SubmitField, TimeField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.domicilios.models import Domicilio
+from plataforma_web.blueprints.oficinas.models import Oficina
 
 
 def distritos_opciones():
@@ -31,6 +32,7 @@ class OficinaForm(FlaskForm):
     apertura = TimeField("Horario de apertura", validators=[DataRequired()], format="%H:%M")
     cierre = TimeField("Horario de cierre", validators=[DataRequired()], format="%H:%M")
     limite_personas = IntegerField("Límite de personas", validators=[DataRequired()])
+    tipo = RadioField("Tipo", choices=Oficina.TIPOS, default="NO DEFINIDO", validators=[DataRequired()])
     es_jurisdiccional = BooleanField("Es Jurisdiccional", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
@@ -40,4 +42,5 @@ class OficinaSearchForm(FlaskForm):
 
     clave = StringField("Clave", validators=[Optional(), Length(max=32)])
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=512)])
+    tipo = RadioField("Tipo", choices=Oficina.TIPOS, default="NO DEFINIDO", validators=[Optional()])
     buscar = SubmitField("Buscar")

@@ -33,6 +33,7 @@ def alimentar_oficinas():
                 continue
             telefono = safe_string(row["telefono"]) if "telefono" in row else ""
             extension = safe_string(row["extension"]) if "extension" in row else ""
+            tipo = safe_string(row["tipo"]) if "tipo" in row else "NO DEFINIDO"
             Oficina(
                 domicilio_id=int(row["domicilio_id"]),
                 distrito_id=int(row["distrito_id"]),
@@ -45,6 +46,7 @@ def alimentar_oficinas():
                 limite_personas=int(row["limite_personas"]),
                 telefono=telefono,
                 extension=extension,
+                tipo=tipo,
                 estatus=row["estatus"],
             ).save()
             contador += 1

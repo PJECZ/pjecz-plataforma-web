@@ -1,12 +1,22 @@
 """
 Oficinas, modelos
 """
+from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class Oficina(db.Model, UniversalMixin):
     """Oficina"""
+
+    TIPOS = OrderedDict(
+        [
+            ("NO DEFINIDO", "NO DEFINIDO"),
+            ("O.J. DE 1RA. INSTANCIA", "O.J. DE 1RA. INSTANCIA"),
+            ("O.J. DE 2DA. INSTANCIA", "O.J. DE 2DA. INSTANCIA"),
+            ("ADMINISTRATICO Y/O U. ADMIN.", "ADMINISTRATICO Y/O U. ADMIN."),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "oficinas"
@@ -30,6 +40,7 @@ class Oficina(db.Model, UniversalMixin):
     limite_personas = db.Column(db.Integer(), nullable=False)
     telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
     extension = db.Column(db.String(24), nullable=False, default="", server_default="")
+    tipo = db.Column(db.Enum(*TIPOS, name="tipos", native_enum=False), index=True, nullable=False)
 
     # Hijos
     funcionarios_oficinas = db.relationship("FuncionarioOficina", back_populates="oficina", lazy="noload")

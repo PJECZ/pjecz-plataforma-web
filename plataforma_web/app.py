@@ -37,6 +37,7 @@ from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.peritos_tipos.views import peritos_tipos
 from plataforma_web.blueprints.permisos.views import permisos
+from plataforma_web.blueprints.redams.views import redams
 from plataforma_web.blueprints.repsvm_agresores.views import repsvm_agresores
 from plataforma_web.blueprints.repsvm_delitos_especificos.views import repsvm_delitos_especificos
 from plataforma_web.blueprints.repsvm_delitos_genericos.views import repsvm_delitos_genericos
@@ -111,6 +112,7 @@ def create_app():
     app.register_blueprint(peritos)
     app.register_blueprint(peritos_tipos)
     app.register_blueprint(permisos)
+    app.register_blueprint(redams)
     app.register_blueprint(repsvm_agresores)
     app.register_blueprint(repsvm_delitos_especificos)
     app.register_blueprint(repsvm_delitos_genericos)
