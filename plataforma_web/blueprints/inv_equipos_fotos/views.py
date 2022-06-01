@@ -136,7 +136,7 @@ def new(inv_equipo_id):
             try:
                 storage.set_filename(hashed_id=inv_equipo_foto.encode_id(), description=descripcion)
                 storage.upload(archivo.stream.read())
-                inv_equipo_foto.archivo = safe_string(archivo.filename)  # Conservar el nombre original
+                inv_equipo_foto.archivo = archivo.filename  # Conservar el nombre original
                 inv_equipo_foto.url = storage.url
                 inv_equipo_foto.save()
             except NotConfiguredError:
