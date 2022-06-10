@@ -92,30 +92,30 @@ def list_inactive():
     )
 
 
-@redams.route('/redams/buscar', methods=['GET', 'POST'])
+@redams.route("/redams/buscar", methods=["GET", "POST"])
 def search():
     """Buscar REDAM"""
     form_search = RedamSearchForm()
     if form_search.validate_on_submit():
-        busqueda = {'estatus': 'A'}
+        busqueda = {"estatus": "A"}
         titulos = []
         if form_search.nombre.data:
             nombre = safe_string(form_search.nombre.data)
-            if nombre != '':
-                busqueda['nombre'] = nombre
-                titulos.append('nombre ' + nombre)
+            if nombre != "":
+                busqueda["nombre"] = nombre
+                titulos.append("nombre " + nombre)
         if form_search.expediente.data:
             expediente = safe_expediente(form_search.expediente.data)
-            if expediente != '':
-                busqueda['expediente'] = expediente
-                titulos.append('expediente ' + expediente)
+            if expediente != "":
+                busqueda["expediente"] = expediente
+                titulos.append("expediente " + expediente)
         return render_template(
-            'redams/list.jinja2',
+            "redams/list.jinja2",
             filtros=json.dumps(busqueda),
-            titulo='REDAM con ' + ', '.join(titulos),
-            estatus='A',
+            titulo="REDAM con " + ", ".join(titulos),
+            estatus="A",
         )
-    return render_template('redams/search.jinja2', form=form_search)
+    return render_template("redams/search.jinja2", form=form_search)
 
 
 @redams.route("/redams/<int:redam_id>")
@@ -144,7 +144,7 @@ def new():
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nuevo REDAM {redam.nombre}"),
-            url=url_for("redam.detail", redam_id=redam.id),
+            url=url_for("redams.detail", redam_id=redam.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
