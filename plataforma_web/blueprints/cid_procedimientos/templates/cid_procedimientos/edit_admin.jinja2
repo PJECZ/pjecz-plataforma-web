@@ -1,0 +1,27 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Procedimiento como Administrador{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + cid_procedimiento.titulo_procedimiento ) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
+        {% call f.form_tag('cid_procedimientos.edit_admin', fid='cid_procedimiento_form', **form_kwargs) %}
+            {% call f.form_group(form.titulo_procedimiento, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.codigo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.revision, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_distrito_autoridad(distritos, autoridades, mi_distrito=cid_procedimiento.autoridad.distrito_id, mi_autoridad=cid_procedimiento.autoridad_id) }}
+{% endblock %}

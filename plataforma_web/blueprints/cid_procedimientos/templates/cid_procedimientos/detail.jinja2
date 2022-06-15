@@ -9,6 +9,9 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Procedimiento') %}
         {{ topbar.button_previous('Procedimientos propios', url_for('cid_procedimientos.list_owned')) }}
+        {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
+            {{ topbar.button_edit('Editar Admin', url_for('cid_procedimientos.edit_admin', cid_procedimiento_id=cid_procedimiento.id)) }}
+        {% endif %}
         {% if current_user.can_edit('CID PROCEDIMIENTOS') %}
             {{ topbar.button_edit('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id)) }}
             {% if cid_procedimiento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_procedimientos.delete', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
@@ -37,6 +40,8 @@
             {{ detail.label_value('Firma guardada', cid_procedimiento.firma) }}
             {{ detail.label_value('Firma al vuelo', firma_al_vuelo) }}
             {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
+            {{ detail.label_value('Distrito', cid_procedimiento.autoridad.distrito.nombre) }}
+            {{ detail.label_value('Autoridad', cid_procedimiento.autoridad.descripcion) }}
         {% endcall %}
         {% call accordion.item('objetivos_item', 'Objetivo', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ objetivo }}

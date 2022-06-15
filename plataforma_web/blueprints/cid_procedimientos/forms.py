@@ -68,3 +68,14 @@ class CIDProcedimientoAcceptRejectForm(FlaskForm):
     url = StringField("Archivo PDF", validators=[Optional()])
     aceptar = SubmitField("Aceptar")
     rechazar = SubmitField("Rechazar")
+
+
+class CIDProcedimientoEditAdminForm(FlaskForm):
+    """Formulario CIDProcedimientoAdmin"""
+
+    distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
+    titulo_procedimiento = StringField("Título")  # Read only
+    codigo = StringField("Código")  # Read only
+    revision = IntegerField("Revisión (Número entero apartir de 1)")  # Read only
+    guardar = SubmitField("Guardar")
