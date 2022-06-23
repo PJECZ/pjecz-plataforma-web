@@ -382,7 +382,6 @@ def sign_for_maker(cid_procedimiento_id):
     registros_es_valido = cid_procedimiento.registros
     # Validar control_cambios
     control_cambios_es_valido = cid_procedimiento.control_cambios
-
     # Validar elaboro
     elaboro_es_valido = False
     if cid_procedimiento.elaboro_email != "":
@@ -458,6 +457,7 @@ def accept_reject(cid_procedimiento_id):
         if form.aceptar.data is True:
             # Crear un nuevo registro
             nuevo = CIDProcedimiento(
+                autoridad=original.autoridad,
                 titulo_procedimiento=safe_string(original.titulo_procedimiento),
                 codigo=original.codigo,
                 revision=original.revision,
