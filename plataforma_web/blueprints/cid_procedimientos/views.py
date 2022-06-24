@@ -5,15 +5,16 @@ import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from wtforms.fields.core import StringField
 
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm
+from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.models import Usuario
@@ -144,6 +145,7 @@ def new():
         else:
             control_cambios = control
         cid_procedimiento = CIDProcedimiento(
+            autoridad=current_user.autoridad,
             usuario=current_user,
             titulo_procedimiento=safe_string(form.titulo_procedimiento.data),
             codigo=form.codigo.data,
@@ -199,7 +201,6 @@ def edit(cid_procedimiento_id):
         redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
-
         elaboro = form.elaboro_email.data
         if elaboro is None or elaboro == "":
             elaboro_nombre = ""
@@ -309,6 +310,41 @@ def edit(cid_procedimiento_id):
     )
 
 
+@cid_procedimientos.route("/cid_procedimientos/edicion_admin/<int:cid_procedimiento_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def edit_admin(cid_procedimiento_id):
+    """Editar Procedimiento"""
+    cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    form = CIDProcedimientoEditAdminForm()
+    if form.validate_on_submit():
+        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        cid_procedimiento.autoridad = autoridad
+        cid_procedimiento.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado el Procedimiento {cid_procedimiento.titulo_procedimiento} con autoridad {autoridad.clave}"),
+            url=url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()
+    autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()
+    # form.distrito.data = cid_procedimiento.autoridad.distrito
+    # form.autoridad.data = cid_procedimiento.autoridad
+    form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
+    form.codigo.data = cid_procedimiento.codigo
+    form.revision.data = cid_procedimiento.revision
+    return render_template(
+        "cid_procedimientos/edit_admin.jinja2",
+        form=form,
+        cid_procedimiento=cid_procedimiento,
+        distritos=distritos,
+        autoridades=autoridades,
+    )
+
+
 def validate_json_quill_not_empty(data):
     """Validar que un JSON de Quill no esté vacío"""
     if not isinstance(data, dict):
@@ -346,7 +382,6 @@ def sign_for_maker(cid_procedimiento_id):
     registros_es_valido = cid_procedimiento.registros
     # Validar control_cambios
     control_cambios_es_valido = cid_procedimiento.control_cambios
-
     # Validar elaboro
     elaboro_es_valido = False
     if cid_procedimiento.elaboro_email != "":
@@ -425,6 +460,7 @@ def accept_reject(cid_procedimiento_id):
         if form.aceptar.data is True:
             # Crear un nuevo registro
             nuevo = CIDProcedimiento(
+                autoridad=original.autoridad,
                 titulo_procedimiento=safe_string(original.titulo_procedimiento),
                 codigo=original.codigo,
                 revision=original.revision,

@@ -34,6 +34,8 @@ class CIDProcedimiento(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
+    autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad = db.relationship("Autoridad", back_populates="cid_procedimientos")
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
     usuario = db.relationship("Usuario", back_populates="cid_procedimientos")
 
