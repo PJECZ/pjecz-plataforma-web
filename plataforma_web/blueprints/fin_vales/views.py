@@ -46,7 +46,7 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "nombre": resultado.nombre,
+                    "id": resultado.id,
                     "url": url_for("fin_vales.detail", fin_vale_id=resultado.id),
                 },
                 "usuario_nombre": resultado.usuario.nombre,
@@ -83,6 +83,13 @@ def list_inactive():
     )
 
 
+@fin_vales.route("/fin_vales/<int:fin_vale_id>")
+def detail(fin_vale_id):
+    """Detalle de un Vale"""
+    fin_vale = FinVale.query.get_or_404(fin_vale_id)
+    return render_template("fin_vales/detail.jinja2", fin_vale=fin_vale)
+
+
 @fin_vales.route("/fin_vale/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
@@ -104,16 +111,17 @@ def new():
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Nuevo Vale {fin_vale.justificacion}"),
-            url=url_for("fin_vale.detail", fin_vale_id=fin_vale.id),
+            url=url_for("fin_vales.detail", fin_vale_id=fin_vale.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    form.usuario_nombre.data = current_user.nombre
     form.autorizo_nombre.data = "C.P. SILVIA GABRIELA SAUCEDO MUÑOZ"
     form.autorizo_puesto.data = "DIRECTORA DE RECURSOS FINANCIEROS DE LA OFICIALÍA MAYOR"
     form.solicito_nombre.data = "ING. GUILLERMO VALDÉS LOZANO"
     form.solicito_puesto.data = "DIRECTOR DE INFORMÁTICA"
-    return render_template("fin_vale/new.jinja2", form=form)
+    return render_template("fin_vales/new.jinja2", form=form)
 
 
 @fin_vales.route("/fin_vales/edicion/<int:fin_vale_id>", methods=["GET", "POST"])
@@ -140,7 +148,14 @@ def edit(fin_vale_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    form.usuario_nombre.data = current_user.nombre
+    form.autorizo_nombre.data = fin_vale.autorizo_nombre
+    form.autorizo_puesto.data = fin_vale.autorizo_puesto
+    form.tipo.data = fin_vale.tipo
     form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    form.solicito_nombre.data = fin_vale.solicito_nombre
+    form.solicito_puesto.data = fin_vale.solicito_puesto
     return render_template("fin_vales/edit.jinja2", form=form, fin_vale=fin_vale)
 
 

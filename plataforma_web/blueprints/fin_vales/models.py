@@ -42,6 +42,12 @@ class FinVale(db.Model, UniversalMixin):
     solicito_nombre = db.Column(db.String(256), nullable=False)
     solicito_puesto = db.Column(db.String(256), nullable=False)
     # solicito_email = db.Column(db.String(256), nullable=False)
+    # solicito_firmado
+
+    # folio
+    # selloDigital
+    # url
+    # qr_url
 
     def __repr__(self):
         """Representación"""
