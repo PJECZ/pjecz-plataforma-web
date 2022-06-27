@@ -1,0 +1,38 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Vale{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(fin_vales.id) %}
+        {{ topbar.button_previous('Vales', url_for('fin_vales.list_active')) }}
+        {% if current_user.can_edit('FIN VALES') %}
+            {{ topbar.button_edit('Editar', url_for('fin_vales.edit', fin_vales_id=fin_vales.id)) }}
+            {% if fin_vales.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('fin_vales.delete', fin_vales_id=fin_vales.id)) }}{% endif %}
+            {% if fin_vales.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('fin_vales.recover', fin_vales_id=fin_vales.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=fin_vales.estatus) %}
+        {{ detail.label_value_big('ID', fin_vales.id) }}
+        {{ detail.label_value('Autorizo', fin_vales.autorizo_nombre) }}
+        {{ detail.label_value('Autorizo puesto', fin_vales.autorizo_puesto) }}
+        {{ detail.label_value('Tipo', fin_vales.tipo) }}
+        {{ detail.label_value('Justificacion', fin_vales.justificacion) }}
+        {{ detail.label_value('Monto', fin_vales.monto) }}
+        {{ detail.label_value('Solicito', fin_vales.autorizo_nombre) }}
+        {{ detail.label_value('Solicito puesto', fin_vales.autorizo_puesto) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('FIN VALES') %}
+        {% if fin_vales.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + fin_vales.id + '?') }}{% endif %}
+        {% if fin_vales.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + fin_vales.id + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

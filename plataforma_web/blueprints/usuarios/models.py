@@ -55,6 +55,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="usuario", lazy="noload")
     entradas_salidas = db.relationship("EntradaSalida", back_populates="usuario", lazy="noload")
+    fin_vales = db.relationship("FinVale", back_populates="usuario", lazy="noload")
     mensajes = db.relationship("Mensaje", back_populates="destinatario", lazy="noload")
     mensajes_respuestas = db.relationship("MensajeRespuesta", back_populates="autor", lazy="noload")
     inv_custodias = db.relationship("InvCustodia", back_populates="usuario", lazy="noload")

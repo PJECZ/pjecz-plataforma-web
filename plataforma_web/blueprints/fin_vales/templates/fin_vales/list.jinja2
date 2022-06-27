@@ -1,0 +1,60 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Vales{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('FIN VALES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('fin_vales.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('fin_vales.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('FIN VALES') %}
+            {{ topbar.button_new('Nuevo Vale', url_for('fin_vales.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="fin_vales_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Tipo</th>
+                    <th>Justificacion</th>
+                    <th>Monto</th>
+                    <th>Solicito</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/fin_vales/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'usuario_nombre' },
+            { data: 'tipo' },
+            { data: 'justificacion' },
+            { data: 'monto' },
+            { data: 'solicito_nombre' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            }
+        ];
+        $('#fin_vales_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}
