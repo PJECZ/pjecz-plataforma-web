@@ -3,9 +3,9 @@ Financieros Vales, tareas en el fondo
 """
 
 
-def firmar():
-    """Firmar llama a la API de firma electronica"""
+def solicitar(fin_vale_id):
+    """Firmar electronicamente el vale por quien solicita"""
 
 
-def crear_pdf():
-    """Crear PDF"""
+def autorizar(fin_vale_id):
+    """Firmar electronicamente el vale por quien autoriza"""

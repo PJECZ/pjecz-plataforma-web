@@ -1,6 +1,7 @@
 """
 Financieros Vales
 """
+import json
 import os
 import click
 
@@ -27,43 +28,66 @@ EFIRMA_APP_PASS = os.getenv("EFIRMA_APP_PASS")
 @click.group()
 def cli():
     """Financieros Vales"""
+    if EFIRMA_SERVICIO_FIRMA_CADENA_URL is None:
+        click.echo("Falta configurar EFIRMA_SERVICIO_FIRMA_CADENA_URL")
+        return
+    if EFIRMA_REG_IDENT is None:
+        click.echo("Falta configurar EFIRMA_REG_IDENT")
+        return
+    if EFIRMA_REG_PASS is None:
+        click.echo("Falta configurar EFIRMA_REG_PASS")
+        return
+    if EFIRMA_REG_PASS is None:
+        click.echo("Falta configurar EFIRMA_APP_ID")
+        return
+    if EFIRMA_APP_PASS is None:
+        click.echo("Falta configurar EFIRMA_APP_PASS")
+        return
 
 
 @click.command()
 @click.argument("fin_vale_id")
 def firmar(fin_vale_id):
     """Firmar un vale"""
+
+    # Validar vale
     fin_vale = FinVale.query.get(fin_vale_id)
-    click.echo(f"EFIRMA_SERVICIO_FIRMA_CADENA_URL: {EFIRMA_SERVICIO_FIRMA_CADENA_URL}")
-    click.echo(f"EFIRMA_REG_IDENT: {EFIRMA_REG_IDENT}")
-    click.echo(f"EFIRMA_REG_PASS: {EFIRMA_REG_PASS}")
-    click.echo(f"EFIRMA_APP_ID: {EFIRMA_APP_ID}")
-    click.echo(f"EFIRMA_APP_PASS: {EFIRMA_APP_PASS}")
+    if fin_vale is None:
+        click.echo("No se encontró el vale")
+        return
+    if fin_vale.estatus != "A":
+        click.echo("El vale esta eliminado")
+        return
     click.echo(f'Voy a firmar el vale "{fin_vale.justificacion}"')
-    elementos = [
-        fin_vale.autorizo_nombre,
-        fin_vale.autorizo_puesto,
-        fin_vale.tipo,
-        fin_vale.justificacion,
-        str(fin_vale.monto),
-        fin_vale.solicito_nombre,
-        fin_vale.solicito_puesto,
-    ]
+
+    # Firmar el vale
+    elementos = {
+        "id": fin_vale.id,
+        "autorizo": fin_vale.autorizo_nombre,
+        "creado": fin_vale.creado,
+        "justificacion": fin_vale.justificacion,
+        "monto": fin_vale.monto,
+        "solicito": fin_vale.solicito_nombre,
+        "tipo": fin_vale.tipo,
+    }
+    data = {
+        "cadenaOriginal": json.dumps(elementos),
+        "idRegistro": EFIRMA_REG_IDENT,
+        "contrasenaRegistro": EFIRMA_REG_PASS,
+        "idAplicacion": EFIRMA_APP_ID,
+        "contrasenaAplicacion": EFIRMA_APP_PASS,
+        "referencia": fin_vale_id,
+        "verificarUrl": True,
+    }
     response = requests.post(
         EFIRMA_SERVICIO_FIRMA_CADENA_URL,
-        data={
-            "cadenaOriginal": "|".join(elementos),
-            "idRegistro": EFIRMA_REG_IDENT,
-            "contrasenaRegistro": EFIRMA_REG_PASS,
-            "idAplicacion": EFIRMA_APP_ID,
-            "contrasenaAplicacion": EFIRMA_APP_PASS,
-            "referencia": fin_vale_id,
-            "verificarUrl": True,
-        },
+        data=data,
         verify=False,
     )
     click.echo(f"Codigo de respuesta: {response.status_code}")
     click.echo(f"Respuesta: {response.text}")
+
+    # Actualizar el vale
 
 
 # Respuesta:
