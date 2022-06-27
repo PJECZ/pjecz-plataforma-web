@@ -40,10 +40,11 @@ class FinVale(db.Model, UniversalMixin):
     autorizo_nombre = db.Column(db.String(256), nullable=False)
     autorizo_puesto = db.Column(db.String(256), nullable=False)
     # autorizo_email = db.Column(db.String(256), nullable=False)
+    # autorizo_efirma_tiempo
     # autorizo_efirma_folio
     # autorizo_efirma_selloDigital
     # autorizo_efirma_url
-    # autorizo_efirma_url
+    # autorizo_efirma_qr_url
     estados = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         index=True,
@@ -63,6 +64,7 @@ class FinVale(db.Model, UniversalMixin):
     solicito_nombre = db.Column(db.String(256), nullable=False)
     solicito_puesto = db.Column(db.String(256), nullable=False)
     # solicito_email = db.Column(db.String(256), nullable=False)
+    # solicito_efirma_tiempo
     # solicito_efirma_folio
     # solicito_efirma_selloDigital
     # solicito_efirma_url
