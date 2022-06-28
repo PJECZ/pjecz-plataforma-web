@@ -1,6 +1,7 @@
 """
 Financieros Vales
 """
+from datetime import datetime
 import json
 import os
 import click
@@ -47,7 +48,7 @@ def cli():
 
 @click.command()
 @click.argument("fin_vale_id")
-def firmar(fin_vale_id):
+def solicitar(fin_vale_id):
     """Firmar un vale"""
 
     # Validar vale
@@ -64,7 +65,7 @@ def firmar(fin_vale_id):
     elementos = {
         "id": fin_vale.id,
         "autorizo": fin_vale.autorizo_nombre,
-        "creado": fin_vale.creado,
+        "creado": fin_vale.creado.strftime("%Y-%m-%d %H:%M:%S"),
         "justificacion": fin_vale.justificacion,
         "monto": fin_vale.monto,
         "solicito": fin_vale.solicito_nombre,
@@ -87,7 +88,25 @@ def firmar(fin_vale_id):
     click.echo(f"Codigo de respuesta: {response.status_code}")
     click.echo(f"Respuesta: {response.text}")
 
+    # Validar que el codigo de respuesta sea 200
+    if response.status_code != 200:
+        click.echo("Error al firmar el vale porque la respuesta no es 200")
+        return
+
+    # Validar
+    datos = json.loads(response.text)
+    if datos["success"] is False:
+        click.echo("Error al firmar el vale porque la respuesta no es success")
+        return
+
     # Actualizar el vale
+    fin_vale.solicito_efirma_tiempo = datetime.strptime(datos.fecha, "%d/%m/%Y %H:%M:%S")
+    fin_vale.solicito_efirma_folio = datos.folio
+    fin_vale.solicito_efirma_selloDigital = datos.selloDigital
+    fin_vale.solicito_efirma_url = datos.url
+    fin_vale.solicito_efirma_qr_url = ""
+    fin_vale.estado = "SOLICITADO"
+    fin_vale.save()
 
 
 # Respuesta:
@@ -102,4 +121,4 @@ def firmar(fin_vale_id):
 #   "huella": "Primer mensaje de prueba"
 
 
-cli.add_command(firmar)
+cli.add_command(solicitar)

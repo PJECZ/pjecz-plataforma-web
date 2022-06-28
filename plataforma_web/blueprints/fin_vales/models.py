@@ -46,7 +46,7 @@ class FinVale(db.Model, UniversalMixin):
     autorizo_email = db.Column(db.String(256), nullable=False)
 
     # Columnas que en el estado PENDIENTE se pueden modificar
-    estados = db.Column(
+    estado = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         index=True,
         nullable=False,

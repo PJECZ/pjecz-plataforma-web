@@ -51,6 +51,10 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     extension = db.Column(db.String(24), nullable=False, default="", server_default="")
     fotografia_url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
+    # Columnas con datos para el motor de firma electronica
+    efirma_registro_id = db.Column(db.Integer)
+    efirma_registro_contrasena = db.Column(db.String)
+
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="usuario", lazy="noload")

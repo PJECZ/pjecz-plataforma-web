@@ -12,13 +12,15 @@
     {% call f.card() %}
         {% call f.form_tag('fin_vales.new', fid='registro_form') %}
             {% call f.form_group(form.usuario_nombre, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.autorizo_nombre) %}{% endcall %}
-            {% call f.form_group(form.autorizo_puesto) %}{% endcall %}
             {% call f.form_group(form.tipo) %}{% endcall %}
             {% call f.form_group(form.justificacion) %}{% endcall %}
             {% call f.form_group(form.monto) %}{% endcall %}
-            {% call f.form_group(form.solicito_nombre) %}{% endcall %}
-            {% call f.form_group(form.solicito_puesto) %}{% endcall %}
+            {% call f.form_group(form.solicito_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.solicito_puesto, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.solicito_email, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autorizo_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autorizo_puesto, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autorizo_email, readonly=true) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

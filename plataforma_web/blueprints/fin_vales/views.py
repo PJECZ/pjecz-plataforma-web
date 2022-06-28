@@ -6,7 +6,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.fin_vales.models import FinVale
@@ -54,6 +54,7 @@ def datatable_json():
                 "justificacion": resultado.justificacion,
                 "monto": resultado.monto,
                 "solicito_nombre": resultado.solicito_nombre,
+                "estado": resultado.estado,
             }
         )
     # Entregar JSON
@@ -100,11 +101,13 @@ def new():
             usuario=current_user,
             autorizo_nombre=safe_string(form.autorizo_nombre.data),
             autorizo_puesto=safe_string(form.autorizo_puesto.data),
+            autorizo_email=safe_email(form.autorizo_email.data),
             tipo=form.tipo.data,
             justificacion=safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False),
             monto=form.monto.data,
             solicito_nombre=safe_string(form.solicito_nombre.data),
             solicito_puesto=safe_string(form.solicito_puesto.data),
+            solicito_email=safe_email(form.solicito_email.data),
         )
         fin_vale.save()
         bitacora = Bitacora(
@@ -119,8 +122,11 @@ def new():
     form.usuario_nombre.data = current_user.nombre
     form.autorizo_nombre.data = "C.P. SILVIA GABRIELA SAUCEDO MUÑOZ"
     form.autorizo_puesto.data = "DIRECTORA DE RECURSOS FINANCIEROS DE LA OFICIALÍA MAYOR"
+    form.autorizo_email.data = "silvia.saucedo@pjecz.gob.mx"
     form.solicito_nombre.data = "ING. GUILLERMO VALDÉS LOZANO"
     form.solicito_puesto.data = "DIRECTOR DE INFORMÁTICA"
+    form.solicito_email.data = "guillermo.valdes@pjecz.gob.mx"
+    form.tipo.data = "GASOLINA"
     return render_template("fin_vales/new.jinja2", form=form)
 
 
@@ -133,11 +139,13 @@ def edit(fin_vale_id):
     if form.validate_on_submit():
         fin_vale.autorizo_nombre = safe_string(form.autorizo_nombre.data)
         fin_vale.autorizo_puesto = safe_string(form.autorizo_puesto.data)
+        fin_vale.autorizo_email = safe_email(form.autorizo_email.data)
         fin_vale.tipo = form.tipo.data
         fin_vale.justificacion = safe_string(form.justificacion.data)
         fin_vale.monto = form.monto.data
         fin_vale.solicito_nombre = safe_string(form.solicito_nombre.data)
         fin_vale.solicito_puesto = safe_string(form.solicito_puesto.data)
+        fin_vale.solicito_email = safe_string(form.solicito_email.data)
         fin_vale.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -151,11 +159,13 @@ def edit(fin_vale_id):
     form.usuario_nombre.data = current_user.nombre
     form.autorizo_nombre.data = fin_vale.autorizo_nombre
     form.autorizo_puesto.data = fin_vale.autorizo_puesto
+    form.autorizo_email.data = fin_vale.autorizo_email
     form.tipo.data = fin_vale.tipo
     form.justificacion.data = fin_vale.justificacion
     form.monto.data = fin_vale.monto
     form.solicito_nombre.data = fin_vale.solicito_nombre
     form.solicito_puesto.data = fin_vale.solicito_puesto
+    form.solicito_email.data = fin_vale.solicito_email
     return render_template("fin_vales/edit.jinja2", form=form, fin_vale=fin_vale)
 
 
