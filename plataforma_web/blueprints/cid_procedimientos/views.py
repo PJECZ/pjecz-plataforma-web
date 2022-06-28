@@ -455,9 +455,47 @@ def accept_reject(cid_procedimiento_id):
     if form.validate_on_submit():
         # Si fue aceptado
         if form.aceptar.data is True:
+
+            # Deberian definirse estos campos
+            nuevo_seguimiento = None
+            nuevo_seguimiento_posterior = None
+            nuevo_usuario = None
+
+            # Si este procedimiento fue elaborado, sigue revisarlo
+            if original.seguimiento == "ELABORADO":
+                usuario = Usuario.query.filter_by(email=original.reviso_email).first()
+                if usuario is None:
+                    flash(f"No fue encontrado el usuario con e-mail {original.reviso_email}", "danger")
+                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+                nuevo_seguimiento = "EN REVISION"
+                nuevo_seguimiento_posterior = "EN REVISION"
+                nuevo_usuario = usuario
+
+            # Si este procedimiento fue revisado, sigue autorizarlo
+            if original.seguimiento == "REVISADO":
+                usuario = Usuario.query.filter_by(email=original.aprobo_email).first()
+                if usuario is None:
+                    flash(f"No fue encontrado el usuario con e-mail {original.aprobo_email}", "danger")
+                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+                nuevo_seguimiento = "EN AUTORIZACION"
+                nuevo_seguimiento_posterior = "EN AUTORIZACION"
+                nuevo_usuario = usuario
+
+            # Validar que se hayan definido estos campos
+            if nuevo_seguimiento is None:
+                flash("No se definio el seguimiento.", "danger")
+                return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+            if nuevo_seguimiento_posterior is None:
+                flash("No se definio el seguimiento posterior.", "danger")
+                return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+            if nuevo_usuario is None:
+                flash("No se definio el usuario.", "danger")
+                return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+
             # Crear un nuevo registro
             nuevo = CIDProcedimiento(
                 autoridad=original.autoridad,
+                usuario=nuevo_usuario,
                 titulo_procedimiento=safe_string(original.titulo_procedimiento),
                 codigo=original.codigo,
                 revision=original.revision,
@@ -479,33 +517,15 @@ def accept_reject(cid_procedimiento_id):
                 aprobo_puesto=original.aprobo_puesto,
                 aprobo_email=original.aprobo_email,
                 control_cambios=original.control_cambios,
-            )
-            nuevo.cadena = original.cadena + 1
-            # Si este procedimiento fue elaborado, sigue revisarlo
-            if original.seguimiento == "ELABORADO":
-                # Validar el usuario que revisara
-                usuario = Usuario.query.filter_by(email=original.reviso_email).first()
-                if usuario is None:
-                    flash(f"No fue encontrado el usuario con e-mail {original.reviso_email}", "danger")
-                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
-                nuevo.seguimiento = "EN REVISION"
-                nuevo.seguimiento_posterior = "EN REVISION"
-                nuevo.usuario = usuario
-            # Si este procedimiento fue revisado, sigue autorizarlo
-            if original.seguimiento == "REVISADO":
-                usuario = Usuario.query.filter_by(email=original.aprobo_email).first()
-                if usuario is None:
-                    flash(f"No fue encontrado el usuario con e-mail {original.aprobo_email}", "danger")
-                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
-                nuevo.seguimiento = "EN AUTORIZACION"
-                nuevo.seguimiento_posterior = "EN AUTORIZACION"
-                nuevo.usuario = usuario
-            # Guardar nuevo procedimiento
-            nuevo.anterior_id = original.id
-            nuevo.firma = ""
-            nuevo.archivo = ""
-            nuevo.url = ""
-            nuevo.save()
+                seguimiento=nuevo_seguimiento,
+                seguimiento_posterior=nuevo_seguimiento_posterior,
+                cadena=original.cadena + 1,
+                anterior_id=original.id,
+                firma="",
+                archivo="",
+                url="",
+            ).save()
+
             # Actualizar el anterior
             if original.seguimiento == "ELABORADO":
                 # Cambiar el seguimiento posterior del procedimiento elaborado
@@ -517,6 +537,7 @@ def accept_reject(cid_procedimiento_id):
                 anterior = CIDProcedimiento.query.get(cid_procedimiento_id)
                 anterior.seguimiento_posterior = "EN AUTORIZACION"
                 anterior.save()
+
             # Duplicar los formatos del procedimiento anterior a éste que es el nuevo
             if original.seguimiento == "ELABORADO" or original.seguimiento == "REVISADO":
                 for cid_formato in anterior.formatos:
@@ -526,6 +547,7 @@ def accept_reject(cid_procedimiento_id):
                         archivo=cid_formato.archivo,
                         url=cid_formato.url,
                     ).save()
+
             # Bitacora
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -536,11 +558,16 @@ def accept_reject(cid_procedimiento_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
+
         # Fue rechazado
         if form.rechazar.data is True:
             # Preguntar porque fue rechazado
             flash("Usted ha rechazado revisar/autorizar este procedimiento.", "success")
+
+        # Ir al detalle del procedimiento
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+
+    # Mostrar el formulario
     form.titulo_procedimiento.data = original.titulo_procedimiento
     form.codigo.data = original.codigo
     form.revision.data = original.revision
