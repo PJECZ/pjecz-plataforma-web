@@ -29,6 +29,15 @@
         {{ detail.label_value('Autorizo puesto', fin_vale.autorizo_puesto) }}
         {{ detail.label_value('Autorizo e-mail', fin_vale.autorizo_email) }}
     {% endcall %}
+    {% if fin_vale.estado == "SOLICITADO" %}
+        {% call detail.card(title='Solicitado', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Tiempo', fin_vale.solicito_efirma_tiempo) }}
+            {{ detail.label_value('Folio', fin_vale.solicito_efirma_folio) }}
+            {{ detail.label_value('Sello digital', fin_vale.solicito_efirma_selloDigital) }}
+            {{ detail.label_value('URL', fin_vale.solicito_efirma_url, fin_vale.solicito_efirma_url) }}
+            {{ detail.label_value('QR URL', fin_vale.solicito_efirma_qr_url) }}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
