@@ -14,6 +14,7 @@ class FinVale(db.Model, UniversalMixin):
             ("PENDIENTE", "Pendiente"),
             ("SOLICITADO", "Solicitado"),
             ("AUTORIZADO", "Autorizado"),
+            ("POR COMPROBAR", "Por Comprobar"),
             ("COMPROBADO", "Comprobado"),
             ("CANCELADO", "Cancelado"),
         ]
@@ -49,15 +50,15 @@ class FinVale(db.Model, UniversalMixin):
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         index=True,
         nullable=False,
-        default="NO DEFINIDO",
-        server_default="NO DEFINIDO",
+        default="PENDIENTE",
+        server_default="PENDIENTE",
     )
     tipo = db.Column(
         db.Enum(*TIPOS, name="tipos", native_enum=False),
         index=True,
         nullable=False,
-        default="NO DEFINIDO",
-        server_default="NO DEFINIDO",
+        default="GASOLINA",
+        server_default="GASOLINA",
     )
     justificacion = db.Column(db.Text(), nullable=False)
     monto = db.Column(db.Float, nullable=False)
@@ -76,7 +77,7 @@ class FinVale(db.Model, UniversalMixin):
     autorizo_efirma_url = db.Column(db.String(256))
     autorizo_efirma_qr_url = db.Column(db.String(256))
 
-    # Columnas que en el estado COMPROBADO reciben valores
+    # Columnas que en el estado POR COMPROBAR reciben valores
     vehiculo_descripcion = db.Column(db.String(256))
     tanque_inicial = db.Column(db.String(256))
     tanque_final = db.Column(db.String(256))
