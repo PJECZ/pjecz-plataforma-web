@@ -36,15 +36,15 @@ class FinVale(db.Model, UniversalMixin):
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
     usuario = db.relationship("Usuario", back_populates="fin_vales")
 
-    # Columnas
+    # Columnas que deben pre-llenarse
+    solicito_nombre = db.Column(db.String(256), nullable=False)
+    solicito_puesto = db.Column(db.String(256), nullable=False)
+    solicito_email = db.Column(db.String(256), nullable=False)
     autorizo_nombre = db.Column(db.String(256), nullable=False)
     autorizo_puesto = db.Column(db.String(256), nullable=False)
-    # autorizo_email = db.Column(db.String(256), nullable=False)
-    # autorizo_efirma_tiempo
-    # autorizo_efirma_folio
-    # autorizo_efirma_selloDigital
-    # autorizo_efirma_url
-    # autorizo_efirma_qr_url
+    autorizo_email = db.Column(db.String(256), nullable=False)
+
+    # Columnas que en el estado PENDIENTE se pueden modificar
     estados = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         index=True,
@@ -61,20 +61,27 @@ class FinVale(db.Model, UniversalMixin):
     )
     justificacion = db.Column(db.Text(), nullable=False)
     monto = db.Column(db.Float, nullable=False)
-    solicito_nombre = db.Column(db.String(256), nullable=False)
-    solicito_puesto = db.Column(db.String(256), nullable=False)
-    # solicito_email = db.Column(db.String(256), nullable=False)
-    # solicito_efirma_tiempo
-    # solicito_efirma_folio
-    # solicito_efirma_selloDigital
-    # solicito_efirma_url
-    # solicito_efirma_qr_url
 
-    # vehiculo_descripcion
-    # tanque_inicial
-    # tanque_final
-    # kilometraje_inicial
-    # kilometraje_final
+    # Columnas que en el estado SOLICITADO reciben valores
+    solicito_efirma_tiempo = db.Column(db.DateTime)
+    solicito_efirma_folio = db.Column(db.Integer)
+    solicito_efirma_selloDigital = db.Column(db.String(512))
+    solicito_efirma_url = db.Column(db.String(256))
+    solicito_efirma_qr_url = db.Column(db.String(256))
+
+    # Columnas que en el estado AUTORIZADO reciben valores
+    autorizo_efirma_tiempo = db.Column(db.DateTime)
+    autorizo_efirma_folio = db.Column(db.Integer)
+    autorizo_efirma_selloDigital = db.Column(db.String(512))
+    autorizo_efirma_url = db.Column(db.String(256))
+    autorizo_efirma_qr_url = db.Column(db.String(256))
+
+    # Columnas que en el estado COMPROBADO reciben valores
+    vehiculo_descripcion = db.Column(db.String(256))
+    tanque_inicial = db.Column(db.String(256))
+    tanque_final = db.Column(db.String(256))
+    kilometraje_inicial = db.Column(db.Integer)
+    kilometraje_final = db.Column(db.Integer)
 
     # Hijos
     # fin_vales_adjuntos
