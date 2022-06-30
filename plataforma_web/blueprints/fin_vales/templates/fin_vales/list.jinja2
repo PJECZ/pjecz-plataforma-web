@@ -64,6 +64,13 @@
                         return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
                     return data;
                 }
+            },
+            {
+                targets: 4, // monto
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '$ ' + data;
+                }
             }
         ];
         $('#fin_vales_datatable').DataTable(configDataTable);

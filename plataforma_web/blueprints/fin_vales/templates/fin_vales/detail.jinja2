@@ -21,8 +21,16 @@
         {{ detail.label_value('Usuario', fin_vale.usuario.nombre) }}
         {{ detail.label_value('Puesto', fin_vale.usuario.puesto) }}
         {{ detail.label_value('Tipo', fin_vale.tipo) }}
-        {{ detail.label_value('Monto', fin_vale.monto) }}
+        {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
         {{ detail.label_value_big('Justificacion', fin_vale.justificacion) }}
+        {# Tareas en el fondo #}
+        {% if current_user.can_edit('FIN VALES') %}
+            {% if fin_vale.estado == 'PENDIENTE' %}
+                <a href="{{ url_for('fin_vales.request_task', fin_vale_id=fin_vale.id) }}" class="btn btn-lg btn-success">
+                    Solicitar
+                </a>
+            {% endif %}
+        {% endif %}
     {% endcall %}
     {% if fin_vale.estado == "ELIMINADO POR SOLICITANTE" %}
         {% call detail.card(title='Eliminado por solicitante', estatus=fin_vale.estatus) %}
@@ -42,6 +50,14 @@
             {{ detail.label_value('Sello digital', fin_vale.solicito_efirma_selloDigital) }}
             {{ detail.label_value('URL', fin_vale.solicito_efirma_url, fin_vale.solicito_efirma_url) }}
             {{ detail.label_value('QR URL', fin_vale.solicito_efirma_qr_url) }}
+            {# Tareas en el fondo #}
+            {% if current_user.can_edit('FIN VALES') %}
+                {% if fin_vale.estado == 'SOLICITADO' %}
+                    <a href="{{ url_for('fin_vales.authorize_task', fin_vale_id=fin_vale.id) }}" class="btn btn-lg btn-success">
+                        Autorizar
+                    </a>
+                {% endif %}
+            {% endif %}
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado == "ELIMINADO POR AUTORIZADOR" %}
