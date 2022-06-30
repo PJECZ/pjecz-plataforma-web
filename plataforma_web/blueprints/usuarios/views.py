@@ -295,6 +295,7 @@ def new():
                 puesto=safe_string(form.puesto.data),
                 email=email,
                 workspace=form.workspace.data,
+                efirma_registro_id=form.efirma_registro_id.data,
                 contrasena=contrasena,
             )
             usuario.save()
@@ -326,6 +327,7 @@ def edit(usuario_id):
         usuario.curp = safe_string(form.curp.data)
         usuario.puesto = safe_string(form.puesto.data)
         usuario.oficina = form.oficina.data
+        usuario.efirma_registro_id = form.efirma_registro_id.data
         usuario.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -345,6 +347,7 @@ def edit(usuario_id):
     form.puesto.data = usuario.puesto
     form.email.data = usuario.email  # Read only
     form.workspace.data = usuario.workspace  # Read only
+    form.efirma_registro_id.data = usuario.efirma_registro_id
     form.oficina.data = usuario.oficina
     return render_template("usuarios/edit.jinja2", form=form, usuario=usuario)
 
@@ -375,6 +378,7 @@ def edit_admin(usuario_id):
             usuario.puesto = safe_string(form.puesto.data)
             usuario.email = email
             usuario.workspace = safe_string(form.workspace.data)
+            usuario.efirma_registro_id = form.efirma_registro_id.data
             usuario.oficina = form.oficina.data
             if form.contrasena.data != "":
                 usuario.contrasena = pwd_context.hash(form.contrasena.data)
@@ -397,6 +401,7 @@ def edit_admin(usuario_id):
     form.puesto.data = usuario.puesto
     form.email.data = usuario.email
     form.workspace.data = usuario.workspace
+    form.efirma_registro_id.data = usuario.efirma_registro_id
     form.oficina.data = usuario.oficina
     distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()
     autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()

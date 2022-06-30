@@ -11,13 +11,15 @@ class FinVale(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(
         [
-            ("PENDIENTE", "Pendiente"),                             # Un usuario puede crear el vale
-            ("CANCELADO POR USUARIO", "Cancelado por usuario"),     # Si se arrepiente, el usuario lo puede cancelar
-            ("SOLICITADO", "Solicitado"),                           # Su superior lo firma electronicamente
-            ("CANCELADO POR SUPERIOR", "Rechazado por supervisor"), # O el superior lo rechaza o falla la firma
-            ("AUTORIZADO", "Autorizado"),                           # Finanzas autoriza el fale
-            ("RECHAZADO", "Rechazado"),                             # O Finanzas no lo autoriza o falla la firma
-            ("COMPROBADO", "Comprobado"),                           # Finanzas lo marca como comprobado si cumple con evidencia adjunta
+            ("PENDIENTE", "Pendiente"),  # Un usuario lo ha creado
+            ("ELIMINADO POR USUARIO", "Eliminado por usuario"),  # El usuario se arrepintio y lo elimino
+            ("SOLICITADO", "Solicitado"),  # El superior lo autorizo con su firma
+            ("ELIMINADO POR SOLICITANTE", "Eliminado por solicitante"),  # El superior lo elimino
+            ("CANCELADO POR SOLICITANTE", "Cancelado por solicitante"),  # El superior ha canecelado la firma
+            ("AUTORIZADO", "Autorizado"),  # Finanzas lo autorizo
+            ("ELIMINADO POR AUTORIZADOR", "Rechazado"),  # Finanzas lo elimino
+            ("CANCELADO POR AUTORIZADOR", "Rechazado"),  # Finanzas ha cancelado la firma
+            ("COMPROBADO", "Comprobado"),  # Finanzas lo marca como comprobado si cumple con la evidencia
         ]
     )
 
