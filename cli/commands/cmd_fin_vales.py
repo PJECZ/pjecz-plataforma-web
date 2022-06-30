@@ -4,8 +4,8 @@ Financieros Vales
 - solicitar: Solicitar un vale con firma electronica
 - autorizar: Autorizar un vale con firma electronica
 """
-import click
 import getpass
+import click
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -39,15 +39,23 @@ def solicitar(fin_vale_id):
         return
 
     # Mostrar detalle del vale
-    click.echo(f"Vale ID:       {fin_vale_id}")
-    click.echo(f"Estado:        {fin_vale.estado}")
-    click.echo(f"Tipo:          {fin_vale.tipo}")
-    click.echo(f"Justificacion: {fin_vale.justificacion}")
-    click.echo(f"Monto:         {fin_vale.monto}")
-    click.echo(f"Creado:        {fin_vale.creado.strptime('%Y-%m-%d %H:%M:%S')}")
+    click.echo(f"Financieros Vales")
+    click.echo()
+    click.echo("Quien lo pidio")
+    click.echo(f"  ID:            {fin_vale_id}")
+    click.echo(f"  Estado:        {fin_vale.estado}")
+    click.echo(f"  Tipo:          {fin_vale.tipo}")
+    click.echo(f"  Justificacion: {fin_vale.justificacion}")
+    click.echo(f"  Monto:         {fin_vale.monto}")
+    click.echo(f"  Creado:        {fin_vale.creado}")
+    click.echo()
 
     # Solicitar la contrasena
-    contrasena = getpass.getpass("Contraseña: ")
+    click.echo("Quien va a solicitar")
+    click.echo(f"  Nombre: {fin_vale.solicito_nombre}")
+    click.echo(f"  e-mail: {fin_vale.solicito_email}")
+    contrasena = getpass.getpass("  Contraseña del motor de firma: ")
+    click.echo()
 
     # Poner tarea en el fondo
     app.task_queue.enqueue(
@@ -76,15 +84,23 @@ def autorizar(fin_vale_id):
         return
 
     # Mostrar detalle del vale
-    click.echo(f"Vale ID:       {fin_vale_id}")
-    click.echo(f"Estado:        {fin_vale.estado}")
-    click.echo(f"Tipo:          {fin_vale.tipo}")
-    click.echo(f"Justificacion: {fin_vale.justificacion}")
-    click.echo(f"Monto:         {fin_vale.monto}")
-    click.echo(f"Creado:        {fin_vale.creado.strptime('%Y-%m-%d %H:%M:%S')}")
+    click.echo(f"Financieros Vales")
+    click.echo()
+    click.echo("Quien lo pidio")
+    click.echo(f"  ID:            {fin_vale_id}")
+    click.echo(f"  Estado:        {fin_vale.estado}")
+    click.echo(f"  Tipo:          {fin_vale.tipo}")
+    click.echo(f"  Justificacion: {fin_vale.justificacion}")
+    click.echo(f"  Monto:         {fin_vale.monto}")
+    click.echo(f"  Creado:        {fin_vale.creado}")
+    click.echo()
 
     # Solicitar la contrasena
-    contrasena = getpass.getpass("Contraseña: ")
+    click.echo("Quien va a autorizar")
+    click.echo(f"  Nombre: {fin_vale.autorizo_nombre}")
+    click.echo(f"  e-mail: {fin_vale.autorizo_email}")
+    contrasena = getpass.getpass("  Contraseña del motor de firma: ")
+    click.echo()
 
     # Poner tarea en el fondo
     app.task_queue.enqueue(

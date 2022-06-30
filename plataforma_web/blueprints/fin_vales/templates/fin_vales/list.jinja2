@@ -55,6 +55,15 @@
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
+            },
+            {
+                targets: [1, 3, 5], // usuario_nombre, justificacion, solicito_nombre
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 32)
+                        return '<span title="' + data + '">' + data.substr(0, 32) + '…' + '</span>';
+                    return data;
+                }
             }
         ];
         $('#fin_vales_datatable').DataTable(configDataTable);
