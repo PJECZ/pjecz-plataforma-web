@@ -11,12 +11,13 @@ class FinVale(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(
         [
-            ("PENDIENTE", "Pendiente"),
-            ("SOLICITADO", "Solicitado"),
-            ("AUTORIZADO", "Autorizado"),
-            ("POR COMPROBAR", "Por Comprobar"),
-            ("COMPROBADO", "Comprobado"),
-            ("CANCELADO", "Cancelado"),
+            ("PENDIENTE", "Pendiente"),                             # Un usuario puede crear el vale
+            ("CANCELADO POR USUARIO", "Cancelado por usuario"),     # Si se arrepiente, el usuario lo puede cancelar
+            ("SOLICITADO", "Solicitado"),                           # Su superior lo firma electronicamente
+            ("CANCELADO POR SUPERIOR", "Rechazado por supervisor"), # O el superior lo rechaza o falla la firma
+            ("AUTORIZADO", "Autorizado"),                           # Finanzas autoriza el fale
+            ("RECHAZADO", "Rechazado"),                             # O Finanzas no lo autoriza o falla la firma
+            ("COMPROBADO", "Comprobado"),                           # Finanzas lo marca como comprobado si cumple con evidencia adjunta
         ]
     )
 
@@ -63,21 +64,23 @@ class FinVale(db.Model, UniversalMixin):
     justificacion = db.Column(db.Text(), nullable=False)
     monto = db.Column(db.Float, nullable=False)
 
-    # Columnas que en el estado SOLICITADO reciben valores
+    # Columnas que en el estado SOLICITADO tienen valores
     solicito_efirma_tiempo = db.Column(db.DateTime)
     solicito_efirma_folio = db.Column(db.Integer)
     solicito_efirma_selloDigital = db.Column(db.String(512))
     solicito_efirma_url = db.Column(db.String(256))
     solicito_efirma_qr_url = db.Column(db.String(256))
+    solicito_efirma_mensaje = db.Column(db.String(512))
 
-    # Columnas que en el estado AUTORIZADO reciben valores
+    # Columnas que en el estado AUTORIZADO tienen valores
     autorizo_efirma_tiempo = db.Column(db.DateTime)
     autorizo_efirma_folio = db.Column(db.Integer)
     autorizo_efirma_selloDigital = db.Column(db.String(512))
     autorizo_efirma_url = db.Column(db.String(256))
     autorizo_efirma_qr_url = db.Column(db.String(256))
+    autorizo_efirma_mensaje = db.Column(db.String(512))
 
-    # Columnas que en el estado POR COMPROBAR reciben valores
+    # Columnas que en el estado COMPROBADO tienen valores
     vehiculo_descripcion = db.Column(db.String(256))
     tanque_inicial = db.Column(db.String(256))
     tanque_final = db.Column(db.String(256))
