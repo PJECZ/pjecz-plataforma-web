@@ -291,6 +291,8 @@ def autorizar(fin_vale_id: int, contrasena: str):
     fin_vale.estado = "AUTORIZADO"
     fin_vale.save()
 
+    # Enviar un mensaje via correo electrónico al usuario para que vaya a recoger el vale
+
     # Terminar tarea
     mensaje_final = f"Vale {fin_vale_id} autorizado"
     set_task_progress(100)

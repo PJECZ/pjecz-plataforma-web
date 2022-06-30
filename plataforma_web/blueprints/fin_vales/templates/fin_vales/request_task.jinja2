@@ -1,0 +1,24 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Solicitar Vale{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Solicitar Vale ' + fin_vale.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
+        {% call f.form_tag('fin_vales.request_task', fid='fin_vale_request_task_form', **form_kwargs) %}
+            {% call f.form_group(form.solicito_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.usuario_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tipo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.justificacion, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.monto, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.contrasena) %}{% endcall %}
+            {% call f.form_group(form.solicitar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

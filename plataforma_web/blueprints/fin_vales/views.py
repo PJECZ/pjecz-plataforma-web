@@ -2,7 +2,7 @@
 Financieros Vales, vistas
 """
 import json
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
@@ -10,7 +10,7 @@ from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.fin_vales.models import FinVale
-from plataforma_web.blueprints.fin_vales.forms import FinValeForm
+from plataforma_web.blueprints.fin_vales.forms import FinValeForm, FinValeRequestTaskForm, FinValeAuthorizeTaskForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -170,6 +170,74 @@ def edit(fin_vale_id):
     form.solicito_puesto.data = fin_vale.solicito_puesto
     form.solicito_email.data = fin_vale.solicito_email
     return render_template("fin_vales/edit.jinja2", form=form, fin_vale=fin_vale)
+
+
+@fin_vales.route("/fin_vales/solicitar/<int:fin_vale_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def request_task(fin_vale_id):
+    """Solictar Vale"""
+    # Consultar el vale
+    fin_vale = FinVale.query.get_or_404(fin_vale_id)
+    # Validar el vale
+    if fin_vale.estatus != "A":
+        flash("El vale esta eliminado", "danger")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    if fin_vale.estado != "PENDIENTE":
+        flash("El vale NO esta en estado PENDIENTE", "danger")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    # Validar que current_user es quien va a solicitar el vale
+    # Si viene el formulario
+    form = FinValeRequestTaskForm()
+    if form.validate_on_submit():
+        # Crear la tarea en el fondo
+        current_app.task_queue.enqueue(
+            "plataforma_web.blueprints.fin_vales.tasks.solicitar",
+            fin_vale_id=fin_vale.id,
+            contrasena=form.contrasena.data,
+        )
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    # Mostrar el formulario
+    form.solicito_nombre.data = fin_vale.solicito_nombre
+    form.usuario_nombre.data = fin_vale.usuario.nombre
+    form.tipo.data = fin_vale.tipo
+    form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    return render_template("fin_vales/request_task.jinja2", fin_vale=fin_vale, form=form)
+
+
+@fin_vales.route("/fin_vales/autorizar/<int:fin_vale_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def authorize_task(fin_vale_id):
+    """Autorizar Vale"""
+    fin_vale = FinVale.query.get_or_404(fin_vale_id)
+    # Validar el vale
+    if fin_vale.estatus != "A":
+        flash("El vale esta eliminado", "danger")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    if fin_vale.estado != "SOLICITADO":
+        flash("El vale NO esta en estado SOLICITADO", "danger")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    # Validar que current_user es quien va a autorizar el vale
+    # Si viene el formulario
+    form = FinValeAuthorizeTaskForm()
+    if form.validate_on_submit():
+        # Crear la tarea en el fondo
+        current_app.task_queue.enqueue(
+            "plataforma_web.blueprints.fin_vales.tasks.autorizar",
+            fin_vale_id=fin_vale.id,
+            contrasena=form.contrasena.data,
+        )
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    # Mostrar el formulario
+    form.autorizo_nombre.data = fin_vale.autorizo_nombre
+    form.solicito_nombre.data = fin_vale.solicito_nombre
+    form.usuario_nombre.data = fin_vale.usuario.nombre
+    form.tipo.data = fin_vale.tipo
+    form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    return render_template("fin_vales/authorize_task.jinja2", fin_vale=fin_vale, form=form)
 
 
 @fin_vales.route("/fin_vales/eliminar/<int:fin_vale_id>")
