@@ -125,8 +125,8 @@ def new(fin_vale_id):
             except Exception:
                 flash("Error al subir el archivo.", "danger")
             # Cambiar el estado del vale
-            if fin_vale.estado == "AUTORIZADO":
-                fin_vale.estado = "COMPROBADO"
+            if fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "ENTREGADO":
+                fin_vale.estado = "POR REVISAR"
                 fin_vale.save()
             # Registrar la acción en la bitácora
             bitacora = Bitacora(
