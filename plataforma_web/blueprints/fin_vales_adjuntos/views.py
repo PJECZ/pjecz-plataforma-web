@@ -5,6 +5,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.safe_string import safe_string, safe_message
 
@@ -27,6 +28,41 @@ fin_vales_adjuntos = Blueprint("fin_vales_adjuntos", __name__, template_folder="
 @permission_required(MODULO, Permiso.VER)
 def before_request():
     """Permiso por defecto"""
+
+
+@fin_vales_adjuntos.route("/fin_vales_adjuntos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Adjuntos"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = FinValeAdjunto.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "fin_vale_id" in request.form:
+        consulta = consulta.filter_by(fin_vale_id=request.form["fin_vale_id"])
+    registros = consulta.order_by(FinValeAdjunto.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("fin_vales_adjuntos.detail", fin_vale_adjunto_id=resultado.id),
+                },
+                "tipo": resultado.tipo,
+                "vinculo": {
+                    "archivo": resultado.archivo,
+                    "url": resultado.url,
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
 
 
 @fin_vales_adjuntos.route("/fin_vales_adjuntos/<int:fin_vale_adjunto_id>")
@@ -107,4 +143,4 @@ def new(fin_vale_id):
     form.fin_vale_justificacion.data = fin_vale.justificacion
     form.fin_vale_monto.data = fin_vale.monto
     form.tipo.data = "FACTURA PDF"
-    return render_template("fin_vales_adjuntos/new.jinja2", form=form)
+    return render_template("fin_vales_adjuntos/new.jinja2", form=form, fin_vale=fin_vale)

@@ -23,10 +23,10 @@
         {{ detail.label_value('Tipo', fin_vale.tipo) }}
         {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
         {{ detail.label_value_big('Justificacion', fin_vale.justificacion) }}
-        {# Tareas en el fondo #}
+        {# Botones para realizar tareas en el fondo #}
         {% if current_user.can_edit('FIN VALES') %}
             {% if fin_vale.estado == 'PENDIENTE' %}
-                <a href="{{ url_for('fin_vales.request_task', fin_vale_id=fin_vale.id) }}" class="btn btn-lg btn-success">
+                <a href="{{ url_for('fin_vales.request_task', fin_vale_id=fin_vale.id) }}" class="btn btn-success btn-block">
                     Solicitar
                 </a>
             {% endif %}
@@ -40,20 +40,23 @@
             {{ detail.label_value('Mensaje', fin_vale.solicito_efirma_mensaje) }}
         {% endcall %}
     {% endif %}
-    {% if fin_vale.estado == "SOLICITADO" or fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "ELIMINADO POR AUTORIZADOR" %}
+    {% if fin_vale.estado == "SOLICITADO" or fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "ELIMINADO POR AUTORIZADOR" or fin_vale.estado == "COMPROBADO"%}
         {% call detail.card(title='Solicitado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Solicitó', fin_vale.solicito_nombre) }}
             {{ detail.label_value('Puesto', fin_vale.solicito_puesto) }}
             {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
             {{ detail.label_value('Tiempo', fin_vale.solicito_efirma_tiempo) }}
             {{ detail.label_value('Folio', fin_vale.solicito_efirma_folio) }}
-            {{ detail.label_value('Sello digital', fin_vale.solicito_efirma_selloDigital) }}
-            {{ detail.label_value('URL', fin_vale.solicito_efirma_url, fin_vale.solicito_efirma_url) }}
+            {# detail.label_value('Sello digital', fin_vale.solicito_efirma_selloDigital) #}
+            {# detail.label_value_new_tab('URL', fin_vale.solicito_efirma_url, fin_vale.solicito_efirma_url) #}
             {{ detail.label_value('QR URL', fin_vale.solicito_efirma_qr_url) }}
-            {# Tareas en el fondo #}
+            <a href="{{ fin_vale.solicito_efirma_url }}" target="_blank" class="btn btn-secondary btn-block">
+                Abrir E-Firma
+            </a>
+            {# Botones para realizar tareas en el fondo #}
             {% if current_user.can_edit('FIN VALES') %}
                 {% if fin_vale.estado == 'SOLICITADO' %}
-                    <a href="{{ url_for('fin_vales.authorize_task', fin_vale_id=fin_vale.id) }}" class="btn btn-lg btn-success">
+                    <a href="{{ url_for('fin_vales.authorize_task', fin_vale_id=fin_vale.id) }}" class="btn btn-success btn-block">
                         Autorizar
                     </a>
                 {% endif %}
@@ -68,24 +71,74 @@
             {{ detail.label_value('Mensaje', fin_vale.autorizo_efirma_mensaje) }}
         {% endcall %}
     {% endif %}
-    {% if fin_vale.estado == "AUTORIZADO" %}
+    {% if fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "COMPROBADO" %}
         {% call detail.card(title='Autorizado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Autorizó', fin_vale.autorizo_nombre) }}
             {{ detail.label_value('Puesto', fin_vale.autorizo_puesto) }}
             {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
             {{ detail.label_value('Tiempo', fin_vale.autorizo_efirma_tiempo) }}
             {{ detail.label_value('Folio', fin_vale.autorizo_efirma_folio) }}
-            {{ detail.label_value('Sello digital', fin_vale.autorizo_efirma_selloDigital) }}
-            {{ detail.label_value('URL', fin_vale.autorizo_efirma_url, fin_vale.autorizo_efirma_url) }}
+            {# detail.label_value('Sello digital', fin_vale.autorizo_efirma_selloDigital) #}
+            {# detail.label_value_new_tab('URL', fin_vale.autorizo_efirma_url, fin_vale.autorizo_efirma_url) #}
             {{ detail.label_value('QR URL', fin_vale.autorizo_efirma_qr_url) }}
+            <a href="{{ fin_vale.autorizo_efirma_url }}" target="_blank" class="btn btn-secondary btn-block">
+                Abrir E-Firma
+            </a>
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('FIN VALES ADJUNTOS') and (fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "COMPROBADO") %}
+        {% call detail.card(title='Comprobantes', estatus=fin_vale.estatus) %}
+            <table id="fin_vales_adjuntos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Vinculo</th>
+                    </tr>
+                </thead>
+            </table>
+            {% if current_user.can_insert('FIN VALES ADJUNTOS') %}
+                <a href="{{ url_for('fin_vales_adjuntos.new', fin_vale_id=fin_vale.id) }}" class="btn btn-primary">
+                    Agregar comprobante
+                </a>
+            {% endif %}
         {% endcall %}
     {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
     {% if current_user.can_edit('FIN VALES') %}
         {% if fin_vale.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + fin_vale.id | string + '?') }}{% endif %}
         {% if fin_vale.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + fin_vale.id | string + '?') }}{% endif %}
     {% endif %}
-    {{ detail.moment_js(moment) }}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('FIN VALES ADJUNTOS') and (fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "COMPROBADO") %}
+        <script>
+            configDataTable['ajax']['url'] = '/fin_vales_adjuntos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'fin_vale_id': {{ fin_vale.id}} };
+            configDataTable['columns'] = [
+                { data: 'detalle' },
+                { data: 'tipo' },
+                { data: 'vinculo' }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 2, // vinculo
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '" target="_blank">' + data.archivo + '</a>';
+                    }
+                },
+            ];
+            $('#fin_vales_adjuntos_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
 {% endblock %}

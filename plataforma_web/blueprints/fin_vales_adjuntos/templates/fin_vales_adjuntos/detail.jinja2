@@ -5,8 +5,8 @@
 {% block title %}Comprobante del vale{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Comprobante del vale ' + fin_vale_adjunto.fin_vale_id) %}
-        {{ topbar.button_previous('Vale ' + fin_vale_adjunto.fin_vale_id, url_for('fin_vales.detail', fin_vale_id=fin_vale_adjunto.fin_vale_id)) }}
+    {% call topbar.page_buttons('Comprobante del vale ' + fin_vale_adjunto.fin_vale_id | string) %}
+        {{ topbar.button_previous('Vale ' + fin_vale_adjunto.fin_vale_id | string, url_for('fin_vales.detail', fin_vale_id=fin_vale_adjunto.fin_vale_id)) }}
     {% endcall %}
 {% endblock %}
 
@@ -17,8 +17,7 @@
         {{ detail.label_value('Justificación', fin_vale_adjunto.fin_vale.justificacion) }}
         {{ detail.label_value('Monto', fin_vale_adjunto.fin_vale.monto) }}
         {{ detail.label_value('Tipo de adjunto', fin_vale_adjunto.tipo) }}
-        {{ detail.label_value('Archivo', fin_vale_adjunto.archivo) }}
-        {{ detail.label_value('URL', fin_vale_adjunto.url) }}
+        {{ detail.label_value_new_tab('Archivo', fin_vale_adjunto.archivo, fin_vale_adjunto.url) }}
         {% if fin_vale_adjunto.url.rsplit(".", 1)[1].lower() in ("png", "jpg", "jpeg") %}
             {{ detail.label_value('Imagen previa') }}
             <a href="{{ fin_vale_adjunto.url }}"><img src="{{ fin_vale_adjunto.url }}" style="max-width: 400px; height: auto;"/></a>
