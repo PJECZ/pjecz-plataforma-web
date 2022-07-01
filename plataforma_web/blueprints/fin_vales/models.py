@@ -90,7 +90,7 @@ class FinVale(db.Model, UniversalMixin):
     kilometraje_final = db.Column(db.Integer)
 
     # Hijos
-    # fin_vales_adjuntos
+    fin_vales_adjuntos = db.relationship("FinValeAdjunto", back_populates="fin_vale")
 
     def __repr__(self):
         """Representación"""
