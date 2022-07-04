@@ -17,6 +17,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 
 load_dotenv()  # Take environment variables from .env
 FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL = os.getenv("FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL")
+FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL = os.getenv("FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL")
 FIN_VALES_EFIRMA_APP_ID = os.getenv("FIN_VALES_EFIRMA_APP_ID")
 FIN_VALES_EFIRMA_APP_PASS = os.getenv("FIN_VALES_EFIRMA_APP_PASS")
 
@@ -111,7 +112,6 @@ def solicitar(fin_vale_id: int, contrasena: str):
     if response.status_code != 200:
         mensaje = f"Error al solicitar el vale porque la respuesta no es 200: {response.text}"
         fin_vale.solicito_efirma_mensaje = mensaje
-        fin_vale.estado = "ELIMINADO POR SOLICITANTE"
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -159,6 +159,85 @@ def solicitar(fin_vale_id: int, contrasena: str):
 
     # Terminar tarea
     mensaje_final = f"Vale {fin_vale_id} solicitado"
+    set_task_progress(100)
+    bitacora.info(mensaje_final)
+    return mensaje_final
+
+
+def cancelar_solicitar(fin_vale_id: int, contrasena: str):
+    """Cancelar la firma electronica de un vale por quien solicita"""
+
+    # Validar configuracion
+    if FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL is None:
+        mensaje = "Falta configurar FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if FIN_VALES_EFIRMA_APP_ID is None:
+        mensaje = "Falta configurar FIN_VALES_EFIRMA_APP_ID"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if FIN_VALES_EFIRMA_APP_PASS is None:
+        mensaje = "Falta configurar FIN_VALES_EFIRMA_APP_PASS"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Consultar el vale
+    fin_vale = FinVale.query.get(fin_vale_id)
+    if fin_vale is None:
+        mensaje = f"No se encontró el vale {fin_vale_id}"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if fin_vale.estatus != "A":
+        mensaje = f"El vale {fin_vale_id} esta eliminado"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if fin_vale.estado != "SOLICITADO":
+        mensaje = f"El vale {fin_vale_id} no está en estado SOLICITADO"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if fin_vale.solicito_efirma_folio is None:
+        mensaje = f"El vale {fin_vale_id} no tiene folio de solicitud"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Consultar el usuario que solicita, para cancelar la firma
+    solicita = Usuario.query.filter_by(email=fin_vale.solicito_email).first()
+    if solicita is None:
+        mensaje = f"No se encontró el usuario {fin_vale.solicito_email} que solicita"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if solicita.efirma_registro_id is None or solicita.efirma_registro_id == 0:
+        mensaje = f"El usuario {fin_vale.solicito_email} no tiene registro en el motor de firma"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Preparar los datos que se van a enviar al motor de firma
+    data = {
+        "idAplicacion": FIN_VALES_EFIRMA_APP_ID,
+        "contrasenaAplicacion": FIN_VALES_EFIRMA_APP_PASS,
+        "idRegistro": solicita.efirma_registro_id,
+        "contrasenaRegistro": contrasena,
+        "folios": fin_vale.solicito_efirma_folio,
+    }
+
+    # Enviar la solicitud al motor de firma
+    try:
+        response = requests.post(
+            FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL,
+            data=data,
+            verify=False,
+        )
+    except Exception as error:
+        mensaje = f"Error al cancelar el vale solicitado: {error}"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Actualizar el vale, ahora su estado es CANCELADO POR SOLICITANTE
+    fin_vale.estado = "CANCELADO POR SOLICITANTE"
+    fin_vale.save()
+
+    # Terminar tarea
+    mensaje_final = f"Vale {fin_vale_id} cancelado su solicitud"
     set_task_progress(100)
     bitacora.info(mensaje_final)
     return mensaje_final
@@ -245,7 +324,6 @@ def autorizar(fin_vale_id: int, contrasena: str):
     if response.status_code != 200:
         mensaje = f"Error al autorizar el vale porque la respuesta no es 200: {response.text}"
         fin_vale.autorizo_efirma_mensaje = mensaje
-        fin_vale.estado = "ELIMINADO POR AUTORIZADOR"
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -300,9 +378,80 @@ def autorizar(fin_vale_id: int, contrasena: str):
     return mensaje_final
 
 
-def cancelar_solicitar(fin_vale_id: int, contrasena: str):
-    """Cancelar la firma electronica de un vale por quien solicita"""
-
-
 def cancelar_autorizar(fin_vale_id: int, contrasena: str):
     """Cancelar la firma electronica de un vale por quien autoriza"""
+
+    # Validar configuracion
+    if FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL is None:
+        mensaje = "Falta configurar FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if FIN_VALES_EFIRMA_APP_ID is None:
+        mensaje = "Falta configurar FIN_VALES_EFIRMA_APP_ID"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if FIN_VALES_EFIRMA_APP_PASS is None:
+        mensaje = "Falta configurar FIN_VALES_EFIRMA_APP_PASS"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Consultar el vale
+    fin_vale = FinVale.query.get(fin_vale_id)
+    if fin_vale is None:
+        mensaje = f"No se encontró el vale {fin_vale_id}"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if fin_vale.estatus != "A":
+        mensaje = f"El vale {fin_vale_id} esta eliminado"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if fin_vale.estado != "AUTORIZADO":
+        mensaje = f"El vale {fin_vale_id} no está en estado AUTORIZADO"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if fin_vale.solicito_efirma_folio is None:
+        mensaje = f"El vale {fin_vale_id} no tiene folio de solicitud"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Consultar el usuario que autoriza
+    autoriza = Usuario.query.filter_by(email=fin_vale.autorizo_email).first()
+    if autoriza is None:
+        mensaje = f"No se encontró el usuario {fin_vale.autorizo_email} que autoriza"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if autoriza.efirma_registro_id is None or autoriza.efirma_registro_id == 0:
+        mensaje = f"El usuario {fin_vale.autorizo_email} no tiene registro en el motor de firma"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Preparar los datos que se van a enviar al motor de firma
+    data = {
+        "idAplicacion": FIN_VALES_EFIRMA_APP_ID,
+        "contrasenaAplicacion": FIN_VALES_EFIRMA_APP_PASS,
+        "idRegistro": autoriza.efirma_registro_id,
+        "contrasenaRegistro": contrasena,
+        "folios": fin_vale.autorizo_efirma_folio,
+    }
+
+    # Enviar la solicitud al motor de firma
+    try:
+        response = requests.post(
+            FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL,
+            data=data,
+            verify=False,
+        )
+    except Exception as error:
+        mensaje = f"Error al cancelar el vale autorizado: {error}"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Actualizar el vale, ahora su estado es CANCELADO POR AUTORIZADOR
+    fin_vale.estado = "CANCELADO POR AUTORIZADOR"
+    fin_vale.save()
+
+    # Terminar tarea
+    mensaje_final = f"Vale {fin_vale_id} cancelado su autorizacion"
+    set_task_progress(100)
+    bitacora.info(mensaje_final)
+    return mensaje_final

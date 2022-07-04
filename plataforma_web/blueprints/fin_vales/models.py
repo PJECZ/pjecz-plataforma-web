@@ -21,7 +21,7 @@ class FinVale(db.Model, UniversalMixin):
             ("CANCELADO POR AUTORIZADOR", "Cancelado por autorizador"),  # Finanzas ha cancelado la firma
             ("ENTREGADO", "Entregado"),  # El usuario lo recogió
             ("POR REVISAR", "Por revisar"),  # El usuario a subido los archivos adjuntos
-            ("REVISADO", "Comprobado"),  # Finanzas lo marca como revisado si cumple con la evidencia
+            ("ARCHIVADO", "Archivado"),  # Finanzas lo marca como revisado si cumple con la evidencia
         ]
     )
 

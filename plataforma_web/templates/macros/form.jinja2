@@ -1,6 +1,6 @@
 {# card sirve para contener algo; es necesario para que las tablas sean usables en pantallas chicas #}}
-{%- macro card(title='') -%}
-    <div class="card my-2">
+{%- macro card(title='', css_class='') -%}
+    <div class="card my-2 {{css_class}}">
         {% if title %}<div class="card-header">{{ title }}</div>{% endif %}
         <div class="card-body">
             {{ caller () }}
