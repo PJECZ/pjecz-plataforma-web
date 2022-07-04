@@ -32,7 +32,7 @@ app.app_context().push()
 
 
 def solicitar(fin_vale_id: int, contrasena: str):
-    """Firmar electronicamente el vale por quien solicita, cambia el estado a SOLICITADO"""
+    """Firmar electronicamente el vale por quien solicita"""
 
     # Validar configuracion
     if FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL is None:
@@ -165,7 +165,7 @@ def solicitar(fin_vale_id: int, contrasena: str):
 
 
 def autorizar(fin_vale_id: int, contrasena: str):
-    """Firmar electronicamente el vale por quien autoriza, cambia el estado a AUTORIZADO"""
+    """Firmar electronicamente el vale por quien autoriza"""
 
     # Validar configuracion
     if FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL is None:
@@ -298,3 +298,11 @@ def autorizar(fin_vale_id: int, contrasena: str):
     set_task_progress(100)
     bitacora.info(mensaje_final)
     return mensaje_final
+
+
+def cancelar_solicitar(fin_vale_id: int, contrasena: str):
+    """Cancelar la firma electronica de un vale por quien solicita"""
+
+
+def cancelar_autorizar(fin_vale_id: int, contrasena: str):
+    """Cancelar la firma electronica de un vale por quien autoriza"""
