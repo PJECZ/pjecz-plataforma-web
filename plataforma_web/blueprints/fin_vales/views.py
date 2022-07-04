@@ -337,7 +337,7 @@ def authorize_task(fin_vale_id):
     return render_template("fin_vales/authorize_task.jinja2", fin_vale=fin_vale, form=form)
 
 
-@fin_vales.route("/fin_vales/cancelar_solicitar/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/cancelar_autorizar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def cancel_authorize_task(fin_vale_id):
     """Cancelar la firma electronica de un vale autorizado"""

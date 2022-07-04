@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 import logging
 import os
+import urllib
 
 from dotenv import load_dotenv
 import requests
@@ -18,6 +19,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 load_dotenv()  # Take environment variables from .env
 FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL = os.getenv("FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL")
 FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL = os.getenv("FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL")
+FIN_VALES_EFIRMA_QR_URL = os.getenv("FIN_VALES_EFIRMA_QR_URL")
 FIN_VALES_EFIRMA_APP_ID = os.getenv("FIN_VALES_EFIRMA_APP_ID")
 FIN_VALES_EFIRMA_APP_PASS = os.getenv("FIN_VALES_EFIRMA_APP_PASS")
 
@@ -38,6 +40,10 @@ def solicitar(fin_vale_id: int, contrasena: str):
     # Validar configuracion
     if FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL is None:
         mensaje = "Falta configurar FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if FIN_VALES_EFIRMA_QR_URL is None:
+        mensaje = "Falta configurar FIN_VALES_EFIRMA_QR_URL"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     if FIN_VALES_EFIRMA_APP_ID is None:
@@ -149,11 +155,12 @@ def solicitar(fin_vale_id: int, contrasena: str):
         return set_task_error(mensaje)
 
     # Actualizar el vale, ahora su estado es SOLICITADO
+    url_quote = urllib.parse.quote(datos["url"])
     fin_vale.solicito_efirma_tiempo = datetime.strptime(datos["fecha"], "%d/%m/%Y %H:%M:%S")
     fin_vale.solicito_efirma_folio = datos["folio"]
     fin_vale.solicito_efirma_selloDigital = datos["selloDigital"]
     fin_vale.solicito_efirma_url = datos["url"]
-    fin_vale.solicito_efirma_qr_url = ""  # Pendiente
+    fin_vale.solicito_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={url_quote}"
     fin_vale.estado = "SOLICITADO"
     fin_vale.save()
 
@@ -232,6 +239,10 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str):
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
+    # Ejemplo de la respuesta
+    #   "estatus": "SELLO CANCELADO"
+    #   "fechaCancelado": 2022-07-04 12:39:08.0
+
     # Actualizar el vale, ahora su estado es CANCELADO POR SOLICITANTE
     fin_vale.estado = "CANCELADO POR SOLICITANTE"
     fin_vale.save()
@@ -249,6 +260,10 @@ def autorizar(fin_vale_id: int, contrasena: str):
     # Validar configuracion
     if FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL is None:
         mensaje = "Falta configurar FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL"
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    if FIN_VALES_EFIRMA_QR_URL is None:
+        mensaje = "Falta configurar FIN_VALES_EFIRMA_QR_URL"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     if FIN_VALES_EFIRMA_APP_ID is None:
@@ -361,11 +376,12 @@ def autorizar(fin_vale_id: int, contrasena: str):
         return set_task_error(mensaje)
 
     # Actualizar el vale, ahora su estado es AUTORIZADO
+    url_quote = urllib.parse.quote(datos["url"])
     fin_vale.autorizo_efirma_tiempo = datetime.strptime(datos["fecha"], "%d/%m/%Y %H:%M:%S")
     fin_vale.autorizo_efirma_folio = datos["folio"]
     fin_vale.autorizo_efirma_selloDigital = datos["selloDigital"]
     fin_vale.autorizo_efirma_url = datos["url"]
-    fin_vale.autorizo_efirma_qr_url = ""  # Pendiente
+    fin_vale.autorizo_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={url_quote}"
     fin_vale.estado = "AUTORIZADO"
     fin_vale.save()
 

@@ -9,8 +9,8 @@
 {%- endmacro -%}
 
 {# botón submit #}
-{%- macro submit_button(f) -%}
-    {{ f(class="btn btn-success text-white", **kwargs) }}
+{%- macro submit_button(f, css_class='btn btn-success text-white') -%}
+    {{ f(class=css_class) }}
 {%- endmacro -%}
 
 {# etiqueta con texto de ayuda #}
@@ -37,13 +37,13 @@
 
 {# un campo del formulario #}
 {%- macro field(f, css_class='form-control') -%}
-    {% if f.type == 'DateField'  %}
+    {% if f.type == 'DateField' %}
         {{ f(class=css_class, type='date', **kwargs) }}
-    {% elif f.type == 'TimeField'  %}
+    {% elif f.type == 'TimeField' %}
         {{ f(class=css_class, type='time', **kwargs) }}
-    {% elif f.type == 'DateTimeField'  %}
+    {% elif f.type == 'DateTimeField' %}
         {{ f(class=css_class, type='datetime', **kwargs) }}
-    {% elif f.type == 'SubmitField'  %}
+    {% elif f.type == 'SubmitField' %}
         {{ submit_button(f) }}
     {% else %}
         {{ f(class=css_class, **kwargs) }}
@@ -91,13 +91,13 @@
         {{ caller () }}
         </div>
     {% elif f.type == 'SubmitField' %}
-        <div class="form-group mb-2 {{ css_class }}">
+        <div class="form-group mb-2">
         {{ field(f, **kwargs) }}
         {{ field_errors(f) }}
         {{ caller () }}
         </div>
     {% else %}
-        <div class="form-group mb-2 {{ css_class }}">
+        <div class="form-group mb-2">
         {{ field_label(f) }}
         {{ field(f, **kwargs) }}
         {{ field_errors(f) }}
