@@ -47,15 +47,16 @@
             {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
             {{ detail.label_value('Tiempo', fin_vale.solicito_efirma_tiempo) }}
             {{ detail.label_value('Folio', fin_vale.solicito_efirma_folio) }}
-            {# detail.label_value('Sello digital', fin_vale.solicito_efirma_selloDigital) #}
-            {# detail.label_value_new_tab('URL', fin_vale.solicito_efirma_url, fin_vale.solicito_efirma_url) #}
             {{ detail.label_value('QR URL', fin_vale.solicito_efirma_qr_url) }}
             <a href="{{ fin_vale.solicito_efirma_url }}" target="_blank" class="btn btn-secondary btn-block">
-                Abrir E-Firma
+                Abrir e-firma
             </a>
             {# Botones para realizar tareas en el fondo #}
             {% if current_user.can_edit('FIN VALES') %}
                 {% if fin_vale.estado == 'SOLICITADO' %}
+                    <a href="{{ url_for('fin_vales.cancel_request_task', fin_vale_id=fin_vale.id) }}" class="btn btn-danger btn-block">
+                        Cancelar
+                    </a>
                     <a href="{{ url_for('fin_vales.authorize_task', fin_vale_id=fin_vale.id) }}" class="btn btn-success btn-block">
                         Autorizar
                     </a>
@@ -78,12 +79,17 @@
             {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
             {{ detail.label_value('Tiempo', fin_vale.autorizo_efirma_tiempo) }}
             {{ detail.label_value('Folio', fin_vale.autorizo_efirma_folio) }}
-            {# detail.label_value('Sello digital', fin_vale.autorizo_efirma_selloDigital) #}
-            {# detail.label_value_new_tab('URL', fin_vale.autorizo_efirma_url, fin_vale.autorizo_efirma_url) #}
             {{ detail.label_value('QR URL', fin_vale.autorizo_efirma_qr_url) }}
             <a href="{{ fin_vale.autorizo_efirma_url }}" target="_blank" class="btn btn-secondary btn-block">
-                Abrir E-Firma
+                Abrir e-firma
             </a>
+            {% if current_user.can_edit('FIN VALES') %}
+                {% if fin_vale.estado == 'AUTORIZADO' %}
+                    <a href="{{ url_for('fin_vales.cancel_authorize_task', fin_vale_id=fin_vale.id) }}" class="btn btn-danger btn-block">
+                        Cancelar
+                    </a>
+                {% endif %}
+            {% endif %}
         {% endcall %}
     {% endif %}
     {% if current_user.can_view('FIN VALES ADJUNTOS') and (fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "POR REVISAR") %}
