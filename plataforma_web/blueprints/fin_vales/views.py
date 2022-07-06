@@ -17,6 +17,9 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 MODULO = "FIN VALES"
 
+ROL_SOLICITANTES = "FINANCIEROS SOLICITANTES"
+ROL_AUTORIZANTES = "FINANCIEROS AUTORIZANTES"
+
 fin_vales = Blueprint("fin_vales", __name__, template_folder="templates")
 
 
