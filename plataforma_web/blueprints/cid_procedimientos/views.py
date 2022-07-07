@@ -6,6 +6,7 @@ from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -31,13 +32,58 @@ def before_request():
     """Permiso por defecto"""
 
 
-@cid_procedimientos.route("/cid_procedimientos")
+@cid_procedimientos.route("/cid_procedimientos/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de Cid Procedimientos"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = CIDProcedimiento.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "usuario_id" in request.form:
+        consulta = consulta.filter(Usuario.id == request.form["usuario_id"])
+    if "seguimiento" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
+    # Obtener el listado propio del usuario
+    if "USERCURRENT" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == current_user.id)
+    registros = consulta.order_by(CIDProcedimiento.id).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("cid_procedimientos.detail", cid_procedimiento_id=resultado.id),
+                },
+                "titulo_procedimiento": resultado.titulo_procedimiento,
+                "codigo": resultado.codigo,
+                "revision": resultado.revision,
+                "fecha": resultado.fecha.strftime("%Y-%m-%d"),
+                "seguimiento": resultado.seguimiento,
+                "seguimiento_posterior": resultado.seguimiento_posterior,
+                "usuario": {
+                    "nombre": resultado.usuario.nombre,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id) if current_user.can_view("USUARIOS") else "",
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@cid_procedimientos.route("/cid_procedimientos/autorizados")
 def list_authorized():
     """Listado de Procedimientos autorizados"""
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=CIDProcedimiento.query.filter_by(seguimiento="AUTORIZADO").filter_by(estatus="A").all(),
         titulo="Procedimientos autorizados",
+        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
         estatus="A",
     )
 
@@ -48,16 +94,16 @@ def list_owned():
     """Listado de Procedimientos propios"""
     return render_template(
         "cid_procedimientos/list.jinja2",
-        cid_procedimientos=CIDProcedimiento.query.filter(CIDProcedimiento.usuario == current_user).filter_by(estatus="A").all(),
         titulo="Procedimientos propios",
+        filtros=json.dumps({"estatus": "A", "USERCURRENT": "USERLOCAL"}),
         estatus="A",
     )
 
 
-@cid_procedimientos.route("/cid_procedimientos/activos")
+@cid_procedimientos.route("/cid_procedimientos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_active():
-    """Listado de TODOS los Procedimientos activos"""
+    """Listado de Cid Procedimientos activos"""
     if current_user.can_admin(MODULO):
         cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").all()
     else:
@@ -65,7 +111,8 @@ def list_active():
     return render_template(
         "cid_procedimientos/list.jinja2",
         cid_procedimientos=cid_procedimientos_activos,
-        titulo="Todos los procedimientos",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Todos los Procedimientos",
         estatus="A",
     )
 
@@ -73,15 +120,16 @@ def list_active():
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de TODOS los Procedimientos inactivos"""
+    """Listado de CID Procedimientos inactivos"""
     if current_user.can_admin(MODULO):
         cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").all()
     else:
         cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(usuario_id=current_user.id).filter_by(estatus="B").all()
     return render_template(
         "cid_procedimientos/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
         cid_procedimientos=cid_procedimientos_inactivos,
-        titulo="Todos los procedimientos inactivos",
+        titulo="CID Procedimientos inactivos",
         estatus="B",
     )
 
