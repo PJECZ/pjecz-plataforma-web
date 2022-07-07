@@ -28,6 +28,7 @@
         <table id="cid_procedimientos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Procedimientos</th>
                     <th>Códigos</th>
                     <th>Revisiones</th>
@@ -37,23 +38,46 @@
                     <th>Seguimiento posterior</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for cid_procedimiento in cid_procedimientos %}
-                <tr>
-                    <td><a href="{{ url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_procedimiento.id) }}">{{ cid_procedimiento.titulo_procedimiento }}</a></td>
-                    <td>{{ cid_procedimiento.codigo }}</td>
-                    <td>{{ cid_procedimiento.revision }}</td>
-                    <td>{{ cid_procedimiento.fecha }}</td>
-                    <td>{{ cid_procedimiento.usuario.nombre }}</td>
-                    <td>{{ cid_procedimiento.seguimiento }}</td>
-                    <td>{{ cid_procedimiento.seguimiento_posterior }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
+
 {% block custom_javascript %}
-    {{ list.datatable('cid_procedimientos_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'titulo_procedimiento' },
+            { data: 'codigo' },
+            { data: 'revision' },
+            { data: 'fecha' },
+            { data: 'usuario' },
+            { data: 'seguimiento' },
+            { data: 'seguimiento_posterior' },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 5, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                }
+            },
+        ];
+        $('#cid_procedimientos_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}
