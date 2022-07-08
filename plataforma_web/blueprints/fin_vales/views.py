@@ -434,7 +434,7 @@ def recover(fin_vale_id):
     if fin_vale.estatus == "B":
         if (fin_vale.usuario == current_user or current_user.can_admin(MODULO)) and fin_vale.estado == "ELIMINADO POR USUARIO":
             fin_vale.estado = "PENDIENTE"
-        elif (fin_vale.solicito_email == current_user.email or current_user.can_admin(MODULO)) and fin_vale.estado == "ELIMINADO POR SOLICITANTE" is not None:
+        elif (fin_vale.solicito_email == current_user.email or current_user.can_admin(MODULO)) and fin_vale.estado == "ELIMINADO POR SOLICITANTE":
             fin_vale.estado = "SOLICITADO"
         elif (fin_vale.autorizo_email == current_user.email or current_user.can_admin(MODULO)) and fin_vale.estado == "ELIMINADO POR AUTORIZADOR":
             fin_vale.estado = "AUTORIZADO"
