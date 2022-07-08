@@ -1,0 +1,23 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Adjuntar al Vale{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Adjuntar al Vale ' + fin_vale.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card(title='Paso 5: Adjuntar') %}
+        {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
+        {% call f.form_tag('fin_vales.step_5_attachments', fid='step_5_attachments_form', **form_kwargs) %}
+            {% call f.form_group(form.vehiculo_descripcion) %}{% endcall %}
+            {% call f.form_group(form.tanque_inicial) %}{% endcall %}
+            {% call f.form_group(form.tanque_final) %}{% endcall %}
+            {% call f.form_group(form.kilometraje_inicial) %}{% endcall %}
+            {% call f.form_group(form.kilometraje_final) %}{% endcall %}
+            {% call f.form_group(form.concluir) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

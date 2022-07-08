@@ -1,0 +1,19 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Archivar el Vale{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Archivar el Vale ' + fin_vale.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card(title='Paso 6: Archivar') %}
+        {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
+        {% call f.form_tag('fin_vales.step_6_archive', fid='step_6_archive_form', **form_kwargs) %}
+            {% call f.form_group(form.notas) %}{% endcall %}
+            {% call f.form_group(form.archivar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

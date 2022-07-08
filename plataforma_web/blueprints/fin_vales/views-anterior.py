@@ -10,16 +10,7 @@ from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.fin_vales.models import FinVale
-from plataforma_web.blueprints.fin_vales.forms import (
-    FinValeStep1PendingForm,
-    FinValeStep2RequestForm,
-    FinValeCancel2RequestForm,
-    FinValeStep3AuthorizeForm,
-    FinValeCancel3AuthorizeForm,
-    FinValeStep4DeliverForm,
-    FinValeStep5AttachmentsForm,
-    FinValeStep6ArchiveForm,
-)
+from plataforma_web.blueprints.fin_vales.forms import FinValeForm, FinValeRequestTaskForm, FinValeAuthorizeTaskForm, FinValeCancelRequestTaskForm, FinValeCancelAuthorizeTaskForm
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -127,9 +118,9 @@ def detail(fin_vale_id):
 
 @fin_vales.route("/fin_vale/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def step_1_pending():
-    """Formulario Vale PASO 1 PENDIENTE"""
-    form = FinValeStep1PendingForm()
+def new():
+    """Nuevo Vale"""
+    form = FinValeForm()
     if form.validate_on_submit():
         fin_vale = FinVale(
             usuario=current_user,
@@ -149,36 +140,93 @@ def step_1_pending():
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.usuario_nombre.data = current_user.nombre
-    form.usuario_puesto.data = current_user.puesto
-    form.usuario_email.data = current_user.email
-    form.tipo.data = "GASOLINA"
     form.justificacion.data = "Solicito un vale de gasolina de $100.00 (cien pesos 00/100 m.n), para NOMBRE COMPLETO con el objetivo de ir a DESTINO U OFICINA."
     form.monto.data = 100.00
-    return render_template("fin_vales/step_1_pending.jinja2", form=form)
+    form.tipo.data = "GASOLINA"
+    return render_template("fin_vales/new.jinja2", form=form)
+
+
+@fin_vales.route("/fin_vales/edicion/<int:fin_vale_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(fin_vale_id):
+    """Editar Vale"""
+    fin_vale = FinVale.query.get_or_404(fin_vale_id)
+    puede_editarlo = True
+    # Validar que el vale no este eliminado
+    if fin_vale.estatus == "B":
+        flash("El vale ya ha sido eliminado", "warning")
+        puede_editarlo = False
+    # Validar que el vale tenga el estado PENDIENTE
+    if fin_vale.estado != "PENDIENTE":
+        flash("El vale no se puede editar porque su estado ya no es PENDIENTE", "warning")
+        puede_editarlo = False
+    # Validar que sea administrador o que sea el mismo usuario que lo creo
+    if not (current_user.can_admin(MODULO) or current_user.id == fin_vale.usuario_id):
+        flash("No tienes permiso para editar este vale", "warning")
+        puede_editarlo = False
+    # Si no puede editarlo, redireccionar a la pagina de detalle
+    if not puede_editarlo:
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale.id))
+    # Si viene el formulario
+    form = FinValeForm()
+    if form.validate_on_submit():
+        fin_vale.autorizo_nombre = safe_string(form.autorizo_nombre.data)
+        fin_vale.autorizo_puesto = safe_string(form.autorizo_puesto.data)
+        fin_vale.autorizo_email = safe_email(form.autorizo_email.data)
+        fin_vale.tipo = form.tipo.data
+        fin_vale.justificacion = safe_string(form.justificacion.data)
+        fin_vale.monto = form.monto.data
+        fin_vale.solicito_nombre = safe_string(form.solicito_nombre.data)
+        fin_vale.solicito_puesto = safe_string(form.solicito_puesto.data)
+        fin_vale.solicito_email = safe_string(form.solicito_email.data)
+        fin_vale.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Vale {fin_vale.justificacion}"),
+            url=url_for("fin_vales.detail", fin_vale_id=fin_vale.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    # Mostrar el formulario
+    form.usuario_nombre.data = current_user.nombre
+    form.autorizo_nombre.data = fin_vale.autorizo_nombre
+    form.autorizo_puesto.data = fin_vale.autorizo_puesto
+    form.autorizo_email.data = fin_vale.autorizo_email
+    form.tipo.data = fin_vale.tipo
+    form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    form.solicito_nombre.data = fin_vale.solicito_nombre
+    form.solicito_puesto.data = fin_vale.solicito_puesto
+    form.solicito_email.data = fin_vale.solicito_email
+    return render_template("fin_vales/edit.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vales/solicitar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def step_2_request(fin_vale_id):
-    """Formulario Vale PASO 2 SOLICITADO"""
+def request_task(fin_vale_id):
+    """Solicitar Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    puede_firmarlo = True
+    puede_solicitarlo = True
     # Validar que sea activo
     if fin_vale.estatus != "A":
         flash("El vale esta eliminado", "warning")
-        puede_firmarlo = False
+        puede_solicitarlo = False
     # Validar el estado
     if fin_vale.estado != "PENDIENTE":
         flash("El vale NO esta en estado PENDIENTE", "warning")
-        puede_firmarlo = False
-    # Validar que el usuario puede solicitarlo
+        puede_solicitarlo = False
+    # Validar que el usuario puede solicitar el vale
+    if not (current_user.can_admin(MODULO) or current_user.email == fin_vale.solicito_email):
+        flash(f"Usted no es quien puede solicitar este vale; es {fin_vale.solicito_email}", "warning")
+        puede_solicitarlo = False
     # Si no puede solicitarlo, redireccionar a la pagina de detalle
-    if not puede_firmarlo:
+    if not puede_solicitarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Si viene el formulario
-    form = FinValeStep2RequestForm()
+    form = FinValeRequestTaskForm()
     if form.validate_on_submit():
-        # Actualizar
         # Crear la tarea en el fondo
         current_app.task_queue.enqueue(
             "plataforma_web.blueprints.fin_vales.tasks.solicitar",
@@ -187,17 +235,19 @@ def step_2_request(fin_vale_id):
         )
         flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
-    # Mostrar formulario
-    form.solicito_nombre.data = current_user.nombre
-    form.solicito_puesto.data = current_user.puesto
-    form.solicito_email.data = current_user.email
-    return render_template("fin_vales/step_2_request.jinja2", form=form)
+    # Mostrar el formulario
+    form.solicito_nombre.data = fin_vale.solicito_nombre
+    form.usuario_nombre.data = fin_vale.usuario.nombre
+    form.tipo.data = fin_vale.tipo
+    form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    return render_template("fin_vales/request_task.jinja2", fin_vale=fin_vale, form=form)
 
 
-@fin_vales.route("/fin_vales/cancelar_solicitado/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/cancelar_solicitar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def cancel_2_request(fin_vale_id):
-    """Formulario Vale CANCELAR 2 SOLICITADO"""
+def cancel_request_task(fin_vale_id):
+    """Cancelar la firma electronica de un vale solicitado"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     puede_cancelarlo = True
     # Validar que sea activo
@@ -208,53 +258,80 @@ def cancel_2_request(fin_vale_id):
     if fin_vale.estado != "SOLICITADO":
         flash("El vale NO esta en estado SOLICITADO", "warning")
         puede_cancelarlo = False
-    # Validar que el usuario puede cancelarlo
+    # Validar que el usuario puede solicitar el vale
+    if not (current_user.can_admin(MODULO) or current_user.email == fin_vale.solicito_email):
+        flash(f"Usted no es quien puede cancelar esta firma electronica; es {fin_vale.solicito_email}", "warning")
+        puede_cancelarlo = False
     # Si no puede cancelarlo, redireccionar a la pagina de detalle
     if not puede_cancelarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Si viene el formulario
-    form = FinValeCancel2RequestForm()
-    # Mostrar formulario
-    form.solicito_nombre.data = current_user.nombre
-    form.solicito_puesto.data = current_user.puesto
-    form.solicito_email.data = current_user.email
-    return render_template("fin_vales/cancel_2_request.jinja2", form=form)
+    form = FinValeCancelRequestTaskForm()
+    if form.validate_on_submit():
+        # Crear la tarea en el fondo
+        current_app.task_queue.enqueue(
+            "plataforma_web.blueprints.fin_vales.tasks.cancelar_solicitar",
+            fin_vale_id=fin_vale.id,
+            contrasena=form.contrasena.data,
+        )
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    # Mostrar el formulario
+    form.solicito_nombre.data = fin_vale.solicito_nombre
+    form.usuario_nombre.data = fin_vale.usuario.nombre
+    form.tipo.data = fin_vale.tipo
+    form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    form.solicito_efirma_folio.data = fin_vale.solicito_efirma_folio
+    return render_template("fin_vales/cancel_request_task.jinja2", fin_vale=fin_vale, form=form)
 
 
 @fin_vales.route("/fin_vales/autorizar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def step_3_authorize(fin_vale_id):
-    """Formulario Vale PASO 3 AUTORIZADO"""
+def authorize_task(fin_vale_id):
+    """Autorizar Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    puede_firmarlo = True
+    puede_autorizarlo = True
     # Validar que sea activo
     if fin_vale.estatus != "A":
         flash("El vale esta eliminado", "warning")
-        puede_firmarlo = False
+        puede_autorizarlo = False
     # Validar el estado
     if fin_vale.estado != "SOLICITADO":
         flash("El vale NO esta en estado SOLICITADO", "warning")
-        puede_firmarlo = False
+        puede_autorizarlo = False
     # Validar que el usuario puede autorizar el vale
     if not (current_user.can_admin(MODULO) or current_user.email == fin_vale.autorizo_email):
         flash(f"Usted no es quien puede autorizar este vale; es {fin_vale.autorizo_email}", "warning")
-        puede_firmarlo = False
+        puede_autorizarlo = False
     # Si no puede autorizarlo, redireccionar a la pagina de detalle
-    if not puede_firmarlo:
+    if not puede_autorizarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Si viene el formulario
-    form = FinValeStep3AuthorizeForm()
-    # Mostrar formulario
-    form.autorizo_nombre.data = current_user.nombre
-    form.autorizo_puesto.data = current_user.puesto
-    form.autorizo_email.data = current_user.email
-    return render_template("fin_vales/step_3_authorize.jinja2", form=form)
+    form = FinValeAuthorizeTaskForm()
+    if form.validate_on_submit():
+        # Crear la tarea en el fondo
+        current_app.task_queue.enqueue(
+            "plataforma_web.blueprints.fin_vales.tasks.autorizar",
+            fin_vale_id=fin_vale.id,
+            contrasena=form.contrasena.data,
+        )
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    # Mostrar el formulario
+    form.autorizo_nombre.data = fin_vale.autorizo_nombre
+    form.solicito_nombre.data = fin_vale.solicito_nombre
+    form.usuario_nombre.data = fin_vale.usuario.nombre
+    form.tipo.data = fin_vale.tipo
+    form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    return render_template("fin_vales/authorize_task.jinja2", fin_vale=fin_vale, form=form)
 
 
-@fin_vales.route("/fin_vales/cancelar_autorizado/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/cancelar_autorizar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def cancel_3_authorize(fin_vale_id):
-    """Formulario Vale CANCELAR 3 AUTORIZADO"""
+def cancel_authorize_task(fin_vale_id):
+    """Cancelar la firma electronica de un vale autorizado"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     puede_cancelarlo = True
     # Validar que sea activo
@@ -273,42 +350,41 @@ def cancel_3_authorize(fin_vale_id):
     if not puede_cancelarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Si viene el formulario
-    form = FinValeCancel3AuthorizeForm()
-    # Mostrar formulario
-    form.autorizo_nombre.data = current_user.nombre
-    form.autorizo_puesto.data = current_user.puesto
-    form.autorizo_email.data = current_user.email
-    return render_template("fin_vales/cancel_3_authorize.jinja2", form=form)
+    form = FinValeCancelAuthorizeTaskForm()
+    if form.validate_on_submit():
+        # Crear la tarea en el fondo
+        current_app.task_queue.enqueue(
+            "plataforma_web.blueprints.fin_vales.tasks.cancelar_autorizar",
+            fin_vale_id=fin_vale.id,
+            contrasena=form.contrasena.data,
+        )
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
+    # Mostrar el formulario
+    form.autorizo_nombre.data = fin_vale.autorizo_nombre
+    form.solicito_nombre.data = fin_vale.solicito_nombre
+    form.usuario_nombre.data = fin_vale.usuario.nombre
+    form.tipo.data = fin_vale.tipo
+    form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    form.autorizo_efirma_folio.data = fin_vale.autorizo_efirma_folio
+    return render_template("fin_vales/cancel_authorize_task.jinja2", fin_vale=fin_vale, form=form)
 
 
 @fin_vales.route("/fin_vales/entregar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def step_4_deliver(fin_vale_id):
-    """Formulario Vale PASO 4 ENTREGADO"""
+def give(fin_vale_id):
+    """Entregar un vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    form = FinValeStep4DeliverForm()
-    # Mostrar formulario
-    return render_template("fin_vales/step_4_deliver.jinja2", form=form)
+    puede_entregarlo = True
 
 
-@fin_vales.route("/fin_vales/por_revisar/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/entregar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def step_5_attachments(fin_vale_id):
-    """Formulario Vale PASO 5 POR REVISAR"""
+def archive(fin_vale_id):
+    """Archivar un vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    form = FinValeStep5AttachmentsForm()
-    # Mostrar formulario
-    return render_template("fin_vales/step_5_attachments.jinja2", form=form)
-
-
-@fin_vales.route("/fin_vales/archivar/<int:fin_vale_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
-def steap_6_archive(fin_vale_id):
-    """Formulario Vale PASO 6 ARCHIVADO"""
-    fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    form = FinValeStep6ArchiveForm()
-    # Mostrar formulario
-    return render_template("fin_vales/step_6_archive.jinja2", form=form)
+    puede_archivarlo = True
 
 
 @fin_vales.route("/fin_vales/eliminar/<int:fin_vale_id>")

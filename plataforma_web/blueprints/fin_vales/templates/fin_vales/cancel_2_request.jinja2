@@ -1,0 +1,23 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Cancelar Vale Solicitado{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Cancelar Vale Solicitado ' + fin_vale.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card(title='Cancelar Vale Solicitado') %}
+        {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
+        {% call f.form_tag('fin_vales.cancel_2_request', fid='cancel_2_request_form', **form_kwargs) %}
+            {% call f.form_group(form.solicito_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.solicito_puesto, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.solicito_email, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.motivo) %}{% endcall %}
+            {% call f.form_group(form.contrasena) %}{% endcall %}
+            {% call f.form_group(form.solicitar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

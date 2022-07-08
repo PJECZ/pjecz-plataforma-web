@@ -1,0 +1,23 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Cancelar Vale Autorizado{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Cancelar Vale Autorizado ' + fin_vale.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card(title='Cancelar Vale Autorizado') %}
+        {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
+        {% call f.form_tag('fin_vales.cancel_3_authorize', fid='cancel_3_authorize_form', **form_kwargs) %}
+            {% call f.form_group(form.autorizo_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autorizo_puesto, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autorizo_email, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.motivo) %}{% endcall %}
+            {% call f.form_group(form.contrasena) %}{% endcall %}
+            {% call f.form_group(form.autorizar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
