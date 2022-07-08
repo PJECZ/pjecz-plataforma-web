@@ -71,7 +71,7 @@ class FinVale(db.Model, UniversalMixin):
     # Columnas que en el estado SOLICITADO tienen valores
     solicito_efirma_tiempo = db.Column(db.DateTime)
     solicito_efirma_folio = db.Column(db.Integer)
-    solicito_efirma_selloDigital = db.Column(db.String(512))
+    solicito_efirma_sello_digital = db.Column(db.String(512))
     solicito_efirma_url = db.Column(db.String(256))
     solicito_efirma_qr_url = db.Column(db.String(256))
     solicito_efirma_mensaje = db.Column(db.String(512))
@@ -79,7 +79,7 @@ class FinVale(db.Model, UniversalMixin):
     # Columnas que en el estado AUTORIZADO tienen valores
     autorizo_efirma_tiempo = db.Column(db.DateTime)
     autorizo_efirma_folio = db.Column(db.Integer)
-    autorizo_efirma_selloDigital = db.Column(db.String(512))
+    autorizo_efirma_sello_digital = db.Column(db.String(512))
     autorizo_efirma_url = db.Column(db.String(256))
     autorizo_efirma_qr_url = db.Column(db.String(256))
     autorizo_efirma_mensaje = db.Column(db.String(512))

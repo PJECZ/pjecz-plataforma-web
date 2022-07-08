@@ -158,7 +158,7 @@ def solicitar(fin_vale_id: int, contrasena: str):
     url_quote = urllib.parse.quote(datos["url"])
     fin_vale.solicito_efirma_tiempo = datetime.strptime(datos["fecha"], "%d/%m/%Y %H:%M:%S")
     fin_vale.solicito_efirma_folio = datos["folio"]
-    fin_vale.solicito_efirma_selloDigital = datos["selloDigital"]
+    fin_vale.solicito_efirma_sello_digital = datos["selloDigital"]
     fin_vale.solicito_efirma_url = datos["url"]
     fin_vale.solicito_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={url_quote}"
     fin_vale.estado = "SOLICITADO"
@@ -379,7 +379,7 @@ def autorizar(fin_vale_id: int, contrasena: str):
     url_quote = urllib.parse.quote(datos["url"])
     fin_vale.autorizo_efirma_tiempo = datetime.strptime(datos["fecha"], "%d/%m/%Y %H:%M:%S")
     fin_vale.autorizo_efirma_folio = datos["folio"]
-    fin_vale.autorizo_efirma_selloDigital = datos["selloDigital"]
+    fin_vale.autorizo_efirma_sello_digital = datos["selloDigital"]
     fin_vale.autorizo_efirma_url = datos["url"]
     fin_vale.autorizo_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={url_quote}"
     fin_vale.estado = "AUTORIZADO"
