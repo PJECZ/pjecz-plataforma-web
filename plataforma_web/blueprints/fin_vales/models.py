@@ -11,13 +11,10 @@ class FinVale(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(
         [
-            ("PENDIENTE", "Pendiente"),  # PASO 1 Un usuario lo ha creado, no debe permir crear un nuevo vale si tiene uno anterior por revisar
-            ("ELIMINADO POR USUARIO", "Eliminado por usuario"),  # El usuario se arrepintio y lo elimino
+            ("CREADO", "Creado"),  # PASO 1 Un usuario lo ha creado, no debe permir crear un nuevo vale si tiene uno anterior por revisar
             ("SOLICITADO", "Solicitado"),  # PASO 2 El superior lo autorizo con su firma
-            ("ELIMINADO POR SOLICITANTE", "Eliminado por solicitante"),  # El superior lo elimino
             ("CANCELADO POR SOLICITANTE", "Cancelado por solicitante"),  # El superior ha canecelado la firma
             ("AUTORIZADO", "Autorizado"),  # PASO 3 Finanzas lo autorizo
-            ("ELIMINADO POR AUTORIZANTE", "Eliminado por autorizante"),  # Finanzas lo elimino
             ("CANCELADO POR AUTORIZANTE", "Cancelado por autorizante"),  # Finanzas ha cancelado la firma
             ("ENTREGADO", "Entregado"),  # PASO 4 El usuario lo recogió
             ("POR REVISAR", "Por revisar"),  # PASO 5 El usuario a subido los archivos adjuntos

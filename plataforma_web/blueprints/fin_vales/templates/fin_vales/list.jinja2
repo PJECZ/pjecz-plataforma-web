@@ -11,7 +11,7 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('fin_vales.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('FIN VALES') %}
-            {{ topbar.button_new('P1 Nuevo', url_for('fin_vales.step_1_pending')) }}
+            {{ topbar.button_new('P1 Crear', url_for('fin_vales.step_1_create')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
