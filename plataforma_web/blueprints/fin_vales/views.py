@@ -65,12 +65,11 @@ def datatable_json():
                     "id": resultado.id,
                     "url": url_for("fin_vales.detail", fin_vale_id=resultado.id),
                 },
-                "usuario_nombre": resultado.usuario.nombre,
-                "tipo": resultado.tipo,
+                "estado": resultado.estado,
                 "justificacion": resultado.justificacion,
                 "monto": resultado.monto,
-                "solicito_nombre": resultado.solicito_nombre,
-                "estado": resultado.estado,
+                "tipo": resultado.tipo,
+                "usuario_nombre": resultado.usuario.nombre,
             }
         )
     # Entregar JSON
@@ -191,7 +190,7 @@ def step_2_request(fin_vale_id):
     form.solicito_nombre.data = current_user.nombre
     form.solicito_puesto.data = current_user.puesto
     form.solicito_email.data = current_user.email
-    return render_template("fin_vales/step_2_request.jinja2", form=form)
+    return render_template("fin_vales/step_2_request.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vales/cancelar_solicitado/<int:fin_vale_id>", methods=["GET", "POST"])
@@ -218,7 +217,7 @@ def cancel_2_request(fin_vale_id):
     form.solicito_nombre.data = current_user.nombre
     form.solicito_puesto.data = current_user.puesto
     form.solicito_email.data = current_user.email
-    return render_template("fin_vales/cancel_2_request.jinja2", form=form)
+    return render_template("fin_vales/cancel_2_request.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vales/autorizar/<int:fin_vale_id>", methods=["GET", "POST"])
@@ -248,7 +247,7 @@ def step_3_authorize(fin_vale_id):
     form.autorizo_nombre.data = current_user.nombre
     form.autorizo_puesto.data = current_user.puesto
     form.autorizo_email.data = current_user.email
-    return render_template("fin_vales/step_3_authorize.jinja2", form=form)
+    return render_template("fin_vales/step_3_authorize.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vales/cancelar_autorizado/<int:fin_vale_id>", methods=["GET", "POST"])
@@ -278,7 +277,7 @@ def cancel_3_authorize(fin_vale_id):
     form.autorizo_nombre.data = current_user.nombre
     form.autorizo_puesto.data = current_user.puesto
     form.autorizo_email.data = current_user.email
-    return render_template("fin_vales/cancel_3_authorize.jinja2", form=form)
+    return render_template("fin_vales/cancel_3_authorize.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vales/entregar/<int:fin_vale_id>", methods=["GET", "POST"])
@@ -288,7 +287,7 @@ def step_4_deliver(fin_vale_id):
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     form = FinValeStep4DeliverForm()
     # Mostrar formulario
-    return render_template("fin_vales/step_4_deliver.jinja2", form=form)
+    return render_template("fin_vales/step_4_deliver.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vales/por_revisar/<int:fin_vale_id>", methods=["GET", "POST"])
@@ -298,21 +297,21 @@ def step_5_attachments(fin_vale_id):
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     form = FinValeStep5AttachmentsForm()
     # Mostrar formulario
-    return render_template("fin_vales/step_5_attachments.jinja2", form=form)
+    return render_template("fin_vales/step_5_attachments.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vales/archivar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def steap_6_archive(fin_vale_id):
+def step_6_archive(fin_vale_id):
     """Formulario Vale PASO 6 ARCHIVADO"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     form = FinValeStep6ArchiveForm()
     # Mostrar formulario
-    return render_template("fin_vales/step_6_archive.jinja2", form=form)
+    return render_template("fin_vales/step_6_archive.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vales/eliminar/<int:fin_vale_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(fin_vale_id):
     """Eliminar Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
