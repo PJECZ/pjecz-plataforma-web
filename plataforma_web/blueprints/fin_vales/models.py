@@ -42,7 +42,7 @@ class FinVale(db.Model, UniversalMixin):
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
     usuario = db.relationship("Usuario", back_populates="fin_vales")
 
-    # Columnas PASO 1 PENDIENTE
+    # Columnas (step 1 create) estado PENDIENTE
     estado = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         index=True,
@@ -60,7 +60,7 @@ class FinVale(db.Model, UniversalMixin):
     justificacion = db.Column(db.Text(), nullable=False)
     monto = db.Column(db.Float, nullable=False)
 
-    # Columnas PASO 2 SOLICITADO
+    # Columnas (step 2 request) estado SOLICITADO
     solicito_nombre = db.Column(db.String(256))
     solicito_puesto = db.Column(db.String(256))
     solicito_email = db.Column(db.String(256))
@@ -72,12 +72,12 @@ class FinVale(db.Model, UniversalMixin):
     solicito_efirma_mensaje = db.Column(db.String(512))
     solicito_efirma_error = db.Column(db.String(512))
 
-    # Columnas PASO 2b CANCELADO POR SOLICITANTE
+    # Columnas (cancel 2 request) estado CANCELADO POR SOLICITANTE
     solicito_cancelo_tiempo = db.Column(db.DateTime)
     solicito_cancelo_motivo = db.Column(db.String(256))
     solicito_cancelo_error = db.Column(db.String(512))
 
-    # Columnas PASO 3 AUTORIZADO
+    # Columnas (step 3 authorize) estado AUTORIZADO
     autorizo_nombre = db.Column(db.String(256))
     autorizo_puesto = db.Column(db.String(256))
     autorizo_email = db.Column(db.String(256))
@@ -89,22 +89,22 @@ class FinVale(db.Model, UniversalMixin):
     autorizo_efirma_mensaje = db.Column(db.String(512))
     autorizo_efirma_error = db.Column(db.String(512))
 
-    # Columnas PASO 3b CANCELADO POR AUTORIZANTE
+    # Columnas (cancel 3 authorize) estado CANCELADO POR AUTORIZANTE
     autorizo_cancelo_tiempo = db.Column(db.DateTime)
     autorizo_cancelo_motivo = db.Column(db.String(256))
     autorizo_cancelo_error = db.Column(db.String(512))
 
-    # Columnas PASO 4 ENTREGADO
+    # Columnas (step 4 deliver) estado ENTREGADO
     folio = db.Column(db.String(64))
 
-    # Columnas PASO 5 POR REVISAR
+    # Columnas (step 5 attachments) estado POR REVISAR
     vehiculo_descripcion = db.Column(db.String(256))
     tanque_inicial = db.Column(db.String(48))
     tanque_final = db.Column(db.String(48))
     kilometraje_inicial = db.Column(db.Integer)
     kilometraje_final = db.Column(db.Integer)
 
-    # Columnas PASO 6 ARCHIVADO
+    # Columnas (step 6 archive) estado ARCHIVADO
     notas = db.Column(db.String(1024))
 
     # Hijos

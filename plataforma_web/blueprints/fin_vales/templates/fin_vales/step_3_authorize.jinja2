@@ -1,4 +1,5 @@
 {% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
@@ -9,7 +10,22 @@
 {% endblock %}
 
 {% block content %}
-    {% call f.card(title='Paso 3: Autorizar') %}
+    {% call detail.card(title='Creado') %}
+        {{ detail.label_value('Nombre', fin_vale.usuario.nombre) }}
+        {{ detail.label_value('Puesto', fin_vale.usuario.puesto) }}
+        {{ detail.label_value('e-mail', fin_vale.usuario.email) }}
+        {{ detail.label_value('Tipo', fin_vale.tipo) }}
+        {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
+        {{ detail.label_value('Justificacion', fin_vale.justificacion) }}
+    {% endcall %}
+    {% call detail.card(title='Solicitado') %}
+        {{ detail.label_value('Nombre', fin_vale.solicito_nombre) }}
+        {{ detail.label_value('Puesto', fin_vale.solicito_puesto) }}
+        {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
+        {{ detail.label_value('Firma fecha y hora', fin_vale.solicito_efirma_tiempo) }}
+        {{ detail.label_value('Firma folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
+    {% endcall %}
+    {% call f.card(title='Autorizar') %}
         {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
         {% call f.form_tag('fin_vales.step_3_authorize', fid='step_3_authorize_form', **form_kwargs) %}
             {% call f.form_group(form.autorizo_nombre, readonly=true) %}{% endcall %}

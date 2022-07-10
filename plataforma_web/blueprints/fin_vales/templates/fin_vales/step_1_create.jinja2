@@ -2,14 +2,14 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Vale{% endblock %}
+{% block title %}Crear Vale{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Vale') }}
+    {{ topbar.page('Crear Vale') }}
 {% endblock %}
 
 {% block content %}
-    {% call f.card(title='Paso 1: Crear') %}
+    {% call f.card(title='Crear') %}
         {% call f.form_tag('fin_vales.step_1_pending', fid='step_1_pending_form') %}
             {% call f.form_group(form.usuario_nombre, readonly=true) %}{% endcall %}
             {% call f.form_group(form.usuario_puesto, readonly=true) %}{% endcall %}

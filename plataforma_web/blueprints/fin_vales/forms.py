@@ -8,8 +8,8 @@ from wtforms.validators import DataRequired, Length, Optional
 from plataforma_web.blueprints.fin_vales.models import FinVale
 
 
-class FinValeStep1PendingForm(FlaskForm):
-    """Formulario Vale PASO 1 PENDIENTE"""
+class FinValeStep1CreateForm(FlaskForm):
+    """Formulario Vale (step 1 create) Crear"""
 
     usuario_nombre = StringField("Usted es")  # Read only
     usuario_puesto = StringField("Su puesto")  # Read only
@@ -21,7 +21,7 @@ class FinValeStep1PendingForm(FlaskForm):
 
 
 class FinValeStep2RequestForm(FlaskForm):
-    """Formulario Vale PASO 2 SOLICITADO"""
+    """Formulario Vale (step 2 request) Solicitar"""
 
     solicito_nombre = StringField("Usted es")  # Read only
     solicito_puesto = StringField("Su puesto")  # Read only
@@ -31,7 +31,7 @@ class FinValeStep2RequestForm(FlaskForm):
 
 
 class FinValeCancel2RequestForm(FlaskForm):
-    """Formulario Vale CANCELAR 2 SOLICITADO"""
+    """Formulario Vale (cancel 2 request) Cancelar solicitado"""
 
     solicito_nombre = StringField("Usted es")  # Read only
     solicito_puesto = StringField("Su puesto")  # Read only
@@ -42,7 +42,7 @@ class FinValeCancel2RequestForm(FlaskForm):
 
 
 class FinValeStep3AuthorizeForm(FlaskForm):
-    """Formulario Vale PASO 3 AUTORIZADO"""
+    """Formulario Vale (step 3 authorize) Autorizar"""
 
     autorizo_nombre = StringField("Usted es")  # Read only
     autorizo_puesto = StringField("Su puesto")  # Read only
@@ -52,7 +52,7 @@ class FinValeStep3AuthorizeForm(FlaskForm):
 
 
 class FinValeCancel3AuthorizeForm(FlaskForm):
-    """Formulario Vale CANCELAR 3 AUTORIZADO"""
+    """Formulario Vale (cancel 3 authorize) Cancelar autorizado"""
 
     autorizo_nombre = StringField("Usted es")  # Read only
     autorizo_puesto = StringField("Su puesto")  # Read only
@@ -63,14 +63,14 @@ class FinValeCancel3AuthorizeForm(FlaskForm):
 
 
 class FinValeStep4DeliverForm(FlaskForm):
-    """Formulario Vale PASO 4 ENTREGADO"""
+    """Formulario Vale (step 4 deliver) Entregar"""
 
     folio = StringField("Folio", validators=[DataRequired(), Length(max=64)])
     entregar = SubmitField("Entregar")
 
 
 class FinValeStep5AttachmentsForm(FlaskForm):
-    """Formulario Vale PASO 5 POR REVISAR"""
+    """Formulario Vale (step 5 attachments) Adjuntar"""
 
     vehiculo_descripcion = StringField("Descripción del vehículo", validators=[DataRequired(), Length(max=256)])
     tanque_inicial = StringField("Tanque inicial", validators=[Optional(), Length(max=48)])
@@ -81,7 +81,7 @@ class FinValeStep5AttachmentsForm(FlaskForm):
 
 
 class FinValeStep6ArchiveForm(FlaskForm):
-    """Formulario Vale PASO 6 ARCHIVADO"""
+    """Formulario Vale (step 6 archive) Archivar"""
 
     notas = TextAreaField("Notas", validators=[DataRequired(), Length(max=1024)])
     archivar = SubmitField("Archivar")

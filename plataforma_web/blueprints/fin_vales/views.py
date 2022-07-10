@@ -11,7 +11,7 @@ from lib.safe_string import safe_email, safe_string, safe_message
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.fin_vales.models import FinVale
 from plataforma_web.blueprints.fin_vales.forms import (
-    FinValeStep1PendingForm,
+    FinValeStep1CreateForm,
     FinValeStep2RequestForm,
     FinValeCancel2RequestForm,
     FinValeStep3AuthorizeForm,
@@ -124,11 +124,11 @@ def detail(fin_vale_id):
     return render_template("fin_vales/detail.jinja2", fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vale/nuevo", methods=["GET", "POST"])
+@fin_vales.route("/fin_vale/crear", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def step_1_pending():
-    """Formulario Vale PASO 1 PENDIENTE"""
-    form = FinValeStep1PendingForm()
+def step_1_create():
+    """Formulario Vale (step 1 create) Crear"""
+    form = FinValeStep1CreateForm()
     if form.validate_on_submit():
         fin_vale = FinVale(
             usuario=current_user,
@@ -141,7 +141,7 @@ def step_1_pending():
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Vale {fin_vale.justificacion}"),
+            descripcion=safe_message(f"Vale creado {fin_vale.justificacion}"),
             url=url_for("fin_vales.detail", fin_vale_id=fin_vale.id),
         )
         bitacora.save()
@@ -153,13 +153,13 @@ def step_1_pending():
     form.tipo.data = "GASOLINA"
     form.justificacion.data = "Solicito un vale de gasolina de $100.00 (cien pesos 00/100 m.n), para NOMBRE COMPLETO con el objetivo de ir a DESTINO U OFICINA."
     form.monto.data = 100.00
-    return render_template("fin_vales/step_1_pending.jinja2", form=form)
+    return render_template("fin_vales/step_1_create.jinja2", form=form)
 
 
 @fin_vales.route("/fin_vales/solicitar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_2_request(fin_vale_id):
-    """Formulario Vale PASO 2 SOLICITADO"""
+    """Formulario Vale (step 2 request) Solicitar"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     puede_firmarlo = True
     # Validar que sea activo
@@ -196,7 +196,7 @@ def step_2_request(fin_vale_id):
 @fin_vales.route("/fin_vales/cancelar_solicitado/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def cancel_2_request(fin_vale_id):
-    """Formulario Vale CANCELAR 2 SOLICITADO"""
+    """Formulario Vale (cancel 2 request) Cancelar solicitado"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     puede_cancelarlo = True
     # Validar que sea activo
@@ -223,7 +223,7 @@ def cancel_2_request(fin_vale_id):
 @fin_vales.route("/fin_vales/autorizar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_3_authorize(fin_vale_id):
-    """Formulario Vale PASO 3 AUTORIZADO"""
+    """Formulario Vale (step 3 authorize) Autorizar"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     puede_firmarlo = True
     # Validar que sea activo
@@ -253,7 +253,7 @@ def step_3_authorize(fin_vale_id):
 @fin_vales.route("/fin_vales/cancelar_autorizado/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def cancel_3_authorize(fin_vale_id):
-    """Formulario Vale CANCELAR 3 AUTORIZADO"""
+    """Formulario Vale (cancel 3 authorize) Cancelar autorizado"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     puede_cancelarlo = True
     # Validar que sea activo
@@ -283,7 +283,7 @@ def cancel_3_authorize(fin_vale_id):
 @fin_vales.route("/fin_vales/entregar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_4_deliver(fin_vale_id):
-    """Formulario Vale PASO 4 ENTREGADO"""
+    """Formulario Vale (step 4 deliver) Entregar"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     form = FinValeStep4DeliverForm()
     # Mostrar formulario
@@ -293,7 +293,7 @@ def step_4_deliver(fin_vale_id):
 @fin_vales.route("/fin_vales/por_revisar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_5_attachments(fin_vale_id):
-    """Formulario Vale PASO 5 POR REVISAR"""
+    """Formulario Vale (step 5 attachments) Adjuntar"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     form = FinValeStep5AttachmentsForm()
     # Mostrar formulario
@@ -303,7 +303,7 @@ def step_5_attachments(fin_vale_id):
 @fin_vales.route("/fin_vales/archivar/<int:fin_vale_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_6_archive(fin_vale_id):
-    """Formulario Vale PASO 6 ARCHIVADO"""
+    """Formulario Vale (step 6 archive) Archivar"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     form = FinValeStep6ArchiveForm()
     # Mostrar formulario
