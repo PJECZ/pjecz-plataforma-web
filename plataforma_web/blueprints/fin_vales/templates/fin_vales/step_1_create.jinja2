@@ -10,7 +10,7 @@
 
 {% block content %}
     {% call f.card(title='Crear') %}
-        {% call f.form_tag('fin_vales.step_1_pending', fid='step_1_pending_form') %}
+        {% call f.form_tag('fin_vales.step_1_create', fid='step_1_create_form') %}
             {% call f.form_group(form.usuario_nombre, readonly=true) %}{% endcall %}
             {% call f.form_group(form.usuario_puesto, readonly=true) %}{% endcall %}
             {% call f.form_group(form.usuario_email, readonly=true) %}{% endcall %}

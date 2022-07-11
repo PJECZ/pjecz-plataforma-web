@@ -132,7 +132,7 @@ def step_1_create():
     if form.validate_on_submit():
         fin_vale = FinVale(
             usuario=current_user,
-            estado="PENDIENTE",
+            estado="CREADO",
             justificacion=safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False),
             monto=form.monto.data,
             tipo=form.tipo.data,
@@ -167,8 +167,8 @@ def step_2_request(fin_vale_id):
         flash("El vale esta eliminado", "warning")
         puede_firmarlo = False
     # Validar el estado
-    if fin_vale.estado != "PENDIENTE":
-        flash("El vale NO esta en estado PENDIENTE", "warning")
+    if fin_vale.estado != "CREADO":
+        flash("El vale NO esta en estado CREADO", "warning")
         puede_firmarlo = False
     # Validar que el usuario puede solicitarlo
     # Si no puede solicitarlo, redireccionar a la pagina de detalle
@@ -311,18 +311,21 @@ def step_6_archive(fin_vale_id):
 
 
 @fin_vales.route("/fin_vales/eliminar/<int:fin_vale_id>")
-@permission_required(MODULO, Permiso.ADMINISTRAR)
+@permission_required(MODULO, Permiso.MODIFICAR)
 def delete(fin_vale_id):
     """Eliminar Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     if fin_vale.estatus == "A":
-        if (fin_vale.usuario == current_user or current_user.can_admin(MODULO)) and fin_vale.estado == "PENDIENTE":
-            fin_vale.estado = "ELIMINADO POR USUARIO"
-        elif (fin_vale.solicito_email == current_user.email or current_user.can_admin(MODULO)) and fin_vale.estado == "SOLICITADO":
-            fin_vale.estado = "ELIMINADO POR SOLICITANTE"
-        elif (fin_vale.autorizo_email == current_user.email or current_user.can_admin(MODULO)) and fin_vale.estado == "AUTORIZADO":
-            fin_vale.estado = "ELIMINADO POR AUTORIZADOR"
-        else:
+        puede_eliminarlo = False
+        if current_user.can_admin(MODULO):
+            puede_eliminarlo = True
+        if fin_vale.usuario == current_user and fin_vale.estado == "CREADO":
+            puede_eliminarlo = True
+        if fin_vale.solicito_email == current_user.email and fin_vale.estado == "SOLICITADO":
+            puede_eliminarlo = True
+        if fin_vale.autorizo_email == current_user.email and fin_vale.estado == "AUTORIZADO":
+            puede_eliminarlo = True
+        if not puede_eliminarlo:
             flash("No tiene permisos para eliminar o tiene un estado particular este vale", "warning")
             return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
         fin_vale.delete()
@@ -343,13 +346,16 @@ def recover(fin_vale_id):
     """Recuperar Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     if fin_vale.estatus == "B":
-        if (fin_vale.usuario == current_user or current_user.can_admin(MODULO)) and fin_vale.estado == "ELIMINADO POR USUARIO":
-            fin_vale.estado = "PENDIENTE"
-        elif (fin_vale.solicito_email == current_user.email or current_user.can_admin(MODULO)) and fin_vale.estado == "ELIMINADO POR SOLICITANTE":
-            fin_vale.estado = "SOLICITADO"
-        elif (fin_vale.autorizo_email == current_user.email or current_user.can_admin(MODULO)) and fin_vale.estado == "ELIMINADO POR AUTORIZADOR":
-            fin_vale.estado = "AUTORIZADO"
-        else:
+        puede_recuperarlo = False
+        if current_user.can_admin(MODULO):
+            puede_recuperarlo = True
+        if fin_vale.usuario == current_user and fin_vale.estado == "CREADO":
+            puede_recuperarlo = True
+        if fin_vale.solicito_email == current_user.email and fin_vale.estado == "SOLICITADO":
+            puede_recuperarlo = True
+        if fin_vale.autorizo_email == current_user.email and fin_vale.estado == "AUTORIZADO":
+            puede_recuperarlo = True
+        if not puede_recuperarlo:
             flash("No tiene permisos para recuperar o tiene un estado particular este vale", "warning")
             return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
         fin_vale.recover()

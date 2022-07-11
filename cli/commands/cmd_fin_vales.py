@@ -34,8 +34,8 @@ def solicitar(fin_vale_id):
     if fin_vale.estatus != "A":
         click.echo("El vale esta eliminado")
         return
-    if fin_vale.estado != "PENDIENTE":
-        click.echo("El vale no tiene el estado PENDIENTE")
+    if fin_vale.estado != "CREADO":
+        click.echo("El vale no tiene el estado CREADO")
         return
 
     # Mostrar detalle del vale

@@ -39,13 +39,13 @@ class FinVale(db.Model, UniversalMixin):
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
     usuario = db.relationship("Usuario", back_populates="fin_vales")
 
-    # Columnas (step 1 create) estado PENDIENTE
+    # Columnas (step 1 create) estado CREADO
     estado = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         index=True,
         nullable=False,
-        default="PENDIENTE",
-        server_default="PENDIENTE",
+        default="CREADO",
+        server_default="CREADO",
     )
     tipo = db.Column(
         db.Enum(*TIPOS, name="tipos", native_enum=False),

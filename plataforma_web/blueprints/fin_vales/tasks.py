@@ -65,8 +65,8 @@ def solicitar(fin_vale_id: int, contrasena: str):
         mensaje = f"El vale {fin_vale_id} esta eliminado"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
-    if fin_vale.estado != "PENDIENTE":
-        mensaje = f"El vale {fin_vale_id} no está en estado PENDIENTE"
+    if fin_vale.estado != "CREADO":
+        mensaje = f"El vale {fin_vale_id} no está en estado CREADO"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
