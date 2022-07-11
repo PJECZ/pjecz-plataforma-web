@@ -9,15 +9,23 @@
     {% call topbar.page_buttons("Vale " + fin_vale.id | string + " " + fin_vale.estado) %}
         {{ topbar.button_previous('Vales', url_for('fin_vales.list_active')) }}
         {% if current_user.can_edit('FIN VALES') %}
-            {{ topbar.button_edit('Solicitar', url_for('fin_vales.step_2_request', fin_vale_id=fin_vale.id)) }}
-            {{ topbar.button_edit('Cancelar solicitado', url_for('fin_vales.cancel_2_request', fin_vale_id=fin_vale.id)) }}
-            {{ topbar.button_edit('Autorizar', url_for('fin_vales.step_3_authorize', fin_vale_id=fin_vale.id)) }}
-            {{ topbar.button_edit('Cancelar autorizado', url_for('fin_vales.cancel_3_authorize', fin_vale_id=fin_vale.id)) }}
-            {{ topbar.button_edit('Entregar', url_for('fin_vales.step_4_deliver', fin_vale_id=fin_vale.id)) }}
-            {{ topbar.button_edit('Adjuntar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
-            {{ topbar.button_edit('Archivar', url_for('fin_vales.step_6_archive', fin_vale_id=fin_vale.id)) }}
-        {% endif %}
-        {% if current_user.can_admin('FIN VALES') %}
+            {% if fin_vale.estado == 'CREADO' %}
+                {{ topbar.button_edit('Solicitar', url_for('fin_vales.step_2_request', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'SOLICITADO' %}
+                {{ topbar.button_edit('Cancelar solicitado', url_for('fin_vales.cancel_2_request', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button_edit('Autorizar', url_for('fin_vales.step_3_authorize', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'AUTORIZADO' %}
+                {{ topbar.button_edit('Cancelar autorizado', url_for('fin_vales.cancel_3_authorize', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button_edit('Entregar', url_for('fin_vales.step_4_deliver', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'ENTREGADO' %}
+                {{ topbar.button_edit('Adjuntar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'POR REVISAR' %}
+                {{ topbar.button_edit('Archivar', url_for('fin_vales.step_6_archive', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
             {% if fin_vale.estatus == 'A' %}
                 {{ topbar.button_delete('Eliminar', url_for('fin_vales.delete', fin_vale_id=fin_vale.id)) }}
             {% endif %}
@@ -47,12 +55,11 @@
     <a href="{{ url_for('fin_vales.cancel_authorize_task', fin_vale_id=fin_vale.id) }}" class="btn btn-danger btn-block">
         Cancelar
     </a>
-    estatus=fin_vale.estatus
 #}
 
 {% block content %}
     {% if fin_vale.estado in ['CREADO', 'SOLICITADO', 'CANCELADO POR SOLICITANTE', 'AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
-        {% call detail.card(title='Creado') %}
+        {% call detail.card(title='Creado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Nombre', fin_vale.usuario.nombre) }}
             {{ detail.label_value('Puesto', fin_vale.usuario.puesto) }}
             {{ detail.label_value('e-mail', fin_vale.usuario.email) }}
@@ -62,7 +69,7 @@
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado in ['SOLICITADO', 'CANCELADO POR SOLICITANTE', 'AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
-        {% call detail.card(title='Solicitado') %}
+        {% call detail.card(title='Solicitado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Nombre', fin_vale.solicito_nombre) }}
             {{ detail.label_value('Puesto', fin_vale.solicito_puesto) }}
             {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
@@ -73,7 +80,7 @@
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado == 'CANCELADO POR SOLICITANTE' %}
-        {% call detail.card(title='Cancelado por solicitante') %}
+        {% call detail.card(title='Cancelado por solicitante', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Tiempo', fin_vale.solicito_cancelo_tiempo) }}
             {{ detail.label_value('Motivo', fin_vale.solicito_cancelo_motivo) }}
             {{ detail.label_value('Error', fin_vale.solicito_cancelo_error) }}
@@ -81,7 +88,7 @@
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado in ['AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
-        {% call detail.card(title='Autorizado') %}
+        {% call detail.card(title='Autorizado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Nombre', fin_vale.autorizo_nombre) }}
             {{ detail.label_value('Puesto', fin_vale.autorizo_puesto) }}
             {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
@@ -92,7 +99,7 @@
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado == 'CANCELADO POR AUTORIZANTE' %}
-        {% call detail.card(title='Cancelado por autorizante') %}
+        {% call detail.card(title='Cancelado por autorizante', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Nombre', fin_vale.autorizo_nombre) }}
             {{ detail.label_value('Puesto', fin_vale.autorizo_puesto) }}
             {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
@@ -103,12 +110,12 @@
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado in ['ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
-        {% call detail.card(title='Entregado') %}
+        {% call detail.card(title='Entregado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Folio', fin_vale.folio) }}
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado in ['POR REVISAR', 'ARCHIVADO'] %}
-        {% call detail.card(title='Por revisar') %}
+        {% call detail.card(title='Por revisar', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Vehiculo', fin_vale.vehiculo_descripcion) }}
             {{ detail.label_value('Tanque inicial', fin_vale.tanque_inicial) }}
             {{ detail.label_value('Tanque final', fin_vale.tanque_final) }}
@@ -117,7 +124,7 @@
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado == 'ARCHIVADO' %}
-        {% call detail.card(title='Archivado') %}
+        {% call detail.card(title='Archivado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Notas', fin_vale.notas) }}
         {% endcall %}
     {% endif %}
