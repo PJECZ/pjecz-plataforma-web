@@ -34,7 +34,7 @@ app = create_app()
 app.app_context().push()
 
 
-def solicitar(fin_vale_id: int, contrasena: str):
+def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
     """Firmar electronicamente el vale por quien solicita"""
 
     # Validar configuracion
@@ -71,7 +71,7 @@ def solicitar(fin_vale_id: int, contrasena: str):
         return set_task_error(mensaje)
 
     # Consultar el usuario que solicita
-    solicita = Usuario.query.filter_by(email=fin_vale.solicito_email).first()
+    solicita = Usuario.query.get(usuario_id)
     if solicita is None:
         mensaje = f"No se encontró el usuario {fin_vale.solicito_email} que solicita"
         bitacora.error(mensaje)
@@ -111,13 +111,15 @@ def solicitar(fin_vale_id: int, contrasena: str):
         )
     except Exception as error:
         mensaje = f"Error al solicitar el vale: {error}"
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
     # Si el motor de firma no entrega el estado 200, se registra el error
     if response.status_code != 200:
         mensaje = f"Error al solicitar el vale porque la respuesta no es 200: {response.text}"
-        fin_vale.solicito_efirma_mensaje = mensaje
+        fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -139,8 +141,7 @@ def solicitar(fin_vale_id: int, contrasena: str):
         datos = json.loads(texto)
     except json.JSONDecodeError:
         mensaje = f"Error al solicitar el vale porque la respuesta no es JSON: {response.text}"
-        fin_vale.solicito_efirma_mensaje = mensaje
-        fin_vale.estado = "ELIMINADO POR SOLICITANTE"
+        fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -148,19 +149,23 @@ def solicitar(fin_vale_id: int, contrasena: str):
     # Validar que se haya firmado correctamente
     if datos["success"] is False:
         mensaje = f"Error al solicitar el vale porque no se firmó correctamente: {response.text}"
-        fin_vale.solicito_efirma_mensaje = mensaje
-        fin_vale.estado = "ELIMINADO POR SOLICITANTE"
+        fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
     # Actualizar el vale, ahora su estado es SOLICITADO
     url_quote = urllib.parse.quote(datos["url"])
+    fin_vale.solicito_nombre = 
+    fin_vale.solicito_puesto = 
+    fin_vale.solicito_email = 
     fin_vale.solicito_efirma_tiempo = datetime.strptime(datos["fecha"], "%d/%m/%Y %H:%M:%S")
     fin_vale.solicito_efirma_folio = datos["folio"]
     fin_vale.solicito_efirma_sello_digital = datos["selloDigital"]
     fin_vale.solicito_efirma_url = datos["url"]
     fin_vale.solicito_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={url_quote}"
+    fin_vale.solicito_efirma_mensaje = datos["mensaje"]
+    fin_vale.solicito_efirma_error = ""
     fin_vale.estado = "SOLICITADO"
     fin_vale.save()
 
@@ -236,6 +241,8 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str):
         )
     except Exception as error:
         mensaje = f"Error al cancelar el vale solicitado: {error}"
+        fin_vale.solicito_cancelo_error = mensaje
+        fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
@@ -245,6 +252,8 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str):
 
     # Actualizar el vale, ahora su estado es CANCELADO POR SOLICITANTE
     fin_vale.estado = "CANCELADO POR SOLICITANTE"
+    # fin_vale.solicito_cancelo_tiempo = datetime.strptime(datos["fechaCancelado"], "%Y-%m%d %H:%M:%S")
+    fin_vale.solicito_cancelo_error = ""
     fin_vale.save()
 
     # Terminar tarea
@@ -254,7 +263,7 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str):
     return mensaje_final
 
 
-def autorizar(fin_vale_id: int, contrasena: str):
+def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
     """Firmar electronicamente el vale por quien autoriza"""
 
     # Validar configuracion
@@ -332,6 +341,8 @@ def autorizar(fin_vale_id: int, contrasena: str):
         )
     except Exception as error:
         mensaje = f"Error al solicitar el vale: {error}"
+        fin_vale.autorizo_efirma_error = mensaje
+        fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
@@ -360,8 +371,7 @@ def autorizar(fin_vale_id: int, contrasena: str):
         datos = json.loads(texto)
     except json.JSONDecodeError:
         mensaje = f"Error al autorizar el vale porque la respuesta no es JSON: {response.text}"
-        fin_vale.autorizo_efirma_mensaje = mensaje
-        fin_vale.estado = "ELIMINADO POR AUTORIZADOR"
+        fin_vale.autorizo_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -369,8 +379,7 @@ def autorizar(fin_vale_id: int, contrasena: str):
     # Validar que se haya firmado correctamente
     if datos["success"] is False:
         mensaje = f"Error al autorizar el vale porque no se firmó correctamente: {response.text}"
-        fin_vale.autorizo_efirma_mensaje = mensaje
-        fin_vale.estado = "ELIMINADO POR AUTORIZADOR"
+        fin_vale.autorizo_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -382,6 +391,8 @@ def autorizar(fin_vale_id: int, contrasena: str):
     fin_vale.autorizo_efirma_sello_digital = datos["selloDigital"]
     fin_vale.autorizo_efirma_url = datos["url"]
     fin_vale.autorizo_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={url_quote}"
+    fin_vale.autorizo_efirma_mensaje = datos["mensaje"]
+    fin_vale.autorizo_efirma_error = ""
     fin_vale.estado = "AUTORIZADO"
     fin_vale.save()
 
@@ -430,7 +441,7 @@ def cancelar_autorizar(fin_vale_id: int, contrasena: str):
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
-    # Consultar el usuario que autoriza
+    # Consultar el usuario que autoriza, para cancelar la firma
     autoriza = Usuario.query.filter_by(email=fin_vale.autorizo_email).first()
     if autoriza is None:
         mensaje = f"No se encontró el usuario {fin_vale.autorizo_email} que autoriza"
@@ -459,11 +470,19 @@ def cancelar_autorizar(fin_vale_id: int, contrasena: str):
         )
     except Exception as error:
         mensaje = f"Error al cancelar el vale autorizado: {error}"
+        fin_vale.autorizo_cancelo_error = mensaje
+        fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
+    # Ejemplo de la respuesta
+    #   "estatus": "SELLO CANCELADO"
+    #   "fechaCancelado": 2022-07-04 12:39:08.0
+
     # Actualizar el vale, ahora su estado es CANCELADO POR AUTORIZADOR
     fin_vale.estado = "CANCELADO POR AUTORIZADOR"
+    # fin_vale.autorizo_cancelo_tiempo = datetime.strptime(datos["fechaCancelado"], "%Y-%m%d %H:%M:%S")
+    fin_vale.autorizo_cancelo_error = ""
     fin_vale.save()
 
     # Terminar tarea
