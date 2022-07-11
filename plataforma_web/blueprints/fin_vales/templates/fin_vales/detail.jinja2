@@ -21,9 +21,10 @@
                 {{ topbar.button_edit('Entregar', url_for('fin_vales.step_4_deliver', fin_vale_id=fin_vale.id)) }}
             {% endif %}
             {% if fin_vale.estado == 'ENTREGADO' %}
-                {{ topbar.button_edit('Adjuntar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button_edit('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
             {% endif %}
             {% if fin_vale.estado == 'POR REVISAR' %}
+                {{ topbar.button_edit('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
                 {{ topbar.button_edit('Archivar', url_for('fin_vales.step_6_archive', fin_vale_id=fin_vale.id)) }}
             {% endif %}
             {% if fin_vale.estatus == 'A' %}
@@ -36,37 +37,21 @@
     {% endcall %}
 {% endblock %}
 
-{#
-    <a href="{{ url_for('fin_vales.request_task', fin_vale_id=fin_vale.id) }}" class="btn btn-success btn-block">
-        Solicitar
-    </a>
-    <a href="{{ fin_vale.solicito_efirma_url }}" target="_blank" class="btn btn-secondary btn-block">
-        Abrir e-firma
-    </a>
-    <a href="{{ url_for('fin_vales.cancel_request_task', fin_vale_id=fin_vale.id) }}" class="btn btn-danger btn-block">
-        Cancelar
-    </a>
-    <a href="{{ url_for('fin_vales.authorize_task', fin_vale_id=fin_vale.id) }}" class="btn btn-success btn-block">
-        Autorizar
-    </a>
-    <a href="{{ fin_vale.autorizo_efirma_url }}" target="_blank" class="btn btn-secondary btn-block">
-        Abrir e-firma
-    </a>
-    <a href="{{ url_for('fin_vales.cancel_authorize_task', fin_vale_id=fin_vale.id) }}" class="btn btn-danger btn-block">
-        Cancelar
-    </a>
-#}
-
 {% block content %}
     {% if fin_vale.estado in ['CREADO', 'SOLICITADO', 'CANCELADO POR SOLICITANTE', 'AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
         {% call detail.card(title='Creado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Nombre', fin_vale.usuario.nombre) }}
             {{ detail.label_value('Puesto', fin_vale.usuario.puesto) }}
             {{ detail.label_value('e-mail', fin_vale.usuario.email) }}
+            {{ detail.label_value('Tiempo', moment(fin_vale.creado).format('llll')) }}
             {{ detail.label_value('Tipo', fin_vale.tipo) }}
             {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
             {{ detail.label_value_big('Justificacion', fin_vale.justificacion) }}
-            {{ detail.label_value('Creado', moment(fin_vale.creado).format('llll')) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.solicito_efirma_error != None and fin_vale.solicito_efirma_error != '' %}
+        {% call detail.card_styled(title='Error al solicitar', classes='bg-warning') %}
+            {{ detail.label_value('ERROR', fin_vale.solicito_efirma_error) }}
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado in ['SOLICITADO', 'CANCELADO POR SOLICITANTE', 'AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
@@ -76,7 +61,6 @@
             {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
             {{ detail.label_value('Tiempo', moment(fin_vale.solicito_efirma_tiempo).format('llll')) }} 
             {{ detail.label_value('Mensaje', fin_vale.solicito_efirma_mensaje) }}
-            {{ detail.label_value('Error', fin_vale.solicito_efirma_error) }}
             {{ detail.label_value_new_tab('Folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
         {% endcall %}
     {% endif %}
@@ -88,6 +72,11 @@
             {{ detail.label_value_new_tab('Folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
         {% endcall %}
     {% endif %}
+    {% if fin_vale.autorizo_efirma_error != None and fin_vale.autorizo_efirma_error != '' %}
+        {% call detail.card_styled(title='Error al autorizar', classes='bg-warning') %}
+            {{ detail.label_value('ERROR', fin_vale.autorizo_efirma_error) }}
+        {% endcall %}
+    {% endif %}
     {% if fin_vale.estado in ['AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
         {% call detail.card(title='Autorizado', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Nombre', fin_vale.autorizo_nombre) }}
@@ -95,7 +84,6 @@
             {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
             {{ detail.label_value('Tiempo', fin_vale.autorizo_efirma_tiempo) }}
             {{ detail.label_value('Mensaje', fin_vale.autorizo_efirma_mensaje) }}
-            {{ detail.label_value('Error', fin_vale.autorizo_efirma_error) }}
             {{ detail.label_value_new_tab('Folio y URL', fin_vale.autorizo_efirma_folio, fin_vale.autorizo_efirma_url) }}
         {% endcall %}
     {% endif %}
@@ -106,7 +94,6 @@
             {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
             {{ detail.label_value('Tiempo', fin_vale.autorizo_efirma_tiempo) }}
             {{ detail.label_value('Mensaje', fin_vale.autorizo_efirma_mensaje) }}
-            {{ detail.label_value('Error', fin_vale.autorizo_efirma_error) }}
             {{ detail.label_value_new_tab('Folio y URL', fin_vale.autorizo_efirma_folio, fin_vale.autorizo_efirma_url) }}
         {% endcall %}
     {% endif %}
@@ -129,7 +116,7 @@
             {{ detail.label_value('Notas', fin_vale.notas) }}
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('FIN VALES ADJUNTOS') and (fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "POR REVISAR") %}
+    {% if current_user.can_view('FIN VALES ADJUNTOS') and fin_vale.estado in ['ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
         {% call detail.card(title='Comprobantes', estatus=fin_vale.estatus) %}
             <table id="fin_vales_adjuntos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
@@ -140,7 +127,7 @@
                     </tr>
                 </thead>
             </table>
-            {% if current_user.can_insert('FIN VALES ADJUNTOS') %}
+            {% if current_user.can_insert('FIN VALES ADJUNTOS') and fin_vale.estado in ['ENTREGADO', 'POR REVISAR'] %}
                 <a href="{{ url_for('fin_vales_adjuntos.new', fin_vale_id=fin_vale.id) }}" class="btn btn-primary">
                     Agregar comprobante
                 </a>

@@ -23,7 +23,6 @@ from plataforma_web.blueprints.fin_vales.forms import (
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
 MODULO = "FIN VALES"
 
@@ -94,7 +93,7 @@ def list_active():
         return render_template(
             "fin_vales/list.jinja2",
             filtros=json.dumps({"estatus": "A", "estado": "SOLICITADO"}),
-            titulo="Vales por Autorizar",
+            titulo="Vales Solicitados (por autorizar)",
             estatus="A",
         )
     # Si es solicitante, mostrar Vales por Solicitar
@@ -102,7 +101,7 @@ def list_active():
         return render_template(
             "fin_vales/list.jinja2",
             filtros=json.dumps({"estatus": "A", "estado": "CREADO"}),
-            titulo="Vales por Solicitar",
+            titulo="Vales Creados (por solicitar)",
             estatus="A",
         )
     # Mostrar Mis Vales
@@ -110,6 +109,72 @@ def list_active():
         "fin_vales/list.jinja2",
         filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
         titulo="Mis Vales",
+        estatus="A",
+    )
+
+
+@fin_vales.route("/fin_vales/creados")
+def list_create_active():
+    """Listado de Vales Creados activos"""
+    return render_template(
+        "fin_vales/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "estado": "CREADO"}),
+        titulo="Vales Creados",
+        estatus="A",
+    )
+
+
+@fin_vales.route("/fin_vales/solicitados")
+def list_request_active():
+    """Listado de Vales Solicitados activos"""
+    return render_template(
+        "fin_vales/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "estado": "SOLICITADO"}),
+        titulo="Vales Solicitados",
+        estatus="A",
+    )
+
+
+@fin_vales.route("/fin_vales/autorizados")
+def list_authorize_active():
+    """Listado de Vales Autorizados activos"""
+    return render_template(
+        "fin_vales/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "estado": "AUTORIZADO"}),
+        titulo="Vales Autorizados",
+        estatus="A",
+    )
+
+
+@fin_vales.route("/fin_vales/entregados")
+def list_deliver_active():
+    """Listado de Vales Entregados activos"""
+    return render_template(
+        "fin_vales/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "estado": "ENTREGADO"}),
+        titulo="Vales Entregados",
+        estatus="A",
+    )
+
+
+@fin_vales.route("/fin_vales/por_revisar")
+def list_attachments_active():
+    """Listado de Vales Por Revisar activos"""
+    return render_template(
+        "fin_vales/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "estado": "POR REVISAR"}),
+        titulo="Vales Por Revisar",
+        estatus="A",
+    )
+
+
+@fin_vales.route("/fin_vales/archivados")
+def list_archive_active():
+    """Listado de Vales Archivados activos"""
+    return render_template(
+        "fin_vales/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "estado": "ARCHIVADO"}),
+        titulo="Vales Archivados",
         estatus="A",
     )
 
@@ -399,11 +464,11 @@ def step_5_attachments(fin_vale_id):
         flash("El vale esta eliminado", "warning")
         puede_adjuntar = False
     # Validar el estado
-    if fin_vale.estado != "ENTREGADO":
-        flash("El vale NO esta en estado ENTREGADO", "warning")
+    if fin_vale.estado != "ENTREGADO" and fin_vale.estado != "POR REVISAR":
+        flash("El vale NO esta en estado ENTREGADO o POR REVISAR", "warning")
         puede_adjuntar = False
     # Validar el usuario
-    if current_user.id != fin_vale.usuario_id or not current_user.can_admin(MODULO):
+    if current_user.id != fin_vale.usuario_id:
         flash("Usted no es el usuario que creo el vale", "warning")
         puede_adjuntar = False
     # Si no puede entregarlo, redireccionar a la pagina de detalle
@@ -429,6 +494,11 @@ def step_5_attachments(fin_vale_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     # Mostrar formulario
+    form.vehiculo_descripcion.data = fin_vale.vehiculo_descripcion
+    form.tanque_inicial.data = fin_vale.tanque_inicial
+    form.tanque_final.data = fin_vale.tanque_final
+    form.kilometraje_inicial.data = fin_vale.kilometraje_inicial
+    form.kilometraje_final.data = fin_vale.kilometraje_final
     return render_template("fin_vales/step_5_attachments.jinja2", form=form, fin_vale=fin_vale)
 
 
@@ -456,7 +526,7 @@ def step_6_archive(fin_vale_id):
     # Si viene el formulario
     form = FinValeStep6ArchiveForm()
     if form.validate_on_submit():
-        fin_vale.notas = safe_string(form.notas.data)
+        fin_vale.notas = safe_string(form.notas.data, to_uppercase=False)
         fin_vale.estado = "ARCHIVADO"
         fin_vale.save()
         bitacora = Bitacora(
@@ -469,6 +539,7 @@ def step_6_archive(fin_vale_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     # Mostrar formulario
+    fin_vale.notas = "Ninguna"
     return render_template("fin_vales/step_6_archive.jinja2", form=form, fin_vale=fin_vale)
 
 

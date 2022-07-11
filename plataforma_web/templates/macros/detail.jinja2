@@ -10,6 +10,18 @@
     </div>
 {%- endmacro -%}
 
+{# Card styled #}
+{%- macro card_styled(title='', classes='') -%}
+    <div class="card mb-3 {{classes}}">
+        {% if title %}<div class="card-header">
+            {{ title }}
+        </div>{% endif %}
+        <div class="card-body">
+            {{ caller () }}
+        </div>
+    </div>
+{%- endmacro -%}
+
 {# Detail normal #}
 {%- macro label_value(label, value, link='') -%}
     {% if value != None and value != '' %}

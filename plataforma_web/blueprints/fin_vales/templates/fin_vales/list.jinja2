@@ -6,9 +6,17 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {{ topbar.button_list_active('Mi listado', url_for('fin_vales.list_active')) }}
+        {% if current_user.can_admin('FIN VALES') %}
+            {{ topbar.button_list_active('Creados', url_for('fin_vales.list_create_active')) }}
+            {{ topbar.button_list_active('Solicitados', url_for('fin_vales.list_request_active')) }}
+            {{ topbar.button_list_active('Autorizados', url_for('fin_vales.list_authorize_active')) }}
+            {{ topbar.button_list_active('Entregados', url_for('fin_vales.list_deliver_active')) }}
+            {{ topbar.button_list_active('Por Revisar', url_for('fin_vales.list_attachments_active')) }}
+            {{ topbar.button_list_active('Archivados', url_for('fin_vales.list_archive_active')) }}
+        {% endif %}
         {% if current_user.can_edit('FIN VALES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('fin_vales.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('fin_vales.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('FIN VALES') %}
             {{ topbar.button_new('Crear', url_for('fin_vales.step_1_create')) }}
