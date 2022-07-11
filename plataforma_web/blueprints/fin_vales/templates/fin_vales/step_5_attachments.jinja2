@@ -1,4 +1,5 @@
 {% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
@@ -16,13 +17,16 @@
         {{ detail.label_value('Tipo', fin_vale.tipo) }}
         {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
         {{ detail.label_value('Justificacion', fin_vale.justificacion) }}
+        {{ detail.label_value('Creado', moment(fin_vale.creado).format('llll')) }}
     {% endcall %}
     {% call detail.card(title='Solicitado') %}
         {{ detail.label_value('Nombre', fin_vale.solicito_nombre) }}
         {{ detail.label_value('Puesto', fin_vale.solicito_puesto) }}
         {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
-        {{ detail.label_value('Firma fecha y hora', fin_vale.solicito_efirma_tiempo) }}
-        {{ detail.label_value('Firma folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
+        {{ detail.label_value('Tiempo', fin_vale.solicito_efirma_tiempo) }}
+        {{ detail.label_value('Mensaje', fin_vale.solicito_efirma_mensaje) }}
+        {{ detail.label_value('Error', fin_vale.solicito_efirma_error) }}
+        {{ detail.label_value_new_tab('Folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
     {% endcall %}
     {% call detail.card(title='Autorizado') %}
         {{ detail.label_value('Nombre', fin_vale.autorizo_nombre) }}
@@ -31,7 +35,7 @@
         {{ detail.label_value('Tiempo', fin_vale.autorizo_efirma_tiempo) }}
         {{ detail.label_value('Mensaje', fin_vale.autorizo_efirma_mensaje) }}
         {{ detail.label_value('Error', fin_vale.autorizo_efirma_error) }}
-        {{ detail.label_value('Folio y URL', fin_vale.autorizo_efirma_folio, fin_vale.autorizo_efirma_url) }}
+        {{ detail.label_value_new_tab('Folio y URL', fin_vale.autorizo_efirma_folio, fin_vale.autorizo_efirma_url) }}
     {% endcall %}
     {% call detail.card(title='Entregado') %}
         {{ detail.label_value('Folio', fin_vale.folio) }}
@@ -47,4 +51,8 @@
             {% call f.form_group(form.concluir) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

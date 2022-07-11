@@ -17,13 +17,16 @@
         {{ detail.label_value('Tipo', fin_vale.tipo) }}
         {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
         {{ detail.label_value('Justificacion', fin_vale.justificacion) }}
+        {{ detail.label_value('Creado', moment(fin_vale.creado).format('llll')) }}
     {% endcall %}
     {% call detail.card(title='Solicitado') %}
         {{ detail.label_value('Nombre', fin_vale.solicito_nombre) }}
         {{ detail.label_value('Puesto', fin_vale.solicito_puesto) }}
         {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
-        {{ detail.label_value('Firma fecha y hora', fin_vale.solicito_efirma_tiempo) }}
-        {{ detail.label_value('Firma folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
+        {{ detail.label_value('Tiempo', moment(fin_vale.solicito_efirma_tiempo).format('llll')) }}
+        {{ detail.label_value('Mensaje', fin_vale.solicito_efirma_mensaje) }}
+        {{ detail.label_value('Error', fin_vale.solicito_efirma_error) }}
+        {{ detail.label_value_new_tab('Folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
     {% endcall %}
     {% call f.card(title='Autorizar') %}
         {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
@@ -35,4 +38,8 @@
             {% call f.form_group(form.autorizar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

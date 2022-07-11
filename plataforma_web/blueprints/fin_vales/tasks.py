@@ -9,6 +9,7 @@ import urllib
 
 from dotenv import load_dotenv
 import requests
+from lib.safe_string import safe_string
 
 from lib.tasks import set_task_progress, set_task_error
 
@@ -73,11 +74,11 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
     # Consultar el usuario que solicita
     solicita = Usuario.query.get(usuario_id)
     if solicita is None:
-        mensaje = f"No se encontró el usuario {fin_vale.solicito_email} que solicita"
+        mensaje = f"No se encontró el usuario {usuario_id} que solicita"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     if solicita.efirma_registro_id is None or solicita.efirma_registro_id == 0:
-        mensaje = f"El usuario {fin_vale.solicito_email} no tiene registro en el motor de firma"
+        mensaje = f"El usuario {solicita.email} no tiene registro en el motor de firma"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
@@ -156,9 +157,9 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
 
     # Actualizar el vale, ahora su estado es SOLICITADO
     url_quote = urllib.parse.quote(datos["url"])
-    fin_vale.solicito_nombre = 
-    fin_vale.solicito_puesto = 
-    fin_vale.solicito_email = 
+    fin_vale.solicito_nombre = solicita.nombre
+    fin_vale.solicito_puesto = solicita.puesto
+    fin_vale.solicito_email = solicita.email
     fin_vale.solicito_efirma_tiempo = datetime.strptime(datos["fecha"], "%d/%m/%Y %H:%M:%S")
     fin_vale.solicito_efirma_folio = datos["folio"]
     fin_vale.solicito_efirma_sello_digital = datos["selloDigital"]
@@ -176,7 +177,7 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
     return mensaje_final
 
 
-def cancelar_solicitar(fin_vale_id: int, contrasena: str):
+def cancelar_solicitar(fin_vale_id: int, contrasena: str, motivo: str):
     """Cancelar la firma electronica de un vale por quien solicita"""
 
     # Validar configuracion
@@ -252,7 +253,8 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str):
 
     # Actualizar el vale, ahora su estado es CANCELADO POR SOLICITANTE
     fin_vale.estado = "CANCELADO POR SOLICITANTE"
-    # fin_vale.solicito_cancelo_tiempo = datetime.strptime(datos["fechaCancelado"], "%Y-%m%d %H:%M:%S")
+    fin_vale.solicito_cancelo_tiempo = datetime.now()
+    fin_vale.solicito_cancelo_motivo = safe_string(motivo, to_uppercase=False)
     fin_vale.solicito_cancelo_error = ""
     fin_vale.save()
 
@@ -300,13 +302,13 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
         return set_task_error(mensaje)
 
     # Consultar el usuario que autoriza
-    autoriza = Usuario.query.filter_by(email=fin_vale.autorizo_email).first()
+    autoriza = Usuario.query.get(usuario_id)
     if autoriza is None:
-        mensaje = f"No se encontró el usuario {fin_vale.autorizo_email} que autoriza"
+        mensaje = f"No se encontró el usuario {usuario_id} que autoriza"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     if autoriza.efirma_registro_id is None or autoriza.efirma_registro_id == 0:
-        mensaje = f"El usuario {fin_vale.autorizo_email} no tiene registro en el motor de firma"
+        mensaje = f"El usuario {autoriza.email} no tiene registro en el motor de firma"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
@@ -386,6 +388,9 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
 
     # Actualizar el vale, ahora su estado es AUTORIZADO
     url_quote = urllib.parse.quote(datos["url"])
+    fin_vale.autorizo_nombre = autoriza.nombre
+    fin_vale.autorizo_puesto = autoriza.puesto
+    fin_vale.autorizo_email = autoriza.email
     fin_vale.autorizo_efirma_tiempo = datetime.strptime(datos["fecha"], "%d/%m/%Y %H:%M:%S")
     fin_vale.autorizo_efirma_folio = datos["folio"]
     fin_vale.autorizo_efirma_sello_digital = datos["selloDigital"]
@@ -405,7 +410,7 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
     return mensaje_final
 
 
-def cancelar_autorizar(fin_vale_id: int, contrasena: str):
+def cancelar_autorizar(fin_vale_id: int, contrasena: str, motivo: str):
     """Cancelar la firma electronica de un vale por quien autoriza"""
 
     # Validar configuracion
@@ -481,7 +486,8 @@ def cancelar_autorizar(fin_vale_id: int, contrasena: str):
 
     # Actualizar el vale, ahora su estado es CANCELADO POR AUTORIZADOR
     fin_vale.estado = "CANCELADO POR AUTORIZADOR"
-    # fin_vale.autorizo_cancelo_tiempo = datetime.strptime(datos["fechaCancelado"], "%Y-%m%d %H:%M:%S")
+    fin_vale.autorizo_cancelo_tiempo = datetime.now()
+    fin_vale.autorizo_cancelo_motivo = safe_string(motivo, to_uppercase=False)
     fin_vale.autorizo_cancelo_error = ""
     fin_vale.save()
 

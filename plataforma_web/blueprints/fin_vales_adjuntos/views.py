@@ -81,8 +81,8 @@ def new(fin_vale_id):
     if fin_vale.estatus != "A":
         flash("No puede adjuntar un archivo a un vale eliminado.", "warning")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
-    if fin_vale.estado not in ["AUTORIZADO", "COMPROBADO"]:
-        flash("No puede adjuntar un archivo a un vale que no esta autorizado o comprobado.", "warning")
+    if fin_vale.estado not in ["ENTREGADO", "POR REVISAR"]:
+        flash("No puede adjuntar un archivo a un vale que no esta ENTREGADO o POR REVISAR.", "warning")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     if not (current_user.can_admin(MODULO) or fin_vale.usuario == current_user):
         flash("No puede adjuntar un archivo a un vale si no fue creado por Usted.", "warning")

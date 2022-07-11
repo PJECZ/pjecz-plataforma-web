@@ -11,6 +11,7 @@ from plataforma_web.extensions import db, pwd_context
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.tareas.models import Tarea
+from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
 
 class Usuario(db.Model, UserMixin, UniversalMixin):
@@ -157,6 +158,11 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     def get_task_in_progress(self, nombre):
         """Obtener progreso de una tarea"""
         return Tarea.query.filter_by(nombre=nombre, usuario=self, ha_terminado=False).first()
+
+    def get_roles(self):
+        """Obtener roles"""
+        usuarios_roles = UsuarioRol.query.filter_by(usuario_id=self.id).filter_by(estatus="A").all()
+        return [usuario_rol.rol.nombre for usuario_rol in usuarios_roles]
 
     def __repr__(self):
         """Representación"""

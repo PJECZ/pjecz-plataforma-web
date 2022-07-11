@@ -6,7 +6,7 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_email, safe_string, safe_message
+from lib.safe_string import safe_string, safe_message
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.fin_vales.models import FinVale
@@ -23,13 +23,14 @@ from plataforma_web.blueprints.fin_vales.forms import (
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
 MODULO = "FIN VALES"
 
+fin_vales = Blueprint("fin_vales", __name__, template_folder="templates")
+
 ROL_SOLICITANTES = "FINANCIEROS SOLICITANTES"
 ROL_AUTORIZANTES = "FINANCIEROS AUTORIZANTES"
-
-fin_vales = Blueprint("fin_vales", __name__, template_folder="templates")
 
 
 @fin_vales.before_request
@@ -79,6 +80,7 @@ def datatable_json():
 @fin_vales.route("/fin_vales")
 def list_active():
     """Listado de Vales activos"""
+    # Si es administrador puede ver Todos los Vales activos
     if current_user.can_admin(MODULO):
         return render_template(
             "fin_vales/list.jinja2",
@@ -86,10 +88,28 @@ def list_active():
             titulo="Todos los Vales",
             estatus="A",
         )
+    current_user_roles = current_user.get_roles()
+    # Si es autorizante, mostrar Vales por Autorizar
+    if ROL_AUTORIZANTES in current_user_roles:
+        return render_template(
+            "fin_vales/list.jinja2",
+            filtros=json.dumps({"estatus": "A", "estado": "SOLICITADO"}),
+            titulo="Vales por Autorizar",
+            estatus="A",
+        )
+    # Si es solicitante, mostrar Vales por Solicitar
+    if ROL_SOLICITANTES in current_user_roles:
+        return render_template(
+            "fin_vales/list.jinja2",
+            filtros=json.dumps({"estatus": "A", "estado": "CREADO"}),
+            titulo="Vales por Solicitar",
+            estatus="A",
+        )
+    # Mostrar Mis Vales
     return render_template(
         "fin_vales/list.jinja2",
         filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
-        titulo="Vales",
+        titulo="Mis Vales",
         estatus="A",
     )
 
@@ -117,8 +137,8 @@ def list_inactive():
 def detail(fin_vale_id):
     """Detalle de un Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    # Validar que sea el usuario que creo el vale o un administrador
-    if not (current_user.can_admin(MODULO) or current_user.id == fin_vale.usuario_id):
+    current_user_roles = current_user.get_roles()
+    if not (current_user.can_admin(MODULO) or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
         flash("No tiene permiso para ver el detalle de este Vale", "warning")
         return redirect(url_for("fin_vales.list_active"))
     return render_template("fin_vales/detail.jinja2", fin_vale=fin_vale)
@@ -151,7 +171,7 @@ def step_1_create():
     form.usuario_puesto.data = current_user.puesto
     form.usuario_email.data = current_user.email
     form.tipo.data = "GASOLINA"
-    form.justificacion.data = "Solicito un vale de gasolina de $100.00 (cien pesos 00/100 m.n), para NOMBRE COMPLETO con el objetivo de ir a DESTINO U OFICINA."
+    form.justificacion.data = f"Solicito un vale de gasolina de $100.00 (cien pesos 00/100 m.n), para {current_user.nombre} con el objetivo de ir a DESTINO U OFICINA."
     form.monto.data = 100.00
     return render_template("fin_vales/step_1_create.jinja2", form=form)
 
@@ -170,7 +190,13 @@ def step_2_request(fin_vale_id):
     if fin_vale.estado != "CREADO":
         flash("El vale NO esta en estado CREADO", "warning")
         puede_firmarlo = False
-    # Validar que el usuario
+    # Validar el usuario
+    if current_user.efirma_registro_id is None:
+        flash("Usted no tiene registro en la firma electronica", "warning")
+        puede_firmarlo = False
+    if ROL_SOLICITANTES not in current_user.get_roles():
+        flash("Usted no tiene el rol para solicitar un vale", "warning")
+        puede_firmarlo = False
     # Si no puede solicitarlo, redireccionar a la pagina de detalle
     if not puede_firmarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
@@ -208,6 +234,12 @@ def cancel_2_request(fin_vale_id):
         flash("El vale NO esta en estado SOLICITADO", "warning")
         puede_cancelarlo = False
     # Validar el usuario
+    if current_user.efirma_registro_id is None:
+        flash("Usted no tiene registro en la firma electronica", "warning")
+        puede_cancelarlo = False
+    if ROL_SOLICITANTES not in current_user.get_roles():
+        flash("Usted no tiene el rol para cancelar un vale", "warning")
+        puede_cancelarlo = False
     # Si no puede cancelarlo, redireccionar a la pagina de detalle
     if not puede_cancelarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
@@ -219,6 +251,7 @@ def cancel_2_request(fin_vale_id):
             "plataforma_web.blueprints.fin_vales.tasks.cancelar_solicitar",
             fin_vale_id=fin_vale.id,
             contrasena=form.contrasena.data,
+            motivo=form.motivo.data,
         )
         flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
@@ -244,6 +277,12 @@ def step_3_authorize(fin_vale_id):
         flash("El vale NO esta en estado SOLICITADO", "warning")
         puede_firmarlo = False
     # Validar el usuario
+    if current_user.efirma_registro_id is None:
+        flash("Usted no tiene registro en la firma electronica", "warning")
+        puede_firmarlo = False
+    if ROL_AUTORIZANTES not in current_user.get_roles():
+        flash("Usted no tiene el rol para autorizar un vale", "warning")
+        puede_firmarlo = False
     # Si no puede autorizarlo, redireccionar a la pagina de detalle
     if not puede_firmarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
@@ -281,6 +320,12 @@ def cancel_3_authorize(fin_vale_id):
         flash("El vale NO esta en estado AUTORIZADO", "warning")
         puede_cancelarlo = False
     # Validar el usuario
+    if current_user.efirma_registro_id is None:
+        flash("Usted no tiene registro en la firma electronica", "warning")
+        puede_cancelarlo = False
+    if ROL_AUTORIZANTES not in current_user.get_roles():
+        flash("Usted no tiene el rol para cancelar un vale", "warning")
+        puede_cancelarlo = False
     # Si no puede cancelarlo, redireccionar a la pagina de detalle
     if not puede_cancelarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
@@ -292,6 +337,7 @@ def cancel_3_authorize(fin_vale_id):
             "plataforma_web.blueprints.fin_vales.tasks.cancelar_autorizar",
             fin_vale_id=fin_vale.id,
             contrasena=form.contrasena.data,
+            motivo=form.motivo.data,
         )
         flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
@@ -317,6 +363,9 @@ def step_4_deliver(fin_vale_id):
         flash("El vale NO esta en estado AUTORIZADO", "warning")
         puede_entregarlo = False
     # Validar el usuario
+    if ROL_AUTORIZANTES not in current_user.get_roles():
+        flash("Usted no tiene el rol para entregar un vale", "warning")
+        puede_entregarlo = False
     # Si no puede entregarlo, redireccionar a la pagina de detalle
     if not puede_entregarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
@@ -354,6 +403,9 @@ def step_5_attachments(fin_vale_id):
         flash("El vale NO esta en estado ENTREGADO", "warning")
         puede_adjuntar = False
     # Validar el usuario
+    if current_user.id != fin_vale.usuario_id or not current_user.can_admin(MODULO):
+        flash("Usted no es el usuario que creo el vale", "warning")
+        puede_adjuntar = False
     # Si no puede entregarlo, redireccionar a la pagina de detalle
     if not puede_adjuntar:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
@@ -385,18 +437,21 @@ def step_5_attachments(fin_vale_id):
 def step_6_archive(fin_vale_id):
     """Formulario Vale (step 6 archive) Archivar"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    puede_archivar = True
+    puede_archivarlo = True
     # Validar que sea activo
     if fin_vale.estatus != "A":
         flash("El vale esta eliminado", "warning")
-        puede_archivar = False
+        puede_archivarlo = False
     # Validar el estado
     if fin_vale.estado != "POR REVISAR":
         flash("El vale NO esta en estado POR REVISAR", "warning")
-        puede_archivar = False
+        puede_archivarlo = False
     # Validar el usuario
+    if ROL_AUTORIZANTES not in current_user.get_roles():
+        flash("Usted no tiene el rol para archivar un vale", "warning")
+        puede_archivarlo = False
     # Si no puede entregarlo, redireccionar a la pagina de detalle
-    if not puede_archivar:
+    if not puede_archivarlo:
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Si viene el formulario
     form = FinValeStep6ArchiveForm()
