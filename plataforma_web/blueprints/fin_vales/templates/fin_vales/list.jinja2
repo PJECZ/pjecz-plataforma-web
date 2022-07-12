@@ -34,6 +34,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Estado</th>
+                    <th>Oficina</th>
                     <th>Creado por</th>
                     <th>Justificacion</th>
                     <th>Monto</th>
@@ -51,6 +52,7 @@
         configDataTable['columns'] = [
             { data: 'detalle' },
             { data: 'estado' },
+            { data: 'usuario_oficina_clave' },
             { data: 'usuario_nombre' },
             { data: 'justificacion' },
             { data: 'monto' }
@@ -73,7 +75,7 @@
                 }
             },
             {
-                targets: 3, // justificacion
+                targets: 4, // justificacion
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 92)
@@ -82,7 +84,7 @@
                 }
             },
             {
-                targets: 4, // monto
+                targets: 5, // monto
                 data: null,
                 render: function(data, type, row, meta) {
                     return '$ ' + data;
