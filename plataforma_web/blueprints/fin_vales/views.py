@@ -113,6 +113,17 @@ def list_active():
     )
 
 
+@fin_vales.route("/fin_vales/mis_vales")
+def list_mine_active():
+    """Listado de Mis Vales activos"""
+    return render_template(
+        "fin_vales/list.jinja2",
+        filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
+        titulo="Mis Vales",
+        estatus="A",
+    )
+
+
 @fin_vales.route("/fin_vales/creados")
 def list_create_active():
     """Listado de Vales Creados activos"""
@@ -253,7 +264,7 @@ def step_2_request(fin_vale_id):
         puede_firmarlo = False
     # Validar el estado
     if fin_vale.estado != "CREADO":
-        flash("El vale NO esta en estado CREADO", "warning")
+        flash("El vale no esta en estado CREADO", "warning")
         puede_firmarlo = False
     # Validar el usuario
     if current_user.efirma_registro_id is None:
@@ -296,14 +307,17 @@ def cancel_2_request(fin_vale_id):
         puede_cancelarlo = False
     # Validar el estado
     if fin_vale.estado != "SOLICITADO":
-        flash("El vale NO esta en estado SOLICITADO", "warning")
+        flash("El vale no esta en estado SOLICITADO", "warning")
         puede_cancelarlo = False
     # Validar el usuario
     if current_user.efirma_registro_id is None:
         flash("Usted no tiene registro en la firma electronica", "warning")
         puede_cancelarlo = False
     if ROL_SOLICITANTES not in current_user.get_roles():
-        flash("Usted no tiene el rol para cancelar un vale", "warning")
+        flash("Usted no tiene el rol para cancelar un vale solicitado", "warning")
+        puede_cancelarlo = False
+    if fin_vale.solicito_email != current_user.email:
+        flash("Usted no es el solicitante de este vale", "warning")
         puede_cancelarlo = False
     # Si no puede cancelarlo, redireccionar a la pagina de detalle
     if not puede_cancelarlo:
@@ -339,7 +353,7 @@ def step_3_authorize(fin_vale_id):
         puede_firmarlo = False
     # Validar el estado
     if fin_vale.estado != "SOLICITADO":
-        flash("El vale NO esta en estado SOLICITADO", "warning")
+        flash("El vale no esta en estado SOLICITADO", "warning")
         puede_firmarlo = False
     # Validar el usuario
     if current_user.efirma_registro_id is None:
@@ -382,14 +396,17 @@ def cancel_3_authorize(fin_vale_id):
         puede_cancelarlo = False
     # Validar el estado
     if fin_vale.estado != "AUTORIZADO":
-        flash("El vale NO esta en estado AUTORIZADO", "warning")
+        flash("El vale no esta en estado AUTORIZADO", "warning")
         puede_cancelarlo = False
     # Validar el usuario
     if current_user.efirma_registro_id is None:
         flash("Usted no tiene registro en la firma electronica", "warning")
         puede_cancelarlo = False
     if ROL_AUTORIZANTES not in current_user.get_roles():
-        flash("Usted no tiene el rol para cancelar un vale", "warning")
+        flash("Usted no tiene el rol para cancelar un vale autorizado", "warning")
+        puede_cancelarlo = False
+    if fin_vale.autorizo_email != current_user.email:
+        flash("Usted no es el autorizante de este vale", "warning")
         puede_cancelarlo = False
     # Si no puede cancelarlo, redireccionar a la pagina de detalle
     if not puede_cancelarlo:
@@ -425,7 +442,7 @@ def step_4_deliver(fin_vale_id):
         puede_entregarlo = False
     # Validar el estado
     if fin_vale.estado != "AUTORIZADO":
-        flash("El vale NO esta en estado AUTORIZADO", "warning")
+        flash("El vale no esta en estado AUTORIZADO", "warning")
         puede_entregarlo = False
     # Validar el usuario
     if ROL_AUTORIZANTES not in current_user.get_roles():
@@ -465,7 +482,7 @@ def step_5_attachments(fin_vale_id):
         puede_adjuntar = False
     # Validar el estado
     if fin_vale.estado != "ENTREGADO" and fin_vale.estado != "POR REVISAR":
-        flash("El vale NO esta en estado ENTREGADO o POR REVISAR", "warning")
+        flash("El vale no esta en estado ENTREGADO o POR REVISAR", "warning")
         puede_adjuntar = False
     # Validar el usuario
     if current_user.id != fin_vale.usuario_id:
@@ -514,7 +531,7 @@ def step_6_archive(fin_vale_id):
         puede_archivarlo = False
     # Validar el estado
     if fin_vale.estado != "POR REVISAR":
-        flash("El vale NO esta en estado POR REVISAR", "warning")
+        flash("El vale no esta en estado POR REVISAR", "warning")
         puede_archivarlo = False
     # Validar el usuario
     if ROL_AUTORIZANTES not in current_user.get_roles():
@@ -559,7 +576,7 @@ def delete(fin_vale_id):
         if fin_vale.autorizo_email == current_user.email and fin_vale.estado == "AUTORIZADO":
             puede_eliminarlo = True
         if not puede_eliminarlo:
-            flash("No tiene permisos para eliminar o tiene un estado particular este vale", "warning")
+            flash("No tiene permisos para eliminar o tiene un estado particular", "warning")
             return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
         fin_vale.delete()
         bitacora = Bitacora(
@@ -589,7 +606,7 @@ def recover(fin_vale_id):
         if fin_vale.autorizo_email == current_user.email and fin_vale.estado == "AUTORIZADO":
             puede_recuperarlo = True
         if not puede_recuperarlo:
-            flash("No tiene permisos para recuperar o tiene un estado particular este vale", "warning")
+            flash("No tiene permisos para recuperar o tiene un estado particular", "warning")
             return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
         fin_vale.recover()
         bitacora = Bitacora(

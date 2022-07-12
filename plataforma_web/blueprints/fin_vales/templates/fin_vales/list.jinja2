@@ -6,7 +6,10 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button_list_active('Mi listado', url_for('fin_vales.list_active')) }}
+        {{ topbar.button_list_active('Mi Listado', url_for('fin_vales.list_active')) }}
+        {% if title != 'Mis Vales' %}
+            {{ topbar.button_list_active('Mis Vales', url_for('fin_vales.list_mine_active')) }}
+        {% endif %}
         {% if current_user.can_admin('FIN VALES') %}
             {{ topbar.button_list_active('Creados', url_for('fin_vales.list_create_active')) }}
             {{ topbar.button_list_active('Solicitados', url_for('fin_vales.list_request_active')) }}
