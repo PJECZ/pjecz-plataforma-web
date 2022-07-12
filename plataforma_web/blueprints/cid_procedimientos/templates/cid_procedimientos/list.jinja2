@@ -20,6 +20,7 @@
         {% if current_user.can_insert('CID PROCEDIMIENTOS') %}
             {{ topbar.button_new('Nuevo Procedimiento', url_for('cid_procedimientos.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('cid_procedimientos.search')) }}
     {% endcall %}
 {% endblock %}
 

@@ -79,3 +79,14 @@ class CIDProcedimientoEditAdminForm(FlaskForm):
     codigo = StringField("Código")  # Read only
     revision = IntegerField("Revisión (Número entero apartir de 1)")  # Read only
     guardar = SubmitField("Guardar")
+
+
+class CIDProcedimientoSearchForm(FlaskForm):
+    """Formulario Search CIDProcedimientos"""
+
+    id = IntegerField("ID", validators=[Optional()])
+    titulo_procedimiento = StringField("Título Procedimiento", validators=[Optional()])
+    codigo = StringField("Codigo", validators=[Optional()])
+    fecha_desde = DateField("Fecha desde", validators=[Optional()])
+    fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
+    buscar = SubmitField("Buscar")
