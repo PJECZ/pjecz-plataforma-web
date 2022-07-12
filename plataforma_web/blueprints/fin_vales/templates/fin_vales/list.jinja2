@@ -1,0 +1,94 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Vales{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {{ topbar.button_list_active('Mi Listado', url_for('fin_vales.list_active')) }}
+        {% if title != 'Mis Vales' %}
+            {{ topbar.button_list_active('Mis Vales', url_for('fin_vales.list_mine_active')) }}
+        {% endif %}
+        {% if current_user.can_admin('FIN VALES') %}
+            {{ topbar.button_list_active('Creados', url_for('fin_vales.list_create_active')) }}
+            {{ topbar.button_list_active('Solicitados', url_for('fin_vales.list_request_active')) }}
+            {{ topbar.button_list_active('Autorizados', url_for('fin_vales.list_authorize_active')) }}
+            {{ topbar.button_list_active('Entregados', url_for('fin_vales.list_deliver_active')) }}
+            {{ topbar.button_list_active('Por Revisar', url_for('fin_vales.list_attachments_active')) }}
+            {{ topbar.button_list_active('Archivados', url_for('fin_vales.list_archive_active')) }}
+        {% endif %}
+        {% if current_user.can_edit('FIN VALES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('fin_vales.list_inactive')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('FIN VALES') %}
+            {{ topbar.button_new('Crear', url_for('fin_vales.step_1_create')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="fin_vales_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Estado</th>
+                    <th>Creado por</th>
+                    <th>Justificacion</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/fin_vales/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'estado' },
+            { data: 'usuario_nombre' },
+            { data: 'justificacion' },
+            { data: 'monto' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 2, // usuario_nombre
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16)
+                        return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                    return data;
+                }
+            },
+            {
+                targets: 3, // justificacion
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 92)
+                        return '<span title="' + data + '">' + data.substr(0, 92) + '…' + '</span>';
+                    return data;
+                }
+            },
+            {
+                targets: 4, // monto
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '$ ' + data;
+                }
+            }
+        ];
+        $('#fin_vales_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}

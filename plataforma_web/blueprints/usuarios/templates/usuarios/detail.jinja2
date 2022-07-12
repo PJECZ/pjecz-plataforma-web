@@ -51,6 +51,7 @@
                 {% endif %}
                 {{ detail.label_value('Teléfono celular', usuario.telefono_celular) }}
                 {{ detail.label_value('Workspace', usuario.workspace) }}
+                {{ detail.label_value('EFirma registro ID', usuario.efirma_registro_id) }}
                 {{ detail.label_value('Creado', moment(usuario.creado).format('llll')) }}
             {% endcall %}
         {% endcall %}

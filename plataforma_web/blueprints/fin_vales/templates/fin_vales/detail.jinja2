@@ -1,0 +1,174 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Vale{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons("Vale " + fin_vale.id | string + " " + fin_vale.estado) %}
+        {{ topbar.button_previous('Vales', url_for('fin_vales.list_active')) }}
+        {% if current_user.can_edit('FIN VALES') %}
+            {% if fin_vale.estado == 'CREADO' %}
+                {{ topbar.button_edit('Solicitar', url_for('fin_vales.step_2_request', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'SOLICITADO' %}
+                {{ topbar.button_edit('Cancelar solicitado', url_for('fin_vales.cancel_2_request', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button_edit('Autorizar', url_for('fin_vales.step_3_authorize', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'AUTORIZADO' %}
+                {{ topbar.button_edit('Cancelar autorizado', url_for('fin_vales.cancel_3_authorize', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button_edit('Entregar', url_for('fin_vales.step_4_deliver', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'ENTREGADO' %}
+                {{ topbar.button_edit('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'POR REVISAR' %}
+                {{ topbar.button_edit('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button_edit('Archivar', url_for('fin_vales.step_6_archive', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estatus == 'A' %}
+                {{ topbar.button_delete('Eliminar', url_for('fin_vales.delete', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estatus == 'B' %}
+                {{ topbar.button_recover('Recuperar', url_for('fin_vales.recover', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% if fin_vale.estado in ['CREADO', 'SOLICITADO', 'CANCELADO POR SOLICITANTE', 'AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
+        {% call detail.card(title='Creado', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Nombre', fin_vale.usuario.nombre) }}
+            {{ detail.label_value('Puesto', fin_vale.usuario.puesto) }}
+            {{ detail.label_value('e-mail', fin_vale.usuario.email) }}
+            {{ detail.label_value('Tiempo', moment(fin_vale.creado).format('llll')) }}
+            {{ detail.label_value('Tipo', fin_vale.tipo) }}
+            {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
+            {{ detail.label_value_big('Justificacion', fin_vale.justificacion) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.solicito_efirma_error != None and fin_vale.solicito_efirma_error != '' %}
+        {% call detail.card_styled(title='Error al solicitar', classes='bg-warning') %}
+            {{ detail.label_value('ERROR', fin_vale.solicito_efirma_error) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.estado in ['SOLICITADO', 'CANCELADO POR SOLICITANTE', 'AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
+        {% call detail.card(title='Solicitado', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Nombre', fin_vale.solicito_nombre) }}
+            {{ detail.label_value('Puesto', fin_vale.solicito_puesto) }}
+            {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
+            {{ detail.label_value('Tiempo', moment(fin_vale.solicito_efirma_tiempo).format('llll')) }} 
+            {{ detail.label_value('Mensaje', fin_vale.solicito_efirma_mensaje) }}
+            {{ detail.label_value_new_tab('Folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.estado == 'CANCELADO POR SOLICITANTE' %}
+        {% call detail.card(title='Cancelado por solicitante', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Tiempo', moment(fin_vale.solicito_cancelo_tiempo).format('llll')) }}
+            {{ detail.label_value('Motivo', fin_vale.solicito_cancelo_motivo) }}
+            {{ detail.label_value('Error', fin_vale.solicito_cancelo_error) }}
+            {{ detail.label_value_new_tab('Folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.autorizo_efirma_error != None and fin_vale.autorizo_efirma_error != '' %}
+        {% call detail.card_styled(title='Error al autorizar', classes='bg-warning') %}
+            {{ detail.label_value('ERROR', fin_vale.autorizo_efirma_error) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.estado in ['AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
+        {% call detail.card(title='Autorizado', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Nombre', fin_vale.autorizo_nombre) }}
+            {{ detail.label_value('Puesto', fin_vale.autorizo_puesto) }}
+            {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
+            {{ detail.label_value('Tiempo', fin_vale.autorizo_efirma_tiempo) }}
+            {{ detail.label_value('Mensaje', fin_vale.autorizo_efirma_mensaje) }}
+            {{ detail.label_value_new_tab('Folio y URL', fin_vale.autorizo_efirma_folio, fin_vale.autorizo_efirma_url) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.estado == 'CANCELADO POR AUTORIZANTE' %}
+        {% call detail.card(title='Cancelado por autorizante', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Nombre', fin_vale.autorizo_nombre) }}
+            {{ detail.label_value('Puesto', fin_vale.autorizo_puesto) }}
+            {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
+            {{ detail.label_value('Tiempo', fin_vale.autorizo_efirma_tiempo) }}
+            {{ detail.label_value('Mensaje', fin_vale.autorizo_efirma_mensaje) }}
+            {{ detail.label_value_new_tab('Folio y URL', fin_vale.autorizo_efirma_folio, fin_vale.autorizo_efirma_url) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.estado in ['ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
+        {% call detail.card(title='Entregado', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Folio', fin_vale.folio) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.estado in ['POR REVISAR', 'ARCHIVADO'] %}
+        {% call detail.card(title='Por revisar', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Vehiculo', fin_vale.vehiculo_descripcion) }}
+            {{ detail.label_value('Tanque inicial', fin_vale.tanque_inicial) }}
+            {{ detail.label_value('Tanque final', fin_vale.tanque_final) }}
+            {{ detail.label_value('Kilometraje inicial', fin_vale.kilometraje_inicial) }}
+            {{ detail.label_value('Kilometraje final', fin_vale.kilometraje_final) }}
+        {% endcall %}
+    {% endif %}
+    {% if fin_vale.estado == 'ARCHIVADO' %}
+        {% call detail.card(title='Archivado', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Notas', fin_vale.notas) }}
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('FIN VALES ADJUNTOS') and fin_vale.estado in ['ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
+        {% call detail.card(title='Comprobantes', estatus=fin_vale.estatus) %}
+            <table id="fin_vales_adjuntos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Vinculo</th>
+                    </tr>
+                </thead>
+            </table>
+            {% if current_user.can_insert('FIN VALES ADJUNTOS') and fin_vale.estado in ['ENTREGADO', 'POR REVISAR'] %}
+                <a href="{{ url_for('fin_vales_adjuntos.new', fin_vale_id=fin_vale.id) }}" class="btn btn-primary">
+                    Agregar comprobante
+                </a>
+            {% endif %}
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+    {% if current_user.can_edit('FIN VALES') %}
+        {% if fin_vale.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + fin_vale.id | string + '?') }}{% endif %}
+        {% if fin_vale.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + fin_vale.id | string + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('FIN VALES ADJUNTOS') and (fin_vale.estado == "AUTORIZADO" or fin_vale.estado == "POR REVISAR") %}
+        <script>
+            configDataTable['ajax']['url'] = '/fin_vales_adjuntos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'fin_vale_id': {{ fin_vale.id}} };
+            configDataTable['columns'] = [
+                { data: 'detalle' },
+                { data: 'tipo' },
+                { data: 'vinculo' }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 2, // vinculo
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '" target="_blank">' + data.archivo + '</a>';
+                    }
+                },
+            ];
+            $('#fin_vales_adjuntos_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
+{% endblock %}

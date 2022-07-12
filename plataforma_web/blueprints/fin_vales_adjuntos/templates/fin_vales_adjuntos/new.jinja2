@@ -1,0 +1,34 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Adjuntar comprobante al vale{% endblock %}
+
+{% block custom_head %}
+    {{ f.drop_zone_css() }}
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Adjuntar comprobante al vale ' + fin_vale.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
+        {% call f.form_tag_multipart('fin_vales_adjuntos.new', fid='fin_vale_adjunto_form', **form_kwargs) %}
+            {% call f.form_group(form.fin_vale_usuario_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.fin_vale_tipo, readonly=true, rows=5) %}{% endcall %}
+            {% call f.form_group(form.fin_vale_justificacion, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.fin_vale_monto, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tipo) %}{% endcall %}
+            {% call f.drop_zone_wrapper() %}
+                {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
+            {% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.drop_zone_js() }}
+{% endblock %}

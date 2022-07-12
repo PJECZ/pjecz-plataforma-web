@@ -1,0 +1,34 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Comprobante del vale{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Comprobante del vale ' + fin_vale_adjunto.fin_vale_id | string) %}
+        {{ topbar.button_previous('Vale ' + fin_vale_adjunto.fin_vale_id | string, url_for('fin_vales.detail', fin_vale_id=fin_vale_adjunto.fin_vale_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=fin_vale_adjunto.estatus) %}
+        {{ detail.label_value('Elaborado por', fin_vale_adjunto.fin_vale.usuario.nombre) }}
+        {{ detail.label_value('Tipo de vale', fin_vale_adjunto.fin_vale.tipo) }}
+        {{ detail.label_value('Justificación', fin_vale_adjunto.fin_vale.justificacion) }}
+        {{ detail.label_value('Monto', fin_vale_adjunto.fin_vale.monto) }}
+        {{ detail.label_value('Tipo de adjunto', fin_vale_adjunto.tipo) }}
+        {{ detail.label_value_new_tab('Archivo', fin_vale_adjunto.archivo, fin_vale_adjunto.url) }}
+        {% if fin_vale_adjunto.url.rsplit(".", 1)[1].lower() in ("png", "jpg", "jpeg") %}
+            {{ detail.label_value('Imagen previa') }}
+            <a href="{{ fin_vale_adjunto.url }}"><img src="{{ fin_vale_adjunto.url }}" style="max-width: 400px; height: auto;"/></a>
+        {% endif %}
+        {% if fin_vale_adjunto.archivo.rsplit(".", 1)[1].lower() == "pdf" %}
+            {{ detail.label_value('Vista previa') }}
+            <object data="{{ fin_vale_adjunto.url }}" type="application/pdf" width="100%" height="600"></object>
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

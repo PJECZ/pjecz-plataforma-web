@@ -2,7 +2,7 @@
 Usuarios, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, PasswordField, SelectField, StringField, SubmitField
+from wtforms import HiddenField, IntegerField, PasswordField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
@@ -67,6 +67,7 @@ class UsuarioNewForm(FlaskForm):
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
     workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
+    efirma_registro_id = IntegerField("ID de registro en eFirma", validators=[Optional()])
     contrasena = PasswordField(
         "Contraseña",
         validators=[
@@ -92,6 +93,7 @@ class UsuarioEditForm(FlaskForm):
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail")  # Read only
     workspace = StringField("Workspace")  # Read only
+    efirma_registro_id = IntegerField("ID de registro en eFirma", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
 
@@ -108,6 +110,7 @@ class UsuarioEditAdminForm(FlaskForm):
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
     workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
+    efirma_registro_id = IntegerField("ID de registro en eFirma", validators=[Optional()])
     contrasena = PasswordField(
         "Contraseña",
         validators=[

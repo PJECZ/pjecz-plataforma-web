@@ -34,7 +34,7 @@
             {% endif %}
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('USUARIOS_ROLES') %}
+    {% if current_user.can_view('USUARIOS ROLES') %}
         {% call detail.card('Usuarios') %}
             <table id="usuarios_roles_datatable" class="table display nowrap" style="width:100%">
                 <thead>
@@ -65,7 +65,7 @@
     {% if current_user.can_view('PERMISOS') %}
         <script>
             configDataTable['ajax']['url'] = '/permisos/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id }} };
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "modulo" },
@@ -94,10 +94,10 @@
             $('#permisos_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
-    {% if current_user.can_view('USUARIOS_ROLES') %}
+    {% if current_user.can_view('USUARIOS ROLES') %}
         <script>
             configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id }} };
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "usuario" },
@@ -109,11 +109,29 @@
                     targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // usuario
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.email;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.email + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: [2, 3], // usuario_nombre, usuario_puesto
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
                     }
                 }
             ];
-            $('#usuarios_datatable').DataTable(configDataTable);
+            $('#usuarios_roles_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
 {% endblock %}
