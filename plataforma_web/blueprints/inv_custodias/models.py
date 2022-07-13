@@ -22,6 +22,8 @@ class InvCustodia(db.Model, UniversalMixin):
     fecha = db.Column(db.Date, nullable=False, index=True)
     curp = db.Column(db.String(256), nullable=True)
     nombre_completo = db.Column(db.String(256))
+    equipos_cantidad = db.Column(db.Integer)
+    equipos_fotos_cantidad = db.Column(db.Integer)
 
     # Hijos
     inv_equipos = db.relationship("InvEquipo", back_populates="inv_custodia", lazy="noload")
