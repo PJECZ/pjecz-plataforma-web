@@ -12,7 +12,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm
+from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 from plataforma_web.blueprints.distritos.models import Distrito
@@ -50,6 +50,14 @@ def datatable_json():
     # Obtener el listado propio del usuario
     if "USERCURRENT" in request.form:
         consulta = consulta.filter(CIDProcedimiento.usuario_id == current_user.id)
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.creado <= request.form["fecha_hasta"])
+    if "titulo_procedimiento" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
+    if "codigo" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.codigo.contains(safe_string(request.form["codigo"])))
     registros = consulta.order_by(CIDProcedimiento.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -405,6 +413,46 @@ def validate_json_quill_not_empty(data):
         return True
     except KeyError:
         return False
+
+
+@cid_procedimientos.route("/cid_procedimientos/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Cid Procedimientos"""
+    form_search = CIDProcedimientoSearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        # Si se busca por el ID y se encuentra, se redirecciona al detalle
+        if form_search.id.data:
+            cid_procedimiento_id = int(form_search.id.data)
+            if cid_procedimiento_id != 0:
+                cid_procedimiento = CIDProcedimiento.query.get(cid_procedimiento_id)
+                if cid_procedimiento is not None:
+                    return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
+        # Si se busca con los demas parametros
+        if form_search.fecha_desde.data:
+            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
+            titulos.append("fecha desde " + busqueda["fecha_desde"])
+        if form_search.fecha_hasta.data:
+            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
+            titulos.append("fecha hasta " + busqueda["fecha_hasta"])
+        if form_search.titulo_procedimiento.data:
+            titulo_procedimiento = safe_string(form_search.titulo_procedimiento.data)
+            if titulo_procedimiento != "":
+                busqueda["titulo_procedimiento"] = titulo_procedimiento
+                titulos.append("titulo_procedimiento " + titulo_procedimiento)
+        if form_search.codigo.data:
+            codigo = safe_string(form_search.codigo.data)
+            if codigo != "":
+                busqueda["codigo"] = codigo
+                titulos.append("codigo " + codigo)
+        return render_template(
+            "cid_procedimientos/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Cid Procedimientos con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("cid_procedimientos/search.jinja2", form=form_search)
 
 
 @cid_procedimientos.route("/cid_procedimientos/firmar/<int:cid_procedimiento_id>")
