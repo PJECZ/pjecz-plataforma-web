@@ -43,6 +43,7 @@
             {{ detail.label_value('Nombre', fin_vale.usuario.nombre) }}
             {{ detail.label_value('Puesto', fin_vale.usuario.puesto) }}
             {{ detail.label_value('e-mail', fin_vale.usuario.email) }}
+            {{ detail.label_value('Oficina', fin_vale.usuario.oficina.clave + ': ' + fin_vale.usuario.oficina.descripcion) }}
             {{ detail.label_value('Tiempo', moment(fin_vale.creado).format('llll')) }}
             {{ detail.label_value('Tipo', fin_vale.tipo) }}
             {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
