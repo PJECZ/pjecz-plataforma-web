@@ -60,6 +60,10 @@ def datatable_json():
         consulta = consulta.filter(InvEquipo.numero_serie.contains(request.form["numero_serie"]))
     if "tipo" in request.form:
         consulta = consulta.filter(InvEquipo.tipo.contains(request.form["tipo"]))
+    if "direccion_mac" in request.form:
+        consulta = consulta.filter(InvEquipo.direccion_mac.contains(request.form["direccion_mac"]))
+    if "direccion_ip" in request.form:
+        consulta = consulta.filter(InvEquipo.direccion_ip.contains(request.form["direccion_ip"]))
     if "fecha_desde" in request.form:
         consulta = consulta.filter(InvEquipo.fecha_fabricacion >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
@@ -69,7 +73,7 @@ def datatable_json():
         consulta = consulta.filter(InvEquipo.inv_custodia_id == InvCustodia.id)
         consulta = consulta.filter(InvCustodia.usuario_id == Usuario.id)
         consulta = consulta.filter(Usuario.oficina_id == request.form["oficina_id"])
-    registros = consulta.order_by(InvEquipo.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(InvEquipo.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -267,6 +271,16 @@ def search():
             if tipo_equipo != "":
                 busqueda["tipo"] = tipo_equipo
                 titulos.append("tipo" + tipo_equipo)
+        if form_search.direccion_mac.data:
+            direccion_mac = form_search.direccion_mac.data
+            if direccion_mac != "":
+                busqueda["direccion_mac"] = direccion_mac
+                titulos.append("direccion_mac" + direccion_mac)
+        if form_search.direccion_ip.data:
+            direccion_ip = form_search.direccion_ip.data
+            if direccion_ip != "":
+                busqueda["direccion_ip"] = direccion_ip
+                titulos.append("direccion_ip" + direccion_ip)
         if form_search.fecha_desde.data:
             busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
             titulos.append("fecha desde " + busqueda["fecha_desde"])
@@ -276,7 +290,7 @@ def search():
         return render_template(
             "inv_equipos/list.jinja2",
             filtros=json.dumps(busqueda),
-            titulo="Equipos con " + ", ".join(titulos),
+            titulo="Equipos con  " + ", ".join(titulos),
             estatus="A",
         )
     return render_template("inv_equipos/search.jinja2", form=form_search)
