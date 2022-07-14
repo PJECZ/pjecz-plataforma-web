@@ -12,6 +12,7 @@ from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
+from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -172,6 +173,14 @@ def search():
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
+        # Si se busca por el ID y se encuentra, se redirecciona al detalle
+        if form_search.id.data:
+            inv_custodia_id = int(form_search.id.data)
+            if inv_custodia_id != 0:
+                inv_custodia = InvCustodia.query.get(inv_custodia_id)
+                if inv_custodia is not None:
+                    return redirect(url_for("inv_custodias.detail", inv_custodia_id=inv_custodia.id))
+        # Si se busca con los demas parametros
         if form_search.nombre_completo.data:
             nombre_completo = safe_string(form_search.nombre_completo.data)
             if nombre_completo != "":

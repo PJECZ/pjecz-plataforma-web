@@ -2,7 +2,7 @@
 Inventarios Custodias, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, DateField
+from wtforms import StringField, SubmitField, DateField, IntegerField
 from wtforms.validators import DataRequired, Optional
 
 
@@ -18,6 +18,7 @@ class InvCustodiaForm(FlaskForm):
 class InvCustodiaSearchForm(FlaskForm):
     """Formulario buscar InvCustodia"""
 
+    id = IntegerField("ID", validators=[Optional()])
     nombre_completo = StringField("Nombre Completo", validators=[Optional()])
     fecha_desde = DateField("Fecha desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha hasta", validators=[Optional()])

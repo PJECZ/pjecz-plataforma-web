@@ -14,9 +14,31 @@
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.numero_serie) %}{% endcall %}
             {% call f.form_group(form.tipo) %}{% endcall %}
+            {% call f.form_group(form.direccion_mac) %}{% endcall %}
+            <div id="result"></div>
+            {% call f.form_group(form.direccion_ip) %}{% endcall %}
             {% call f.form_group(form.fecha_desde) %}{% endcall %}
             {% call f.form_group(form.fecha_hasta) %}{% endcall %}
             {{ form.buscar() }}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+    $(document).ready(function() {
+        let mac_address = document.getElementById('direccion_mac');
+        mac_address.addEventListener('keyup', (event) => {
+            let regex =  /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+            let texto = event.target.value;
+            let mensaje = ''; 
+            if(regex.test(texto)){
+                mensaje = "<span style='color:green'>"+'Es una dirección mac correcta'+"</sapan>";
+            }else{
+                mensaje = "<span style='color:red'>"+'No es una direccion mac correcta'+"</sapan>";
+            }
+            document.getElementById('result').innerHTML = mensaje;
+        });
+    });
+    </script>
 {% endblock %}
