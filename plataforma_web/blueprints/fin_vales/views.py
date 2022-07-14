@@ -70,6 +70,7 @@ def datatable_json():
                 "monto": resultado.monto,
                 "tipo": resultado.tipo,
                 "usuario_nombre": resultado.usuario.nombre,
+                "usuario_oficina_clave": resultado.usuario.oficina.clave,
             }
         )
     # Entregar JSON

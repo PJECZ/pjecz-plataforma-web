@@ -17,4 +17,6 @@ __pycache__/
 /instance
 /seed
 /setup.cfg
+/sql
+/tests
 /venv

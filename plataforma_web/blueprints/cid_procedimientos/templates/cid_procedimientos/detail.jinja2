@@ -30,6 +30,7 @@
     {% set accordion_id = 'procedimiento_accordion' %}
     {% call accordion.div(accordion_id, estatus=cid_procedimiento.estatus) %}
         {% call accordion.item('generales_item', 'Generales', accordion_id, expanded=True, estatus=cid_procedimiento.estatus) %}
+            {{ detail.label_value('ID', cid_procedimiento.id) }}
             {{ detail.label_value('Título', cid_procedimiento.titulo_procedimiento) }}
             {{ detail.label_value('Código', cid_procedimiento.codigo) }}
             {{ detail.label_value('Revisión', cid_procedimiento.revision) }}
