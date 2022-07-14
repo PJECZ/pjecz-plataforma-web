@@ -24,10 +24,11 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-MODULO = "FIN VALES"
-
 fin_vales = Blueprint("fin_vales", __name__, template_folder="templates")
 
+MODULO = "FIN VALES"
+
+# Roles que deben estar en la base de datos
 ROL_SOLICITANTES = "FINANCIEROS SOLICITANTES"
 ROL_AUTORIZANTES = "FINANCIEROS AUTORIZANTES"
 
@@ -88,6 +89,7 @@ def list_active():
             titulo="Todos los Vales",
             estatus="A",
         )
+    # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
     # Si es autorizante, mostrar Vales por Autorizar
     if ROL_AUTORIZANTES in current_user_roles:

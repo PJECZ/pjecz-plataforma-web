@@ -8,7 +8,6 @@ from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
-from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -18,11 +17,18 @@ from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="templates")
 
 MODULO = "CID PROCEDIMIENTOS"
+
+# Roles que deben estar en la base de datos
+ROL_COORDINADOR = "SICGD COORDINADOR"
+ROL_DIRECTOR_JEFE = "SICGD DIRECTOR O JEFE"
+ROL_DUENO_PROCESO = "SICGD DUENO DE PROCESO"
+ROL_INVOLUCRADO = "SICGD INVOLUCRADO"
 
 
 @cid_procedimientos.before_request
@@ -44,12 +50,9 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
-        consulta = consulta.filter(Usuario.id == request.form["usuario_id"])
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
     if "seguimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
-    # Obtener el listado propio del usuario
-    if "USERCURRENT" in request.form:
-        consulta = consulta.filter(CIDProcedimiento.usuario_id == current_user.id)
     if "fecha_desde" in request.form:
         consulta = consulta.filter(CIDProcedimiento.creado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
@@ -58,7 +61,7 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
     if "codigo" in request.form:
         consulta = consulta.filter(CIDProcedimiento.codigo.contains(safe_string(request.form["codigo"])))
-    registros = consulta.order_by(CIDProcedimiento.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(CIDProcedimiento.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -85,6 +88,36 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
+@cid_procedimientos.route("/cid_procedimientos")
+def list_active():
+    """Listado por defecto de Procedimientos"""
+    # Si es administrador, mostrar todos los procedimientos
+    if current_user.can_admin(MODULO):
+        return render_template(
+            "cid_procedimientos/list.jinja2",
+            titulo="Todos los Procedimientos",
+            filtros=json.dumps({"estatus": "A"}),
+            estatus="A",
+        )
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    # Si es coordinador, director o jefe o dueno de proceso, mostrar los procedimientos propios
+    if ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles:
+        return render_template(
+            "cid_procedimientos/list.jinja2",
+            titulo="Procedimientos propios",
+            filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
+            estatus="A",
+        )
+    # Mostrar solo los procedimientos autorizados
+    return render_template(
+        "cid_procedimientos/list.jinja2",
+        titulo="Procedimientos autorizados",
+        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
+        estatus="A",
+    )
+
+
 @cid_procedimientos.route("/cid_procedimientos/autorizados")
 def list_authorized():
     """Listado de Procedimientos autorizados"""
@@ -97,47 +130,47 @@ def list_authorized():
 
 
 @cid_procedimientos.route("/cid_procedimientos/propios")
-@permission_required(MODULO, Permiso.MODIFICAR)
 def list_owned():
     """Listado de Procedimientos propios"""
-    return render_template(
-        "cid_procedimientos/list.jinja2",
-        titulo="Procedimientos propios",
-        filtros=json.dumps({"estatus": "A", "USERCURRENT": "USERLOCAL"}),
-        estatus="A",
-    )
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    # Si es coordinador, director o jefe o dueno de proceso, mostrar los procedimientos propios
+    if current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles:
+        return render_template(
+            "cid_procedimientos/list.jinja2",
+            titulo="Procedimientos propios",
+            filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
+            estatus="A",
+        )
+    # Si no, redirigir a la lista general
+    return redirect(url_for("cid_procedimientos.list_active"))
 
 
-@cid_procedimientos.route("/cid_procedimientos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_active():
-    """Listado de Cid Procedimientos activos"""
-    if current_user.can_admin(MODULO):
-        cid_procedimientos_activos = CIDProcedimiento.query.filter_by(estatus="A").all()
-    else:
-        cid_procedimientos_activos = CIDProcedimiento.query.filter_by(usuario_id=current_user.id).filter_by(estatus="A").all()
-    return render_template(
-        "cid_procedimientos/list.jinja2",
-        cid_procedimientos=cid_procedimientos_activos,
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Todos los Procedimientos",
-        estatus="A",
-    )
+@cid_procedimientos.route("/cid_procedimientos/todos")
+def list_all():
+    """Listado de Todos los Procedimientos"""
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    # Si es coordinador, mostrar todos los procedimientos
+    if current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles:
+        return render_template(
+            "cid_procedimientos/list.jinja2",
+            titulo="Todos los Procedimientos",
+            filtros=json.dumps({"estatus": "A"}),
+            estatus="A",
+        )
+    # Si no, redirigir a la lista general
+    return redirect(url_for("cid_procedimientos.list_active"))
 
 
 @cid_procedimientos.route("/cid_procedimientos/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
-    """Listado de CID Procedimientos inactivos"""
-    if current_user.can_admin(MODULO):
-        cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(estatus="B").all()
-    else:
-        cid_procedimientos_inactivos = CIDProcedimiento.query.filter_by(usuario_id=current_user.id).filter_by(estatus="B").all()
+    """Listado de Procedimientos propios eliminados"""
     return render_template(
         "cid_procedimientos/list.jinja2",
-        filtros=json.dumps({"estatus": "B"}),
-        cid_procedimientos=cid_procedimientos_inactivos,
-        titulo="CID Procedimientos inactivos",
+        titulo="Procedimientos propios eliminados",
+        filtros=json.dumps({"estatus": "B", "usuario_id": current_user.id}),
         estatus="B",
     )
 
@@ -551,12 +584,10 @@ def accept_reject(cid_procedimiento_id):
     if form.validate_on_submit():
         # Si fue aceptado
         if form.aceptar.data is True:
-
             # Deberian definirse estos campos
             nuevo_seguimiento = None
             nuevo_seguimiento_posterior = None
             nuevo_usuario = None
-
             # Si este procedimiento fue elaborado, sigue revisarlo
             if original.seguimiento == "ELABORADO":
                 usuario = Usuario.query.filter_by(email=original.reviso_email).first()
@@ -566,7 +597,6 @@ def accept_reject(cid_procedimiento_id):
                 nuevo_seguimiento = "EN REVISION"
                 nuevo_seguimiento_posterior = "EN REVISION"
                 nuevo_usuario = usuario
-
             # Si este procedimiento fue revisado, sigue autorizarlo
             if original.seguimiento == "REVISADO":
                 usuario = Usuario.query.filter_by(email=original.aprobo_email).first()
@@ -576,7 +606,6 @@ def accept_reject(cid_procedimiento_id):
                 nuevo_seguimiento = "EN AUTORIZACION"
                 nuevo_seguimiento_posterior = "EN AUTORIZACION"
                 nuevo_usuario = usuario
-
             # Validar que se hayan definido estos campos
             if nuevo_seguimiento is None:
                 flash("No se definio el seguimiento.", "danger")
@@ -587,7 +616,6 @@ def accept_reject(cid_procedimiento_id):
             if nuevo_usuario is None:
                 flash("No se definio el usuario.", "danger")
                 return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
-
             # Crear un nuevo registro
             nuevo = CIDProcedimiento(
                 autoridad=original.autoridad,
@@ -621,7 +649,6 @@ def accept_reject(cid_procedimiento_id):
                 archivo="",
                 url="",
             ).save()
-
             # Actualizar el anterior
             if original.seguimiento == "ELABORADO":
                 # Cambiar el seguimiento posterior del procedimiento elaborado
@@ -633,7 +660,6 @@ def accept_reject(cid_procedimiento_id):
                 anterior = CIDProcedimiento.query.get(cid_procedimiento_id)
                 anterior.seguimiento_posterior = "EN AUTORIZACION"
                 anterior.save()
-
             # Duplicar los formatos del procedimiento anterior a éste que es el nuevo
             if original.seguimiento == "ELABORADO" or original.seguimiento == "REVISADO":
                 for cid_formato in anterior.formatos:
@@ -643,7 +669,6 @@ def accept_reject(cid_procedimiento_id):
                         archivo=cid_formato.archivo,
                         url=cid_formato.url,
                     ).save()
-
             # Bitacora
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -654,15 +679,12 @@ def accept_reject(cid_procedimiento_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-
         # Fue rechazado
         if form.rechazar.data is True:
             # Preguntar porque fue rechazado
             flash("Usted ha rechazado revisar/autorizar este procedimiento.", "success")
-
         # Ir al detalle del procedimiento
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
-
     # Mostrar el formulario
     form.titulo_procedimiento.data = original.titulo_procedimiento
     form.codigo.data = original.codigo
