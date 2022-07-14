@@ -6,7 +6,7 @@ from lib.universal_mixin import UniversalMixin
 
 
 class CIDFormato(db.Model, UniversalMixin):
-    """ CIDFormato """
+    """CIDFormato"""
 
     # Nombre de la tabla
     __tablename__ = "cid_formatos"
@@ -15,8 +15,8 @@ class CIDFormato(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    procedimiento_id = db.Column(db.Integer, db.ForeignKey('cid_procedimientos.id'), index=True, nullable=False)
-    procedimiento = db.relationship('CIDProcedimiento', back_populates='formatos')
+    procedimiento_id = db.Column(db.Integer, db.ForeignKey("cid_procedimientos.id"), index=True, nullable=False)
+    procedimiento = db.relationship("CIDProcedimiento", back_populates="formatos")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
@@ -24,8 +24,8 @@ class CIDFormato(db.Model, UniversalMixin):
     url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     # Hijos
-    registros = db.relationship('CIDRegistro', back_populates='formato')
+    registros = db.relationship("CIDRegistro", back_populates="formato")
 
     def __repr__(self):
-        """ Representación """
+        """Representación"""
         return "<CIDFormato>"

@@ -6,13 +6,11 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button('Autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
-        {% if current_user.can_edit('CID PROCEDIMIENTOS') %}
-            {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
-        {% endif %}
-        {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
-            {{ topbar.button('Todos', url_for('cid_procedimientos.list_active'), 'mdi:table') }}
-        {% endif %}
+        {# topbar.button('Inicial', url_for('cid_formatos.list_active'), 'mdi:table-star') #}
+        {{ topbar.button('Autorizados', url_for('cid_formatos.list_authorized'), 'mdi:table-star') }}
+        {{ topbar.button('Propios', url_for('cid_formatos.list_owned'), 'mdi:table-heart') }}
+        {{ topbar.button('Todos', url_for('cid_formatos.list_all'), 'mdi:table') }}
+        {{ topbar.button('Ir a Procedimientos', url_for('cid_procedimientos.list_all'), 'mdi:swap-horizontal') }}
         {% if current_user.can_edit('CID FORMATOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_formatos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_formatos.list_active')) }}{% endif %}
@@ -25,24 +23,74 @@
         <table id="cid_formatos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Procedimientos</th>
-                    <th>Formatos</th>
-                    <th>URLs</th>
+                    <th>ID</th>
+                    <th>Procedimiento</th>
+                    <th>Descripcion</th>
+                    <th>Descargar</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for cid_formato in cid_formatos %}
-                <tr>
-                    <td>{{ cid_formato.procedimiento.codigo }}</td>
-                    <td><a href="{{ url_for('cid_formatos.detail', cid_formato_id=cid_formato.id) }}">{{ cid_formato.descripcion }}</a></td>
-                    <td><a href="{{ cid_formato.url }}" target="_blank">PDF</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
         </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.datatable('cid_formatos_datatable') }}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/cid_formatos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'cid_procedimiento' },
+            { data: 'descripcion' },
+            { data: 'descargar' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // cid_procedimiento
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.titulo_procedimiento.length > 32) {
+                        interior = '<span title="' + data.titulo_procedimiento + '">' + data.titulo_procedimiento.substring(0, 32) + '…' + '</span>';
+                    } else {
+                        interior = data.titulo_procedimiento;
+                    }
+                    if (data.url == '') {
+                        return interior;
+                    }
+                    return '<a href="' + data.url + '">' + interior + '</a>';
+                }
+            },
+            {
+                targets: 2, // descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 32) {
+                        return '<span title="' + data + '">' + data.substring(0, 32) + '…' + '</span>';
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                targets: 3, // descargar
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.archivo.length > 32) {
+                        interior = '<span title="' + data.archivo + '">' + data.archivo.substring(0, 32) + '…' + '</span>';
+                    } else {
+                        interior = data.archivo;
+                    }
+                    return '<a href="' + data.url + '">' + interior + '</a>';
+                }
+            },
+        ];
+        $('#cid_formatos_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}
