@@ -73,6 +73,7 @@ def datatable_json():
                 },
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                 "equipos_cantidad": resultado.equipos_cantidad,
+                "equipos_fotos_cantidad": resultado.equipos_fotos_cantidad,
                 "oficina": {
                     "clave": resultado.usuario.oficina.clave,
                     "url": url_for("oficinas.detail", oficina_id=resultado.usuario.oficina_id) if current_user.can_view("OFICINAS") else "",
