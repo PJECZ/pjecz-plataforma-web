@@ -30,6 +30,7 @@
         {{ detail.label_value('Oficina', inv_custodia.usuario.oficina.clave_nombre, url_for('oficinas.detail', oficina_id=inv_custodia.usuario.oficina_id)) }}
         {{ detail.label_value('Puesto', inv_custodia.usuario.puesto) }}
         {{ detail.label_value('Fecha', moment(inv_custodia.fecha, local=True).format("DD MMM YYYY")) }}
+        {{ detail.label_value('Cantidad de equipos', inv_custodia.equipos_cantidad) }}
 
     {% endcall %}
     {% if current_user.can_view('INV EQUIPOS')  %}
