@@ -8,17 +8,19 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Procedimiento') %}
-        {{ topbar.button_previous('Procedimientos propios', url_for('cid_procedimientos.list_owned')) }}
-        {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
-            {{ topbar.button_edit('Editar Admin', url_for('cid_procedimientos.edit_admin', cid_procedimiento_id=cid_procedimiento.id)) }}
+        {{ topbar.button_previous('Procedimientos', url_for('cid_procedimientos.list_active')) }}
+        {% if show_button_edit_admin %}
+            {{ topbar.button_edit('Clasificar', url_for('cid_procedimientos.edit_admin', cid_procedimiento_id=cid_procedimiento.id)) }}
         {% endif %}
         {% if current_user.can_edit('CID PROCEDIMIENTOS') %}
             {{ topbar.button_edit('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id)) }}
-            {% if cid_procedimiento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_procedimientos.delete', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
-            {% if cid_procedimiento.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_procedimientos.recover', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
             {% if current_user.id == cid_procedimiento.usuario_id %}
                 {{ topbar.button_make('Firmar', url_for('cid_procedimientos.sign_for_maker', cid_procedimiento_id=cid_procedimiento.id)) }}
             {% endif %}
+        {% endif %}
+        {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
+            {% if cid_procedimiento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_procedimientos.delete', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
+            {% if cid_procedimiento.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_procedimientos.recover', cid_procedimiento_id=cid_procedimiento.id)) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('CID FORMATOS') %}
             {{ topbar.button_new('Agregar formato', url_for('cid_formatos.new', cid_procedimiento_id=cid_procedimiento.id)) }}

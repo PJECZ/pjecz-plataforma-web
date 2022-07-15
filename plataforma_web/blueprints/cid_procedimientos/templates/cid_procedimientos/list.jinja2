@@ -8,10 +8,14 @@
     {% call topbar.page_buttons(titulo) %}
         {# topbar.button('Inicial', url_for('cid_procedimientos.list_active')) #}
         {{ topbar.button('Autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
-        {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
-        {{ topbar.button('Todos', url_for('cid_procedimientos.list_all'), 'mdi:table') }}
+        {% if show_button_list_owned %}
+            {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
+        {% endif %}
+        {% if show_button_list_all %}
+            {{ topbar.button('Todos', url_for('cid_procedimientos.list_all'), 'mdi:table') }}
+        {% endif %}
         {{ topbar.button('Ir a Formatos', url_for('cid_formatos.list_all'), 'mdi:swap-horizontal') }}
-        {% if current_user.can_edit('CID PROCEDIMIENTOS') %}
+        {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_procedimientos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_procedimientos.list_active')) }}{% endif %}
         {% endif %}
