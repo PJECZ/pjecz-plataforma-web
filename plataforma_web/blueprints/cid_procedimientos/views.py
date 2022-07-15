@@ -98,34 +98,33 @@ def list_active():
             titulo="Todos los Procedimientos",
             filtros=json.dumps({"estatus": "A"}),
             estatus="A",
+            show_button_list_owned=True,
+            show_button_list_all=True,
         )
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # Si es coordinador, director o jefe o dueno de proceso, mostrar los procedimientos propios
-    if ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles:
-        return render_template(
-            "cid_procedimientos/list.jinja2",
-            titulo="Procedimientos propios",
-            filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
-            estatus="A",
-        )
     # Mostrar solo los procedimientos autorizados
     return render_template(
         "cid_procedimientos/list.jinja2",
         titulo="Procedimientos autorizados",
         filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
         estatus="A",
+        show_button_list_owned=ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
+        show_button_list_all=ROL_COORDINADOR in current_user_roles,
     )
 
 
 @cid_procedimientos.route("/cid_procedimientos/autorizados")
 def list_authorized():
     """Listado de Procedimientos autorizados"""
+    current_user_roles = current_user.get_roles()
     return render_template(
         "cid_procedimientos/list.jinja2",
         titulo="Procedimientos autorizados",
         filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
         estatus="A",
+        show_button_list_owned=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
+        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
     )
 
 
@@ -134,13 +133,15 @@ def list_owned():
     """Listado de Procedimientos propios"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # Si es coordinador, director o jefe o dueno de proceso, mostrar los procedimientos propios
+    # Si es administrador, coordinador, director o jefe o dueno de proceso, mostrar los procedimientos propios
     if current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles:
         return render_template(
             "cid_procedimientos/list.jinja2",
             titulo="Procedimientos propios",
             filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
             estatus="A",
+            show_button_list_owned=True,
+            show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
         )
     # Si no, redirigir a la lista general
     return redirect(url_for("cid_procedimientos.list_active"))
@@ -151,13 +152,15 @@ def list_all():
     """Listado de Todos los Procedimientos"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # Si es coordinador, mostrar todos los procedimientos
+    # Si es administrador, coordinador, mostrar todos los procedimientos
     if current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles:
         return render_template(
             "cid_procedimientos/list.jinja2",
             titulo="Todos los Procedimientos",
             filtros=json.dumps({"estatus": "A"}),
             estatus="A",
+            show_button_list_owned=True,
+            show_button_list_all=True,
         )
     # Si no, redirigir a la lista general
     return redirect(url_for("cid_procedimientos.list_active"))
@@ -172,6 +175,8 @@ def list_inactive():
         titulo="Procedimientos propios eliminados",
         filtros=json.dumps({"estatus": "B", "usuario_id": current_user.id}),
         estatus="B",
+        show_button_list_owned=True,
+        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
     )
 
 
@@ -193,6 +198,7 @@ def detail(cid_procedimiento_id):
         registros=cid_procedimiento.registros,
         control_cambios=cid_procedimiento.control_cambios,
         cid_formatos=cid_formatos,
+        show_button_edit_admin=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
     )
 
 
@@ -399,11 +405,18 @@ def edit(cid_procedimiento_id):
     )
 
 
-@cid_procedimientos.route("/cid_procedimientos/edicion_admin/<int:cid_procedimiento_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
+@cid_procedimientos.route("/cid_procedimientos/clasificar/<int:cid_procedimiento_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
 def edit_admin(cid_procedimiento_id):
-    """Editar Procedimiento"""
+    """Clasificar Procedimiento"""
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    # Si NO es administrador o coordinador, redirigir a la edicion normal
+    if not (current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles):
+        return redirect(url_for("cid_procedimientos.edit", cid_procedimiento_id=cid_procedimiento_id))
+    # Consultar el Procedimiento
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    # Si viene el formulario
     form = CIDProcedimientoEditAdminForm()
     if form.validate_on_submit():
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
@@ -412,16 +425,15 @@ def edit_admin(cid_procedimiento_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Editado el Procedimiento {cid_procedimiento.titulo_procedimiento} con autoridad {autoridad.clave}"),
+            descripcion=safe_message(f"Clasificado el Procedimiento {cid_procedimiento.id} con autoridad {autoridad.clave}"),
             url=url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()
-    autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()
-    # form.distrito.data = cid_procedimiento.autoridad.distrito
-    # form.autoridad.data = cid_procedimiento.autoridad
+    # Mostrar el formulario
+    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # Combo distritos-autoridades
+    autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()  # Combo distritos-autoridades
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo
     form.revision.data = cid_procedimiento.revision
@@ -698,7 +710,7 @@ def accept_reject(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/eliminar/<int:cid_procedimiento_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cid_procedimiento_id):
     """Eliminar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
@@ -726,7 +738,7 @@ def delete(cid_procedimiento_id):
 
 
 @cid_procedimientos.route("/cid_procedimientos/recuperar/<int:cid_procedimiento_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cid_procedimiento_id):
     """Recuperar CID Procedimiento"""
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
