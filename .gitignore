@@ -1,5 +1,5 @@
-.directory
 .bashrc
+.directory
 .env
 .DS_Store
 .~lock.*
@@ -9,10 +9,9 @@
 *.sql
 *.sqlite3
 *.sqlite3-journal
-*.yaml
 __pycache__/
 .ipynb_checkpoints/
+/app.yaml
 /instance/settings.py
 /seed/
-/setup.cfg
 /venv/
