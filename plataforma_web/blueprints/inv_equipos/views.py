@@ -88,6 +88,9 @@ def datatable_json():
                 "fecha_fabricacion": resultado.fecha_fabricacion.strftime("%Y-%m-%d") if resultado.fecha_fabricacion is not None else "-",
                 "tipo": resultado.tipo,
                 "nombre_completo": resultado.inv_custodia.nombre_completo,
+                "direccion_ip": resultado.direccion_ip,
+                "direccion_mac": resultado.direccion_mac,
+                "numero_serie": resultado.numero_serie,
                 "inv_custodia_id": {
                     "id": resultado.inv_custodia.id,
                     "url": url_for("inv_custodias.detail", inv_custodia_id=resultado.inv_custodia.id) if current_user.can_view("INV CUSTODIAS") else "",
