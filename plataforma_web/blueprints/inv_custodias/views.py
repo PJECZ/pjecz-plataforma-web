@@ -4,7 +4,7 @@ Inventarios Custodias, vistas
 import json
 from datetime import date
 
-from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
