@@ -109,9 +109,11 @@
                                 <th>Fecha de fabricación</th>
                                 <th>Tipo de equipo</th>
                                 <th>Marca</th>
-                                <th>Modelo</th>
                                 <th>Descripción del Equipo</th>
                                 <th>Red</th>
+                                <th>Número de serie</th>
+                                <th>Dirección ip</th>
+                                <th>Dirección mac</th>
                                 <th>Nombre completo en la custodia</th>
                             </tr>
                         </thead>
@@ -285,9 +287,11 @@
                     { data: "fecha_fabricacion" },
                     { data: "tipo" },
                     { data: "inv_marca" },
-                    { data: "inv_modelo" },
                     { data: "descripcion" },
                     { data: "inv_red" },
+                    { data: "numero_serie" },
+                    { data: "direccion_ip" },
+                    { data: "direccion_mac" },
                     { data: "nombre_completo" }
                 ];
                 configDataTable['columnDefs'] = [
@@ -298,7 +302,7 @@
                         }
                     },
                     {
-                        targets: [3, 4, 6], // inv_marca, inv_modelo, inv_red
+                        targets: [3, 5], // inv_marca, inv_red
                         data: null,
                         render: function(data, type, row, meta) {
                             if (data.url == '') {
@@ -306,6 +310,16 @@
                             } else {
                                 return '<a href="' + data.url + '">' + data.nombre + '</a>';
                             }
+                        }
+                    },
+                    {
+                        targets: 4, // descripción del equipo
+                        data: null,
+                        render: function(data, type, row, meta){
+                            if(data.length > 16){
+                                return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                            }
+                            return data;
                         }
                     },
                 ];
