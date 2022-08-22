@@ -112,12 +112,15 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Fecha de fabricación</th>
-                                    <th>Tipo de equipo</th>
+                                    <th>F. Fab.</th>
+                                    <th>Tipo</th>
                                     <th>Marca</th>
-                                    <th>Modelo</th>
-                                    <th>Descripción del equipo</th>
+                                    <th>Descripción </th>
+                                    <th>No. Serie</th>
+                                    <th>D. IP</th>
+                                    <th>D. MAC</th>
                                     <th>Red</th>
+                                    <th>Custodia de</th>
                                 </tr>
                             </thead>
                         </table>
@@ -186,20 +189,22 @@
                 { data: "fecha_fabricacion" },
                 { data: "tipo" },
                 { data: "inv_marca" },
-                { data: "inv_modelo" },
                 { data: "descripcion" },
+                { data: "numero_serie" },
+                { data: "direccion_ip" },
+                { data: "direccion_mac" },
                 { data: "inv_red" },
+                { data: "nombre_completo" },
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: [0], // detalle
-                    data: null,
+                    targets: [0,], // detalle
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: [3,4,6], // inv_marca, inv_modelo, inv_red
+                    targets: [3,8], // inv_marca, inv_red
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url == '') {
@@ -207,6 +212,26 @@
                         } else {
                             return '<a href="' + data.url + '">' + data.nombre + '</a>';
                         }
+                    }
+                },
+                {
+                    targets: 4, // descripción del equipo
+                    data: null,
+                    render: function(data, type, row, meta){
+                        if(data.length > 16){
+                            return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                        }
+                        return data;
+                    }
+                },
+                {
+                    targets: 9, // nombre completo de la custodia
+                    data: null,
+                    render: function(data, type, row, meta){
+                        if(data.length > 13){
+                            return '<span title="' + data + '">' + data.substr(0, 13) + '…' + '</span>';
+                        }
+                        return data;
                     }
                 },
             ];
