@@ -33,7 +33,6 @@
             {% call f.form_group(form.inv_red) %}{% endcall %}
             {% call f.form_group(form.direccion_ip) %}{% endcall %}
             {% call f.form_group(form.direccion_mac) %}{% endcall %}
-            <div id="result"></div>
             {% call f.form_group(form.numero_nodo) %}{% endcall %}
             {% call f.form_group(form.numero_switch) %}{% endcall %}
             {% call f.form_group(form.numero_puerto) %}{% endcall %}
@@ -70,23 +69,6 @@
                 allowClear: true
             });
 
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            let mac_address = document.getElementById('direccion_mac');
-            mac_address.addEventListener('keyup', (event) => {
-                let regex =  /^([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})$/;
-                let texto = event.target.value;
-                let mensaje = ''; 
-                if(regex.test(texto)){
-                    mensaje = "<span style='color:green'>"+'Es una dirección mac correcta'+"</sapan>";
-                }else{
-                    mensaje = "<span style='color:red'>"+'No es una dirección mac correcta'+"</sapan>";
-                }
-                document.getElementById('result').innerHTML = mensaje;
-            });
-        
         });
     </script>
 {% endblock%}

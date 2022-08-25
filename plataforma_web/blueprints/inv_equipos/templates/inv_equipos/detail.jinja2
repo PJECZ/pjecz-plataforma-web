@@ -41,7 +41,10 @@
             {{ detail.label_value('Modelo', inv_equipo.inv_modelo.descripcion) }}
         {% endif %}
         {{ detail.label_value('Tipo de equipo', inv_equipo.tipo) }}
-        {{ detail.label_value('Fecha de fabricación', moment(inv_equipo.fecha_fabricacion, local=True).format("DD MMM YYYY")) }}
+        {% if inv_equipo.fecha_fabricacion %}
+            {{ detail.label_value('Fecha de fabricación', moment(inv_equipo.fecha_fabricacion, local=True).format("DD MMM YYYY")) }}
+        
+        {% endif %}
         {{ detail.label_value('Inventario', inv_equipo.numero_inventario) }}
         {{ detail.label_value('No. serie', inv_equipo.numero_serie) }}
         {{ detail.label_value('Descripción', inv_equipo.descripcion) }}

@@ -1,14 +1,20 @@
 """
 Inventarios Equipos, formularios
 """
+import re
+
 from flask_wtf import FlaskForm
 from wtforms import DateField, IntegerField, StringField, SubmitField, RadioField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length, Optional, Regexp
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.inv_modelos.models import InvModelo
 from plataforma_web.blueprints.inv_redes.models import InvRed
+
+
+EXPREG_MAC_ADDRESS = "([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})"
+re.match(EXPREG_MAC_ADDRESS, "00:1B:44:11:3A:B9")
 
 
 def inv_modelos_opciones():
@@ -36,7 +42,7 @@ class InvEquipoForm(FlaskForm):
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
     tipo = RadioField("Tipo de equipo", choices=InvEquipo.TIPOS, default="OTRO", validators=[DataRequired()])
     direccion_ip = StringField("Dirección IP", validators=[Optional()])
-    direccion_mac = StringField("Dirección MAC", validators=[Optional()])
+    direccion_mac = StringField("Dirección MAC", validators=[Optional(), Regexp(EXPREG_MAC_ADDRESS)])
     numero_nodo = IntegerField("Número de nodo", validators=[Optional()])
     numero_switch = IntegerField("Número de switch", validators=[Optional()])
     numero_puerto = IntegerField("Número de puerto", validators=[Optional()])
