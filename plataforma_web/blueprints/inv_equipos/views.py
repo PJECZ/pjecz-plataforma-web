@@ -20,6 +20,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
 
 MODULO = "INV EQUIPOS"
+FECHA_ANTIGUA = date(year=1990, month=1, day=1)
 
 inv_equipos = Blueprint("inv_equipos", __name__, template_folder="templates")
 
@@ -158,9 +159,9 @@ def new(inv_custodia_id):
         es_valido = True
         # Validar la fecha de adquisicion, no se permiten fechas futuras
         fecha_fabricacion = form.fecha_fabricacion.data
-        if fecha_fabricacion is not None and fecha_fabricacion > date.today():
+        if fecha_fabricacion is not None and not FECHA_ANTIGUA < fecha_fabricacion < date.today():
             es_valido = False
-            flash("La fecha de adquisición no puede ser futura.", "warning")
+            flash("La fecha esta fuera del rango permitido.", "warning")
         # Si es valido insertar
         if es_valido:
             inv_equipo = InvEquipo(
