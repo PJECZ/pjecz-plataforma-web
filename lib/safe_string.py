@@ -9,11 +9,13 @@ CONTRASENA_REGEXP = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,48}$"
 CURP_REGEXP = r"^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$"
 EMAIL_REGEXP = r"^[\w.-]+@[\w.-]+\.\w+$"
 EXPEDIENTE_REGEXP = r"^\d+\/[12]\d\d\d(-[a-zA-Z0-9]+(-[a-zA-Z0-9]+)?)?$"
-TOKEN_REGEXP = r"^[a-zA-Z0-9_.=+-]+$"
 FOLIO_REGEXP = r"^\d+/[12]\d\d\d$"
+MAC_ADDRESS_REGEXP = r"([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})"
 NUMERO_PUBLICACION_REGEXP = r"^\d+/[12]\d\d\d$"
 SENTENCIA_REGEXP = r"^\d+/[12]\d\d\d$"
+TOKEN_REGEXP = r"^[a-zA-Z0-9_.=+-]+$"
 URL_REGEXP = r"^(https?:\/\/)[0-9a-z-_]*(\.[0-9a-z-_]+)*(\.[a-z]+)+(\/[0-9a-z%-_]*)*?\/?$"
+
 
 def safe_clave(input_str, max_len=16):
     """Safe clave"""
@@ -128,6 +130,7 @@ def safe_sentencia(input_str):
         raise ValueError
     return limpio
 
+
 def safe_url(input_str):
     """Safe URL"""
     if not isinstance(input_str, str) or input_str.strip() == "":
@@ -136,3 +139,15 @@ def safe_url(input_str):
     if re.match(URL_REGEXP, input_str) is None:
         return ""
     return input_str
+
+
+def safe_mac_address(input_str):
+    """Safe MAC address"""
+    if not isinstance(input_str, str) or input_str.strip() == "":
+        return ""
+    input_str = input_str.strip()
+    if re.match(MAC_ADDRESS_REGEXP, input_str) is None:
+        return ""
+    en_mayusculas = input_str.upper()
+    m = re.sub(r"[^0-9A-F]+", "", en_mayusculas)
+    return f"{m[0:2]}:{m[2:4]}:{m[4:6]}:{m[6:8]}:{m[8:10]}:{m[10:12]}"
