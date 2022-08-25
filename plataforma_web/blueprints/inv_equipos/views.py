@@ -7,7 +7,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_mac_address, safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
@@ -157,11 +157,11 @@ def new(inv_custodia_id):
     form = InvEquipoForm()
     if form.validate_on_submit():
         es_valido = True
-        # Validar la fecha de adquisicion, no se permiten fechas futuras
+        # Validar la fecha de fabricación
         fecha_fabricacion = form.fecha_fabricacion.data
         if fecha_fabricacion is not None and not FECHA_ANTIGUA < fecha_fabricacion < date.today():
             es_valido = False
-            flash("La fecha esta fuera del rango permitido.", "warning")
+            flash("La fecha de fabricación esta fuera del rango permitido.", "warning")
         # Si es valido insertar
         if es_valido:
             inv_equipo = InvEquipo(
@@ -174,7 +174,7 @@ def new(inv_custodia_id):
                 descripcion=safe_string(form.descripcion.data),
                 tipo=form.tipo.data,
                 direccion_ip=form.direccion_ip.data,
-                direccion_mac=form.direccion_mac.data,
+                direccion_mac=safe_mac_address(form.direccion_mac.data),
                 numero_nodo=form.numero_nodo.data,
                 numero_switch=form.numero_switch.data,
                 numero_puerto=form.numero_puerto.data,
@@ -204,11 +204,11 @@ def edit(inv_equipo_id):
     form = InvEquipoForm()
     if form.validate_on_submit():
         es_valido = True
-        # Validar la fecha de adquisicion, no se permiten fechas futuras
+        # Validar la fecha de fabricación
         fecha_fabricacion = form.fecha_fabricacion.data
-        if fecha_fabricacion is not None and fecha_fabricacion > date.today():
+        if fecha_fabricacion is not None and not FECHA_ANTIGUA < fecha_fabricacion < date.today():
             es_valido = False
-            flash("La fecha de adquisición no puede ser futura.", "warning")
+            flash("La fecha de fabricación esta fuera del rango permitido.", "warning")
         # Si es valido insertar
         if es_valido:
             inv_equipo.inv_modelo = form.inv_modelo.data
@@ -219,7 +219,7 @@ def edit(inv_equipo_id):
             inv_equipo.descripcion = safe_string(form.descripcion.data)
             inv_equipo.tipo = form.tipo.data
             inv_equipo.direccion_ip = form.direccion_ip.data
-            inv_equipo.direccion_mac = form.direccion_mac.data
+            inv_equipo.direccion_mac = safe_mac_address(form.direccion_mac.data)
             inv_equipo.numero_nodo = form.numero_nodo.data
             inv_equipo.numero_switch = form.numero_switch.data
             inv_equipo.numero_puerto = form.numero_puerto.data
@@ -232,7 +232,6 @@ def edit(inv_equipo_id):
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
-            # flash(f"Equipos {inv_equipo.descripcion} guardado.", "success")
             return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))
     form.inv_modelo.data = inv_equipo.inv_modelo
     form.inv_red.data = inv_equipo.inv_red
@@ -303,7 +302,7 @@ def search():
 @inv_equipos.route("/inv_equipos/eliminar/<int:inv_equipo_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(inv_equipo_id):
-    """Eliminar Equipos"""
+    """Eliminar Equipo"""
     inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
     if inv_equipo.estatus == "A":
         inv_equipo.delete()
@@ -321,7 +320,7 @@ def delete(inv_equipo_id):
 @inv_equipos.route("/inv_equipos/recuperar/<int:inv_equipo_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(inv_equipo_id):
-    """Recuperar Equipos"""
+    """Recuperar Equipo"""
     inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
     if inv_equipo.estatus == "B":
         inv_equipo.recover()
