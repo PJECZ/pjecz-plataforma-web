@@ -86,7 +86,10 @@ class CIDProcedimientoSearchForm(FlaskForm):
 
     id = IntegerField("ID", validators=[Optional()])
     titulo_procedimiento = StringField("Título Procedimiento", validators=[Optional()])
-    codigo = StringField("Codigo", validators=[Optional()])
+    codigo = StringField("Código", validators=[Optional()])
+    elaboro_nombre = StringField("Elaboró", validators=[Optional()])
+    reviso_nombre = StringField("Revisó", validators=[Optional()])
+    aprobo_nombre = StringField("Autorizó", validators=[Optional()])
     fecha_desde = DateField("Fecha desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")
