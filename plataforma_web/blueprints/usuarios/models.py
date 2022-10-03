@@ -46,11 +46,11 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     curp = db.Column(db.String(18), default="", server_default="")
     puesto = db.Column(db.String(256), default="", server_default="")
     telefono_celular = db.Column(db.String(256), default="", server_default="")
-    workspace = db.Column(db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False), index=True, nullable=False)
     telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
     extension = db.Column(db.String(24), nullable=False, default="", server_default="")
     fotografia_url = db.Column(db.String(512), nullable=False, default="", server_default="")
     efirma_registro_id = db.Column(db.Integer, nullable=True)
+    workspace = db.Column(db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False), index=True, nullable=False)
     api_key = db.Column(db.String(128), nullable=False)
     api_key_expiracion = db.Column(db.DateTime(), nullable=False)
 
