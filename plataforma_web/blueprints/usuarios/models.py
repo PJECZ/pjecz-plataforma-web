@@ -39,20 +39,22 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
 
     # Columnas
     email = db.Column(db.String(256), nullable=False, unique=True, index=True)
-    contrasena = db.Column(db.String(256), nullable=False)
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256), default="", server_default="")
     curp = db.Column(db.String(18), default="", server_default="")
     puesto = db.Column(db.String(256), default="", server_default="")
-    telefono_celular = db.Column(db.String(256), default="", server_default="")
     telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
+    telefono_celular = db.Column(db.String(256), default="", server_default="")
     extension = db.Column(db.String(24), nullable=False, default="", server_default="")
     fotografia_url = db.Column(db.String(512), nullable=False, default="", server_default="")
     efirma_registro_id = db.Column(db.Integer, nullable=True)
     workspace = db.Column(db.Enum(*WORKSPACES, name="tipos_workspaces", native_enum=False), index=True, nullable=False)
+
+    # Columnas que no deben ser expuestas
     api_key = db.Column(db.String(128), nullable=False)
     api_key_expiracion = db.Column(db.DateTime(), nullable=False)
+    contrasena = db.Column(db.String(256), nullable=False)
 
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")
