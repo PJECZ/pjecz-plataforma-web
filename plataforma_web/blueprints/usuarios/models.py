@@ -8,7 +8,6 @@ from flask_login import UserMixin
 from lib.universal_mixin import UniversalMixin
 from plataforma_web.extensions import db, pwd_context
 
-from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.tareas.models import Tarea
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
@@ -52,6 +51,8 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     extension = db.Column(db.String(24), nullable=False, default="", server_default="")
     fotografia_url = db.Column(db.String(512), nullable=False, default="", server_default="")
     efirma_registro_id = db.Column(db.Integer, nullable=True)
+    api_key = db.Column(db.String(128), nullable=False)
+    api_key_expiracion = db.Column(db.DateTime(), nullable=False)
 
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")

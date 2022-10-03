@@ -297,6 +297,8 @@ def new():
                 workspace=form.workspace.data,
                 efirma_registro_id=form.efirma_registro_id.data,
                 contrasena=contrasena,
+                api_key="",
+                api_key_expiracion=datetime(year=2000, month=1, day=1),
             )
             usuario.save()
             bitacora = Bitacora(
