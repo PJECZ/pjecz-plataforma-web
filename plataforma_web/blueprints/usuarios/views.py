@@ -4,7 +4,7 @@ Usuarios, vistas
 import json
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import google.auth.transport.requests
 import google.oauth2.id_token
@@ -14,7 +14,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.firebase_auth import firebase_auth
-from lib.pwgen import generar_contrasena
+from lib.pwgen import generar_api_key, generar_contrasena
 from lib.safe_next_url import safe_next_url
 from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string
 
@@ -414,6 +414,43 @@ def edit_admin(usuario_id):
         distritos=distritos,
         autoridades=autoridades,
     )
+
+
+@usuarios.route("/usuarios/api_key/<int:usuario_id>")
+@login_required
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def view_api_key(usuario_id):
+    """Ver API Key"""
+    usuario = Usuario.query.get_or_404(usuario_id)
+    if usuario.estatus != "A":
+        flash("El usuario no está activo.", "warning")
+        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
+    return render_template("usuarios/api_key.jinja2", usuario=usuario)
+
+
+@usuarios.route("/usuarios/api_key_request/<int:usuario_id>", methods=["GET", "POST"])
+@login_required
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def request_api_key_json(usuario_id):
+    """Solicitar API Key"""
+    usuario = Usuario.query.get_or_404(usuario_id)
+
+    # Si se recibe clean
+    if "action" in request.form and request.form["action"] == "clean":
+        usuario.api_key = ""
+        usuario.api_key_expiracion = datetime(year=2000, month=1, day=1)
+        usuario.save()
+        return {"success": True, "message": "Se ha limpiado la API Key", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
+
+    # Si se recibe new
+    if "action" in request.form and request.form["action"] == "new":
+        usuario.api_key = generar_api_key(usuario.id, usuario.email)
+        usuario.api_key_expiracion = datetime.now() + timedelta(days=365)
+        usuario.save()
+        return {"success": True, "message": "Ya tiene una nueva API Key", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
+
+    # Si no se recibe nada
+    return {"success": True, "message": "Nada por hacer", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
 
 
 @usuarios.route("/usuarios/eliminar/<int:usuario_id>")
