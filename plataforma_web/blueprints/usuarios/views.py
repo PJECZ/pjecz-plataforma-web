@@ -416,29 +416,41 @@ def edit_admin(usuario_id):
     )
 
 
-@usuarios.route("/usuarios/api_key/<int:usuario_id>", methods=["GET", "POST"])
+@usuarios.route("/usuarios/api_key/<int:usuario_id>")
 @login_required
 @permission_required(MODULO, Permiso.ADMINISTRAR)
-def new_api_key(usuario_id):
-    """Nueva API Key"""
+def view_api_key(usuario_id):
+    """Ver API Key"""
+    usuario = Usuario.query.get_or_404(usuario_id)
+    if usuario.estatus != "A":
+        flash("El usuario no está activo.", "warning")
+        return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
+    return render_template("usuarios/api_key.jinja2", usuario=usuario)
+
+
+@usuarios.route("/usuarios/api_key_request/<int:usuario_id>", methods=["GET", "POST"])
+@login_required
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def request_api_key_json(usuario_id):
+    """Solicitar API Key"""
     usuario = Usuario.query.get_or_404(usuario_id)
 
-    # Si se recibe limpiar=1 por get
-    if request.args.get("limpiar") and request.args.get("limpiar") == "1":
+    # Si se recibe clean
+    if "action" in request.form and request.form["action"] == "clean":
         usuario.api_key = ""
         usuario.api_key_expiracion = datetime(year=2000, month=1, day=1)
         usuario.save()
-        flash("API Key limpiada", "success")
+        return {"success": True, "message": "Se ha limpiado la API Key", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
 
-    # Si se recibe nueva=1 por get
-    if request.args.get("nueva") and request.args.get("nueva") == "1":
+    # Si se recibe new
+    if "action" in request.form and request.form["action"] == "new":
         usuario.api_key = generar_api_key(usuario.id, usuario.email)
         usuario.api_key_expiracion = datetime.now() + timedelta(days=365)
         usuario.save()
-        flash("API Key nueva", "success")
+        return {"success": True, "message": "Ya tiene una nueva API Key", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
 
-    # Entregar pagina
-    return render_template("usuarios/new_api_key.jinja2", usuario=usuario)
+    # Si no se recibe nada
+    return {"success": True, "message": "Nada por hacer", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
 
 
 @usuarios.route("/usuarios/eliminar/<int:usuario_id>")
