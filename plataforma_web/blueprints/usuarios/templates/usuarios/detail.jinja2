@@ -12,6 +12,7 @@
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
         {% if current_user.can_admin('USUARIOS') %}
             {{ topbar.button_edit('Editar', url_for('usuarios.edit_admin', usuario_id=usuario.id)) }}
+            {{ topbar.button('API Key', url_for('usuarios.new_api_key', usuario_id=usuario.id), 'mdi:key') }}
             {% if usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('usuarios.delete', usuario_id=usuario.id)) }}{% endif %}
             {% if usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('usuarios.recover', usuario_id=usuario.id)) }}{% endif %}
         {% elif current_user.can_edit('USUARIOS') %}
@@ -119,7 +120,6 @@
         {% if usuario.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + usuario.nombre + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
-    {# modals.custom_javascript('Eliminar', '¿Eliminar ese rol del usuario?', 'DeleteRolUsuario') #}
     {{ detail.config_datatable() }}
     {% if current_user.can_view('USUARIOS ROLES') %}
         <script>

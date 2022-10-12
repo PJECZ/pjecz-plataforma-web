@@ -1,0 +1,58 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}API Key{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('API Key ' + usuario.nombre) %}
+        {{ topbar.button_previous('Detalle del usuario', url_for('usuarios.detail', usuario_id=usuario.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(title="Expiración en " + moment(usuario.api_key_expiracion, local=True).format('DD MMM YYYY')) %}
+        {% if usuario.api_key %}
+        <div class="form-group mb-3">
+            <div class="input-group">
+                <button type="button" class="btn btn-outline-primary" id="buttonCopyToClipboard" onclick="copyToClipboard()">Copiar</button>
+                <input type="text" class="form-control" id="fieldAPIKey" aria-label="API Key" aria-describedby="buttonCopyToClipboard" value="{{ usuario.api_key }}">
+            </div>
+        </div>
+        <div class="form-group mb-3">
+            <button type="button" class="btn btn-dark" onclick="cleanAPIKey()">Limpiar API Key</button>
+        </div>
+        {% endif %}
+        <div class="form-group">
+            <button type="button" class="btn btn-danger" onclick="newAPIKey()">Nueva API Key</button>
+            {% if usuario.api_key %} 🚨 <strong>ADVERTENCIA:</strong> La anterior dejará de funcionar.{% endif %}
+        </div>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Copy to clipboard -->
+    <script>
+        function copyToClipboard() {
+          var copyText = document.getElementById("fieldAPIKey");
+          copyText.select();
+          copyText.setSelectionRange(0, 99999)
+          document.execCommand("copy");
+        }
+    </script>
+    <!-- Limpiar API Key -->
+    <script>
+        function cleanAPIKey() {
+            // Recargar esta pagina enviando el parametro limpiar con 1
+            window.location.href = "{{ url_for('usuarios.new_api_key', usuario_id=usuario.id) }}?limpiar=1";
+        }
+    </script>
+    <!-- Nueva API Key -->
+    <script>
+        function newAPIKey() {
+            // Recargar esta pagina enviando el parametro nueva con 1
+            window.location.href = "{{ url_for('usuarios.new_api_key', usuario_id=usuario.id) }}?nueva=1";
+        }
+    </script>
+    {{ detail.moment_js(moment) }}
+{% endblock %}

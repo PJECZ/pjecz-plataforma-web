@@ -4,7 +4,7 @@ Usuarios, vistas
 import json
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import google.auth.transport.requests
 import google.oauth2.id_token
@@ -14,7 +14,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.firebase_auth import firebase_auth
-from lib.pwgen import generar_contrasena
+from lib.pwgen import generar_api_key, generar_contrasena
 from lib.safe_next_url import safe_next_url
 from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string
 
@@ -414,6 +414,31 @@ def edit_admin(usuario_id):
         distritos=distritos,
         autoridades=autoridades,
     )
+
+
+@usuarios.route("/usuarios/api_key/<int:usuario_id>", methods=["GET", "POST"])
+@login_required
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def new_api_key(usuario_id):
+    """Nueva API Key"""
+    usuario = Usuario.query.get_or_404(usuario_id)
+
+    # Si se recibe limpiar=1 por get
+    if request.args.get("limpiar") and request.args.get("limpiar") == "1":
+        usuario.api_key = ""
+        usuario.api_key_expiracion = datetime(year=2000, month=1, day=1)
+        usuario.save()
+        flash("API Key limpiada", "success")
+
+    # Si se recibe nueva=1 por get
+    if request.args.get("nueva") and request.args.get("nueva") == "1":
+        usuario.api_key = generar_api_key(usuario.id, usuario.email)
+        usuario.api_key_expiracion = datetime.now() + timedelta(days=365)
+        usuario.save()
+        flash("API Key nueva", "success")
+
+    # Entregar pagina
+    return render_template("usuarios/new_api_key.jinja2", usuario=usuario)
 
 
 @usuarios.route("/usuarios/eliminar/<int:usuario_id>")
