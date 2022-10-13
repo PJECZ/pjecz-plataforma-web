@@ -43,8 +43,11 @@
         function preventFormSubmit() {
             event.preventDefault();
         }
+        // Define fields
+        var myAPIKeyField = document.getElementById('fieldAPIKey');
+        var myAPIKeyExpiracionField = document.getElementById('staticAPIKeyExpiracion')
         // Define URL for request
-        var request_url = '{{ url_for("usuarios.request_api_key_json", usuario_id=usuario.id) }}';
+        var myRequestURL = '{{ url_for("usuarios.request_api_key_json", usuario_id=usuario.id) }}';
         // Prepare headers
         const myHeaders = new Headers();
         myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
@@ -58,16 +61,14 @@
         // Request to new_api_key_json give a JSON with success, message, api_key and api_key_expiracion
         function requestAPIKey() {
             // Fetch request
-            fetch(request_url, myInit)
+            fetch(myRequestURL, myInit)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById('fieldAPIKey').value = data.api_key;
-                        document.getElementById('staticAPIKeyExpiracion').value = data.api_key_expiracion;
-                        console.log(data.message);
-                    } else {
-                        console.log(data.message);
+                        myAPIKeyField.value = data.api_key;
+                        myAPIKeyExpiracionField.value = data.api_key_expiracion;
                     }
+                    console.log(data.message);
                 })
                 .catch(error => {
                     console.log(error);
@@ -75,31 +76,32 @@
         }
         // Copy to clipboard
         function copyToClipboard() {
-            var copyText = document.getElementById('fieldAPIKey');
-            if (copyText.value == '') {
-                console.log('No hay nada que copiar');
-            } else {
-                copyText.select();
-                copyText.setSelectionRange(0, 99999);
+            if (myAPIKeyField.value != '') {
+                myAPIKeyField.select();
+                myAPIKeyField.setSelectionRange(0, 99999);
                 document.execCommand('copy');
                 console.log('Copiado al portapapeles');
             }
         }
         // Clean API Key
         function cleanAPIKey() {
-            formData = new FormData();
-            formData.append('action', 'clean');
-            myInit.body = formData;
-            requestAPIKey();
+            if (myAPIKeyField.value != '') {
+                formData = new FormData();
+                formData.append('action', 'clean');
+                myInit.body = formData;
+                requestAPIKey();
+            }
         }
         // New API Key
         function newAPIKey() {
-            formData = new FormData();
-            formData.append('action', 'new');
-            myInit.body = formData;
-            requestAPIKey();
+            if (myAPIKeyField.value == '') {
+                formData = new FormData();
+                formData.append('action', 'new');
+                myInit.body = formData;
+                requestAPIKey();
+            }
         }
-        // On document ready, request API Key
+        // When document is ready, request API Key
         $(document).ready(function() {
             requestAPIKey();
         });

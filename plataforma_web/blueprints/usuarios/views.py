@@ -434,6 +434,8 @@ def view_api_key(usuario_id):
 def request_api_key_json(usuario_id):
     """Solicitar API Key"""
     usuario = Usuario.query.get_or_404(usuario_id)
+    if usuario.estatus != "A":
+        return {"success": False, "message": "El usuario no está activo", "api_key": "", "api_key_expiracion": ""}
 
     # Si se recibe clean
     if "action" in request.form and request.form["action"] == "clean":
@@ -450,7 +452,7 @@ def request_api_key_json(usuario_id):
         return {"success": True, "message": "Ya tiene una nueva API Key", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
 
     # Si no se recibe nada
-    return {"success": True, "message": "Nada por hacer", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
+    return {"success": True, "message": "Se ha entregado la API Key a la interfaz", "api_key": usuario.api_key, "api_key_expiracion": usuario.api_key_expiracion}
 
 
 @usuarios.route("/usuarios/eliminar/<int:usuario_id>")
