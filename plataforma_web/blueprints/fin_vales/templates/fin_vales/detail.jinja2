@@ -8,6 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons("Vale " + fin_vale.id | string + " " + fin_vale.estado) %}
         {{ topbar.button_previous('Vales', url_for('fin_vales.list_active')) }}
+        {{ topbar.button('Imprimir', url_for('fin_vales.detail_print', fin_vale_id=fin_vale.id), 'mdi:printer') }}
         {% if current_user.can_edit('FIN VALES') %}
             {% if fin_vale.estado == 'CREADO' %}
                 {{ topbar.button_edit('Solicitar', url_for('fin_vales.step_2_request', fin_vale_id=fin_vale.id)) }}
@@ -60,7 +61,7 @@
             {{ detail.label_value('Nombre', fin_vale.solicito_nombre) }}
             {{ detail.label_value('Puesto', fin_vale.solicito_puesto) }}
             {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
-            {{ detail.label_value('Tiempo', moment(fin_vale.solicito_efirma_tiempo).format('llll')) }} 
+            {{ detail.label_value('Tiempo', moment(fin_vale.solicito_efirma_tiempo).format('llll')) }}
             {{ detail.label_value('Mensaje', fin_vale.solicito_efirma_mensaje) }}
             {{ detail.label_value_new_tab('Folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
         {% endcall %}

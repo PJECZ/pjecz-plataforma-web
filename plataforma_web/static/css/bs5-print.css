@@ -1,0 +1,102 @@
+/*
+ * Bootstrap 5 - Print
+ */
+
+*,
+*::before,
+*::after {
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+a:not(.btn) {
+  text-decoration: underline;
+}
+abbr[title]::after {
+  content: " (" attr(title) ")";
+}
+pre {
+  white-space: pre-wrap !important;
+}
+pre,
+blockquote {
+  border: 1px solid #adb5bd;
+  page-break-inside: avoid;
+}
+tr,
+img {
+  page-break-inside: avoid;
+}
+p,
+h2,
+h3 {
+  orphans: 3;
+  widows: 3;
+}
+h2,
+h3 {
+  page-break-after: avoid;
+}
+@page {
+  size: letter;
+}
+body {
+  min-width: 992px !important;
+  font: 13pt "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.3;
+  background: #fff !important;
+  color: #000;
+  margin: 2cm;
+}
+.container {
+  min-width: 992px !important;
+}
+.badge {
+  border: 1px solid #000;
+}
+.table {
+  border-collapse: collapse !important;
+}
+.table td,
+.table th {
+  background-color: #fff !important;
+}
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #dee2e6 !important;
+}
+.table-dark {
+  color: inherit;
+}
+.table-dark th,
+.table-dark td,
+.table-dark thead th,
+.table-dark tbody + tbody {
+  border-color: #dee2e6;
+}
+
+/* Header */
+header {
+  margin-bottom: 1cm;
+}
+#fraseAnual {
+  text-align: right;
+}
+
+/* Content */
+#seccionLugarFecha {
+  text-align: right;
+  margin-bottom: 0.5cm;
+}
+#seccionDestinatario {
+  font-weight: bold;
+  margin-bottom: 0.5cm;
+  text-transform: uppercase;
+}
+#seccionContenido {
+  margin-bottom: 1cm;
+}
+#seccionFirma {
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}

@@ -1,0 +1,26 @@
+{% extends 'layouts/print.jinja2' %}
+
+{% block title %}Vale de Gasolina {{ fin_vale.id }}{% endblock %}
+
+{% block content %}
+    <div id="seccionLugarFecha">
+        Saltillo, Coahuila., 3/10/2022
+    </div>
+    <div id="seccionDestinatario">
+        {{ fin_vale.autorizo_nombre }}<br>
+        {{ fin_vale.autorizo_puesto }}<br>
+        PRESENTE.-
+    </div>
+    <div id="seccionContenido">
+        <p>
+            Solicito un vale de gasolina de $100.00 ( cien pesos 00/100 m.n), para el Ing. Marcos Flores con el objetivo de ir al Centro de Justicia Penal.
+        </p>
+    </div>
+    <div id="seccionFirma">
+        <p style="margin-bottom: 2cm;">A T E N T A M E N T E</p>
+        <p>
+            {{ fin_vale.solicito_puesto }}<br>
+            {{ fin_vale.solicito_nombre }}
+        </p>
+    </div>
+{% endblock %}
