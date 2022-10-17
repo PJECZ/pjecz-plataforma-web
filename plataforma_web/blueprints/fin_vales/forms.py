@@ -8,6 +8,18 @@ from wtforms.validators import DataRequired, Length, Optional
 from plataforma_web.blueprints.fin_vales.models import FinVale
 
 
+class FinValeEditForm(FlaskForm):
+    """Formulario para editar un vale"""
+
+    usuario_email = StringField("El vale es para")
+    solicito_email = StringField("Quien solicita")
+    autorizo_email = StringField("Quien autoriza (Recursos Financieros)")
+    tipo = SelectField("Tipo", choices=FinVale.TIPOS, validators=[DataRequired()])
+    justificacion = TextAreaField("Justificación", validators=[DataRequired(), Length(max=1024)])
+    monto = FloatField("Monto", validators=[DataRequired()])
+    actualizar = SubmitField("Actualizar")
+
+
 class FinValeStep1CreateForm(FlaskForm):
     """Formulario Vale (step 1 create) Crear"""
 

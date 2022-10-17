@@ -6,11 +6,12 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.fin_vales.models import FinVale
 from plataforma_web.blueprints.fin_vales.forms import (
+    FinValeEditForm,
     FinValeStep1CreateForm,
     FinValeStep2RequestForm,
     FinValeCancel2RequestForm,
@@ -23,6 +24,7 @@ from plataforma_web.blueprints.fin_vales.forms import (
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.usuarios.models import Usuario
 
 fin_vales = Blueprint("fin_vales", __name__, template_folder="templates")
 
@@ -223,7 +225,7 @@ def detail(fin_vale_id):
     return render_template("fin_vales/detail.jinja2", fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vales/<int:fin_vale_id>/impresion")
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/imprimir")
 def detail_print(fin_vale_id):
     """Impresion de un Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
@@ -232,6 +234,49 @@ def detail_print(fin_vale_id):
         flash("No tiene permiso para imprimir este Vale", "warning")
         return redirect(url_for("fin_vales.list_active"))
     return render_template("fin_vales/print.jinja2", fin_vale=fin_vale)
+
+
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/editar", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(fin_vale_id):
+    """Editar vale"""
+
+    # Consultar
+    fin_vale = FinVale.query.get_or_404(fin_vale_id)
+
+    # Si viene el formulario
+    form = FinValeEditForm()
+    if form.validate_on_submit():
+
+        # Consultar el usuario a partir de su email
+        usuario = Usuario.find_by_identity(form.usuario_email.data)
+
+        # Actualizar
+        fin_vale.usuario = usuario
+        fin_vale.solicito_email = safe_email(form.solicito_email.data)
+        fin_vale.autorizo_email = safe_email(form.autorizo_email.data)
+        fin_vale.justificacion = safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False)
+        fin_vale.monto = form.monto.data
+        fin_vale.tipo = form.tipo.data
+        fin_vale.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Modulo {fin_vale.nombre_o_descripcion}"),
+            url=url_for("blueprint.detail", fin_vale_id=fin_vale.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+
+    # Mostrar el formulario
+    form.usuario_email.data = fin_vale.usuario.email
+    form.solicito_email.data = fin_vale.solicito_email
+    form.autorizo_email.data = fin_vale.autorizo_email
+    form.tipo.data = fin_vale.tipo
+    form.justificacion.data = fin_vale.justificacion
+    form.monto.data = fin_vale.monto
+    return render_template("fin_vales/edit.jinja2", form=form, fin_vale=fin_vale)
 
 
 @fin_vales.route("/fin_vale/crear", methods=["GET", "POST"])
@@ -266,7 +311,7 @@ def step_1_create():
     return render_template("fin_vales/step_1_create.jinja2", form=form)
 
 
-@fin_vales.route("/fin_vales/solicitar/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/solicitar", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_2_request(fin_vale_id):
     """Formulario Vale (step 2 request) Solicitar"""
@@ -309,7 +354,7 @@ def step_2_request(fin_vale_id):
     return render_template("fin_vales/step_2_request.jinja2", form=form, fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vales/cancelar_solicitado/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/cancelar_solicitado", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def cancel_2_request(fin_vale_id):
     """Formulario Vale (cancel 2 request) Cancelar solicitado"""
@@ -355,7 +400,7 @@ def cancel_2_request(fin_vale_id):
     return render_template("fin_vales/cancel_2_request.jinja2", form=form, fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vales/autorizar/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/autorizar", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_3_authorize(fin_vale_id):
     """Formulario Vale (step 3 authorize) Autorizar"""
@@ -398,7 +443,7 @@ def step_3_authorize(fin_vale_id):
     return render_template("fin_vales/step_3_authorize.jinja2", form=form, fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vales/cancelar_autorizado/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/cancelar_autorizado", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def cancel_3_authorize(fin_vale_id):
     """Formulario Vale (cancel 3 authorize) Cancelar autorizado"""
@@ -444,7 +489,7 @@ def cancel_3_authorize(fin_vale_id):
     return render_template("fin_vales/cancel_3_authorize.jinja2", form=form, fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vales/entregar/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/entregar", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_4_deliver(fin_vale_id):
     """Formulario Vale (step 4 deliver) Entregar"""
@@ -484,7 +529,7 @@ def step_4_deliver(fin_vale_id):
     return render_template("fin_vales/step_4_deliver.jinja2", form=form, fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vales/por_revisar/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/por_revisar", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_5_attachments(fin_vale_id):
     """Formulario Vale (step 5 attachments) Adjuntar"""
@@ -533,7 +578,7 @@ def step_5_attachments(fin_vale_id):
     return render_template("fin_vales/step_5_attachments.jinja2", form=form, fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vales/archivar/<int:fin_vale_id>", methods=["GET", "POST"])
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/archivar", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def step_6_archive(fin_vale_id):
     """Formulario Vale (step 6 archive) Archivar"""
@@ -574,7 +619,7 @@ def step_6_archive(fin_vale_id):
     return render_template("fin_vales/step_6_archive.jinja2", form=form, fin_vale=fin_vale)
 
 
-@fin_vales.route("/fin_vales/eliminar/<int:fin_vale_id>")
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/eliminar")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(fin_vale_id):
     """Eliminar Vale"""
@@ -604,7 +649,7 @@ def delete(fin_vale_id):
     return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale.id))
 
 
-@fin_vales.route("/fin_vales/recuperar/<int:fin_vale_id>")
+@fin_vales.route("/fin_vales/<int:fin_vale_id>/recuperar")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(fin_vale_id):
     """Recuperar Vale"""

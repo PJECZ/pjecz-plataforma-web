@@ -10,6 +10,7 @@
         {{ topbar.button_previous('Vales', url_for('fin_vales.list_active')) }}
         {{ topbar.button('Imprimir', url_for('fin_vales.detail_print', fin_vale_id=fin_vale.id), 'mdi:printer') }}
         {% if current_user.can_edit('FIN VALES') %}
+            {{ topbar.button_edit('Editar', url_for('fin_vales.edit', fin_vale_id=fin_vale.id)) }}
             {% if fin_vale.estado == 'CREADO' %}
                 {{ topbar.button_edit('Solicitar', url_for('fin_vales.step_2_request', fin_vale_id=fin_vale.id)) }}
             {% endif %}
