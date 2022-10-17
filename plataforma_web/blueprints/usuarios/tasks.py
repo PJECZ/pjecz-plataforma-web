@@ -1,16 +1,12 @@
 """
 Usuarios, tareas para ejecutar en el fondo
 
-- definir_oficinas: Definir las oficinas a partir de una relacion entre email y oficina
-- enviar_reporte: Enviar via correo electronico el reporte de usuarios
 - estandarizar: Estandarizar nombres, apellidos y puestos en mayusculas
 - sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
-import csv
 import locale
 import logging
 import os
-from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
@@ -46,100 +42,7 @@ db.app = app
 
 locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 
-USUARIOS_EMAILS_DISTRITOS_CSV = "seed/usuarios_emails_distritos.csv"
-
-
-def definir_oficinas():
-    """Definir las oficinas a partir de una relacion entre email y oficina"""
-
-    # Iniciar
-    bitacora.info("Inicia definir oficinas")
-
-    # Tomar oficina NO DEFINIDO
-    oficina_no_definido = Oficina.query.filter_by(clave="ND").first()
-    if oficina_no_definido is None:
-        mensaje = "No se encontró la oficina NO DEFINIDO"
-        set_task_error(mensaje)
-        bitacora.error(mensaje)
-        return
-
-    # Definir las equivalencias entre distrito_nombre y la oficina
-    oficinas_relacion_distritos_nombres = {
-        "ACUÑA": Oficina.query.filter_by(clave="DACU").first(),
-        "MONCLOVA": Oficina.query.filter_by(clave="DMON").first(),
-        "PARRAS": Oficina.query.filter_by(clave="DPAR").first(),
-        "PIEDRAS NEGRAS": Oficina.query.filter_by(clave="DRGR").first(),
-        "SABINAS": Oficina.query.filter_by(clave="DSAB").first(),
-        "SALTILLO": Oficina.query.filter_by(clave="DSAL").first(),
-        "SAN PEDRO": Oficina.query.filter_by(clave="DSPC").first(),
-        "TORREON": Oficina.query.filter_by(clave="DTOR").first(),
-    }
-    for distrito_nombre, oficina in oficinas_relacion_distritos_nombres.items():
-        if oficina is None:
-            mensaje = "No se encontró la oficina para el distrito %s" % distrito_nombre
-            set_task_error(mensaje)
-            bitacora.error(mensaje)
-            return
-
-    # Cargar archivo CSV
-    ruta = Path(USUARIOS_EMAILS_DISTRITOS_CSV)
-    if not ruta.exists():
-        mensaje = "No se encontró {ruta.name}"
-        set_task_error(mensaje)
-        bitacora.error(mensaje)
-        return
-    if not ruta.is_file():
-        mensaje = "No es un archivo {ruta.name}"
-        set_task_error(mensaje)
-        bitacora.error(mensaje)
-        return
-    contador = 0
-    usuarios_cambiados_contador = 0
-    usuarios_sin_cambios_contador = 0
-    emails_no_encontrados = 0
-    with open(ruta, encoding="utf8") as puntero:
-        rows = csv.DictReader(puntero)
-        for row in rows:
-            email = row["email"].strip().lower()
-            distrito_nombre = row["distrito"].strip().upper()
-            usuario = Usuario.query.filter_by(email=email).first()
-            if usuario is None:
-                emails_no_encontrados += 1
-                bitacora.warning("No se encontró el email %s", email)
-            else:
-                if usuario.oficina == oficina_no_definido:
-                    if distrito_nombre in oficinas_relacion_distritos_nombres:
-                        usuario.oficina = oficinas_relacion_distritos_nombres[distrito_nombre]
-                        usuario.save()
-                        usuarios_cambiados_contador += 1
-                else:
-                    usuarios_sin_cambios_contador += 1
-            contador += 1
-            if contador % 100 == 0:
-                bitacora.info("Procesados %d", contador)
-
-    # Terminar
-    set_task_progress(100)
-    mensaje_final = f"Terminado definir oficinas satisfactoriamente con {contador} usuarios actualizados"
-    bitacora.info(mensaje_final)
-    return mensaje_final
-
-
-def enviar_reporte():
-    """Enviar reporte de usuarios via correo electronico"""
-
-    # Iniciar
-    bitacora.info("Inicia enviar reporte")
-
-    # Consultar
-    usuarios = Usuario.query.filter_by(estatus="A")
-    bitacora.info("Hay %s usuarios activos", usuarios.count())
-
-    # Terminar
-    set_task_progress(100)
-    mensaje_final = "Terminado enviar reporte satisfactoriamente"
-    bitacora.info(mensaje_final)
-    return mensaje_final
+TIMEOUT = 16
 
 
 def estandarizar():
@@ -169,12 +72,7 @@ def estandarizar():
         puesto = safe_string(usuario.puesto)
         if puesto == "":
             puesto = "ND"
-        if (
-            nombres != usuario.nombres
-            or apellido_paterno != usuario.apellido_paterno
-            or apellido_materno != usuario.apellido_materno
-            or puesto != usuario.puesto
-        ):
+        if nombres != usuario.nombres or apellido_paterno != usuario.apellido_paterno or apellido_materno != usuario.apellido_materno or puesto != usuario.puesto:
             usuario.nombres = nombres
             usuario.apellido_paterno = apellido_paterno
             usuario.apellido_materno = apellido_materno
@@ -213,7 +111,7 @@ def estandarizar():
     bitacora.info("Se actualizaron %d usuarios", usuarios_actualizados_contador)
     bitacora.info("Se insertaron o actualizaron %d usuarios_roles", usuarios_roles_contador)
     set_task_progress(100)
-    mensaje_final = f"Terminado estandarizar satisfactoriamente"
+    mensaje_final = "Terminado estandarizar satisfactoriamente"
     bitacora.info(mensaje_final)
     return mensaje_final
 
@@ -256,6 +154,7 @@ def sincronizar():
         url=f"{base_url}/token",
         data={"username": username, "password": password},
         headers={"content-type": "application/x-www-form-urlencoded"},
+        timeout=TIMEOUT,
     )
     if response.status_code != 200:
         mensaje = f"Fallo el inicio de sesion con error {response.status_code}"
@@ -279,6 +178,7 @@ def sincronizar():
             url=f"{base_url}/v1/personas",
             headers={"authorization": f"Bearer {token}"},
             params={"limit": limit, "offset": offset},
+            timeout=TIMEOUT,
         )
         if response.status_code != 200:
             mensaje = f"Fallo la consulta de personas con error {response.status_code}"

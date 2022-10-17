@@ -1,0 +1,164 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}API Key{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('API Key ' + usuario.email) %}
+        {{ topbar.button_previous('Detalle del usuario', url_for('usuarios.detail', usuario_id=usuario.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        <form onsubmit="preventFormSubmit()">
+            <div class="mb-3">
+                <label for="staticEmail" class="col-form-label">Nombre</label>
+                <input type="text" disabled class="form-control" id="staticEmail" value="{{ usuario.nombre }}">
+            </div>
+            <div class="mb-3">
+                <label for="fieldDays" class="col-form-label">Cantidad de días para definir la expiración con el botón <strong>Nueva</strong></label>
+                <select class="form-select" id="fieldDays" aria-label="Default select example">
+                    <option value="30" selected>30 días = 1 mes</option>
+                    <option value="90">90 días = 3 meses</option>
+                    <option value="365">365 días = 1 año</option>
+                    <option value="3650">3650 días = 10 años</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="fieldAPIKey" class="col-form-label">API Key</label>
+                <div class="input-group mb-2">
+                    <button type="button" class="btn btn-outline-danger" id="buttonCopyToClipboard" onclick="cleanAPIKey()">Limpiar</button>
+                    <button type="button" class="btn btn-outline-secondary" id="buttonCopyToClipboard" onclick="newAPIKey()">Nueva</button>
+                    <input type="text" class="form-control" id="fieldAPIKey" aria-label="API Key" aria-describedby="buttonCopyToClipboard" value="{{ usuario.api_key }}">
+                    <button type="button" class="btn btn-outline-primary" id="buttonCopyToClipboard" onclick="copyToClipboard()">Copiar</button>
+                </div>
+                <div>
+                    🚨 <strong>ADVERTENCIA:</strong> Si la limpia o hace una nueva, la anterior dejará de funcionar.
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="staticAPIKeyExpiracion" class="col-form-label">API Key expiración</label>
+                <input type="text" disabled class="form-control" id="staticAPIKeyExpiracion" value="">
+            </div>
+        </form>
+    {% endcall %}
+    {% call detail.card(title='Permisos por nivel') %}
+        <div class="row">
+        {% if permisos_en_nivel_1 %}
+            <div class="col">
+                <strong>Ver</strong>
+                <ul>
+                {% for etiqueta in permisos_en_nivel_1 %}
+                    <li>{{ etiqueta }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if permisos_en_nivel_2 %}
+            <div class="col">
+                <strong>Ver y modificar</strong>
+                <ul>
+                {% for etiqueta in permisos_en_nivel_2 %}
+                    <li>{{ etiqueta }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if permisos_en_nivel_3 %}
+            <div class="col">
+                <strong>Ver, modificar y crear</strong>
+                <ul>
+                {% for etiqueta in permisos_en_nivel_3 %}
+                    <li>{{ etiqueta }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if permisos_en_nivel_4 %}
+            <div class="col">
+                <strong>Administrar</strong>
+                <ul>
+                {% for etiqueta in permisos_en_nivel_4 %}
+                    <li>{{ etiqueta }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        </div>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        // Prevent form submit
+        function preventFormSubmit() {
+            event.preventDefault();
+        }
+        // Define fields
+        var myDaysField = document.getElementById('fieldDays');
+        var myAPIKeyField = document.getElementById('fieldAPIKey');
+        var myAPIKeyExpiracionField = document.getElementById('staticAPIKeyExpiracion')
+        // Define URL for request
+        var myRequestURL = '{{ url_for("usuarios.request_api_key_json", usuario_id=usuario.id) }}';
+        // Prepare headers
+        const myHeaders = new Headers();
+        myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
+        // Init request
+        const myInit = {
+            method: 'POST',
+            headers: myHeaders,
+            mode: 'cors',
+            cache: 'default'
+        };
+        // Request to new_api_key_json give a JSON with success, message, api_key and api_key_expiracion
+        function requestAPIKey() {
+            // Fetch request
+            fetch(myRequestURL, myInit)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        myAPIKeyField.value = data.api_key;
+                        myAPIKeyExpiracionField.value = data.api_key_expiracion;
+                    }
+                    console.log(data.message);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+        // Copy to clipboard
+        function copyToClipboard() {
+            if (myAPIKeyField.value != '') {
+                myAPIKeyField.select();
+                myAPIKeyField.setSelectionRange(0, 99999);
+                document.execCommand('copy');
+                console.log('Copiado al portapapeles');
+            }
+        }
+        // Clean API Key
+        function cleanAPIKey() {
+            if (myAPIKeyField.value != '') {
+                formData = new FormData();
+                formData.append('action', 'clean');
+                myInit.body = formData;
+                requestAPIKey();
+            }
+        }
+        // New API Key
+        function newAPIKey() {
+            if (myAPIKeyField.value == '') {
+                formData = new FormData();
+                formData.append('action', 'new');
+                formData.append('days', myDaysField.value);
+                myInit.body = formData;
+                requestAPIKey();
+            }
+        }
+        // When document is ready, request API Key
+        $(document).ready(function() {
+            requestAPIKey();
+        });
+    </script>
+{% endblock %}
