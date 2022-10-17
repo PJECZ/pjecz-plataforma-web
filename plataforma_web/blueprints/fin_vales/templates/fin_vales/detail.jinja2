@@ -12,22 +12,22 @@
         {% if current_user.can_edit('FIN VALES') %}
             {{ topbar.button_edit('Editar', url_for('fin_vales.edit', fin_vale_id=fin_vale.id)) }}
             {% if fin_vale.estado == 'CREADO' %}
-                {{ topbar.button_edit('Solicitar', url_for('fin_vales.step_2_request', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button('Solicitar', url_for('fin_vales.step_2_request', fin_vale_id=fin_vale.id), 'mdi:check') }}
             {% endif %}
             {% if fin_vale.estado == 'SOLICITADO' %}
-                {{ topbar.button_edit('Cancelar solicitado', url_for('fin_vales.cancel_2_request', fin_vale_id=fin_vale.id)) }}
-                {{ topbar.button_edit('Autorizar', url_for('fin_vales.step_3_authorize', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button('Cancelar solicitado', url_for('fin_vales.cancel_2_request', fin_vale_id=fin_vale.id), 'mdi:close') }}
+                {{ topbar.button('Autorizar', url_for('fin_vales.step_3_authorize', fin_vale_id=fin_vale.id), 'mdi:check-all') }}
             {% endif %}
             {% if fin_vale.estado == 'AUTORIZADO' %}
-                {{ topbar.button_edit('Cancelar autorizado', url_for('fin_vales.cancel_3_authorize', fin_vale_id=fin_vale.id)) }}
-                {{ topbar.button_edit('Entregar', url_for('fin_vales.step_4_deliver', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button('Cancelar autorizado', url_for('fin_vales.cancel_3_authorize', fin_vale_id=fin_vale.id), 'mdi:close') }}
+                {{ topbar.button('Entregar', url_for('fin_vales.step_4_deliver', fin_vale_id=fin_vale.id), 'mdi:basket') }}
             {% endif %}
             {% if fin_vale.estado == 'ENTREGADO' %}
-                {{ topbar.button_edit('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id), 'mdi:cube-scan') }}
             {% endif %}
             {% if fin_vale.estado == 'POR REVISAR' %}
-                {{ topbar.button_edit('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id)) }}
-                {{ topbar.button_edit('Archivar', url_for('fin_vales.step_6_archive', fin_vale_id=fin_vale.id)) }}
+                {{ topbar.button('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id), 'mdi:cube-scan') }}
+                {{ topbar.button('Archivar', url_for('fin_vales.step_6_archive', fin_vale_id=fin_vale.id), 'mdi:archive') }}
             {% endif %}
             {% if fin_vale.estatus == 'A' %}
                 {{ topbar.button_delete('Eliminar', url_for('fin_vales.delete', fin_vale_id=fin_vale.id)) }}
