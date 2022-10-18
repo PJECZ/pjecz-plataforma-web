@@ -11,9 +11,9 @@ from plataforma_web.blueprints.fin_vales.models import FinVale
 class FinValeEditForm(FlaskForm):
     """Formulario para editar un vale"""
 
-    usuario_email = StringField("El vale es para")
-    solicito_email = StringField("Quien solicita")
-    autorizo_email = StringField("Quien autoriza (Recursos Financieros)")
+    usuario_email = SelectField(label="Usuario", coerce=str, validators=[Optional()], validate_choice=False)
+    solicito_email = SelectField(label="Solicita", coerce=str, validators=[Optional()], validate_choice=False)
+    autorizo_email = SelectField(label="Autoriza", coerce=str, validators=[Optional()], validate_choice=False)
     tipo = SelectField("Tipo", choices=FinVale.TIPOS, validators=[DataRequired()])
     justificacion = TextAreaField("Justificación", validators=[DataRequired(), Length(max=1024)])
     monto = FloatField("Monto", validators=[DataRequired()])

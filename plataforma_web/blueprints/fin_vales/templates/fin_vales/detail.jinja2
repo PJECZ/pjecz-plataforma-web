@@ -66,6 +66,12 @@
             {{ detail.label_value('Mensaje', fin_vale.solicito_efirma_mensaje) }}
             {{ detail.label_value_new_tab('Folio y URL', fin_vale.solicito_efirma_folio, fin_vale.solicito_efirma_url) }}
         {% endcall %}
+    {% elif fin_vale.solicito_email %}
+        {% call detail.card(title='Solicita', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Nombre', fin_vale.solicito_nombre) }}
+            {{ detail.label_value('Puesto', fin_vale.solicito_puesto) }}
+            {{ detail.label_value('e-mail', fin_vale.solicito_email) }}
+        {% endcall %}
     {% endif %}
     {% if fin_vale.estado == 'CANCELADO POR SOLICITANTE' %}
         {% call detail.card(title='Cancelado por solicitante', estatus=fin_vale.estatus) %}
@@ -88,6 +94,12 @@
             {{ detail.label_value('Tiempo', fin_vale.autorizo_efirma_tiempo) }}
             {{ detail.label_value('Mensaje', fin_vale.autorizo_efirma_mensaje) }}
             {{ detail.label_value_new_tab('Folio y URL', fin_vale.autorizo_efirma_folio, fin_vale.autorizo_efirma_url) }}
+        {% endcall %}
+    {% elif fin_vale.autorizo_email %}
+        {% call detail.card(title='Autoriza', estatus=fin_vale.estatus) %}
+            {{ detail.label_value('Nombre', fin_vale.autorizo_nombre) }}
+            {{ detail.label_value('Puesto', fin_vale.autorizo_puesto) }}
+            {{ detail.label_value('e-mail', fin_vale.autorizo_email) }}
         {% endcall %}
     {% endif %}
     {% if fin_vale.estado == 'CANCELADO POR AUTORIZANTE' %}

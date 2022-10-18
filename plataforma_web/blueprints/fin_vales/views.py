@@ -23,8 +23,10 @@ from plataforma_web.blueprints.fin_vales.forms import (
 )
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
 fin_vales = Blueprint("fin_vales", __name__, template_folder="templates")
 
@@ -247,27 +249,60 @@ def edit(fin_vale_id):
     # Si viene el formulario
     form = FinValeEditForm()
     if form.validate_on_submit():
+        es_valido = True
 
-        # Consultar el usuario a partir de su email
-        usuario = Usuario.find_by_identity(form.usuario_email.data)
+        # Validar usuario
+        usuario_email = safe_email(form.usuario_email.data)
+        if usuario_email != "":
+            usuario = Usuario.find_by_identity(usuario_email)
+            if usuario is None:
+                flash("El usuario no existe", "warning")
+                es_valido = False
 
-        # Actualizar
-        fin_vale.usuario = usuario
-        fin_vale.solicito_email = safe_email(form.solicito_email.data)
-        fin_vale.autorizo_email = safe_email(form.autorizo_email.data)
-        fin_vale.justificacion = safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False)
-        fin_vale.monto = form.monto.data
-        fin_vale.tipo = form.tipo.data
-        fin_vale.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado Modulo {fin_vale.nombre_o_descripcion}"),
-            url=url_for("blueprint.detail", fin_vale_id=fin_vale.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        # Validar solicitante
+        solicito_email = safe_email(form.solicito_email.data)
+        if solicito_email != "":
+            solicito = Usuario.find_by_identity(solicito_email)
+            if solicito is None:
+                flash("El solicitante no existe", "warning")
+                es_valido = False
+
+        # Validar autorizante
+        autorizo_email = safe_email(form.autorizo_email.data)
+        if autorizo_email != "":
+            autorizo = Usuario.find_by_identity(autorizo_email)
+            if autorizo is None:
+                flash("El autorizante no existe", "warning")
+                es_valido = False
+
+        # Si es valido, actualizar
+        if es_valido:
+            fin_vale.usuario = usuario
+            fin_vale.solicito_nombre = solicito.nombre
+            fin_vale.solicito_puesto = solicito.puesto
+            fin_vale.solicito_email = solicito.email
+            fin_vale.autorizo_nombre = autorizo.nombre
+            fin_vale.autorizo_puesto = autorizo.puesto
+            fin_vale.autorizo_email = autorizo.email
+            fin_vale.justificacion = safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False)
+            fin_vale.monto = form.monto.data
+            fin_vale.tipo = form.tipo.data
+            fin_vale.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado Vale {fin_vale.justificacion}"),
+                url=url_for("fin_vales.detail", fin_vale_id=fin_vale.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+
+    # Cambiar nulos por textos vacios
+    if fin_vale.solicito_email is None:
+        fin_vale.solicito_email = ""
+    if fin_vale.autorizo_email is None:
+        fin_vale.autorizo_email = ""
 
     # Mostrar el formulario
     form.usuario_email.data = fin_vale.usuario.email
@@ -277,6 +312,44 @@ def edit(fin_vale_id):
     form.justificacion.data = fin_vale.justificacion
     form.monto.data = fin_vale.monto
     return render_template("fin_vales/edit.jinja2", form=form, fin_vale=fin_vale)
+
+
+@fin_vales.route("/fin_vales/usuarios_json", methods=["POST"])
+def query_usuarios_json():
+    """Proporcionar el JSON de usuarios para elegir con un Select2"""
+    usuarios = Usuario.query.filter(Usuario.estatus == "A")
+    if "searchString" in request.form:
+        usuarios = usuarios.filter(Usuario.email.contains(safe_email(request.form["searchString"], search_fragment=True)))
+    resultados = []
+    for usuario in usuarios.order_by(Usuario.email).limit(10).all():
+        resultados.append({"id": usuario.email, "text": usuario.email})
+    return {"results": resultados, "pagination": {"more": False}}
+
+
+@fin_vales.route("/fin_vales/solicitantes_json", methods=["POST"])
+def query_solicitantes_json():
+    """Proporcionar el JSON de solicitantes para elegir con un Select2"""
+    usuarios = Usuario.query.join(UsuarioRol, Rol).filter(Rol.nombre == ROL_SOLICITANTES)
+    if "searchString" in request.form:
+        usuarios = usuarios.filter(Usuario.email.contains(safe_email(request.form["searchString"], search_fragment=True)))
+    usuarios = usuarios.filter(Usuario.estatus == "A")
+    resultados = []
+    for usuario in usuarios.order_by(Usuario.email).limit(10).all():
+        resultados.append({"id": usuario.email, "text": usuario.email})
+    return {"results": resultados, "pagination": {"more": False}}
+
+
+@fin_vales.route("/fin_vales/autorizantes_json", methods=["POST"])
+def query_autorizantes_json():
+    """Proporcionar el JSON de autorizantes para elegir con un Select2"""
+    usuarios = Usuario.query.join(UsuarioRol, Rol).filter(Rol.nombre == ROL_AUTORIZANTES)
+    if "searchString" in request.form:
+        usuarios = usuarios.filter(Usuario.email.contains(safe_email(request.form["searchString"], search_fragment=True)))
+    usuarios = usuarios.filter(Usuario.estatus == "A")
+    resultados = []
+    for usuario in usuarios.order_by(Usuario.email).limit(10).all():
+        resultados.append({"id": usuario.email, "text": usuario.email})
+    return {"results": resultados, "pagination": {"more": False}}
 
 
 @fin_vales.route("/fin_vale/crear", methods=["GET", "POST"])

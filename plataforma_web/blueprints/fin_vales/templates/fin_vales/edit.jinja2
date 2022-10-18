@@ -5,6 +5,11 @@
 
 {% block title %}Editar Vale{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+{% endblock %}
+
 {% block topbar_actions %}
     {{ topbar.page('Editar Vale ' + fin_vale.id | string) }}
 {% endblock %}
@@ -12,7 +17,7 @@
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
-        {% call f.form_tag('fin_vales.step_2_request', fid='step_2_request_form', **form_kwargs) %}
+        {% call f.form_tag('fin_vales.edit', fid='step_2_request_form', **form_kwargs) %}
             {% call f.form_group(form.usuario_email) %}{% endcall %}
             {% call f.form_group(form.solicito_email) %}{% endcall %}
             {% call f.form_group(form.autorizo_email) %}{% endcall %}
@@ -25,5 +30,86 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Agregar clases a los select
+            $('#usuario_email').addClass('js-usuario-data-ajax js-states form-control');
+            $('#solicito_email').addClass('js-solicito-data-ajax js-states form-control');
+            $('#autorizo_email').addClass('js-autorizo-data-ajax js-states form-control');
+            // Poner como activo el valor actual
+            $('#usuario_email option').each(function() {
+                if ($(this).text() == '{{fin_vale.usuario.email}}') {
+                    $("#usuario_email").val( $(this).val() );
+                }
+            });
+            $('#solicito_email option').each(function() {
+                if ($(this).text() == '{{fin_vale.solicito_email}}') {
+                    $("#solicito_email").val( $(this).val() );
+                }
+            });
+            $('#autorizo_email option').each(function() {
+                if ($(this).text() == '{{fin_vale.autorizo_email}}') {
+                    $("#autorizo_email").val( $(this).val() );
+                }
+            });
+            // AJAX para los select
+            $(".js-usuario-data-ajax").select2({
+                placeholder: "Correo electrónico de quien usará el vale",
+                allowClear: true,
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/fin_vales/usuarios_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term }
+                    }
+                }
+            });
+            $(".js-solicito-data-ajax").select2({
+                placeholder: "Correo electrónico de quien firmará la solicitud",
+                allowClear: true,
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/fin_vales/solicitantes_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term }
+                    }
+                }
+            });
+            $(".js-autorizo-data-ajax").select2({
+                placeholder: "Correo electrónico de quien autorizará el vale",
+                allowClear: true,
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/fin_vales/autorizantes_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term }
+                    }
+                }
+            });
+            // Porque se usa AJAX para traer hasta 10 email, se debe de agregar el valor actual
+            const newUsuarioOption = new Option('{{fin_vale.usuario.email}}', '{{fin_vale.usuario.email}}', false, false);
+            $('#usuario_email').append(newUsuarioOption).trigger('change');
+            // Porque se usa AJAX para traer hasta 10 email, se debe de agregar el valor actual
+            const newSolicitoOption = new Option('{{fin_vale.solicito_email}}', '{{fin_vale.solicito_email}}', false, false);
+            $('#solicito_email').append(newSolicitoOption).trigger('change');
+            // Porque se usa AJAX para traer hasta 10 email, se debe de agregar el valor actual
+            const newAutorizoOption = new Option('{{fin_vale.autorizo_email}}', '{{fin_vale.autorizo_email}}', false, false);
+            $('#autorizo_email').append(newAutorizoOption).trigger('change');
+        });
+    </script>
     {{ detail.moment_js(moment) }}
 {% endblock %}
