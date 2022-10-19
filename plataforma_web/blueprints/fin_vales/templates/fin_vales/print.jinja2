@@ -1,10 +1,11 @@
 {% extends 'layouts/print.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
 
 {% block title %}Vale de Gasolina {{ fin_vale.id }}{% endblock %}
 
 {% block content %}
     <div id="seccionLugarFecha">
-        Saltillo, Coahuila., 3/10/2022
+        Saltillo, Coahuila., {{ moment(fin_vale.creado).format('ll') }}
     </div>
     <div id="seccionDestinatario">
         {{ fin_vale.autorizo_nombre }}<br>
@@ -13,7 +14,7 @@
     </div>
     <div id="seccionContenido">
         <p>
-            Solicito un vale de gasolina de $100.00 ( cien pesos 00/100 m.n), para el Ing. Marcos Flores con el objetivo de ir al Centro de Justicia Penal.
+            {{ fin_vale.justificacion }}
         </p>
     </div>
     <div id="seccionFirma">
@@ -23,4 +24,8 @@
             {{ fin_vale.solicito_nombre }}
         </p>
     </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

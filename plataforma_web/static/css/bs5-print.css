@@ -75,8 +75,8 @@ body {
 }
 
 /* Header */
-header {
-  margin-bottom: 1cm;
+#header {
+  margin-bottom: 2cm;
 }
 #fraseAnual {
   text-align: right;
@@ -85,18 +85,27 @@ header {
 /* Content */
 #seccionLugarFecha {
   text-align: right;
-  margin-bottom: 0.5cm;
+  margin-bottom: 1.5cm;
 }
 #seccionDestinatario {
   font-weight: bold;
-  margin-bottom: 0.5cm;
+  margin-bottom: 1.5cm;
   text-transform: uppercase;
 }
 #seccionContenido {
-  margin-bottom: 1cm;
+  margin-bottom: 1.5cm;
+  text-indent: 2.5cm;
 }
 #seccionFirma {
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;
+}
+
+/* Footer at bottom of page */
+#footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 200px;
 }

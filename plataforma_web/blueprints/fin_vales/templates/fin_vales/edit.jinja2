@@ -18,10 +18,11 @@
     {% call f.card() %}
         {% set form_kwargs = {'fin_vale_id': fin_vale.id} %}
         {% call f.form_tag('fin_vales.edit', fid='step_2_request_form', **form_kwargs) %}
+            {% call f.form_group(form.usuario_nombre, readonly=true) %}{% endcall %}
             {% call f.form_group(form.usuario_email) %}{% endcall %}
             {% call f.form_group(form.solicito_email) %}{% endcall %}
             {% call f.form_group(form.autorizo_email) %}{% endcall %}
-            {% call f.form_group(form.tipo) %}{% endcall %}
+            {% call f.form_group(form.tipo, readonly=true) %}{% endcall %}
             {% call f.form_group(form.monto) %}{% endcall %}
             {% call f.form_group(form.justificacion) %}{% endcall %}
             {% call f.form_group(form.actualizar) %}{% endcall %}
@@ -33,6 +34,27 @@
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+
+        // Funcion para convertir el monto a texto
+        function convertir_monto_a_texto() {
+            monto = $('#monto').val();
+            if (monto == 100) {
+                return '$100.00 (Cien pesos 00/100 M.N.)';
+            } else if (monto == 200) {
+                return '$200.00 (Doscientos pesos 00/100 M.N.)';
+            } else if (monto == 500) {
+                return '$500.00 (Quinientos pesos 00/100 M.N.)';
+            } else {
+                return '$0.00 (Cero pesos 00/100 M.N.)';
+            }
+        }
+
+        // Funcion para actualizar la justificacion
+        function actualizar_justificacion() {
+            $('#justificacion').val('Solicito un vale de gasolina de ' + convertir_monto_a_texto() + ' para ' + $('#usuario_nombre').val() + ' con el objetivo de ir a DESTINO.');
+        }
+
+        // Cuando este listo el DOM
         $(document).ready(function(){
 
             // Agregar clases a los select
@@ -40,7 +62,7 @@
             $('#solicito_email').addClass('js-solicito-data-ajax js-states form-control');
             $('#autorizo_email').addClass('js-autorizo-data-ajax js-states form-control');
 
-            // Poner como activo el valor actual
+            // Poner como activo el valor actual en los select
             $('#usuario_email option').each(function() {
                 if ($(this).text() == '{{fin_vale.usuario.email}}') {
                     $("#usuario_email").val( $(this).val() );
@@ -57,7 +79,7 @@
                 }
             });
 
-            // AJAX para los select
+            // AJAX para que al escribir desde 3 caracteres se filtren las opciones en los select
             $(".js-usuario-data-ajax").select2({
                 placeholder: "Correo electrónico de quien usará el vale",
                 allowClear: true,
@@ -112,20 +134,26 @@
             const newAutorizoOption = new Option('{{fin_vale.autorizo_email}}', '{{fin_vale.autorizo_email}}', false, false);
             $('#autorizo_email').append(newAutorizoOption).trigger('change');
 
-            // Si cambia el monto, se actualiza la justifiacion
+            // Al cambiar el monto, se actualiza la justifiacion
             $('#monto').on('change', function() {
-                monto = $('#monto').val();
-                montoTexto = '';
-                if (monto == 100) {
-                    montoTexto = '$100.00 (Cien pesos 00/100 M.N.)';
-                } else if (monto == 200) {
-                    montoTexto = '$200.00 (Doscientos pesos 00/100 M.N.)';
-                } else if (monto == 500) {
-                    montoTexto = '$500.00 (Quinientos pesos 00/100 M.N.)';
-                } else {
-                    montoTexto = '$0.00 (Cero pesos 00/100 M.N.)';
-                }
-                $('#justificacion').val('Solicito un vale de gasolina de ' + montoTexto + ' para XXXXX con el objetivo de ir a DESTINO U OFICINA.');
+                actualizar_justificacion();
+            });
+
+            // Al cambiar usuario_email, se actualiza el usuario_nombre y la justifiacion
+            $('#usuario_email').on('change', function() {
+                // AJAX para solicitar los datos del usuario
+                $.ajax({
+                    url: '/fin_vales/usuario_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: { 'email': $('#usuario_email').val() },
+                    success: function(data) {
+                        $('#usuario_nombre').val(data.nombre);
+                        actualizar_justificacion();
+                    }
+                });
             });
 
         });
