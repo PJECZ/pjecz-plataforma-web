@@ -43,7 +43,7 @@
 
 {% block content %}
     {% if fin_vale.estado in ['CREADO', 'SOLICITADO', 'CANCELADO POR SOLICITANTE', 'AUTORIZADO', 'CANCELADO POR AUTORIZANTE', 'ENTREGADO', 'POR REVISAR', 'ARCHIVADO'] %}
-        {% call detail.card(title='Creado', estatus=fin_vale.estatus) %}
+        {% call detail.card(title='Usuario', estatus=fin_vale.estatus) %}
             {{ detail.label_value('Nombre', fin_vale.usuario.nombre) }}
             {{ detail.label_value('Puesto', fin_vale.usuario.puesto) }}
             {{ detail.label_value('e-mail', fin_vale.usuario.email) }}

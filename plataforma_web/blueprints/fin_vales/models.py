@@ -38,6 +38,7 @@ class FinVale(db.Model, UniversalMixin):
     # Clave foránea
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
     usuario = db.relationship("Usuario", back_populates="fin_vales")
+    # TODO: Oficina
 
     # Columnas (step 1 create) estado CREADO
     estado = db.Column(

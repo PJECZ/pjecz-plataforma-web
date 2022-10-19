@@ -35,6 +35,7 @@ MODULO = "FIN VALES"
 # Roles que deben estar en la base de datos
 ROL_SOLICITANTES = "FINANCIEROS SOLICITANTES"
 ROL_AUTORIZANTES = "FINANCIEROS AUTORIZANTES"
+ROL_ASISTENTES = "FINANCIEROS ASISTENTES"
 
 
 @fin_vales.before_request
@@ -85,16 +86,24 @@ def datatable_json():
 @fin_vales.route("/fin_vales")
 def list_active():
     """Listado de Vales activos"""
-    # Si es administrador puede ver Todos los Vales activos
+    # Si es administrador puede ver TODOS los vales
     if current_user.can_admin(MODULO):
         return render_template(
             "fin_vales/list.jinja2",
             filtros=json.dumps({"estatus": "A"}),
-            titulo="Todos los Vales",
+            titulo="Administrar los Vales",
             estatus="A",
         )
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
+    # Si es asistente, mostrar TODOS los vales de su oficina
+    if ROL_ASISTENTES in current_user_roles:
+        return render_template(
+            "fin_vales/list.jinja2",
+            filtros=json.dumps({"estatus": "A"}),
+            titulo="Vales de mi oficina",
+            estatus="A",
+        )
     # Si es autorizante, mostrar Vales por Autorizar
     if ROL_AUTORIZANTES in current_user_roles:
         return render_template(
@@ -221,7 +230,7 @@ def detail(fin_vale_id):
     """Detalle de un Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     current_user_roles = current_user.get_roles()
-    if not (current_user.can_admin(MODULO) or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
+    if not (current_user.can_admin(MODULO) or ROL_ASISTENTES in current_user_roles or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
         flash("No tiene permiso para ver el detalle de este Vale", "warning")
         return redirect(url_for("fin_vales.list_active"))
     return render_template("fin_vales/detail.jinja2", fin_vale=fin_vale)
@@ -232,7 +241,7 @@ def detail_print(fin_vale_id):
     """Impresion de un Vale"""
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
     current_user_roles = current_user.get_roles()
-    if not (current_user.can_admin(MODULO) or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
+    if not (current_user.can_admin(MODULO) or ROL_ASISTENTES in current_user_roles or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
         flash("No tiene permiso para imprimir este Vale", "warning")
         return redirect(url_for("fin_vales.list_active"))
     return render_template("fin_vales/print.jinja2", fin_vale=fin_vale)
