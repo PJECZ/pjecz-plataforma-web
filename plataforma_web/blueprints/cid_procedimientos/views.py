@@ -1,6 +1,7 @@
 """
 CID Procedimientos, vistas
 """
+from crypt import methods
 import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
