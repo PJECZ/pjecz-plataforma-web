@@ -54,6 +54,8 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
     if "seguimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
+    if "seguimiento_filtro" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
     if "fecha_desde" in request.form:
         consulta = consulta.filter(CIDProcedimiento.creado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:

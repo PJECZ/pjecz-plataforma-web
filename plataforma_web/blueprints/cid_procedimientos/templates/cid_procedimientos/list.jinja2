@@ -137,7 +137,7 @@
         if(codigo != '')
             configDataTable['ajax']['data']['codigo'] = codigo;
         if(seguimiento != '')
-            configDataTable['ajax']['data']['seguimiento'] = seguimiento;
+            configDataTable['ajax']['data']['seguimiento_filtro'] = seguimiento;
         if(titulo != '')
             configDataTable['ajax']['data']['titulo_procedimiento'] = titulo;
         if(fechaDesde != '')
@@ -160,7 +160,7 @@
             let fechaHasta = document.getElementById('fechaHasta').value;
 
             if(configDataTable['ajax']['data']['codigo'] === undefined && codigo === '' && 
-               configDataTable['ajax']['data']['seguimiento'] === undefined && seguimiento === '' &&
+               configDataTable['ajax']['data']['seguimiento_filtro'] === undefined && seguimiento === '' &&
                configDataTable['ajax']['data']['titulo_procedimiento'] === undefined && titulo === '' &&
                configDataTable['ajax']['data']['fecha_desde'] === undefined && fechaDesde === '' &&
                configDataTable['ajax']['data']['fecha_hasta'] === undefined && fechaHasta === ''
@@ -173,9 +173,9 @@
             else
                 configDataTable['ajax']['data']['codigo'] = codigo;
             if(seguimiento == '')
-                delete configDataTable['ajax']['data']['seguimiento'];
+                delete configDataTable['ajax']['data']['seguimiento_filtro'];
             else
-                configDataTable['ajax']['data']['seguimiento'] = seguimiento;
+                configDataTable['ajax']['data']['seguimiento_filtro'] = seguimiento;
             if(titulo == '')
                 delete configDataTable['ajax']['data']['titulo_procedimiento'];
             else
@@ -196,14 +196,14 @@
 
         function limpiar(){
             if( configDataTable['ajax']['data']['codigo'] === undefined &&
-                configDataTable['ajax']['data']['seguimiento'] === undefined &&
+                configDataTable['ajax']['data']['seguimiento_filtro'] === undefined &&
                 configDataTable['ajax']['data']['titulo_procedimiento'] === undefined &&
                 configDataTable['ajax']['data']['fecha_desde'] === undefined &&
                 configDataTable['ajax']['data']['fecha_hasta'] === undefined
             )return false;
 
             delete configDataTable['ajax']['data']['codigo'];
-            delete configDataTable['ajax']['data']['seguimiento'];
+            delete configDataTable['ajax']['data']['seguimiento_filtro'];
             delete configDataTable['ajax']['data']['titulo_procedimiento'];
             delete configDataTable['ajax']['data']['fecha_desde'];
             delete configDataTable['ajax']['data']['fecha_hasta'];
