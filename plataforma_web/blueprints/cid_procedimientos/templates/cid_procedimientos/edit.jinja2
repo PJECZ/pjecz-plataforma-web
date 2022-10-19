@@ -410,9 +410,12 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
          $(document).ready(function(){
+            // Agregar clases a los select
             $('#elaboro_email').addClass('js-example-data-ajax js-states form-control');
             $('#reviso_email').addClass('js-example-data-ajax js-states form-control');
             $('#aprobo_email').addClass('js-example-data-ajax js-states form-control');
+            
+            // Poner como activo el valor actual
             $('#elaboro_email option').each(function() {
                 if($(this).text() == '{{cid_procedimiento.elaboro_email}}') {
                     $("#elaboro_email").val( $(this).val() );
@@ -424,6 +427,8 @@
                     $("#aprobo_email").val( $(this).val() );
                 }
             });
+
+            // Ajax para los select
             $(".js-example-data-ajax").select2({
                 // --- Carga de emails por Ajax --- //
                 
@@ -443,6 +448,7 @@
                 }
             });
 
+            // Usa Ajax para traer hasta 10 emails, se debe agregar el valor actual
             let data = {
                 id: '{{cid_procedimiento.elaboro_email}}',
                 text: '{{cid_procedimiento.elaboro_email}}'

@@ -1,6 +1,7 @@
 """
 CID Procedimientos, vistas
 """
+from crypt import methods
 import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
@@ -53,6 +54,8 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
     if "seguimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
+    if "seguimiento_filtro" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
     if "fecha_desde" in request.form:
         consulta = consulta.filter(CIDProcedimiento.creado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
@@ -61,6 +64,8 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
     if "codigo" in request.form:
         consulta = consulta.filter(CIDProcedimiento.codigo.contains(safe_string(request.form["codigo"])))
+    if "elaboro_nombre" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.elaboro_nombre.contains(safe_string(request.form["elaboro_nombre"])))
     registros = consulta.order_by(CIDProcedimiento.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -75,6 +80,7 @@ def datatable_json():
                 "titulo_procedimiento": resultado.titulo_procedimiento,
                 "codigo": resultado.codigo,
                 "revision": resultado.revision,
+                "elaboro_nombre": resultado.elaboro_email,
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                 "seguimiento": resultado.seguimiento,
                 "seguimiento_posterior": resultado.seguimiento_posterior,
@@ -253,15 +259,15 @@ def new():
             responsabilidades=form.responsabilidades.data,
             desarrollo=form.desarrollo.data,
             registros=registros,
-            elaboro_nombre=elaboro_nombre,
-            elaboro_puesto=form.elaboro_puesto.data,
-            elaboro_email=elaboro_email,
-            reviso_nombre=reviso_nombre,
-            reviso_puesto=form.reviso_puesto.data,
-            reviso_email=reviso_email,
-            aprobo_nombre=aprobo_nombre,
-            aprobo_puesto=form.aprobo_puesto.data,
-            aprobo_email=aprobo_email,
+            elaboro_nombre=safe_string(elaboro_nombre),
+            elaboro_puesto=safe_string(form.elaboro_puesto.data),
+            elaboro_email=safe_string(elaboro_email),
+            reviso_nombre=safe_string(reviso_nombre),
+            reviso_puesto=safe_string(form.reviso_puesto.data),
+            reviso_email=safe_string(reviso_email),
+            aprobo_nombre=safe_string(aprobo_nombre),
+            aprobo_puesto=safe_string(form.aprobo_puesto.data),
+            aprobo_email=safe_string(aprobo_email),
             control_cambios=control_cambios,
             cadena=0,
             seguimiento="EN ELABORACION",
@@ -291,7 +297,7 @@ def edit(cid_procedimiento_id):
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     if not (current_user.can_admin(MODULO) or cid_procedimiento.usuario_id == current_user.id):
         abort(403)  # Acceso no autorizado, solo administradores o el propietario puede editarlo
-    if cid_procedimiento.seguimiento not in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]:
+    if cid_procedimiento.seguimiento is not ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]:
         flash(f"No puede editar porque su seguimiento es {cid_procedimiento.seguimiento}.")
         redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
     form = CIDProcedimientoForm()
@@ -338,15 +344,15 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.responsabilidades = form.responsabilidades.data
         cid_procedimiento.desarrollo = form.desarrollo.data
         cid_procedimiento.registros = registros
-        cid_procedimiento.elaboro_nombre = elaboro_nombre
-        cid_procedimiento.elaboro_puesto = form.elaboro_puesto.data
-        cid_procedimiento.elaboro_email = elaboro_email
-        cid_procedimiento.reviso_nombre = reviso_nombre
-        cid_procedimiento.reviso_puesto = form.reviso_puesto.data
-        cid_procedimiento.reviso_email = reviso_email
-        cid_procedimiento.aprobo_nombre = aprobo_nombre
-        cid_procedimiento.aprobo_puesto = form.aprobo_puesto.data
-        cid_procedimiento.aprobo_email = aprobo_email
+        cid_procedimiento.elaboro_nombre = safe_string(elaboro_nombre)
+        cid_procedimiento.elaboro_puesto = safe_string(form.elaboro_puesto.data)
+        cid_procedimiento.elaboro_email = safe_string(elaboro_email)
+        cid_procedimiento.reviso_nombre = safe_string(reviso_nombre)
+        cid_procedimiento.reviso_puesto = safe_string(form.reviso_puesto.data)
+        cid_procedimiento.reviso_email = safe_string(reviso_email)
+        cid_procedimiento.aprobo_nombre = safe_string(aprobo_nombre)
+        cid_procedimiento.aprobo_puesto = safe_string(form.aprobo_puesto.data)
+        cid_procedimiento.aprobo_email = safe_string(aprobo_email)
         cid_procedimiento.control_cambios = control_cambios
         cid_procedimiento.save()
         bitacora = Bitacora(
@@ -491,6 +497,11 @@ def search():
             if codigo != "":
                 busqueda["codigo"] = codigo
                 titulos.append("codigo " + codigo)
+        if form_search.elaboro_nombre.data:
+            elaboro_nombre = safe_string(form_search.elaboro_nombre.data)
+            if elaboro_nombre != "":
+                busqueda["elaboro_nombre"] = elaboro_nombre
+                titulos.append("elaboro_nombre " + elaboro_nombre)
         return render_template(
             "cid_procedimientos/list.jinja2",
             filtros=json.dumps(busqueda),

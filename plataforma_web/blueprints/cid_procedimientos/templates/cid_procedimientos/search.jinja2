@@ -14,6 +14,9 @@
             {% call f.form_group(form.id) %}{% endcall %}
             {% call f.form_group(form.titulo_procedimiento) %}{% endcall %}
             {% call f.form_group(form.codigo) %}{% endcall %}
+            {% call f.form_group(form.elaboro_nombre) %}{% endcall %}
+            {% call f.form_group(form.reviso_nombre) %}{% endcall %}
+            {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
             {% call f.form_group(form.fecha_desde) %}{% endcall %}
             {% call f.form_group(form.fecha_hasta) %}{% endcall %}
             {{ form.buscar() }}
