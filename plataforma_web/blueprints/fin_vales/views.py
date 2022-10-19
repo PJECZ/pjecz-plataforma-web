@@ -255,6 +255,12 @@ def edit(fin_vale_id):
     # Consultar
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
 
+    # Validar permisos
+    current_user_roles = current_user.get_roles()
+    if not (current_user.can_admin(MODULO) or ROL_ASISTENTES in current_user_roles or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
+        flash("No tiene permiso para ver el detalle de este Vale", "warning")
+        return redirect(url_for("fin_vales.list_active"))
+
     # Si viene el formulario
     form = FinValeEditForm()
     if form.validate_on_submit():
