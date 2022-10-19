@@ -8,7 +8,9 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons("Vale " + fin_vale.id | string + " " + fin_vale.estado) %}
         {{ topbar.button_previous('Vales', url_for('fin_vales.list_active')) }}
-        {{ topbar.button('Imprimir', url_for('fin_vales.detail_print', fin_vale_id=fin_vale.id), 'mdi:printer') }}
+        {% if fin_vale.solicito_email and fin_vale.autorizo_email %}
+            {{ topbar.button_print('Imprimir', url_for('fin_vales.detail_print', fin_vale_id=fin_vale.id)) }}
+        {% endif %}
         {% if current_user.can_edit('FIN VALES') %}
             {{ topbar.button_edit('Editar', url_for('fin_vales.edit', fin_vale_id=fin_vale.id)) }}
             {% if fin_vale.estado == 'CREADO' %}

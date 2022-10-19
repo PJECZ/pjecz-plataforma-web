@@ -32,6 +32,10 @@
                 <a class="btn btn-sm btn-outline-danger" href="{{ url }}"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>
 {%- endmacro -%}
 
+{%- macro button_print(label, url) -%}
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url }}" target="_blank"><span class="iconify" data-icon="mdi:printer"></span> {{ label }}</a>
+{%- endmacro -%}
+
 {%- macro button_search(label, url) -%}
     {{ button(label, url, 'mdi:magnify') }}
 {%- endmacro -%}

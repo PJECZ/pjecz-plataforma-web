@@ -2,23 +2,25 @@
 Financieros Vales, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import FloatField, IntegerField, PasswordField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import IntegerField, PasswordField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional
 
 from plataforma_web.blueprints.fin_vales.models import FinVale
 
 MONTOS = [
-    (100, "$100.00"),
-    (200, "$200.00"),
-    (500, "$500.00"),
+    ("100.0", "$100.00"),
+    ("200.0", "$200.00"),
+    ("500.0", "$500.00"),
 ]
+
 
 class FinValeEditForm(FlaskForm):
     """Formulario para editar un vale"""
 
-    usuario_email = SelectField(label="Usuario", coerce=str, validators=[Optional()], validate_choice=False)
-    solicito_email = SelectField(label="Solicita", coerce=str, validators=[Optional()], validate_choice=False)
-    autorizo_email = SelectField(label="Autoriza", coerce=str, validators=[Optional()], validate_choice=False)
+    usuario_nombre = StringField("Usuario nombre")  # Read only
+    usuario_email = SelectField(label="Usuario e-mail", coerce=str, validators=[Optional()], validate_choice=False)
+    solicito_email = SelectField(label="Solicita e-mail", coerce=str, validators=[Optional()], validate_choice=False)
+    autorizo_email = SelectField(label="Autoriza e-mail", coerce=str, validators=[Optional()], validate_choice=False)
     tipo = SelectField("Tipo", choices=FinVale.TIPOS, validators=[DataRequired()])
     justificacion = TextAreaField("Justificación", validators=[DataRequired(), Length(max=1024)])
     monto = SelectField("Monto", choices=MONTOS, validators=[DataRequired()])

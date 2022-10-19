@@ -249,7 +249,12 @@ def edit(fin_vale_id):
     # Si viene el formulario
     form = FinValeEditForm()
     if form.validate_on_submit():
+
+        # Inicializar variables
         es_valido = True
+        usuario = None
+        solicito = None
+        autorizo = None
 
         # Validar usuario
         usuario_email = safe_email(form.usuario_email.data)
@@ -278,14 +283,24 @@ def edit(fin_vale_id):
         # Si es valido, actualizar
         if es_valido:
             fin_vale.usuario = usuario
-            fin_vale.solicito_nombre = solicito.nombre
-            fin_vale.solicito_puesto = solicito.puesto
-            fin_vale.solicito_email = solicito.email
-            fin_vale.autorizo_nombre = autorizo.nombre
-            fin_vale.autorizo_puesto = autorizo.puesto
-            fin_vale.autorizo_email = autorizo.email
+            if solicito is None:
+                fin_vale.solicito_nombre = ""
+                fin_vale.solicito_puesto = ""
+                fin_vale.solicito_email = ""
+            else:
+                fin_vale.solicito_nombre = solicito.nombre
+                fin_vale.solicito_puesto = solicito.puesto
+                fin_vale.solicito_email = solicito.email
+            if autorizo is None:
+                fin_vale.autorizo_nombre = ""
+                fin_vale.autorizo_puesto = ""
+                fin_vale.autorizo_email = ""
+            else:
+                fin_vale.autorizo_nombre = autorizo.nombre
+                fin_vale.autorizo_puesto = autorizo.puesto
+                fin_vale.autorizo_email = autorizo.email
             fin_vale.justificacion = safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False)
-            fin_vale.monto = form.monto.data
+            fin_vale.monto = float(form.monto.data)
             fin_vale.tipo = form.tipo.data
             fin_vale.save()
             bitacora = Bitacora(
@@ -305,12 +320,13 @@ def edit(fin_vale_id):
         fin_vale.autorizo_email = ""
 
     # Mostrar el formulario
+    form.usuario_nombre.data = fin_vale.usuario.nombre
     form.usuario_email.data = fin_vale.usuario.email
     form.solicito_email.data = fin_vale.solicito_email
     form.autorizo_email.data = fin_vale.autorizo_email
     form.tipo.data = fin_vale.tipo
     form.justificacion.data = fin_vale.justificacion
-    form.monto.data = fin_vale.monto
+    form.monto.data = str(fin_vale.monto)
     return render_template("fin_vales/edit.jinja2", form=form, fin_vale=fin_vale)
 
 
@@ -352,6 +368,18 @@ def query_autorizantes_json():
     return {"results": resultados, "pagination": {"more": False}}
 
 
+@fin_vales.route("/fin_vales/usuario_json", methods=["POST"])
+def query_usuario_json():
+    """Proporcionar el JSON con los datos de un usuario, cuando al editar se elije otro"""
+    usuario_identity = safe_email(request.form["email"])
+    if usuario_identity == "":
+        return {"nombre": "", "email": ""}
+    usuario = Usuario.find_by_identity(usuario_identity)
+    if usuario is None:
+        return {"nombre": "", "email": ""}
+    return {"nombre": usuario.nombre, "email": usuario.email}
+
+
 @fin_vales.route("/fin_vale/crear", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def step_1_create():
@@ -362,7 +390,7 @@ def step_1_create():
             usuario=current_user,
             estado="CREADO",
             justificacion=safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False),
-            monto=form.monto.data,
+            monto=float(form.monto.data),
             tipo=form.tipo.data,
         )
         fin_vale.save()
@@ -380,7 +408,7 @@ def step_1_create():
     form.usuario_email.data = current_user.email
     form.tipo.data = "GASOLINA"
     form.justificacion.data = f"Solicito un vale de gasolina de $100.00 (cien pesos 00/100 m.n), para {current_user.nombre} con el objetivo de ir a DESTINO U OFICINA."
-    form.monto.data = 100.00
+    form.monto.data = "100.0"
     return render_template("fin_vales/step_1_create.jinja2", form=form)
 
 
