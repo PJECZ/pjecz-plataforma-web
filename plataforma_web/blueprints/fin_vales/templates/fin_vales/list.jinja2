@@ -11,12 +11,12 @@
             {{ topbar.button_list_active('Mis Vales', url_for('fin_vales.list_mine_active')) }}
         {% endif %}
         {% if current_user.can_admin('FIN VALES') %}
-            {{ topbar.button_list_active('Creados', url_for('fin_vales.list_create_active')) }}
-            {{ topbar.button_list_active('Solicitados', url_for('fin_vales.list_request_active')) }}
-            {{ topbar.button_list_active('Autorizados', url_for('fin_vales.list_authorize_active')) }}
-            {{ topbar.button_list_active('Entregados', url_for('fin_vales.list_deliver_active')) }}
-            {{ topbar.button_list_active('Por Revisar', url_for('fin_vales.list_attachments_active')) }}
-            {{ topbar.button_list_active('Archivados', url_for('fin_vales.list_archive_active')) }}
+            {{ topbar.button('Creados', url_for('fin_vales.list_create_active'), 'mdi:new-box') }}
+            {{ topbar.button('Solicitados', url_for('fin_vales.list_request_active'), 'mdi:check') }}
+            {{ topbar.button('Autorizados', url_for('fin_vales.list_authorize_active'), 'mdi:check-all') }}
+            {{ topbar.button('Entregados', url_for('fin_vales.list_deliver_active'), 'mdi:basket') }}
+            {{ topbar.button('Por Revisar', url_for('fin_vales.list_attachments_active'), 'mdi:clock') }}
+            {{ topbar.button('Archivados', url_for('fin_vales.list_archive_active'), 'mdi:archive') }}
         {% endif %}
         {% if current_user.can_edit('FIN VALES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('fin_vales.list_inactive')) }}{% endif %}
