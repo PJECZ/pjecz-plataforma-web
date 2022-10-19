@@ -7,6 +7,23 @@ from wtforms.validators import DataRequired, Length, Optional
 
 from plataforma_web.blueprints.fin_vales.models import FinVale
 
+MONTOS = [
+    (100, "$100.00"),
+    (200, "$200.00"),
+    (500, "$500.00"),
+]
+
+class FinValeEditForm(FlaskForm):
+    """Formulario para editar un vale"""
+
+    usuario_email = SelectField(label="Usuario", coerce=str, validators=[Optional()], validate_choice=False)
+    solicito_email = SelectField(label="Solicita", coerce=str, validators=[Optional()], validate_choice=False)
+    autorizo_email = SelectField(label="Autoriza", coerce=str, validators=[Optional()], validate_choice=False)
+    tipo = SelectField("Tipo", choices=FinVale.TIPOS, validators=[DataRequired()])
+    justificacion = TextAreaField("Justificación", validators=[DataRequired(), Length(max=1024)])
+    monto = SelectField("Monto", choices=MONTOS, validators=[DataRequired()])
+    actualizar = SubmitField("Actualizar")
+
 
 class FinValeStep1CreateForm(FlaskForm):
     """Formulario Vale (step 1 create) Crear"""
@@ -16,7 +33,7 @@ class FinValeStep1CreateForm(FlaskForm):
     usuario_email = StringField("Su e-mail")  # Read only
     tipo = SelectField("Tipo", choices=FinVale.TIPOS, validators=[DataRequired()])
     justificacion = TextAreaField("Justificación", validators=[DataRequired(), Length(max=1024)])
-    monto = FloatField("Monto", validators=[DataRequired()])
+    monto = SelectField("Monto", choices=MONTOS, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 

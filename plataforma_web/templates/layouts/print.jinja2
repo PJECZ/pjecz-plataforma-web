@@ -1,0 +1,39 @@
+{% extends 'layouts/base.jinja2' %}
+
+{% block template_head %}
+    <link href="{{ url_for('static', filename='css/bs5-print.css') }}" rel="stylesheet" /> <!--  media="print" -->
+{% endblock %}
+
+{% block main %}
+    <header>
+        <div class="row">
+            <div class="col">
+                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/pjecz-horizontal.png" alt="PJECZ">
+            </div>
+            <div class="col" id="fraseAnual">
+                2022, Año de Benito Juárez,<br>
+                Defensor de la Soberanía de Coahuila de Zaragoza.
+            </div>
+        </div>
+    </header>
+    <article>
+        {% block content %}{% endblock %}
+    </article>
+    <footer>
+        <hr>
+        <div class="row">
+            <div class="col">
+                <strong>Poder Judicial</strong><br>
+                Dirección de Innovacion<br>
+                Dirección de Informática
+            </div>
+            <div class="col">
+                <strong>Contacto</strong><br>
+                Telefono<br>
+                844 123 4567
+            </div>
+        </div>
+    </footer>
+{% endblock %}
+
+{% block template_javascript %}{% endblock %}
