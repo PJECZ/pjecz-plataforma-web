@@ -66,7 +66,7 @@
         {% endcall %}
          <!-- Registros -->
         {% call accordion.item('registro_item', 'Registros', accordion_id, estatus=cid_procedimiento.estatus) %}
-                <table id="registro_dataTable1_detail" class="table table-striped" width="100%">
+                <table id="registro_dataTable1_detail" class="table table-striped responsive" width="100%">
                     <thead>
                         <th>Código</th>
                         <th>Nombre registro</th>
@@ -79,7 +79,7 @@
                 </table>
         {% endcall %}
         {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id, estatus=cid_procedimiento.estatus) %}
-            <table id="control_dataTable1_detail" class="table table-striped" width="100%">
+            <table id="control_dataTable1_detail" class="table table-striped responsive" width="100%">
                     <thead>
                         <th>No. Revisión</th>
                         <th>Cambios y/o Actualizaciónes</th>
