@@ -54,6 +54,12 @@ def datatable_json():
     if "cid_procedimiento" in request.form:
         consulta = consulta.join(CIDProcedimiento)
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["cid_procedimiento"])))
+    if "seguimiento" in request.form:
+        consulta = consulta.join(CIDProcedimiento)
+        consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
+    if "usuario_id" in request.form:
+        consulta = consulta.join(CIDProcedimiento)
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
     registros = consulta.order_by(CIDFormato.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -83,45 +89,75 @@ def datatable_json():
 @cid_formatos.route("/cid_formatos")
 def list_active():
     """Listado por defecto de Formatos"""
+    # si es administrador, mostrar todos los Formatos
+    if current_user.can_admin(MODULO):
+        return render_template(
+            "cid_formatos/list.jinja2",
+            titulo="Todos los Formatos",
+            filtros=json.dumps({"estatus": "A"}),
+            estatus="A",
+        )
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    # Si es involucrado, mostrar todos los formatos
     return render_template(
         "cid_formatos/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Todos los Formatos",
+        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
+        titulo="Formatos Autorizados",
         estatus="A",
+        show_button_list_owned=ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
+        show_button_list_all=ROL_COORDINADOR in current_user_roles,
     )
 
 
+# List Formatos autorizados
 @cid_formatos.route("/cid_formatos/autorizados")
 def list_authorized():
     """Listado de Formatos autorizados"""
+    current_user_roles = current_user.get_roles()
     return render_template(
         "cid_formatos/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Todos los Formatos",
+        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
+        titulo="Formatos Autorizados",
         estatus="A",
+        show_button_list_owned=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
+        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
     )
 
 
 @cid_formatos.route("/cid_formatos/propios")
 def list_owned():
     """Listado de Formatos propios"""
-    return render_template(
-        "cid_formatos/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Todos los Formatos",
-        estatus="A",
-    )
+    current_user_roles = current_user.get_roles()  # Si es administrador, coordinador, director o jefe o dueno de proceso, mostrar los procedimientos propios
+    if current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles:
+        return render_template(
+            "cid_formatos/list.jinja2",
+            filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
+            titulo="Formatos propios",
+            estatus="A",
+            show_button_list_owned=True,
+            show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
+        )
+    # Si no, redirigir a la lista general
+    return redirect(url_for("cid_formatos.list_active"))
 
 
 @cid_formatos.route("/cid_formatos/todos")
 def list_all():
     """Listado de Todos los Formatos"""
-    return render_template(
-        "cid_formatos/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
-        titulo="Todos los Formatos",
-        estatus="A",
-    )
+    current_user_roles = current_user.get_roles()
+    # Si es administrador, coordinador, mostrar todos los formatos
+    if current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles:
+        return render_template(
+            "cid_formatos/list.jinja2",
+            filtros=json.dumps({"estatus": "A"}),
+            titulo="Todos los Formatos",
+            estatus="A",
+            show_button_list_owned=True,
+            show_button_list_all=True,
+        )
+    # Si no, redirigir a la lista general
+    return redirect(url_for("cid_formatos.list_active"))
 
 
 @cid_formatos.route("/cid_formatos/inactivos")
