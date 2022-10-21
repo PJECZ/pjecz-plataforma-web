@@ -8,7 +8,7 @@ from flask import abort, Blueprint, flash, redirect, render_template, request, u
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -18,8 +18,10 @@ from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
 cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="templates")
 
@@ -261,13 +263,13 @@ def new():
             registros=registros,
             elaboro_nombre=safe_string(elaboro_nombre),
             elaboro_puesto=safe_string(form.elaboro_puesto.data),
-            elaboro_email=safe_string(elaboro_email),
+            elaboro_email=safe_email(elaboro_email),
             reviso_nombre=safe_string(reviso_nombre),
             reviso_puesto=safe_string(form.reviso_puesto.data),
-            reviso_email=safe_string(reviso_email),
+            reviso_email=safe_email(reviso_email),
             aprobo_nombre=safe_string(aprobo_nombre),
             aprobo_puesto=safe_string(form.aprobo_puesto.data),
-            aprobo_email=safe_string(aprobo_email),
+            aprobo_email=safe_email(aprobo_email),
             control_cambios=control_cambios,
             cadena=0,
             seguimiento="EN ELABORACION",
@@ -297,9 +299,9 @@ def edit(cid_procedimiento_id):
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     if not (current_user.can_admin(MODULO) or cid_procedimiento.usuario_id == current_user.id):
         abort(403)  # Acceso no autorizado, solo administradores o el propietario puede editarlo
-    if cid_procedimiento.seguimiento is not ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]:
-        flash(f"No puede editar porque su seguimiento es {cid_procedimiento.seguimiento}.")
-        redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
+    if cid_procedimiento.seguimiento not in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]:
+        flash(f"No puede editar porque su seguimiento es {cid_procedimiento.seguimiento} y ha sido FIRMADO. ", "warning")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
         elaboro = form.elaboro_email.data
@@ -323,11 +325,11 @@ def edit(cid_procedimiento_id):
         else:
             aprobo_nombre = form.aprobo_nombre.data
             aprobo_email = aprobo
-        registros_d = form.registros.data
-        if registros_d is None:
+        registro = form.registros.data
+        if registro is None:
             registros = {}
         else:
-            registros = registros_d
+            registros = registro
         control = form.control_cambios.data
         if control is None:
             control_cambios = {}
@@ -346,13 +348,13 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.registros = registros
         cid_procedimiento.elaboro_nombre = safe_string(elaboro_nombre)
         cid_procedimiento.elaboro_puesto = safe_string(form.elaboro_puesto.data)
-        cid_procedimiento.elaboro_email = safe_string(elaboro_email)
+        cid_procedimiento.elaboro_email = safe_email(elaboro_email)
         cid_procedimiento.reviso_nombre = safe_string(reviso_nombre)
         cid_procedimiento.reviso_puesto = safe_string(form.reviso_puesto.data)
-        cid_procedimiento.reviso_email = safe_string(reviso_email)
+        cid_procedimiento.reviso_email = safe_email(reviso_email)
         cid_procedimiento.aprobo_nombre = safe_string(aprobo_nombre)
         cid_procedimiento.aprobo_puesto = safe_string(form.aprobo_puesto.data)
-        cid_procedimiento.aprobo_email = safe_string(aprobo_email)
+        cid_procedimiento.aprobo_email = safe_email(aprobo_email)
         cid_procedimiento.control_cambios = control_cambios
         cid_procedimiento.save()
         bitacora = Bitacora(
@@ -784,24 +786,26 @@ def help_quill(seccion: str):
     return render_template("quill_help.jinja2", titulo=data["titulo"], descripcion=data["descripcion"], secciones=data["secciones"], seccion_id=seccion)
 
 
-@cid_procedimientos.route("/cid_procedimientos/usuarios_email", methods=["POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
-def users_email():
-    """Entrega un JSON con los email encontrados"""
-    # Consultar
-    consulta = Usuario.query
-    consulta = consulta.filter_by(estatus="A")
+@cid_procedimientos.route("/cid_procedimientos/usuarios_json", methods=["POST"])
+def query_usuarios_json():
+    """Proporcionar el JSON de usuarios para elegir con un Select2"""
+    usuarios = Usuario.query.filter(Usuario.estatus == "A")
     if "searchString" in request.form:
-        consulta = consulta.filter(Usuario.email.contains(safe_string(request.form["searchString"]).lower()))
-    consulta = consulta.order_by(Usuario.email).limit(10).all()
-    # Elaborar datos el Select2
+        usuarios = usuarios.filter(Usuario.email.contains(safe_email(request.form["searchString"], search_fragment=True)))
     results = []
-    for usuario in consulta:
-        results.append(
-            {
-                "id": usuario.email,
-                "text": usuario.email,
-                "nombre": usuario.nombre,
-            }
-        )
+    for usuario in usuarios.order_by(Usuario.email).limit(10).all():
+        results.append({"id": usuario.email, "text": usuario.email, "nombre": usuario.nombre})
+    return {"results": results, "pagination": {"more": False}}
+
+
+@cid_procedimientos.route("/cid_procedimientos/revisores_autorizadores_json", methods=["POST"])
+def query_revisores_autorizadores_json():
+    """Proporcionar el JSON de revisores para elegir con un Select2"""
+    usuarios = Usuario.query.join(UsuarioRol, Rol).filter(Rol.nombre == ROL_DIRECTOR_JEFE)
+    if "searchString" in request.form:
+        usuarios = usuarios.filter(Usuario.email.contains(safe_email(request.form["searchString"], search_fragment=True)))
+    usuarios = usuarios.filter(Usuario.estatus == "A")
+    results = []
+    for usuario in usuarios.order_by(Usuario.email).limit(10).all():
+        results.append({"id": usuario.email, "text": usuario.email, "nombre": usuario.nombre})
     return {"results": results, "pagination": {"more": False}}

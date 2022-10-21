@@ -376,15 +376,17 @@
         $(document).ready(function(){
             // Agregar clases a los select
             $('#elaboro_email').addClass('js-data-example-ajax js-states form-control');
-            $('#reviso_email').addClass('js-data-example-ajax js-states form-control');
-            $('#aprobo_email').addClass('js-data-example-ajax js-states form-control');
+            $('#reviso_email').addClass('js-reviso-autorizo-data-ajax js-states form-control');
+            $('#aprobo_email').addClass('js-reviso-autorizo-data-ajax js-states form-control');
             $("#elaboro_email").prop("selectedIndex", -1); // Poner en blanco el select
             $("#reviso_email").prop("selectedIndex", -1); // Poner en blanco el select
             $("#aprobo_email").prop("selectedIndex", -1); // Poner en blanco el select
+
+            //Ajax para que al escribir desde 4 caracteres se filtren las opciones en los selects
             $(".js-data-example-ajax").select2({
                 // --- Carga de emails por Ajax --- //
                 ajax: {
-                    url: '/cid_procedimientos/usuarios_email',
+                    url: '/cid_procedimientos/usuarios_json',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
@@ -393,9 +395,27 @@
                         return { 'searchString': params.term };
                     }
                 },
-                placeholder: "correo",
+                placeholder: "Correo electrónico quien elabora",
                 minimumInputLength: 4,
                 allowClear: true
+            });
+
+            //Ajax para que al escribir desde 4 caracteres se filtren las opciones en los selects
+            $(".js-reviso-autorizo-data-ajax").select2({
+                //--- Carga de emails por Ajax --- //
+                placeholder:"Correo electrónico quien revisa ó autoriza",
+                allowClear:true,
+                minimumInputLength:4,
+                ajax:{
+                    url:'/cid_procedimientos/revisores_autorizadores_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}"},
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term };
+                    }
+                }
             });
         });
     </script>

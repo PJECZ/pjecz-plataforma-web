@@ -146,7 +146,7 @@
                                         {% call add_data.input_form('2','date','control_fecha','Fecha') %}{% endcall %}
                                         {{ add_data.boton('btn_add_cam','Agregar Cambio') }}
                                         <div class="row">
-                                            <table id="cambio_dataTable1" class="table table-striped table-hover table-responsive" width="100%">
+                                            <table id="cambio_dataTable1" class="table table-striped table-hover" width="100%">
                                                 <thead>
                                                     <th>No. Revisión</th>
                                                     <th>Cambios y/o Actualizaciónes</th>
@@ -412,8 +412,8 @@
          $(document).ready(function(){
             // Agregar clases a los select
             $('#elaboro_email').addClass('js-example-data-ajax js-states form-control');
-            $('#reviso_email').addClass('js-example-data-ajax js-states form-control');
-            $('#aprobo_email').addClass('js-example-data-ajax js-states form-control');
+            $('#reviso_email').addClass('js-reviso-autorizo-data-ajax js-states form-control');
+            $('#aprobo_email').addClass('js-reviso-autorizo-data-ajax js-states form-control');
             
             // Poner como activo el valor actual
             $('#elaboro_email option').each(function() {
@@ -436,7 +436,7 @@
                 minimumInputLength: 4,
                 allowClear: true,
                 ajax: {
-                    url: '/cid_procedimientos/usuarios_email',
+                    url: '/cid_procedimientos/usuarios_json',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
@@ -445,6 +445,24 @@
                         return { 'searchString': params.term }
                     },
 
+                }
+            });
+
+            //Ajax para que al escribir desde 4 caracteres se filtren las opciones en los selects
+            $(".js-reviso-autorizo-data-ajax").select2({
+                //--- Carga de emails por Ajax --- //
+                placeholder:"Correo electrónico quien revisa ó autoriza",
+                allowClear:true,
+                minimumInputLength:4,
+                ajax:{
+                    url:'/cid_procedimientos/revisores_autorizadores_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}"},
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term };
+                    }
                 }
             });
 
