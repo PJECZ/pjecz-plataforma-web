@@ -299,9 +299,9 @@ def edit(cid_procedimiento_id):
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     if not (current_user.can_admin(MODULO) or cid_procedimiento.usuario_id == current_user.id):
         abort(403)  # Acceso no autorizado, solo administradores o el propietario puede editarlo
-    if cid_procedimiento.seguimiento is not ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]:
-        flash(f"No puede editar porque su seguimiento es {cid_procedimiento.seguimiento}.")
-        redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
+    if cid_procedimiento.seguimiento not in ["EN ELABORACION", "EN REVISION", "EN AUTORIZACION"]:
+        flash(f"No puede editar porque su seguimiento es {cid_procedimiento.seguimiento} y ha sido FIRMADO. ", "warning")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento_id))
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
         elaboro = form.elaboro_email.data
