@@ -25,8 +25,15 @@ class SoporteTicket(db.Model, UniversalMixin):
             ("SOPORTE TECNICO", "SOPORTE TÉCNICO"),
             ("PAIIJ", "PAIIJ"),
             ("SIGE", "SIGE"),
-            ("SOPORTE INFRAESTRUCTURA", "SOPORTE INFRAESTRUCTURA"),
+            ("INFRAESTRUCTURA", "INFRAESTRUCTURA"),
             ("OTRO", "Otro"),
+        ]
+    )
+
+    DEPARTAMENTOS = OrderedDict(
+        [
+            ("INFORMATICA", "INFORMATICA"),
+            ("INFRAESTRUCTURA", "INFRAESTRUCTURA"),
         ]
     )
 

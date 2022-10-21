@@ -32,6 +32,9 @@ from .forms import (
     SoporteTicketDoneForm,
 )
 
+# Roles necesarios
+ROL_INFRAESTRUCTURA = "SOPORTE INFRAESTRUCTURA"
+
 MODULO = "SOPORTES TICKETS"
 
 soportes_tickets = Blueprint("soportes_tickets", __name__, template_folder="templates")
@@ -153,6 +156,11 @@ def datatable_json():
 
     # Obtener el funcionario para saber si es de soporte o no
     funcionario = _get_funcionario_if_is_soporte()
+
+    # Determinar el departamento de soporte
+    # TODO: Mejorar, utilizar columna de departamento en lugar de buscar en el contenido del ticket
+    if ROL_INFRAESTRUCTURA in current_user.get_roles():
+        consulta = consulta.filter(SoporteTicket.descripcion.contains("[SOPORTE INFRAESTRUCTURA]"))
 
     # Si es funcionario de soporte y se van a separar los tickets POR ATENDER
     if funcionario and "estado" in request.form and "soportes_tickets_abiertos" in request.form and not "buscar" in request.form:

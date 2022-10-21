@@ -1,12 +1,21 @@
 """
 Soportes Categorias, modelos
 """
+from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class SoporteCategoria(db.Model, UniversalMixin):
     """SoporteCategoria"""
+
+    DEPARTAMENTOS = OrderedDict(
+        [
+            ("TODOS", "TODOS"),
+            ("INFORMATICA", "INFORMATICA"),
+            ("INFRAESTRUCTURA", "INFRAESTRUCTURA"),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "soportes_categorias"
@@ -21,6 +30,7 @@ class SoporteCategoria(db.Model, UniversalMixin):
     # Columnas
     nombre = db.Column(db.String(256), unique=True, nullable=False)
     instrucciones = db.Column(db.Text(), default="", server_default="")
+    departamento = db.Column(db.Enum(*DEPARTAMENTOS, name="departamentos", native_enum=False), index=True, nullable=False)
 
     # Hijos
     soportes_tickets = db.relationship("SoporteTicket", back_populates="soporte_categoria")
