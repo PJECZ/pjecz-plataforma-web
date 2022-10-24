@@ -158,9 +158,8 @@ def datatable_json():
     funcionario = _get_funcionario_if_is_soporte()
 
     # Determinar el departamento de soporte
-    # TODO: Mejorar, utilizar columna de departamento en lugar de buscar en el contenido del ticket
     if ROL_INFRAESTRUCTURA in current_user.get_roles():
-        consulta = consulta.filter(SoporteTicket.descripcion.contains("[SOPORTE INFRAESTRUCTURA]"))
+        consulta = consulta.filter(SoporteTicket.departamento == "INFRAESTRUCTURA")
 
     # Si es funcionario de soporte y se van a separar los tickets POR ATENDER
     if funcionario and "estado" in request.form and "soportes_tickets_abiertos" in request.form and not "buscar" in request.form:
@@ -275,7 +274,21 @@ def new():
     form = SoporteTicketNewForm()
     if form.validate_on_submit():
         descripcion = safe_text(form.descripcion.data)
-        clasificacion = safe_string(form.clasificacion.data)
+        # validar Clasificación
+        # clasificacion = safe_string(form.clasificacion.data)
+        clasificacion = safe_string(request.form["clasificacion"])
+        departamento = safe_string(request.form["departamento"])
+        if departamento == "INFORMATICA":
+            if clasificacion not in ("SOPORTE TECNICO", "PAIIJ", "SIGE", "OTRO"):
+                flash(f"El departamento {departamento} no contiene la clasificación {clasificacion}.", "warning")
+                return render_template("soportes_tickets/new.jinja2", form=form, filtros=json.dumps({"estatus": "A", "instrucciones": True}))
+        elif departamento == "INFRAESTRUCTURA":
+            if clasificacion not in ("INFRAESTRUCTURA", "OTRO"):
+                flash(f"El departamento {departamento} no contiene la clasificación {clasificacion}.", "warning")
+                return render_template("soportes_tickets/new.jinja2", form=form, filtros=json.dumps({"estatus": "A", "instrucciones": True}))
+        else:
+            flash(f"El departamento {departamento} no existe.", "warning")
+            return render_template("soportes_tickets/new.jinja2", form=form, filtros=json.dumps({"estatus": "A", "instrucciones": True}))
         if clasificacion != "OTRO":
             descripcion = f"[{clasificacion}] {descripcion}"
         ticket = SoporteTicket(
@@ -284,6 +297,7 @@ def new():
             usuario=current_user,
             descripcion=descripcion,
             soluciones="",
+            departamento=departamento,
             estado="SIN ATENDER",
         )
         ticket.save()
@@ -337,6 +351,7 @@ def edit(soporte_ticket_id):
     form.descripcion.data = ticket.descripcion
     form.categoria.data = ticket.soporte_categoria.nombre
     form.tecnico.data = ticket.funcionario.nombre
+    form.departamento.data = ticket.departamento
     form.estado.data = ticket.estado
     return render_template("soportes_tickets/edit.jinja2", form=form, soporte_ticket=ticket)
 

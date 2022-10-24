@@ -27,7 +27,7 @@ class SoporteTicketNewForm(FlaskForm):
     usuario = StringField("Usted es")  # Read only
     oficina = StringField("Se encuentra en")  # Read only
     descripcion = TextAreaField("1. Escriba detalladamente el problema", validators=[DataRequired(), Length(max=4000)])
-    clasificacion = RadioField("2. Elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
+    # clasificacion = RadioField("2. Elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
     guardar = SubmitField("Solicitar soporte al personal de Informática")
 
 
@@ -47,6 +47,7 @@ class SoporteTicketEditForm(FlaskForm):
     descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
     categoria = StringField(label="Categoría")  # Read only
     tecnico = StringField(label="Técnico")  # Read only
+    departamento = StringField("Departamento")  # Read only
     estado = StringField("Estado")  # Read only
     guardar = SubmitField("Guardar")
 

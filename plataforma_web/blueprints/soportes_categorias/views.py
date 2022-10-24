@@ -70,15 +70,18 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "nombre" in request.form and request.form["nombre"] != "OTRO":
         consulta = consulta.filter(SoporteCategoria.nombre.contains(safe_string(request.form["nombre"])))
-    # Determinar el departamento a asignar
-    if not current_user.can_admin(MODULO):
-        roles = current_user.get_roles()
-        if ROL_INFORMATICA in roles:
-            consulta = consulta.filter(or_(SoporteCategoria.departamento == "INFORMATICA", SoporteCategoria.departamento == "TODOS"))
-        elif ROL_INFRAESTRUCTURA in roles:
-            consulta = consulta.filter(or_(SoporteCategoria.departamento == "INFRAESTRUCTURA", SoporteCategoria.departamento == "TODOS"))
-        else:
-            consulta = consulta.filter_by(departamento="TODOS")
+    if "departamento" in request.form:
+        consulta = consulta.filter(SoporteCategoria.departamento == request.form["departamento"])
+    else:
+        # Determinar el departamento a asignar
+        if not current_user.can_admin(MODULO):
+            roles = current_user.get_roles()
+            if ROL_INFORMATICA in roles:
+                consulta = consulta.filter(or_(SoporteCategoria.departamento == "INFORMATICA", SoporteCategoria.departamento == "TODOS"))
+            elif ROL_INFRAESTRUCTURA in roles:
+                consulta = consulta.filter(or_(SoporteCategoria.departamento == "INFRAESTRUCTURA", SoporteCategoria.departamento == "TODOS"))
+            else:
+                consulta = consulta.filter_by(departamento="TODOS")
     # Complementación del query final
     registros = consulta.order_by(SoporteCategoria.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()

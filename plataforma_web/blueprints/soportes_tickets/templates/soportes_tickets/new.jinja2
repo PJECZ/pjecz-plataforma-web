@@ -28,7 +28,36 @@
             {% call f.form_group(form.usuario, readonly=true) %}{% endcall %}
             {% call f.form_group(form.oficina, readonly=true) %}{% endcall %}
             {% call f.form_group(form.descripcion, rows=7) %}{% endcall %}
-            {% call f.form_group(form.clasificacion, css_class="radiobutton_inline") %}{% endcall %}
+            <input id="clasificacion" name="clasificacion" type="hidden" value="">
+            <input id="departamento" name="departamento" type="hidden" value="">
+            <div><strong>2. Elija una clasificación</strong></div>
+            <div class="form-check form-check-inline">
+                <label class="form-check-label"><strong>Informática:</strong></label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radios_categoria" id="radio_informatica_01" value="SOPORTE TECNICO">
+                <label class="form-check-label" for="radio_informatica_01">SOPORTE TECNICO</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radios_categoria" id="radio_informatica_02" value="PAIIJ">
+                <label class="form-check-label" for="radio_informatica_02">PAIIJ</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radios_categoria" id="radio_informatica_03" value="SIGE">
+                <label class="form-check-label" for="radio_informatica_03">SIGE</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radios_categoria" id="radio_informatica_04" value="OTRO" checked>
+                <label class="form-check-label" for="radio_informatica_04">OTRO</label>
+            </div>
+            <br/>
+            <div class="form-check form-check-inline">
+                <label class="form-check-label"><strong>Infraestructura:</strong></label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radios_categoria" id="radio_infraestructura_01" value="INFRAESTRUCTURA">
+                <label class="form-check-label" for="radio_infraestructura_01">INFRAESTRUCTURA</label>
+            </div>
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
@@ -111,8 +140,18 @@
         });
 
         /* Filtrar el listado según el radibutton seleccionado */
-        $('input[type=radio][name=clasificacion]').change(function() {
+        $('input[type=radio][name=radios_categoria]').change(function() {
             dataSet.nombre = this.value;
+            dataSet.departamento = "";
+            if (this.value == 'INFRAESTRUCTURA') {
+                dataSet.departamento = "INFRAESTRUCTURA";
+                dataSet.nombre = "OTRO";
+            } else
+                dataSet.departamento = "INFORMATICA";
+            // Establecer valores de los campos ocultos de formulario de llenado
+            document.getElementById('clasificacion').value = dataSet.nombre;
+            document.getElementById('departamento').value = dataSet.departamento;
+            // Recargar datatable con los valores filtradros
             soportes_categorias_ajax.ajax.reload();
         });
 
