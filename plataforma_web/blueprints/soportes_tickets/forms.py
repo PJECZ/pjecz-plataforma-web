@@ -2,6 +2,7 @@
 Soportes Tickets, formularios
 """
 from flask_wtf import FlaskForm
+from flask_login import current_user
 from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField, DateField, IntegerField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -9,6 +10,13 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
+
+from sqlalchemy import or_
+
+# Roles necesarios
+ROL_ADMINISTRADOR = "ADMINISTRADOR"
+ROL_INFORMATICA = "SOPORTE TECNICO"
+ROL_INFRAESTRUCTURA = "SOPORTE INFRAESTRUCTURA"
 
 
 def tecnicos_opciones():
@@ -18,7 +26,15 @@ def tecnicos_opciones():
 
 def categorias_opciones():
     """Seleccionar la categoría para select"""
-    return SoporteCategoria.query.filter_by(estatus="A").order_by(SoporteCategoria.nombre).all()
+    if ROL_ADMINISTRADOR in current_user.get_roles():
+        return SoporteCategoria.query.filter_by(estatus="A").order_by(SoporteCategoria.nombre).all()
+    elif ROL_INFRAESTRUCTURA in current_user.get_roles():
+        departamento = "INFRAESTRUCTURA"
+    elif ROL_INFORMATICA in current_user.get_roles():
+        departamento = "INFORMATICA"
+    else:
+        departamento = "TODOS"
+    return SoporteCategoria.query.filter_by(estatus="A").filter(or_(SoporteCategoria.departamento == departamento, SoporteCategoria.departamento == "TODOS")).order_by(SoporteCategoria.nombre).all()
 
 
 class SoporteTicketNewForm(FlaskForm):

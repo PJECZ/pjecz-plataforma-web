@@ -21,8 +21,11 @@ from plataforma_web.blueprints.roles.models import Rol
 MODULO = "SOPORTES CATEGORIAS"
 
 # Roles necesarios
-ROL_INFORMATICA = "SOPORTE TECNICO"
-ROL_INFRAESTRUCTURA = "SOPORTE INFRAESTRUCTURA"
+from plataforma_web.blueprints.soportes_tickets.forms import (
+    ROL_INFORMATICA,
+    ROL_INFRAESTRUCTURA,
+)
+
 
 soportes_categorias = Blueprint("soportes_categorias", __name__, template_folder="templates")
 
@@ -71,7 +74,7 @@ def datatable_json():
     if "nombre" in request.form and request.form["nombre"] != "OTRO":
         consulta = consulta.filter(SoporteCategoria.nombre.contains(safe_string(request.form["nombre"])))
     if "departamento" in request.form:
-        consulta = consulta.filter(SoporteCategoria.departamento == request.form["departamento"])
+        consulta = consulta.filter(or_(SoporteCategoria.departamento == request.form["departamento"], SoporteCategoria.departamento == "TODOS"))
     else:
         # Determinar el departamento a asignar
         if not current_user.can_admin(MODULO):

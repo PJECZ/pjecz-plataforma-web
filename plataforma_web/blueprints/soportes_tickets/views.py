@@ -30,10 +30,10 @@ from .forms import (
     SoporteTicketCategorizeForm,
     SoporteTicketCloseForm,
     SoporteTicketDoneForm,
+    # Roles necesarios
+    ROL_INFORMATICA,
+    ROL_INFRAESTRUCTURA,
 )
-
-# Roles necesarios
-ROL_INFRAESTRUCTURA = "SOPORTE INFRAESTRUCTURA"
 
 MODULO = "SOPORTES TICKETS"
 
@@ -158,7 +158,9 @@ def datatable_json():
     funcionario = _get_funcionario_if_is_soporte()
 
     # Determinar el departamento de soporte
-    if ROL_INFRAESTRUCTURA in current_user.get_roles():
+    if ROL_INFORMATICA in current_user.get_roles():
+        consulta = consulta.filter(SoporteTicket.departamento == "INFORMATICA")
+    elif ROL_INFRAESTRUCTURA in current_user.get_roles():
         consulta = consulta.filter(SoporteTicket.departamento == "INFRAESTRUCTURA")
 
     # Si es funcionario de soporte y se van a separar los tickets POR ATENDER
