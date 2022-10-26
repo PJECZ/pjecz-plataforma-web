@@ -137,13 +137,14 @@
                     sPrevious: "Anterior"
                 }
             }
+
         });
 
         /* Filtrar el listado según el radibutton seleccionado */
-        $('input[type=radio][name=radios_categoria]').change(function() {
-            dataSet.nombre = this.value;
+        function actualizar_lista_instrucciones(valor) {
+            dataSet.nombre = valor;
             dataSet.departamento = "";
-            if (this.value == 'INFRAESTRUCTURA') {
+            if (dataSet.nombre == 'INFRAESTRUCTURA') {
                 dataSet.departamento = "INFRAESTRUCTURA";
                 dataSet.nombre = "OTRO";
             } else
@@ -153,6 +154,13 @@
             document.getElementById('departamento').value = dataSet.departamento;
             // Recargar datatable con los valores filtradros
             soportes_categorias_ajax.ajax.reload();
+        };
+
+        // Carga el formulario por primera vez
+        actualizar_lista_instrucciones("OTRO");
+        // Asignamos el cambio de cada radiobutton a la función de actualizar lista
+        $('input[type=radio][name=radios_categoria]').change(function() {
+            actualizar_lista_instrucciones(this.value);
         });
 
     </script>

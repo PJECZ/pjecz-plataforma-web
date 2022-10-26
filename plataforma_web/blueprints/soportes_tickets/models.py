@@ -5,6 +5,11 @@ from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
+# Roles necesarios
+ROL_ADMINISTRADOR = "ADMINISTRADOR"
+ROL_INFORMATICA = "SOPORTE TECNICO"
+ROL_INFRAESTRUCTURA = "SOPORTE INFRAESTRUCTURA"
+
 
 class SoporteTicket(db.Model, UniversalMixin):
     """SoporteTicket"""

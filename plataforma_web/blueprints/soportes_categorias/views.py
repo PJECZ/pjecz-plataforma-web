@@ -21,7 +21,7 @@ from plataforma_web.blueprints.roles.models import Rol
 MODULO = "SOPORTES CATEGORIAS"
 
 # Roles necesarios
-from plataforma_web.blueprints.soportes_tickets.forms import (
+from plataforma_web.blueprints.soportes_tickets.models import (
     ROL_INFORMATICA,
     ROL_INFRAESTRUCTURA,
 )
@@ -74,17 +74,17 @@ def datatable_json():
     if "nombre" in request.form and request.form["nombre"] != "OTRO":
         consulta = consulta.filter(SoporteCategoria.nombre.contains(safe_string(request.form["nombre"])))
     if "departamento" in request.form:
-        consulta = consulta.filter(or_(SoporteCategoria.departamento == request.form["departamento"], SoporteCategoria.departamento == "TODOS"))
+        consulta = consulta.filter(or_(SoporteCategoria.departamento == request.form["departamento"], SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["TODOS"]))
     else:
         # Determinar el departamento a asignar
         if not current_user.can_admin(MODULO):
             roles = current_user.get_roles()
             if ROL_INFORMATICA in roles:
-                consulta = consulta.filter(or_(SoporteCategoria.departamento == "INFORMATICA", SoporteCategoria.departamento == "TODOS"))
+                consulta = consulta.filter(or_(SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["INFORMATICA"], SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["TODOS"]))
             elif ROL_INFRAESTRUCTURA in roles:
-                consulta = consulta.filter(or_(SoporteCategoria.departamento == "INFRAESTRUCTURA", SoporteCategoria.departamento == "TODOS"))
+                consulta = consulta.filter(or_(SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["INFRAESTRUCTURA"], SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["TODOS"]))
             else:
-                consulta = consulta.filter_by(departamento="TODOS")
+                consulta = consulta.filter_by(departamento=SoporteCategoria.DEPARTAMENTOS["TODOS"])
     # Complementación del query final
     registros = consulta.order_by(SoporteCategoria.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()

@@ -5,6 +5,8 @@ from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
+from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
+
 
 class SoporteCategoria(db.Model, UniversalMixin):
     """SoporteCategoria"""
@@ -12,10 +14,9 @@ class SoporteCategoria(db.Model, UniversalMixin):
     DEPARTAMENTOS = OrderedDict(
         [
             ("TODOS", "TODOS"),
-            ("INFORMATICA", "INFORMATICA"),
-            ("INFRAESTRUCTURA", "INFRAESTRUCTURA"),
         ]
     )
+    DEPARTAMENTOS.update(SoporteTicket.DEPARTAMENTOS)
 
     # Nombre de la tabla
     __tablename__ = "soportes_categorias"

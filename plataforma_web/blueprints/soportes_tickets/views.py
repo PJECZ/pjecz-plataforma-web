@@ -30,7 +30,10 @@ from .forms import (
     SoporteTicketCategorizeForm,
     SoporteTicketCloseForm,
     SoporteTicketDoneForm,
-    # Roles necesarios
+)
+
+# Roles necesarios
+from .models import (
     ROL_INFORMATICA,
     ROL_INFRAESTRUCTURA,
 )
@@ -159,9 +162,9 @@ def datatable_json():
 
     # Determinar el departamento de soporte
     if ROL_INFORMATICA in current_user.get_roles():
-        consulta = consulta.filter(SoporteTicket.departamento == "INFORMATICA")
+        consulta = consulta.filter(SoporteTicket.departamento == SoporteTicket.DEPARTAMENTOS["INFORMATICA"])
     elif ROL_INFRAESTRUCTURA in current_user.get_roles():
-        consulta = consulta.filter(SoporteTicket.departamento == "INFRAESTRUCTURA")
+        consulta = consulta.filter(SoporteTicket.departamento == SoporteTicket.DEPARTAMENTOS["INFRAESTRUCTURA"])
 
     # Si es funcionario de soporte y se van a separar los tickets POR ATENDER
     if funcionario and "estado" in request.form and "soportes_tickets_abiertos" in request.form and not "buscar" in request.form:
@@ -276,8 +279,7 @@ def new():
     form = SoporteTicketNewForm()
     if form.validate_on_submit():
         descripcion = safe_text(form.descripcion.data)
-        # validar Clasificación
-        # clasificacion = safe_string(form.clasificacion.data)
+        # validar Clasificación y Departamento
         clasificacion = safe_string(request.form["clasificacion"])
         departamento = safe_string(request.form["departamento"])
         if departamento == "INFORMATICA":

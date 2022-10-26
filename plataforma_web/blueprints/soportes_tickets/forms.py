@@ -3,7 +3,7 @@ Soportes Tickets, formularios
 """
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField, DateField, IntegerField
+from wtforms import StringField, SubmitField, TextAreaField, SelectField, DateField, IntegerField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
@@ -14,9 +14,11 @@ from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
 from sqlalchemy import or_
 
 # Roles necesarios
-ROL_ADMINISTRADOR = "ADMINISTRADOR"
-ROL_INFORMATICA = "SOPORTE TECNICO"
-ROL_INFRAESTRUCTURA = "SOPORTE INFRAESTRUCTURA"
+from plataforma_web.blueprints.soportes_tickets.models import (
+    ROL_ADMINISTRADOR,
+    ROL_INFORMATICA,
+    ROL_INFRAESTRUCTURA,
+)
 
 
 def tecnicos_opciones():
@@ -29,11 +31,11 @@ def categorias_opciones():
     if ROL_ADMINISTRADOR in current_user.get_roles():
         return SoporteCategoria.query.filter_by(estatus="A").order_by(SoporteCategoria.nombre).all()
     elif ROL_INFRAESTRUCTURA in current_user.get_roles():
-        departamento = "INFRAESTRUCTURA"
+        departamento = SoporteCategoria.DEPARTAMENTOS["INFRAESTRUCTURA"]
     elif ROL_INFORMATICA in current_user.get_roles():
-        departamento = "INFORMATICA"
+        departamento = SoporteCategoria.DEPARTAMENTOS["INFORMATICA"]
     else:
-        departamento = "TODOS"
+        departamento = SoporteCategoria.DEPARTAMENTOS["TODOS"]
     return SoporteCategoria.query.filter_by(estatus="A").filter(or_(SoporteCategoria.departamento == departamento, SoporteCategoria.departamento == "TODOS")).order_by(SoporteCategoria.nombre).all()
 
 
@@ -44,7 +46,7 @@ class SoporteTicketNewForm(FlaskForm):
     oficina = StringField("Se encuentra en")  # Read only
     descripcion = TextAreaField("1. Escriba detalladamente el problema", validators=[DataRequired(), Length(max=4000)])
     # clasificacion = RadioField("2. Elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
-    guardar = SubmitField("Solicitar soporte al personal de Informática")
+    guardar = SubmitField("Solicitar soporte")
 
 
 class SoporteTicketNewForUsuarioForm(FlaskForm):
