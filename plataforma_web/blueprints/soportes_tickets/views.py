@@ -161,9 +161,9 @@ def datatable_json():
     funcionario = _get_funcionario_if_is_soporte()
 
     # Determinar el departamento de soporte
-    if ROL_INFORMATICA in current_user.get_roles():
+    if not current_user.can_admin(MODULO) and ROL_INFORMATICA in current_user.get_roles():
         consulta = consulta.filter(SoporteTicket.departamento == SoporteTicket.DEPARTAMENTOS["INFORMATICA"])
-    elif ROL_INFRAESTRUCTURA in current_user.get_roles():
+    elif not current_user.can_admin(MODULO) and ROL_INFRAESTRUCTURA in current_user.get_roles():
         consulta = consulta.filter(SoporteTicket.departamento == SoporteTicket.DEPARTAMENTOS["INFRAESTRUCTURA"])
 
     # Si es funcionario de soporte y se van a separar los tickets POR ATENDER
@@ -184,7 +184,7 @@ def datatable_json():
                     roles_ids.append(usuario_rol.rol_id)
             if len(roles_ids) > 0:
                 consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
-        else:
+        else:  # TODOS
             # Los demas tickets
             roles_ids = []
             for usuario_rol in current_user.usuarios_roles:
@@ -202,6 +202,14 @@ def datatable_json():
             consulta = consulta.filter(SoporteTicket.funcionario != funcionario)
         # Y el orden de los IDs es ascendente, del mas antiguo al mas nuevo
         consulta = consulta.order_by(SoporteTicket.id)
+    elif funcionario and "estado" in request.form:
+        # Mostrar solo Tickets se sus ROLes
+        roles_ids = []
+        for usuario_rol in current_user.usuarios_roles:
+            if usuario_rol.estatus == "A":
+                roles_ids.append(usuario_rol.rol_id)
+        if len(roles_ids) > 0:
+            consulta = consulta.join(SoporteCategoria).filter(SoporteCategoria.rol_id.in_(roles_ids))
     elif funcionario is None:
         # NO es funcionario de soporte, es usuario comun, por lo que SOLO ve sus propios tickets
         consulta = consulta.filter(SoporteTicket.usuario == current_user)
