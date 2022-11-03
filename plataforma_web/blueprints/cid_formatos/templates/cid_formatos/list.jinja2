@@ -6,10 +6,13 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {# topbar.button('Inicial', url_for('cid_formatos.list_active'), 'mdi:table-star') #}
         {{ topbar.button('Autorizados', url_for('cid_formatos.list_authorized'), 'mdi:table-star') }}
-        {{ topbar.button('Propios', url_for('cid_formatos.list_owned'), 'mdi:table-heart') }}
-        {{ topbar.button('Todos', url_for('cid_formatos.list_all'), 'mdi:table') }}
+        {% if show_button_list_owned %}
+            {{ topbar.button('Propios', url_for('cid_formatos.list_owned'), 'mdi:table-heart') }}
+        {% endif %}
+        {% if show_button_list_all %}
+            {{ topbar.button('Todos', url_for('cid_formatos.list_all'), 'mdi:table') }}
+        {% endif %}
         {{ topbar.button('Ir a Procedimientos', url_for('cid_procedimientos.list_all'), 'mdi:swap-horizontal') }}
         {% if current_user.can_edit('CID FORMATOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_formatos.list_inactive')) }}{% endif %}

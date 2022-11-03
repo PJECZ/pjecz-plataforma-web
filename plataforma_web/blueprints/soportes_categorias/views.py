@@ -7,6 +7,7 @@ from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message, safe_text
+from sqlalchemy import or_
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -18,6 +19,13 @@ from plataforma_web.blueprints.soportes_categorias.forms import SoporteCategoria
 from plataforma_web.blueprints.roles.models import Rol
 
 MODULO = "SOPORTES CATEGORIAS"
+
+# Roles necesarios
+from plataforma_web.blueprints.soportes_tickets.models import (
+    ROL_INFORMATICA,
+    ROL_INFRAESTRUCTURA,
+)
+
 
 soportes_categorias = Blueprint("soportes_categorias", __name__, template_folder="templates")
 
@@ -65,6 +73,19 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "nombre" in request.form and request.form["nombre"] != "OTRO":
         consulta = consulta.filter(SoporteCategoria.nombre.contains(safe_string(request.form["nombre"])))
+    if "departamento" in request.form:
+        consulta = consulta.filter(or_(SoporteCategoria.departamento == request.form["departamento"], SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["TODOS"]))
+    else:
+        # Determinar el departamento a asignar
+        if not current_user.can_admin(MODULO):
+            roles = current_user.get_roles()
+            if ROL_INFORMATICA in roles:
+                consulta = consulta.filter(or_(SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["INFORMATICA"], SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["TODOS"]))
+            elif ROL_INFRAESTRUCTURA in roles:
+                consulta = consulta.filter(or_(SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["INFRAESTRUCTURA"], SoporteCategoria.departamento == SoporteCategoria.DEPARTAMENTOS["TODOS"]))
+            else:
+                consulta = consulta.filter_by(departamento=SoporteCategoria.DEPARTAMENTOS["TODOS"])
+    # Complementación del query final
     registros = consulta.order_by(SoporteCategoria.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -78,6 +99,7 @@ def datatable_json():
                 },
                 "atendido": resultado.rol.nombre,
                 "instrucciones": resultado.instrucciones,
+                "departamento": resultado.departamento,
             }
         )
     # Entregar JSON
@@ -106,6 +128,7 @@ def new():
                 nombre=nombre,
                 rol=form.rol.data,
                 instrucciones=safe_text(form.instrucciones.data),
+                departamento=form.departamento.data,
             )
             soporte_categoria.save()
             bitacora = Bitacora(
@@ -140,6 +163,7 @@ def edit(soporte_categoria_id):
             soporte_categoria.nombre = nombre
             soporte_categoria.rol = form.rol.data
             soporte_categoria.instrucciones = safe_text(form.instrucciones.data)
+            soporte_categoria.departamento = form.departamento.data
             soporte_categoria.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -153,6 +177,7 @@ def edit(soporte_categoria_id):
     form.nombre.data = soporte_categoria.nombre
     form.rol.data = soporte_categoria.rol
     form.instrucciones.data = soporte_categoria.instrucciones
+    form.departamento.data = soporte_categoria.departamento
     return render_template("soportes_categorias/edit.jinja2", form=form, soporte_categoria=soporte_categoria)
 
 

@@ -84,6 +84,7 @@
                 {% else %}
                     {{ detail.label_value('Oficina', soporte_ticket.usuario.oficina.clave_nombre) }}
                 {% endif %}
+                {{ detail.label_value('Departamento', soporte_ticket.departamento) }}
                 {% if current_user.can_view('SOPORTES CATEGORIAS') %}
                     {{ detail.label_value('Categoría', soporte_ticket.soporte_categoria.nombre, url_for('soportes_categorias.detail', soporte_categoria_id=soporte_ticket.soporte_categoria_id)) }}
                 {% else %}

@@ -5,6 +5,11 @@ from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
+# Roles necesarios
+ROL_ADMINISTRADOR = "ADMINISTRADOR"
+ROL_INFORMATICA = "SOPORTE INFORMATICA"
+ROL_INFRAESTRUCTURA = "SOPORTE INFRAESTRUCTURA"
+
 
 class SoporteTicket(db.Model, UniversalMixin):
     """SoporteTicket"""
@@ -25,7 +30,15 @@ class SoporteTicket(db.Model, UniversalMixin):
             ("SOPORTE TECNICO", "SOPORTE TÉCNICO"),
             ("PAIIJ", "PAIIJ"),
             ("SIGE", "SIGE"),
+            ("INFRAESTRUCTURA", "INFRAESTRUCTURA"),
             ("OTRO", "Otro"),
+        ]
+    )
+
+    DEPARTAMENTOS = OrderedDict(
+        [
+            ("INFORMATICA", "INFORMATICA"),
+            ("INFRAESTRUCTURA", "INFRAESTRUCTURA"),
         ]
     )
 
@@ -52,6 +65,7 @@ class SoporteTicket(db.Model, UniversalMixin):
     estado = db.Column(db.Enum(*ESTADOS, name="estados", native_enum=False), index=True, nullable=False)
     resolucion = db.Column(db.DateTime, nullable=True)
     soluciones = db.Column(db.Text, nullable=True)
+    departamento = db.Column(db.Enum(*DEPARTAMENTOS, name="departamentos", native_enum=False), index=True, nullable=False)
 
     # Hijos
     soportes_adjuntos = db.relationship("SoporteAdjunto", back_populates="soporte_ticket")

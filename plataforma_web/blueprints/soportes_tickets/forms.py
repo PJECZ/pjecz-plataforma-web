@@ -2,13 +2,23 @@
 Soportes Tickets, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField, DateField, IntegerField
+from flask_login import current_user
+from wtforms import StringField, SubmitField, TextAreaField, SelectField, DateField, IntegerField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from plataforma_web.blueprints.funcionarios.models import Funcionario
 from plataforma_web.blueprints.soportes_categorias.models import SoporteCategoria
 from plataforma_web.blueprints.soportes_tickets.models import SoporteTicket
+
+from sqlalchemy import or_
+
+# Roles necesarios
+from plataforma_web.blueprints.soportes_tickets.models import (
+    ROL_ADMINISTRADOR,
+    ROL_INFORMATICA,
+    ROL_INFRAESTRUCTURA,
+)
 
 
 def tecnicos_opciones():
@@ -18,7 +28,15 @@ def tecnicos_opciones():
 
 def categorias_opciones():
     """Seleccionar la categoría para select"""
-    return SoporteCategoria.query.filter_by(estatus="A").order_by(SoporteCategoria.nombre).all()
+    if ROL_ADMINISTRADOR in current_user.get_roles():
+        return SoporteCategoria.query.filter_by(estatus="A").order_by(SoporteCategoria.nombre).all()
+    elif ROL_INFRAESTRUCTURA in current_user.get_roles():
+        departamento = SoporteCategoria.DEPARTAMENTOS["INFRAESTRUCTURA"]
+    elif ROL_INFORMATICA in current_user.get_roles():
+        departamento = SoporteCategoria.DEPARTAMENTOS["INFORMATICA"]
+    else:
+        departamento = SoporteCategoria.DEPARTAMENTOS["TODOS"]
+    return SoporteCategoria.query.filter_by(estatus="A").filter(or_(SoporteCategoria.departamento == departamento, SoporteCategoria.departamento == "TODOS")).order_by(SoporteCategoria.nombre).all()
 
 
 class SoporteTicketNewForm(FlaskForm):
@@ -27,8 +45,8 @@ class SoporteTicketNewForm(FlaskForm):
     usuario = StringField("Usted es")  # Read only
     oficina = StringField("Se encuentra en")  # Read only
     descripcion = TextAreaField("1. Escriba detalladamente el problema", validators=[DataRequired(), Length(max=4000)])
-    clasificacion = RadioField("2. Elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
-    guardar = SubmitField("Solicitar soporte al personal de Informática")
+    # clasificacion = RadioField("2. Elija una clasificación", choices=SoporteTicket.CLASIFICACIONES, default="OTRO", validators=[DataRequired()])
+    guardar = SubmitField("Solicitar soporte")
 
 
 class SoporteTicketNewForUsuarioForm(FlaskForm):
@@ -47,6 +65,7 @@ class SoporteTicketEditForm(FlaskForm):
     descripcion = TextAreaField("Descripción del problema", validators=[DataRequired(), Length(max=4000)])
     categoria = StringField(label="Categoría")  # Read only
     tecnico = StringField(label="Técnico")  # Read only
+    departamento = StringField("Departamento")  # Read only
     estado = StringField("Estado")  # Read only
     guardar = SubmitField("Guardar")
 
