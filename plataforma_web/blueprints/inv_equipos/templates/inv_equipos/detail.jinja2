@@ -12,8 +12,8 @@
         {% elif current_user.can_view('INV EQUIPOS') %}
             {{ topbar.button_previous('Tickets', url_for('soportes_tickets.list_active')) }}
         {% endif %}
-        {{topbar.button('Transferir Equipo', url_for('inv_equipos.transferir', inv_equipo_id=inv_equipo.id),'mdi:swap-horizontal')}}
         {% if current_user.can_admin('INV EQUIPOS') %}
+            {{topbar.button('Transferir Equipo', url_for('inv_equipos.transferir', inv_equipo_id=inv_equipo.id),'mdi:swap-horizontal')}}
             {{ topbar.button_edit('Editar', url_for('inv_equipos.edit', inv_equipo_id=inv_equipo.id)) }}
             {% if inv_equipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('inv_equipos.delete', inv_equipo_id=inv_equipo.id)) }}{% endif %}
             {% if inv_equipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('inv_equipos.recover', inv_equipo_id=inv_equipo.id)) }}{% endif %}
