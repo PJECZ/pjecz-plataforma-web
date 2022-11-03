@@ -1,6 +1,7 @@
 """
 Inventarios Custodias, vistas
 """
+from crypt import methods
 import json
 from datetime import date
 

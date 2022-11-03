@@ -11,10 +11,9 @@ from lib.safe_string import safe_mac_address, safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
-from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm
+from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm, InvEquipoChangeCustodia
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
@@ -333,3 +332,52 @@ def recover(inv_equipo_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))
+
+
+@inv_equipos.route("/inv_equipos/transferir/<int:inv_equipo_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def transferir(inv_equipo_id):
+    """Transferir"""
+    inv_equipo = InvEquipo.query.get_or_404(inv_equipo_id)
+    form = InvEquipoChangeCustodia()
+    if form.validate_on_submit():
+        # Actualizar
+        inv_equipo.inv_custodia_id = form.inv_custodia.data
+        inv_equipo.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Se transfirió el equipo con id {inv_equipo.id}."),
+            url=url_for("inv_custodias.detail", inv_custodia_id=inv_equipo.inv_custodia_id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    return render_template("inv_equipos/transferir.jinja2", form=form, inv_equipo=inv_equipo)
+
+
+@inv_equipos.route("/inv_equipos/custodias_json", methods=["POST"])
+def query_custodias_json():
+    """Proporcionar el JSON de usuarios para elegir con un Slecet2"""
+    inv_custodias = InvCustodia.query.filter(InvCustodia.estatus == "A")
+    if "searchString" in request.form:
+        current_custodia = request.form["current_custodia"]
+        inv_custodias = inv_custodias.filter(InvCustodia.nombre_completo.contains(safe_string(request.form["searchString"])))
+    resultados = []
+    for inv_custodia in inv_custodias.order_by(InvCustodia.nombre_completo).limit(10).all():
+        if inv_custodia.id != int(current_custodia):
+            resultados.append({"id": inv_custodia.id, "text": inv_custodia.usuario.email, "value": inv_custodia.id})
+    return {"results": resultados, "pagination": {"more": False}}
+
+
+@inv_equipos.route("/inv_equipos/custodias_json/<int:custodia_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def custodiajson(custodia_id):
+    """JSON trar custodia"""
+    custodia = InvCustodia.query.get_or_404(custodia_id)
+    equipos = InvEquipo.query.filter(InvEquipo.estatus == "A")
+    equipos = equipos.filter(InvEquipo.inv_custodia_id == custodia_id).all()
+    resultados = []
+    for equipo in equipos:
+        resultados.append({"id": equipo.id, "tipo": equipo.tipo, "descripcion": equipo.descripcion})
+    return {"id": custodia_id, "nombre": custodia.nombre_completo, "email": custodia.usuario.email, "oficina": custodia.usuario.oficina.descripcion_corta, "equipos": resultados}

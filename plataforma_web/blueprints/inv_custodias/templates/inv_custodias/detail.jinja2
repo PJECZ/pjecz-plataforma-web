@@ -20,7 +20,6 @@
 
 {% block content %}
     {% call detail.card(estatus=inv_custodia.estatus) %}
-        {{ detail.label_value('ID', inv_custodia.id) }}
         {% if current_user.can_view('USUARIOS') %}
             {{ detail.label_value('Usuario', inv_custodia.nombre_completo, url_for('usuarios.detail', usuario_id=inv_custodia.usuario_id)) }}
         {% else %}
