@@ -1,0 +1,208 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/list.jinja2' as list with context %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Transferencia de equipos{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        #guardar { float: right; box-sizing: border-box; }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Transferir equipo ' + inv_equipo.id | string) }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            {% call detail.card(title='Detalle del equipo a transferir')%}
+                {{ detail.label_value("Descripción ", inv_equipo.descripcion)}}
+                {{ detail.label_value("Marca", inv_equipo.inv_modelo.inv_marca.nombre)}}
+                {{ detail.label_value("Modelo", inv_equipo.inv_modelo.descripcion)}}
+                {{ detail.label_value("Tipo", inv_equipo.tipo)}}
+                {{ detail.label_value("N° Serie", inv_equipo.numero_serie)}}
+                {{ detail.label_value("N° Inventario", inv_equipo.numero_inventario)}}
+                {{ detail.label_value("Dirección mac", inv_equipo.direccion_mac)}}
+                {{ detail.label_value("Dirección ip", inv_equipo.direccion_ip)}}
+            {% endcall%}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5 col-sm-12">
+            {% call detail.card(title='Custodia actual')%}
+                {{ detail.label_value("ID", inv_equipo.inv_custodia.id)}}
+                {{ detail.label_value("Nombre ", inv_equipo.inv_custodia.nombre_completo)}}
+                {{ detail.label_value("E-mail", inv_equipo.inv_custodia.usuario.email)}}
+                {{ detail.label_value("Oficina", inv_equipo.inv_custodia.usuario.oficina.descripcion_corta)}}
+                <div style="margin-top: 22px;"></div>
+            {% endcall%}
+        </div>
+        <div class="col-md-1 col-sm-12">
+           <span class="iconify" data-icon="mdi-chevron-double-right" style="font-size: 50px; margin-top:80px; margin-right: 18px;"></span>
+        </div>
+        <div class="col-md-5 col-sm-12">
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                {% call f.card(title='Transferir a') %}
+                    {% set form_kwargs = {'inv_equipo_id': inv_equipo.id} %}
+                    {% call f.form_tag('inv_equipos.transferir', fid='transferir_form', **form_kwargs) %}
+                        <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+                        <input id="custodia_id" name="custodia_id" type="hidden" value="">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <div class="form-group mb-2">
+                                        <label for="inv_custodia"><strong>Usuario con custodia</strong></label>
+                                        <select class="form-control" id="inv_custodia" name="inv_custodia" required onchange="buscar(); return false;"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        {% call f.form_group(form.guardar) %}{% endcall %}
+                    {% endcall%}
+                {% endcall %}
+                </div>
+            </div>
+
+            <div class="modal fade" id="transferir_modal" tabindex="-1" aria-labelledby="transferirModal" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="transferir_title"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div id="transferir_body" class="modal-body"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" id="transferir_confirm" class="btn btn-primary">Confirmar</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="nueva_custodia_detalle" class="row d-none">
+        <div class="col-md-12">
+            {% call detail.card(title='Detalle custodia seleccionada')%}
+                <div class="row">
+                    <div class="col-md-4 text-end">ID</div>
+                    <div class="col-md-8"><span class="fw-bold" id="label_id"></span></div>
+                </div>
+                <div class="row" style="margin-bottom: 5px;">
+                    <div class="col-md-4 text-end">Nombre</div>
+                    <div class="col-md-8"><span  class="fw-bold" id="label_nombre"></span></div>
+                </div>
+                <div class="row" style="margin-bottom: 5px;">
+                    <div class="col-md-4 text-end">E-mail</div>
+                    <div class="col-md-8"><span  class="fw-bold" id="label_email"></span></div>
+                </div>
+                <div class="row" style="margin-bottom: 15px;">
+                    <div class="col-md-4 text-end">Oficina</div>
+                    <div class="col-md-8"><span  class="fw-bold" id="label_oficina"></span></div>
+                </div>
+                <div class="row" style="margin-bottom: 15px;">
+                    <div class="card">
+                        <div class="card-header">Equipos actuales:</div>
+                        <div class="card-body">
+                            <table class="table table-stripped" id="table_equipos">
+                                <thead>
+                                    <th>ID</th>
+                                    <th>Tipo</th>
+                                    <th>Descripción</th>
+                                </thead>
+                                <tbody id="equipos_tr"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endcall%}
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    
+    {{ detail.config_datatable() }}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Crear Modal para confirmar la transferencia del equipo
+            $("#guardar").click(function(){
+                $("#transferir_title").text("Transferir Equipo {{ inv_equipo.id }}");
+                $("#transferir_body").html('¿Deseas transferir el equipo <b>{{ inv_equipo.descripcion }}</b> de la custodia actual <b>{{ inv_equipo.inv_custodia.nombre_completo }}</b> a la custodia seleccionada <b>'+$("#label_nombre").text()+'</b>?')
+                $("#transferir_modal").modal('show')
+                return false;
+            });
+        })
+    </script> 
+    <script type="text/javascript">
+        $(document).ready(function(){
+            // Agregar clases a los select
+            $("#inv_custodia").addClass('js-data-ajax js-states form-control');
+
+            // Ajax para que al escribir desde 4 caracteres se filtren las opciones de las custodias
+            $(".js-data-ajax").select2({
+                // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/inv_equipos/custodias_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term, 'current_custodia':{{ inv_equipo.inv_custodia_id }} };
+                    }
+                },
+                placeholder: "Seleccionar una custodia",
+                minimumInputLength: 4,
+                allowClear: true
+            });
+        });
+    </script>
+    
+     <!-- Función de Cargar datos de la custodia seleccionada -->
+    <script type="text/javascript">
+        function buscar(){
+            
+            // Validar si aun no se selecciona una custodia no mostrar las tablas de su información
+            if($("#inv_custodia").val() == ""){
+
+                $("#nueva_custodia_detalle").addClass("d-none")
+                
+            }else{
+
+                // Busca el id de la custodia
+                let custodia = document.getElementById("inv_custodia").value;
+                
+                // AJAX para mostrar datos de la custodia seleccionada
+                $.ajax({
+                    url:'/inv_equipos/custodias_json/'+custodia,
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    allowClear: true,
+                }).done(function(data){
+                    $("#custodia").val(data.id);
+                    $("#label_id").text(data.id);
+                    $("#label_nombre").text(data.nombre);
+                    $("#label_email").text(data.email);
+                    $("#label_oficina").text(data.oficina);
+                    $("#table_equipos > tbody").empty();
+                    data.equipos.forEach(function(equipo){
+                        $("#equipos_tr").append('<tr><td>'+equipo.id+'</td><td>'+equipo.tipo+'</td><td>'+equipo.descripcion+'</td></tr>');
+                    })
+                    $("#nueva_custodia_detalle").removeClass("d-none")
+                });
+            }     
+        }
+        // confirmar botón de modal para la custodia haga el submit
+        $("#transferir_confirm").click(function(){
+            $("#transferir_form").submit()
+        });
+    </script>
+{% endblock %}

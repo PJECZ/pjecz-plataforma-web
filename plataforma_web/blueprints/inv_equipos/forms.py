@@ -2,7 +2,7 @@
 Inventarios Equipos, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import DateField, IntegerField, StringField, SubmitField, RadioField
+from wtforms import DateField, IntegerField, SelectField, StringField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
@@ -56,3 +56,10 @@ class InvEquipoSearchForm(FlaskForm):
     fecha_desde = DateField("Fecha desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")
+
+
+class InvEquipoChangeCustodia(FlaskForm):
+    """Formulario para cambiar la custodia de los equipos"""
+
+    inv_custodia = SelectField(label="Custodia", coerce=str, validators=[DataRequired()], validate_choice=False)
+    guardar = SubmitField("Transferir")
