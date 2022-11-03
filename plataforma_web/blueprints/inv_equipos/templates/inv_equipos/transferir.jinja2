@@ -2,10 +2,9 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/list.jinja2' as list with context %}
-{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Transferencia de equipos{% endblock %}
+{% block title %}Transferencia de equipo{% endblock %}
 
 {% block custom_head %}
     <!-- Select2 bootstrap -->
@@ -34,7 +33,6 @@
             {% endcall%}
         </div>
     </div>
-
     <div class="row">
         <div class="col-md-5 col-sm-12">
             {% call detail.card(title='Custodia actual')%}
@@ -69,7 +67,6 @@
                 {% endcall %}
                 </div>
             </div>
-
             <div class="modal fade" id="transferir_modal" tabindex="-1" aria-labelledby="transferirModal" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -127,7 +124,6 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    
     {{ detail.config_datatable() }}
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -167,7 +163,7 @@
         });
     </script>
     
-     <!-- Función de Cargar datos de la custodia seleccionada -->
+    <!-- Función de Cargar datos de la custodia seleccionada -->
     <script type="text/javascript">
         function buscar(){
             
