@@ -1,10 +1,8 @@
 """
 Inventarios Equipos, vistas
 """
-from crypt import methods
 import json
 from datetime import date
-from os import putenv
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
@@ -16,7 +14,6 @@ from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm, InvEquipoChangeCustodia
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
