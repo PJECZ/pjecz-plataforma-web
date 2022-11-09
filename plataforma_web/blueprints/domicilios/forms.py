@@ -9,22 +9,24 @@ from wtforms.validators import DataRequired, Length, Optional
 class DomicilioForm(FlaskForm):
     """Formulario para Domicilios"""
 
+    edificio = StringField("Edificio", validators=[DataRequired(), Length(max=64)])
     estado = StringField("Estado", validators=[DataRequired(), Length(max=64)])
     municipio = StringField("Municipio", validators=[DataRequired(), Length(max=64)])
     calle = StringField("Calle", validators=[DataRequired(), Length(max=256)])
     num_ext = StringField("Núm. Exterior", validators=[Optional()])
     num_int = StringField("Núm. Interior", validators=[Optional()])
     colonia = StringField("Colonia", validators=[Optional(), Length(max=256)])
-    cp = IntegerField('CP', validators=[DataRequired()])
+    cp = IntegerField("CP", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 
 class DomicilioSearchForm(FlaskForm):
     """Formulario para Buscar Domicilios"""
 
+    edificio = StringField("Edificio", validators=[Optional(), Length(max=64)])
     estado = StringField("Estado", validators=[Optional(), Length(max=64)])
     municipio = StringField("Municipio", validators=[Optional(), Length(max=64)])
     calle = StringField("Calle", validators=[Optional(), Length(max=256)])
     colonia = StringField("Colonia", validators=[Optional(), Length(max=256)])
-    cp = IntegerField('CP', validators=[Optional()])
+    cp = IntegerField("CP", validators=[Optional()])
     buscar = SubmitField("Buscar")

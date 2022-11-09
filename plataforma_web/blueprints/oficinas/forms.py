@@ -42,5 +42,4 @@ class OficinaSearchForm(FlaskForm):
 
     clave = StringField("Clave", validators=[Optional(), Length(max=32)])
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=512)])
-    tipo = RadioField("Tipo", choices=Oficina.TIPOS, default="NO DEFINIDO", validators=[Optional()])
     buscar = SubmitField("Buscar")

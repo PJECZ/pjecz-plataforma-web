@@ -76,10 +76,10 @@
                 targets: 2, // domicilio
                 data: null,
                 render: function(data, type, row, meta) {
-                    if (data.completo.length > 32) {
-                        texto = '<span title="' + data.completo + '">' + data.completo.substr(0, 32) + '…' + '</span>';
+                    if (data.edificio.length > 32) {
+                        texto = '<span title="' + data.edificio + '">' + data.edificio.substr(0, 32) + '…' + '</span>';
                     } else {
-                        texto = data.completo;
+                        texto = data.edificio;
                     }
                     if (data.url == '') {
                         return texto;

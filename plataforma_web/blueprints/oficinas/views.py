@@ -61,7 +61,7 @@ def datatable_json():
                 },
                 "descripcion_corta": resultado.descripcion_corta,
                 "domicilio": {
-                    "completo": resultado.domicilio.completo,
+                    "edificio": resultado.domicilio.edificio,
                     "url": url_for("domicilios.detail", domicilio_id=resultado.domicilio_id) if current_user.can_view("DOMICILIOS") else "",
                 },
                 "distrito": {
@@ -118,11 +118,6 @@ def search():
             if descripcion != "":
                 busqueda["descripcion"] = descripcion
                 titulos.append("descripción " + descripcion)
-        if form_search.tipo.data:
-            tipo = safe_string(form_search.tipo.data)
-            if tipo != "":
-                busqueda["tipo"] = tipo
-                titulos.append("tipo " + tipo)
         return render_template(
             "oficinas/list.jinja2",
             filtros=json.dumps(busqueda),
