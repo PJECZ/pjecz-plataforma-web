@@ -43,11 +43,9 @@
                 <thead>
                     <tr>
                         <th>Clave</th>
-                        <th>Descripción</th>
-                        <th>Domicilio</th>
-                        <th>Apertura</th>
-                        <th>Cierre</th>
-                        <th>L. P.</th>
+                        <th>Descripción corta</th>
+                        <th>Edificio</th>
+                        <th>Tipo</th>
                     </tr>
                 </thead>
             </table>
@@ -121,9 +119,7 @@
                 { data: "detalle" },
                 { data: "descripcion_corta" },
                 { data: "domicilio" },
-                { data: "apertura" },
-                { data: "cierre" },
-                { data: "limite_personas" }
+                { data: "tipo" }
             ];
             configDataTable['columnDefs'] = [
                 {
@@ -144,10 +140,10 @@
                     targets: 2, // domicilio
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.completo.length > 32) {
-                            texto = data.completo.substr(0, 32) + '…';
+                        if (data.edificio.length > 32) {
+                            texto = data.edificio.substr(0, 32) + '…';
                         } else {
-                            texto = data.completo;
+                            texto = data.edificio;
                         }
                         if (data.url == '') {
                             return texto;
