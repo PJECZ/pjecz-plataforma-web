@@ -11,6 +11,7 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('domicilios.new', fid='domicilios_form') %}
+            {% call f.form_group(form.edificio) %}{% endcall %}
             {% call f.form_group(form.estado) %}{% endcall %}
             {% call f.form_group(form.municipio) %}{% endcall %}
             {% call f.form_group(form.calle) %}{% endcall %}

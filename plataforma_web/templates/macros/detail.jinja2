@@ -26,10 +26,10 @@
 {%- macro label_value(label, value, link='') -%}
     {% if value != None and value != '' %}
         <div class="row">
-            <div class="col-md-4 text-end">
+            <div class="col-md-3 text-end">
                 {{ label }}
             </div>
-            <div class="col-md-8">
+            <div class="col-md-9">
                 {% if link %}
                 <strong><a href="{{ link }}">{{ value }}</a></strong>
                 {% else %}

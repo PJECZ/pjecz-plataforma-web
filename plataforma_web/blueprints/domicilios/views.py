@@ -38,6 +38,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "edificio" in request.form:
+        consulta = consulta.filter(Domicilio.edificio.contains(safe_string(request.form["edificio"])))
     if "estado" in request.form:
         consulta = consulta.filter(Domicilio.estado.contains(safe_string(request.form["estado"])))
     if "municipio" in request.form:
@@ -48,7 +50,7 @@ def datatable_json():
         consulta = consulta.filter(Domicilio.colonia.contains(safe_string(request.form["colonia"])))
     if "cp" in request.form:
         consulta = consulta.filter_by(colonia=int(request.form["cp"]))
-    registros = consulta.order_by(Domicilio.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Domicilio.edificio).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -56,7 +58,7 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "edificio": resultado.edificio,
                     "url": url_for("domicilios.detail", domicilio_id=resultado.id),
                 },
                 "estado": resultado.estado,
@@ -102,6 +104,11 @@ def search():
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
+        if form_search.edificio.data:
+            edificio = safe_string(form_search.edificio.data)
+            if edificio != "":
+                busqueda["edificio"] = edificio
+                titulos.append("edificio " + edificio)
         if form_search.estado.data:
             estado = safe_string(form_search.estado.data)
             if estado != "":
@@ -149,6 +156,7 @@ def new():
     """Nuevo Domicilio"""
     form = DomicilioForm()
     if form.validate_on_submit():
+        edificio = safe_string(form.edificio.data, max_len=64)
         estado = safe_string(form.estado.data, max_len=64)
         municipio = safe_string(form.municipio.data, max_len=64)
         calle = safe_string(form.calle.data, max_len=256)
@@ -158,6 +166,7 @@ def new():
         cp = form.cp.data
         completo = f"{calle} #{num_ext} {num_int}, {colonia}, {municipio}, {estado}, C.P. {cp}"
         domicilio = Domicilio(
+            edificio=edificio,
             estado=estado,
             municipio=municipio,
             calle=calle,
@@ -170,7 +179,7 @@ def new():
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nuevo Domicilio {completo}"),
+            descripcion=safe_message(f"Nuevo Domicilio {edificio}"),
             url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()
@@ -186,6 +195,7 @@ def edit(domicilio_id):
     domicilio = Domicilio.query.get_or_404(domicilio_id)
     form = DomicilioForm()
     if form.validate_on_submit():
+        domicilio.edificio = safe_string(form.edificio.data, max_len=64)
         domicilio.estado = safe_string(form.estado.data, max_len=64)
         domicilio.municipio = safe_string(form.municipio.data, max_len=64)
         domicilio.calle = safe_string(form.calle.data, max_len=256)
@@ -198,12 +208,13 @@ def edit(domicilio_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Editado el Domicilio {domicilio.completo}"),
+            descripcion=safe_message(f"Editado el Domicilio {domicilio.edificio}"),
             url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    form.edificio.data = domicilio.edificio
     form.estado.data = domicilio.estado
     form.municipio.data = domicilio.municipio
     form.calle.data = domicilio.calle
@@ -224,7 +235,7 @@ def delete(domicilio_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado el Domicilio {domicilio.calle}"),
+            descripcion=safe_message(f"Eliminado el Domicilio {domicilio.edificio}"),
             url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()
@@ -242,7 +253,7 @@ def recover(domicilio_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Recuperado el Servicio {domicilio.calle}"),
+            descripcion=safe_message(f"Recuperado el Servicio {domicilio.edificio}"),
             url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()

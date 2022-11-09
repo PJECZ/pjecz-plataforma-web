@@ -38,7 +38,7 @@
                     {{ detail.label_value('Distrito', oficina.distrito.nombre) }}
                 {% endif %}
                 {% if current_user.can_view('DOMICILIOS') %}
-                    {{ detail.label_value('Domicilio', oficina.domicilio.completo, url_for('domicilios.detail', domicilio_id=oficina.domicilio_id)) }}
+                    {{ detail.label_value('Domicilio', oficina.domicilio.edificio, url_for('domicilios.detail', domicilio_id=oficina.domicilio_id)) }}
                 {% else %}
                     {{ detail.label_value('Domicilio', oficina.domicilio.completo) }}
                 {% endif %}

@@ -15,6 +15,7 @@ class Domicilio(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Columnas
+    edificio = db.Column(db.String(64), nullable=True, unique=True)
     estado = db.Column(db.String(64), nullable=False)
     municipio = db.Column(db.String(64), nullable=False)
     calle = db.Column(db.String(256), nullable=False)

@@ -23,13 +23,13 @@
         <table id="domicilios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>IDs</th>
-                    <th>Estados</th>
-                    <th>Municipios</th>
-                    <th>Calles</th>
+                    <th>Edificio</th>
+                    <th>Estado</th>
+                    <th>Municipio</th>
+                    <th>Calle</th>
                     <th>No. Ext.</th>
                     <th>No. Int.</th>
-                    <th>Colonias</th>
+                    <th>Colonia</th>
                     <th>C.P.</th>
                 </tr>
             </thead>
@@ -57,11 +57,11 @@
                 targets: 0, //detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                    return '<a href="' + data.url + '">' + data.edificio + '</a>';
                 }
             },
             {
-                targets: [1, 2, 3, 6], // estado, municipio, calle, colonia
+                targets: [2, 3, 4, 7], // estado, municipio, calle, colonia
                 data: null,
                 render: function(data, type, row, meta) {
                     return data.length > 16 ? data.substr(0, 16) + '…' : data;

@@ -18,6 +18,7 @@
 
 {% block content %}
     {% call detail.card(estatus=domicilio.estatus) %}
+        {{ detail.label_value('Edificio', domicilio.edificio) }}
         {{ detail.label_value('Calle', domicilio.calle) }}
         {{ detail.label_value('No. Exterior', domicilio.num_ext) }}
         {{ detail.label_value('No. Interior', domicilio.num_int) }}
