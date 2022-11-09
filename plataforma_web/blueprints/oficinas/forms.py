@@ -18,7 +18,7 @@ def distritos_opciones():
 
 def domicilios_opciones():
     """Domicilio: opciones para select"""
-    return Domicilio.query.filter_by(estatus="A").order_by(Domicilio.completo).all()
+    return Domicilio.query.filter_by(estatus="A").order_by(Domicilio.edificio).all()
 
 
 class OficinaForm(FlaskForm):
@@ -28,7 +28,7 @@ class OficinaForm(FlaskForm):
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
     descripcion_corta = StringField("Descripción Corta", validators=[DataRequired(), Length(max=64)])
     distrito = QuerySelectField("Distrito", query_factory=distritos_opciones, get_label="nombre", validators=[DataRequired()])
-    domicilio = QuerySelectField("Domicilio", query_factory=domicilios_opciones, get_label="completo", validators=[DataRequired()])
+    domicilio = QuerySelectField("Domicilio", query_factory=domicilios_opciones, get_label="edificio", validators=[DataRequired()])
     apertura = TimeField("Horario de apertura", validators=[DataRequired()], format="%H:%M")
     cierre = TimeField("Horario de cierre", validators=[DataRequired()], format="%H:%M")
     limite_personas = IntegerField("Límite de personas", validators=[DataRequired()])
