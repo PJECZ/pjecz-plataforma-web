@@ -32,12 +32,10 @@
             <table id="oficinas_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Claves</th>
-                        <th>Descripciones</th>
-                        <th>Distritos</th>
-                        <th>Aperturas</th>
-                        <th>Cierres</th>
-                        <th>L. P.</th>
+                        <th>Clave</th>
+                        <th>Descripción corta</th>
+                        <th>Distrito</th>
+                        <th>Tipo</th>
                     </tr>
                 </thead>
             </table>
@@ -59,9 +57,7 @@
                 { data: "detalle" },
                 { data: "descripcion_corta" },
                 { data: "distrito" },
-                { data: "apertura" },
-                { data: "cierre" },
-                { data: "limite_personas" }
+                { data: "tipo" }
             ];
             configDataTable['columnDefs'] = [
                 {
