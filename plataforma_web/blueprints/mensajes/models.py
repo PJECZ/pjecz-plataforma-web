@@ -1,31 +1,37 @@
 """
 Mensajes, modelos
 """
+from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class Mensaje(db.Model, UniversalMixin):
-    """Mensaje"""
+class Conversacion(db.Model, UniversalMixin):
+    """Conversacion"""
+
+    ESTADOS = OrderedDict(
+        [
+            ("ARCHIVADO", "Archivado"),
+            ("ACTIVO", "Activo"),
+        ]
+    )
 
     # Nombre de la tabla
-    __tablename__ = "mensajes"
+    __tablename__ = "conversaciones"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    destinatario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
-    destinatario = db.relationship("Usuario", back_populates="mensajes")
+    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
+    usuario = db.relationship("Usuario", back_populates="conversaciones")
 
     # Columnas
-    autor = db.Column(db.String(256), nullable=False)
-    asunto = db.Column(db.String(128), nullable=False)
-    contenido = db.Column(db.String(512), nullable=False)
     leido = db.Column(db.Boolean, nullable=False, default=False)
+    estado = db.Column(db.Enum(*ESTADOS, name="estados", native_enum=False), nullable=False)
 
     # Hijos
-    respuestas = db.relationship("MensajeRespuesta", back_populates="respuesta")
+    # respuestas = db.relationship("MensajeRespuesta", back_populates="respuesta")
 
     def __repr__(self):
         """Representación"""

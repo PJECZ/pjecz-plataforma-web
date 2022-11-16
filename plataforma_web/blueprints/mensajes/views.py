@@ -10,7 +10,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.mensajes.models import Mensaje, MensajeRespuesta
+from plataforma_web.blueprints.mensajes.models import Conversacion, MensajeRespuesta
 from plataforma_web.blueprints.mensajes.forms import MensajeForm, MensajeRespuestaForm
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -29,15 +29,11 @@ def before_request():
 @mensajes.route("/mensajes")
 def list_active():
     """Listado de Mensajes activos"""
-    nuevos = Mensaje.query.filter_by(leido=False).filter(or_(Mensaje.destinatario == current_user, Mensaje.autor == current_user.email)).filter_by(estatus="A").all()
-    respuestas = db.session.query(Mensaje, MensajeRespuesta).filter(MensajeRespuesta.leido == False).filter(Mensaje.autor == current_user.email).filter(Mensaje.id == MensajeRespuesta.respuesta_id).filter_by(estatus="A").all()
-    archivados = Mensaje.query.filter_by(leido=True).filter(or_(Mensaje.destinatario == current_user, Mensaje.autor == current_user.email)).filter_by(estatus="A").all()
+    conversaciones = Conversacion.query.filter_by(estatus="A").all()
     return render_template(
         "mensajes/list.jinja2",
-        nuevos=nuevos,
-        respuestas=respuestas,
-        archivados=archivados,
-        titulo="Comunicaciones",
+        conversaciones=conversaciones,
+        titulo="Conversaciones",
         estatus="A",
     )
 
@@ -54,7 +50,7 @@ def list_inactive():
         nuevos=nuevos,
         respuestas=respuestas,
         archivados=archivados,
-        titulo="Comunicaciones eliminadas",
+        titulo="Conversaciones eliminadas",
         estatus="B",
     )
 

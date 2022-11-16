@@ -2,16 +2,16 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Comunicaciones{% endblock %}
+{% block title %}Conversaciones{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('MENSAJES') %}
+        {% if current_user.can_admin('MENSAJES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('mensajes.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('mensajes.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('MENSAJES') %}
-            {{ topbar.button_new('Nuevo Mensaje', url_for('mensajes.new')) }}
+            {{ topbar.button_new('Nueva Conversación', url_for('mensajes.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -19,64 +19,16 @@
 {% block content %}
     {% if nuevos %}
         {% call list.card('Nuevos (no leídos)') %}
-            <table id="mensajes_nuevos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
+            <table id="conversaciones_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
                 <thead>
                     <tr>
                         <th>Para</th>
-                        <th>Asunto</th>
-                        <th>Contenido</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for nuevo in nuevos %}
                     <tr>
-                        <td>{{ nuevo.destinatario.nombre }}</td>
-                        <td><a href="{{ url_for('mensajes.detail', mensaje_id=nuevo.id) }}">{{ nuevo.asunto|truncate(32) }}</a></td>
-                        <td>{{ nuevo.contenido|truncate(32) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    {% endif %}
-    {% if respuestas %}
-        {% call list.card('Respuestas') %}
-            <table id="mensajes_respuestas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Remitente</th>
-                        <th>Asunto</th>
-                        <th>Contenido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for respuesta in respuestas %}
-                    <tr>
-                        <td>{{ respuesta.mensaje.autor }}</td>
-                        <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=respuesta.MensajeRespuesta.id) }}">{{ respuesta.mensajerespuesta.asunto|truncate(32) }}</a></td>
-                        <td>{{ respuesta.contenido|truncate(32) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    {% endif %}
-    {% if archivados %}
-        {% call list.card('Archivados') %}
-            <table id="mensajes_archivados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %}" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Para</th>
-                        <th>Asunto</th>
-                        <th>Contenido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for archivo in archivados %}
-                    <tr>
-                        <td>{{ archivo.destinatario.nombre }}</td>
-                        <td><a href="{{ url_for('mensajes.detail', mensaje_id=archivo.id) }}">{{ archivo.asunto|truncate(32) }}</a></td>
-                        <td>{{ archivo.contenido|truncate(32) }}</td>
+                        <td>{{ nuevo.usuario.nombre }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -87,12 +39,6 @@
 
 {% block custom_javascript %}
     {% if nuevos %}
-        {{ list.datatable('mensajes_nuevos_datatable') }}
-    {% endif %}
-    {% if respuestas %}
-        {{ list.datatable('mensajes_respuestas_datatable') }}
-    {% endif %}
-    {% if archivados %}
-        {{ list.datatable('mensajes_archivados_datatable') }}
+        {{ list.datatable('conversaciones_datatable') }}
     {% endif %}
 {% endblock %}
