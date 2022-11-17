@@ -43,8 +43,9 @@
             {{ detail.label_value('Firma guardada', cid_procedimiento.firma) }}
             {{ detail.label_value('Firma al vuelo', firma_al_vuelo) }}
             {{ detail.label_value_new_tab('Archivo PDF', cid_procedimiento.archivo, cid_procedimiento.url) }}
-            {{ detail.label_value('Distrito', cid_procedimiento.autoridad.distrito.nombre) }}
-            {{ detail.label_value('Autoridad', cid_procedimiento.autoridad.descripcion) }}
+            {{ detail.label_value('Distrito', cid_procedimiento.autoridad.distrito.nombre_corto) }}
+            {{ detail.label_value('Autoridad', cid_procedimiento.autoridad.descripcion_corta) }}
+            {{ detail.label_value('Clasificación', cid_procedimiento.autoridad.clave) }}
         {% endcall %}
         {% call accordion.item('objetivos_item', 'Objetivo', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ objetivo }}
