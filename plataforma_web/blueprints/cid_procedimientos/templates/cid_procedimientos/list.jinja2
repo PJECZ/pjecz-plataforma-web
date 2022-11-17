@@ -68,11 +68,12 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Procedimientos</th>
-                    <th>Códigos</th>
-                    <th>Fechas</th>
-                    <th>Usuarios</th>
+                    <th>Procedimiento</th>
+                    <th>Código</th>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
                     <th>Seguimiento</th>
+                    <th>Clasificación</th>
                 </tr>
             </thead>
         </table>
@@ -91,6 +92,7 @@
             { data: 'fecha' },
             { data: 'usuario' },
             { data: 'seguimiento' },
+            { data: 'autoridad' },
         ];
         configDataTable['columnDefs'] = [
             {
@@ -133,7 +135,7 @@
         let fechaDesde = document.getElementById('fechaDesde').value;
         let fechaHasta = document.getElementById('fechaHasta').value;
 
-        
+
         if(codigo != '')
             configDataTable['ajax']['data']['codigo'] = codigo;
         if(seguimiento != '')
@@ -159,7 +161,7 @@
             let fechaDesde = document.getElementById('fechaDesde').value;
             let fechaHasta = document.getElementById('fechaHasta').value;
 
-            if(configDataTable['ajax']['data']['codigo'] === undefined && codigo === '' && 
+            if(configDataTable['ajax']['data']['codigo'] === undefined && codigo === '' &&
                configDataTable['ajax']['data']['seguimiento_filtro'] === undefined && seguimiento === '' &&
                configDataTable['ajax']['data']['titulo_procedimiento'] === undefined && titulo === '' &&
                configDataTable['ajax']['data']['fecha_desde'] === undefined && fechaDesde === '' &&
@@ -190,9 +192,9 @@
                 configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
 
             $('#cid_procedimientos_datatable').DataTable(configDataTable);
-            
+
         }
-        
+
 
         function limpiar(){
             if( configDataTable['ajax']['data']['codigo'] === undefined &&
@@ -211,7 +213,7 @@
             $('#cid_procedimientos_datatable').DataTable().destroy();
             $('#cid_procedimientos_datatable').DataTable(configDataTable);
 
-            
+
         }
     </script>
 {% endblock %}
