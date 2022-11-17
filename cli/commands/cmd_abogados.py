@@ -7,6 +7,7 @@ Abogados
 from datetime import datetime
 from pathlib import Path
 import csv
+
 import click
 
 from lib.safe_string import safe_string

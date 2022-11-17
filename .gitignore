@@ -3,6 +3,7 @@
 .env
 .DS_Store
 .~lock.*
+*.csv
 *.egg-info/
 *.log
 *.py[cod]
