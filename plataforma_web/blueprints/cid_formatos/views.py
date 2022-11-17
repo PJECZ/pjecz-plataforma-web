@@ -80,6 +80,7 @@ def datatable_json():
                     "archivo": resultado.archivo,
                     "url": resultado.url,
                 },
+                "autoridad": resultado.procedimiento.autoridad.clave,
             }
         )
     # Entregar JSON
