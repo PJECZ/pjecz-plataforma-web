@@ -13,7 +13,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.repsvm_agresores.models import REPSVMAgresor
-from plataforma_web.blueprints.repsvm_agresores.forms import REPSVMAgresorForm
+from plataforma_web.blueprints.repsvm_agresores.forms import REPSVMAgresorForm, REPSVASearchForm
 
 MODULO = "REPSVM AGRESORES"
 
@@ -48,6 +48,8 @@ def datatable_json():
         consulta = consulta.filter_by(repsvm_tipo_sentencia_id=request.form["repsvm_tipo_sentencia_id"])
     if "nombre" in request.form:
         consulta = consulta.filter(REPSVMAgresor.nombre.contains(safe_string(request.form["nombre"])))
+    if "numero_causa" in request.form:
+        consulta = consulta.filter(REPSVMAgresor.numero_causa.contains(safe_string(request.form["numero_causa"])))
     registros = consulta.order_by(REPSVMAgresor.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -109,6 +111,32 @@ def list_inactive():
     )
 
 
+@repsvm_agresores.route("/repsvm_agresores/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Agresores"""
+    form_search = REPSVASearchForm()
+    if form_search.validate_on_submit():
+        busqueda = {"estatus": "A"}
+        titulos = []
+        if form_search.nombre.data:
+            nombre = safe_string(form_search.nombre.data)
+            if nombre != "":
+                busqueda["nombre"] = nombre
+                titulos.append("nombre " + nombre)
+        if form_search.numero_causa.data:
+            numero_causa = safe_string(form_search.numero_causa.data)
+            if numero_causa != "":
+                busqueda["numero_causa"] = numero_causa
+                titulos.append("numero_causa " + numero_causa)
+        return render_template(
+            "repsvm_agresores/list.jinja2",
+            filtros=json.dumps(busqueda),
+            titulo="Agresor con " + ", ".join(titulos),
+            estatus="A",
+        )
+    return render_template("repsvm_agresores/search.jinja2", form=form_search)
+
+
 @repsvm_agresores.route("/repsvm_agresores/<int:repsvm_agresor_id>")
 def detail(repsvm_agresor_id):
     """Detalle de un Agresor"""
@@ -130,7 +158,7 @@ def new():
             distrito=distrito,
             materia_tipo_juzgado=form.materia_tipo_juzgado.data,
             numero_causa=safe_string(form.numero_causa.data),
-            nombre=safe_string(form.nombre.data),
+            nombre=safe_string(form.nombre.data, do_unidecode=False),
             repsvm_delito_especifico=form.repsvm_delito_especifico.data,
             repsvm_tipo_sentencia=form.repsvm_tipo_sentencia.data,
             pena_impuesta=safe_string(form.pena_impuesta.data),
@@ -161,7 +189,7 @@ def edit(repsvm_agresor_id):
         repsvm_agresor.distrito = form.distrito.data
         repsvm_agresor.materia_tipo_juzgado = form.materia_tipo_juzgado.data
         repsvm_agresor.numero_causa = safe_string(form.numero_causa.data)
-        repsvm_agresor.nombre = safe_string(form.nombre.data)
+        repsvm_agresor.nombre = safe_string(form.nombre.data, do_unidecode=False)
         repsvm_agresor.repsvm_delito_especifico = form.repsvm_delito_especifico.data
         repsvm_agresor.repsvm_tipo_sentencia = form.repsvm_tipo_sentencia.data
         repsvm_agresor.pena_impuesta = safe_string(form.pena_impuesta.data)

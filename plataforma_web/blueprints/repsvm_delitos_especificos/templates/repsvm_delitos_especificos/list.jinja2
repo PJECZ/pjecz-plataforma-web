@@ -55,14 +55,14 @@
                 targets: 0, // repsvm_delito_generico
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '">' + (data.nombre.length > 48 ? data.nombre.substr(0, 48) + '…' : data.nombre) + '</a>';
                 }
             },
             {
                 targets: 1, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    return '<a href="' + data.url + '">' + (data.descripcion.length > 48 ? data.descripcion.substr(0, 48) + '…' : data.descripcion) + '</a>';
                 }
             }
         ];
