@@ -46,7 +46,7 @@
         </div>
     </div>
     {# Plataforma Web #}
-    {% call start.card() %}
+    {% call start.card('Soporte Técnico') %}
         <div class="container">
             <div class="row" >
                 {% if current_user.can_edit("SOPORTES TICKETS")%}
@@ -79,6 +79,47 @@
                             <h4>¿Buscas un teléfono?</h4>
                             <p>
                                 <a href="{{ url_for('funcionarios.list_active') }}" class="btn btn-primary btn-directorio">Directorio</a>
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endcall %}
+    {% call start.card("Portal de Notarías") %}
+        <div class="container">
+            <div class="row" >
+            {% if current_user.can_view("EDICTOS")%}
+                    {# Edictos #}
+                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/notaria1.png" class="img-fluid mb-2" style="height: auto;">
+                            <h4>¿Necesitas subir un edicto?</h4>
+                            <p>
+                                <a href="{{ url_for('escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Subir un nuevo edicto</a>
+                                <a href="{{ url_for('escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis edictos</a>
+                            </p>
+                        </div>
+                    </div>
+                    {# Escrituras #}
+                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/escrituras.png" class="img-fluid mb-2" style="height: auto;">
+                            <h4>¿Necesitas crear una escritura?</h4>
+                            <div>
+                                <a href="{{ url_for('escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Nueva escritura</a>
+                                <a href="{{ url_for('escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis escrituras</a>
+                            </div>
+                        </div>
+                    </div>
+                    {# Mensajes #}
+                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/mensajes.png" class="img-fluid mb-2" style="height: 250px;">
+                            <h4>¿Quieres chatear?</h4>
+                            <p>
+                                <a href="{{ url_for('escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Nueva conversación</a>
+                                <a href="{{ url_for('escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis conversaciones</a>
                             </p>
                         </div>
                     </div>

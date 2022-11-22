@@ -37,7 +37,7 @@ def checkout(id_hashed):
     """Acuse"""
     edicto = Edicto.query.get_or_404(Edicto.decode_id(id_hashed))
     dia, mes, ano = dia_mes_ano(edicto.creado)
-    return render_template("edictos/checkout.jinja2", edicto=edicto, dia=dia, mes=mes.upper(), ano=ano)
+    return render_template("edictos/print.jinja2", edicto=edicto, dia=dia, mes=mes.upper(), ano=ano)
 
 
 @edictos.before_request

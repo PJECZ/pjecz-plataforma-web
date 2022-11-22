@@ -1,0 +1,42 @@
+{% extends 'layouts/print_edictos.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+
+{% block title %}Constancia de Recepción de Documentos{% endblock %}
+
+{% block content %}
+    <div style="margin-top: 50px; margin-bottom:50px;">
+        <span class="text-center"><h3>CONSTANCIA DE RECEPCIÓN DE DOCUMENTOS</h3></span>
+    </div>
+    <div id="seccionDestinatario">
+        <p>
+            Fecha {{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}<br>
+            ID VPE{{ edicto.id }}<br>
+            <strong>{{ edicto.autoridad.descripcion }}</strong><br>
+            <strong>{{ edicto.autoridad.distrito.nombre }}</strong>
+        </p>
+    </div>
+    <div class="text-center py-2">
+        <h3>P R E S E N T E</h3>
+    </div>
+    <div class="py-2" style="margin-left: 15px; margin-right:15px; padding-left: 20px; padding-right: 30px;">
+        <p>Se hace constar que en la aplicación electrónica "Edictos en Línea" del sitio web del Poder Judicial del Estado de Coahuila de Zaragoza se recibió el siguiente documento:</p>
+        <p>
+            - <b>{{ edicto.descripcion }}</b><br/>
+            - {{ edicto.archivo }}
+        </p>
+        <p>Mismo que estará disponible en el sitio web del Poder Judicial de Coahuila de Zaragoza a la brevedad.</p>
+        <p>Lo anterior para los efectos legales que haya lugar.</p>
+    </div>
+    <div class="text-center" style="font-weight: bold; bottom:60px; padding-top:160px;">
+        <p>A T E N T A M E N T E</p>
+            <strong>
+                SALTILLO, COAHUILA DE ZARAGOZA, A {{ dia }} DE {{ mes }} DE {{ ano }}<br>
+                DIRECCIÓN DE INFORMÁTICA
+            </strong>
+        </p>
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
