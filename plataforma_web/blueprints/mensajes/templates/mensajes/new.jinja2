@@ -3,7 +3,7 @@
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/detail.jinja2' as detail %}
 
-{% block title %}Nuevo Mensaje{% endblock %}
+{% block title %}Nueva Conversación{% endblock %}
 
 {% block custom_head %}
     <!-- Select2 bootstrap -->
@@ -11,17 +11,16 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Mensaje') }}
+    {{ topbar.page('Nueva Conversación') }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('mensajes.new', fid='mensaje_form') %}
-            {{ detail.label_value('Autor', current_user.email) }}
+            {% call f.form_group(form.autor, readonly=true) %}{% endcall %}
             {% call f.form_group(form.destinatario) %}{% endcall %}
-            {% call f.form_group(form.asunto) %}{% endcall %}
-            {% call f.form_group(form.contenido) %}{% endcall %}
-            {% call f.form_group(form.enviar) %}{% endcall %}
+            {% call f.form_group(form.mensaje) %}{% endcall %}
+            {% call f.form_group(form.crear) %}{% endcall %}
         {% endcall %}
     {% endcall %}
 {% endblock %}
@@ -34,7 +33,19 @@
             $('#destinatario').addClass('js-example-placeholder-single js-states form-control');
             $("#destinatario").prop("selectedIndex", -1); // Poner en blanco el select
             $(".js-example-placeholder-single").select2({
-                placeholder: "Destinatario",
+                // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/autoridades/select_list_por_tipo/{{tipo | lower}}',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term };
+                    }
+                },
+                placeholder: "{{tipo}}",
+                minimumInputLength: 3,
                 allowClear: true
             });
         });

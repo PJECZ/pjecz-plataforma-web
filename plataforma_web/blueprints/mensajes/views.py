@@ -1,18 +1,23 @@
 """
 Mensajes, vistas
 """
-from flask import Blueprint, flash, redirect, render_template, url_for
+import json
+import datetime
+
+from flask import Blueprint, flash, redirect, render_template, url_for, request
 from flask_login import current_user, login_required
 from sqlalchemy import and_, or_
 
+from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.mensajes.models import Conversacion, MensajeRespuesta
-from plataforma_web.blueprints.mensajes.forms import MensajeForm, MensajeRespuestaForm
+from plataforma_web.blueprints.mensajes.models import MsgConversacion, MsgMensaje
+from plataforma_web.blueprints.mensajes.forms import MensajeConversacionNewForm, MensajeRespuestaForm
 from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.autoridades.models import Autoridad
 
 MODULO = "MENSAJES"
 
@@ -26,166 +31,192 @@ def before_request():
     """Permiso por defecto"""
 
 
+@mensajes.route("/mensajes/conversaciones/datatable_json_conversaciones", methods=["GET", "POST"])
+def datatable_json_conversaciones():
+    """DataTable JSON para listado de Conversaciones"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = db.session.query(MsgConversacion, MsgMensaje).join(MsgMensaje, MsgConversacion.ultimo_mensaje_id == MsgMensaje.id)
+    if "estatus" in request.form:
+        consulta = consulta.filter(MsgConversacion.estatus == request.form["estatus"])
+    else:
+        consulta = consulta.filter(MsgConversacion.estatus == "A")
+    if "estado" in request.form:
+        consulta = consulta.filter(MsgConversacion.estado == request.form["estado"])
+    consulta = consulta.filter(or_(MsgConversacion.autor == current_user.autoridad, MsgConversacion.destinatario == current_user.autoridad))
+
+    registros = consulta.order_by(MsgConversacion.modificado.desc()).order_by(MsgConversacion.leido.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "clave": resultado.MsgConversacion.autor.clave if resultado.MsgConversacion.destinatario == current_user.autoridad else resultado.MsgConversacion.destinatario.clave,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.MsgConversacion.autor_id if resultado.MsgConversacion.destinatario == current_user.autoridad else resultado.MsgConversacion.destinatario.id),
+                },
+                "lectura": {
+                    "estado": True if current_user.autoridad_id == resultado.MsgMensaje.autoridad_id else resultado.MsgConversacion.leido,
+                    "cantidad": 5,
+                },
+                "fecha_hora": resultado.MsgConversacion.modificado.strftime("%Y/%m/%d %H:%M"),
+                "mensaje": {
+                    "mensaje": resultado.MsgMensaje.contenido,
+                    "url": url_for("mensajes.detail", conversacion_id=resultado.MsgConversacion.id),
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @mensajes.route("/mensajes")
 def list_active():
-    """Listado de Mensajes activos"""
-    conversaciones = Conversacion.query.filter_by(estatus="A").all()
+    """Listado de Conversaciones Activas"""
     return render_template(
         "mensajes/list.jinja2",
-        conversaciones=conversaciones,
+        filtros=json.dumps({"estatus": "A", "estado": "ACTIVO"}),
         titulo="Conversaciones",
+        tipo=current_user_juzgado_notaria(),
         estatus="A",
+        estado="ACTIVO",
     )
 
 
-@mensajes.route("/mensajes/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def list_inactive():
-    """Listado de Mensajes inactivos"""
-    nuevos = Mensaje.query.filter_by(leido=False).filter(or_(Mensaje.destinatario == current_user, Mensaje.autor == current_user.email)).filter_by(estatus="B").all()
-    respuestas = db.session.query(Mensaje, MensajeRespuesta).filter(MensajeRespuesta.leido == False).filter(Mensaje.autor == current_user.email).filter(Mensaje.id == MensajeRespuesta.respuesta_id).filter_by(estatus="B").all()
-    archivados = Mensaje.query.filter_by(leido=True).filter(or_(Mensaje.destinatario == current_user, Mensaje.autor == current_user.email)).filter_by(estatus="B").all()
+@mensajes.route("/mensajes/archivados")
+def list_archive():
+    """Listado de Conversaciones Archivadas"""
+    if current_user_juzgado_notaria() != "JUZGADO":
+        return redirect(url_for("mensajes.list_active"))
+
     return render_template(
         "mensajes/list.jinja2",
-        nuevos=nuevos,
-        respuestas=respuestas,
-        archivados=archivados,
-        titulo="Conversaciones eliminadas",
-        estatus="B",
+        filtros=json.dumps({"estatus": "A", "estado": "ARCHIVADO"}),
+        titulo="Conversaciones Archivadas",
+        tipo=current_user_juzgado_notaria(),
+        estatus="A",
+        estado="ARCHIVADO",
     )
 
 
-@mensajes.route("/mensajes/<int:mensaje_id>")
-def detail(mensaje_id):
-    """Detalle de un Mensaje"""
-    mensaje = Mensaje.query.get_or_404(mensaje_id)
-    if mensaje.leido is False and mensaje.destinatario.email == current_user.email:
-        mensaje.leido = True
-        mensaje.save()
-        flash("Este mensaje se ha marcado como leído.", "success")
-    respuestas = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "A").filter(MensajeRespuesta.respuesta_id == mensaje_id).all()
+@mensajes.route("/mensajes/<int:conversacion_id>")
+def detail(conversacion_id):
+    """Detalle de una Conversación"""
+    conversacion = MsgConversacion.query.get_or_404(conversacion_id)
+    if conversacion.autor_id != current_user.autoridad_id and conversacion.destinatario_id != current_user.autoridad_id:
+        flash("No tiene persmisos para ver esta conversación", "danger")
+        return redirect(url_for("mensajes.list_active"))
+    if conversacion.leido is False:
+        ultimo_mensaje = MsgMensaje.query.get_or_404(conversacion.ultimo_mensaje_id)
+        if ultimo_mensaje.autoridad_id != current_user.autoridad_id:
+            ultimo_mensaje.leido = True
+            ultimo_mensaje.save()
+            conversacion.leido = True
+            conversacion.save()
+    mensajes = MsgMensaje.query.filter_by(estatus="A").filter_by(msg_conversacion=conversacion).order_by(MsgMensaje.creado).all()
+    fecha_mensaje_anterior = None
+    fechas = {}
+    for mensaje in mensajes:
+        if fecha_mensaje_anterior is None:
+            fecha_mensaje_anterior = mensaje.creado.strftime("%Y/%m/%d")
+            fechas[mensaje] = mensaje.creado.strftime("%Y/%m/%d")
+        else:
+            if fecha_mensaje_anterior == mensaje.creado.strftime("%Y/%m/%d"):
+                fechas[mensaje] = None
+            else:
+                fechas[mensaje] = mensaje.creado.strftime("%Y/%m/%d")
+                fecha_mensaje_anterior = mensaje.creado.strftime("%Y/%m/%d")
+        if fechas[mensaje] == datetime.date.today().strftime("%Y/%m/%d"):
+            fechas[mensaje] = "Hoy"
+        elif fechas[mensaje] == (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y/%m/%d"):
+            fechas[mensaje] = "Ayer"
+
     return render_template(
         "mensajes/detail.jinja2",
-        mensaje_id=mensaje_id,
-        mensaje=mensaje,
-        respuestas=respuestas,
-        mensaje_con_respuestas=True,
+        conversacion=conversacion,
+        titulo="Conversación",
+        tipo=current_user_juzgado_notaria(),
+        mensajes=mensajes,
+        fechas=fechas,
     )
 
 
-@mensajes.route("/mensajes/respuesta/<int:mensaje_id>")
-def detail_response(mensaje_id):
-    """Detalle de una Respuesta"""
-    mensaje = MensajeRespuesta.query.get_or_404(mensaje_id)
-    if mensaje.leido is False:
-        mensaje.leido = True
-        mensaje.save()
-        flash("Este mensaje se ha marcado como leído.", "success")
-    return render_template(
-        "mensajes/detail.jinja2",
-        mensaje_id=mensaje.respuesta_id,
-        mensaje=mensaje,
-        mensaje_con_respuestas=False,
-    )
+def current_user_juzgado_notaria():
+    """Verifica si el usuario actual es juzgado o notaría"""
+    if current_user.autoridad.es_notaria:
+        return "NOTARIA"
+    if current_user.autoridad.es_jurisdiccional:
+        return "JUZGADO"
+    return None
 
 
 @mensajes.route("/mensajes/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Mensaje"""
-    form = MensajeForm()
+    """Nueva Conversación"""
+    form = MensajeConversacionNewForm()
     if form.validate_on_submit():
-        destinatario = Usuario.query.get_or_404(form.destinatario.data.id)
-        mensaje = Mensaje(
-            autor=current_user.email,
+        destinatario = Autoridad.query.get_or_404(form.destinatario.data)
+        conversacion = MsgConversacion(
+            autor=current_user.autoridad,
             destinatario=destinatario,
-            asunto=safe_string(form.asunto.data),
-            contenido=safe_string(form.contenido.data),
+            leido=False,
+            estado="ACTIVO",
+            ultimo_mensaje_id=0,
+        )
+        conversacion.save()
+        mensaje = MsgMensaje(
+            autoridad=current_user.autoridad,
+            msg_conversacion=conversacion,
+            contenido=safe_string(form.mensaje.data),
             leido=False,
         )
         mensaje.save()
-        flash("Mensaje envíado correctamente.", "success")
+        conversacion.ultimo_mensaje_id = mensaje.id
+        conversacion.save()
+        flash("Conversacion creada correctamente.", "success")
         return redirect(url_for("mensajes.list_active"))
-    return render_template("mensajes/new.jinja2", form=form)
+    form.autor.data = current_user.nombre
+    tipo = "NOTARIA" if current_user_juzgado_notaria() == "JUZGADO" else "JUZGADO"
+    return render_template("mensajes/new.jinja2", tipo=tipo, form=form)
 
 
-@mensajes.route("/mensajes/nueva_respuesta/<int:mensaje_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
-def new_response(mensaje_id):
-    """Nuevo Mensaje de Respuesta"""
-    mensaje = Mensaje.query.get_or_404(mensaje_id)
-    form = MensajeRespuestaForm()
-    if form.validate_on_submit():
-        respuesta = MensajeRespuesta(
-            respuesta=mensaje,
-            autor=current_user,
-            asunto=safe_string(form.asunto.data),
-            contenido=safe_string(form.respuesta.data),
-            leido=False,
-        )
-        respuesta.save()
-        flash("Respueta envíada correctamente.", "success")
+@mensajes.route("/mensajes/nuevo_mensaje/<int:conversacion_id>", methods=["GET", "POST"])
+def new_message(conversacion_id):
+    """Nuevo Mensaje"""
+    contenido = safe_string(request.form["contenido"])
+    if contenido:
+        conversacion = MsgConversacion.query.get_or_404(conversacion_id)
+        if conversacion.autor != current_user.autoridad and conversacion.destinatario != current_user.autoridad:
+            flash("No tiene permitido escribir en esta conversación", "danger")
+            return redirect(url_for("mensajes.list_active"))
+        else:
+            mensaje = MsgMensaje(
+                autoridad=current_user.autoridad,
+                msg_conversacion=conversacion,
+                contenido=contenido,
+                leido=False,
+            )
+            mensaje.save()
+            conversacion.leido = False
+            conversacion.ultimo_mensaje_id = mensaje.id
+            conversacion.save()
+    else:
+        flash("Escriba algo en el mensaje", "warning")
+    return redirect(url_for("mensajes.detail", conversacion_id=conversacion_id))
+
+
+@mensajes.route("/mensajes/archivar/<int:conversacion_id>")
+def archive(conversacion_id):
+    """Archivar conversación"""
+    conversacion = MsgConversacion.query.get_or_404(conversacion_id)
+    if current_user_juzgado_notaria() != "JUZGADO" or conversacion.autor != current_user.autoridad and conversacion.destinatario != current_user.autoridad:
+        flash("No tiene permitido editar esta conversación", "danger")
         return redirect(url_for("mensajes.list_active"))
-    return render_template("mensajes/new_response.jinja2", mensaje_id=mensaje_id, form=form, mensaje=mensaje)
-
-
-def _eliminar_respuestas(mensaje_id):
-    """Eliminar Respuestas de un Mensaje"""
-    respuesta = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "A").filter(MensajeRespuesta.respuesta_id == mensaje_id).first()
-    while respuesta is not None:
-        respuesta.delete()
-        respuesta = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "A").filter(MensajeRespuesta.respuesta_id == mensaje_id).first()
-
-
-@mensajes.route("/mensajes/eliminar/<int:mensaje_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def delete(mensaje_id):
-    """Eliminar Mensajes"""
-    mensaje = Mensaje.query.get_or_404(mensaje_id)
-    if mensaje.estatus == "A":
-        mensaje.delete()
-        _eliminar_respuestas(mensaje_id)
-        flash("Mensaje eliminado.", "success")
-    return redirect(url_for("mensajes.detail", mensaje_id=mensaje.id))
-
-
-@mensajes.route("/mensajes/eliminar_respuesta/<int:mensaje_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def delete_response(mensaje_id):
-    """Eliminar Mensaje de Respuesta"""
-    mensaje = MensajeRespuesta.query.get_or_404(mensaje_id)
-    if mensaje.estatus == "A":
-        mensaje.delete()
-        flash("Respuesta eliminada.", "success")
-    return redirect(url_for("mensajes.detail", mensaje_id=mensaje.respuesta_id, mensaje=mensaje, mesaje_con_respuesta=True))
-
-
-def _recuperar_respuestas(mensaje_id):
-    """Recuperar Respuestas de un Mensaje"""
-    respuesta = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "B").filter(MensajeRespuesta.respuesta_id == mensaje_id).first()
-    while respuesta is not None:
-        respuesta.recover()
-        respuesta = MensajeRespuesta.query.filter(MensajeRespuesta.estatus == "B").filter(MensajeRespuesta.respuesta_id == mensaje_id).first()
-
-
-@mensajes.route("/mensajes/recuperar/<int:mensaje_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def recover(mensaje_id):
-    """Recuperar Mensajes"""
-    mensaje = Mensaje.query.get_or_404(mensaje_id)
-    if mensaje.estatus == "B":
-        mensaje.recover()
-        _recuperar_respuestas(mensaje_id)
-        flash("Mensaje recuperado.", "success")
-    return redirect(url_for("mensajes.detail", mensaje_id=mensaje.id))
-
-
-@mensajes.route("/mensajes/recuperar_respuesta/<int:mensaje_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def recover_response(mensaje_id):
-    """Recuperar Mensjaes"""
-    mensaje = MensajeRespuesta.query.get_or_404(mensaje_id)
-    if mensaje.estatus == "B":
-        mensaje.recover()
-        flash("Respuesta recuperada.", "success")
-    return redirect(url_for("mensajes.detail", mensaje_id=mensaje.respuesta_id))
+    conversacion.leido = True
+    conversacion.estado = "ARCHIVADO"
+    conversacion.save()
+    flash("Conversación Archivada correctamente.", "success")
+    return redirect(url_for("mensajes.list_active"))

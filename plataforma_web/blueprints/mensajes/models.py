@@ -6,8 +6,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class Conversacion(db.Model, UniversalMixin):
-    """Conversacion"""
+class MsgConversacion(db.Model, UniversalMixin):
+    """Conversación"""
 
     ESTADOS = OrderedDict(
         [
@@ -17,45 +17,47 @@ class Conversacion(db.Model, UniversalMixin):
     )
 
     # Nombre de la tabla
-    __tablename__ = "conversaciones"
+    __tablename__ = "msg_conversaciones"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
-    usuario = db.relationship("Usuario", back_populates="conversaciones")
+    autor_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autor = db.relationship("Autoridad", foreign_keys="MsgConversacion.autor_id")
+    destinatario_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    destinatario = db.relationship("Autoridad", foreign_keys="MsgConversacion.destinatario_id")
 
     # Columnas
     leido = db.Column(db.Boolean, nullable=False, default=False)
     estado = db.Column(db.Enum(*ESTADOS, name="estados", native_enum=False), nullable=False)
+    ultimo_mensaje_id = db.Column(db.Integer, nullable=True)
 
     # Hijos
-    # respuestas = db.relationship("MensajeRespuesta", back_populates="respuesta")
+    mensajes = db.relationship("MsgMensaje", back_populates="msg_conversacion", lazy="noload")
 
     def __repr__(self):
         """Representación"""
-        return f"<Mensaje {self.id}>"
+        return f"<Conversación {self.id}>"
 
 
-class MensajeRespuesta(db.Model, UniversalMixin):
-    """Mensaje de Repuesta"""
+class MsgMensaje(db.Model, UniversalMixin):
+    """Mensaje"""
 
     # Nombre de la tabla
-    __tablename__ = "mensajes_respuestas"
+    __tablename__ = "msg_mensajes"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Claves foráneas
-    autor_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
-    autor = db.relationship("Usuario", back_populates="mensajes_respuestas")
-    respuesta_id = db.Column(db.Integer, db.ForeignKey("mensajes.id"), index=True, nullable=False)
-    respuesta = db.relationship("Mensaje", back_populates="respuestas")
+    autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad = db.relationship("Autoridad", back_populates="mensajes")
+    msg_conversacion_id = db.Column(db.Integer, db.ForeignKey("msg_conversaciones.id"), index=True, nullable=False)
+    msg_conversacion = db.relationship("MsgConversacion", back_populates="mensajes")
 
     # Columnas
-    asunto = db.Column(db.String(128), nullable=False)
-    contenido = db.Column(db.String(512), nullable=False)
+    contenido = db.Column(db.String(256), nullable=False)
     leido = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):

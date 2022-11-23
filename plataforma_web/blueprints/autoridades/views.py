@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta
 import pytz
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy.sql import or_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_clave, safe_string, safe_message
@@ -86,7 +87,7 @@ def datatable_json():
                 "materia": {
                     "nombre": resultado.materia.nombre,
                     "url": url_for("materias.detail", materia_id=resultado.materia_id) if current_user.can_view("MATERIAS") else "",
-                }
+                },
             }
         )
     # Entregar JSON
@@ -456,3 +457,26 @@ def recover(autoridad_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
+
+
+@autoridades.route("/autoridades/select_list_por_tipo/<string:tipo>", methods=["POST"])
+def select_list_por_tipo(tipo):
+    """Listado de Autoridades"""
+
+    # Consultar
+    consulta = Autoridad.query
+    if tipo == "juzgado":
+        consulta = consulta.filter_by(estatus="A").filter_by(es_jurisdiccional=True)
+    elif tipo == "notaria":
+        consulta = consulta.filter_by(estatus="A").filter_by(es_notaria=True)
+    if "searchString" in request.form:
+        busqueda = request.form["searchString"]
+        consulta = consulta.filter(or_(Autoridad.clave.contains(busqueda), Autoridad.descripcion_corta.contains(busqueda)))
+        consulta = consulta.order_by(Autoridad.clave).limit(15).all()
+
+    # Elaborar datos para el Select2
+    results = []
+    for autoridad in consulta:
+        results.append({"id": autoridad.id, "text": autoridad.clave + " : " + autoridad.descripcion_corta})
+
+    return {"results": results, "pagination": {"more": False}}

@@ -4,72 +4,87 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/modals.jinja2' as modals %}
 
-{% block title %}Comunicaciones{% endblock %}
+{% block title %}Conversación{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Mensaje') %}
-        {% if mensaje_con_respuestas %}
-            {{ topbar.button_previous('Listado', url_for('mensajes.list_active')) }}
-        {% else %}
-            {{ topbar.button_previous('Mensaje', url_for('mensajes.detail', mensaje_id=mensaje_id)) }}
+    {% call topbar.page_buttons(titulo) %}
+        {% if conversacion.estado == 'ACTIVO' %}
+            {{ topbar.button_previous('Conversaciones Activas', url_for('mensajes.list_active')) }}
+        {% elif conversacion.estado == 'ARCHIVADO' %}
+            {{ topbar.button_previous('Conversaciones Archivadas', url_for('mensajes.list_archive')) }}
         {% endif %}
-        {% if current_user.can_admin('MENSAJES') or (current_user.can_edit('MENSAJES') and mensaje.autor == current_user.email) %}
-            {% if mensaje_con_respuestas %}
-                {% if mensaje.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('mensajes.delete', mensaje_id=mensaje_id)) }}{% endif %}
-                {% if mensaje.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('mensajes.recover', mensaje_id=mensaje_id)) }}{% endif %}
-            {% else %}
-                {% if mensaje.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('mensajes.delete_response', mensaje_id=mensaje.id)) }}{% endif %}
-                {% if mensaje.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('mensajes.recover_response', mensaje_id=mensaje.id)) }}{% endif %}
-            {% endif %}
-        {% endif %}
-        {% if mensaje_con_respuestas %}
-            {% if current_user.can_insert('MENSAJES') %}
-                {{ topbar.button_new('Responder', url_for('mensajes.new_response', mensaje_id=mensaje_id)) }}
+        {% if tipo == "JUZGADO" %}
+            {% if conversacion.estado == 'ACTIVO' %}
+                {{ topbar.button_modal('Archivar', "showModalArchivar('"+url_for('mensajes.archive', conversacion_id=conversacion.id)+"')",  'mdi:archive') }}
             {% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card('Mensaje') %}
-        {% if mensaje_con_respuestas %}
-            {{ detail.label_value('Autor', mensaje.autor) }}
-        {% else %}
-            {{ detail.label_value('Autor', mensaje.autor.email) }}
-        {% endif %}
-        {{ detail.label_value('Asunto', mensaje.asunto) }}
-        {{ detail.label_value('Contenido', mensaje.contenido) }}
+    {% call detail.card('Conversación') %}
+        {{ detail.label_value('Autor', conversacion.autor.clave + ' : ' + conversacion.autor.descripcion_corta + ' - ' + conversacion.destinatario.distrito.nombre, url_for('autoridades.detail', autoridad_id=conversacion.autor.id)) }}
+        {{ detail.label_value('Destinatario', conversacion.destinatario.clave + ' : ' + conversacion.destinatario.descripcion_corta + ' - ' + conversacion.destinatario.distrito.nombre, url_for('autoridades.detail', autoridad_id=conversacion.destinatario.id)) }}
+        {{ detail.label_value('Fecha de Inicio', moment(conversacion.creado).format('llll')) }}
+        {{ detail.label_value('Fecha de último mensaje', moment(conversacion.modificado).format('llll')) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Estado</div>
+            {% if conversacion.estado == "ACTIVO" %}
+                <div class="col-md-9"><span class="badge rounded-pill bg-success">ACTIVO</span></div>
+            {% elif conversacion.estado == "ARCHIVADO" %}
+                <div class="col-md-9"><span class="badge rounded-pill bg-secondary">ARCHIVADO</span></div>
+            {% else %}
+                <div class="col-md-9"><span class="badge rounded-pill bg-danger">ERROR</span></div>
+            {% endif %}
+        </div>
     {% endcall %}
-    {% if mensaje_con_respuestas %}
-        {% call list.card('Respuestas') %}
-            <table id="respuestas_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Envíado por</th>
-                        <th>Leído</th>
-                        <th>Asunto</th>
-                        <th>Contenido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for respuesta in respuestas %}
-                    <tr>
-                        <td>{{ respuesta.autor.email }}</td>
-                        <td>{{ respuesta.leido }}</td>
-                        <td><a href="{{ url_for('mensajes.detail_response', mensaje_id=respuesta.id) }}">{{ respuesta.asunto|truncate(32) }}</a></td>
-                        <td>{{ respuesta.contenido|truncate(32) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
-    {% endif %}
+    <div class="row justify-content-evenly">
+        {% for mensaje in mensajes %}
+            {% if fechas[mensaje] %}
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <p class="text-secondary">───── {{ fechas[mensaje] }} ─────</p>
+                    </div>
+                </div>
+            {% endif %}
+            {% if mensaje.autoridad == current_user.autoridad %}
+            <div class="row">
+                <div class="col-4 align-text-bottom text-end">
+                    <i class="text-secondary">{{ moment(mensaje.creado).format('hh:mm') }}</i>
+                </div>
+                <div class="col-8">
+                    <div class="alert alert-primary" role="alert">
+                        {{ mensaje.contenido }}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="row">
+                <div class="col-8">
+                    <div class="alert alert-secondary" role="alert">
+                        {{ mensaje.contenido }}
+                    </div>
+                </div>
+                <div class="col-4 align-text-bottom">
+                    <i class="text-secondary">{{ moment(mensaje.creado).format('hh:mm') }}</i>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        {% if conversacion.estado == 'ACTIVO' %}
+            <form action="/mensajes/nuevo_mensaje/{{conversacion.id}}" method="POST">
+                <div class="input-group mb-3">
+                    <textarea class="form-control" placeholder="Mensaje..." id="contenido" name="contenido" style="height: 60px"></textarea>
+                    <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+                    <!--<input type="text" class="form-control" placeholder="Mensaje" aria-label="Mensaje" aria-describedby="button-addon2">-->
+                    <button class="btn btn-primary" type="submit" id="btn-enviar">Enviar</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_admin('MENSAJES') or (current_user.can_edit('MENSAJES')) %}
-        {% if mensaje.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar ' + mensaje.asunto + '?') }}{% endif %}
-        {% if mensaje.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar ' + mensaje.asunto + '?') }}{% endif %}
-    {% endif %}
-    {{ list.datatable('respuestas_datatable') }}
+    {{ detail.moment_js(moment) }}
+    {{ modals.custom_javascript('Archivar', '¿Desea archivar la conversación?', 'Archivar') }}
 {% endblock %}

@@ -2,26 +2,17 @@
 Mensaje, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms import StringField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Length
 
-from plataforma_web.blueprints.usuarios.models import Usuario
 
-
-def usuarios_opciones():
-    """Usuarios: opciones para select"""
-    # TODO Optimizar la consulta de usuarios porque son muchos
-    return Usuario.query.filter_by(estatus="A").order_by(Usuario.email).all()
-
-
-class MensajeForm(FlaskForm):
+class MensajeConversacionNewForm(FlaskForm):
     """Formulario Mensaje"""
 
-    destinatario = QuerySelectField("Destinatario", query_factory=usuarios_opciones, get_label="email", validators=[DataRequired()])
-    asunto = StringField("Asunto", validators=[DataRequired(), Length(max=128)])
-    contenido = TextAreaField("Contenido", validators=[DataRequired(), Length(max=512)])
-    enviar = SubmitField("Enviar")
+    autor = StringField("Autor", validators=[DataRequired(), Length(max=128)])
+    destinatario = SelectField("Destinatario", coerce=int, validate_choice=False, validators=[DataRequired()])
+    mensaje = TextAreaField("Mensaje", validators=[DataRequired(), Length(max=512)])
+    crear = SubmitField("Crear")
 
 
 class MensajeRespuestaForm(FlaskForm):
