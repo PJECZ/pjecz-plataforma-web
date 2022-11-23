@@ -73,10 +73,8 @@ class Autoridad(db.Model, UniversalMixin):
     redams = db.relationship("Redam", back_populates="autoridad", lazy="noload")
     sentencias = db.relationship("Sentencia", back_populates="autoridad", lazy="noload")
     tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="autoridad", lazy="noload")
-    transcripciones = db.relationship("Transcripcion", back_populates="autoridad", lazy="noload")
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", back_populates="autoridad", lazy="noload")
     usuarios = db.relationship("Usuario", back_populates="autoridad")
-    ventanillas = db.relationship("Ventanilla", back_populates="autoridad")
 
     def __repr__(self):
         """Representación"""
