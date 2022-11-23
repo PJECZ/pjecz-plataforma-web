@@ -61,12 +61,9 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="usuario", lazy="noload")
     entradas_salidas = db.relationship("EntradaSalida", back_populates="usuario", lazy="noload")
     fin_vales = db.relationship("FinVale", back_populates="usuario", lazy="noload")
-    mensajes = db.relationship("Mensaje", back_populates="destinatario", lazy="noload")
-    mensajes_respuestas = db.relationship("MensajeRespuesta", back_populates="autor", lazy="noload")
     inv_custodias = db.relationship("InvCustodia", back_populates="usuario", lazy="noload")
     soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
     tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
-    turnos = db.relationship("Turno", back_populates="usuario", lazy="noload")
     usuarios_roles = db.relationship("UsuarioRol", back_populates="usuario")  # Sin lazy="noload" para que funcione el menu
 
     # Propiedades

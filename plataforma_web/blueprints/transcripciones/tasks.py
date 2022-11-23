@@ -1,3 +1,0 @@
-"""
-Transcripciones, tareas
-"""
