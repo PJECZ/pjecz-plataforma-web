@@ -23,6 +23,11 @@ TARJETA_ADVERTENCIA = "bg-warning"
 TARJETA_VACIA = "bg-danger"
 TARJETAS_LIMITE_REGISTROS = 5
 
+# Roles que deben estar en la base de datos
+ROL_ADMINISTRADOR = "ADMINISTRADOR"
+ROL_NOTARIA = "NOTARIA"
+ROL_SOPORTE_TECNICO = "SOPORTE USUARIO"
+
 
 @sistemas.route("/inicio/audiencias_json")
 def audiencias_json():
@@ -41,9 +46,7 @@ def audiencias_json():
     # Listado
     audiencias = Audiencia.query.filter(Audiencia.autoridad == current_user.autoridad).filter_by(estatus="A")
     desde = datetime.now()  # Desde este momento
-    for audiencia in (
-        audiencias.filter(Audiencia.tiempo >= desde).order_by(Audiencia.tiempo).limit(TARJETAS_LIMITE_REGISTROS).all()
-    ):
+    for audiencia in audiencias.filter(Audiencia.tiempo >= desde).order_by(Audiencia.tiempo).limit(TARJETAS_LIMITE_REGISTROS).all():
         listado.append(
             {
                 "tiempo": audiencia.tiempo.strftime("%Y-%m-%d %H:%M"),
@@ -198,6 +201,22 @@ def sentencias_json():
         "url": url_for("sentencias.list_active"),
         "style": estilo,
     }
+
+
+@sistemas.route("/")
+def mostrar_cards():
+    """Cards a mostrar en pantalla prinicipal de acuerdo a los permisos que se tienen"""
+    rol = ""
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    # Si es administrador, mostrar todos los accesos a los diferentes modulos
+    if ROL_ADMINISTRADOR in current_user_roles:
+        rol = ROL_ADMINISTRADOR
+    elif ROL_SOPORTE_TECNICO in current_user_roles:
+        rol = ROL_SOPORTE_TECNICO
+    elif ROL_NOTARIA in current_user_roles:
+        rol = ROL_NOTARIA
+    return render_template("sistemas/start.jinja2", rol=rol)
 
 
 @sistemas.route("/")
