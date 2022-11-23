@@ -27,17 +27,17 @@ def before_request():
     """Permiso por defecto"""
 
 
-@repsvm_delitos_especificos.route('/repsvm_delitos_especificos/datatable_json', methods=['GET', 'POST'])
+@repsvm_delitos_especificos.route("/repsvm_delitos_especificos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Delitos Especificos"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = REPSVMDelitoEspecifico.query
-    if 'estatus' in request.form:
-        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus='A')
+        consulta = consulta.filter_by(estatus="A")
     registros = consulta.order_by(REPSVMDelitoEspecifico.descripcion).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -45,13 +45,13 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                'repsvm_delito_generico': {
-                    'nombre': resultado.repsvm_delito_generico.nombre,
-                    'url': url_for('repsvm_delitos_genericos.detail', repsvm_delito_generico_id=resultado.repsvm_delito_generico_id),
+                "repsvm_delito_generico": {
+                    "nombre": resultado.repsvm_delito_generico.nombre,
+                    "url": url_for("repsvm_delitos_genericos.detail", repsvm_delito_generico_id=resultado.repsvm_delito_generico_id),
                 },
-                'detalle': {
-                    'descripcion': resultado.descripcion,
-                    'url': url_for('repsvm_delitos_especificos.detail', repsvm_delito_especifico_id=resultado.id),
+                "detalle": {
+                    "descripcion": resultado.descripcion,
+                    "url": url_for("repsvm_delitos_especificos.detail", repsvm_delito_especifico_id=resultado.id),
                 },
             }
         )
@@ -59,26 +59,26 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
-@repsvm_delitos_especificos.route('/repsvm_delitos_especificos')
+@repsvm_delitos_especificos.route("/repsvm_delitos_especificos")
 def list_active():
     """Listado de Delitos Especificos activos"""
     return render_template(
-        'repsvm_delitos_especificos/list.jinja2',
-        filtros=json.dumps({'estatus': 'A'}),
-        titulo='Delitos Especificos',
-        estatus='A',
+        "repsvm_delitos_especificos/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Delitos Especificos",
+        estatus="A",
     )
 
 
-@repsvm_delitos_especificos.route('/repsvm_delitos_especificos/inactivos')
+@repsvm_delitos_especificos.route("/repsvm_delitos_especificos/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Delitos Especificos inactivos"""
     return render_template(
-        'repsvm_delitos_especificos/list.jinja2',
-        filtros=json.dumps({'estatus': 'B'}),
-        titulo='Delitos Especificos inactivos',
-        estatus='B',
+        "repsvm_delitos_especificos/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Delitos Especificos inactivos",
+        estatus="B",
     )
 
 
@@ -97,7 +97,7 @@ def new():
     if form.validate_on_submit():
         repsvm_delito_especifico = REPSVMDelitoEspecifico(
             repsvm_delito_generico=form.repsvm_delito_generico.data,
-            descripcion=safe_string(form.descripcion.data),
+            descripcion=safe_string(form.descripcion.data, do_unidecode=False),
         )
         repsvm_delito_especifico.save()
         bitacora = Bitacora(
@@ -120,7 +120,7 @@ def edit(repsvm_delito_especifico_id):
     form = REPSVMDelitoEspecificoForm()
     if form.validate_on_submit():
         repsvm_delito_especifico.repsvm_delito_generico = form.repsvm_delito_generico.data
-        repsvm_delito_especifico.descripcion = safe_string(form.descripcion.data)
+        repsvm_delito_especifico.descripcion = safe_string(form.descripcion.data, do_unidecode=False)
         repsvm_delito_especifico.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),

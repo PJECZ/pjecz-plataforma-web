@@ -89,6 +89,7 @@ def datatable_json():
                     "nombre": resultado.usuario.nombre,
                     "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id) if current_user.can_view("USUARIOS") else "",
                 },
+                "autoridad": resultado.autoridad.clave,
             }
         )
     # Entregar JSON

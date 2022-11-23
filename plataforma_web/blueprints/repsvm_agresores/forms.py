@@ -47,3 +47,11 @@ class REPSVMAgresorForm(FlaskForm):
     observaciones = TextAreaField("Observaciones", validators=[DataRequired(), Length(max=4092)])
     sentencia_url = StringField("V.P. Sentencia URL", validators=[DataRequired(), Length(max=512), Regexp(URL_REGEXP)])
     guardar = SubmitField("Guardar")
+
+
+class REPSVASearchForm(FlaskForm):
+    """Formulario para buscar REPSVMAgresor"""
+
+    nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
+    numero_causa = StringField("Numero de causa", validators=[Optional(), Length(max=256)])
+    buscar = SubmitField("Buscar")

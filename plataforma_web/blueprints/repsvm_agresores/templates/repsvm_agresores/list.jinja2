@@ -25,6 +25,7 @@
         {% if current_user.can_insert('REPSVM AGRESORES') %}
             {{ topbar.button_new('Nuevo Agresor', url_for('repsvm_agresores.new')) }}
         {% endif %}
+        {{ topbar.button_search('Buscar', url_for('repsvm_agresores.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -34,14 +35,14 @@
             <thead>
                 <tr>
                     <th>IDs</th>
-                    <th>Distritos</th>
+                    <th>Distrito</th>
                     <th>Consecutivo</th>
-                    <th>T. Juzgados</th>
-                    <th>Delitos Específicos</th>
-                    <th>T. Sentencias</th>
-                    <th>Nombres</th>
+                    <th>T. Juzgado</th>
+                    <th>Delito Específico</th>
+                    <th>T. Sentencia</th>
+                    <th>Nombre</th>
                     <th>No. Causa</th>
-                    <th>Penas Impuestas</th>
+                    <th>Pena Impuesta</th>
                     <th>URL</th>
                 </tr>
             </thead>

@@ -91,7 +91,7 @@ def new():
     """Nuevo Delito Generico"""
     form = REPSVMDelitoGenericoForm()
     if form.validate_on_submit():
-        repsvm_delito_generico = REPSVMDelitoGenerico(nombre=safe_string(form.nombre.data))
+        repsvm_delito_generico = REPSVMDelitoGenerico(nombre=safe_string(form.nombre.data, do_unidecode=False))
         repsvm_delito_generico.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -112,7 +112,7 @@ def edit(repsvm_delito_generico_id):
     repsvm_delito_generico = REPSVMDelitoGenerico.query.get_or_404(repsvm_delito_generico_id)
     form = REPSVMDelitoGenericoForm()
     if form.validate_on_submit():
-        repsvm_delito_generico.nombre = safe_string(form.nombre.data)
+        repsvm_delito_generico.nombre = safe_string(form.nombre.data, do_unidecode=False)
         repsvm_delito_generico.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),

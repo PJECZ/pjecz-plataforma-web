@@ -33,7 +33,6 @@ from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_d
 from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.materias_tipos_juzgados.views import materias_tipos_juzgados
-from plataforma_web.blueprints.mensajes.views import mensajes
 from plataforma_web.blueprints.modulos.views import modulos
 from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos
@@ -54,12 +53,9 @@ from plataforma_web.blueprints.tareas.views import tareas
 from plataforma_web.blueprints.tesis_jurisprudencias.views import tesis_jurisprudencias
 from plataforma_web.blueprints.tesis_jurisprudencias_funcionarios.views import tesis_jurisprudencias_funcionarios
 from plataforma_web.blueprints.tesis_jurisprudencias_sentencias.views import tesis_jurisprudencias_sentencias
-from plataforma_web.blueprints.transcripciones.views import transcripciones
-from plataforma_web.blueprints.turnos.views import turnos
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
 from plataforma_web.blueprints.usuarios.views import usuarios
 from plataforma_web.blueprints.usuarios_roles.views import usuarios_roles
-from plataforma_web.blueprints.ventanillas.views import ventanillas
 from plataforma_web.blueprints.inv_equipos.views import inv_equipos
 from plataforma_web.blueprints.inv_marcas.views import inv_marcas
 from plataforma_web.blueprints.inv_modelos.views import inv_modelos
@@ -110,7 +106,6 @@ def create_app():
     app.register_blueprint(materias)
     app.register_blueprint(materias_tipos_juicios)
     app.register_blueprint(materias_tipos_juzgados)
-    app.register_blueprint(mensajes)
     app.register_blueprint(modulos)
     app.register_blueprint(oficinas)
     app.register_blueprint(peritos)
@@ -131,12 +126,9 @@ def create_app():
     app.register_blueprint(tesis_jurisprudencias)
     app.register_blueprint(tesis_jurisprudencias_funcionarios)
     app.register_blueprint(tesis_jurisprudencias_sentencias)
-    app.register_blueprint(transcripciones)
-    app.register_blueprint(turnos)
     app.register_blueprint(usuarios)
     app.register_blueprint(usuarios_roles)
     app.register_blueprint(ubicaciones_expedientes)
-    app.register_blueprint(ventanillas)
     app.register_blueprint(inv_equipos)
     app.register_blueprint(inv_marcas)
     app.register_blueprint(inv_modelos)
