@@ -31,13 +31,14 @@ def normalizar(test):
     contador = 0
     autoridades = Autoridad.query.order_by(Autoridad.id).all()
     for autoridad in autoridades:
-        contador = contador + 1
-        nombre_autoridad_normalizado = safe_string(autoridad.descripcion_corta, do_unidecode=False) if "ñ" in autoridad.descripcion_corta else safe_string(autoridad.descripcion_corta)
-        if test:
-            click.echo(f"{autoridad.id:3} : {autoridad.descripcion_corta} --> {nombre_autoridad_normalizado}")
-        else:
-            autoridad.descripcion_corta = nombre_autoridad_normalizado
-            autoridad.save()
+        nombre_autoridad_normalizado = safe_string(autoridad.descripcion_corta, save_n=True)
+        if autoridad.descripcion_corta != nombre_autoridad_normalizado:
+            if test:
+                click.echo(f"{autoridad.id:3} : {autoridad.descripcion_corta} --> {nombre_autoridad_normalizado}")
+            else:
+                autoridad.descripcion_corta = nombre_autoridad_normalizado
+                autoridad.save()
+                contador = contador + 1
 
     if not test:
         click.echo(f"Se actualizaron {contador} registros. Se respeto la Ñ, pero se eliminaron acentos.")
