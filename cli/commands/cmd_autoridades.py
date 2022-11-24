@@ -40,8 +40,7 @@ def normalizar(test):
                 autoridad.save()
                 contador = contador + 1
 
-    if not test:
-        click.echo(f"Se actualizaron {contador} registros. Se respeto la Ñ, pero se eliminaron acentos.")
+    click.echo(f"Se actualizaron {contador} de {len(autoridades)} registros. Se respeto la Ñ, pero se eliminaron acentos.")
 
 
 cli.add_command(normalizar)
