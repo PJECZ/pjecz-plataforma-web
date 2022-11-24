@@ -25,6 +25,7 @@
 {% block content %}
     {% call detail.card(estatus=cid_formato.estatus) %}
         {{ detail.label_value('Procedimiento', cid_formato.procedimiento.titulo_procedimiento, url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_formato.procedimiento_id)) }}
+        {{ detail.label_value('Clasificación', cid_formato.procedimiento.autoridad.clave) }}
         {{ detail.label_value('Descripción', cid_formato.descripcion) }}
         {{ detail.label_value_new_tab('URL', cid_formato.archivo, cid_formato.url) }}
     {% endcall %}

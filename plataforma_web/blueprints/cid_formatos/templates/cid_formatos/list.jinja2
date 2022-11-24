@@ -48,6 +48,7 @@
                     <th>Procedimiento</th>
                     <th>Descripcion</th>
                     <th>Descargar</th>
+                    <th>Clasificación</th>
                 </tr>
             </thead>
         </table>
@@ -63,7 +64,8 @@
             { data: 'detalle' },
             { data: 'cid_procedimiento' },
             { data: 'descripcion' },
-            { data: 'descargar' }
+            { data: 'descargar' },
+            { data: 'autoridad' },
         ];
         configDataTable['columnDefs'] = [
             {
@@ -116,7 +118,7 @@
         // Búsqueda
         let titulo = document.getElementById('tituloInput').value.toUpperCase();
         let descripcion = document.getElementById('descripcionInput').value.toUpperCase();
-        
+
         if(titulo != '')
             configDataTable['ajax']['data']['cid_procedimiento'] = titulo;
         if(descripcion != '')
@@ -130,8 +132,8 @@
             let titulo = document.getElementById('tituloInput').value.toUpperCase();
             let descripcion = document.getElementById('descripcionInput').value.toUpperCase();
 
-            if(configDataTable['ajax']['data']['cid_procedimiento'] === undefined && titulo === '' && 
-               configDataTable['ajax']['data']['descripcion'] === undefined && descripcion === '' 
+            if(configDataTable['ajax']['data']['cid_procedimiento'] === undefined && titulo === '' &&
+               configDataTable['ajax']['data']['descripcion'] === undefined && descripcion === ''
             )return false;
 
             console.log(titulo, descripcion);
@@ -148,7 +150,7 @@
                 configDataTable['ajax']['data']['descripcion'] = descripcion;
 
             $('#cid_formatos_datatable').DataTable(configDataTable);
-            
+
         }
 
         function limpiar(){

@@ -33,7 +33,7 @@
         <table id="repsvm_delitos_genericos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Nombres</th>
+                    <th>Nombre</th>
                 </tr>
             </thead>
         </table>
@@ -53,7 +53,7 @@
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '">' + (data.nombre.length > 48 ? data.nombre.substr(0, 48) + '…' : data.nombre) + '</a>';
                 }
             }
         ];
