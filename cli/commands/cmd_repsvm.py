@@ -1,7 +1,8 @@
 """
 REPSVM
 
-- Alimentar
+- alimentar: Alimentar desde un archivo CSV
+- respaldar: Respaldar los agresores a un archivo CSV
 """
 import csv
 from pathlib import Path
@@ -127,4 +128,65 @@ def alimentar(entrada_csv):
     click.echo(f"{contador} alimentados.")
 
 
+@click.command()
+@click.option("--distrito_id", default=None, type=int, help="ID del Distrito")
+@click.option("--output", default="repsvm.csv", type=str, help="Archivo CSV a escribir")
+def respaldar(distrito_id, output):
+    """Respaldar los agresores a un archivo CSV"""
+    ruta = Path(output)
+    if ruta.exists():
+        click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
+        return
+    contador = 0
+    agresores = REPSVMAgresor.query.filter_by(estatus="A")
+    if distrito_id is not None:
+        agresores = agresores.filter(REPSVMAgresor.distrito_id == distrito_id)
+        click.echo(f"Respaldando los agresores de REPSVM del distrito ID {distrito_id}...")
+    else:
+        click.echo("Respaldando TODOS los agresores de REPSVM...")
+    agresores = agresores.order_by(REPSVMAgresor.distrito_id, REPSVMAgresor.consecutivo).all()
+    with open(ruta, "w", encoding="utf8") as puntero:
+        respaldo = csv.writer(puntero)
+        encabezados = [
+            "id",
+            "distrito_id",
+            "distrito_nombre_corto",
+            "consecutivo",
+            "materia_nombre",
+            "tipo_juzgado_clave",
+            "tipo_sentencia",
+            "delito_generico",
+            "delito_especifico",
+            "nombre",
+            "numero_causa",
+            "pena_impuesta",
+            "observaciones",
+            "sentencia_url",
+        ]
+        respaldo.writerow(encabezados)
+        for agresor in agresores:
+            fila = [
+                agresor.id,
+                agresor.distrito_id,
+                agresor.distrito.nombre_corto,
+                agresor.consecutivo,
+                agresor.materia_tipo_juzgado.materia.nombre,
+                agresor.materia_tipo_juzgado.clave,
+                agresor.repsvm_tipo_sentencia.nombre,
+                agresor.repsvm_delito_especifico.repsvm_delito_generico.nombre,
+                agresor.repsvm_delito_especifico.descripcion,
+                agresor.nombre,
+                agresor.numero_causa,
+                agresor.pena_impuesta,
+                agresor.observaciones,
+                agresor.sentencia_url,
+            ]
+            respaldo.writerow(fila)
+            contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador}...")
+    click.echo(f"Respaldados {contador} agresores en {ruta.name}")
+
+
 cli.add_command(alimentar)
+cli.add_command(respaldar)
