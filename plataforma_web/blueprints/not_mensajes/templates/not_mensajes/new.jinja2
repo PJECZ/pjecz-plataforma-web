@@ -16,7 +16,7 @@
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('mensajes.new', fid='mensaje_form') %}
+        {% call f.form_tag('not_mensajes.new', fid='mensaje_form') %}
             {% call f.form_group(form.autor, readonly=true) %}{% endcall %}
             {% call f.form_group(form.destinatario) %}{% endcall %}
             {% call f.form_group(form.mensaje) %}{% endcall %}

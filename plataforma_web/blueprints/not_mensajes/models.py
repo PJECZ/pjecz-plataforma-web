@@ -6,7 +6,7 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class MsgConversacion(db.Model, UniversalMixin):
+class NotMsgConversacion(db.Model, UniversalMixin):
     """Conversación"""
 
     ESTADOS = OrderedDict(
@@ -17,16 +17,16 @@ class MsgConversacion(db.Model, UniversalMixin):
     )
 
     # Nombre de la tabla
-    __tablename__ = "msg_conversaciones"
+    __tablename__ = "not_msg_conversaciones"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
     autor_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    autor = db.relationship("Autoridad", foreign_keys="MsgConversacion.autor_id")
+    autor = db.relationship("Autoridad", foreign_keys="NotMsgConversacion.autor_id")
     destinatario_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    destinatario = db.relationship("Autoridad", foreign_keys="MsgConversacion.destinatario_id")
+    destinatario = db.relationship("Autoridad", foreign_keys="NotMsgConversacion.destinatario_id")
 
     # Columnas
     leido = db.Column(db.Boolean, nullable=False, default=False)
@@ -34,18 +34,18 @@ class MsgConversacion(db.Model, UniversalMixin):
     ultimo_mensaje_id = db.Column(db.Integer, nullable=True)
 
     # Hijos
-    mensajes = db.relationship("MsgMensaje", back_populates="msg_conversacion", lazy="noload")
+    mensajes = db.relationship("NotMsgMensaje", back_populates="not_msg_conversacion", lazy="noload")
 
     def __repr__(self):
         """Representación"""
         return f"<Conversación {self.id}>"
 
 
-class MsgMensaje(db.Model, UniversalMixin):
+class NotMsgMensaje(db.Model, UniversalMixin):
     """Mensaje"""
 
     # Nombre de la tabla
-    __tablename__ = "msg_mensajes"
+    __tablename__ = "not_msg_mensajes"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -53,8 +53,8 @@ class MsgMensaje(db.Model, UniversalMixin):
     # Claves foráneas
     autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
     autoridad = db.relationship("Autoridad", back_populates="mensajes")
-    msg_conversacion_id = db.Column(db.Integer, db.ForeignKey("msg_conversaciones.id"), index=True, nullable=False)
-    msg_conversacion = db.relationship("MsgConversacion", back_populates="mensajes")
+    not_msg_conversacion_id = db.Column(db.Integer, db.ForeignKey("not_msg_conversaciones.id"), index=True, nullable=False)
+    not_msg_conversacion = db.relationship("NotMsgConversacion", back_populates="mensajes")
 
     # Columnas
     contenido = db.Column(db.String(256), nullable=False)

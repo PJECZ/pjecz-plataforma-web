@@ -4,18 +4,30 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/modals.jinja2' as modals %}
 
+{% block custom_head %}
+<style>
+    #scrollable_div {
+        height: 55vh;
+        width:100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        background-color: #f7f9f9;
+    }
+</style>
+{% endblock %}
+
 {% block title %}Conversación{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if conversacion.estado == 'ACTIVO' %}
-            {{ topbar.button_previous('Conversaciones Activas', url_for('mensajes.list_active')) }}
+            {{ topbar.button_previous('Conversaciones Activas', url_for('not_mensajes.list_active')) }}
         {% elif conversacion.estado == 'ARCHIVADO' %}
-            {{ topbar.button_previous('Conversaciones Archivadas', url_for('mensajes.list_archive')) }}
+            {{ topbar.button_previous('Conversaciones Archivadas', url_for('not_mensajes.list_archive')) }}
         {% endif %}
         {% if tipo == "JUZGADO" %}
             {% if conversacion.estado == 'ACTIVO' %}
-                {{ topbar.button_modal('Archivar', "showModalArchivar('"+url_for('mensajes.archive', conversacion_id=conversacion.id)+"')",  'mdi:archive') }}
+                {{ topbar.button_modal('Archivar', "showModalArchivar('"+url_for('not_mensajes.archive', conversacion_id=conversacion.id)+"')",  'mdi:archive') }}
             {% endif %}
         {% endif %}
     {% endcall %}
@@ -38,6 +50,7 @@
             {% endif %}
         </div>
     {% endcall %}
+    <div id="scrollable_div">
     <div class="row justify-content-evenly">
         {% for mensaje in mensajes %}
             {% if fechas[mensaje] %}
@@ -47,32 +60,62 @@
                     </div>
                 </div>
             {% endif %}
-            {% if mensaje.autoridad == current_user.autoridad %}
-            <div class="row">
-                <div class="col-4 align-text-bottom text-end">
-                    <i class="text-secondary">{{ moment(mensaje.creado).format('hh:mm') }}</i>
-                </div>
-                <div class="col-8">
-                    <div class="alert alert-primary" role="alert">
-                        {{ mensaje.contenido }}
+            {% if current_user.can_admin("MENSAJES") %}
+                {% if mensaje.autoridad == conversacion.autor %}
+                <div class="row">
+                    <div class="col-4 align-text-bottom text-end">
+                        <i class="text-secondary">{{ moment(mensaje.creado).format('hh:mm') }}</i>
+                    </div>
+                    <div class="col-8">
+                        <div class="alert alert-primary" role="alert">
+                            {{ mensaje.contenido }}
+                        </div>
                     </div>
                 </div>
-            </div>
+                {% else %}
+                <div class="row">
+                    <div class="col-8">
+                        <div class="alert alert-secondary" role="alert">
+                            {{ mensaje.contenido }}
+                        </div>
+                    </div>
+                    <div class="col-4 align-text-bottom">
+                        <i class="text-secondary">{{ moment(mensaje.creado).format('hh:mm') }}</i>
+                    </div>
+                </div>
+                {% endif %}
             {% else %}
-            <div class="row">
-                <div class="col-8">
-                    <div class="alert alert-secondary" role="alert">
-                        {{ mensaje.contenido }}
+                {% if mensaje.autoridad == current_user.autoridad %}
+                <div class="row">
+                    <div class="col-4 align-text-bottom text-end">
+                        <i class="text-secondary">{{ moment(mensaje.creado).format('hh:mm') }}</i>
+                    </div>
+                    <div class="col-8">
+                        <div class="alert alert-primary" role="alert">
+                            {{ mensaje.contenido }}
+                        </div>
                     </div>
                 </div>
-                <div class="col-4 align-text-bottom">
-                    <i class="text-secondary">{{ moment(mensaje.creado).format('hh:mm') }}</i>
+                {% else %}
+                <div class="row">
+                    <div class="col-8">
+                        <div class="alert alert-secondary" role="alert">
+                            {{ mensaje.contenido }}
+                        </div>
+                    </div>
+                    <div class="col-4 align-text-bottom">
+                        <i class="text-secondary">{{ moment(mensaje.creado).format('hh:mm') }}</i>
+                    </div>
                 </div>
-            </div>
+                {% endif %}
             {% endif %}
         {% endfor %}
-        {% if conversacion.estado == 'ACTIVO' %}
-            <form action="/mensajes/nuevo_mensaje/{{conversacion.id}}" method="POST">
+        <div id="mensaje_final"></div>
+        </div>
+        </div>
+        <div class="row justify-content-evenly">
+        {% if conversacion.estado == 'ACTIVO' and (current_user.autoridad == conversacion.autor or current_user.autoridad == conversacion.destinatario) %}
+            <form action="/not_mensajes/nuevo_mensaje/{{conversacion.id}}" method="POST">
                 <div class="input-group mb-3">
                     <textarea class="form-control" placeholder="Mensaje..." id="contenido" name="contenido" style="height: 60px"></textarea>
                     <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
@@ -81,10 +124,17 @@
                 </div>
             </form>
         {% endif %}
-    </div>
+        </div>
 {% endblock %}
 
 {% block custom_javascript %}
     {{ detail.moment_js(moment) }}
     {{ modals.custom_javascript('Archivar', '¿Desea archivar la conversación?', 'Archivar') }}
+    <script> // Enfocar el último mensaje
+    var divFirst = document.getElementById("mensaje_final");
+    divFirst.style.visibility = 'visible'; 
+    divFirst.style.display = 'block';  
+    divFirst.tabIndex = "-1";  
+    divFirst.focus();
+    </script>
 {% endblock %}

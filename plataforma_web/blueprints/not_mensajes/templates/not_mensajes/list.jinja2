@@ -6,19 +6,17 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_admin('MENSAJES') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('mensajes.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('mensajes.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('MENSAJES') %}
-            {% if tipo == "JUZGADO" %}
+        {% if current_user.can_insert('NOT MENSAJES') %}
+            {% if tipo == "JUZGADO" or current_user.can_admin('NOT MENSAJES') %}
                 {% if estado == "ACTIVO" %}
-                    {{ topbar.button('Conversacioes Archivadas', url_for('mensajes.list_archive'), 'mdi:archive') }}
+                    {{ topbar.button('Conversacioes Archivadas', url_for('not_mensajes.list_archive'), 'mdi:archive') }}
                 {% elif estado == "ARCHIVADO" %}
-                    {{ topbar.button('Conversacioes Activas', url_for('mensajes.list_active'), 'mdi:chat-processing') }}
+                    {{ topbar.button('Conversacioes Activas', url_for('not_mensajes.list_active'), 'mdi:chat-processing') }}
                 {% endif %}
             {% endif %}
-            {{ topbar.button_new('Nueva Conversación', url_for('mensajes.new')) }}
+            {% if tipo == "JUZGADO" or tipo == "NOTARIA" %}
+                {{ topbar.button_new('Nueva Conversación', url_for('not_mensajes.new')) }}
+            {% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -41,7 +39,7 @@
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
-        configDataTable['ajax']['url'] = '/mensajes/conversaciones/datatable_json_conversaciones';
+        configDataTable['ajax']['url'] = '/not_mensajes/conversaciones/datatable_json_conversaciones';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "lectura" },
@@ -86,6 +84,13 @@
                 $(row).css("font-weight", "bold");
             }
         };
-        $('#conversaciones_datatable').DataTable(configDataTable);
+        let table = $('#conversaciones_datatable').DataTable(configDataTable);
     </script>
+        {% if estado == "ACTIVO" %}
+        <script>
+            setInterval(function() {
+                table.ajax.reload();
+            }, 300000 );
+        </script>
+        {% endif %}
 {% endblock %}
