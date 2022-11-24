@@ -206,17 +206,22 @@ def sentencias_json():
 @sistemas.route("/")
 def mostrar_cards():
     """Cards a mostrar en pantalla prinicipal de acuerdo a los permisos que se tienen"""
-    rol = ""
+    soporte = False
+    notarias = False
+
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # Si es administrador, mostrar todos los accesos a los diferentes modulos
-    if ROL_ADMINISTRADOR in current_user_roles:
-        rol = ROL_ADMINISTRADOR
-    elif ROL_SOPORTE_TECNICO in current_user_roles:
-        rol = ROL_SOPORTE_TECNICO
-    elif ROL_NOTARIA in current_user_roles:
-        rol = ROL_NOTARIA
-    return render_template("sistemas/start.jinja2", rol=rol)
+
+    # Si tiene el rol administrador o soporte-usuario mostrar los accesos a crear tickets y directorio
+    if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_TECNICO in current_user_roles:
+        soporte = True
+
+    # Si tiene el rol administrador o notaria mostrar los accesos a edictos, escrituras y mensajes
+    if ROL_ADMINISTRADOR in current_user_roles or ROL_NOTARIA in current_user_roles:
+        notarias = True
+
+    # Entregar
+    return render_template("sistemas/start.jinja2", mostrar_portal_soporte=soporte, mostrar_portal_notarias=notarias)
 
 
 @sistemas.route("/")
