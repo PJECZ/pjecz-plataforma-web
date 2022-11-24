@@ -1,14 +1,19 @@
-{% extends 'layouts/base.jinja2' %}
-{% import 'macros/detail.jinja2' as detail %}
-
-{% block title %}Constancia de Recepción de Documentos{% endblock %}
-
-{% block template_head %}
-    <link href="{{ url_for('static', filename='css/bs5-print.css') }}" rel="stylesheet" />
-{% endblock %}
-
-{% block main %}
-    <header id="header">
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="https://storage.googleapis.com/pjecz-informatica/static/images/favicon.png">
+        <title>Constancia de Recepción de Documentos</title>
+        <!-- Datatables boundle -->
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.3.1/dt-1.10.25/b-1.7.1/b-html5-1.7.1/r-2.2.9/datatables.min.css">
+        <!-- CSS para imprimir -->
+        <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/pjecz-informatica/static/css/bs5-print.css">
+    </head>
+    <body>
+         <header id="header">
         <div class="row">
             <div class="col">
                 <img src="https://storage.googleapis.com/pjecz-informatica/static/images/pjecz-horizontal.png" alt="PJECZ">
@@ -48,8 +53,9 @@
             </p>
         </div>
     </article>
-{% endblock %}
-
-{% block custom_javascript %}
-    {{ detail.moment_js(moment) }}
-{% endblock %}
+        <!-- Moment -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/es-mx.min.js"></script>
+        {{ moment.include_moment() }}
+    </body>
+</html>
