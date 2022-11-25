@@ -204,31 +204,33 @@ def sentencias_json():
 
 
 @sistemas.route("/")
-def mostrar_cards():
-    """Cards a mostrar en pantalla prinicipal de acuerdo a los permisos que se tienen"""
-    soporte = False
-    notarias = False
-
-    # Consultar los roles del usuario
-    current_user_roles = current_user.get_roles()
-
-    # Si tiene el rol administrador o soporte-usuario mostrar los accesos a crear tickets y directorio
-    if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_TECNICO in current_user_roles:
-        soporte = True
-
-    # Si tiene el rol administrador o notaria mostrar los accesos a edictos, escrituras y mensajes
-    if ROL_ADMINISTRADOR in current_user_roles or ROL_NOTARIA in current_user_roles:
-        notarias = True
-
-    # Entregar
-    return render_template("sistemas/start.jinja2", mostrar_portal_soporte=soporte, mostrar_portal_notarias=notarias)
-
-
-@sistemas.route("/")
 def start():
     """Página inicial"""
+
+    # Si el usuario está autenticado, mostrar la página de inicio
     if current_user.is_authenticated:
-        return render_template("sistemas/start.jinja2")
+        mostrar_portal_soporte = False
+        mostrar_portal_notarias = False
+
+        # Consultar los roles del usuario
+        current_user_roles = current_user.get_roles()
+
+        # Si tiene el rol administrador o soporte-usuario mostrar los accesos a crear tickets y directorio
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_TECNICO in current_user_roles:
+            mostrar_portal_soporte = True
+
+        # Si tiene el rol administrador o notaria mostrar los accesos a edictos, escrituras y mensajes
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_NOTARIA in current_user_roles:
+            mostrar_portal_notarias = True
+
+        # Entregar
+        return render_template(
+            "sistemas/start.jinja2",
+            mostrar_portal_soporte=mostrar_portal_soporte,
+            mostrar_portal_notarias=mostrar_portal_notarias,
+        )
+
+    # No está autenticado, mostrar la página de inicio de sesión
     return redirect("/login")
 
 
