@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="https://storage.googleapis.com/pjecz-informatica/static/images/favicon.png">
+        <title>Constancia de Recepción de Documentos</title>
+        <!-- Datatables boundle -->
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.3.1/dt-1.10.25/b-1.7.1/b-html5-1.7.1/r-2.2.9/datatables.min.css">
+        <!-- CSS para imprimir -->
+        <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/pjecz-informatica/static/css/bs5-print.css">
+    </head>
+    <body>
+         <header id="header">
+        <div class="row">
+            <div class="col">
+                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/pjecz-horizontal.png" alt="PJECZ">
+            </div>
+        </div>
+    </header>
+    <article id="body">
+         <div style="margin-top: 50px; margin-bottom:50px;">
+            <span class="text-center"><h3>CONSTANCIA DE RECEPCIÓN DE DOCUMENTOS</h3></span>
+        </div>
+        <div>
+            <p>
+                Fecha {{ edicto.creado.strftime('%Y-%m-%d %H:%M') }}<br>
+                ID VPE{{ edicto.id }}<br>
+                <strong>{{ edicto.autoridad.descripcion }}</strong><br>
+                <strong>{{ edicto.autoridad.distrito.nombre }}</strong>
+            </p>
+        </div>
+        <div class="text-center py-2">
+            <h3>P R E S E N T E</h3>
+        </div>
+        <div class="py-2" style="margin-left: 15px; margin-right:15px; padding-left: 20px; padding-right: 30px;">
+            <p>Se hace constar que en la aplicación electrónica "Edictos en Línea" del sitio web del Poder Judicial del Estado de Coahuila de Zaragoza se recibió el siguiente documento:</p>
+            <p>
+                - <b>{{ edicto.descripcion }}</b><br/>
+                - {{ edicto.archivo }}
+            </p>
+            <p>Mismo que estará disponible en el sitio web del Poder Judicial de Coahuila de Zaragoza a la brevedad.</p>
+            <p>Lo anterior para los efectos legales que haya lugar.</p>
+        </div>
+        <div class="text-center" style="font-weight: bold; bottom:60px; padding-top:160px;">
+            <p>A T E N T A M E N T E</p>
+                <strong>
+                    SALTILLO, COAHUILA DE ZARAGOZA, A {{ dia }} DE {{ mes }} DE {{ anio }}<br>
+                    DIRECCIÓN DE INFORMÁTICA
+                </strong>
+            </p>
+        </div>
+    </article>
+        <!-- Moment -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/es-mx.min.js"></script>
+        {{ moment.include_moment() }}
+    </body>
+</html>

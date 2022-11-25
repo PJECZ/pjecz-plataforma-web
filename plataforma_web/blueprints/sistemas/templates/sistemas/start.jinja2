@@ -45,11 +45,11 @@
             </button>
         </div>
     </div>
-    {# Plataforma Web #}
-    {% call start.card() %}
-        <div class="container">
-            <div class="row" >
-                {% if current_user.can_edit("SOPORTES TICKETS")%}
+    {% if mostrar_portal_soporte %}
+        {# Plataforma Web #}
+        {% call start.card('Soporte Técnico') %}
+            <div class="container">
+                <div class="row" >
                     {# Si tiene privilegios para crear tickets col-md-12 offset-md-3 #}
                     <div class="col-md-6 col-sm-12 mb-2">
                         <div class="text-center">
@@ -61,17 +61,6 @@
                             </p>
                         </div>
                     </div>
-                {% else %}
-                    {# No tiene privilegios para crear tickets #}
-                    <div class="col-md-6 col-sm-12 mb-2">
-                        <div class="text-center">
-                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-soportes-tickets-1.png" class="img-fluid mb-2">
-                            <h4>Bienvenido al sistema</h4>
-                            <p>Ha ingresado con una cuenta que <strong>no es personal.</strong> Para solicitar Soporte Técnico a Informática use su cuenta coahuila.gob.mx ó pjecz.gob.mx.</p>
-                        </div>
-                    </div>
-                {% endif %}
-                {% if current_user.can_view("FUNCIONARIOS")%}
                     {# Directorio #}
                     <div class="col-md-6 col-sm-12 mb-2">
                         <div class="text-center">
@@ -82,10 +71,62 @@
                             </p>
                         </div>
                     </div>
-                {% endif %}
+                </div>
             </div>
-        </div>
-    {% endcall %}
+        {% endcall %}
+    {% else %}
+        {% call start.card("Soporte Técnico") %}
+            {# No tiene privilegios para crear tickets #}
+                <div class="col-md-6 col-sm-12 mb-2">
+                    <div class="text-center">
+                        <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-soportes-tickets-1.png" class="img-fluid mb-2">
+                        <h4>Bienvenido al sistema</h4>
+                        <p>Ha ingresado con una cuenta que <strong>no es personal.</strong> Para solicitar Soporte Técnico a Informática use su cuenta coahuila.gob.mx ó pjecz.gob.mx.</p>
+                    </div>
+                </div>
+        {% endcall %}
+    {% endif %}
+    {% if mostrar_portal_notarias %}
+        {% call start.card("Portal de Notarías") %}
+            <div class="container">
+                <div class="row" >
+                        {# Edictos #}
+                        <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                            <div class="text-center">
+                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/portal_notaria.png" class="img-fluid mb-2" style="height: 264px; width: 300px;">
+                                <h5>¿Necesitas publicar un edicto?</h5>
+                                <p>
+                                    <a href="{{ url_for('edictos.new') }}"class="btn btn-success btn-tickets ml-auto">Subir un nuevo edicto</a>
+                                    <a href="{{ url_for('edictos.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis edictos</a>
+                                </p>
+                            </div>
+                        </div>
+                        {# Escrituras #}
+                        <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                            <div class="text-center">
+                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/escrituras.png" class="img-fluid mb-2" style="height: 264px; width: 300px;">
+                                <h5>¿Necesitas revisar una escritura?</h5>
+                                <div>
+                                    <a href="{{ url_for('escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Nueva escritura</a>
+                                    <a href="{{ url_for('escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis escrituras</a>
+                                </div>
+                            </div>
+                        </div>
+                        {# Mensajes #}
+                        <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                            <div class="text-center">
+                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/mensajes.png" class="img-fluid mb-2" style="height: 264px; width: 300px;">
+                                <h5>¿Necesitas conversar?</h5>
+                                <p>
+                                    <a href="#"class="btn btn-success btn-tickets ml-auto">Nueva conversación</a>
+                                    <a href="#" class="btn btn-primary btn-tickets ml-auto">Mis conversaciones</a>
+                                </p>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endif %}
     {# Tarjetas #}
     <div id="tarjetas" class="row">
         {% if current_user.autoridad.audiencia_categoria != "NO DEFINIDO" %}
