@@ -68,20 +68,23 @@ def safe_expediente(input_str):
     return limpio
 
 
-def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True, save_enie=False):
+def safe_string(input_str, max_len=250, do_unidecode=True, save_enie=False, to_uppercase=True):
     """Safe string"""
     if not isinstance(input_str, str):
         return ""
     if do_unidecode:
-        new_string = re.sub(r"[^a-zA-Z0-9.()/-]+", " ", unidecode(input_str))
+        new_string = re.sub(r"[^a-zA-Z0-9.()/-]+", " ", input_str)
         if save_enie:
-            string_with_enie = list(new_string)
-            for i in range(len(input_str)):
-                if input_str[i] == "ñ" or input_str[i] == "Ñ":
-                    string_with_enie[i] = input_str[i]
-            new_string = "".join(string_with_enie)
+            new_string = ""
+            for char in input_str:
+                if char == "ñ":
+                    new_string += "ñ"
+                elif char == "Ñ":
+                    new_string += "Ñ"
+                else:
+                    new_string += unidecode(char)
     else:
-        if save_enie == False:
+        if save_enie is False:
             new_string = re.sub(r"[^a-záéíóúüA-ZÁÉÍÓÚÜ0-9.()/-]+", " ", input_str)
         else:
             new_string = re.sub(r"[^a-záéíóúüñA-ZÁÉÍÓÚÜÑ0-9.()/-]+", " ", input_str)
