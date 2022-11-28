@@ -6,16 +6,14 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_insert('NOT MENSAJES') %}
-            {% if tipo == "JUZGADO" or current_user.can_admin('NOT MENSAJES') %}
-                {% if estado == "ACTIVO" %}
-                    {{ topbar.button('Conversacioes Archivadas', url_for('not_mensajes.list_archive'), 'mdi:archive') }}
-                {% elif estado == "ARCHIVADO" %}
-                    {{ topbar.button('Conversacioes Activas', url_for('not_mensajes.list_active'), 'mdi:chat-processing') }}
-                {% endif %}
+        {% if current_user.can_insert('NOT CONVERSACIONES') %}
+            {% if estado == "ACTIVO" %}
+                {{ topbar.button('Conversacioes Archivadas', url_for('not_conversaciones.list_archive'), 'mdi:archive') }}
+            {% elif estado == "ARCHIVADO" %}
+                {{ topbar.button('Conversacioes Activas', url_for('not_conversaciones.list_active'), 'mdi:chat-processing') }}
             {% endif %}
             {% if tipo == "JUZGADO" or tipo == "NOTARIA" %}
-                {{ topbar.button_new('Nueva Conversación', url_for('not_mensajes.new')) }}
+                {{ topbar.button_new('Nueva Conversación', url_for('not_conversaciones.new')) }}
             {% endif %}
         {% endif %}
     {% endcall %}
@@ -39,7 +37,7 @@
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
-        configDataTable['ajax']['url'] = '/not_mensajes/conversaciones/datatable_json_conversaciones';
+        configDataTable['ajax']['url'] = '/not_conversaciones/conversaciones/datatable_json_conversaciones';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "lectura" },

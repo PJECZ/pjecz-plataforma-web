@@ -6,7 +6,7 @@ from wtforms import StringField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Length
 
 
-class NotMsgConversacionNewForm(FlaskForm):
+class NotConversacionNewForm(FlaskForm):
     """Formulario Mensaje"""
 
     autor = StringField("Autor", validators=[DataRequired(), Length(max=128)])

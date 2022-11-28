@@ -34,7 +34,7 @@ from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.materias_tipos_juzgados.views import materias_tipos_juzgados
 from plataforma_web.blueprints.modulos.views import modulos
-from plataforma_web.blueprints.not_mensajes.views import not_mensajes
+from plataforma_web.blueprints.not_conversaciones.views import not_conversaciones
 from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.peritos_tipos.views import peritos_tipos
@@ -108,7 +108,7 @@ def create_app():
     app.register_blueprint(materias_tipos_juicios)
     app.register_blueprint(materias_tipos_juzgados)
     app.register_blueprint(modulos)
-    app.register_blueprint(not_mensajes)
+    app.register_blueprint(not_conversaciones)
     app.register_blueprint(oficinas)
     app.register_blueprint(peritos)
     app.register_blueprint(peritos_tipos)

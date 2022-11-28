@@ -65,19 +65,19 @@ class Autoridad(db.Model, UniversalMixin):
     # Hijos
     audiencias = db.relationship("Audiencia", back_populates="autoridad", lazy="noload")
     autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="autoridad")
+    autor = db.relationship("NotConversacion", foreign_keys="NotConversacion.autor_id")
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="autoridad", lazy="noload")
-    autor = db.relationship("NotMsgConversacion", foreign_keys="NotMsgConversacion.autor_id")
-    destinatario = db.relationship("NotMsgConversacion", foreign_keys="NotMsgConversacion.destinatario_id")
+    destinatario = db.relationship("NotConversacion", foreign_keys="NotConversacion.destinatario_id")
     edictos = db.relationship("Edicto", back_populates="autoridad", lazy="noload")
     escrituras = db.relationship("Escritura", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
+    mensajes = db.relationship("NotMensaje", back_populates="autoridad")
     redams = db.relationship("Redam", back_populates="autoridad", lazy="noload")
     sentencias = db.relationship("Sentencia", back_populates="autoridad", lazy="noload")
     tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="autoridad", lazy="noload")
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", back_populates="autoridad", lazy="noload")
     usuarios = db.relationship("Usuario", back_populates="autoridad")
-    mensajes = db.relationship("NotMsgMensaje", back_populates="autoridad")
 
     def __repr__(self):
         """Representación"""

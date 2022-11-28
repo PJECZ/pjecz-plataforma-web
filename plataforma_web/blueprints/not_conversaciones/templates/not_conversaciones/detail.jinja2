@@ -21,13 +21,13 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if conversacion.estado == 'ACTIVO' %}
-            {{ topbar.button_previous('Conversaciones Activas', url_for('not_mensajes.list_active')) }}
+            {{ topbar.button_previous('Conversaciones Activas', url_for('not_conversaciones.list_active')) }}
         {% elif conversacion.estado == 'ARCHIVADO' %}
-            {{ topbar.button_previous('Conversaciones Archivadas', url_for('not_mensajes.list_archive')) }}
+            {{ topbar.button_previous('Conversaciones Archivadas', url_for('not_conversaciones.list_archive')) }}
         {% endif %}
         {% if tipo == "JUZGADO" %}
             {% if conversacion.estado == 'ACTIVO' %}
-                {{ topbar.button_modal('Archivar', "showModalArchivar('"+url_for('not_mensajes.archive', conversacion_id=conversacion.id)+"')",  'mdi:archive') }}
+                {{ topbar.button_modal('Archivar', "showModalArchivar('"+url_for('not_conversaciones.archive', conversacion_id=conversacion.id)+"')",  'mdi:archive') }}
             {% endif %}
         {% endif %}
     {% endcall %}
@@ -60,7 +60,7 @@
                     </div>
                 </div>
             {% endif %}
-            {% if current_user.can_admin("MENSAJES") %}
+            {% if current_user.can_admin("NOT CONVERSACIONES") %}
                 {% if mensaje.autoridad == conversacion.autor %}
                 <div class="row">
                     <div class="col-4 align-text-bottom text-end">
@@ -115,7 +115,7 @@
         </div>
         <div class="row justify-content-evenly">
         {% if conversacion.estado == 'ACTIVO' and (current_user.autoridad == conversacion.autor or current_user.autoridad == conversacion.destinatario) %}
-            <form action="/not_mensajes/nuevo_mensaje/{{conversacion.id}}" method="POST">
+            <form action="/not_conversaciones/nuevo_mensaje/{{conversacion.id}}" method="POST">
                 <div class="input-group mb-3">
                     <textarea class="form-control" placeholder="Mensaje..." id="contenido" name="contenido" style="height: 60px"></textarea>
                     <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
