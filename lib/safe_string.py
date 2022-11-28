@@ -73,9 +73,13 @@ def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True, sa
     if not isinstance(input_str, str):
         return ""
     if do_unidecode:
-        new_string = re.sub(r"[^a-zA-Z0-9.()/-]+", " ", unidecode(input_str))  # <- Unicode quita la ñ, usar var_temp
+        new_string = re.sub(r"[^a-zA-Z0-9.()/-]+", " ", unidecode(input_str))
         if save_enie:
-            new_string = re.sub(r"[^a-zñA-ZÑ0-9.()/-]+", " ", new_string)
+            string_with_enie = list(new_string)
+            for i in range(len(input_str)):
+                if input_str[i] == "ñ" or input_str[i] == "Ñ":
+                    string_with_enie[i] = input_str[i]
+            new_string = "".join(string_with_enie)
     else:
         if save_enie == False:
             new_string = re.sub(r"[^a-záéíóúüA-ZÁÉÍÓÚÜ0-9.()/-]+", " ", input_str)

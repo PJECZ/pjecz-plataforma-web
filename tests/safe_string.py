@@ -53,7 +53,7 @@ class TestSafeString(unittest.TestCase):
 
     def test_safe_string(self):
         for string, expected in self.strings:
-            self.assertEqual(safe_string(string, do_unidecode=True), expected)
+            self.assertEqual(safe_string(string, do_unidecode=True, save_enie=True), expected)
 
 
 if __name__ == "__main__":
