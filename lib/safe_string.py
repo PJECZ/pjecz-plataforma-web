@@ -68,17 +68,19 @@ def safe_expediente(input_str):
     return limpio
 
 
-def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True, save_n=False):
+def safe_string(input_str, max_len=250, to_uppercase=True, do_unidecode=True, save_enie=False):
     """Safe string"""
     if not isinstance(input_str, str):
         return ""
     if do_unidecode:
-        if save_n:
-            new_string = re.sub(r"[^a-ñA-ZÑ0-9.()/-]+", " ", input_str)
-        else:
-            new_string = re.sub(r"[^a-zA-Z0-9.()/-]+", " ", unidecode(input_str))
+        new_string = re.sub(r"[^a-zA-Z0-9.()/-]+", " ", unidecode(input_str))  # <- Unicode quita la ñ, usar var_temp
+        if save_enie:
+            new_string = re.sub(r"[^a-zñA-ZÑ0-9.()/-]+", " ", new_string)
     else:
-        new_string = re.sub(r"[^a-záéíóúüñA-ZÁÉÍÓÚÜÑ0-9.()/-]+", " ", input_str)
+        if save_enie == False:
+            new_string = re.sub(r"[^a-záéíóúüA-ZÁÉÍÓÚÜ0-9.()/-]+", " ", input_str)
+        else:
+            new_string = re.sub(r"[^a-záéíóúüñA-ZÁÉÍÓÚÜÑ0-9.()/-]+", " ", input_str)
     removed_multiple_spaces = re.sub(r"\s+", " ", new_string)
     final = removed_multiple_spaces.strip()
     if to_uppercase:

@@ -31,7 +31,7 @@ def normalizar(test):
     contador = 0
     autoridades = Autoridad.query.order_by(Autoridad.id).all()
     for autoridad in autoridades:
-        nombre_autoridad_normalizado = safe_string(autoridad.descripcion_corta, save_n=True)
+        nombre_autoridad_normalizado = safe_string(autoridad.descripcion_corta, save_enie=True)
         if autoridad.descripcion_corta != nombre_autoridad_normalizado:
             if test:
                 click.echo(f"{autoridad.id:3} : {autoridad.descripcion_corta} --> {nombre_autoridad_normalizado}")
