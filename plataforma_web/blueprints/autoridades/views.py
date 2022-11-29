@@ -459,8 +459,8 @@ def recover(autoridad_id):
     return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
 
-@autoridades.route("/autoridades/select_list_por_tipo/<string:tipo>", methods=["POST"])
-def select_list_por_tipo(tipo):
+@autoridades.route("/autoridades/list_por_tipo_json/<string:tipo>", methods=["POST"])
+def list_por_tipo_json(tipo):
     """Listado de Autoridades"""
 
     # Consultar

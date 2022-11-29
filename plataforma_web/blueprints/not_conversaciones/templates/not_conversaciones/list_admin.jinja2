@@ -26,7 +26,8 @@
             <thead>
                 <tr>
                     <th>id</th>
-                    <th>Contraparte</th>
+                    <th>Autor</th>
+                    <th>Destinatario</th>
                     <th>Mensaje</th>
                     <th>Fecha y Hora</th>
                 </tr>
@@ -42,7 +43,8 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "id" },
-            { data: "detalle" },
+            { data: "autor" },
+            { data: "destinatario" },
             { data: "mensaje" },
             { data: "fecha_hora" }
         ];
@@ -51,22 +53,18 @@
                 targets: 0, // id
                 data: null,
                 render: function(data, type, row, meta) {
-                    texto = '<a href="' + data.url + '">';
-                    if (row.lectura == false)
-                        texto += ' <span class="iconify text-success" data-icon="mdi:email"></span>';
-                    texto += ' ' + data.id + '</a>';
-                    return texto;
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
             },
             {
-                targets: 1, // detalle
+                targets: [1, 2], // autor, destinatario
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '"><span title="' + data.descripcion + '">' + data.clave + '</span></a>';
                 }
             },
             {
-                targets: 2, // mensaje
+                targets: 3, // mensaje
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.mensaje.length > 32)
@@ -77,20 +75,6 @@
                 }
             }
         ];
-        configDataTable['createdRow'] = function( row, data, dataIndex ){
-            if (data.lectura == false)    {
-                $(row).css("background-color", "#e1ecf4");
-                $(row).css("color", "#0d6efd");
-                $(row).css("font-weight", "bold");
-            }
-        };
         let table = $('#conversaciones_datatable').DataTable(configDataTable);
     </script>
-        {% if mostrar_btn_activas %}
-        <script>
-            setInterval(function() {
-                table.ajax.reload();
-            }, 300000 );
-        </script>
-        {% endif %}
 {% endblock %}

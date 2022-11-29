@@ -35,7 +35,7 @@
             $(".js-example-placeholder-single").select2({
                 // --- Carga de emails por Ajax --- //
                 ajax: {
-                    url: '/autoridades/select_list_por_tipo/{{tipo | lower}}',
+                    url: '/autoridades/list_por_tipo_json/{{buscar | lower}}',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
@@ -44,7 +44,7 @@
                         return { 'searchString': params.term };
                     }
                 },
-                placeholder: "{{tipo}}",
+                placeholder: "{{buscar}}",
                 minimumInputLength: 3,
                 allowClear: true
             });

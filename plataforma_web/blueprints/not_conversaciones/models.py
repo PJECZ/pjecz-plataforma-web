@@ -1,5 +1,5 @@
 """
-Conversaciones, modelos
+Notarías Conversaciones, modelos
 """
 from collections import OrderedDict
 from plataforma_web.extensions import db
@@ -34,7 +34,7 @@ class NotConversacion(db.Model, UniversalMixin):
     ultimo_mensaje_id = db.Column(db.Integer, nullable=True)
 
     # Hijos
-    mensajes = db.relationship("NotMensaje", back_populates="not_conversacion", lazy="noload")
+    not_mensajes = db.relationship("NotMensaje", back_populates="not_conversacion", lazy="noload")
 
     def __repr__(self):
         """Representación"""

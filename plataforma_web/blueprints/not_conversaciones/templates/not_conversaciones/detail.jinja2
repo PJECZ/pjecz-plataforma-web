@@ -25,7 +25,7 @@
         {% elif conversacion.estado == 'ARCHIVADO' %}
             {{ topbar.button_previous('Conversaciones Archivadas', url_for('not_conversaciones.list_archive')) }}
         {% endif %}
-        {% if tipo == "JUZGADO" %}
+        {% if mostrar_btn_archivar %}
             {% if conversacion.estado == 'ACTIVO' %}
                 {{ topbar.button_modal('Archivar', "showModalArchivar('"+url_for('not_conversaciones.archive', conversacion_id=conversacion.id)+"')",  'mdi:archive') }}
             {% endif %}
@@ -35,6 +35,7 @@
 
 {% block content %}
     {% call detail.card('Conversación') %}
+        {{ detail.label_value('id', conversacion.id) }}
         {{ detail.label_value('Autor', conversacion.autor.clave + ' : ' + conversacion.autor.descripcion_corta + ' - ' + conversacion.destinatario.distrito.nombre, url_for('autoridades.detail', autoridad_id=conversacion.autor.id)) }}
         {{ detail.label_value('Destinatario', conversacion.destinatario.clave + ' : ' + conversacion.destinatario.descripcion_corta + ' - ' + conversacion.destinatario.distrito.nombre, url_for('autoridades.detail', autoridad_id=conversacion.destinatario.id)) }}
         {{ detail.label_value('Fecha de Inicio', moment(conversacion.creado).format('llll')) }}
