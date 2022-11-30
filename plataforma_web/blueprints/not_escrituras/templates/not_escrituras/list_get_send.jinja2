@@ -1,0 +1,81 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Escrituras trabajando y enviadas{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('NOT ESCRITURAS') %}
+            {{ topbar.button_list_active('Aprobados', url_for('not_escrituras.list_active')) }}
+            {{ topbar.button_list_inactive('Cerrados', url_for('not_escrituras.list_inactive')) }}
+        {% endif %}
+        {% if current_user.can_insert('NOT ESCRITURAS') %}
+            {{ topbar.button_new('Nuevo Escrituras', url_for('not_escrituras.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="not_escrituras_trabajando_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Juzgado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+    {% call list.card() %}
+        <table id="not_escrituras_enviada_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Juzgado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        // Escrituras trabajando
+        configDataTable['ajax']['url'] = '/not_escrituras/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'juzgado' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            }
+        ];
+        $('#not_escrituras_trabajando_datatable').DataTable(configDataTable);
+
+        // Escrituras enviadas
+        configDataTable['ajax']['url'] = '/not_escrituras/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'juzgado' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            }
+        ];
+        $('#not_escrituras_enviada_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}

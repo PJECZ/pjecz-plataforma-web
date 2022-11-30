@@ -8,6 +8,8 @@ from wtforms.validators import DataRequired, Length, Optional, Regexp
 from lib.safe_string import EXPEDIENTE_REGEXP
 from plataforma_web.blueprints.escrituras.models import Escritura
 
+from lib.wtforms import JSONField
+
 
 class EscrituraForm(FlaskForm):
     """Formulario para Escritura que usan las notarias"""
@@ -16,7 +18,8 @@ class EscrituraForm(FlaskForm):
     autoridad = StringField("Notaría")  # Read only
     expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     tipo = SelectField("Tipo de procedimiento", choices=Escritura.TIPOS, validators=[DataRequired()])
-    texto = TextAreaField("Texto", validators=[DataRequired()], render_kw={"rows": 12})
+    texto = JSONField("Texto", validators=[Optional()])
+    # texto = TextAreaField("Texto", validators=[DataRequired()], render_kw={"rows": 12})
     guardar = SubmitField("Guardar")
 
 
