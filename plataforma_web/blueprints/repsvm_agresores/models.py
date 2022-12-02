@@ -39,6 +39,7 @@ class REPSVMAgresor(db.Model, UniversalMixin):
     consecutivo = db.Column(db.Integer(), nullable=False)
     delito_generico = db.Column(db.String(255), nullable=False)
     delito_especifico = db.Column(db.String(255), nullable=False)
+    es_publico = db.Column(db.Boolean(), default=False, nullable=False)
     nombre = db.Column(db.String(256), nullable=False)
     numero_causa = db.Column(db.String(256), nullable=False)
     pena_impuesta = db.Column(db.String(256), nullable=False)

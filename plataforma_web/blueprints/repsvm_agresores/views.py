@@ -150,6 +150,7 @@ def new():
     """Nuevo Agresor"""
     form = REPSVMAgresorForm()
     if form.validate_on_submit():
+        # TODO: Validar que no este el numero de causa en ese distrito
         # Definir consecutivo
         distrito = form.distrito.data
         consecutivo = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count() + 1
@@ -186,6 +187,7 @@ def edit(repsvm_agresor_id):
     repsvm_agresor = REPSVMAgresor.query.get_or_404(repsvm_agresor_id)
     form = REPSVMAgresorForm()
     if form.validate_on_submit():
+        # TODO: Validar que no este el numero de causa en ese distrito
         repsvm_agresor.distrito = form.distrito.data
         repsvm_agresor.materia_tipo_juzgado = form.materia_tipo_juzgado.data
         repsvm_agresor.numero_causa = safe_string(form.numero_causa.data)

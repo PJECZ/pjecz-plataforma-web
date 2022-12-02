@@ -14,10 +14,6 @@ class REPSVMDelito(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
-    clave_foranea_id = db.Column(db.Integer, db.ForeignKey("tabla_clave_foranea.id"), index=True, nullable=False)
-    clave_foranea = db.relationship("Clase_clave_foranea", back_populates="plural_esta_clase")
-
     # Columnas
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
