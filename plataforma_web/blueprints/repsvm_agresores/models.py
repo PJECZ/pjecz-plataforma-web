@@ -37,8 +37,8 @@ class REPSVMAgresor(db.Model, UniversalMixin):
 
     # Columnas
     consecutivo = db.Column(db.Integer(), nullable=False)
-    delito_generico = db.Column(db.String(255), nullable=False)
-    delito_especifico = db.Column(db.String(255), nullable=False)
+    delito_generico = db.Column(db.String(256), nullable=False)
+    delito_especifico = db.Column(db.String(1024), nullable=False)
     es_publico = db.Column(db.Boolean(), default=False, nullable=False)
     nombre = db.Column(db.String(256), nullable=False)
     numero_causa = db.Column(db.String(256), nullable=False)
@@ -49,7 +49,7 @@ class REPSVMAgresor(db.Model, UniversalMixin):
     tipo_sentencia = db.Column(db.Enum(*TIPOS_SENTENCIAS, name="tipos_juzgados", native_enum=False), index=True, nullable=False)
 
     # Hijos
-    repsvm_agresores_delitos = db.relationship("REPSVMAgresoresDelitos", back_populates="repsvm_agresores")
+    repsvm_agresores_delitos = db.relationship("REPSVMAgresorDelito", back_populates="repsvm_agresor")
 
     def __repr__(self):
         """Representación"""

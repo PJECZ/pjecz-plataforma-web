@@ -18,7 +18,7 @@ class REPSVMDelito(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
-    repsvm_agresores_delitos = db.relationship("REPSVMAgresoresDelitos", back_populates="repsvm_delitos")
+    repsvm_agresores_delitos = db.relationship("REPSVMAgresorDelito", back_populates="repsvm_delito")
 
     def __repr__(self):
         """Representación"""

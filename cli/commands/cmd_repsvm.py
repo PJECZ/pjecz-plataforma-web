@@ -6,8 +6,9 @@ REPSVM
 """
 import csv
 from pathlib import Path
+
 import click
-from lib.safe_string import safe_string, safe_text, safe_url
+from lib.safe_string import safe_clave, safe_expediente, safe_string, safe_text, safe_url
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -17,6 +18,12 @@ from plataforma_web.blueprints.repsvm_agresores.models import REPSVMAgresor
 
 app = create_app()
 db.app = app
+
+TIPOS_JUZGADOS_CLAVES = {
+    "ND": "NO DEFINIDO",
+    "J-EVF": "JUZGADO ESPECIALIZADO EN VIOLENCIA FAMILIAR",
+    "J-PEN": "JUZGADO DE PRIMERA INSTANCIA EN MATERIA PENAL",
+}
 
 
 @click.group()
@@ -38,38 +45,53 @@ def alimentar(entrada_csv):
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         return
 
+    # Consultar el distrito NO DEFINIDO
+    distrito_no_definido = Distrito.query.filter_by(nombre="NO DEFINIDO").first()
+    if distrito_no_definido is None:
+        click.echo("AVISO: No se encontró el distrito NO DEFINIDO.")
+        return
+
     # Contar los agresores de cada distrito para iniciar el consecutivo de cada uno
     distritos_consecutivos = {}
     for distrito in Distrito.query.filter_by(estatus="A").all():
-        distritos_consecutivos[distrito.id] = distrito.repsvm_agresores.count()
+        distritos_consecutivos[distrito.id] = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count()
 
     # Bucle para leer el archivo CSV
     click.echo("Alimentando agresores...")
     contador = 0
     distrito = None
-    distrito_nombre = None
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
 
-            # Validar el tipo de juzgado
-            tipo_juzgado = safe_string(row["tipo_juzgado"])
-            if tipo_juzgado not in REPSVMAgresor.TIPOS_JUZGADOS:
-                click.echo(f"! SE OMITE porque no es valido el tipo de juzgado {tipo_juzgado}")
-                continue
+            # Tomar el tipo de juzgado
+            tipo_juzgado = "ND"
+            if "tipo_juzgado_clave" in row:
+                tipo_juzgado_clave = safe_clave(row["tipo_juzgado_clave"])
+                if tipo_juzgado_clave not in TIPOS_JUZGADOS_CLAVES:
+                    click.echo(f"AVISO: {tipo_juzgado_clave} no es un tipo de juzgado válido.")
+                    continue
+                tipo_juzgado = TIPOS_JUZGADOS_CLAVES[tipo_juzgado_clave]
+            elif "tipo_juzgado" in row:
+                tipo_juzgado = safe_string(row["tipo_juzgado"])
+                if tipo_juzgado not in REPSVMAgresor.TIPOS_JUZGADOS:
+                    click.echo(f"! SE OMITE porque no es valido el tipo de juzgado {tipo_juzgado}")
+                    continue
 
-            # Validar el tipo de sentencia
-            tipo_sentencia = safe_string(row["tipo_sentencia"])
-            if tipo_sentencia not in REPSVMAgresor.TIPOS_SENTENCIAS:
-                click.echo(f"! SE OMITE porque no es valido el tipo de sentencia {tipo_sentencia}")
-                continue
+            # Tomar el tipo de sentencia
+            tipo_sentencia = "ND"
+            if "tipo_sentencia" in row:
+                tipo_sentencia = safe_string(row["tipo_sentencia"])
+                if tipo_sentencia not in REPSVMAgresor.TIPOS_SENTENCIAS:
+                    click.echo(f"! SE OMITE porque no es valido el tipo de sentencia {tipo_sentencia}")
+                    continue
 
             # Consultar el distrito
-            if distrito_nombre is None or distrito_nombre != row["distrito"].strip():
-                distrito_nombre = row["distrito"].strip()
-                distrito = Distrito.query.filter_by(nombre=distrito_nombre).first()
+            distrito = distrito_no_definido
+            if "distrito_id" in row:
+                distrito = Distrito.query.get(int(row["distrito_id"]))
                 if distrito is None:
-                    click.echo(f"! SE OMITE porque no existe el distrito {distrito_nombre}")
+                    click.echo(f"AVISO: No se encontró el distrito {row['distrito_id']}.")
                     continue
 
             # Incrementar el consecutivo
@@ -94,7 +116,7 @@ def alimentar(entrada_csv):
                 numero_causa=safe_string(row["numero_causa"]),
                 pena_impuesta=safe_string(row["pena_impuesta"], save_enie=True),
                 observaciones=safe_text(row["observaciones"]),
-                sentencia_url=safe_url(row["sentencia"]),
+                sentencia_url=safe_url(row["sentencia_url"]),
                 tipo_juzgado=tipo_juzgado,
                 tipo_sentencia=tipo_sentencia,
             ).save()
