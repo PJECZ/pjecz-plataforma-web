@@ -43,4 +43,4 @@ def alimentar_inv_marcas_modelos():
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"  {contador} modelos de inventarios alimentados")
+    click.echo(f"  {contador} marcas y modelos alimentados")
