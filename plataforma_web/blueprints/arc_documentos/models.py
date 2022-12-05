@@ -1,0 +1,80 @@
+"""
+Archivo Documentos, modelos
+"""
+from collections import OrderedDict
+from plataforma_web.extensions import db
+from lib.universal_mixin import UniversalMixin
+
+
+class ArcDocumento(db.Model, UniversalMixin):
+    """Archivo Documentos"""
+
+    UBICACIONES = OrderedDict(  # varchar(16)
+        [
+            ("NO DEFINIDO", "No Definido"),
+            ("ARCHIVO", "Archivo"),
+            ("JUZGADO", "Juzgado"),
+            ("REMESA", "Remesa"),
+        ]
+    )
+
+    TIPO_JUZGADOS = OrderedDict(  # varchar(16)
+        [
+            ("ORAL", "Oral"),
+            ("TRADICCIONAL", "Tradicional"),
+        ]
+    )
+
+    TIPOS = OrderedDict(  # varchar(16)
+        [
+            ("NO DEFINIDO", "No Definido"),
+            ("CUADERNILLO", "Cuadernillo"),
+            ("ENCOMIENDA", "Encomienda"),
+            ("EXHORTO", "Exhorto"),
+            ("EXPEDIENTE", "Expediente"),
+            ("EXPEDIENTILLO", "Expedientillo"),
+            ("FOLIO", "Folio"),
+            ("LIBRO", "Libro"),
+            ("TOCA", "Toca"),
+        ]
+    )
+
+    # Nombre de la tabla
+    __tablename__ = "arc_documentos"
+
+    # Clave primaria
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Clave foránea
+    autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad = db.relationship("Autoridad", back_populates="arc_documentos")
+
+    # Columnas
+    actor = db.Column(db.String(256), nullable=False)
+    anio = db.Column(db.Integer, nullable=False)
+    demandado = db.Column(db.String(256), nullable=False)
+    expediente = db.Column(db.String(16), index=True, nullable=False)  # dígitos/YYYY-XXX
+    expediente_reasignado = db.Column(db.String(16))
+    juicio = db.Column(db.String(128))
+    juzgado_reasignado = db.Column(db.String(32))
+    tipo_juzgado = db.Column(
+        db.Enum(*TIPO_JUZGADOS, name="tipo_juzgados", native_enum=False),
+        nullable=False,
+    )
+    ubicacion = db.Column(
+        db.Enum(*UBICACIONES, name="ubicaciones", native_enum=False),
+        nullable=False,
+        default="NO DEFINIDO",
+        server_default="NO DEFINIDO",
+    )
+    tipo = db.Column(
+        db.Enum(*TIPOS, name="tipos", native_enum=False),
+        index=True,
+        nullable=False,
+        default="NO DEFINIDO",
+        server_default="NO DEFINIDO",
+    )
+
+    def __repr__(self):
+        """Representación"""
+        return f"<Documentos> {self.id}"
