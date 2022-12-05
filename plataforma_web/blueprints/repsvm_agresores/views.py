@@ -135,7 +135,7 @@ def new():
     if form.validate_on_submit():
         # Definir consecutivo
         distrito = form.distrito.data
-        consecutivo = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count() + 1
+        consecutivo = REPSVMAgresor.query.filter_by(estatus="A").filter_by(distrito_id=distrito.id).count() + 1
         # Insertar registro
         repsvm_agresor = REPSVMAgresor(
             distrito=distrito,
@@ -160,6 +160,8 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    if current_user.autoridad.distrito.es_distrito_judicial:
+        form.distrito.data = current_user.autoridad.distrito
     return render_template("repsvm_agresores/new.jinja2", form=form)
 
 

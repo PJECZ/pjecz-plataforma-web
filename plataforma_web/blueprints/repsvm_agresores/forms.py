@@ -26,10 +26,10 @@ class REPSVMAgresorForm(FlaskForm):
     nombre = StringField("Nombre", validators=[DataRequired(), Length(max=256)])
     numero_causa = StringField("Numero de causa", validators=[DataRequired(), Length(max=256)])
     pena_impuesta = StringField("Pena impuesta", validators=[DataRequired(), Length(max=256)])
-    observaciones = TextAreaField("Observaciones", validators=[DataRequired(), Length(max=4092)])
-    sentencia_url = StringField("V.P. Sentencia URL", validators=[DataRequired(), Length(max=512), Regexp(URL_REGEXP)])
     tipo_juzgado = SelectField("Tipo de juzgado", choices=REPSVMAgresor.TIPOS_JUZGADOS, validators=[DataRequired()])
     tipo_sentencia = SelectField("Tipo de sentencia", choices=REPSVMAgresor.TIPOS_SENTENCIAS, validators=[DataRequired()])
+    sentencia_url = StringField("V.P. Sentencia URL", validators=[Optional(), Length(max=512), Regexp(URL_REGEXP)])
+    observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=4092)])
     guardar = SubmitField("Guardar")
 
 
