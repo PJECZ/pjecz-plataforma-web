@@ -11,7 +11,7 @@ CENTROS_TRABAJOS_CSV = "seed/centros_trabajos.csv"
 
 
 def alimentar_centros_trabajos():
-    """Alimentar distritos"""
+    """Alimentar centros de trabajo"""
     ruta = Path(CENTROS_TRABAJOS_CSV)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -39,4 +39,4 @@ def alimentar_centros_trabajos():
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"  {contador} centros de trabajos alimentados.")
+    click.echo(f"  {contador} centros de trabajo alimentados.")

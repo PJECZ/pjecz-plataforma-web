@@ -21,7 +21,7 @@ def alimentar_materias_tipos_juicios():
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         return
-    click.echo("Alimentando materias tipos juicios...")
+    click.echo("Alimentando materias tipos de juicios...")
     contador = 0
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
@@ -38,4 +38,4 @@ def alimentar_materias_tipos_juicios():
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"  {contador} materias tipos juicios alimentados.")
+    click.echo(f"  {contador} tipos de juicios alimentados.")
