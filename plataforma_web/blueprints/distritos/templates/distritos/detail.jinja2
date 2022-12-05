@@ -56,15 +56,12 @@
             <table id="repsvm_agresores_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Consecutivo</th>
-                        <th>T. Juzgado</th>
-                        <th>Delito Específico</th>
-                        <th>T. Sentencia</th>
                         <th>Nombre</th>
-                        <th>No. Causa</th>
-                        <th>Pena Impuesta</th>
-                        <th>Sentencia URL</th>
+                        <th>Número de causa</th>
+                        <th>Pena impuesta</th>
+                        <th>V.P. Sentencia</th>
+                        <th>Es público</th>
                     </tr>
                 </thead>
             </table>
@@ -161,84 +158,38 @@
             configDataTable['ajax']['url'] = '/repsvm_agresores/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'distrito_id': {{ distrito.id}} };
             configDataTable['columns'] = [
-                { data: "detalle" },
                 { data: "consecutivo" },
-                { data: "materia_tipo_juzgado" },
-                { data: "repsvm_delito_especifico" },
-                { data: "repsvm_tipo_sentencia" },
-                { data: "nombre" },
+                { data: "detalle" },
                 { data: "numero_causa" },
                 { data: "pena_impuesta" },
-                { data: "sentencia_url" }
+                { data: "sentencia_url" },
+                { data: "es_publico" },
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: 0, // detalle
+                    targets: 1, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: 2, // materia_tipo_juzgado
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url != '') {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
-                        }
-                        return data.clave;
-                    }
-                },
-                {
-                    targets: 3, // repsvm_delito_especifico
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.descripcion.length > 16)
-                            texto = '<span title="' + data.descripcion + '">' + data.descripcion.substr(0, 16) + '…' + '</span>';
-                        else
-                            texto = data.descripcion;
-                        if (data.url != '') {
-                            return '<a href="' + data.url + '">' + texto + '</a>';
-                        }
-                        return texto;
-                    }
-                },
-                {
-                    targets: 4, // repsvm_tipo_sentencia
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.nombre.length > 16)
-                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 16) + '…' + '</span>';
-                        else
+                        if (data.nombre.length > 24) {
+                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
+                        } else {
                             texto = data.nombre;
-                        if (data.url != '') {
-                            return '<a href="' + data.url + '">' + texto + '</a>';
                         }
-                        return texto;
+                        return '<a href="' + data.url + '">' + texto + '</a>';
                     }
                 },
                 {
-                    targets: 5, // nombre
+                    targets: [2, 3], // Numero de Causa y Pena
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.length > 48)
+                        if (data.length > 24) {
                             return '<span title="' + data + '">' + data.substr(0, 48) + '…' + '</span>';
-                        else
-                            return data;
+                        }
+                        return data;
                     }
                 },
                 {
-                    targets: [6, 7], // numero_causa, pena_impuesta
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.length > 16)
-                            return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
-                        else
-                            return data;
-                    }
-                },
-                {
-                    targets: 8, // sentencia_url
+                    targets: 4, // Sentencia URL
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data != '') {
@@ -246,7 +197,17 @@
                         }
                         return '';
                     }
-                }
+                },
+                {
+                    targets: 5, // Es público
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data) {
+                            return '<span class="iconify" data-icon="mdi:check"></span>';
+                        }
+                        return '';
+                    }
+                },
             ];
             $('#repsvm_agresores_datatable').DataTable(configDataTable);
         </script>
