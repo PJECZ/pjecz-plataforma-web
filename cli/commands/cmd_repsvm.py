@@ -2,6 +2,7 @@
 REPSVM
 
 - alimentar: Alimentar desde un archivo CSV
+- publicar: Cambiar es_publico a verdadero o falso
 - respaldar: Respaldar los agresores a un archivo CSV
 """
 import csv
@@ -130,6 +131,15 @@ def alimentar(entrada_csv):
 
 
 @click.command()
+@click.option("--es_publico", default=None, type=bool, help="True o False")
+@click.option("--repsvm_agresor_id", default=None, type=int, help="ID del agresor")
+def publicar(es_publico, repsvm_agresor_id):
+    """Cambiar es_publico a verdadero o falso"""
+    contador = 0
+    click.echo(f"Se han cambiado {contador} agresores.")
+
+
+@click.command()
 @click.option("--distrito_id", default=None, type=int, help="ID del Distrito")
 @click.option("--output", default="repsvm.csv", type=str, help="Archivo CSV a escribir")
 def respaldar(distrito_id, output):
@@ -191,3 +201,4 @@ def respaldar(distrito_id, output):
 
 cli.add_command(alimentar)
 cli.add_command(respaldar)
+cli.add_command(publicar)
