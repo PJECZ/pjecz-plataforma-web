@@ -3,47 +3,50 @@
 {% import 'macros/quill.jinja2' as quill %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nueva Escritura{% endblock %}
+{% block title %}Nuevo Escritura{% endblock %}
 
 {% block custom_head %}
-    {{ quill.head() }} 
+    {{ quill.head() }}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nueva Escritura') }}
+    {{ topbar.page('Nuevo Escritura') }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
     <div class="row">
         <div class="col-md-7">
-            {% call f.form_tag('not_escrituras.new', fid='not_escrituras_form') %}
-                {% call f.form_group(form.distrito,readonly=true) %}{% endcall %}
+            {% call f.form_tag('not_escrituras.new', fid='not_escritura_form') %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.juzgado) %}{% endcall %}
                 {% call f.form_group(form.estado) %}{% endcall %}
-                {{ quill.div(div_id='contenido_quill') }}
+                {{ quill.div(div_id="contenido_quill")}}
                 <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
-                {% call f.form_group(form.guardar) %}{% endcall %}    
+                {% call f.form_group(form.guardar) %}{% endcall %}
             {% endcall %}
-         </div>
-        <div class="col-md-5">
-            <h4>Aquí va a ir la conversación</h4>
         </div>
+        <div class="col-md-5">
+            <h4>Conversación</h4>
+        </div>
+    </div>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
     <!-- Quill -->
     {{ quill.library() }}
-    {{ quill.editor(form_id='escritura_form', instance='contenidoQuill', div_id='contenido_quill', hidden_id='contenido', content='') }}
-    <!-- Llenar el input de contenido con un JSON vacio porque es nuevo -->
+    {{ quill.editor(form_id='not_escritura_form', instance='contenidoQuill', div_id='contenido_quill', hidden_id='contenido', content='') }}
+    <!-- Llenar el input de contenido con un JSON vacío porque es nuevo -->
     <script>
         $(document).ready(function(){
-            $('#contenido').val('{"ops":[{"insert":"\n"}]}');
+            const vacio = '{"ops":[{"insert":"\n"}]}';
+            $('#contenido').val(vacio);
         });
+
     </script>
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -54,7 +57,7 @@
             $(".js-example-placeholder-single").select2({
                  // --- Carga de emails por Ajax --- //
                 ajax: {
-                    url: '/autoridades/select_juzgados_escrituras/{{buscar}}',
+                    url: '/not_escrituras/select_juzgados_escrituras/{{buscar}}',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
@@ -69,4 +72,5 @@
             });
         });
     </script>
+
 {% endblock %}

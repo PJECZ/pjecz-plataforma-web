@@ -28,11 +28,10 @@ class NotEscritura(db.Model, UniversalMixin):
     # Clave foránea
     notaria_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
     notaria = db.relationship("Autoridad", foreign_keys="NotEscritura.notaria_id")
-
     juzgado_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
     juzgado = db.relationship("Autoridad", foreign_keys="NotEscritura.juzgado_id")
+
     # Columnas
-    # juzgado = db.Column(db.String(256), unique=True, nullable=False)
     estado = db.Column(
         db.Enum(*ESTADOS, name="not_escrituras_estados", native_enum=False),
         index=True,

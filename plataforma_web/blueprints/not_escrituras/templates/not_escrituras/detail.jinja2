@@ -1,0 +1,37 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Escritura{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(not_escritura.id) %}
+        {{ topbar.button_previous('Escrituras', url_for('not_escrituras.list_active')) }}
+        {% if current_user.can_edit('NOT ESCRITURAS') %}
+            {{ topbar.button_edit('Editar', url_for('not_escrituras.edit', not_escritura_id=not_escritura.id)) }}
+            {% if not_escritura.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('not_escrituras.delete', not_escritura_id=not_escritura.id)) }}{% endif %}
+            {% if not_escritura.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('not_escrituras.recover', not_escritura_id=not_escritura.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=not_escritura.estatus) %}
+        {{ detail.label_value_big('ID', not_escritura.id) }}
+        {{ detail.label_value('Notaria', current_user.autoridad.descripcion) }}
+        {{ detail.label_value('Juzgado', not_escritura.juzgado.descripcion) }}
+        {# {{ detail.label_value('Contenido', not_escritura.contenido) }} #}
+    {% endcall %}
+    {% call detail.card(estatus=not_escritura.estatus) %}
+        {{ contenido }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('NOT ESCRITURAS') %}
+        {% if not_escritura.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + not_escritura.id | string + '?') }}{% endif %}
+        {% if not_escritura.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + not_escritura.notaria | string + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

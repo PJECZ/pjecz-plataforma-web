@@ -2,37 +2,41 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Escrituras trabajando y enviadas{% endblock %}
+{% block title %}Escrituras{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('NOT ESCRITURAS') %}
-            {{ topbar.button_list_active('Aprobados', url_for('not_escrituras.list_active')) }}
-            {{ topbar.button_list_inactive('Cerrados', url_for('not_escrituras.list_inactive')) }}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('not_escrituras.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('not_escrituras.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('NOT ESCRITURAS') %}
-            {{ topbar.button_new('Nuevo Escrituras', url_for('not_escrituras.new')) }}
+            {{ topbar.button_new('Nuevo Escritura', url_for('not_escrituras.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call list.card() %}
+    {% call list.card(title="Trabajando") %}
         <table id="not_escrituras_trabajando_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>id</th>
-                    <th>Juzgado</th>
+                    <th>distrito</th>
+                    <th>notaria</th>
+                    <th>estado</th>
                 </tr>
             </thead>
         </table>
     {% endcall %}
-    {% call list.card() %}
-        <table id="not_escrituras_enviada_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+     {% call list.card(title="Envíadas") %}
+        <table id="not_escrituras_enviadas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>id</th>
-                    <th>Juzgado</th>
+                    <th>distrito</th>
+                    <th>notaria</th>
+                    <th>estado</th>
                 </tr>
             </thead>
         </table>
@@ -42,12 +46,13 @@
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
-        // Escrituras trabajando
         configDataTable['ajax']['url'] = '/not_escrituras/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: 'detalle' },
-            { data: 'juzgado' }
+            { data: 'distrito' },
+            { data: 'notaria' },
+            { data: 'estado' }
         ];
         configDataTable['columnDefs'] = [
             {
@@ -56,26 +61,30 @@
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
-            }
+            },
+            {
+                targets: 1, // distrito
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre_corto;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                    }
+                }
+            },
+            {
+                targets: 2, // notaria
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.clave;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                }
+            },
         ];
         $('#not_escrituras_trabajando_datatable').DataTable(configDataTable);
-
-        // Escrituras enviadas
-        configDataTable['ajax']['url'] = '/not_escrituras/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
-        configDataTable['columns'] = [
-            { data: 'detalle' },
-            { data: 'juzgado' }
-        ];
-        configDataTable['columnDefs'] = [
-            {
-                targets: 0, // detalle
-                data: null,
-                render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.id + '</a>';
-                }
-            }
-        ];
-        $('#not_escrituras_enviada_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}
