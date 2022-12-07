@@ -51,6 +51,10 @@ def datatable_json():
         consulta = consulta.filter(NotEscritura.juzgado_id == request.form["juzgado_id"])
     if "estado" in request.form:
         consulta = consulta.filter(NotEscritura.estado == request.form["estado"])
+    current_user_roles = current_user.get_roles()
+    if ROL_JUZGADO in current_user_roles:
+        consulta = consulta.filter(NotEscritura.estado != "TRABAJANDO")
+
     registros = consulta.order_by(NotEscritura.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

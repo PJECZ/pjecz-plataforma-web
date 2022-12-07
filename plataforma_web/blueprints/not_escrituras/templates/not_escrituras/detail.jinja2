@@ -19,7 +19,7 @@
 {% block content %}
     {% call detail.card(estatus=not_escritura.estatus) %}
         {{ detail.label_value_big('ID', not_escritura.id) }}
-        {{ detail.label_value('Notaria', current_user.autoridad.descripcion) }}
+        {{ detail.label_value('Notaria', not_escritura.notaria.descripcion) }}
         {{ detail.label_value('Juzgado', not_escritura.juzgado.descripcion) }}
         {# {{ detail.label_value('Contenido', not_escritura.contenido) }} #}
     {% endcall %}
