@@ -95,7 +95,7 @@ def alimentar():
     alimentar_funcionarios()
     alimentar_autoridades_funcionarios()
     alimentar_peritos_tipos()
-    alimentar_soportes_categorias()
+    # alimentar_soportes_categorias()
     click.echo("Termina alimentar.")
 
 

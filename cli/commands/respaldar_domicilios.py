@@ -22,6 +22,7 @@ def respaldar_domicilios(salida: str = "domicilios.csv"):
         respaldo.writerow(
             [
                 "domicilio_id",
+                "edificio",
                 "estado",
                 "municipio",
                 "calle",
@@ -37,6 +38,7 @@ def respaldar_domicilios(salida: str = "domicilios.csv"):
             respaldo.writerow(
                 [
                     domicilio.id,
+                    domicilio.edificio,
                     domicilio.estado,
                     domicilio.municipio,
                     domicilio.calle,

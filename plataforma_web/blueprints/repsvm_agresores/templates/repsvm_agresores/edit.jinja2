@@ -5,7 +5,7 @@
 {% block title %}REPSVM Editar Agresor{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar Agresor') }}
+    {{ topbar.page('REPSVM Editar Agresor') }}
 {% endblock %}
 
 {% block content %}
@@ -13,14 +13,15 @@
         {% set form_kwargs = {'repsvm_agresor_id': repsvm_agresor.id} %}
         {% call f.form_tag('repsvm_agresores.edit', fid='repsvm_agresor_form', **form_kwargs) %}
             {% call f.form_group(form.distrito) %}{% endcall %}
-            {% call f.form_group(form.materia_tipo_juzgado) %}{% endcall %}
-            {% call f.form_group(form.numero_causa) %}{% endcall %}
+            {% call f.form_group(form.delito_generico) %}{% endcall %}
+            {% call f.form_group(form.delito_especifico) %}{% endcall %}
             {% call f.form_group(form.nombre) %}{% endcall %}
-            {% call f.form_group(form.repsvm_delito_especifico) %}{% endcall %}
-            {% call f.form_group(form.repsvm_tipo_sentencia) %}{% endcall %}
+            {% call f.form_group(form.numero_causa) %}{% endcall %}
             {% call f.form_group(form.pena_impuesta) %}{% endcall %}
-            {% call f.form_group(form.observaciones) %}{% endcall %}
+            {% call f.form_group(form.tipo_juzgado) %}{% endcall %}
+            {% call f.form_group(form.tipo_sentencia) %}{% endcall %}
             {% call f.form_group(form.sentencia_url) %}{% endcall %}
+            {% call f.form_group(form.observaciones) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

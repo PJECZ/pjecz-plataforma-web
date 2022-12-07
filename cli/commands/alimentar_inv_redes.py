@@ -38,4 +38,4 @@ def alimentar_inv_redes():
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"  {contador} inventarios redes alimentadas")
+    click.echo(f"  {contador} redes alimentadas")

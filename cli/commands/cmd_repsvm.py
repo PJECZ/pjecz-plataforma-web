@@ -6,22 +6,24 @@ REPSVM
 """
 import csv
 from pathlib import Path
+
 import click
-from lib.safe_string import safe_string, safe_text, safe_url
+from lib.safe_string import safe_clave, safe_expediente, safe_string, safe_text, safe_url
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
 from plataforma_web.blueprints.distritos.models import Distrito
-from plataforma_web.blueprints.materias.models import Materia
-from plataforma_web.blueprints.materias_tipos_juzgados.models import MateriaTipoJuzgado
 from plataforma_web.blueprints.repsvm_agresores.models import REPSVMAgresor
-from plataforma_web.blueprints.repsvm_delitos_especificos.models import REPSVMDelitoEspecifico
-from plataforma_web.blueprints.repsvm_delitos_genericos.models import REPSVMDelitoGenerico
-from plataforma_web.blueprints.repsvm_tipos_sentencias.models import REPSVMTipoSentencia
 
 app = create_app()
 db.app = app
+
+TIPOS_JUZGADOS_CLAVES = {
+    "ND": "NO DEFINIDO",
+    "J-EVF": "JUZGADO ESPECIALIZADO EN VIOLENCIA FAMILIAR",
+    "J-PEN": "JUZGADO DE PRIMERA INSTANCIA EN MATERIA PENAL",
+}
 
 
 @click.group()
@@ -33,6 +35,8 @@ def cli():
 @click.argument("entrada_csv")
 def alimentar(entrada_csv):
     """Alimentar desde un archivo CSV"""
+
+    # Validar que el archivo CSV exista
     ruta = Path(entrada_csv)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
@@ -40,91 +44,88 @@ def alimentar(entrada_csv):
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         return
-    if MateriaTipoJuzgado.query.count() == 0:
-        MateriaTipoJuzgado(
-            materia=Materia.query.filter_by(nombre="NO DEFINIDO").first(),
-            clave="ND",
-            descripcion="NO DEFINIDO",
-        ).save()
-        click.echo("+ Se agrega el tipo de juzgado NO DEFINIDO")
-    if REPSVMTipoSentencia.query.count() == 0:
-        REPSVMTipoSentencia(nombre="NO DEFINIDO").save()
-        click.echo("+ Se agrega el tipo de sentencia NO DEFINIDO")
-    if REPSVMDelitoGenerico.query.count() == 0:
-        REPSVMDelitoGenerico(nombre="NO DEFINIDO").save()
-        click.echo("+ Se agrega el delito generico NO DEFINIDO")
-    if REPSVMDelitoEspecifico.query.count() == 0:
-        REPSVMDelitoEspecifico(
-            repsvm_delito_generico=REPSVMDelitoGenerico.query.filter_by(nombre="NO DEFINIDO").first(),
-            descripcion="NO DEFINIDO",
-        ).save()
-        click.echo("+ Se agrega el delito especifico NO DEFINIDO")
-    click.echo("Alimentando ubicaciones de expedientes...")
+
+    # Consultar el distrito NO DEFINIDO
+    distrito_no_definido = Distrito.query.filter_by(nombre="NO DEFINIDO").first()
+    if distrito_no_definido is None:
+        click.echo("AVISO: No se encontró el distrito NO DEFINIDO.")
+        return
+
+    # Contar los agresores de cada distrito para iniciar el consecutivo de cada uno
+    distritos_consecutivos = {}
+    for distrito in Distrito.query.filter_by(estatus="A").all():
+        distritos_consecutivos[distrito.id] = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count()
+
+    # Bucle para leer el archivo CSV
+    click.echo("Alimentando agresores...")
     contador = 0
+    distrito = None
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            # Distrito
-            distrito_nombre = row["distrito"].strip()
-            distrito = Distrito.query.filter_by(nombre=distrito_nombre).first()
-            if distrito is None:
-                click.echo(f"! SE OMITE porque no existe el distrito {distrito_nombre}")
+
+            # Tomar el tipo de juzgado
+            tipo_juzgado = "ND"
+            if "tipo_juzgado_clave" in row:
+                tipo_juzgado_clave = safe_clave(row["tipo_juzgado_clave"])
+                if tipo_juzgado_clave not in TIPOS_JUZGADOS_CLAVES:
+                    click.echo(f"AVISO: {tipo_juzgado_clave} no es un tipo de juzgado válido.")
+                    continue
+                tipo_juzgado = TIPOS_JUZGADOS_CLAVES[tipo_juzgado_clave]
+            elif "tipo_juzgado" in row:
+                tipo_juzgado = safe_string(row["tipo_juzgado"])
+                if tipo_juzgado not in REPSVMAgresor.TIPOS_JUZGADOS:
+                    click.echo(f"! SE OMITE porque no es valido el tipo de juzgado {tipo_juzgado}")
+                    continue
+
+            # Tomar el tipo de sentencia
+            tipo_sentencia = "ND"
+            if "tipo_sentencia" in row:
+                tipo_sentencia = safe_string(row["tipo_sentencia"])
+                if tipo_sentencia not in REPSVMAgresor.TIPOS_SENTENCIAS:
+                    click.echo(f"! SE OMITE porque no es valido el tipo de sentencia {tipo_sentencia}")
+                    continue
+
+            # Consultar el distrito
+            distrito = distrito_no_definido
+            if "distrito_id" in row:
+                distrito = Distrito.query.get(int(row["distrito_id"]))
+                if distrito is None:
+                    click.echo(f"AVISO: No se encontró el distrito {row['distrito_id']}.")
+                    continue
+
+            # Incrementar el consecutivo
+            if distrito.id not in distritos_consecutivos:
+                click.echo(f"! SE OMITE porque no existe el ID distrito {distrito.id}")
                 continue
-            # Materia
-            materia_nombre = safe_string(row["materia"])
-            materia = Materia.query.filter_by(nombre=materia_nombre).first()
-            if materia is None:
-                click.echo(f"! SE OMITE porque no existe la materia {materia_nombre}")
-                continue
-            # Tipo de juzgado
-            materia_tipo_juzgado_clave = safe_string(row["tipo_juzgado_clave"])
-            materia_tipo_juzgado_descripcion = safe_string(row["tipo_juzgado_descripcion"])
-            materia_tipo_juzgado = MateriaTipoJuzgado.query.filter_by(clave=materia_tipo_juzgado_clave).first()
-            if materia_tipo_juzgado is None:
-                materia_tipo_juzgado = MateriaTipoJuzgado(
-                    materia=materia,
-                    clave=materia_tipo_juzgado_clave,
-                    descripcion=materia_tipo_juzgado_descripcion,
-                ).save()
-                click.echo(f"+ Se agrega el tipo de juzgado {materia_tipo_juzgado_clave}")
-            # Tipo de sentencia
-            repsvm_tipo_sentencia_nombre = safe_string(row["tipo_sentencia"])
-            repsvm_tipo_sentencia = REPSVMTipoSentencia.query.filter_by(nombre=repsvm_tipo_sentencia_nombre).first()
-            if repsvm_tipo_sentencia is None:
-                repsvm_tipo_sentencia = REPSVMTipoSentencia(nombre=repsvm_tipo_sentencia_nombre).save()
-                click.echo(f"+ Se agrega el tipo de sentencia {repsvm_tipo_sentencia_nombre}")
-            # Delito generico
-            repsvm_delito_generico_nombre = safe_string(row["delito_generico"])
-            repsvm_delito_generico = REPSVMDelitoGenerico.query.filter_by(nombre=repsvm_delito_generico_nombre).first()
-            if repsvm_delito_generico is None:
-                repsvm_delito_generico = REPSVMDelitoGenerico(nombre=repsvm_delito_generico_nombre).save()
-                click.echo(f"+ Se agrega el delito generico {repsvm_delito_generico_nombre}")
-            # Delito especifico
-            repsvm_delito_especifico_descripcion = safe_string(row["delito_especifico"])
-            repsvm_delito_especifico = REPSVMDelitoEspecifico.query.filter(REPSVMDelitoEspecifico.repsvm_delito_generico == repsvm_delito_generico).filter_by(descripcion=repsvm_delito_especifico_descripcion).first()
-            if repsvm_delito_especifico is None:
-                repsvm_delito_especifico = REPSVMDelitoEspecifico(
-                    repsvm_delito_generico=repsvm_delito_generico,
-                    descripcion=repsvm_delito_especifico_descripcion,
-                ).save()
-                click.echo(f"+ Se agrega el delito especifico {repsvm_delito_especifico_descripcion}")
+            distritos_consecutivos[distrito.id] += 1
+
+            # Determinar si es publico o no
+            es_publico = False
+            if "es_publico" in row:
+                es_publico = row["es_publico"].strip().lower() == "si"
+
             # Insertar agresor
             REPSVMAgresor(
                 distrito=distrito,
-                materia_tipo_juzgado=materia_tipo_juzgado,
-                repsvm_delito_especifico=repsvm_delito_especifico,
-                repsvm_tipo_sentencia=repsvm_tipo_sentencia,
-                nombre=safe_string(row["nombre"]),
+                consecutivo=distritos_consecutivos[distrito.id],
+                delito_generico=safe_string(row["delito_generico"], save_enie=True),
+                delito_especifico=safe_string(row["delito_especifico"], save_enie=True),
+                es_publico=es_publico,
+                nombre=safe_string(row["nombre"], save_enie=True),
                 numero_causa=safe_string(row["numero_causa"]),
-                pena_impuesta=safe_string(row["pena_impuesta"], do_unidecode=False),
+                pena_impuesta=safe_string(row["pena_impuesta"], save_enie=True),
                 observaciones=safe_text(row["observaciones"]),
                 sentencia_url=safe_url(row["sentencia_url"]),
-                consecutivo=int(row["consecutivo"]),
+                tipo_juzgado=tipo_juzgado,
+                tipo_sentencia=tipo_sentencia,
             ).save()
+
             # Incrementar contador
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
+
     click.echo(f"{contador} alimentados.")
 
 
