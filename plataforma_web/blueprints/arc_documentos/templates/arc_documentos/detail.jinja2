@@ -1,0 +1,239 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Documento{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Documento - ' + documento.id | string ) %}
+        {{ topbar.button_previous('Documentos', url_for('arc_documentos.list_active')) }}
+        {% if current_user.can_edit('ARC DOCUMENTOS') %}
+            {# {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
+            {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
+            {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}{% endif %} #}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Detalle #}
+    {% call detail.card(estatus=documento.estatus) %}
+        {{ detail.label_value('Núm. Expediente', documento.expediente) }}
+        {{ detail.label_value('Año', documento.anio) }}
+        {{ detail.label_value('Juzgado', documento.autoridad.clave + ' : ' + documento.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=documento.autoridad.id)) }}
+        <hr>
+        {{ detail.label_value('Actor', documento.actor) }}
+        {{ detail.label_value('Demandado', documento.demandado) }}
+        <hr>
+        {{ detail.label_value('Núm. Exp. Reasignado', documento.expediente_reasignado) }}
+        {{ detail.label_value('Juzgado Reasignado', documento.juzgado_reasignado) }}
+        <hr>
+        {{ detail.label_value('Tipo', documento.tipo) }}
+        {{ detail.label_value('Juicio', documento.juicio) }}
+        {{ detail.label_value('Tipo de Juzgado', documento.tipo_juzgado) }}
+        <hr>
+        <div class="row">
+            <div class="col-md-3 text-end">Ubicación</div>
+            <div class="col-md-9">
+                {% if documento.ubicacion == "JUZGADO" %}
+                    <span class="badge rounded-pill bg-info text-dark">{{ documento.ubicacion }} <span class="iconify" data-icon="mdi:gavel"></span></span>
+                {% elif documento.ubicacion == "NO DEFINIDO" %}
+                    <span class="badge rounded-pill bg-danger">{{ documento.ubicacion }} <span class="iconify" data-icon="mdi:close-octagon"></span></span>
+                {% elif documento.ubicacion == "ARCHIVO" %}
+                    <span class="badge rounded-pill bg-secondary">{{ documento.ubicacion }} <span class="iconify" data-icon="mdi:archive"></span></span>
+                {% elif documento.ubicacion == "REMESA" %}
+                    <span class="badge rounded-pill bg-warning text-dark">{{ documento.ubicacion }} <span class="iconify" data-icon="mdi:truck"></span></span>
+                {% else %}
+                    <strong>{{ documento.ubicacion }}</strong>
+                {% endif %}
+            </div>
+        </div>
+    {% endcall %}
+    {# Historial #}
+    {% call detail.card('Historial') %}
+        <!-- Formulario de filtros -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="fechaDesdeInput" type="date" class="form-control" aria-label="desde" aria-describedby="button-buscar" onchange="buscar(); return false;">
+                            <label for="fechaDesdeInput">Fecha Desde</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="fechaHastaInput" type="date" class="form-control" aria-label="hasta" aria-describedby="button-buscar" onchange="buscar(); return false;">
+                            <label for="fechaHastaInput">Fecha Hasta</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select class="form-select" id="accionSelect" name="accionSelect" aria-label="Todas" onchange="buscar(); return false;" style="flex: inherit;">
+                                <option selected value="">TODAS</option>
+                                {% for accion in acciones %}
+                                    <option value="{{accion}}">{{accion}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="accionSelect">Acción</label>
+                        </div>
+                    </div>
+                    <div class="col-10">
+                        <div class="form-floating">
+                            <input id="usuarioInput" type="text" class="form-control" aria-label="text" aria-describedby="button-buscar" style="text-transform: uppercase" disabled>
+                            <label for="usuarioInput">Usuario</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable -->
+        <table id="documentos_bitacora_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Usuario</th>
+                    <th>Fojas</th>
+                    <th>Observaciones</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('ARC DOCUMENTOS') %}
+        {% if documento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar?') }}{% endif %}
+        {% if documento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar?') }}{% endif %}
+    {% endif %}
+    {{ detail.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/arc_documentos_bitacoras/datatable_json';
+        configDataTable['ajax']['data'] = { 'estatus': "A", 'arc_documento_id': {{ documento.id }} };
+        configDataTable['columns'] = [
+            { data: "modificado" },
+            { data: "usuario" },
+            { data: "fojas" },
+            { data: "observaciones" },
+            { data: "accion" }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // modificado
+                type: "date",
+                render: function (data, type, row) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 1, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 3, // observaciones
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16)
+                        texto = '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                    else
+                        texto = data;
+                    return texto;
+                }
+            },
+            {
+                targets: 4, // accion
+                data: null,
+                render: function(data, type, row, meta) {
+
+                    switch (data)    {
+                        case "ALTA":        return '<span class="badge rounded-pill bg-info">ALTA</span>';   break;
+                        case "CORRECCION":  return '<span class="badge rounded-pill bg-warning text-dark">CORRECCION</span>';   break;
+                        case "RECIBIO":     return '<span class="badge rounded-pill bg-primary">RECIBIO</span>';   break;
+                        case "ARCHIVAR":    return '<span class="badge rounded-pill bg-secondary">ARCHIVAR</span>';   break;
+                    }
+                    return data;
+                }
+            }
+        ];
+
+        // Búsqueda
+        let fechaDesde = document.getElementById('fechaDesdeInput').value
+        let fechaHasta = document.getElementById('fechaHastaInput').value
+        let accion = document.getElementById('accionSelect').value;
+        let usuario = document.getElementById('usuarioInput').value.toUpperCase();
+
+        if(fechaDesde != '')
+            configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
+        if(fechaHasta != '')
+            configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
+        if(accion != '')
+            configDataTable['ajax']['data']['accion'] = accion;
+        if(usuario != '')
+            configDataTable['ajax']['data']['usuario'] = usuario;
+        
+        // Datatable
+        $('#documentos_bitacora_datatable').DataTable(configDataTable);
+    </script>
+    {{ detail.moment_js(moment) }}
+    <!-- Función de buscador -->
+    <script type="text/javascript">
+        function buscar() {
+            let fechaDesde = document.getElementById('fechaDesdeInput').value
+            let fechaHasta = document.getElementById('fechaHastaInput').value
+            let accion = document.getElementById('accionSelect').value;
+            let usuario = document.getElementById('usuarioInput').value.toUpperCase();
+
+            if( configDataTable['ajax']['data']['fecha_desde'] === undefined && fechaDesde === '' &&
+                configDataTable['ajax']['data']['fecha_hasta'] === undefined && fechaHasta === '' &&
+                configDataTable['ajax']['data']['accion'] === undefined && accion === '' &&
+                configDataTable['ajax']['data']['usuario'] === undefined && usuario === ''
+            ) return false;
+
+            $('#documentos_bitacora_datatable').DataTable().destroy();
+
+            if(fechaDesde == '')
+                delete configDataTable['ajax']['data']['fecha_desde'];
+            else
+                configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
+            if(fechaHasta == '')
+                delete configDataTable['ajax']['data']['fecha_hasta'];
+            else
+                configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
+            if(accion == '')
+                delete configDataTable['ajax']['data']['accion'];
+            else
+                configDataTable['ajax']['data']['accion'] = accion;
+            if(usuario == '')
+                delete configDataTable['ajax']['data']['usuario'];
+            else
+                configDataTable['ajax']['data']['usuario'] = usuario;
+
+            $('#documentos_bitacora_datatable').DataTable(configDataTable);
+        };
+
+        function limpiar()  {
+            if( configDataTable['ajax']['data']['fecha_desde'] === undefined &&
+                configDataTable['ajax']['data']['fecha_hasta'] === undefined &&
+                configDataTable['ajax']['data']['accion'] === undefined &&
+                configDataTable['ajax']['data']['usuario'] === undefined
+            ) return false;
+
+            delete configDataTable['ajax']['data']['fecha_desde'];
+            delete configDataTable['ajax']['data']['fecha_hasta'];
+            delete configDataTable['ajax']['data']['accion'];
+            delete configDataTable['ajax']['data']['usuario'];
+
+            $('#documentos_bitacora_datatable').DataTable().destroy();
+            $('#documentos_bitacora_datatable').DataTable(configDataTable);
+        };
+    </script>
+{% endblock %}

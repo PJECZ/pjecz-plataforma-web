@@ -57,6 +57,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     contrasena = db.Column(db.String(256), nullable=False)
 
     # Hijos
+    arc_documentos_bitacoras = db.relationship("ArcDocumentoBitacora", back_populates="usuario", lazy="noload")
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="usuario", lazy="noload")
     entradas_salidas = db.relationship("EntradaSalida", back_populates="usuario", lazy="noload")

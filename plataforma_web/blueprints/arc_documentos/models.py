@@ -56,7 +56,7 @@ class ArcDocumento(db.Model, UniversalMixin):
     expediente = db.Column(db.String(16), index=True, nullable=False)  # dígitos/YYYY-XXX
     expediente_reasignado = db.Column(db.String(16))
     juicio = db.Column(db.String(128))
-    juzgado_reasignado = db.Column(db.String(32))
+    juzgado_reasignado = db.Column(db.String(64))
     tipo_juzgado = db.Column(
         db.Enum(*TIPO_JUZGADOS, name="tipo_juzgados", native_enum=False),
         nullable=False,
@@ -74,6 +74,9 @@ class ArcDocumento(db.Model, UniversalMixin):
         default="NO DEFINIDO",
         server_default="NO DEFINIDO",
     )
+
+    # Hijos
+    arc_documentos_bitacoras = db.relationship("ArcDocumentoBitacora", back_populates="arc_documento", lazy="noload")
 
     def __repr__(self):
         """Representación"""
