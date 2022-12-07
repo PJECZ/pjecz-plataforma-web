@@ -2,13 +2,14 @@
 REPSVM
 
 - alimentar: Alimentar desde un archivo CSV
+- publicar: Cambiar es_publico a verdadero o falso
 - respaldar: Respaldar los agresores a un archivo CSV
 """
 import csv
 from pathlib import Path
 
 import click
-from lib.safe_string import safe_clave, safe_expediente, safe_string, safe_text, safe_url
+from lib.safe_string import safe_clave, safe_string, safe_text, safe_url
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -52,9 +53,9 @@ def alimentar(entrada_csv):
         return
 
     # Contar los agresores de cada distrito para iniciar el consecutivo de cada uno
-    distritos_consecutivos = {}
+    consecutivos = {}
     for distrito in Distrito.query.filter_by(estatus="A").all():
-        distritos_consecutivos[distrito.id] = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count()
+        consecutivos[distrito.id] = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count()
 
     # Bucle para leer el archivo CSV
     click.echo("Alimentando agresores...")
@@ -95,10 +96,10 @@ def alimentar(entrada_csv):
                     continue
 
             # Incrementar el consecutivo
-            if distrito.id not in distritos_consecutivos:
+            if distrito.id not in consecutivos:
                 click.echo(f"! SE OMITE porque no existe el ID distrito {distrito.id}")
                 continue
-            distritos_consecutivos[distrito.id] += 1
+            consecutivos[distrito.id] += 1
 
             # Determinar si es publico o no
             es_publico = False
@@ -108,7 +109,7 @@ def alimentar(entrada_csv):
             # Insertar agresor
             REPSVMAgresor(
                 distrito=distrito,
-                consecutivo=distritos_consecutivos[distrito.id],
+                consecutivo=consecutivos[distrito.id],
                 delito_generico=safe_string(row["delito_generico"], save_enie=True),
                 delito_especifico=safe_string(row["delito_especifico"], save_enie=True),
                 es_publico=es_publico,
@@ -127,6 +128,60 @@ def alimentar(entrada_csv):
                 click.echo(f"  Van {contador}...")
 
     click.echo(f"{contador} alimentados.")
+
+
+@click.command()
+@click.option("--es_publico", default=True, type=bool, help="True o False")
+@click.option("--repsvm_agresor_id", default=None, type=int, help="ID del agresor")
+def publicar(es_publico, repsvm_agresor_id):
+    """Cambiar es_publico a verdadero o falso"""
+
+    # Si se especifica el ID del agresor
+    if repsvm_agresor_id is not None:
+        repsvm_agresor = REPSVMAgresor.query.get(repsvm_agresor_id)
+        if repsvm_agresor is None:
+            click.echo(f"! No existe el agresor {repsvm_agresor_id}")
+            return
+        repsvm_agresor.es_publico = es_publico
+        if es_publico is False:
+            repsvm_agresor.consecutivo = 0
+        repsvm_agresor.save()
+        click.echo(f"Se cambió es_publico de {repsvm_agresor_id} a {es_publico}")
+        return
+
+    # Inicializar el consecutivo de cada distrito
+    consecutivos = {}
+    for distrito in Distrito.query.filter_by(estatus="A").all():
+        consecutivos[distrito.id] = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count()
+
+    # Bucle por todos los agresores
+    contador = 0
+    distrito_id = None
+    for repsvm_agresor in REPSVMAgresor.query.filter_by(estatus="A").order_by(REPSVMAgresor.distrito_id, REPSVMAgresor.nombre):
+
+        # Si es el primer registro o si cambia el distrito
+        if distrito_id != repsvm_agresor.distrito_id:
+            distrito_id = repsvm_agresor.distrito_id
+
+        # Cambiar es_publico
+        repsvm_agresor.es_publico = es_publico
+
+        # Si es_publico es verdadero, incrementar el consecutivo y asignarlo
+        if es_publico:
+            consecutivos[distrito_id] += 1
+            repsvm_agresor.consecutivo = consecutivos[distrito_id]
+        else:
+            repsvm_agresor.consecutivo = 0  # De lo contrario, ponerlo en cero
+
+        # Guardar
+        repsvm_agresor.save()
+
+        # Incrementar contador
+        contador += 1
+        if contador % 100 == 0:
+            click.echo(f"  Van {contador}...")
+
+    click.echo(f"Se cambiaron {contador} agresores con es_publico a {es_publico}")
 
 
 @click.command()
@@ -191,3 +246,4 @@ def respaldar(distrito_id, output):
 
 cli.add_command(alimentar)
 cli.add_command(respaldar)
+cli.add_command(publicar)

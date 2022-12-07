@@ -44,7 +44,7 @@ def datatable_json():
         consulta = consulta.filter(REPSVMAgresor.nombre.contains(safe_string(request.form["nombre"])))
     if "numero_causa" in request.form:
         consulta = consulta.filter(REPSVMAgresor.numero_causa.contains(safe_string(request.form["numero_causa"])))
-    registros = consulta.order_by(REPSVMAgresor.nombre).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(REPSVMAgresor.distrito_id, REPSVMAgresor.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -64,11 +64,49 @@ def datatable_json():
                 "numero_causa": resultado.numero_causa,
                 "pena_impuesta": resultado.pena_impuesta,
                 "sentencia_url": resultado.sentencia_url,
-                "es_publico": resultado.es_publico,
+                "toggle_es_publico": {
+                    "id": resultado.id,
+                    "es_publico": resultado.es_publico,
+                    "url": url_for("repsvm_agresores.toggle_es_publico_json", repsvm_agresor_id=resultado.id),
+                },
             }
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@repsvm_agresores.route("/repsvm_agresores/toggle_es_publico/<int:repsvm_agresor_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def toggle_es_publico_json(repsvm_agresor_id):
+    """Cambiar un agresor para que sea publico o privado"""
+
+    # Consultar agresor
+    repsvm_agresor = REPSVMAgresor.query.get(repsvm_agresor_id)
+    if repsvm_agresor is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_publico a su opuesto
+    repsvm_agresor.es_publico = not repsvm_agresor.es_publico
+
+    # Si es publico, definir consecutivo
+    if repsvm_agresor.es_publico:
+        maximo = REPSVMAgresor.query.filter_by(estatus="A", es_publico=True, distrito_id=repsvm_agresor.distrito_id).order_by(REPSVMAgresor.consecutivo.desc()).first()
+        if maximo is None:
+            repsvm_agresor.consecutivo = 1  # Es el primero de su distrito
+        else:
+            repsvm_agresor.consecutivo = maximo.consecutivo + 1  # Es el siguiente de su distrito
+    else:
+        repsvm_agresor.consecutivo = 0  # No es publico, poner consecutivo en cero
+
+    # Guardar
+    repsvm_agresor.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Es publico" if repsvm_agresor.es_publico else "Es privado",
+        "es_publico": repsvm_agresor.es_publico,
+    }
 
 
 @repsvm_agresores.route("/repsvm_agresores")
