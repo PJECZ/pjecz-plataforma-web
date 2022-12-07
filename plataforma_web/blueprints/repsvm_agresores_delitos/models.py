@@ -14,7 +14,7 @@ class REPSVMAgresorDelito(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
+    # Claves foráneas
     repsvm_agresor_id = db.Column(db.Integer, db.ForeignKey("repsvm_agresores.id"), index=True, nullable=False)
     repsvm_agresor = db.relationship("REPSVMAgresor", back_populates="repsvm_agresores_delitos")
     repsvm_delito_id = db.Column(db.Integer, db.ForeignKey("repsvm_delitos.id"), index=True, nullable=False)
