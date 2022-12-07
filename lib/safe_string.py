@@ -50,7 +50,7 @@ def safe_expediente(input_str):
         return ""
     elementos = re.sub(r"[^a-zA-Z0-9]+", "|", unidecode(input_str)).split("|")
     try:
-        numero = str(elementos[0])
+        numero = int(elementos[0])
         ano = int(elementos[1])
     except (IndexError, ValueError) as error:
         raise error
@@ -83,6 +83,8 @@ def safe_string(input_str, max_len=250, do_unidecode=True, save_enie=False, to_u
                     new_string += "Ñ"
                 else:
                     new_string += unidecode(char)
+        else:
+            new_string = re.sub(r"[^a-zA-Z0-9.()/-]+", " ", unidecode(input_str))
     else:
         if save_enie is False:
             new_string = re.sub(r"[^a-záéíóúüA-ZÁÉÍÓÚÜ0-9.()/-]+", " ", input_str)

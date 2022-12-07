@@ -2,6 +2,7 @@
 Archivo Documentos, vistas
 """
 import json
+from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
@@ -47,7 +48,7 @@ def datatable_json():
         else:
             consulta = consulta.filter(ArcDocumento.expediente.contains(safe_expediente(request.form["expediente"])))
     if "partes" in request.form:
-        consulta = consulta.filter(or_(ArcDocumento.actor.contains(safe_string(request.form["partes"])), ArcDocumento.demandado.contains(safe_string(request.form["partes"]))))
+        consulta = consulta.filter(or_(ArcDocumento.actor.contains(safe_string(request.form["partes"], save_enie=True)), ArcDocumento.demandado.contains(safe_string(request.form["partes"], save_enie=True))))
     if "tipo" in request.form:
         consulta = consulta.filter_by(tipo=request.form["tipo"])
     if "ubicacion" in request.form:
@@ -122,24 +123,29 @@ def new():
     form = ArcDocumentoNewForm()
     if form.validate_on_submit():
         # Validar que la clave no se repita
-        num_expediente = safe_expediente(form.num_expediente.data)
+        try:
+            num_expediente = safe_expediente(form.num_expediente.data)
+        except ValueError:
+            num_expediente = None
         juzgado_id = 34  # form.juzgado.data
         anio = int(form.anio.data)
         if ArcDocumento.query.filter_by(expediente=num_expediente).first():
             flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
-        elif anio < 1900 or anio > 2050:
-            flash("El Año debe ser una fecha entre 1900 y 2050", "warning")
+        elif anio < 1950 or anio > date.today().year:
+            flash(f"El Año debe ser una fecha entre 1950 y el año actual {date.today().year}", "warning")
+        elif num_expediente is None:
+            flash("El número de expediente no es válido", "warning")
         else:
             documento = ArcDocumento(
                 autoridad_id=juzgado_id,
                 expediente=num_expediente,
                 anio=anio,
-                actor=safe_string(form.actor.data),
-                demandado=safe_string(form.demandado.data),
-                juicio=safe_string(form.juicio.data),
+                actor=safe_string(form.actor.data, save_enie=True),
+                demandado=safe_string(form.demandado.data, save_enie=True),
+                juicio=safe_string(form.juicio.data, save_enie=True),
                 tipo_juzgado=safe_string(form.tipo_juzgado.data),
                 expediente_reasignado=safe_expediente(form.num_expediente_reasignado.data),
-                juzgado_reasignado=safe_string(form.juzgado_reasignado.data),
+                juzgado_reasignado=safe_string(form.juzgado_reasignado.data, save_enie=True),
                 tipo=safe_string(form.tipo.data),
                 ubicacion=safe_string(form.ubicacion.data),
             )
