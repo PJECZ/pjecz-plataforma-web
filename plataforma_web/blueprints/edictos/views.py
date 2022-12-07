@@ -36,8 +36,8 @@ LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
 def checkout(id_hashed):
     """Acuse"""
     edicto = Edicto.query.get_or_404(Edicto.decode_id(id_hashed))
-    dia, mes, ano = dia_mes_ano(edicto.creado)
-    return render_template("edictos/checkout.jinja2", edicto=edicto, dia=dia, mes=mes.upper(), ano=ano)
+    dia, mes, anio = dia_mes_ano(edicto.creado)
+    return render_template("edictos/print.jinja2", edicto=edicto, dia=dia, mes=mes.upper(), anio=anio)
 
 
 @edictos.before_request

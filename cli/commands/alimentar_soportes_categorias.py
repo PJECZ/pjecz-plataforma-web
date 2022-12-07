@@ -48,4 +48,4 @@ def alimentar_soportes_categorias():
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"  {contador} categorias de soportes alimentadas.")
+    click.echo(f"  {contador} categorias alimentadas.")

@@ -31,6 +31,7 @@ def alimentar_domicilios():
                 click.echo(f"  AVISO: domicilio_id {domicilio_id} no es consecutivo")
                 continue
             elementos = []
+            edificio = safe_string(row["edificio"])
             calle = safe_string(row["calle"], max_len=256)
             num_ext = safe_string(row["num_ext"], max_len=24)
             num_int = safe_string(row["num_int"], max_len=24)
@@ -38,6 +39,8 @@ def alimentar_domicilios():
             municipio = safe_string(row["municipio"], max_len=64)
             estado = safe_string(row["estado"], max_len=64)
             cp = int(row["cp"])
+            if edificio:
+                elementos.append(edificio)
             if calle:
                 elementos.append(calle)
             if num_ext:
@@ -57,6 +60,7 @@ def alimentar_domicilios():
                 completo = "NO DEFINIDO"
             numeracion_telefonica = safe_string(row["numeracion_telefonica"]) if "numeracion_telefonica" in row else ""
             Domicilio(
+                edificio=edificio,
                 estado=estado,
                 municipio=municipio,
                 calle=calle,

@@ -40,52 +40,73 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "distrito_id" in request.form:
         consulta = consulta.filter_by(distrito_id=request.form["distrito_id"])
-    if "materia_tipo_juzgado_id" in request.form:
-        consulta = consulta.filter_by(materia_tipo_juzgado_id=request.form["materia_tipo_juzgado_id"])
-    if "repsvm_delito_especifico_id" in request.form:
-        consulta = consulta.filter_by(repsvm_delito_especifico_id=request.form["repsvm_delito_especifico_id"])
-    if "repsvm_tipo_sentencia_id" in request.form:
-        consulta = consulta.filter_by(repsvm_tipo_sentencia_id=request.form["repsvm_tipo_sentencia_id"])
     if "nombre" in request.form:
         consulta = consulta.filter(REPSVMAgresor.nombre.contains(safe_string(request.form["nombre"])))
     if "numero_causa" in request.form:
         consulta = consulta.filter(REPSVMAgresor.numero_causa.contains(safe_string(request.form["numero_causa"])))
-    registros = consulta.order_by(REPSVMAgresor.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(REPSVMAgresor.distrito_id, REPSVMAgresor.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
         data.append(
             {
-                "detalle": {
-                    "id": resultado.id,
-                    "url": url_for("repsvm_agresores.detail", repsvm_agresor_id=resultado.id),
-                },
+                "id": resultado.id,
                 "distrito": {
                     "nombre_corto": resultado.distrito.nombre_corto,
                     "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
                 },
-                "materia_tipo_juzgado": {
-                    "clave": resultado.materia_tipo_juzgado.clave,
-                    "url": url_for("materias_tipos_juzgados.detail", materia_tipo_juzgado_id=resultado.materia_tipo_juzgado_id) if current_user.can_view("MATERIAS TIPOS JUZGADOS") else "",
-                },
-                "repsvm_delito_especifico": {
-                    "descripcion": resultado.repsvm_delito_especifico.descripcion,
-                    "url": url_for("repsvm_delitos_especificos.detail", repsvm_delito_especifico_id=resultado.repsvm_delito_especifico_id) if current_user.can_view("REPSVM DELITOS ESPECIFICOS") else "",
-                },
-                "repsvm_tipo_sentencia": {
-                    "nombre": resultado.repsvm_tipo_sentencia.nombre,
-                    "url": url_for("repsvm_tipos_sentencias.detail", repsvm_tipo_sentencia_id=resultado.repsvm_tipo_sentencia_id) if current_user.can_view("REPSVM TIPOS SENTENCIAS") else "",
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("repsvm_agresores.detail", repsvm_agresor_id=resultado.id),
                 },
                 "consecutivo": resultado.consecutivo,
-                "nombre": resultado.nombre,
                 "numero_causa": resultado.numero_causa,
                 "pena_impuesta": resultado.pena_impuesta,
                 "sentencia_url": resultado.sentencia_url,
+                "toggle_es_publico": {
+                    "id": resultado.id,
+                    "es_publico": resultado.es_publico,
+                    "url": url_for("repsvm_agresores.toggle_es_publico_json", repsvm_agresor_id=resultado.id),
+                },
             }
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@repsvm_agresores.route("/repsvm_agresores/toggle_es_publico/<int:repsvm_agresor_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def toggle_es_publico_json(repsvm_agresor_id):
+    """Cambiar un agresor para que sea publico o privado"""
+
+    # Consultar agresor
+    repsvm_agresor = REPSVMAgresor.query.get(repsvm_agresor_id)
+    if repsvm_agresor is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_publico a su opuesto
+    repsvm_agresor.es_publico = not repsvm_agresor.es_publico
+
+    # Si es publico, definir consecutivo
+    if repsvm_agresor.es_publico:
+        maximo = REPSVMAgresor.query.filter_by(estatus="A", es_publico=True, distrito_id=repsvm_agresor.distrito_id).order_by(REPSVMAgresor.consecutivo.desc()).first()
+        if maximo is None:
+            repsvm_agresor.consecutivo = 1  # Es el primero de su distrito
+        else:
+            repsvm_agresor.consecutivo = maximo.consecutivo + 1  # Es el siguiente de su distrito
+    else:
+        repsvm_agresor.consecutivo = 0  # No es publico, poner consecutivo en cero
+
+    # Guardar
+    repsvm_agresor.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Es publico" if repsvm_agresor.es_publico else "Es privado",
+        "es_publico": repsvm_agresor.es_publico,
+    }
 
 
 @repsvm_agresores.route("/repsvm_agresores")
@@ -94,7 +115,7 @@ def list_active():
     return render_template(
         "repsvm_agresores/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Agresores",
+        titulo="REPSVM Agresores",
         estatus="A",
     )
 
@@ -106,7 +127,7 @@ def list_inactive():
     return render_template(
         "repsvm_agresores/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="Agresores inactivos",
+        titulo="REPSVM Agresores inactivos",
         estatus="B",
     )
 
@@ -152,19 +173,20 @@ def new():
     if form.validate_on_submit():
         # Definir consecutivo
         distrito = form.distrito.data
-        consecutivo = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count() + 1
+        consecutivo = REPSVMAgresor.query.filter_by(estatus="A").filter_by(distrito_id=distrito.id).count() + 1
         # Insertar registro
         repsvm_agresor = REPSVMAgresor(
             distrito=distrito,
-            materia_tipo_juzgado=form.materia_tipo_juzgado.data,
-            numero_causa=safe_string(form.numero_causa.data),
-            nombre=safe_string(form.nombre.data, do_unidecode=False),
-            repsvm_delito_especifico=form.repsvm_delito_especifico.data,
-            repsvm_tipo_sentencia=form.repsvm_tipo_sentencia.data,
-            pena_impuesta=safe_string(form.pena_impuesta.data),
+            consecutivo=consecutivo,
+            delito_generico=safe_string(form.delito_generico.data, save_enie=True),
+            delito_especifico=safe_string(form.delito_especifico.data, save_enie=True),
+            nombre=safe_string(form.nombre.data, save_enie=True),
+            numero_causa=safe_string(form.numero_causa.data, save_enie=True),
+            pena_impuesta=safe_string(form.pena_impuesta.data, save_enie=True),
             observaciones=safe_text(form.observaciones.data),
             sentencia_url=safe_url(form.sentencia_url.data),
-            consecutivo=consecutivo,
+            tipo_juzgado=safe_string(form.tipo_juzgado.data),
+            tipo_sentencia=safe_string(form.tipo_sentencia.data),
         )
         repsvm_agresor.save()
         bitacora = Bitacora(
@@ -176,6 +198,8 @@ def new():
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
+    if current_user.autoridad.distrito.es_distrito_judicial:
+        form.distrito.data = current_user.autoridad.distrito
     return render_template("repsvm_agresores/new.jinja2", form=form)
 
 
@@ -187,14 +211,15 @@ def edit(repsvm_agresor_id):
     form = REPSVMAgresorForm()
     if form.validate_on_submit():
         repsvm_agresor.distrito = form.distrito.data
-        repsvm_agresor.materia_tipo_juzgado = form.materia_tipo_juzgado.data
-        repsvm_agresor.numero_causa = safe_string(form.numero_causa.data)
-        repsvm_agresor.nombre = safe_string(form.nombre.data, do_unidecode=False)
-        repsvm_agresor.repsvm_delito_especifico = form.repsvm_delito_especifico.data
-        repsvm_agresor.repsvm_tipo_sentencia = form.repsvm_tipo_sentencia.data
-        repsvm_agresor.pena_impuesta = safe_string(form.pena_impuesta.data)
+        repsvm_agresor.delito_generico = safe_string(form.delito_generico.data, save_enie=True)
+        repsvm_agresor.delito_especifico = safe_string(form.delito_especifico.data, save_enie=True)
+        repsvm_agresor.nombre = safe_string(form.nombre.data, save_enie=True)
+        repsvm_agresor.numero_causa = safe_string(form.numero_causa.data, save_enie=True)
+        repsvm_agresor.pena_impuesta = safe_string(form.pena_impuesta.data, save_enie=True)
         repsvm_agresor.observaciones = safe_text(form.observaciones.data)
         repsvm_agresor.sentencia_url = safe_url(form.sentencia_url.data)
+        repsvm_agresor.tipo_juzgado = safe_string(form.tipo_juzgado.data)
+        repsvm_agresor.tipo_sentencia = safe_string(form.tipo_sentencia.data)
         repsvm_agresor.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -206,14 +231,15 @@ def edit(repsvm_agresor_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.distrito.data = repsvm_agresor.distrito
-    form.materia_tipo_juzgado.data = repsvm_agresor.materia_tipo_juzgado
-    form.numero_causa.data = repsvm_agresor.numero_causa
+    form.delito_generico.data = repsvm_agresor.delito_generico
+    form.delito_especifico.data = repsvm_agresor.delito_especifico
     form.nombre.data = repsvm_agresor.nombre
-    form.repsvm_delito_especifico.data = repsvm_agresor.repsvm_delito_especifico
-    form.repsvm_tipo_sentencia.data = repsvm_agresor.repsvm_tipo_sentencia
+    form.numero_causa.data = repsvm_agresor.numero_causa
     form.pena_impuesta.data = repsvm_agresor.pena_impuesta
     form.observaciones.data = repsvm_agresor.observaciones
     form.sentencia_url.data = repsvm_agresor.sentencia_url
+    form.tipo_juzgado.data = repsvm_agresor.tipo_juzgado
+    form.tipo_sentencia.data = repsvm_agresor.tipo_sentencia
     return render_template("repsvm_agresores/edit.jinja2", form=form, repsvm_agresor=repsvm_agresor)
 
 

@@ -5,21 +5,22 @@
 {% block title %}REPSVM Nuevo Agresor{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Agresor') }}
+    {{ topbar.page('REPSVM Nuevo Agresor') }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('repsvm_agresores.new', fid='repsvm_agresor_form') %}
             {% call f.form_group(form.distrito) %}{% endcall %}
-            {% call f.form_group(form.materia_tipo_juzgado) %}{% endcall %}
-            {% call f.form_group(form.numero_causa) %}{% endcall %}
+            {% call f.form_group(form.delito_generico) %}{% endcall %}
+            {% call f.form_group(form.delito_especifico) %}{% endcall %}
             {% call f.form_group(form.nombre) %}{% endcall %}
-            {% call f.form_group(form.repsvm_delito_especifico) %}{% endcall %}
-            {% call f.form_group(form.repsvm_tipo_sentencia) %}{% endcall %}
+            {% call f.form_group(form.numero_causa) %}{% endcall %}
             {% call f.form_group(form.pena_impuesta) %}{% endcall %}
-            {% call f.form_group(form.observaciones) %}{% endcall %}
+            {% call f.form_group(form.tipo_juzgado) %}{% endcall %}
+            {% call f.form_group(form.tipo_sentencia) %}{% endcall %}
             {% call f.form_group(form.sentencia_url) %}{% endcall %}
+            {% call f.form_group(form.observaciones) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

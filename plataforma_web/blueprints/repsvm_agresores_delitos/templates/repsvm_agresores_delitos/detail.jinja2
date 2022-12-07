@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}REPSVM Agresor-Delito{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(repsvm_agresor_delito.nombre) %}
+        {{ topbar.button_previous('REPSVM Agresores-Delitos', url_for('repsvm_agresores_delitos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=repsvm_agresor_delito.estatus) %}
+        {{ detail.label_value_big('Nombre o Descripción', repsvm_agresor_delito.nombre) }}
+        {{ detail.label_value('Columna 1', repsvm_agresor_delito.columna_1) }}
+        {{ detail.label_value('Columna 2', repsvm_agresor_delito.columna_2) }}
+        {{ detail.label_value('Fecha', moment(lista_de_acuerdo.fecha, local=True).format('DD MMM YYYY')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
