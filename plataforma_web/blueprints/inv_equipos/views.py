@@ -58,6 +58,8 @@ def datatable_json():
         consulta = consulta.filter(InvEquipo.descripcion.contains(safe_string(request.form["descripcion"])))
     if "numero_serie" in request.form:
         consulta = consulta.filter(InvEquipo.numero_serie.contains(request.form["numero_serie"]))
+    if "numero_inventario" in request.form:
+        consulta = consulta.filter(InvEquipo.numero_inventario.contains(request.form["numero_inventario"]))
     if "tipo" in request.form:
         consulta = consulta.filter(InvEquipo.tipo.contains(request.form["tipo"]))
     if "direccion_mac" in request.form:
@@ -91,6 +93,7 @@ def datatable_json():
                 "direccion_ip": resultado.direccion_ip,
                 "direccion_mac": resultado.direccion_mac,
                 "numero_serie": resultado.numero_serie,
+                "numero_inventario": resultado.numero_inventario,
                 "inv_custodia_id": {
                     "id": resultado.inv_custodia.id,
                     "url": url_for("inv_custodias.detail", inv_custodia_id=resultado.inv_custodia.id) if current_user.can_view("INV CUSTODIAS") else "",
@@ -268,6 +271,18 @@ def search():
             if numero_serie != "":
                 busqueda["numero_serie"] = numero_serie
                 titulos.append("numero serie" + numero_serie)
+
+        if form_search.numero_inventario.data:
+            numero_inventario = int(form_search.numero_inventario.data)
+            if numero_inventario != 0:
+                numero_inventario = InvEquipo.query.get(numero_inventario)
+                if numero_inventario is not None:
+                    return redirect(url_for("inv_equipos.detail", numero_inventario=numero_inventario))
+        # if form_search.numero_inventario.data:
+        #     numero_inventario = int(form_search.numero_inventario.data)
+        #     if numero_inventario != 0:
+        #         busqueda["numero_inventario"] = numero_inventario
+        #         titulos.append("numero inventario" + numero_inventario)
         if form_search.tipo.data:
             tipo_equipo = safe_string(form_search.tipo.data)
             if tipo_equipo != "":

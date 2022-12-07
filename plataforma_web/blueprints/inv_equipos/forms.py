@@ -50,6 +50,7 @@ class InvEquipoSearchForm(FlaskForm):
 
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     numero_serie = StringField("Número de serie", validators=[Optional()])
+    numero_inventario = IntegerField("Número de inventario", validators=[Optional()])
     tipo = StringField("Tipo de equipo", validators=[Optional()])
     direccion_mac = StringField("Dirección mac", validators=[Optional()])
     direccion_ip = StringField("Dirección ip", validators=[Optional()])
