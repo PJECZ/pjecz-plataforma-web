@@ -96,7 +96,10 @@ def datatable_json():
 def list_active():
     """Listado de Documentos activos"""
 
-    if current_user.can_admin(MODULO):
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+
+    if current_user.can_admin(MODULO) or ROL_ARCHIVISTA in current_user_roles:
         return render_template(
             "arc_documentos/list_admin.jinja2",
             filtros=json.dumps({"estatus": "A"}),

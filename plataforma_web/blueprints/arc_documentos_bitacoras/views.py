@@ -44,7 +44,7 @@ def datatable_json():
         consulta = consulta.filter_by(accion=request.form["accion"])
     if "usuario_id" in request.form:
         consulta = consulta.filter_by(usuario_id=int(request.form["usuario_id"]))
-    registros = consulta.order_by(ArcDocumentoBitacora.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(ArcDocumentoBitacora.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
