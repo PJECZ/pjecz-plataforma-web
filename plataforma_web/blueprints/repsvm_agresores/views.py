@@ -66,6 +66,7 @@ def datatable_json():
                 "sentencia_url": resultado.sentencia_url,
                 "toggle_es_publico": {
                     "id": resultado.id,
+                    "consecutivo": resultado.consecutivo,
                     "es_publico": resultado.es_publico,
                     "url": url_for("repsvm_agresores.toggle_es_publico_json", repsvm_agresor_id=resultado.id),
                 },
@@ -249,6 +250,8 @@ def delete(repsvm_agresor_id):
     """Eliminar Agresor"""
     repsvm_agresor = REPSVMAgresor.query.get_or_404(repsvm_agresor_id)
     if repsvm_agresor.estatus == "A":
+        repsvm_agresor.consecutivo = 0  # Poner en cero el consecutivo
+        repsvm_agresor.es_publico = False  # Poner en privado
         repsvm_agresor.delete()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -267,6 +270,8 @@ def recover(repsvm_agresor_id):
     """Recuperar Agresor"""
     repsvm_agresor = REPSVMAgresor.query.get_or_404(repsvm_agresor_id)
     if repsvm_agresor.estatus == "B":
+        repsvm_agresor.consecutivo = 0  # Poner en cero el consecutivo
+        repsvm_agresor.es_publico = False  # Poner en privado
         repsvm_agresor.recover()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
