@@ -259,15 +259,16 @@ def reiniciar(distrito_id):
             return
         distritos.append(distrito)
     else:
-        distritos = Distrito.query.filter_by(estatus="A").all()
+        distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.id).all()
 
     # Bucle en todos los distritos
     contador = 0
     for distrito in distritos:
+        click.echo(f"  {repr(distrito)}...")
         # Iniciar en cero
         consecutivo = 0
         # Bucle en todos los agresores del distrito ordenados por nombre
-        for agresor in REPSVMAgresor.query.filter(distrito=distrito).filter_by(estatus="A").order_by(REPSVMAgresor.nombre).all():
+        for agresor in REPSVMAgresor.query.filter(REPSVMAgresor.distrito == distrito).filter_by(estatus="A").order_by(REPSVMAgresor.nombre).all():
             # Incrementar el consecutivo
             consecutivo += 1
             # Actualizar el consecutivo

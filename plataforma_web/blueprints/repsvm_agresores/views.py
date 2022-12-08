@@ -60,7 +60,10 @@ def datatable_json():
                     "nombre": resultado.nombre,
                     "url": url_for("repsvm_agresores.detail", repsvm_agresor_id=resultado.id),
                 },
-                "consecutivo": resultado.consecutivo,
+                "change_consecutivo": {
+                    "id": resultado.id,
+                    "consecutivo": resultado.consecutivo,
+                },
                 "numero_causa": resultado.numero_causa,
                 "pena_impuesta": resultado.pena_impuesta,
                 "sentencia_url": resultado.sentencia_url,
@@ -106,7 +109,9 @@ def toggle_es_publico_json(repsvm_agresor_id):
     return {
         "success": True,
         "message": "Es publico" if repsvm_agresor.es_publico else "Es privado",
+        "consecutivo": repsvm_agresor.consecutivo,
         "es_publico": repsvm_agresor.es_publico,
+        "id": repsvm_agresor.id,
     }
 
 
