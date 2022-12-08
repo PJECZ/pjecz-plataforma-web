@@ -1,7 +1,7 @@
 """
 Autoridades
 
-- normalizar: Actualiza el nombre de las autoridades con safe_string
+- normalizar: Normalizar la descripcion y la descripcion_corta con safe_string
 """
 import click
 
@@ -22,25 +22,23 @@ def cli():
 
 
 @click.command()
-@click.option("--test", default=True, type=bool, help="Modo de prueba")
+@click.option("--test", is_flag=True, help="Solo mostrar los cambios que se harian.")
 def normalizar(test):
-    """Actualiza el nombre de las autoridades con safe_string"""
-    if test:
-        click.echo("-MODO PRUEBA-")
-
+    """Normalizar la descripcion y la descripcion_corta con safe_string"""
     contador = 0
-    autoridades = Autoridad.query.order_by(Autoridad.id).all()
+    autoridades = Autoridad.query.order_by(Autoridad.id).filter_by(estatus="A").all()
     for autoridad in autoridades:
-        nombre_autoridad_normalizado = safe_string(autoridad.descripcion_corta, save_enie=True)
-        if autoridad.descripcion_corta != nombre_autoridad_normalizado:
-            if test:
-                click.echo(f"{autoridad.id:3} : {autoridad.descripcion_corta} --> {nombre_autoridad_normalizado}")
-            else:
-                autoridad.descripcion_corta = nombre_autoridad_normalizado
+        descripcion_normalizado = safe_string(autoridad.descripcion, save_enie=True)
+        descripcion_corta_normalizado = safe_string(autoridad.descripcion_corta, save_enie=True)
+        if autoridad.descripcion != descripcion_normalizado or autoridad.descripcion_corta != descripcion_corta_normalizado:
+            autoridad.descripcion = descripcion_normalizado
+            autoridad.descripcion_corta = descripcion_corta_normalizado
+            click.echo(f"  {autoridad.descripcion} -> {descripcion_normalizado}")
+            click.echo(f"  {autoridad.descripcion_corta} -> {descripcion_corta_normalizado}")
+            if not test:
                 autoridad.save()
                 contador = contador + 1
-
-    click.echo(f"Se actualizaron {contador} de {len(autoridades)} registros. Se respeto la Ñ, pero se eliminaron acentos.")
+    click.echo(f"Se actualizaron {contador} de {len(autoridades)} autoridades.")
 
 
 cli.add_command(normalizar)
