@@ -111,7 +111,7 @@ def list_active():
 
     return render_template(
         "arc_documentos/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
+        filtros=json.dumps({"estatus": "A", "juzgado_id": current_user.autoridad.id}),
         titulo="Documentos",
         estatus="A",
         tipos=ArcDocumento.TIPOS,
