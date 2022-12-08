@@ -100,7 +100,7 @@ def new():
         else:
             distrito = Distrito(
                 nombre=nombre,
-                nombre_corto=form.nombre_corto.data.strip(),
+                nombre_corto=safe_string(form.nombre_corto.data, save_enie=True),
                 es_distrito_judicial=form.es_distrito_judicial.data,
             )
             distrito.save()
@@ -134,7 +134,7 @@ def edit(distrito_id):
         # Si es valido actualizar
         if es_valido:
             distrito.nombre = nombre
-            distrito.nombre_corto = safe_string(form.nombre_corto.data)
+            distrito.nombre_corto = safe_string(form.nombre_corto.data, save_enie=True)
             distrito.es_distrito_judicial = form.es_distrito_judicial.data
             distrito.save()
             bitacora = Bitacora(

@@ -26,7 +26,7 @@ def cli():
 def normalizar(actualizar):
     """Normalizar la descripcion y la descripcion_corta con safe_string"""
     if not actualizar:
-        click.echo("Modo de prueba. No se guardaran los cambios. Use --actualizar False para guardar.")
+        click.echo("Modo de prueba. No se guardaran los cambios. Use --actualizar para guardar.")
     contador = 0
     autoridades = Autoridad.query.order_by(Autoridad.id).filter_by(estatus="A").all()
     for autoridad in autoridades:
@@ -34,14 +34,14 @@ def normalizar(actualizar):
         descripcion_corta_normalizado = safe_string(autoridad.descripcion_corta, save_enie=True)
         hay_cambios = False
         if autoridad.descripcion != descripcion_normalizado:
-            autoridad.descripcion = descripcion_normalizado
-            click.echo(f"  {autoridad.descripcion} -> {descripcion_normalizado}")
+            click.echo(f"  '{autoridad.descripcion}' -> '{descripcion_normalizado}'")
             hay_cambios = True
         if autoridad.descripcion_corta != descripcion_corta_normalizado:
-            autoridad.descripcion_corta = descripcion_corta_normalizado
-            click.echo(f"  {autoridad.descripcion_corta} -> {descripcion_corta_normalizado}")
+            click.echo(f"  '{autoridad.descripcion_corta}' -> '{descripcion_corta_normalizado}'")
             hay_cambios = True
         if hay_cambios and actualizar:
+            autoridad.descripcion = descripcion_normalizado
+            autoridad.descripcion_corta = descripcion_corta_normalizado
             autoridad.save()
             contador = contador + 1
     click.echo(f"Se actualizaron {contador} de {len(autoridades)} autoridades.")

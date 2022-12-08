@@ -86,7 +86,7 @@ def datatable_json():
                 "materia": {
                     "nombre": resultado.materia.nombre,
                     "url": url_for("materias.detail", materia_id=resultado.materia_id) if current_user.can_view("MATERIAS") else "",
-                }
+                },
             }
         )
     # Entregar JSON
@@ -124,7 +124,7 @@ def search():
         busqueda = {"estatus": "A"}
         titulos = []
         if form_search.descripcion.data:
-            descripcion = safe_string(form_search.descripcion.data, to_uppercase=False)
+            descripcion = safe_string(form_search.descripcion.data, save_enie=True)
             if descripcion != "":
                 busqueda["descripcion"] = descripcion
                 titulos.append("descripción " + descripcion)
@@ -133,11 +133,6 @@ def search():
             if clave != "":
                 busqueda["clave"] = clave
                 titulos.append("clave " + clave)
-        if form_search.organo_jurisdiccional.data:
-            organo_jurisdiccional = safe_string(form_search.organo_jurisdiccional.data)
-            if organo_jurisdiccional != "":
-                busqueda["organo_jurisdiccional"] = organo_jurisdiccional
-                titulos.append("órgano jurisdiccional " + organo_jurisdiccional)
         return render_template(
             "autoridades/list.jinja2",
             filtros=json.dumps(busqueda),
@@ -315,7 +310,7 @@ def new():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
         else:
             distrito = form.distrito.data
-            descripcion = form.descripcion.data.strip()
+            descripcion = safe_string(form.descripcion.data, save_enie=True)
             es_jurisdiccional = form.es_jurisdiccional.data
             es_notaria = form.es_notaria.data
             directorio = f"{distrito.nombre}/{descripcion}"
@@ -335,7 +330,7 @@ def new():
             autoridad = Autoridad(
                 distrito=distrito,
                 descripcion=descripcion,
-                descripcion_corta=form.descripcion_corta.data.strip(),
+                descripcion_corta=safe_string(form.descripcion_corta.data, save_enie=True),
                 clave=clave,
                 es_jurisdiccional=es_jurisdiccional,
                 es_notaria=es_notaria,
@@ -380,8 +375,8 @@ def edit(autoridad_id):
         # Si es valido actualizar
         if es_valido:
             autoridad.distrito = form.distrito.data
-            autoridad.descripcion = form.descripcion.data.strip()
-            autoridad.descripcion_corta = form.descripcion_corta.data.strip()
+            autoridad.descripcion = safe_string(form.descripcion.data, save_enie=True)
+            autoridad.descripcion_corta = safe_string(form.descripcion_corta.data, save_enie=True)
             autoridad.clave = clave
             autoridad.es_jurisdiccional = form.es_jurisdiccional.data
             autoridad.es_notaria = form.es_notaria.data

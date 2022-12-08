@@ -26,7 +26,7 @@ def cli():
 def normalizar(actualizar):
     """Normalizar el nombre y el nombre_corto con safe_string"""
     if not actualizar:
-        click.echo("Modo de prueba. No se guardaran los cambios. Use --actualizar False para guardar.")
+        click.echo("Modo de prueba. No se guardaran los cambios. Use --actualizar para guardar.")
     contador = 0
     distritos = Distrito.query.order_by(Distrito.id).filter_by(estatus="A").all()
     for distrito in distritos:
@@ -34,14 +34,14 @@ def normalizar(actualizar):
         nombre_corto_normalizado = safe_string(distrito.nombre_corto, save_enie=True)
         hay_cambios = False
         if distrito.nombre != nombre_normalizado:
-            distrito.nombre = nombre_normalizado
-            click.echo(f"  {distrito.nombre} -> {nombre_normalizado}")
+            click.echo(f"  '{distrito.nombre}' -> '{nombre_normalizado}'")
             hay_cambios = True
         if distrito.nombre_corto != nombre_corto_normalizado:
-            distrito.nombre_corto = nombre_corto_normalizado
-            click.echo(f"  {distrito.nombre_corto} -> {nombre_corto_normalizado}")
+            click.echo(f"  '{distrito.nombre_corto}' -> '{nombre_corto_normalizado}'")
             hay_cambios = True
         if hay_cambios and actualizar:
+            distrito.nombre = nombre_normalizado
+            distrito.nombre_corto = nombre_corto_normalizado
             distrito.save()
             contador = contador + 1
     click.echo(f"Se actualizaron {contador} de {len(distritos)} distritos.")
