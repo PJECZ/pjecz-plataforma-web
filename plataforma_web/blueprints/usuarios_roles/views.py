@@ -99,6 +99,19 @@ def detail(usuario_rol_id):
     return render_template("usuarios_roles/detail.jinja2", usuario_rol=usuario_rol)
 
 
+@usuarios_roles.route("/usuarios_roles/usuario/<int:usuario_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.CREAR)
+def list_usuario(usuario_id):
+    """Listado de Usuarios-Roles de un Usuario"""
+    usuario = Usuario.query.get_or_404(usuario_id)
+    return render_template(
+        "usuarios_roles/list_usuario.jinja2",
+        filtros=json.dumps({"usuario_id": usuario_id}),
+        titulo="Usuarios Roles de un Usuario",
+        usuario=usuario,
+    )
+
+
 @usuarios_roles.route("/usuarios_roles/nuevo_con_usuario/<int:usuario_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_usuario(usuario_id):
