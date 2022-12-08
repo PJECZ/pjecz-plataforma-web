@@ -2,20 +2,45 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Documento{% endblock %}
+{% block title %}Editar Documento{% endblock %}
 
 {% block custom_head %}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+    .select2-container .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: -5px;
+        font-size: 1rem;
+    }
+    .select2-selection--single {
+        display: block;
+        width: 100%;
+        padding: .3rem .12rem;
+        color: #212529;
+        background-color: #fff;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right .75rem center;
+        background-size: 16px 12px;
+    }
+    .select2-selection__arrow, .select2-selection__clear  {
+        visibility: hidden;
+    }
+    </style>
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Documento') }}
+    {{ topbar.page('Editar Documento - ' + documento.id | string) }}
 {% endblock %}
 
 {% block content %}
     {% call f.card() %}
-        {% call f.form_tag('arc_documentos.new', fid='documento_form') %}
+        {% set form_kwargs = {'arc_documento_id': documento.id} %}
+        {% call f.form_tag('arc_documentos.edit', fid='documento_form', **form_kwargs) %}
             {% call f.form_group(form.num_expediente) %}{% endcall %}
             {% call f.form_group(form.anio) %}{% endcall %}
             {% call f.form_group(form.juzgado_id) %}{% endcall %}
@@ -28,7 +53,6 @@
             {% call f.form_group(form.tipo) %}{% endcall %}
             {% call f.form_group(form.ubicacion) %}{% endcall %}
             <hr>
-            {% call f.form_group(form.fojas) %}{% endcall %}
             {% call f.form_group(form.observaciones) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
@@ -39,10 +63,14 @@
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function(){
-            $('#juzgado_id').addClass('js-example-placeholder-single js-states form-control');
-            $("#juzgado_id").prop("selectedIndex", -1); // Poner en blanco el select
-            $(".js-example-placeholder-single").select2({
+        $(document).ready(function() {
+            $('#juzgado_id').addClass('js-data-example-ajax form-control');
+
+            // --- Carga de la opción elegida --- //
+            const newJuzgadoOption = new Option('{{documento.autoridad.clave}} : {{documento.autoridad.descripcion_corta}}', '{{documento.autoridad.id}}', false, false);
+            $('#juzgado_id').append(newJuzgadoOption).trigger('change');
+
+            $('#juzgado_id').select2({
                 // --- Carga de emails por Ajax --- //
                 ajax: {
                     url: '/autoridades/list_por_tipo_json/juzgado',
@@ -51,13 +79,13 @@
                     delay: 250,
                     type: "POST",
                     data: function (params) {
-                        return { 'searchString': params.term };
+                        return { 'searchString': params.term.toUpperCase() };
                     }
                 },
-                placeholder: "{{buscar}}",
+                placeholder: "Juzgado",
                 minimumInputLength: 3,
                 allowClear: true
             });
         });
     </script>
-{% endblock %}
+{% endblock%}

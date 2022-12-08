@@ -4,6 +4,36 @@
 
 {% block title %}Documentos{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+    .select2-container .select2-selection--single {
+        height: 58px;
+        border: 1px solid #ced4da;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 64px;
+        font-size: 1rem;
+        margin-left: -10px;
+    }
+    .select2-selection--single {
+        display: block;
+        width: 100%;
+        padding: .375rem 2.25rem .375rem .75rem;
+        color: #212529;
+        background-color: #fff;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right .75rem center;
+        background-size: 16px 12px;
+    }
+    .select2-selection__arrow, .select2-selection__clear  {
+        visibility: hidden;
+    }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('ARC DOCUMENTOS') %}
@@ -30,7 +60,7 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="juzgadoInput" type="text" class="form-control" aria-label="juzgado" aria-describedby="button-buscar" onchange="buscar(); return false;" disabled>
+                            <select id="juzgadoInput" onchange="buscar(); return false;"></select>
                             <label for="juzgadoInput">Juzgado</label>
                         </div>
                     </div>
@@ -212,15 +242,40 @@
                 configDataTable['ajax']['data']['partes'] === undefined &&
                 configDataTable['ajax']['data']['ubicacion'] === undefined
             ) return false;
-
+            
             delete configDataTable['ajax']['data']['expediente'];
             delete configDataTable['ajax']['data']['juzgado_id'];
             delete configDataTable['ajax']['data']['tipo'];
             delete configDataTable['ajax']['data']['partes'];
             delete configDataTable['ajax']['data']['ubicacion'];
 
+            document.getElementById('juzgadoInput').textContent = '';
+            document.getElementById('juzgadoInput').options[0] = null;
+
             $('#arc_documentos_datatable').DataTable().destroy();
             $('#arc_documentos_datatable').DataTable(configDataTable);
         };
+    </script>
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#juzgadoInput').addClass('js-data-example-ajax form-control');
+            $('#juzgadoInput').select2({
+                // --- Carga de juzgados por Ajax --- //
+                ajax: {
+                    url: '/autoridades/list_por_tipo_json/juzgado',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 3,
+                cache: false
+            });
+        });
     </script>
 {% endblock %}

@@ -5,12 +5,42 @@
 
 {% block title %}Documento{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+    .select2-container .select2-selection--single {
+        height: 58px;
+        border: 1px solid #ced4da;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 64px;
+        font-size: 1rem;
+        margin-left: -10px;
+    }
+    .select2-selection--single {
+        display: block;
+        width: 100%;
+        padding: .375rem 2.25rem .375rem .75rem;
+        color: #212529;
+        background-color: #fff;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right .75rem center;
+        background-size: 16px 12px;
+    }
+    .select2-selection__arrow   {
+        visibility: hidden;
+    }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons('Documento - ' + documento.id | string ) %}
         {{ topbar.button_previous('Documentos', url_for('arc_documentos.list_active')) }}
         {% if current_user.can_edit('ARC DOCUMENTOS') %}
-            {# {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
-            {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
+            {{ topbar.button_edit('Editar', url_for('arc_documentos.edit', arc_documento_id=documento.id)) }}
+            {# {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
             {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}{% endif %} #}
         {% endif %}
     {% endcall %}
@@ -29,8 +59,8 @@
         {{ detail.label_value('Núm. Exp. Reasignado', documento.expediente_reasignado) }}
         {{ detail.label_value('Juzgado Reasignado', documento.juzgado_reasignado) }}
         <hr>
-        {{ detail.label_value('Tipo', documento.tipo) }}
         {{ detail.label_value('Juicio', documento.juicio) }}
+        {{ detail.label_value('Tipo', documento.tipo) }}
         {{ detail.label_value('Tipo de Juzgado', documento.tipo_juzgado) }}
         <hr>
         <div class="row">
@@ -81,8 +111,8 @@
                     </div>
                     <div class="col-10">
                         <div class="form-floating">
-                            <input id="usuarioInput" type="text" class="form-control" aria-label="text" aria-describedby="button-buscar" style="text-transform: uppercase" disabled>
-                            <label for="usuarioInput">Usuario</label>
+                            <select id="usuarioSelect" class="form-select" onchange="buscar(); return false;"></select>
+                            <label for="usuarioSelect">Usuario</label>
                         </div>
                     </div>
                     <div class="col-2 text-end">
@@ -156,7 +186,8 @@
 
                     switch (data)    {
                         case "ALTA":        return '<span class="badge rounded-pill bg-info">ALTA</span>';   break;
-                        case "CORRECCION":  return '<span class="badge rounded-pill bg-warning text-dark">CORRECCION</span>';   break;
+                        case "EDICION DOC": return '<span class="badge rounded-pill bg-warning text-dark">EDICION DOC</span>';   break;
+                        case "CORRECCION FOJAS":  return '<span class="badge rounded-pill bg-warning text-dark">CORRECCION FOJAS</span>';   break;
                         case "RECIBIO":     return '<span class="badge rounded-pill bg-primary">RECIBIO</span>';   break;
                         case "ARCHIVAR":    return '<span class="badge rounded-pill bg-secondary">ARCHIVAR</span>';   break;
                     }
@@ -169,7 +200,7 @@
         let fechaDesde = document.getElementById('fechaDesdeInput').value
         let fechaHasta = document.getElementById('fechaHastaInput').value
         let accion = document.getElementById('accionSelect').value;
-        let usuario = document.getElementById('usuarioInput').value.toUpperCase();
+        let usuario = document.getElementById('usuarioSelect').value.toUpperCase();
 
         if(fechaDesde != '')
             configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
@@ -178,7 +209,7 @@
         if(accion != '')
             configDataTable['ajax']['data']['accion'] = accion;
         if(usuario != '')
-            configDataTable['ajax']['data']['usuario'] = usuario;
+            configDataTable['ajax']['data']['usuario_id'] = usuario;
         
         // Datatable
         $('#documentos_bitacora_datatable').DataTable(configDataTable);
@@ -190,12 +221,12 @@
             let fechaDesde = document.getElementById('fechaDesdeInput').value
             let fechaHasta = document.getElementById('fechaHastaInput').value
             let accion = document.getElementById('accionSelect').value;
-            let usuario = document.getElementById('usuarioInput').value.toUpperCase();
+            let usuario = document.getElementById('usuarioSelect').value.toUpperCase();
 
             if( configDataTable['ajax']['data']['fecha_desde'] === undefined && fechaDesde === '' &&
                 configDataTable['ajax']['data']['fecha_hasta'] === undefined && fechaHasta === '' &&
                 configDataTable['ajax']['data']['accion'] === undefined && accion === '' &&
-                configDataTable['ajax']['data']['usuario'] === undefined && usuario === ''
+                configDataTable['ajax']['data']['usuario_id'] === undefined && usuario === ''
             ) return false;
 
             $('#documentos_bitacora_datatable').DataTable().destroy();
@@ -213,9 +244,9 @@
             else
                 configDataTable['ajax']['data']['accion'] = accion;
             if(usuario == '')
-                delete configDataTable['ajax']['data']['usuario'];
+                delete configDataTable['ajax']['data']['usuario_id'];
             else
-                configDataTable['ajax']['data']['usuario'] = usuario;
+                configDataTable['ajax']['data']['usuario_id'] = usuario;
 
             $('#documentos_bitacora_datatable').DataTable(configDataTable);
         };
@@ -224,16 +255,40 @@
             if( configDataTable['ajax']['data']['fecha_desde'] === undefined &&
                 configDataTable['ajax']['data']['fecha_hasta'] === undefined &&
                 configDataTable['ajax']['data']['accion'] === undefined &&
-                configDataTable['ajax']['data']['usuario'] === undefined
+                configDataTable['ajax']['data']['usuario_id'] === undefined
             ) return false;
 
             delete configDataTable['ajax']['data']['fecha_desde'];
             delete configDataTable['ajax']['data']['fecha_hasta'];
             delete configDataTable['ajax']['data']['accion'];
-            delete configDataTable['ajax']['data']['usuario'];
+            delete configDataTable['ajax']['data']['usuario_id'];
+
+            document.getElementById('usuarioSelect').textContent = '';
+            document.getElementById('usuarioSelect').options[0] = null;
 
             $('#documentos_bitacora_datatable').DataTable().destroy();
             $('#documentos_bitacora_datatable').DataTable(configDataTable);
         };
+    </script>
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#usuarioSelect').addClass('js-data-example-ajax form-control');
+            $('#usuarioSelect').select2({
+                // --- Carga de juzgados por Ajax --- //
+                ajax: {
+                    url: '/usuarios/list_usuarios_json/',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 3
+            });
+        });
     </script>
 {% endblock %}

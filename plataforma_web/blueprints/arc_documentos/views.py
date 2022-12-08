@@ -17,9 +17,14 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
-from plataforma_web.blueprints.arc_documentos.forms import ArcDocumentoNewForm
+from plataforma_web.blueprints.arc_documentos.forms import ArcDocumentoNewForm, ArcDocumentoEditForm
 
 MODULO = "ARC DOCUMENTOS"
+
+# Roles necesarios
+ROL_JEFE_REMESA = "ARCHIVO JEFE REMESA"
+ROL_ARCHIVISTA = "ARCHIVO ARCHIVISTA"
+ROL_SOLICITANTE = "ARCHIVO SOLICITANTE"
 
 arc_documentos = Blueprint("arc_documentos", __name__, template_folder="templates")
 
@@ -53,6 +58,8 @@ def datatable_json():
         consulta = consulta.filter_by(tipo=request.form["tipo"])
     if "ubicacion" in request.form:
         consulta = consulta.filter_by(ubicacion=request.form["ubicacion"])
+    if "juzgado_id" in request.form:
+        consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     registros = consulta.order_by(ArcDocumento.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -119,7 +126,7 @@ def detail(documento_id):
 @arc_documentos.route("/arc_documentos/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Documento TODO:SELECT 2 de juzgados"""
+    """Nuevo Documento"""
     form = ArcDocumentoNewForm()
     if form.validate_on_submit():
         # Validar que la clave no se repita
@@ -127,9 +134,9 @@ def new():
             num_expediente = safe_expediente(form.num_expediente.data)
         except ValueError:
             num_expediente = None
-        juzgado_id = 34  # form.juzgado.data
+        juzgado_id = int(form.juzgado_id.data)
         anio = int(form.anio.data)
-        if ArcDocumento.query.filter_by(expediente=num_expediente).first():
+        if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).first():
             flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
         elif anio < 1950 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1950 y el año actual {date.today().year}", "warning")
@@ -168,3 +175,68 @@ def new():
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     return render_template("arc_documentos/new.jinja2", form=form)
+
+
+@arc_documentos.route("/arc_documentos/edicion/<int:arc_documento_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(arc_documento_id):
+    """Editar Documento"""
+    documento = ArcDocumento.query.get_or_404(arc_documento_id)
+    form = ArcDocumentoEditForm()
+    if form.validate_on_submit():
+        # Validar que la clave no se repita
+        try:
+            num_expediente = safe_expediente(form.num_expediente.data)
+        except ValueError:
+            num_expediente = None
+        juzgado_id = int(form.juzgado_id.data)
+        anio = int(form.anio.data)
+        motivo = safe_message(form.observaciones.data, max_len=256)
+        if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).filter(ArcDocumento.id != arc_documento_id).first():
+            flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
+        elif anio < 1950 or anio > date.today().year:
+            flash(f"El Año debe ser una fecha entre 1950 y el año actual {date.today().year}", "warning")
+        elif num_expediente is None:
+            flash("El número de expediente no es válido", "warning")
+        elif motivo is None or len(motivo) < 10:
+            flash("Escriba un motivo más descriptivo", "warning")
+        else:
+            documento.autoridad_id = juzgado_id
+            documento.expediente = num_expediente
+            documento.anio = anio
+            documento.actor = safe_string(form.actor.data, save_enie=True)
+            documento.demandado = safe_string(form.demandado.data, save_enie=True)
+            documento.juicio = safe_string(form.juicio.data, save_enie=True)
+            documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
+            documento.expediente_reasignado = safe_expediente(form.num_expediente_reasignado.data)
+            documento.juzgado_reasignado = safe_string(form.juzgado_reasignado.data, save_enie=True)
+            documento.tipo = safe_string(form.tipo.data)
+            documento.ubicacion = safe_string(form.ubicacion.data)
+            documento.save()
+            documento_bitacora = ArcDocumentoBitacora(
+                arc_documento_id=documento.id,
+                usuario=current_user,
+                observaciones=motivo,
+                accion="EDICION DOC",
+            )
+            documento_bitacora.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Edición de Documento {documento.id}"),
+                url=url_for("arc_documentos.detail", documento_id=documento.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+    form.num_expediente.data = documento.expediente
+    form.anio.data = documento.anio
+    form.juzgado_id.data = documento.autoridad_id
+    form.actor.data = documento.actor
+    form.demandado.data = documento.demandado
+    form.juicio.data = documento.juicio
+    form.tipo_juzgado.data = documento.tipo_juzgado
+    form.num_expediente_reasignado.data = documento.expediente_reasignado
+    form.tipo.data = documento.tipo
+    form.ubicacion.data = documento.ubicacion
+    return render_template("arc_documentos/edit.jinja2", form=form, documento=documento)

@@ -13,7 +13,8 @@ class ArcDocumentoBitacora(db.Model, UniversalMixin):
         [
             ("ALTA", "Alta"),
             ("SOLICITAR", "Solicitar"),
-            ("CORRECCION", "Corrección"),
+            ("EDICION DOC", "Edición del Documento"),
+            ("CORRECCION FOJAS", "Corrección de Fojas"),
             ("RECIBIDO", "Recibido"),
             ("ARCHIVAR", "Archivar"),
         ]
