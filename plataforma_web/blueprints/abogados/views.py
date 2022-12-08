@@ -115,7 +115,7 @@ def search():
                 busqueda["libro"] = libro
                 titulos.append("libro " + libro)
         if form_search.nombre.data:
-            nombre = safe_string(form_search.nombre.data)
+            nombre = safe_string(form_search.nombre.data, save_enie=True)
             if nombre != "":
                 busqueda["nombre"] = nombre
                 titulos.append("nombre " + nombre)
@@ -143,7 +143,7 @@ def new():
     if form.validate_on_submit():
         abogado = Abogado(
             numero=safe_string(form.numero.data),
-            nombre=safe_string(form.nombre.data),
+            nombre=safe_string(form.nombre.data, save_enie=True),
             libro=safe_string(form.libro.data),
             fecha=form.fecha.data,
         )
@@ -168,7 +168,7 @@ def edit(abogado_id):
     form = AbogadoForm()
     if form.validate_on_submit():
         abogado.numero = safe_string(form.numero.data)
-        abogado.nombre = safe_string(form.nombre.data)
+        abogado.nombre = safe_string(form.nombre.data, save_enie=True)
         abogado.libro = safe_string(form.libro.data)
         abogado.fecha = form.fecha.data
         abogado.save()

@@ -141,7 +141,7 @@ def new():
         perito = Perito(
             distrito=form.distrito.data,
             perito_tipo=form.perito_tipo.data,
-            nombre=safe_string(form.nombre.data),
+            nombre=safe_string(form.nombre.data, save_enie=True),
             domicilio=safe_string(form.domicilio.data),
             telefono_fijo=safe_string(form.telefono_fijo.data),
             telefono_celular=safe_string(form.telefono_celular.data),
@@ -171,7 +171,7 @@ def edit(perito_id):
     if form.validate_on_submit():
         perito.distrito = form.distrito.data
         perito.perito_tipo = form.perito_tipo.data
-        perito.nombre = safe_string(form.nombre.data)
+        perito.nombre = safe_string(form.nombre.data, save_enie=True)
         perito.domicilio = safe_string(form.domicilio.data)
         perito.telefono_fijo = safe_string(form.telefono_fijo.data)
         perito.telefono_celular = safe_string(form.telefono_celular.data)

@@ -146,7 +146,7 @@ def search():
         busqueda = {"estatus": "A"}
         titulos = []
         if form_search.nombre.data:
-            nombre = safe_string(form_search.nombre.data)
+            nombre = safe_string(form_search.nombre.data, save_enie=True)
             if nombre != "":
                 busqueda["nombre"] = nombre
                 titulos.append("nombre " + nombre)

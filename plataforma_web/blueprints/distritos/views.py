@@ -94,7 +94,7 @@ def new():
     form = DistritoForm()
     if form.validate_on_submit():
         # Validar que el nombre no se repita
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         if Distrito.query.filter_by(nombre=nombre).first():
             flash("La nombre ya está en uso. Debe de ser único.", "warning")
         else:
@@ -125,7 +125,7 @@ def edit(distrito_id):
     if form.validate_on_submit():
         es_valido = True
         # Si cambia el nombre verificar que no este en uso
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         if distrito.nombre != nombre:
             distrito_existente = Distrito.query.filter_by(nombre=nombre).first()
             if distrito_existente and distrito_existente.id != distrito.id:

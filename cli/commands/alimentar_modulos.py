@@ -31,7 +31,7 @@ def alimentar_modulos():
                 click.echo(f"  AVISO: modulo_id {modulo_id} no es consecutivo")
                 continue
             Modulo(
-                nombre=safe_string(row["nombre"]),
+                nombre=safe_string(row["nombre"], save_enie=True),
                 nombre_corto=row["nombre_corto"],
                 icono=row["icono"],
                 ruta=row["ruta"],

@@ -31,7 +31,7 @@ def alimentar_inv_redes():
                 click.echo(f"  AVISO: inv_red_id {inv_red_id} no es consecutivo")
                 continue
             InvRed(
-                nombre=safe_string(row["nombre"]),
+                nombre=safe_string(row["nombre"], save_enie=True),
                 tipo=safe_string(row["tipo"]),
                 estatus=row["estatus"],
             ).save()
