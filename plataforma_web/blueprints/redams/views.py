@@ -100,7 +100,7 @@ def search():
         busqueda = {"estatus": "A"}
         titulos = []
         if form_search.nombre.data:
-            nombre = safe_string(form_search.nombre.data)
+            nombre = safe_string(form_search.nombre.data, save_enie=True)
             if nombre != "":
                 busqueda["nombre"] = nombre
                 titulos.append("nombre " + nombre)
@@ -134,7 +134,7 @@ def new():
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         redam = Redam(
             autoridad=autoridad,
-            nombre=safe_string(form.nombre.data),
+            nombre=safe_string(form.nombre.data, save_enie=True),
             expediente=safe_expediente(form.expediente.data),
             fecha=form.fecha.data,
             observaciones=safe_string(form.observaciones.data, max_len=1024),
@@ -169,7 +169,7 @@ def edit(redam_id):
     form = RedamForm()
     if form.validate_on_submit():
         redam.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
-        redam.nombre = safe_string(form.nombre.data)
+        redam.nombre = safe_string(form.nombre.data, save_enie=True)
         redam.expediente = safe_expediente(form.expediente.data)
         redam.fecha = form.fecha.data
         redam.observaciones = safe_string(form.observaciones.data)

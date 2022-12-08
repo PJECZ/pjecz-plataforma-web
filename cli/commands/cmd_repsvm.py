@@ -2,7 +2,8 @@
 REPSVM
 
 - alimentar: Alimentar desde un archivo CSV
-- publicar: Cambiar es_publico a verdadero o falso
+- publicar: Cambiar es_publico de los agresores a verdadero o falso
+- reiniciar_consecutivos: Reiniciar los consecutivos de los agresores
 - respaldar: Respaldar los agresores a un archivo CSV
 """
 import csv
@@ -134,7 +135,7 @@ def alimentar(entrada_csv):
 @click.option("--es_publico", default=True, type=bool, help="True o False")
 @click.option("--repsvm_agresor_id", default=None, type=int, help="ID del agresor")
 def publicar(es_publico, repsvm_agresor_id):
-    """Cambiar es_publico a verdadero o falso"""
+    """Cambiar es_publico de los agresores a verdadero o falso"""
 
     # Si se especifica el ID del agresor
     if repsvm_agresor_id is not None:
@@ -244,6 +245,44 @@ def respaldar(distrito_id, output):
     click.echo(f"Respaldados {contador} agresores en {ruta.name}")
 
 
+@click.command()
+@click.option("--distrito_id", default=None, type=int, help="ID del Distrito")
+def reiniciar(distrito_id):
+    """Reiniciar los consecutivos de los agresores"""
+    distritos = []
+
+    # Si se especifica el ID del distrito
+    if distrito_id is not None:
+        distrito = Distrito.query.get(distrito_id)
+        if distrito is None:
+            click.echo(f"! No existe el distrito {distrito_id}")
+            return
+        distritos.append(distrito)
+    else:
+        distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.id).all()
+
+    # Bucle en todos los distritos
+    contador = 0
+    for distrito in distritos:
+        click.echo(f"  {repr(distrito)}...")
+        # Iniciar en cero
+        consecutivo = 0
+        # Bucle en todos los agresores del distrito ordenados por nombre
+        for agresor in REPSVMAgresor.query.filter(REPSVMAgresor.distrito == distrito).filter_by(estatus="A").order_by(REPSVMAgresor.nombre).all():
+            # Incrementar el consecutivo
+            consecutivo += 1
+            # Actualizar el consecutivo
+            agresor.consecutivo = consecutivo
+            agresor.save()
+            # Incrementar el contador
+            contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador}...")
+
+    click.echo(f"Se reiniciaron los consecutivos de {contador} agresores")
+
+
 cli.add_command(alimentar)
 cli.add_command(respaldar)
 cli.add_command(publicar)
+cli.add_command(reiniciar)

@@ -91,14 +91,14 @@ def new():
     if form.validate_on_submit():
         es_valido = True
         # Validar que no exista ese nombre
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         inv_marca_existente = InvMarca.query.filter_by(nombre=nombre).first()
         if inv_marca_existente:
             flash("Ya existe una marca con ese nombre.", "warning")
             es_valido = False
         # Si es valido insertar
         if es_valido:
-            inv_marca = InvMarca(nombre=safe_string(form.nombre.data))
+            inv_marca = InvMarca(nombre=nombre)
             inv_marca.save()
             flash(f"Marcas {inv_marca.nombre} guardado.", "success")
             return redirect(url_for("inv_marcas.detail", inv_marca_id=inv_marca.id))
@@ -114,14 +114,14 @@ def edit(inv_marca_id):
     if form.validate_on_submit():
         es_valido = True
         # Validar que no exista ese nombre
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         inv_marca_existente = InvMarca.query.filter_by(nombre=nombre).first()
         if inv_marca_existente and inv_marca_existente.id != inv_marca.id:
             flash("Ya existe una marca con ese nombre.", "warning")
             es_valido = False
         # Si es valido actualizar
         if es_valido:
-            inv_marca.nombre = safe_string(form.nombre.data)
+            inv_marca.nombre = nombre
             inv_marca.save()
             flash(f"Marcas {inv_marca.nombre} guardado.", "success")
             return redirect(url_for("inv_marcas.detail", inv_marca_id=inv_marca.id))

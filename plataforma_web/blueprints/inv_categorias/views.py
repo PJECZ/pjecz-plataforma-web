@@ -91,14 +91,14 @@ def new():
     if form.validate_on_submit():
         es_valido = True
         # Validar que no exista ese nombre
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         inv_categoria_existente = InvCategoria.query.filter_by(nombre=nombre).first()
         if inv_categoria_existente:
             flash("Ya existe una categoría con ese nombre.", "warning")
             es_valido = False
         # Si es valido insertar
         if es_valido:
-            inv_categoria = InvCategoria(nombre=safe_string(form.nombre.data))
+            inv_categoria = InvCategoria(nombre=nombre)
             inv_categoria.save()
             flash(f"Categorias {inv_categoria.nombre} guardado.", "success")
             return redirect(url_for("inv_categorias.list_active"))
@@ -114,14 +114,14 @@ def edit(inv_categoria_id):
     if form.validate_on_submit():
         es_valido = True
         # Validar que no exista ese nombre
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         inv_categoria_existente = InvCategoria.query.filter_by(nombre=nombre).first()
         if inv_categoria_existente and inv_categoria_existente.id != inv_categoria.id:
             flash("Ya existe una categoria con ese nombre.", "warning")
             es_valido = False
         # Si es valido actualizar
         if es_valido:
-            inv_categoria.nombre = safe_string(form.nombre.data)
+            inv_categoria.nombre = nombre
             inv_categoria.save()
             flash(f"Categorias {inv_categoria.nombre} guardado.", "success")
             return redirect(url_for("inv_categorias.detail", inv_categoria_id=inv_categoria.id))

@@ -92,7 +92,7 @@ def new():
     form = MateriaForm()
     if form.validate_on_submit():
         # Validar que el nombre no se repita
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         if Materia.query.filter_by(nombre=nombre).first():
             flash("La nombre ya está en uso. Debe de ser único.", "warning")
         else:
@@ -119,7 +119,7 @@ def edit(materia_id):
     if form.validate_on_submit():
         es_valido = True
         # Si cambia el nombre verificar que no este en uso
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         if materia.nombre != nombre:
             materia_existente = Materia.query.filter_by(nombre=nombre).first()
             if materia_existente and materia_existente.id != materia_id:

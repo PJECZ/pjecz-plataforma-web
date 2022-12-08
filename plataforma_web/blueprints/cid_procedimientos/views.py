@@ -261,13 +261,13 @@ def new():
             responsabilidades=form.responsabilidades.data,
             desarrollo=form.desarrollo.data,
             registros=registros,
-            elaboro_nombre=safe_string(elaboro_nombre),
+            elaboro_nombre=safe_string(elaboro_nombre, save_enie=True),
             elaboro_puesto=safe_string(form.elaboro_puesto.data),
             elaboro_email=safe_email(elaboro_email),
-            reviso_nombre=safe_string(reviso_nombre),
+            reviso_nombre=safe_string(reviso_nombre, save_enie=True),
             reviso_puesto=safe_string(form.reviso_puesto.data),
             reviso_email=safe_email(reviso_email),
-            aprobo_nombre=safe_string(aprobo_nombre),
+            aprobo_nombre=safe_string(aprobo_nombre, save_enie=True),
             aprobo_puesto=safe_string(form.aprobo_puesto.data),
             aprobo_email=safe_email(aprobo_email),
             control_cambios=control_cambios,
@@ -346,13 +346,13 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.responsabilidades = form.responsabilidades.data
         cid_procedimiento.desarrollo = form.desarrollo.data
         cid_procedimiento.registros = registros
-        cid_procedimiento.elaboro_nombre = safe_string(elaboro_nombre)
+        cid_procedimiento.elaboro_nombre = safe_string(elaboro_nombre, save_enie=True)
         cid_procedimiento.elaboro_puesto = safe_string(form.elaboro_puesto.data)
         cid_procedimiento.elaboro_email = safe_email(elaboro_email)
-        cid_procedimiento.reviso_nombre = safe_string(reviso_nombre)
+        cid_procedimiento.reviso_nombre = safe_string(reviso_nombre, save_enie=True)
         cid_procedimiento.reviso_puesto = safe_string(form.reviso_puesto.data)
         cid_procedimiento.reviso_email = safe_email(reviso_email)
-        cid_procedimiento.aprobo_nombre = safe_string(aprobo_nombre)
+        cid_procedimiento.aprobo_nombre = safe_string(aprobo_nombre, save_enie=True)
         cid_procedimiento.aprobo_puesto = safe_string(form.aprobo_puesto.data)
         cid_procedimiento.aprobo_email = safe_email(aprobo_email)
         cid_procedimiento.control_cambios = control_cambios
@@ -500,7 +500,7 @@ def search():
                 busqueda["codigo"] = codigo
                 titulos.append("codigo " + codigo)
         if form_search.elaboro_nombre.data:
-            elaboro_nombre = safe_string(form_search.elaboro_nombre.data)
+            elaboro_nombre = safe_string(form_search.elaboro_nombre.data, save_enie=True)
             if elaboro_nombre != "":
                 busqueda["elaboro_nombre"] = elaboro_nombre
                 titulos.append("elaboro_nombre " + elaboro_nombre)
