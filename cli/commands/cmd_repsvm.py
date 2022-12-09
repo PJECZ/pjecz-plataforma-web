@@ -53,10 +53,14 @@ def alimentar(entrada_csv):
         click.echo("AVISO: No se encontró el distrito NO DEFINIDO.")
         return
 
-    # Contar los agresores de cada distrito para iniciar el consecutivo de cada uno
+    # Consultar el consecutivo mas alto por distrito
     consecutivos = {}
     for distrito in Distrito.query.filter_by(estatus="A").all():
-        consecutivos[distrito.id] = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count()
+        repsvm_agresor = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).order_by(REPSVMAgresor.consecutivo.desc()).first()
+        if repsvm_agresor is None:
+            consecutivos[distrito.id] = 0
+        else:
+            consecutivos[distrito.id] = repsvm_agresor.consecutivo
 
     # Bucle para leer el archivo CSV
     click.echo("Alimentando agresores...")
@@ -68,13 +72,7 @@ def alimentar(entrada_csv):
 
             # Tomar el tipo de juzgado
             tipo_juzgado = "ND"
-            if "tipo_juzgado_clave" in row:
-                tipo_juzgado_clave = safe_clave(row["tipo_juzgado_clave"])
-                if tipo_juzgado_clave not in TIPOS_JUZGADOS_CLAVES:
-                    click.echo(f"AVISO: {tipo_juzgado_clave} no es un tipo de juzgado válido.")
-                    continue
-                tipo_juzgado = TIPOS_JUZGADOS_CLAVES[tipo_juzgado_clave]
-            elif "tipo_juzgado" in row:
+            if "tipo_juzgado" in row:
                 tipo_juzgado = safe_string(row["tipo_juzgado"])
                 if tipo_juzgado not in REPSVMAgresor.TIPOS_JUZGADOS:
                     click.echo(f"! SE OMITE porque no es valido el tipo de juzgado {tipo_juzgado}")
@@ -96,21 +94,21 @@ def alimentar(entrada_csv):
                     click.echo(f"AVISO: No se encontró el distrito {row['distrito_id']}.")
                     continue
 
-            # Incrementar el consecutivo
-            if distrito.id not in consecutivos:
-                click.echo(f"! SE OMITE porque no existe el ID distrito {distrito.id}")
-                continue
-            consecutivos[distrito.id] += 1
-
-            # Determinar si es publico o no
+            # Si tiene es_publico, determinar el consecutivo y si es publico
+            consecutivo = 0
             es_publico = False
             if "es_publico" in row:
+                if distrito.id not in consecutivos:
+                    click.echo(f"! SE OMITE porque no existe el ID distrito {distrito.id}")
+                    continue
+                consecutivos[distrito.id] += 1
+                consecutivo = consecutivos[distrito.id]
                 es_publico = row["es_publico"].strip().lower() == "si"
 
             # Insertar agresor
             REPSVMAgresor(
                 distrito=distrito,
-                consecutivo=consecutivos[distrito.id],
+                consecutivo=consecutivo,
                 delito_generico=safe_string(row["delito_generico"], save_enie=True),
                 delito_especifico=safe_string(row["delito_especifico"], save_enie=True),
                 es_publico=es_publico,
@@ -150,10 +148,14 @@ def publicar(es_publico, repsvm_agresor_id):
         click.echo(f"Se cambió es_publico de {repsvm_agresor_id} a {es_publico}")
         return
 
-    # Inicializar el consecutivo de cada distrito
+    # Consultar el consecutivo mas alto por distrito
     consecutivos = {}
     for distrito in Distrito.query.filter_by(estatus="A").all():
-        consecutivos[distrito.id] = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).count()
+        repsvm_agresor = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).order_by(REPSVMAgresor.consecutivo.desc()).first()
+        if repsvm_agresor is None:
+            consecutivos[distrito.id] = 0
+        else:
+            consecutivos[distrito.id] = repsvm_agresor.consecutivo
 
     # Bucle por todos los agresores
     contador = 0
@@ -209,15 +211,14 @@ def respaldar(distrito_id, output):
             "distrito_id",
             "distrito_nombre_corto",
             "consecutivo",
-            "materia_nombre",
-            "tipo_juzgado_clave",
-            "tipo_sentencia",
+            "nombre",
             "delito_generico",
             "delito_especifico",
-            "nombre",
             "numero_causa",
             "pena_impuesta",
             "observaciones",
+            "tipo_juzgado",
+            "tipo_sentencia",
             "sentencia_url",
         ]
         respaldo.writerow(encabezados)
@@ -227,15 +228,14 @@ def respaldar(distrito_id, output):
                 agresor.distrito_id,
                 agresor.distrito.nombre_corto,
                 agresor.consecutivo,
-                agresor.materia_tipo_juzgado.materia.nombre,
-                agresor.materia_tipo_juzgado.clave,
-                agresor.repsvm_tipo_sentencia.nombre,
-                agresor.repsvm_delito_especifico.repsvm_delito_generico.nombre,
-                agresor.repsvm_delito_especifico.descripcion,
                 agresor.nombre,
+                agresor.delito_generico,
+                agresor.delito_especifico,
                 agresor.numero_causa,
                 agresor.pena_impuesta,
                 agresor.observaciones,
+                agresor.tipo_juzgado,
+                agresor.tipo_sentencia,
                 agresor.sentencia_url,
             ]
             respaldo.writerow(fila)
