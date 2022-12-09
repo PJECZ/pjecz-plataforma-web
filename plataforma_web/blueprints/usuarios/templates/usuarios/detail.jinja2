@@ -10,6 +10,9 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Usuario ' + usuario.email) %}
         {{ topbar.button_previous('Usuarios', url_for('usuarios.list_active')) }}
+        {% if current_user.can_edit('USUARIOS ROLES') %}
+            {{ topbar.button('Roles ON/OFF', url_for('usuarios_roles.list_usuario', usuario_id=usuario.id), 'mdi:toggle-switch') }}
+        {% endif %}
         {% if current_user.can_admin('USUARIOS') %}
             {{ topbar.button_edit('Editar', url_for('usuarios.edit_admin', usuario_id=usuario.id)) }}
             {% if usuario.estatus == 'A' %}

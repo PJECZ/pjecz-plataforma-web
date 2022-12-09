@@ -2,49 +2,117 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Roles de un usuario{% endblock %}
+{% block title %}Activar o desactivar los roles de un usuario{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_edit('USUARIOS ROLES') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('usuarios_roles.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('usuarios_roles.list_active')) }}{% endif %}
-        {% endif %}
-        {% if current_user.can_insert('USUARIOS ROLES') %}
-            {{ topbar.button_new('Nuevo Usuario-Rol', url_for('usuarios_roles.new')) }}
+        {{ topbar.button_previous('Usuario ' + usuario.email, url_for('usuarios.detail', usuario_id=usuario.id)) }}
+        {% if current_user.can_admin('USUARIOS') %}
+            {{ topbar.button('API Key', url_for('usuarios.view_api_key', usuario_id=usuario.id), 'mdi:key') }}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <table id="usuarios_roles_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="usuarios_roles_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Nombres</th>
+                    <th>ID</th>
+                    <th>Rol</th>
+                    <th>Estatus</th>
                 </tr>
             </thead>
         </table>
+        {% if current_user.can_insert('USUARIOS ROLES') %}
+            <a href="{{ url_for('usuarios_roles.new_with_usuario', usuario_id=usuario.id) }}" class="btn btn-primary">Agregar</a>
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
-        configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
+
+        // DataTable
+        configDataTable['ajax']['url'] = '/usuarios_roles/datatable_toggle_estatus_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: 'detalle' }
+            { data: "detalle" },
+            { data: "rol" },
+            { data: "toggle_estatus" }
         ];
         configDataTable['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
-            }
+            },
+            {
+                targets: 1, // rol
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    }
+                }
+            },
+            {
+                targets: 2, // Boton toggle estatus
+                data: null,
+                render: function(data, type, row, meta) {
+                    myId = 'estatus' + data.id;
+                    myOnClick = "toggleEstatus('#" + myId + "', '" + data.url + "')";
+                    if (data.estatus === 'A') {
+                        return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                    } else {
+                        return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                    }
+                }
+            },
         ];
         $('#usuarios_roles_datatable').DataTable(configDataTable);
+
+        // Preparar headers para POST
+        const myHeaders = new Headers();
+        myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
+        const myInit = {
+            method: 'POST',
+            headers: myHeaders,
+            mode: 'cors',
+            cache: 'default'
+        };
+
+        // Boton toggle estatus
+        function toggleEstatus(id, url) {
+            $(id).prop("disabled", true); // Deshabilitar boton para evitar multiples clicks
+            fetch(url, myInit)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.estatus === 'A') {
+                            $(id).removeClass('btn-light');
+                            $(id).addClass('btn-outline-primary'); // Color azul
+                            $(id).html('<span class="iconify" data-icon="mdi:toggle-switch"></span>'); // Icono toggle-switch
+                        } else {
+                            $(id).removeClass('btn-outline-primary');
+                            $(id).addClass('btn-light'); // Color gris
+                            $(id).html('<span class="iconify" data-icon="mdi:toggle-switch-off"></span>'); // Icono toggle-switch-off
+                        }
+                        console.log(data.message);
+                    } else {
+                        console.log(data.message);
+                    }
+                    $(id).prop("disabled", false); // Habilitar boton
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+
     </script>
 {% endblock %}
