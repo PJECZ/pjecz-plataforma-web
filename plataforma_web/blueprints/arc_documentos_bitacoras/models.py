@@ -15,6 +15,7 @@ class ArcDocumentoBitacora(db.Model, UniversalMixin):
             ("SOLICITAR", "Solicitar"),
             ("EDICION DOC", "Edición del Documento"),
             ("CORRECCION FOJAS", "Corrección de Fojas"),
+            ("NO ENCONTRADO", "No Encontrado"),
             ("RECIBIDO", "Recibido"),
             ("ARCHIVAR", "Archivar"),
         ]

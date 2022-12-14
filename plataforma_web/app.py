@@ -8,8 +8,10 @@ from plataforma_web.extensions import csrf, db, login_manager, moment
 
 
 from plataforma_web.blueprints.abogados.views import abogados
+from plataforma_web.blueprints.arc_archivos.views import arc_archivos
 from plataforma_web.blueprints.arc_documentos.views import arc_documentos
 from plataforma_web.blueprints.arc_documentos_bitacoras.views import arc_documentos_bitacoras
+from plataforma_web.blueprints.arc_documentos_solicitudes.views import arc_documentos_solicitudes
 from plataforma_web.blueprints.audiencias.views import audiencias
 from plataforma_web.blueprints.autoridades.views import autoridades
 from plataforma_web.blueprints.autoridades_funcionarios.views import autoridades_funcionarios
@@ -81,8 +83,10 @@ def create_app():
     app.task_queue = rq.Queue(app.config["TASK_QUEUE"], connection=app.redis, default_timeout=1920)
     # Cargar los blueprints
     app.register_blueprint(abogados)
+    app.register_blueprint(arc_archivos)
     app.register_blueprint(arc_documentos)
     app.register_blueprint(arc_documentos_bitacoras)
+    app.register_blueprint(arc_documentos_solicitudes)
     app.register_blueprint(audiencias)
     app.register_blueprint(autoridades)
     app.register_blueprint(autoridades_funcionarios)

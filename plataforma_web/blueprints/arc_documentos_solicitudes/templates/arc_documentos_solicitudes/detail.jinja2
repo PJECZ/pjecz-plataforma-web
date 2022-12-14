@@ -1,0 +1,141 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/form.jinja2' as f with context %}
+
+
+{% block title %}Solicitud{% endblock %}
+
+{% block custom_head %}
+    <style>
+    .bg-pink {
+        color: white;
+        background-color: #d63384;
+    }
+    .bg-purple {
+        color: white;
+        background-color: #6f42c1;
+    }
+    .bg-brown {
+        color: white;
+        background-color: #653208;
+    }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Solicitud - ' + solicitud.id | string ) %}
+        {{ topbar.button_previous('Solicitudes', url_for('arc_archivos.list_active')) }}
+        {% if mostrar_secciones["boton_cancelar_solicitud"] %}
+            {{ topbar.button_delete('Cancelar', url_for('arc_documentos_solicitudes.cancel', solicitud_id=solicitud.id)) }}
+        {% endif %}
+        {% if mostrar_secciones["boton_pasar_historial"] %}
+            {{ topbar.button('Pasar al Hisotrial', url_for('arc_documentos_solicitudes.history', solicitud_id=solicitud.id), "mdi:history") }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Detalle #}
+        {% call detail.card('Detalles de la Solicitud') %}
+        {{ detail.label_value('Tiempo de Solicitud', solicitud.creado) }}
+        {{ detail.label_value('Juzgado', solicitud.autoridad.clave + ' : ' + solicitud.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=solicitud.autoridad.id)) }}
+        <hr>
+        {{ detail.label_value('Núm. Folio', solicitud.num_folio) }}
+        {{ detail.label_value('Observaciones', solicitud.observaciones) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Estado</div>
+            <div class="col-md-9">
+                {% if estado_text['class'] %}
+                    <span class="badge rounded-pill {{estado_text['class']}}">{{ estado_text['texto'] }}</span>
+                {% else %}
+                    {{ detail.label_value('Estado', solicitud.estado) }}
+                {% endif %}
+                {% if solicitud.esta_archivado %}
+                    : <span class="badge rounded-pill bg-brown">EN HISTORIAL <span class="iconify" data-icon="mdi:history"></span></span>
+                {% endif %}
+            </div>
+        </div>
+    {% endcall %}
+    {# Detalles del Documento #}
+    {% call detail.card('Detalles del Documento') %}
+        {{ detail.label_value('Núm. Expediente', solicitud.arc_documento.expediente, url_for('arc_documentos.detail', documento_id=solicitud.arc_documento.id)) }}
+        {{ detail.label_value('Año', solicitud.arc_documento.anio) }}
+        <hr>
+        {{ detail.label_value('Actor', solicitud.arc_documento.actor) }}
+        {{ detail.label_value('Demandado', solicitud.arc_documento.demandado) }}
+        <hr>
+        {{ detail.label_value('Núm. Exp. Reasignado', solicitud.arc_documento.expediente_reasignado) }}
+        {{ detail.label_value('Juzgado Reasignado', solicitud.arc_documento.juzgado_reasignado) }}
+        <hr>
+        {{ detail.label_value('Juicio', solicitud.arc_documento.juicio) }}
+        {{ detail.label_value('Tipo', solicitud.arc_documento.tipo) }}
+        {{ detail.label_value('Tipo de Juzgado', solicitud.arc_documento.tipo_juzgado) }}
+    {% endcall %}
+    {# Formulario para hacer asignaciones #}
+    {% call detail.card('Asignación') %}
+        {% if archivistas %}
+            {% set form_kwargs = {'solicitud_id': solicitud.id} %}
+                {% call f.form_tag('arc_documentos_solicitudes.asign', fid='solicitud_form', **form_kwargs) %}
+                    <div class="form-group mb-2">
+                        <label for="asignado">Archivista</label>
+                        <select class="form-control" id="asignado" name="asignado">
+                            <option selected value="">SIN ASIGNAR</option>
+                            {% for archivista in archivistas %}
+                                <option value="{{archivista.id}}" {% if archivista == solicitud.usuario_asignado %} selected {% endif %}>{{archivista.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% call f.form_group(form.asignar) %}{% endcall %}
+            {% endcall %}
+        {% else %}
+            {% if not solicitud.usuario_asignado %}
+                {{ detail.label_value('Asignado', 'SIN ASIGNAR') }}
+            {% else %}
+                {{ detail.label_value('Asignado', solicitud.usuario_asignado.nombre, url_for("usuarios.detail", usuario_id=solicitud.usuario_asignado.id)) }}
+            {% endif %}
+        {% endif %}
+    {% endcall %}
+    {# Formulario para hacer asignaciones #}
+    {% if mostrar_secciones['formulario_encontrado'] %}
+        {% call detail.card('Encontrado') %}
+            {% set form_kwargs = {'solicitud_id': solicitud.id} %}
+            {% call f.form_tag('arc_documentos_solicitudes.found', fid='solicitud_form', **form_kwargs) %}
+                {% call f.form_group(form.fojas) %}{% endcall %}
+                {% call f.form_group(form.observaciones) %}{% endcall %}
+                {% call f.form_group(form.encontrado) %}{% endcall %}
+            {% endcall %}
+        {% endcall %}
+        {% call detail.card('NO Encontrado') %}
+            {% set form_kwargs = {'solicitud_id': solicitud.id} %}
+            {% call f.form_tag('arc_documentos_solicitudes.no_found', fid='solicitud_form', **form_kwargs) %}
+                {% call f.form_group(form.razon) %}{% endcall %}
+                {% call f.form_group(form.observaciones) %}{% endcall %}
+                <input class="btn btn-danger" id="no_encontrado" name="no_encontrado" type="submit" value="NO Encontrado">
+            {% endcall %}
+        {% endcall %}
+    {% endif %}
+    {# Detalle de NO ENCONTRADO #}
+    {% if solicitud.estado == "NO ENCONTRADO" %}
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">NO ENCONTRADO</div>
+            <div class="card-body" style="background-color: #fdedec;">
+                {{ detail.label_value('Razón', solicitud.razon) }}
+                {{ detail.label_value('Observaciones', observacion) }}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('ARC DOCUMENTOS SOLICITUDES') %}
+        {{ modals.custom_javascript_delete('Cancelar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?') }}
+    {% endif %}
+    <!-- Mostar historial -->
+    {% if solicitud.esta_archivado %}
+        <script>
+            $('.card-body').css('background-color', '#ddd')
+        </script>
+    {% endif %}
+{% endblock %}

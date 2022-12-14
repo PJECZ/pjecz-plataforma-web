@@ -19,12 +19,10 @@ from plataforma_web.blueprints.permisos.models import Permiso
 
 from plataforma_web.blueprints.arc_documentos.forms import ArcDocumentoNewForm, ArcDocumentoEditForm
 
-MODULO = "ARC DOCUMENTOS"
+from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE
 
-# Roles necesarios
-ROL_JEFE_REMESA = "ARCHIVO JEFE REMESA"
-ROL_ARCHIVISTA = "ARCHIVO ARCHIVISTA"
-ROL_SOLICITANTE = "ARCHIVO SOLICITANTE"
+
+MODULO = "ARC DOCUMENTOS"
 
 arc_documentos = Blueprint("arc_documentos", __name__, template_folder="templates")
 

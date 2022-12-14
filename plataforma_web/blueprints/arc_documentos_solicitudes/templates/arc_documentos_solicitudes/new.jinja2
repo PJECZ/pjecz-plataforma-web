@@ -1,0 +1,34 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nueva Solicitud{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nueva Solicitud') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'documento_id': documento_id} %}
+        {% call f.form_tag('arc_documentos_solicitudes.new', fid='solicitud_form', **form_kwargs) %}
+            {% call f.form_group(form.num_expediente, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.anio, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.actor, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.demandado, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.juicio, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tipo_juzgado, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.num_expediente_reasignado, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.juzgado_reasignado, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tipo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.ubicacion, readonly=true) %}{% endcall %}
+            <hr>
+            {% call f.form_group(form.fojas, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.ultima_observacion, readonly=true) %}{% endcall %}
+            <hr>
+            {% call f.form_group(form.num_folio) %}{% endcall %}
+            {% call f.form_group(form.observaciones) %}{% endcall %}
+            {% call f.form_group(form.solicitar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
