@@ -12,11 +12,11 @@ class ArcDocumentoBitacora(db.Model, UniversalMixin):
     ACCIONES = OrderedDict(  # varchar(16)
         [
             ("ALTA", "Alta"),
-            ("SOLICITAR", "Solicitar"),
             ("EDICION DOC", "Edición del Documento"),
             ("CORRECCION FOJAS", "Corrección de Fojas"),
             ("NO ENCONTRADO", "No Encontrado"),
-            ("RECIBIDO", "Recibido"),
+            ("ENVIADO", "Enviado"),
+            ("ENTREGADO", "Entregado"),
             ("ARCHIVAR", "Archivar"),
         ]
     )

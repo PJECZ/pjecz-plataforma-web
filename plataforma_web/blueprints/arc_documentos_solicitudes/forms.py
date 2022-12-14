@@ -43,7 +43,19 @@ class ArcDocumentoSolicitudFoundForm(FlaskForm):
     fojas = IntegerField("Fojas", validators=[Optional()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     encontrado = SubmitField("Encontrado")
-    # Formulario de No Econtrado
+    # Formulario de No Encontrado
     razon = SelectField("Razón", choices=ArcDocumentoSolicitud.RAZONES, validators=[Optional()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     no_encontrado = SubmitField("NO Encontrado")
+
+
+class ArcDocumentoSolicitudSendForm(FlaskForm):
+    """Formulario para Enviar"""
+
+    enviar = SubmitField("Enviar")
+
+
+class ArcDocumentoSolicitudReceiveForm(FlaskForm):
+    """Formulario para Recibir"""
+
+    recibir = SubmitField("Recibir")

@@ -58,7 +58,7 @@ def datatable_json():
                 },
                 "accion": resultado.accion,
                 "fojas": resultado.fojas,
-                "observaciones": resultado.observaciones,
+                "observaciones": "" if resultado.observaciones is None else resultado.observaciones,
                 "modificado": resultado.modificado.strftime("%Y-%m-%d %H:%M:%S"),
             }
         )

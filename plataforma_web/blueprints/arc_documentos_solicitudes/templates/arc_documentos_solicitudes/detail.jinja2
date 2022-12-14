@@ -39,7 +39,7 @@
 {% block content %}
     {# Detalle #}
         {% call detail.card('Detalles de la Solicitud') %}
-        {{ detail.label_value('Tiempo de Solicitud', solicitud.creado) }}
+        {{ detail.label_value('Tiempo de Solicitud', moment(solicitud.creado).format('llll')) }}
         {{ detail.label_value('Juzgado', solicitud.autoridad.clave + ' : ' + solicitud.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=solicitud.autoridad.id)) }}
         <hr>
         {{ detail.label_value('Núm. Folio', solicitud.num_folio) }}
@@ -73,8 +73,8 @@
         {{ detail.label_value('Tipo', solicitud.arc_documento.tipo) }}
         {{ detail.label_value('Tipo de Juzgado', solicitud.arc_documento.tipo_juzgado) }}
     {% endcall %}
-    {# Formulario para hacer asignaciones #}
-    {% call detail.card('Asignación') %}
+    {# Sección de asignaciones #}
+    {% call detail.card('Asignación (Archivista)') %}
         {% if archivistas %}
             {% set form_kwargs = {'solicitud_id': solicitud.id} %}
                 {% call f.form_tag('arc_documentos_solicitudes.asign', fid='solicitud_form', **form_kwargs) %}
@@ -126,9 +126,44 @@
             </div>
         </div>
     {% endif %}
+    {# Detalle Enviar #}
+    {% if mostrar_secciones["enviar"] %}
+        <div class="card mb-3">
+            <div class="card-header bg-pink text-light" style="font-weight: bold;">ENVIAR</div>
+            <div class="card-body" style="background-color: #f7d6e6;">
+                {% set form_kwargs = {'solicitud_id': solicitud.id} %}
+                {% call f.form_tag('arc_documentos_solicitudes.send', fid='solicitud_form', **form_kwargs) %}
+                    {% call f.form_group(form.enviar) %}{% endcall %}
+                {% endcall %}
+            </div>
+        </div>
+    {% endif %}
+    {# Detalle Recibir #}
+    {% if mostrar_secciones["recibir"] %}
+        <div class="card mb-3">
+            <div class="card-header bg-success text-light" style="font-weight: bold;">RECIBIR</div>
+            <div class="card-body" style="background-color: #d1e7dd;">
+                {% set form_kwargs = {'solicitud_id': solicitud.id} %}
+                {% call f.form_tag('arc_documentos_solicitudes.receive', fid='solicitud_form', **form_kwargs) %}
+                    {% call f.form_group(form.recibir) %}{% endcall %}
+                {% endcall %}
+            </div>
+        </div>
+    {% endif %}
+    {# Detalle Entregado #}
+    {% if mostrar_secciones["entregado"] %}
+        <div class="card mb-3">
+            <div class="card-header bg-success text-light" style="font-weight: bold;">Entregado</div>
+            <div class="card-body" style="background-color: #d1e7dd;">
+                {{ detail.label_value('Tiempo', moment(recepcion.creado).format('llll')) }}
+                {{ detail.label_value('Usuario', recepcion.usuario.nombre, url_for('usuarios.detail', usuario_id=recepcion.usuario.id)) }}
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
     {% if current_user.can_edit('ARC DOCUMENTOS SOLICITUDES') %}
         {{ modals.custom_javascript_delete('Cancelar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?') }}
     {% endif %}

@@ -109,7 +109,8 @@
                         case "ASIGNADO":        return '<span class="badge rounded-pill bg-warning text-dark">PENDIENTE</span>';   break;
                         case "ENCONTRADO":      return '<span class="badge rounded-pill bg-purple">ENCONTRADO</span>';   break;
                         case "NO ENCONTRADO":   return '<span class="badge rounded-pill bg-danger">NO ENCONTRADO</span>';   break;
-                        case "ENVIADO":         return '<span class="badge rounded-pill bg-pink">ENVIADO</span>';   break;
+                        case "ENVIANDO":        return '<span class="badge rounded-pill bg-pink">ENVIANDO</span>';   break;
+                        case "ENTREGADO":       return '<span class="badge rounded-pill bg-success">ENTREGADO</span>';   break;
                     }
                     return data;
                 }
@@ -120,7 +121,8 @@
                 case "ASIGNADO":        $(row).css("background-color", "#fef9e7");  break;
                 case "ENCONTRADO":      $(row).css("background-color", "#f5eef8");  break;
                 case "NO ENCONTRADO":   $(row).css("background-color", "#fdedec");  break;
-                case "ENVIADO":         $(row).css("background-color", "#eafaf1");  break;
+                case "ENVIANDO":        $(row).css("background-color", "#f7d6e6");  break;
+                case "ENTREGADO":       $(row).css("background-color", "#d1e7dd");  break;
             }
         };
 

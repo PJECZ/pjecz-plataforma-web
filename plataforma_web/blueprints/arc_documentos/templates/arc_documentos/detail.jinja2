@@ -33,10 +33,25 @@
         visibility: hidden;
     }
     </style>
+    <style>
+    .bg-pink {
+        color: white;
+        background-color: #d63384;
+    }
+    .bg-purple {
+        color: white;
+        background-color: #6f42c1;
+    }
+    .bg-brown {
+        color: white;
+        background-color: #653208;
+    }
+    </style>
 {% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Documento - ' + documento.id | string ) %}
+        {{ topbar.button_previous('Archivo', url_for('arc_archivos.list_active')) }}
         {{ topbar.button_previous('Documentos', url_for('arc_documentos.list_active')) }}
         {% if current_user.can_edit('ARC DOCUMENTOS') %}
             {{ topbar.button_edit('Editar', url_for('arc_documentos.edit', arc_documento_id=documento.id)) }}
@@ -168,7 +183,11 @@
                 targets: 1, // usuario
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    if (data.nombre.length > 16)
+                        nombre = data.nombre.substr(0, 16) + '…';
+                    else
+                        nombre = data.nombre;
+                    return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + nombre + '</span></a>';
                 }
             },
             {
@@ -192,8 +211,9 @@
                         case "EDICION DOC": return '<span class="badge rounded-pill bg-warning text-dark">EDICION DOC</span>';   break;
                         case "CORRECCION FOJAS":  return '<span class="badge rounded-pill bg-warning text-dark">CORRECCION FOJAS</span>';   break;
                         case "NO ENCONTRADO":     return '<span class="badge rounded-pill bg-danger">NO ENCONTRADO</span>';   break;
-                        case "RECIBIO":     return '<span class="badge rounded-pill bg-primary">RECIBIO</span>';   break;
-                        case "ARCHIVAR":    return '<span class="badge rounded-pill bg-secondary">ARCHIVAR</span>';   break;
+                        case "ENVIADO":         return '<span class="badge rounded-pill bg-pink">ENVIADO</span>';   break;
+                        case "ENTREGADO":       return '<span class="badge rounded-pill bg-success">ENTREGADO</span>';   break;
+                        case "ARCHIVAR":        return '<span class="badge rounded-pill bg-secondary">ARCHIVAR</span>';   break;
                     }
                     return data;
                 }
