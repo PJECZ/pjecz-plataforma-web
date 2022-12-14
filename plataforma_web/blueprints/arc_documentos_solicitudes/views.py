@@ -2,7 +2,7 @@
 Archivo Documentos Solicitudes, vistas
 """
 import json
-from datetime import date
+from datetime import date, datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
@@ -55,6 +55,8 @@ def datatable_json():
         consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     if "asignado_id" in request.form:
         consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
+    if "arc_documento_id" in request.form:
+        consulta = consulta.filter_by(arc_documento_id=int(request.form["arc_documento_id"]))
     if "esta_archivado" in request.form:
         consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
     if "omitir_cancelados" in request.form:
@@ -64,7 +66,10 @@ def datatable_json():
     if "mostrar_archivados" in request.form:
         consulta = consulta.filter_by(esta_archivado=True)
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
-    registros = consulta.order_by(ArcDocumentoSolicitud.id).offset(start).limit(rows_per_page).all()
+    if "orden_acendente" in request.form:
+        registros = consulta.order_by(ArcDocumentoSolicitud.id.desc()).offset(start).limit(rows_per_page).all()
+    else:
+        registros = consulta.order_by(ArcDocumentoSolicitud.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -92,7 +97,7 @@ def datatable_json():
                     "url": "" if resultado.usuario_asignado is None else url_for("usuarios.detail", usuario_id=resultado.usuario_asignado.id),
                 },
                 "num_folio": resultado.num_folio,
-                "observaciones": resultado.observaciones,
+                "observaciones_solicitud": resultado.observaciones_solicitud,
             }
         )
     # Entregar JSON
@@ -165,14 +170,14 @@ def detail(solicitud_id):
         mostrar_secciones["boton_cancelar_solicitud"] = True
     if solicitud.estado == "CANCELADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
         mostrar_secciones["boton_pasar_historial"] = True
-    if solicitud.esta_archivado:
-        mostrar_secciones["boton_pasar_historial"] = False
     if solicitud.estado == "ASIGNADO" and (current_user.can_admin(MODULO) or ROL_ARCHIVISTA in current_user_roles):
         mostrar_secciones["formulario_encontrado"] = True
     if solicitud.estado == "NO ENCONTRADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
         mostrar_secciones["boton_pasar_historial"] = True
     if solicitud.estado == "ENTREGADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
         mostrar_secciones["boton_pasar_historial"] = True
+    if solicitud.esta_archivado:
+        mostrar_secciones["boton_pasar_historial"] = False
 
     # Mostrar vista con formulario de asignación
     if solicitud.estado == "SOLICITADO" or solicitud.estado == "ASIGNADO":
@@ -201,13 +206,11 @@ def detail(solicitud_id):
                 estado_text=estado_text,
             )
     if solicitud.estado == "NO ENCONTRADO":
-        solicitud_bitacora = ArcDocumentoBitacora.query.filter_by(arc_documento=solicitud.arc_documento).filter_by(accion="NO ENCONTRADO").filter_by(estatus="A").order_by(ArcDocumentoBitacora.id.desc()).first()
         return render_template(
             "arc_documentos_solicitudes/detail.jinja2",
             solicitud=solicitud,
             mostrar_secciones=mostrar_secciones,
             estado_text=estado_text,
-            observacion=solicitud_bitacora.observaciones,
         )
     if solicitud.estado == "ENCONTRADO":
         if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles:
@@ -232,14 +235,12 @@ def detail(solicitud_id):
                 estado_text=estado_text,
             )
     if solicitud.estado == "ENTREGADO":
-        solicitud_bitacora = ArcDocumentoBitacora.query.filter_by(arc_documento=solicitud.arc_documento).filter_by(accion="ENTREGADO").filter_by(estatus="A").order_by(ArcDocumentoBitacora.id.desc()).first()
         mostrar_secciones["entregado"] = True
         return render_template(
             "arc_documentos_solicitudes/detail.jinja2",
             solicitud=solicitud,
             mostrar_secciones=mostrar_secciones,
             estado_text=estado_text,
-            recepcion=solicitud_bitacora,
         )
 
     # Por defecto mostramos solo los detalles de la solicitud
@@ -272,7 +273,7 @@ def new(documento_id):
                 tiempo_recepcion=None,
                 esta_archivado=False,
                 num_folio=safe_string(form.num_folio.data),
-                observaciones=safe_message(form.observaciones.data),
+                observaciones_solicitud=safe_message(form.observaciones.data),
                 estado="SOLICITADO",
             )
             solicitud.save()
@@ -291,7 +292,6 @@ def new(documento_id):
     form.demandado.data = documento.demandado
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
-    form.num_expediente_reasignado.data = documento.expediente_reasignado
     form.tipo.data = documento.tipo
     form.ubicacion.data = documento.ubicacion
     # Seleccionamos el último comentario sobre el documento
@@ -425,10 +425,11 @@ def no_found(solicitud_id):
     else:
         solicitud.estado = "NO ENCONTRADO"
         solicitud.razon = safe_string(request.form["razon"])
+        solicitud.observaciones_razon = safe_message(request.form["observaciones"])
         solicitud_bitacora = ArcDocumentoBitacora(
             arc_documento=solicitud.arc_documento,
             usuario=current_user,
-            observaciones=request.form["observaciones"],
+            observaciones=safe_message(request.form["observaciones"]),
             accion="NO ENCONTRADO",
         )
         solicitud_bitacora.save()
@@ -488,6 +489,8 @@ def receive(solicitud_id):
         flash(f"Solo puede recibir el ROL de {ROL_SOLICITANTE}.", "warning")
     else:
         solicitud.estado = "ENTREGADO"
+        solicitud.usuario_receptor = current_user
+        solicitud.tiempo_recepcion = datetime.now()
         solicitud_bitacora = ArcDocumentoBitacora(
             arc_documento=solicitud.arc_documento,
             usuario=current_user,

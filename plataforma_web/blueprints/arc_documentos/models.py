@@ -54,9 +54,8 @@ class ArcDocumento(db.Model, UniversalMixin):
     anio = db.Column(db.Integer, nullable=False)
     demandado = db.Column(db.String(256), nullable=False)
     expediente = db.Column(db.String(16), index=True, nullable=False)  # dígitos/YYYY-XXX
-    expediente_reasignado = db.Column(db.String(16))
     juicio = db.Column(db.String(128))
-    juzgado_reasignado = db.Column(db.String(64))
+    juzgado_origen = db.Column(db.String(64))
     tipo_juzgado = db.Column(
         db.Enum(*TIPO_JUZGADOS, name="tipo_juzgados", native_enum=False),
         nullable=False,

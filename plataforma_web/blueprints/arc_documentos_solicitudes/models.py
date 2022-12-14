@@ -55,7 +55,8 @@ class ArcDocumentoSolicitud(db.Model, UniversalMixin):
         nullable=False,
     )
     razon = db.Column(db.Enum(*RAZONES, name="razon", native_enum=False))
-    observaciones = db.Column(db.String(256))
+    observaciones_solicitud = db.Column(db.String(256))
+    observaciones_razon = db.Column(db.String(256))
 
     def __repr__(self):
         """Representación"""

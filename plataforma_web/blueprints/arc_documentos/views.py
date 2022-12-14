@@ -152,8 +152,7 @@ def new():
                 demandado=safe_string(form.demandado.data, save_enie=True),
                 juicio=safe_string(form.juicio.data, save_enie=True),
                 tipo_juzgado=safe_string(form.tipo_juzgado.data),
-                expediente_reasignado=safe_expediente(form.num_expediente_reasignado.data),
-                juzgado_reasignado=safe_string(form.juzgado_reasignado.data, save_enie=True),
+                juzgado_origen=safe_string(form.juzgado_origen.data, save_enie=True),
                 tipo=safe_string(form.tipo.data),
                 ubicacion=safe_string(form.ubicacion.data),
             )
@@ -209,8 +208,7 @@ def edit(arc_documento_id):
             documento.demandado = safe_string(form.demandado.data, save_enie=True)
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
             documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
-            documento.expediente_reasignado = safe_expediente(form.num_expediente_reasignado.data)
-            documento.juzgado_reasignado = safe_string(form.juzgado_reasignado.data, save_enie=True)
+            documento.juzgado_origen = safe_string(form.juzgado_origen.data, save_enie=True)
             documento.tipo = safe_string(form.tipo.data)
             documento.ubicacion = safe_string(form.ubicacion.data)
             documento.save()
@@ -235,9 +233,9 @@ def edit(arc_documento_id):
     form.juzgado_id.data = documento.autoridad_id
     form.actor.data = documento.actor
     form.demandado.data = documento.demandado
+    form.juzgado_origen.data = documento.juzgado_origen
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
-    form.num_expediente_reasignado.data = documento.expediente_reasignado
     form.tipo.data = documento.tipo
     form.ubicacion.data = documento.ubicacion
     return render_template("arc_documentos/edit.jinja2", form=form, documento=documento)

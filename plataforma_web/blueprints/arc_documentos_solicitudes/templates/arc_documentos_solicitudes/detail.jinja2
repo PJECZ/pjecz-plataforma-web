@@ -26,7 +26,11 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Solicitud - ' + solicitud.id | string ) %}
-        {{ topbar.button_previous('Solicitudes', url_for('arc_archivos.list_active')) }}
+        {% if solicitud.esta_archivado %}
+            {{ topbar.button_previous('Solicitudes', url_for('arc_archivos.list_history')) }}
+        {% else %}
+            {{ topbar.button_previous('Solicitudes', url_for('arc_archivos.list_active')) }}
+        {% endif %}
         {% if mostrar_secciones["boton_cancelar_solicitud"] %}
             {{ topbar.button_delete('Cancelar', url_for('arc_documentos_solicitudes.cancel', solicitud_id=solicitud.id)) }}
         {% endif %}
@@ -43,7 +47,7 @@
         {{ detail.label_value('Juzgado', solicitud.autoridad.clave + ' : ' + solicitud.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=solicitud.autoridad.id)) }}
         <hr>
         {{ detail.label_value('Núm. Folio', solicitud.num_folio) }}
-        {{ detail.label_value('Observaciones', solicitud.observaciones) }}
+        {{ detail.label_value('Observaciones', solicitud.observaciones_solicitud) }}
         <div class="row">
             <div class="col-md-3 text-end">Estado</div>
             <div class="col-md-9">
@@ -66,9 +70,7 @@
         {{ detail.label_value('Actor', solicitud.arc_documento.actor) }}
         {{ detail.label_value('Demandado', solicitud.arc_documento.demandado) }}
         <hr>
-        {{ detail.label_value('Núm. Exp. Reasignado', solicitud.arc_documento.expediente_reasignado) }}
-        {{ detail.label_value('Juzgado Reasignado', solicitud.arc_documento.juzgado_reasignado) }}
-        <hr>
+        {{ detail.label_value('Juzgado Origen', solicitud.arc_documento.juzgado_origen) }}
         {{ detail.label_value('Juicio', solicitud.arc_documento.juicio) }}
         {{ detail.label_value('Tipo', solicitud.arc_documento.tipo) }}
         {{ detail.label_value('Tipo de Juzgado', solicitud.arc_documento.tipo_juzgado) }}
@@ -122,7 +124,7 @@
             <div class="card-header bg-danger text-light" style="font-weight: bold;">NO ENCONTRADO</div>
             <div class="card-body" style="background-color: #fdedec;">
                 {{ detail.label_value('Razón', solicitud.razon) }}
-                {{ detail.label_value('Observaciones', observacion) }}
+                {{ detail.label_value('Observaciones', solicitud.observaciones_razon) }}
             </div>
         </div>
     {% endif %}
@@ -155,8 +157,8 @@
         <div class="card mb-3">
             <div class="card-header bg-success text-light" style="font-weight: bold;">Entregado</div>
             <div class="card-body" style="background-color: #d1e7dd;">
-                {{ detail.label_value('Tiempo', moment(recepcion.creado).format('llll')) }}
-                {{ detail.label_value('Usuario', recepcion.usuario.nombre, url_for('usuarios.detail', usuario_id=recepcion.usuario.id)) }}
+                {{ detail.label_value('Tiempo', moment(solicitud.tiempo_recepcion).format('llll')) }}
+                {{ detail.label_value('Usuario', solicitud.usuario_receptor.nombre, url_for('usuarios.detail', usuario_id=solicitud.usuario_receptor.id)) }}
             </div>
         </div>
     {% endif %}

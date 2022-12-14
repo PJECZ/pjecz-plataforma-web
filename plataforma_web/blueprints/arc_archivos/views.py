@@ -91,7 +91,7 @@ def list_history():
     if current_user.can_admin(MODULO):
         return render_template(
             "arc_archivos/list_admin.jinja2",
-            filtros=json.dumps({"estatus": "A", "mostrar_archivados": True}),
+            filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "orden_acendente": True}),
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
@@ -100,7 +100,7 @@ def list_history():
     if ROL_SOLICITANTE in current_user_roles:
         return render_template(
             "arc_archivos/list_solicitante.jinja2",
-            filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "juzgado_id": current_user.autoridad.id}),
+            filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "juzgado_id": current_user.autoridad.id, "orden_acendente": True}),
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
@@ -109,7 +109,7 @@ def list_history():
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(
             "arc_archivos/list_jefe_remesa.jinja2",
-            filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "omitir_cancelados": True}),
+            filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "omitir_cancelados": True, "orden_acendente": True}),
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
@@ -118,7 +118,7 @@ def list_history():
     if ROL_ARCHIVISTA in current_user_roles:
         return render_template(
             "arc_archivos/list_archivista.jinja2",
-            filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "asignado_id": current_user.id}),
+            filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "asignado_id": current_user.id, "orden_acendente": True}),
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
@@ -127,7 +127,7 @@ def list_history():
     # Por defecto
     return render_template(
         "arc_archivos/list.jinja2",
-        filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "juzgado_id": current_user.autoridad.id}),
+        filtros=json.dumps({"estatus": "A", "mostrar_archivados": True, "juzgado_id": current_user.autoridad.id, "orden_acendente": True}),
         estatus="A",
         titulo="Archivo - Historial 🗃️",
         mostrando_historial=True,

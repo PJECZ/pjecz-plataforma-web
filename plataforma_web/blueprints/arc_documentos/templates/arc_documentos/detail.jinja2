@@ -74,9 +74,7 @@
         {{ detail.label_value('Actor', documento.actor) }}
         {{ detail.label_value('Demandado', documento.demandado) }}
         <hr>
-        {{ detail.label_value('Núm. Exp. Reasignado', documento.expediente_reasignado) }}
-        {{ detail.label_value('Juzgado Reasignado', documento.juzgado_reasignado) }}
-        <hr>
+        {{ detail.label_value('Juzgado Origen', documento.juzgado_origen) }}
         {{ detail.label_value('Juicio', documento.juicio) }}
         {{ detail.label_value('Tipo', documento.tipo) }}
         {{ detail.label_value('Tipo de Juzgado', documento.tipo_juzgado) }}
@@ -98,8 +96,8 @@
             </div>
         </div>
     {% endcall %}
-    {# Historial #}
-    {% call detail.card('Historial') %}
+    {# Bitacora #}
+    {% call detail.card('Bitacora') %}
         <!-- Formulario de filtros -->
         <div class="row">
             <div class="col">
@@ -153,9 +151,24 @@
             </thead>
         </table>
     {% endcall %}
+    {# Solicitudes #}
+    {% call detail.card('Historial de Solicitudes') %}
+    <!-- Datatable -->
+        <table id="solicitudes_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tiempo</th>
+                    <th>Juzgado</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
     {% if current_user.can_edit('ARC DOCUMENTOS') %}
         {% if documento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar?') }}{% endif %}
         {% if documento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar?') }}{% endif %}
@@ -238,7 +251,6 @@
         // Datatable
         $('#documentos_bitacora_datatable').DataTable(configDataTable);
     </script>
-    {{ detail.moment_js(moment) }}
     <!-- Función de buscador -->
     <script type="text/javascript">
         function buscar() {
@@ -314,5 +326,90 @@
                 minimumInputLength: 3
             });
         });
+    </script>
+    <!-- DataTable para Historial de Solicitudes -->
+    <script>
+    let configDataTable_2 = {
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: null,
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: null
+            },
+            columns: null,
+            columnDefs: null,
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        };
+        // ---
+        configDataTable_2['ajax']['url'] = '/arc_documentos_solicitudes/datatable_json';
+        configDataTable_2['ajax']['data'] = { 'estatus': "A", 'arc_documento_id': {{ documento.id }}, 'orden_acendente': true };
+        configDataTable_2['columns'] = [
+            { data: 'solicitud' },
+            { data: 'tiempo' },
+            { data: 'juzgado' },
+            { data: 'estado' }
+        ];
+        configDataTable_2['columnDefs'] = [
+            {
+                targets: 0, // solicitud
+                type: "date",
+                render: function (data, type, row) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },{
+                targets: 1, // tiempo
+                type: "date",
+                render: function (data, type, row) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 2, // juzgado
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 3, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "SOLICITADO":      return '<span class="badge rounded-pill bg-warning text-dark">SOLICITADO</span>';   break;
+                        case "CANCELADO":       return '<span class="badge rounded-pill bg-secondary">CANCELADO</span>';   break;
+                        case "ASIGNADO":        return '<span class="badge rounded-pill bg-primary">ASIGNADO</span>';   break;
+                        case "ENCONTRADO":      return '<span class="badge rounded-pill bg-purple">ENCONTRADO</span>';   break;
+                        case "NO ENCONTRADO":   return '<span class="badge rounded-pill bg-danger">NO ENCONTRADO</span>';   break;
+                        case "ENVIANDO":        return '<span class="badge rounded-pill bg-pink">ENVIANDO</span>';   break;
+                        case "ENTREGADO":       return '<span class="badge rounded-pill bg-success">ENTREGADO</span>';   break;
+                    }
+                    return data;
+                }
+            }
+        ];
+        
+        // Datatable
+        $('#solicitudes_datatable').DataTable(configDataTable_2);
     </script>
 {% endblock %}
