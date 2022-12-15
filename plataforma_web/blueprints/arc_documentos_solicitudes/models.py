@@ -50,6 +50,7 @@ class ArcDocumentoSolicitud(db.Model, UniversalMixin):
     esta_archivado = db.Column(db.Boolean, nullable=False, default=False)
     num_folio = db.Column(db.String(16))
     tiempo_recepcion = db.Column(db.DateTime)
+    fojas = db.Column(db.Integer)
     estado = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         nullable=False,

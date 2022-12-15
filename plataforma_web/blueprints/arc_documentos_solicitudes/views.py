@@ -2,7 +2,7 @@
 Archivo Documentos Solicitudes, vistas
 """
 import json
-from datetime import date, datetime
+from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
@@ -266,6 +266,9 @@ def new(documento_id):
         elif ArcDocumentoSolicitud.query.filter_by(arc_documento=documento).filter_by(esta_archivado=False).filter_by(estatus="A").first():
             flash("Este documento ya se encuentra en proceso de solicitud.", "warning")
         else:
+            fojas = None
+            if "fojas_nuevas" in request.form:
+                fojas = int(form.fojas_nuevas.data)
             solicitud = ArcDocumentoSolicitud(
                 arc_documento=documento,
                 autoridad=documento.autoridad,
@@ -273,6 +276,7 @@ def new(documento_id):
                 tiempo_recepcion=None,
                 esta_archivado=False,
                 num_folio=safe_string(form.num_folio.data),
+                fojas=fojas,
                 observaciones_solicitud=safe_message(form.observaciones.data),
                 estado="SOLICITADO",
             )
@@ -293,11 +297,8 @@ def new(documento_id):
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.tipo
+    form.fojas_actuales.data = documento.fojas
     form.ubicacion.data = documento.ubicacion
-    # Seleccionamos el último comentario sobre el documento
-    documento_bitacora = ArcDocumentoBitacora.query.filter_by(arc_documento=documento).order_by(ArcDocumentoBitacora.id.desc()).first()
-    form.fojas.data = documento_bitacora.fojas
-    form.ultima_observacion.data = documento_bitacora.observaciones
     return render_template("arc_documentos_solicitudes/new.jinja2", documento_id=documento.id, form=form)
 
 
@@ -385,21 +386,28 @@ def history(solicitud_id):
 def found(solicitud_id):
     """Pasar el estado a ENCONTRADO de una Solicitud"""
     solicitud = ArcDocumentoSolicitud.query.get_or_404(solicitud_id)
+    documento = ArcDocumento.query.get_or_404(solicitud.arc_documento_id)
     if solicitud.estado != "ASIGNADO":
         flash("No puede cambiar el estado a ENCONTRADO de una solicitud que está en un estado diferente a ASIGNADO.", "warning")
     elif not current_user.can_admin(MODULO) and ROL_ARCHIVISTA not in current_user.get_roles():
         flash(f"Solo puede cambiar el estado a ENCONTRADO el ROL de {ROL_ARCHIVISTA}.", "warning")
     else:
+        fojas = None
+        if "fojas" in request.form:
+            fojas = int(request.form["fojas"])
         solicitud.estado = "ENCONTRADO"
+        if documento.fojas != fojas:
+            documento.fojas = fojas
         if "fojas" in request.form or "observaciones" in request.form:
             solicitud_bitacora = ArcDocumentoBitacora(
                 arc_documento=solicitud.arc_documento,
                 usuario=current_user,
-                fojas=int(request.form["fojas"]),
+                fojas=fojas,
                 observaciones=request.form["observaciones"],
                 accion="CORRECCION FOJAS",
             )
             solicitud_bitacora.save()
+        documento.save()
         solicitud.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),

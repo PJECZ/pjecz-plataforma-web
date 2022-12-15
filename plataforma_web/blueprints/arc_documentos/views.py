@@ -77,6 +77,7 @@ def datatable_json():
                 },
                 "anio": resultado.anio,
                 "tipo": resultado.tipo,
+                "fojas": resultado.fojas,
                 "actor": resultado.actor,
                 "demandado": resultado.demandado,
                 "ubicacion": resultado.ubicacion,
@@ -154,6 +155,7 @@ def new():
                 tipo_juzgado=safe_string(form.tipo_juzgado.data),
                 juzgado_origen=safe_string(form.juzgado_origen.data, save_enie=True),
                 tipo=safe_string(form.tipo.data),
+                fojas=int(form.fojas.data),
                 ubicacion=safe_string(form.ubicacion.data),
             )
             documento.save()
@@ -201,9 +203,12 @@ def edit(arc_documento_id):
         elif motivo is None or len(motivo) < 10:
             flash("Escriba un motivo más descriptivo", "warning")
         else:
-            documento.autoridad_id = juzgado_id
-            documento.expediente = num_expediente
-            documento.anio = anio
+            fojas = None
+            if documento.fojas != int(form.fojas.data):
+                fojas = int(form.fojas.data)
+            documento.autoridad_id = int(juzgado_id)
+            documento.expediente = safe_expediente(num_expediente)
+            documento.anio = int(anio)
             documento.actor = safe_string(form.actor.data, save_enie=True)
             documento.demandado = safe_string(form.demandado.data, save_enie=True)
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
@@ -211,14 +216,16 @@ def edit(arc_documento_id):
             documento.juzgado_origen = safe_string(form.juzgado_origen.data, save_enie=True)
             documento.tipo = safe_string(form.tipo.data)
             documento.ubicacion = safe_string(form.ubicacion.data)
-            documento.save()
+            documento.fojas = int(form.fojas.data)
             documento_bitacora = ArcDocumentoBitacora(
                 arc_documento_id=documento.id,
                 usuario=current_user,
+                fojas=fojas,
                 observaciones=motivo,
                 accion="EDICION DOC",
             )
             documento_bitacora.save()
+            documento.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
@@ -237,5 +244,6 @@ def edit(arc_documento_id):
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.tipo
+    form.fojas.data = documento.fojas
     form.ubicacion.data = documento.ubicacion
     return render_template("arc_documentos/edit.jinja2", form=form, documento=documento)

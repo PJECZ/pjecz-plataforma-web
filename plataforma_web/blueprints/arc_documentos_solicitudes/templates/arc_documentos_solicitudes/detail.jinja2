@@ -42,12 +42,9 @@
 
 {% block content %}
     {# Detalle #}
-        {% call detail.card('Detalles de la Solicitud') %}
+    {% call detail.card('Detalles de la Solicitud') %}
         {{ detail.label_value('Tiempo de Solicitud', moment(solicitud.creado).format('llll')) }}
         {{ detail.label_value('Juzgado', solicitud.autoridad.clave + ' : ' + solicitud.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=solicitud.autoridad.id)) }}
-        <hr>
-        {{ detail.label_value('Núm. Folio', solicitud.num_folio) }}
-        {{ detail.label_value('Observaciones', solicitud.observaciones_solicitud) }}
         <div class="row">
             <div class="col-md-3 text-end">Estado</div>
             <div class="col-md-9">
@@ -62,6 +59,17 @@
             </div>
         </div>
     {% endcall %}
+    {# Detalles dObservaciones #}
+    {% if solicitud.num_folio or solicitud.fojas or solicitud.observaciones_solicitud %}
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones</div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                {{ detail.label_value('Núm. Folio', solicitud.num_folio) }}
+                {{ detail.label_value('Fojas', solicitud.fojas) }}
+                {{ detail.label_value('Observaciones', solicitud.observaciones_solicitud) }}
+            </div>
+        </div>
+    {% endif %}
     {# Detalles del Documento #}
     {% call detail.card('Detalles del Documento') %}
         {{ detail.label_value('Núm. Expediente', solicitud.arc_documento.expediente, url_for('arc_documentos.detail', documento_id=solicitud.arc_documento.id)) }}
@@ -74,6 +82,8 @@
         {{ detail.label_value('Juicio', solicitud.arc_documento.juicio) }}
         {{ detail.label_value('Tipo', solicitud.arc_documento.tipo) }}
         {{ detail.label_value('Tipo de Juzgado', solicitud.arc_documento.tipo_juzgado) }}
+        <hr>
+        {{ detail.label_value('Fojas', solicitud.arc_documento.fojas) }}
     {% endcall %}
     {# Sección de asignaciones #}
     {% call detail.card('Asignación (Archivista)') %}

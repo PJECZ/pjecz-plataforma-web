@@ -50,7 +50,7 @@
                     delay: 250,
                     type: "POST",
                     data: function (params) {
-                        return { 'searchString': params.term };
+                        return { 'searchString': params.term.toUpperCase() };
                     }
                 },
                 placeholder: "{{buscar}}",

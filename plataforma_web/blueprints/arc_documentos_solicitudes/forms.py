@@ -20,11 +20,10 @@ class ArcDocumentoSolicitudNewForm(FlaskForm):
     tipo = StringField("Tipo")
     ubicacion = StringField("Ubicación")
     tipo_juzgado = StringField("Tipo de Juzgado")
-    # documento_id = HiddenField("Documento id", validators=[DataRequired()])
-    fojas = IntegerField("Fojas", validators=[Optional()])
-    ultima_observacion = TextAreaField("Última Observación")
+    fojas_actuales = IntegerField("Fojas")
     # Campos opcionales para la bitácora o historial
-    num_folio = IntegerField("Núm. de Folio", validators=[Optional()])
+    num_folio = StringField("Núm. de Folio", validators=[Optional()])
+    fojas_nuevas = IntegerField("Fojas", validators=[Optional()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     solicitar = SubmitField("Solicitar")
 
