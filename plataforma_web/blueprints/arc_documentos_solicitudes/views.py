@@ -267,7 +267,9 @@ def new(documento_id):
             flash("Este documento ya se encuentra en proceso de solicitud.", "warning")
         else:
             fojas = None
-            if "fojas_nuevas" in request.form:
+            if form.fojas_nuevas.data is None or form.fojas_nuevas.data == "":
+                fojas = None
+            else:
                 fojas = int(form.fojas_nuevas.data)
             solicitud = ArcDocumentoSolicitud(
                 arc_documento=documento,

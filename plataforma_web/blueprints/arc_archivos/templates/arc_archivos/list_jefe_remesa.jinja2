@@ -41,7 +41,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tiempo</th>
+                    <th>Creado</th>
                     <th>Juzgado</th>
                     <th>Documento</th>
                     <th>Estado</th>
@@ -58,7 +58,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tiempo</th>
+                    <th>Creado</th>
                     <th>Juzgado</th>
                     <th>Núm. Docs.</th>
                     <th>Estado</th>
@@ -88,6 +88,13 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
                 }
             },
             {

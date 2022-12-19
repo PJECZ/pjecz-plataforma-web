@@ -2,7 +2,7 @@
 Archivo - Remesas, vistas
 """
 import json
-from datetime import datetime
+from datetime import date, datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
@@ -19,6 +19,8 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
+
+from plataforma_web.blueprints.arc_remesas.forms import ArcRemesaNewForm
 
 from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE
 
@@ -80,6 +82,9 @@ def datatable_json():
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
                 },
                 "tiempo": resultado.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "anio": resultado.anio,
+                "num_oficio": resultado.num_oficio,
+                "num_docs": 2,
                 "estado": resultado.estado,
                 "asignado": {
                     "nombre": "SIN ASIGNAR" if resultado.usuario_asignado is None else resultado.usuario_asignado.nombre,
@@ -100,3 +105,29 @@ def detail(remesa_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Remesa"""
+
+    form = ArcRemesaNewForm()
+    if form.validate_on_submit():
+        if form.anio.data < 1950 or form.anio.data > date.today().year:
+            flash(f"El año se encuntra fuera de un rango permitido 1950-{date.today().year}.", "warning")
+        elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
+            flash(f"Solo se pueden crear nuevas remesas por el Administrador o {ROL_SOLICITANTE}.", "warning")
+        else:
+            remesa = ArcRemesa(
+                autoridad=current_user.autoridad,
+                esta_archivado=False,
+                anio=int(form.anio.data),
+                num_oficio=safe_string(form.num_oficio.data),
+                estado="PENDIENTE",
+            )
+            remesa.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nueva Remesa creada {remesa.id}"),
+                url=url_for("arc_archivos.list_active"),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+    return render_template("arc_remesas/new.jinja2", form=form)

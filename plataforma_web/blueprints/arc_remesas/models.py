@@ -11,7 +11,6 @@ class ArcRemesa(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(  # varchar(16)
         [
-            ("NO DEFINIDO", "No Definido"),
             ("PENDIENTE", "Pendiente"),  # El SOLICITANTE comienza una solicitud de Remesa
             ("CANCELADO", "Cancelado"),  # El SOLICITANTE se arrepiente de crear una Remesa
             ("ENVIADO", "Enviado"),  # El SOLICITANTE pide que recojan la remesa. El JEFE_REMESA ve el pedido

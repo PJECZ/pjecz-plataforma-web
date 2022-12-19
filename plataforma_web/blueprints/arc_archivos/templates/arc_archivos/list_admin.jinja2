@@ -44,7 +44,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tiempo</th>
+                    <th>Creado</th>
                     <th>Juzgado</th>
                     <th>Documento</th>
                     <th>Estado</th>
@@ -55,7 +55,7 @@
     {% endcall %}
     {% call topbar.page_buttons('Remesas') %}
         {% if not mostrando_historial %}
-            {{ topbar.button_new('Nueva Remesa', '#') }}
+            {{ topbar.button_new('Nueva Remesa', url_for('arc_remesas.new')) }}
         {% endif %}
     {% endcall %}
     {% call list.card() %}
@@ -64,7 +64,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tiempo</th>
+                    <th>Creado</th>
                     <th>Juzgado</th>
                     <th>Núm. Docs.</th>
                     <th>Estado</th>
@@ -94,6 +94,13 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
                 }
             },
             {
