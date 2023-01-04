@@ -31,9 +31,10 @@ def alimentar_inv_marcas_modelos():
             if inv_modelo_id != contador + 1:
                 click.echo(f"  AVISO: inv_modelo_id {inv_modelo_id} no es consecutivo")
                 continue
-            inv_marca = InvMarca.query.filter_by(nombre=safe_string(row["inv_marca_nombre"])).first()
+            inv_marca_nombre = safe_string(row["inv_marca_nombre"], save_enie=True)
+            inv_marca = InvMarca.query.filter_by(nombre=inv_marca_nombre).first()
             if inv_marca is None:
-                inv_marca = InvMarca(nombre=safe_string(row["inv_marca_nombre"]))
+                inv_marca = InvMarca(nombre=inv_marca_nombre)
                 inv_marca.save()
             InvModelo(
                 inv_marca=inv_marca,

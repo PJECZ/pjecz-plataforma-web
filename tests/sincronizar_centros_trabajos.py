@@ -97,7 +97,7 @@ def main():
             for centro_trabajo in centros_trabajos:
                 accion = ""
                 clave = safe_clave(centro_trabajo["clave"])
-                nombre = safe_string(centro_trabajo["nombre"])
+                nombre = safe_string(centro_trabajo["nombre"], save_enie=True)
                 consulta = CentroTrabajo.query.filter(CentroTrabajo.clave == clave).first()
                 if consulta is None:
                     accion = "Insertado"

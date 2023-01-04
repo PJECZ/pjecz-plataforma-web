@@ -61,5 +61,4 @@ class AutoridadSearchForm(FlaskForm):
 
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     clave = StringField("Clave (máximo 16 caracteres)", validators=[Optional(), Length(max=16)])
-    organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[Optional()])
     buscar = SubmitField("Buscar")

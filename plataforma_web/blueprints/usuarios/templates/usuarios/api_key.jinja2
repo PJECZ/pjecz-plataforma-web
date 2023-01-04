@@ -6,7 +6,10 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('API Key ' + usuario.email) %}
-        {{ topbar.button_previous('Detalle del usuario', url_for('usuarios.detail', usuario_id=usuario.id)) }}
+        {{ topbar.button_previous('Usuario ' + usuario.email, url_for('usuarios.detail', usuario_id=usuario.id)) }}
+        {% if current_user.can_edit('USUARIOS ROLES') %}
+            {{ topbar.button('Roles ON/OFF', url_for('usuarios_roles.list_usuario', usuario_id=usuario.id), 'mdi:toggle-switch') }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 

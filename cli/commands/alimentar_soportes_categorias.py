@@ -41,7 +41,7 @@ def alimentar_soportes_categorias():
             else:
                 rol = Rol.query.get(2)  # Rol SOPORTE TECNICO
             SoporteCategoria(
-                nombre=safe_string(row["nombre"]),
+                nombre=safe_string(row["nombre"], save_enie=True),
                 estatus=row["estatus"],
                 rol=rol,
             ).save()

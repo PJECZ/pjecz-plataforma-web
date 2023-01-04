@@ -31,7 +31,7 @@ def alimentar_materias():
                 click.echo(f"  AVISO: materia_id {materia_id} no es consecutivo")
                 continue
             Materia(
-                nombre=safe_string(row["nombre"]),
+                nombre=safe_string(row["nombre"], save_enie=True),
                 estatus=row["estatus"],
             ).save()
             contador += 1

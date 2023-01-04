@@ -45,7 +45,7 @@ def alimentar(entrada_csv):
                 click.echo(f"  AVISO: perito_tipo_id {perito_tipo_id} no es consecutivo")
                 continue
             PeritoTipo(
-                nombre=safe_string(row["nombre"]),
+                nombre=safe_string(row["nombre"], save_enie=True),
                 estatus=row["estatus"],
             ).save()
             contador += 1
