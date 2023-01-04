@@ -10,12 +10,10 @@
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
      <style>
-        #guardar { float: left; box-sizing: border-box; background-color: #0139A9;}
-        #enviar { float: right; box-sizing: border-box; }
+        #correccion { float: left; box-sizing: border-box; background-color: #0139A9;}
+        #aprobar { float: right; box-sizing: border-box; }
     </style>
 {% endblock %}
-
-
 {% block topbar_actions %}
     {{ topbar.page('Editar ' + not_escritura.id | string) }}
 {% endblock %}
@@ -25,17 +23,18 @@
         {% set form_kwargs = {'not_escritura_id': not_escritura.id} %}
         <div class="row">
             <div class="col-md-7">
-                {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
-                    {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                {% call f.form_tag('not_escrituras.edit_juzgado', fid='not_escritura_juzgado_form', **form_kwargs) %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
-                    {% call f.form_group(form.juzgado) %}{% endcall %}
-                    {% call f.form_group(form.expediente) %}{% endcall %}
+                    {% call f.form_group(form.juzgado, readonly=true) %}{% endcall %}
+                    {% call f.form_group(form.expediente, readonly=true) %}{% endcall %} 
                     {{ quill.div(div_id="contenido_quill")}}
                     <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
                     {% call f.form_group(form.estado) %}{% endcall %}
-                    {% call f.form_group(form.guardar) %}{% endcall %}
-                    {% call f.form_group(form.enviar) %}{% endcall %}
+                    {% call f.form_group(form.revision) %}{% endcall %}
+                    {% call f.form_group(form.finalizado) %}{% endcall %}
                 {% endcall %}
+                
             </div>
             <div class="col-md-5">
                 <h4>Conversaciones</h4>
@@ -44,29 +43,25 @@
     {% endcall %}
 {% endblock %}
 
+
 {% block custom_javascript %}
     <!-- Quill -->
     {{ quill.library() }}
-    {{ quill.editor(form_id='not_escritura_form', instance='contenidoQuill', div_id='contenido_quill', hidden_id='contenido', content=contenido) }}
+    {{ quill.editor(form_id='not_escritura_juzgado_form', instance='contenidoQuill', div_id='contenido_quill', hidden_id='contenido', content=contenido) }}
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            //$("#juzgado").val("{{ not_escritura.juzgado.descripcion_corta }}"); #}
-
-            $('#juzgado').addClass('js-juzgado-data-ajax js-states form-control');
+            $('#juzgado').val('{{not_escritura.juzgado.descripcion}}');
+            /*$('#juzgado').addClass('js-juzgado-data-ajax js-states form-control');
             $('#juzgado option').each(function() {
-                if($(this).text() == '{{not_escritura.juzgado}}') {
+                if($(this).text() == '{{not_escritura.juzgado_id}}') {
                     $("#juzgado").val( $(this).val() );
                 }
-            });
-            $(".js-juzgado-data-ajax").select2({
-                // --- Carga de emails por Ajax --- //
-
-                placeholder: "Juzgado",
-                minimumInputLength: 3,
-                allowClear: true,
-                /*ajax: {
+            });*/
+           /* $(".js-juzgado-data-ajax").select2({
+                 // --- Carga de emails por Ajax --- //
+                ajax: {
                     url: '/not_escrituras/select_juzgados_escrituras/{{buscar}}',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
@@ -75,38 +70,35 @@
                     data: function (params) {
                         return { 'searchString': params.term };
                     }
-                }*/
+                },
+                placeholder: "{{buscar}}",
+                minimumInputLength: 3,
+                allowClear: true
             });
+
             // Usa Ajax para traer hasta 10 autoridades, se debe agregar el valor actual
             let data_juzgado = {
-                id: '{{not_escritura.juzgado}}',
-                text: '{{not_escritura.juzgado.clave}}' + " : "  + '{{not_escritura.juzgado.descripcion_corta}}'
+                id: '{{not_escritura.juzgado_id}}',
+                text: '{{not_escritura.juzgado.clave}}' + " : "  + '{{not_escritura.juzgado.descripcion}}'
             };
 
             let newOptionjuzgado = new Option(data_juzgado.text, data_juzgado.id, false, false);
-            $('#juzgado').append(newOptionjuzgado).trigger('change');
-
+            $('#juzgado').append(newOptionjuzgado).trigger('change');*/
         });
     </script>
     <script>
         $(document).ready(function(){
-            $('#guardar').click(function(){
+            $('#revision').click(function(){
                 event.preventDefault();
-                $("#estado").val("TRABAJANDO");
-                $("#not_escritura_form").submit();
+                $("#estado").val("EN REVISION");
+                $("#not_escritura_juzgado_form").submit();
             });
 
-            $('#enviar').click(function(){
+            $('#finalizado').click(function(){
                 event.preventDefault();
-                $("#estado").val("ENVIADO");
-                $("#not_escritura_form").submit();
+                $("#estado").val("FINALIZADO");
+                $("#not_escritura_juzgado_form").submit();
             });
-            
-            /*if ($("#estado").val("ENVIADO")){
-                //console.log("ya no puede guardar borrador");
-                document.getElementById("guardar").disabled;
-            }*/
         });
     </script>
 {% endblock %}
-

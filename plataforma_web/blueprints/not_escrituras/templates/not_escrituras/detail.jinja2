@@ -6,10 +6,15 @@
 {% block title %}Escritura{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(not_escritura.id) %}
+    {% call topbar.page_buttons("Escritura") %}
         {{ topbar.button_previous('Escrituras', url_for('not_escrituras.list_active')) }}
+        {% if show_button_edit_juzgado %}
+            {{ topbar.button_edit('Editar Escritura', url_for('not_escrituras.edit_juzgado', not_escritura_id=not_escritura.id)) }}
+        {% endif %}
         {% if current_user.can_edit('NOT ESCRITURAS') %}
-            {{ topbar.button_edit('Editar', url_for('not_escrituras.edit', not_escritura_id=not_escritura.id)) }}
+            {% if show_button_edit_notaria %}
+                {{ topbar.button_edit('Editar', url_for('not_escrituras.edit', not_escritura_id=not_escritura.id)) }}
+            {% endif %}
             {% if not_escritura.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('not_escrituras.delete', not_escritura_id=not_escritura.id)) }}{% endif %}
             {% if not_escritura.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('not_escrituras.recover', not_escritura_id=not_escritura.id)) }}{% endif %}
         {% endif %}
@@ -19,9 +24,14 @@
 {% block content %}
     {% call detail.card(estatus=not_escritura.estatus) %}
         {{ detail.label_value_big('ID', not_escritura.id) }}
-        {{ detail.label_value('Notaria', not_escritura.notaria.descripcion) }}
+        {% if current_user.can_view('AUTORIDADES')%}
+            {{ detail.label_value('Notaria', not_escritura.notaria.descripcion, url_for('autoridades.detail', autoridad_id=not_escritura.notaria_id)) }}
+        {% else %}
+            {{ detail.label_value('Notaria', not_escritura.notaria.descripcion)}}
+        {% endif %}
         {{ detail.label_value('Juzgado', not_escritura.juzgado.descripcion) }}
-        {# {{ detail.label_value('Contenido', not_escritura.contenido) }} #}
+        {{ detail.label_value('Expediente', not_escritura.expediente) }}
+        {{ detail.label_value('Estado', not_escritura.estado) }}
     {% endcall %}
     {% call detail.card(estatus=not_escritura.estatus) %}
         {{ contenido }}

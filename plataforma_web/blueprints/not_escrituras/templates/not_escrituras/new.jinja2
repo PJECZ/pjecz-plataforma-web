@@ -9,6 +9,10 @@
     {{ quill.head() }}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        #guardar { float: left; box-sizing: border-box; background-color: #0139A9;}
+        #enviar { float: right; box-sizing: border-box; }
+    </style>
 {% endblock %}
 
 {% block topbar_actions %}
@@ -17,22 +21,17 @@
 
 {% block content %}
     {% call f.card() %}
-    <div class="row">
-        <div class="col-md-7">
-            {% call f.form_tag('not_escrituras.new', fid='not_escritura_form') %}
-                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.juzgado) %}{% endcall %}
-                {% call f.form_group(form.estado) %}{% endcall %}
-                {{ quill.div(div_id="contenido_quill")}}
-                <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
-                {% call f.form_group(form.guardar) %}{% endcall %}
-            {% endcall %}
-        </div>
-        <div class="col-md-5">
-            <h4>Conversación</h4>
-        </div>
-    </div>
+        {% call f.form_tag('not_escrituras.new', fid='not_escritura_form') %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.juzgado) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {{ quill.div(div_id="contenido_quill")}}
+            <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
+            {% call f.form_group(form.estado) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+            {% call f.form_group(form.enviar) %}{% endcall %}
+        {% endcall %}
     {% endcall %}
 {% endblock %}
 
@@ -52,9 +51,9 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            $('#juzgado').addClass('js-example-placeholder-single js-states form-control');
+            $('#juzgado').addClass('js-juzgado-data-ajax js-states form-control');
             $("#juzgado").prop("selectedIndex", -1); // Poner en blanco el select
-            $(".js-example-placeholder-single").select2({
+            $(".js-juzgado-data-ajax").select2({
                  // --- Carga de emails por Ajax --- //
                 ajax: {
                     url: '/not_escrituras/select_juzgados_escrituras/{{buscar}}',
@@ -72,5 +71,20 @@
             });
         });
     </script>
+    <script>
+        $(document).ready(function(){
+            $('#guardar').click(function(){
+                event.preventDefault();
+                $("#estado").val("TRABAJANDO");
+                $("#not_escritura_form").submit();
+            });
 
+            $('#enviar').click(function(){
+                event.preventDefault();
+                $("#estado").val("ENVIADO");
+                $("#not_escritura_form").submit();
+            });
+            
+        });
+    </script>
 {% endblock %}

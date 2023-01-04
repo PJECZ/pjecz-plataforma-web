@@ -4,6 +4,18 @@
 
 {% block title %}Escrituras{% endblock %}
 
+{% block custom_head %}
+    <style>
+        .dtWork {
+            color: #121212;
+            background-color: #bd9a5e;
+        }
+        .dtSend {
+            background-color: #a9ff84;
+        }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {{ topbar.button('Aprobadas', url_for('not_escrituras.list_approved'), 'mdi:table-clock') }}
@@ -31,7 +43,7 @@
 
 {% block content %}
     {% call list.card() %}
-        <table id="not_escrituras_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="not_escrituras_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap estilo" style="width:100%">
             <thead>
                 <tr>
                     <th>Id</th>
@@ -53,7 +65,7 @@
             { data: 'detalle' },
             { data: 'distrito' },
             { data: 'notaria' },
-            { data: 'estado' }
+            { data: 'estado' },
         ];
         configDataTable['columnDefs'] = [
             {
@@ -79,13 +91,36 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
-                        return data.clave;
+                        return data.descripcion;
                     } else {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
                 }
             },
+            {
+                targets: 3, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    let color = "black"
+                    switch (data)    {
+                        case "TRABAJANDO": color = "#BF9A01";  break;
+                        case "ENVIADO": color = "#0065A6";  break;
+                        case "EN REVISION": color = "#DC3330";  break;
+                        case "FINALIZADO": color = "#0b5345";  break;
+                    }
+                    return '<strong style="color:' + color + '; ">' + data + '</strong>';
+                }
+            },
         ];
+        configDataTable['rowCallback'] = function(row, data){
+            switch(data.estado){
+                case "TRABAJANDO": $(row).css("background-color","#FCFEE7"); break;
+                case "ENVIADO": $(row).css("background-color","#E7FBFE"); break;
+                case "EN REVISION": $(row).css("background-color","#FEE7E7"); break;
+                case "FINALIZADO": $(row).css("background-color","#E7FEEA"); break;
+            }
+        }
         $('#not_escrituras_datatable').DataTable(configDataTable);
+              
     </script>
 {% endblock %}
