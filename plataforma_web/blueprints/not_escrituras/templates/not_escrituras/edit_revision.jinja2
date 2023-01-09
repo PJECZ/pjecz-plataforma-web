@@ -26,7 +26,7 @@
                 {% call f.form_tag('not_escrituras.edit_juzgado', fid='not_escritura_juzgado_form', **form_kwargs) %}
                 {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
-                    {% call f.form_group(form.juzgado, readonly=true) %}{% endcall %}
+                    {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.expediente, readonly=true) %}{% endcall %} 
                     {{ quill.div(div_id="contenido_quill")}}
                     <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
@@ -52,38 +52,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            $('#juzgado').val('{{not_escritura.juzgado.descripcion}}');
-            /*$('#juzgado').addClass('js-juzgado-data-ajax js-states form-control');
-            $('#juzgado option').each(function() {
-                if($(this).text() == '{{not_escritura.juzgado_id}}') {
-                    $("#juzgado").val( $(this).val() );
-                }
-            });*/
-           /* $(".js-juzgado-data-ajax").select2({
-                 // --- Carga de emails por Ajax --- //
-                ajax: {
-                    url: '/not_escrituras/select_juzgados_escrituras/{{buscar}}',
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                    dataType: 'json',
-                    delay: 250,
-                    type: "POST",
-                    data: function (params) {
-                        return { 'searchString': params.term };
-                    }
-                },
-                placeholder: "{{buscar}}",
-                minimumInputLength: 3,
-                allowClear: true
-            });
-
-            // Usa Ajax para traer hasta 10 autoridades, se debe agregar el valor actual
-            let data_juzgado = {
-                id: '{{not_escritura.juzgado_id}}',
-                text: '{{not_escritura.juzgado.clave}}' + " : "  + '{{not_escritura.juzgado.descripcion}}'
-            };
-
-            let newOptionjuzgado = new Option(data_juzgado.text, data_juzgado.id, false, false);
-            $('#juzgado').append(newOptionjuzgado).trigger('change');*/
+            $('#autoridad').val('{{not_escritura.autoridad.descripcion}}');
         });
     </script>
     <script>

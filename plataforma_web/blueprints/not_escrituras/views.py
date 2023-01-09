@@ -3,18 +3,19 @@ Not Escrituras, vistas
 """
 import json
 from delta import html
+from datetime import date, timedelta
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy.sql import or_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_message
+from sqlalchemy.sql import or_
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.not_escrituras.forms import NotEscriturasForm, NotEscriturasEditForm, NotEscriturasEditJuzgadoForm
 from plataforma_web.blueprints.not_escrituras.models import NotEscritura
+from plataforma_web.blueprints.not_escrituras.forms import NotEscriturasForm, NotEscriturasEditForm, NotEscriturasEditJuzgadoForm
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -36,7 +37,7 @@ def before_request():
 
 @not_escrituras.route("/not_escrituras/datatable_json", methods=["GET", "POST"])
 def datatable_json():
-    """DataTable JSON para listado de Escrituras"""
+    """DataTable JSON para listado de Not Escrituras New"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
@@ -46,18 +47,18 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "notaria_id" in request.form:
-        consulta = consulta.filter(NotEscritura.notaria_id == request.form["notaria_id"])
-    if "juzgado_id" in request.form:
-        consulta = consulta.filter(NotEscritura.juzgado_id == request.form["juzgado_id"])
+        consulta = consulta.filter(NotEscritura.notaria == request.form["notaria_id"])
+    if "autoridad_id" in request.form:
+        consulta = consulta.filter(NotEscritura.autoridad_id == request.form["autoridad_id"])
     if "estado" in request.form:
         consulta = consulta.filter(NotEscritura.estado == request.form["estado"])
     current_user_roles = current_user.get_roles()
     if ROL_JUZGADO in current_user_roles:
         consulta = consulta.filter(NotEscritura.estado != "TRABAJANDO")
     if ROL_NOTARIA in current_user_roles:
-        consulta = consulta.filter(NotEscritura.notaria == current_user.autoridad)
+        consulta = consulta.filter(NotEscritura.notaria == current_user.autoridad.id)
     if ROL_JUZGADO in current_user_roles:
-        consulta = consulta.filter(NotEscritura.juzgado == current_user.autoridad)
+        consulta = consulta.filter(NotEscritura.autoridad == current_user.autoridad)
     registros = consulta.order_by(NotEscritura.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -70,12 +71,12 @@ def datatable_json():
                     "url": url_for("not_escrituras.detail", not_escritura_id=resultado.id),
                 },
                 "distrito": {
-                    "nombre_corto": resultado.notaria.distrito.nombre_corto,
-                    "url": url_for("distritos.detail", distrito_id=resultado.notaria.distrito_id) if current_user.can_view("DISTRITOS") else "",
+                    "nombre_corto": resultado.autoridad.distrito.nombre_corto,
+                    "url": url_for("distritos.detail", distrito_id=resultado.autoridad.distrito_id) if current_user.can_view("DISTRITOS") else "",
                 },
-                "notaria": {
-                    "descripcion": resultado.notaria.descripcion_corta,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.notaria_id) if current_user.can_view("AUTORIDADES") else "",
+                "autoridad": {
+                    "descripcion": resultado.autoridad.descripcion_corta,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTRIDADES") else "",
                 },
                 "estado": resultado.estado,
             }
@@ -141,7 +142,7 @@ def list_update():
     if current_user.can_admin(MODULO) or ROL_JUZGADO in current_user_roles or ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
-            filtros=json.dumps({"estatus": "A", "estado": "CORRECCIONES"}),
+            filtros=json.dumps({"estatus": "A", "estado": "EN REVISION"}),
             titulo="Escrituras en corrección",
             estatus="A",
             show_button_list_working=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles,
@@ -243,29 +244,47 @@ def detail(not_escritura_id):
     )
 
 
+def calcfecha():
+    fecha_actual = date.today()
+    nuevo_dia = fecha_actual
+    dia = 1
+
+    while dia <= 10:
+        if nuevo_dia.weekday() < 6:
+            dia = dia + 1
+        dia_delta = timedelta(days=1)
+        nuevo_dia = nuevo_dia + dia_delta
+
+    return nuevo_dia
+
+
 @not_escrituras.route("/not_escrituras/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Escrituras"""
     form = NotEscriturasForm()
+
     if form.validate_on_submit():
         if form.estado.data not in NotEscritura.ESTADOS:
-            flash("No es un estado valido", "warning")
+            flash("No es un estado válido", "warning")
         else:
-            juzgado = Autoridad.query.get_or_404(form.juzgado.data)
+            autoridad = Autoridad.query.get_or_404(form.autoridad.data)
             not_escritura = NotEscritura(
-                notaria=current_user.autoridad,
-                juzgado=juzgado,
-                contenido=form.contenido.data,
-                estado=form.estado.data,
+                notaria=current_user.autoridad.id,
+                autoridad=autoridad,
                 expediente=form.expediente.data,
+                contenido=form.contenido.data,
+                fecha=date.today(),
+                fecha_limite=calcfecha(),
+                estado=form.estado.data,
             )
-
             not_escritura.save()
+
+            # Agregar evento a la bitácora e ir al detalle
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Nuevo Escrituras {not_escritura.id}"),
+                descripcion=safe_message(f"Nuevo Escrituras {not_escritura.expediente}"),
                 url=url_for("not_escrituras.detail", not_escritura_id=not_escritura.id),
             )
             bitacora.save()
@@ -278,7 +297,7 @@ def new():
         buscar = "JUZGADO"
     elif current_user.autoridad.es_jurisdiccional:
         buscar = "NOTARIA"
-    return render_template("not_escrituras/new.jinja2", buscar=buscar, form=form)
+    return render_template("not_escrituras/new.jinja2", form=form, buscar=buscar)
 
 
 @not_escrituras.route("/not_escrituras/edicion/<int:not_escritura_id>", methods=["GET", "POST"])
@@ -286,7 +305,7 @@ def new():
 def edit(not_escritura_id):
     """Editar Escrituras"""
     not_escritura = NotEscritura.query.get_or_404(not_escritura_id)
-    if not_escritura.estado not in ["TRABAJANDO", "CORRECCIONES"]:
+    if not_escritura.estado not in ["TRABAJANDO", "EN REVISION"]:
         flash(f"No puede editar la escritura porque ya fue {not_escritura.estado}.", "warning")
         return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
     form = NotEscriturasEditForm()
@@ -294,24 +313,26 @@ def edit(not_escritura_id):
         if form.estado.data not in NotEscritura.ESTADOS:
             flash("No es un estado valido", "warning")
         else:
-            juzgado = Autoridad.query.get_or_404(form.juzgado.data)
+            juzgado = Autoridad.query.get_or_404(form.autoridad.data)
             not_escritura.contenido = form.contenido.data
-            not_escritura.juzgado = juzgado
+            not_escritura.autoridad = juzgado
             not_escritura.estado = form.estado.data
             not_escritura.expediente = form.expediente.data
+            # not_escritura.fecha=date.today()
+            not_escritura.fecha_limite = calcfecha()
             not_escritura.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Editado Escrituras {not_escritura.id}"),
+                descripcion=safe_message(f"Editado Escrituras {not_escritura.expediente}"),
                 url=url_for("not_escrituras.detail", not_escritura_id=not_escritura.id),
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.distrito.data = not_escritura.notaria.distrito.nombre
-    form.notaria.data = not_escritura.notaria.descripcion
-    form.juzgado.data = not_escritura.juzgado_id
+    form.distrito.data = current_user.autoridad.distrito.nombre
+    form.notaria.data = current_user.autoridad.descripcion
+    form.autoridad.data = not_escritura.autoridad
     form.expediente.data = not_escritura.expediente
     form.contenido.data = not_escritura.contenido
     buscar = "Busca un juzgado o notaria"
@@ -320,7 +341,7 @@ def edit(not_escritura_id):
     elif current_user.autoridad.es_jurisdiccional:
         buscar = "NOTARIA"
     return render_template(
-        "not_escrituras/editar_borrador.jinja2",
+        "not_escrituras/edit_borrador.jinja2",
         form=form,
         not_escritura=not_escritura,
         buscar=buscar,
@@ -333,7 +354,7 @@ def edit(not_escritura_id):
 def edit_juzgado(not_escritura_id):
     """Editar Escritura juzgado"""
     not_escritura = NotEscritura.query.get_or_404(not_escritura_id)
-    if not_escritura.estado not in ["TRABAJANDO", "CORRECCIONES"]:
+    if not_escritura.estado not in ["TRABAJANDO", "EN REVISION"]:
         flash(f"No puede editar la escritura porque ya fue {not_escritura.estado}.", "warning")
         return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
     form = NotEscriturasEditJuzgadoForm()
@@ -341,12 +362,10 @@ def edit_juzgado(not_escritura_id):
         if form.estado.data not in NotEscritura.ESTADOS:
             flash("No es un estado valido", "warning")
         else:
-            # juzgado = Autoridad.query.get_or_404(form.juzgado.data)
             not_escritura.contenido = form.contenido.data
-            # not_escritura.juzgado = juzgado
             not_escritura.estado = form.estado.data
             not_escritura.expediente = form.expediente.data
-            # not_escritura.save()
+            not_escritura.fecha_limite = calcfecha()
             not_escritura.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -357,9 +376,9 @@ def edit_juzgado(not_escritura_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.distrito.data = not_escritura.notaria.distrito.nombre
-    form.notaria.data = not_escritura.notaria.descripcion
-    form.juzgado.data = not_escritura.juzgado_id
+    form.distrito.data = current_user.autoridad.distrito.nombre
+    form.notaria.data = current_user.autoridad.descripcion
+    form.autoridad.data = not_escritura.autoridad_id
     form.expediente.data = not_escritura.expediente
     form.contenido.data = not_escritura.contenido
     buscar = "Busca un juzgado o notaria"
@@ -368,7 +387,7 @@ def edit_juzgado(not_escritura_id):
     elif current_user.autoridad.es_jurisdiccional:
         buscar = "NOTARIA"
     return render_template(
-        "not_escrituras/edit_juzgado.jinja2",
+        "not_escrituras/edit_revision.jinja2",
         form=form,
         not_escritura=not_escritura,
         buscar=buscar,

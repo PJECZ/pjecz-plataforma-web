@@ -27,7 +27,7 @@
             {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
                 {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
-                {% call f.form_group(form.juzgado) %}{% endcall %}
+                {% call f.form_group(form.autoridad) %}{% endcall %}
                 {% call f.form_group(form.expediente) %}{% endcall %} 
                 {{ quill.div(div_id="contenido_quill")}}
                 <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
@@ -35,13 +35,13 @@
                 {% call f.form_group(form.guardar) %}{% endcall %}
                 {% call f.form_group(form.enviar) %}{% endcall %}
             {% endcall %}
-        {% elif  not_escritura.estado == "CORRECCIONES" %}
+        {% elif  not_escritura.estado == "EN REVISION" %}
          <div class="row">
             <div class="col-md-7">
                 {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
                     {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
-                    {% call f.form_group(form.juzgado, readonly=true) %}{% endcall %}
+                    {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.expediente) %}{% endcall %} 
                     {{ quill.div(div_id="contenido_quill")}}
                     <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
@@ -67,10 +67,10 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            $('#juzgado').addClass('js-juzgado-data-ajax js-states form-control');
-            $('#juzgado option').each(function() {
-                if($(this).text() == '{{not_escritura.juzgado_id}}') {
-                    $("#juzgado").val( $(this).val() );
+            $('#autoridad').addClass('js-juzgado-data-ajax js-states form-control');
+            $('#autoridad option').each(function() {
+                if($(this).text() == '{{not_escritura.autoridad_id}}') {
+                    $("#autoridad").val( $(this).val() );
                 }
             });
             if ('{{not_escritura.estado}}' == 'TRABAJANDO'){
@@ -91,17 +91,17 @@
                     allowClear: true
                 });
             }else{
-                $('#juzgado').val('{{not_escritura.juzgado.descripcion}}');
+                $('#autoridad').val('{{not_escritura.autoridad.descripcion}}');
             }
 
             // Usa Ajax para traer hasta 10 autoridades, se debe agregar el valor actual
-            let data_juzgado = {
-                id: '{{not_escritura.juzgado_id}}',
-                text: '{{not_escritura.juzgado.clave}}' + " : "  + '{{not_escritura.juzgado.descripcion}}'
+            let data_autoridad = {
+                id: '{{not_escritura.autoridad_id}}',
+                text: '{{not_escritura.autoridad.clave}}' + " : "  + '{{not_escritura.autoridad.descripcion}}'
             };
 
-            let newOptionjuzgado = new Option(data_juzgado.text, data_juzgado.id, false, false);
-            $('#juzgado').append(newOptionjuzgado).trigger('change');
+            let newOptionjuzgado = new Option(data_autoridad.text, data_autoridad.id, false, false);
+            $('#autoridad').append(newOptionjuzgado).trigger('change');
         });
     </script>
     <script>

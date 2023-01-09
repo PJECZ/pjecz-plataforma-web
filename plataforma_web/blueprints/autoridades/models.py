@@ -70,7 +70,7 @@ class Autoridad(db.Model, UniversalMixin):
     edictos = db.relationship("Edicto", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
-    # not_escrituras = db.relationship("NotEscritura", back_populates="autoridad")
+    not_escrituras = db.relationship("NotEscritura", back_populates="autoridad")
     redams = db.relationship("Redam", back_populates="autoridad", lazy="noload")
     sentencias = db.relationship("Sentencia", back_populates="autoridad", lazy="noload")
     tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="autoridad", lazy="noload")

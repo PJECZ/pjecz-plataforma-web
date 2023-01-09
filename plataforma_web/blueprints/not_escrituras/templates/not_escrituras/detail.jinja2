@@ -25,11 +25,11 @@
     {% call detail.card(estatus=not_escritura.estatus) %}
         {{ detail.label_value_big('ID', not_escritura.id) }}
         {% if current_user.can_view('AUTORIDADES')%}
-            {{ detail.label_value('Notaria', not_escritura.notaria.descripcion, url_for('autoridades.detail', autoridad_id=not_escritura.notaria_id)) }}
+            {{ detail.label_value('Notaria', not_escritura.autoridad.descripcion, url_for('autoridades.detail', autoridad_id=not_escritura.autoridad_id)) }}
         {% else %}
-            {{ detail.label_value('Notaria', not_escritura.notaria.descripcion)}}
+            {{ detail.label_value('Notaria', not_escritura.autoridad.descripcion)}}
         {% endif %}
-        {{ detail.label_value('Juzgado', not_escritura.juzgado.descripcion) }}
+        {{ detail.label_value('Juzgado', not_escritura.autoridad.descripcion) }}
         {{ detail.label_value('Expediente', not_escritura.expediente) }}
         {{ detail.label_value('Estado', not_escritura.estado) }}
     {% endcall %}
@@ -41,7 +41,7 @@
 {% block custom_javascript %}
     {% if current_user.can_edit('NOT ESCRITURAS') %}
         {% if not_escritura.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + not_escritura.id | string + '?') }}{% endif %}
-        {% if not_escritura.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + not_escritura.notaria | string + '?') }}{% endif %}
+        {% if not_escritura.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + not_escritura.autoridad | string + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}

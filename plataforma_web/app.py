@@ -32,7 +32,8 @@ from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_d
 from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.modulos.views import modulos
-from plataforma_web.blueprints.not_escrituras.view import not_escrituras
+
+from plataforma_web.blueprints.not_escrituras.views import not_escrituras
 from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.peritos_tipos.views import peritos_tipos

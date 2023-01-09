@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Nuevo Escritura') }}
+    {{ topbar.page('Nueva Escritura') }}
 {% endblock %}
 
 {% block content %}
@@ -24,7 +24,7 @@
         {% call f.form_tag('not_escrituras.new', fid='not_escritura_form') %}
             {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
             {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.juzgado) %}{% endcall %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
             {% call f.form_group(form.expediente) %}{% endcall %}
             {{ quill.div(div_id="contenido_quill")}}
             <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
@@ -51,9 +51,9 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            $('#juzgado').addClass('js-juzgado-data-ajax js-states form-control');
-            $("#juzgado").prop("selectedIndex", -1); // Poner en blanco el select
-            $(".js-juzgado-data-ajax").select2({
+            $('#autoridad').addClass('js-autoridad-data-ajax js-states form-control');
+            $("#autoridad").prop("selectedIndex", -1); // Poner en blanco el select
+            $(".js-autoridad-data-ajax").select2({
                  // --- Carga de emails por Ajax --- //
                 ajax: {
                     url: '/not_escrituras/select_juzgados_escrituras/{{buscar}}',

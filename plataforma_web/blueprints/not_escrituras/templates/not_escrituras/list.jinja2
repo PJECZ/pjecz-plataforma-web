@@ -36,7 +36,7 @@
             {% if estatus == 'B' %}{{ topbar.button_list_active('Aprobados', url_for('not_escrituras.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('NOT ESCRITURAS') %}
-            {{ topbar.button_new('Nuevo Escritura', url_for('not_escrituras.new')) }}
+            {{ topbar.button_new('Nueva Escritura', url_for('not_escrituras.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -48,7 +48,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Distrito</th>
-                    <th>Notaría</th>
+                    <th>Juzgado</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -64,7 +64,7 @@
         configDataTable['columns'] = [
             { data: 'detalle' },
             { data: 'distrito' },
-            { data: 'notaria' },
+            { data: 'autoridad' },
             { data: 'estado' },
         ];
         configDataTable['columnDefs'] = [
@@ -87,7 +87,7 @@
                 }
             },
             {
-                targets: 2, // notaria
+                targets: 2, // autoridad
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
