@@ -59,11 +59,14 @@ def datatable_json():
         consulta = consulta.filter(NotEscritura.notaria == current_user.autoridad.id)
     if ROL_JUZGADO in current_user_roles:
         consulta = consulta.filter(NotEscritura.autoridad == current_user.autoridad)
+
     registros = consulta.order_by(NotEscritura.id).offset(start).limit(rows_per_page).all()
+
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
+        nombre_notaria = Autoridad.query.filter(Autoridad.id == resultado.notaria).first()
         data.append(
             {
                 "detalle": {
@@ -73,6 +76,10 @@ def datatable_json():
                 "distrito": {
                     "nombre_corto": resultado.autoridad.distrito.nombre_corto,
                     "url": url_for("distritos.detail", distrito_id=resultado.autoridad.distrito_id) if current_user.can_view("DISTRITOS") else "",
+                },
+                "notaria": {
+                    "descripcion_corta": nombre_notaria.descripcion,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.notaria) if current_user.can_view("AURORIDADES") else "",
                 },
                 "autoridad": {
                     "descripcion": resultado.autoridad.descripcion_corta,

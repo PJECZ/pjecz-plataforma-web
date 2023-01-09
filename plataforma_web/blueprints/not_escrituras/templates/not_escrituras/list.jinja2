@@ -48,6 +48,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Distrito</th>
+                    <th>Notaría</th>
                     <th>Juzgado</th>
                     <th>Estado</th>
                 </tr>
@@ -64,6 +65,7 @@
         configDataTable['columns'] = [
             { data: 'detalle' },
             { data: 'distrito' },
+            { data: 'notaria' },
             { data: 'autoridad' },
             { data: 'estado' },
         ];
@@ -87,7 +89,18 @@
                 }
             },
             {
-                targets: 2, // autoridad
+                targets: 2, // notaria
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.descripcion_corta;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.descripcion_corta + '</a>';
+                    }
+                }
+            },
+            {
+                targets: 3, // autoridad
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
@@ -98,7 +111,7 @@
                 }
             },
             {
-                targets: 3, // estado
+                targets: 4, // estado
                 data: null,
                 render: function(data, type, row, meta) {
                     let color = "black"
