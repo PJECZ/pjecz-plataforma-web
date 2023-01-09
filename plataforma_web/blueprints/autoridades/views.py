@@ -313,6 +313,7 @@ def new():
             descripcion = safe_string(form.descripcion.data, save_enie=True)
             es_jurisdiccional = form.es_jurisdiccional.data
             es_notaria = form.es_notaria.data
+            es_revisor_escrituras = form.es_revisor_escrituras.data
             directorio = f"{distrito.nombre}/{descripcion}"
             directorio_listas_de_acuerdos = ""
             directorio_sentencias = ""
@@ -334,6 +335,7 @@ def new():
                 clave=clave,
                 es_jurisdiccional=es_jurisdiccional,
                 es_notaria=es_notaria,
+                es_revisor_escrituras=es_revisor_escrituras,
                 organo_jurisdiccional=form.organo_jurisdiccional.data,
                 materia=form.materia.data,
                 audiencia_categoria=form.audiencia_categoria.data,
@@ -380,6 +382,7 @@ def edit(autoridad_id):
             autoridad.clave = clave
             autoridad.es_jurisdiccional = form.es_jurisdiccional.data
             autoridad.es_notaria = form.es_notaria.data
+            autoridad.es_revisor_escrituras = form.es_revisor_escrituras.data
             autoridad.organo_jurisdiccional = form.organo_jurisdiccional.data
             autoridad.materia = form.materia.data
             autoridad.audiencia_categoria = form.audiencia_categoria.data
@@ -404,6 +407,7 @@ def edit(autoridad_id):
     form.clave.data = autoridad.clave
     form.es_jurisdiccional.data = autoridad.es_jurisdiccional
     form.es_notaria.data = autoridad.es_notaria
+    form.es_revisor_escrituras.data = autoridad.es_revisor_escrituras
     form.organo_jurisdiccional.data = autoridad.organo_jurisdiccional
     form.materia.data = autoridad.materia
     form.audiencia_categoria.data = autoridad.audiencia_categoria
