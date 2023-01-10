@@ -11,8 +11,10 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('inv_equipos.search', fid='equipo_search_form') %}
+            {% call f.form_group(form.id) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.numero_serie) %}{% endcall %}
+            {% call f.form_group(form.numero_inventario) %}{% endcall %}
             {% call f.form_group(form.tipo) %}{% endcall %}
             {% call f.form_group(form.direccion_mac) %}{% endcall %}
             <div id="result"></div>

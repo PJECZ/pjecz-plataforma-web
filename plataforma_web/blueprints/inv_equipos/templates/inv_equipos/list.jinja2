@@ -30,6 +30,7 @@
                     <th>Marca</th>
                     <th>Descripción </th>
                     <th>No. Serie</th>
+                    <th>No. Inventario</th>
                     <th>D. IP</th>
                     <th>D. MAC</th>
                     <th>Red</th>
@@ -52,6 +53,7 @@
             { data: "inv_marca" },
             { data: "descripcion" },
             { data: "numero_serie" },
+            { data: "numero_inventario" },
             { data: "direccion_ip" },
             { data: "direccion_mac" },
             { data: "inv_red" },
@@ -59,13 +61,13 @@
         ];
         configDataTable['columnDefs'] = [
             {
-                targets: [0,], // detalle
+                targets: [0], // detalle
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
             },
             {
-                targets: [3,8], // inv_marca, inv_red
+                targets: [3,9], // inv_marca, inv_red
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
@@ -86,7 +88,7 @@
                 }
             },
             {
-                targets: 9, // nombre completo de la custodia
+                targets: 10, // nombre completo de la custodia
                 data: null,
                 render: function(data, type, row, meta){
                     if(data.length > 13){
