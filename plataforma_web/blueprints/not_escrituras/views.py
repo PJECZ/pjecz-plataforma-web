@@ -3,7 +3,7 @@ Not Escrituras, vistas
 """
 import json
 from delta import html
-from datetime import date, timedelta
+from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
