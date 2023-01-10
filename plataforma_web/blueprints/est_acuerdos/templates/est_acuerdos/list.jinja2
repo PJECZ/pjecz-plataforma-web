@@ -68,7 +68,7 @@
                 type: "date",
                 render: function (data, type, row) {
                     if (data == null) return '';
-                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm");
+                    return moment.utc(data).format("YYYY-MM-DD HH:mm");
                 }
             },
         ];

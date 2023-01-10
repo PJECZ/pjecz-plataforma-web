@@ -18,9 +18,9 @@
         {{ detail.label_value('Folio', est_acuerdo.folio) }}
         {{ detail.label_value('Expediente', est_acuerdo.expediente) }}
         {{ detail.label_value('No. de caso', est_acuerdo.numero_caso) }}
-        {{ detail.label_value('F. Elaboracion', moment(est_acuerdo.fecha_elaboracion, local=True).format('DD MMM YYYY')) }}
-        {{ detail.label_value('F. Validacion', moment(est_acuerdo.fecha_validacion, local=True).format('DD MMM YYYY')) }}
-        {{ detail.label_value('F. Autorizacion', moment(est_acuerdo.fecha_autorizacion, local=True).format('DD MMM YYYY')) }}
+        {{ detail.label_value('F. Elaboracion', moment(est_acuerdo.fecha_elaboracion, local=True).format('YYYY-MM-DD HH:mm')) }}
+        {{ detail.label_value('F. Validacion', moment(est_acuerdo.fecha_validacion, local=True).format('YYYY-MM-DD HH:mm')) }}
+        {{ detail.label_value('F. Autorizacion', moment(est_acuerdo.fecha_autorizacion, local=True).format('YYYY-MM-DD HH:mm')) }}
         {{ detail.label_value('Estado', est_acuerdo.estado) }}
         {{ detail.label_value('Secretario', est_acuerdo.secretario) }}
         {{ detail.label_value('Juez', est_acuerdo.juez) }}
