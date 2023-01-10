@@ -261,6 +261,13 @@ def search():
     if form_search.validate_on_submit():
         busqueda = {"estatus": "A"}
         titulos = []
+        # Si se busca por el ID y se encuentra, se redirecciona al detalle
+        if form_search.id.data:
+            inv_equipo_id = int(form_search.id.data)
+            if inv_equipo_id != 0:
+                inv_equipo = InvEquipo.query.get(inv_equipo_id)
+                if inv_equipo is not None:
+                    return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
             if descripcion != "":

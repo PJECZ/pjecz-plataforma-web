@@ -48,6 +48,7 @@ class InvEquipoForm(FlaskForm):
 class InvEquipoSearchForm(FlaskForm):
     """Formulario Buscar Equipos"""
 
+    id = IntegerField("ID", validators=[Optional()])
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     numero_serie = StringField("Número de serie", validators=[Optional()])
     numero_inventario = IntegerField("Número de inventario", validators=[Optional()])
