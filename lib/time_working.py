@@ -1,6 +1,5 @@
 """
 Tiempo Laboral
-
 """
 from datetime import date, timedelta
 

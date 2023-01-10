@@ -24,6 +24,7 @@ def get_token(base_url, username, password):
         url=f"{base_url}/token",
         data={"username": username, "password": password},
         headers={"content-type": "application/x-www-form-urlencoded"},
+        timeout=16,
     )
     if response.status_code != 200:
         raise StatusCodeNot200Error(f"Error de status code: {response.status_code}")

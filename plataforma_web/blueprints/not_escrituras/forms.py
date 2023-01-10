@@ -1,5 +1,5 @@
 """
-Escrituras, formularios
+Notarías Escrituras, formularios
 """
 from flask_wtf import FlaskForm
 from wtforms import DateField, SelectField, StringField, SubmitField, HiddenField

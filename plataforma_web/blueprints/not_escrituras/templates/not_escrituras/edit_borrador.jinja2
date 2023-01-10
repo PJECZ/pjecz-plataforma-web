@@ -28,7 +28,7 @@
                 {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.autoridad) %}{% endcall %}
-                {% call f.form_group(form.expediente) %}{% endcall %} 
+                {% call f.form_group(form.expediente) %}{% endcall %}
                 {{ quill.div(div_id="contenido_quill")}}
                 <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
                 {% call f.form_group(form.estado) %}{% endcall %}
@@ -42,7 +42,7 @@
                     {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-                    {% call f.form_group(form.expediente) %}{% endcall %} 
+                    {% call f.form_group(form.expediente) %}{% endcall %}
                     {{ quill.div(div_id="contenido_quill")}}
                     <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
                     {% call f.form_group(form.estado) %}{% endcall %}
@@ -57,7 +57,6 @@
         {% endif %}
     {% endcall %}
 {% endblock %}
-
 
 {% block custom_javascript %}
     <!-- Quill -->
@@ -93,32 +92,27 @@
             }else{
                 $('#autoridad').val('{{not_escritura.autoridad.descripcion}}');
             }
-
             // Usa Ajax para traer hasta 10 autoridades, se debe agregar el valor actual
             let data_autoridad = {
                 id: '{{not_escritura.autoridad_id}}',
                 text: '{{not_escritura.autoridad.clave}}' + " : "  + '{{not_escritura.autoridad.descripcion}}'
             };
-
             let newOptionjuzgado = new Option(data_autoridad.text, data_autoridad.id, false, false);
             $('#autoridad').append(newOptionjuzgado).trigger('change');
         });
     </script>
     <script>
         $(document).ready(function(){
-            //$("#guardar").createElement(<span class="iconify" data-icon="mdi:gavel"></span>)
             $('#guardar').click(function(){
                 event.preventDefault();
                 $("#estado").val("TRABAJADO");
                 $("#not_escritura_form").submit();
             });
-
             $('#enviar').click(function(){
                 event.preventDefault();
                 $("#estado").val("ENVIADO");
                 $("#not_escritura_form").submit();
             });
-
             $('#revision').click(function(){
                 event.preventDefault();
                 $("#estado").val("REVISADO");
@@ -127,4 +121,3 @@
         });
     </script>
 {% endblock %}
-

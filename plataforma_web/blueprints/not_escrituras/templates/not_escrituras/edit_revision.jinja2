@@ -27,14 +27,13 @@
                 {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
                     {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
-                    {% call f.form_group(form.expediente, readonly=true) %}{% endcall %} 
+                    {% call f.form_group(form.expediente, readonly=true) %}{% endcall %}
                     {{ quill.div(div_id="contenido_quill")}}
                     <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
                     {% call f.form_group(form.estado) %}{% endcall %}
                     {% call f.form_group(form.revision) %}{% endcall %}
                     {% call f.form_group(form.finalizado) %}{% endcall %}
                 {% endcall %}
-                
             </div>
             <div class="col-md-5">
                 <h4>Conversaciones</h4>
@@ -42,7 +41,6 @@
         </div>
     {% endcall %}
 {% endblock %}
-
 
 {% block custom_javascript %}
     <!-- Quill -->
