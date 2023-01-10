@@ -263,11 +263,7 @@ def search():
         titulos = []
         # Si se busca por el ID y se encuentra, se redirecciona al detalle
         if form_search.id.data:
-            inv_equipo_id = int(form_search.id.data)
-            if inv_equipo_id != 0:
-                inv_equipo = InvEquipo.query.get(inv_equipo_id)
-                if inv_equipo is not None:
-                    return redirect(url_for("inv_equipos.detail", inv_equipo_id=inv_equipo.id))
+            return redirect(url_for("inv_equipos.detail", inv_equipo_id=form_search.id.data))
         if form_search.descripcion.data:
             descripcion = safe_string(form_search.descripcion.data)
             if descripcion != "":
@@ -278,18 +274,12 @@ def search():
             if numero_serie != "":
                 busqueda["numero_serie"] = numero_serie
                 titulos.append("numero serie" + numero_serie)
-
         if form_search.numero_inventario.data:
             numero_inventario = int(form_search.numero_inventario.data)
             if numero_inventario != 0:
                 numero_inventario = InvEquipo.query.get(numero_inventario)
                 if numero_inventario is not None:
                     return redirect(url_for("inv_equipos.detail", numero_inventario=numero_inventario))
-        # if form_search.numero_inventario.data:
-        #     numero_inventario = int(form_search.numero_inventario.data)
-        #     if numero_inventario != 0:
-        #         busqueda["numero_inventario"] = numero_inventario
-        #         titulos.append("numero inventario" + numero_inventario)
         if form_search.tipo.data:
             tipo_equipo = safe_string(form_search.tipo.data)
             if tipo_equipo != "":
