@@ -56,7 +56,7 @@
             $(".js-autoridad-data-ajax").select2({
                  // --- Carga de emails por Ajax --- //
                 ajax: {
-                    url: '/not_escrituras/select_juzgados_escrituras/{{buscar}}',
+                    url: '/not_escrituras/query_autoridades_json/{{buscar}}',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
@@ -75,7 +75,7 @@
         $(document).ready(function(){
             $('#guardar').click(function(){
                 event.preventDefault();
-                $("#estado").val("TRABAJANDO");
+                $("#estado").val("TRABAJADO");
                 $("#not_escritura_form").submit();
             });
 

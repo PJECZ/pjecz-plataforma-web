@@ -18,22 +18,22 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button('Aprobadas', url_for('not_escrituras.list_approved'), 'mdi:table-clock') }}
-        {% if show_button_list_update %}
-            {{ topbar.button('Corregidas', url_for('not_escrituras.list_update'), 'mdi:table-clock') }}
+        {# {{ topbar.button('Aprobadas', url_for('not_escrituras.list_approved'), 'mdi:table-clock') }} #}
+        {% if show_button_list_approved %}
+            {{ topbar.button('Finalizadas', url_for('not_escrituras.list_approved'), 'mdi:table') }}
         {% endif %}
-        {% if show_button_list_working %}
-            {{ topbar.button('Trabajando', url_for('not_escrituras.list_working'), 'mdi:table-heart') }}
+        {% if show_button_list_update %}
+            {{ topbar.button('Revisadas', url_for('not_escrituras.list_update'), 'mdi:table-clock') }}
         {% endif %}
         {% if show_button_list_send %}
             {{ topbar.button('Envíadas', url_for('not_escrituras.list_send'), 'mdi:table-heart') }}
         {% endif %}
-        {% if show_button_list_all %}
-            {{ topbar.button('Todos', url_for('not_escrituras.list_all'), 'mdi:table') }}
+        {% if show_button_list_working %}
+            {{ topbar.button('Trabajadas', url_for('not_escrituras.list_working'), 'mdi:table-heart') }}
         {% endif %}
         {% if current_user.can_edit('NOT ESCRITURAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('not_escrituras.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Aprobados', url_for('not_escrituras.list_active')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('not_escrituras.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('NOT ESCRITURAS') %}
             {{ topbar.button_new('Nueva Escritura', url_for('not_escrituras.new')) }}
@@ -116,9 +116,9 @@
                 render: function(data, type, row, meta) {
                     let color = "black"
                     switch (data)    {
-                        case "TRABAJANDO": color = "#BF9A01";  break;
+                        case "TRABAJADO": color = "#BF9A01";  break;
                         case "ENVIADO": color = "#0065A6";  break;
-                        case "EN REVISION": color = "#DC3330";  break;
+                        case "REVISADO": color = "#DC3330";  break;
                         case "FINALIZADO": color = "#0b5345";  break;
                     }
                     return '<strong style="color:' + color + '; ">' + data + '</strong>';
@@ -127,9 +127,9 @@
         ];
         configDataTable['rowCallback'] = function(row, data){
             switch(data.estado){
-                case "TRABAJANDO": $(row).css("background-color","#FCFEE7"); break;
+                case "TRABAJADO": $(row).css("background-color","#FCFEE7"); break;
                 case "ENVIADO": $(row).css("background-color","#E7FBFE"); break;
-                case "EN REVISION": $(row).css("background-color","#FEE7E7"); break;
+                case "REVISADO": $(row).css("background-color","#FEE7E7"); break;
                 case "FINALIZADO": $(row).css("background-color","#E7FEEA"); break;
             }
         }

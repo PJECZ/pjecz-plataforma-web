@@ -11,9 +11,9 @@ class NotEscritura(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(
         [
-            ("TRABAJANDO", "Trabajando"),
+            ("TRABAJADO", "Trabajado"),
             ("ENVIADO", "Enviado"),
-            ("EN REVISION", "En Revision"),
+            ("REVISADO", "Revisado"),
             ("FINALIZADO", "Finalizado"),
         ]
     )

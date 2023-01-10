@@ -23,7 +23,7 @@
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'not_escritura_id': not_escritura.id} %}
-        {% if  not_escritura.estado == "TRABAJANDO" %}
+        {% if  not_escritura.estado == "TRABAJADO" %}
             {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
                 {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
@@ -35,7 +35,7 @@
                 {% call f.form_group(form.guardar) %}{% endcall %}
                 {% call f.form_group(form.enviar) %}{% endcall %}
             {% endcall %}
-        {% elif  not_escritura.estado == "EN REVISION" %}
+        {% elif  not_escritura.estado == "REVISADO" %}
          <div class="row">
             <div class="col-md-7">
                 {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
@@ -77,7 +77,7 @@
                 $(".js-juzgado-data-ajax").select2({
                     // --- Carga de emails por Ajax --- //
                     ajax: {
-                        url: '/not_escrituras/select_juzgados_escrituras/{{buscar}}',
+                        url: '/not_escrituras/query_autoridades_json/{{buscar}}',
                         headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                         dataType: 'json',
                         delay: 250,
@@ -109,7 +109,7 @@
             //$("#guardar").createElement(<span class="iconify" data-icon="mdi:gavel"></span>)
             $('#guardar').click(function(){
                 event.preventDefault();
-                $("#estado").val("TRABAJANDO");
+                $("#estado").val("TRABAJADO");
                 $("#not_escritura_form").submit();
             });
 
@@ -121,7 +121,7 @@
 
             $('#revision').click(function(){
                 event.preventDefault();
-                $("#estado").val("EN REVISION");
+                $("#estado").val("REVISADO");
                 $("#not_escritura_form").submit();
             });
         });
