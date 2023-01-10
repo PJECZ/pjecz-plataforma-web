@@ -21,7 +21,6 @@ from plataforma_web.blueprints.domicilios.views import domicilios
 from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.epocas.views import epocas
-from plataforma_web.blueprints.escrituras.views import escrituras
 from plataforma_web.blueprints.est_acuerdos.views import est_acuerdos
 from plataforma_web.blueprints.fin_vales.views import fin_vales
 from plataforma_web.blueprints.fin_vales_adjuntos.views import fin_vales_adjuntos
@@ -34,6 +33,8 @@ from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_d
 from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.modulos.views import modulos
+
+from plataforma_web.blueprints.not_escrituras.views import not_escrituras
 from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.peritos_tipos.views import peritos_tipos
@@ -93,7 +94,6 @@ def create_app():
     app.register_blueprint(edictos)
     app.register_blueprint(entradas_salidas)
     app.register_blueprint(epocas)
-    app.register_blueprint(escrituras)
     app.register_blueprint(est_acuerdos)
     app.register_blueprint(fin_vales)
     app.register_blueprint(fin_vales_adjuntos)
@@ -106,6 +106,7 @@ def create_app():
     app.register_blueprint(materias)
     app.register_blueprint(materias_tipos_juicios)
     app.register_blueprint(modulos)
+    app.register_blueprint(not_escrituras)
     app.register_blueprint(oficinas)
     app.register_blueprint(peritos)
     app.register_blueprint(peritos_tipos)

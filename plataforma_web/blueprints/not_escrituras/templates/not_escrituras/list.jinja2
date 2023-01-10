@@ -1,0 +1,138 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Escrituras{% endblock %}
+
+{% block custom_head %}
+    <style>
+        .dtWork {
+            color: #121212;
+            background-color: #bd9a5e;
+        }
+        .dtSend {
+            background-color: #a9ff84;
+        }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if show_button_list_approved %}
+            {{ topbar.button('Finalizadas', url_for('not_escrituras.list_approved'), 'mdi:table') }}
+        {% endif %}
+        {% if show_button_list_update %}
+            {{ topbar.button('Revisadas', url_for('not_escrituras.list_update'), 'mdi:table-clock') }}
+        {% endif %}
+        {% if show_button_list_send %}
+            {{ topbar.button('Envíadas', url_for('not_escrituras.list_send'), 'mdi:table-heart') }}
+        {% endif %}
+        {% if show_button_list_working %}
+            {{ topbar.button('Trabajadas', url_for('not_escrituras.list_working'), 'mdi:table-heart') }}
+        {% endif %}
+        {% if current_user.can_edit('NOT ESCRITURAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('not_escrituras.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('not_escrituras.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('NOT ESCRITURAS') %}
+            {{ topbar.button_new('Nueva Escritura', url_for('not_escrituras.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="not_escrituras_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap estilo" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Distrito</th>
+                    <th>Notaría</th>
+                    <th>Juzgado</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/not_escrituras/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'distrito' },
+            { data: 'notaria' },
+            { data: 'autoridad' },
+            { data: 'estado' },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // distrito
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.nombre_corto;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
+                    }
+                }
+            },
+            {
+                targets: 2, // notaría
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.descripcion_corta;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.descripcion_corta + '</a>';
+                    }
+                }
+            },
+            {
+                targets: 3, // autoridad
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.descripcion;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                    }
+                }
+            },
+            {
+                targets: 4, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    let color = "black"
+                    switch (data)    {
+                        case "TRABAJADO": color = "#BF9A01";  break;
+                        case "ENVIADO": color = "#0065A6";  break;
+                        case "REVISADO": color = "#DC3330";  break;
+                        case "FINALIZADO": color = "#0b5345";  break;
+                    }
+                    return '<strong style="color:' + color + '; ">' + data + '</strong>';
+                }
+            },
+        ];
+        configDataTable['rowCallback'] = function(row, data){
+            switch(data.estado){
+                case "TRABAJADO": $(row).css("background-color","#FCFEE7"); break;
+                case "ENVIADO": $(row).css("background-color","#E7FBFE"); break;
+                case "REVISADO": $(row).css("background-color","#FEE7E7"); break;
+                case "FINALIZADO": $(row).css("background-color","#E7FEEA"); break;
+            }
+        }
+        $('#not_escrituras_datatable').DataTable(configDataTable);
+              
+    </script>
+{% endblock %}

@@ -38,18 +38,18 @@
         configDataTable['ajax']['url'] = '/escrituras/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: 'detalle' },
-            { data: 'distrito' },
-            { data: 'autoridad' },
-            { data: 'expediente' },
-            { data: 'etapa' }
+            { data: "detalle" },
+            { data: "distrito" },
+            { data: "autoridad" },
+            { data: "expediente" },
+            { data: "etapa" },
         ];
         configDataTable['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
             },
             {
@@ -64,7 +64,7 @@
                 }
             },
             {
-                targets: 1, // autoridad
+                targets: 2, // autoridad
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
