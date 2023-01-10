@@ -4,7 +4,7 @@ Mensajes, vistas
 import json
 import datetime
 
-from flask import Blueprint, flash, redirect, render_template, url_for, request
+from flask import Blueprint, flash, redirect, render_template, url_for, request, abort
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
@@ -23,7 +23,7 @@ MODULO = "NOT CONVERSACIONES"
 
 # Roles que deben estar en la base de datos
 ROL_NOTARIA = "NOTARIA"
-ROL_JUZGADO = "JUZGADO"
+ROL_JUZGADO = "JUZGADO PRIMERA INSTANCIA"
 
 not_conversaciones = Blueprint("not_conversaciones", __name__, template_folder="templates")
 
@@ -40,23 +40,35 @@ def datatable_json():
     """DataTable JSON para listado de Conversaciones"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
-    # Consultar
-    consulta = db.session.query(NotConversacion, NotMensaje).join(NotMensaje, NotConversacion.ultimo_mensaje_id == NotMensaje.id)
+    # Query de consulta
+    consulta = db.session.query(NotConversacion, NotMensaje, Autoridad)
+    consulta = consulta.join(Autoridad, NotConversacion.destinatario_id == Autoridad.id)
+    consulta = consulta.join(NotMensaje, NotConversacion.ultimo_mensaje_id == NotMensaje.id)
+    # Lectura de parámetros filter para hacer la consulta
     if "estatus" in request.form:
         consulta = consulta.filter(NotConversacion.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(NotConversacion.estatus == "A")
     if "estado" in request.form:
         consulta = consulta.filter(NotConversacion.estado == request.form["estado"])
-    # Nos aseguramos que quien hace la petición se Admin o sea autor o destinatario de la conversación
-    if current_user.can_admin(MODULO) is False:
-        consulta = consulta.filter(or_(NotConversacion.autor == current_user.autoridad, NotConversacion.destinatario == current_user.autoridad))
-
+    if "admin" not in request.form:
+        consulta = consulta.filter(or_(NotConversacion.autor == current_user.autoridad, NotConversacion.destinatario_id == current_user.autoridad.id))
+    # Ejecución de la consulta estableciendo el ordenamiento.
     registros = consulta.order_by(NotConversacion.modificado.desc()).order_by(NotConversacion.leido.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
+        # definir la contraparte de la autoridad de la conversación
+        if resultado.NotConversacion.autor_id == current_user.autoridad.id:
+            clave = resultado.NotConversacion.autor.clave
+            url_id = resultado.NotConversacion.autor_id
+            descripcion = resultado.NotConversacion.autor.descripcion_corta + " - " + resultado.NotConversacion.autor.distrito.nombre_corto
+        else:
+            clave = resultado.Autoridad.clave
+            url_id = resultado.NotConversacion.destinatario_id
+            descripcion = resultado.Autoridad.descripcion_corta + " - " + resultado.Autoridad.distrito.nombre_corto
+        # Añadir registros al listado
         data.append(
             {
                 "id": {
@@ -64,9 +76,9 @@ def datatable_json():
                     "url": url_for("not_conversaciones.detail", conversacion_id=resultado.NotConversacion.id),
                 },
                 "detalle": {
-                    "clave": resultado.NotConversacion.autor.clave if resultado.NotConversacion.destinatario == current_user.autoridad else resultado.NotConversacion.destinatario.clave,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.NotConversacion.autor_id if resultado.NotConversacion.destinatario == current_user.autoridad else resultado.NotConversacion.destinatario.id),
-                    "descripcion": resultado.NotConversacion.destinatario.descripcion_corta if resultado.NotConversacion.destinatario == current_user.autoridad else resultado.NotConversacion.destinatario.descripcion_corta,
+                    "clave": clave,
+                    "url": url_for("autoridades.detail", autoridad_id=url_id),
+                    "descripcion": descripcion,
                 },
                 "lectura": True if current_user.autoridad_id == resultado.NotMensaje.autoridad_id else resultado.NotConversacion.leido,
                 "fecha_hora": resultado.NotConversacion.modificado.strftime("%Y/%m/%d %H:%M"),
@@ -77,12 +89,12 @@ def datatable_json():
                 "autor": {
                     "clave": resultado.NotConversacion.autor.clave,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.NotConversacion.autor_id),
-                    "descripcion": resultado.NotConversacion.autor.descripcion_corta,
+                    "descripcion": resultado.NotConversacion.autor.descripcion_corta + " - " + resultado.NotConversacion.autor.distrito.nombre_corto,
                 },
                 "destinatario": {
-                    "clave": resultado.NotConversacion.destinatario.clave,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.NotConversacion.destinatario.id),
-                    "descripcion": resultado.NotConversacion.destinatario.descripcion_corta,
+                    "clave": resultado.Autoridad.clave,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.NotConversacion.destinatario_id),
+                    "descripcion": resultado.Autoridad.descripcion_corta + " - " + resultado.Autoridad.distrito.nombre_corto,
                 },
             }
         )
@@ -94,10 +106,9 @@ def datatable_json():
 def list_active():
     """Listado de Conversaciones Activas"""
     if current_user.can_admin(MODULO):
-        # consulta = consulta.filter(or_(NotConversacion.autor == current_user.autoridad, NotConversacion.destinatario == current_user.autoridad))
         return render_template(
             "not_conversaciones/list_admin.jinja2",
-            filtros=json.dumps({"estatus": "A", "estado": "ACTIVO"}),
+            filtros=json.dumps({"estatus": "A", "estado": "ACTIVO", "admin": True}),
             titulo="Conversaciones",
             mostrar_btn_nueva_conversacion=False,
             mostrar_btn_activas=False,
@@ -117,16 +128,7 @@ def list_active():
     if rol == ROL_NOTARIA or rol == ROL_JUZGADO:
         mostrar_btn_nueva_conversacion = True
     else:
-        flash("No tiene permitido ver este listado", "warning")
-        return render_template(
-            "not_conversaciones/list.jinja2",
-            filtros=json.dumps({}),
-            titulo="Conversaciones",
-            mostrar_btn_nueva_conversacion=False,
-            mostrar_btn_activas=False,
-            mostrar_btn_archivadas=False,
-            estatus="A",
-        )
+        abort(403)
 
     # Crea el html final
     return render_template(
@@ -146,7 +148,7 @@ def list_archive():
     if current_user.can_admin(MODULO):
         return render_template(
             "not_conversaciones/list_admin.jinja2",
-            filtros=json.dumps({"estatus": "A", "estado": "ARCHIVADO"}),
+            filtros=json.dumps({"estatus": "A", "estado": "ARCHIVADO", "admin": True}),
             titulo="Conversaciones Archivadas",
             mostrar_btn_nueva_conversacion=False,
             mostrar_btn_activas=True,
@@ -166,16 +168,7 @@ def list_archive():
     if rol == ROL_NOTARIA or rol == ROL_JUZGADO:
         mostrar_btn_nueva_conversacion = True
     else:
-        flash("No tiene permitido ver este listado", "warning")
-        return render_template(
-            "not_conversaciones/list.jinja2",
-            filtros=json.dumps({}),
-            titulo="Conversaciones Archivadas",
-            mostrar_btn_nueva_conversacion=False,
-            mostrar_btn_activas=False,
-            mostrar_btn_archivadas=False,
-            estatus="A",
-        )
+        abort(403)
 
     # Crea el html final
     return render_template(
@@ -205,6 +198,8 @@ def detail(conversacion_id):
             conversacion.leido = True
             conversacion.save()
     mensajes = NotMensaje.query.filter_by(estatus="A").filter_by(not_conversacion=conversacion).order_by(NotMensaje.creado).all()
+
+    # Arreglo para mostrar los mensajes agrupados por fechas
     fecha_mensaje_anterior = None
     fechas = {}
     # Recorremos los mensajes para agruparlos por fechas
@@ -228,10 +223,14 @@ def detail(conversacion_id):
     if current_user.autoridad.es_jurisdiccional and current_user.autoridad.es_notaria is False:
         mostrar_btn_archivar = True
 
+    # Consultar el destinatario
+    destinatario = Autoridad.query.get_or_404(conversacion.destinatario_id)
+
     # Crea el html final
     return render_template(
         "not_conversaciones/detail.jinja2",
         conversacion=conversacion,
+        destinatario=destinatario,
         titulo="Conversación - ID: " + str(conversacion.id),
         mostrar_btn_archivar=mostrar_btn_archivar,
         mensajes=mensajes,
@@ -246,25 +245,28 @@ def new():
     form = NotConversacionNewForm()
     if form.validate_on_submit():
         destinatario = Autoridad.query.get_or_404(form.destinatario.data)
-        conversacion = NotConversacion(
-            autor=current_user.autoridad,
-            destinatario=destinatario,
-            leido=False,
-            estado="ACTIVO",
-            ultimo_mensaje_id=0,
-        )
-        conversacion.save()
-        mensaje = NotMensaje(
-            autoridad=current_user.autoridad,
-            not_conversacion=conversacion,
-            contenido=safe_string(form.mensaje.data),
-            leido=False,
-        )
-        mensaje.save()
-        conversacion.ultimo_mensaje_id = mensaje.id
-        conversacion.save()
-        flash("Conversacion creada correctamente.", "success")
-        return redirect(url_for("not_conversaciones.list_active"))
+        if destinatario is None:
+            flash("El destinatario seleccionado no existe", "warning")
+        else:
+            conversacion = NotConversacion(
+                autor=current_user.autoridad,
+                destinatario_id=int(form.destinatario.data),
+                leido=False,
+                estado="ACTIVO",
+                ultimo_mensaje_id=0,
+            )
+            conversacion.save()
+            mensaje = NotMensaje(
+                autoridad=current_user.autoridad,
+                not_conversacion=conversacion,
+                contenido=safe_string(form.mensaje.data),
+                leido=False,
+            )
+            mensaje.save()
+            conversacion.ultimo_mensaje_id = mensaje.id
+            conversacion.save()
+            flash("Conversacion creada correctamente.", "success")
+            return redirect(url_for("not_conversaciones.list_active"))
     form.autor.data = current_user.nombre
     buscar = None
     if current_user.autoridad.es_notaria:
@@ -275,12 +277,13 @@ def new():
 
 
 @not_conversaciones.route("/not_conversaciones/nuevo_mensaje/<int:conversacion_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.CREAR)
 def new_message(conversacion_id):
     """Nuevo Mensaje"""
     contenido = safe_string(request.form["contenido"])
     if contenido:
         conversacion = NotConversacion.query.get_or_404(conversacion_id)
-        if conversacion.autor != current_user.autoridad and conversacion.destinatario != current_user.autoridad:
+        if conversacion.autor_id != current_user.autoridad.id and conversacion.destinatario_id != current_user.autoridad.id:
             flash("No tiene permitido escribir en esta conversación", "danger")
             return redirect(url_for("not_conversaciones.list_active"))
         elif conversacion.estado != "ACTIVO":
@@ -303,11 +306,12 @@ def new_message(conversacion_id):
 
 
 @not_conversaciones.route("/not_conversaciones/archivar/<int:conversacion_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
 def archive(conversacion_id):
     """Archivar conversación"""
     conversacion = NotConversacion.query.get_or_404(conversacion_id)
-    # Solo los juzgados pueden archivar conversaciones y ser parte de la conversación
-    if (current_user.autoridad.es_notaria is False and current_user.autoridad.es_jurisdiccional) and (conversacion.autor == current_user.autoridad or conversacion.destinatario == current_user.autoridad):
+    # Solo los juzgados pueden archivar conversaciones
+    if (current_user.autoridad.es_notaria is False and current_user.autoridad.es_jurisdiccional) and (conversacion.autor_id == current_user.autoridad.id or conversacion.destinatario_id == current_user.autoridad.id):
         conversacion.leido = True
         conversacion.estado = "ARCHIVADO"
         conversacion.save()

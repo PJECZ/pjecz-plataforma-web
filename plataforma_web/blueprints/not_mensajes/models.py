@@ -26,4 +26,4 @@ class NotMensaje(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<MensajeRespuesta {self.id}>"
+        return f"<Mensaje {self.id}>"

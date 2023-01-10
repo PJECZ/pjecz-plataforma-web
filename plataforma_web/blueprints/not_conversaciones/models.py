@@ -24,11 +24,10 @@ class NotConversacion(db.Model, UniversalMixin):
 
     # Clave foránea
     autor_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    autor = db.relationship("Autoridad", foreign_keys="NotConversacion.autor_id")
-    destinatario_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    destinatario = db.relationship("Autoridad", foreign_keys="NotConversacion.destinatario_id")
+    autor = db.relationship("Autoridad", back_populates="autor")
 
     # Columnas
+    destinatario_id = db.Column(db.Integer, nullable=False)
     leido = db.Column(db.Boolean, nullable=False, default=False)
     estado = db.Column(db.Enum(*ESTADOS, name="estados", native_enum=False), nullable=False)
     ultimo_mensaje_id = db.Column(db.Integer, nullable=True)

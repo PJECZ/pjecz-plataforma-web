@@ -36,8 +36,8 @@
 {% block content %}
     {% call detail.card('Conversación') %}
         {{ detail.label_value('id', conversacion.id) }}
-        {{ detail.label_value('Autor', conversacion.autor.clave + ' : ' + conversacion.autor.descripcion_corta + ' - ' + conversacion.destinatario.distrito.nombre, url_for('autoridades.detail', autoridad_id=conversacion.autor.id)) }}
-        {{ detail.label_value('Destinatario', conversacion.destinatario.clave + ' : ' + conversacion.destinatario.descripcion_corta + ' - ' + conversacion.destinatario.distrito.nombre, url_for('autoridades.detail', autoridad_id=conversacion.destinatario.id)) }}
+        {{ detail.label_value('Autor', conversacion.autor.clave + ' : ' + conversacion.autor.descripcion_corta + ' - ' + conversacion.autor.distrito.nombre, url_for('autoridades.detail', autoridad_id=conversacion.autor.id)) }}
+        {{ detail.label_value('Destinatario', destinatario.clave + ' : ' + destinatario.descripcion_corta + ' - ' + destinatario.distrito.nombre, url_for('autoridades.detail', autoridad_id=destinatario.id)) }}
         {{ detail.label_value('Fecha de Inicio', moment(conversacion.creado).format('llll')) }}
         {{ detail.label_value('Fecha de último mensaje', moment(conversacion.modificado).format('llll')) }}
         <div class="row">
@@ -115,7 +115,7 @@
         </div>
         </div>
         <div class="row justify-content-evenly">
-        {% if conversacion.estado == 'ACTIVO' and (current_user.autoridad == conversacion.autor or current_user.autoridad == conversacion.destinatario) %}
+        {% if conversacion.estado == 'ACTIVO' and (current_user.autoridad == conversacion.autor or current_user.autoridad == destinatario) %}
             <form action="/not_conversaciones/nuevo_mensaje/{{conversacion.id}}" method="POST">
                 <div class="input-group mb-3">
                     <textarea class="form-control" placeholder="Mensaje..." id="contenido" name="contenido" style="height: 60px"></textarea>
