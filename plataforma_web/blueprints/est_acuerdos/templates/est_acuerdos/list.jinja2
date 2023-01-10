@@ -1,0 +1,77 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Estadisticas Acuerdos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('EST ACUERDOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('est_acuerdos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('est_acuerdos.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="est_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Distrito</th>
+                    <th>Autoridad</th>
+                    <th>Folio</th>
+                    <th>Expediente</th>
+                    <th>No. Caso</th>
+                    <th>F. Elaboracion</th>
+                    <th>F. Validacion</th>
+                    <th>F. Autorizacion</th>
+                    <th>Estado</th>
+                    <th>Secretario</th>
+                    <th>Juez</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/est_acuerdos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'distrito_nombre' },
+            { data: 'autoridad_descripcion' },
+            { data: 'folio' },
+            { data: 'expediente' },
+            { data: 'numero_caso' },
+            { data: 'fecha_elaboracion' },
+            { data: 'fecha_validacion' },
+            { data: 'fecha_autorizacion' },
+            { data: 'estado' },
+            { data: 'secretario' },
+            { data: 'juez' },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: [6, 7, 8],
+                type: "date",
+                render: function (data, type, row) {
+                    if (data == null) return '';
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm");
+                }
+            },
+        ];
+        $('#est_acuerdos_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}
