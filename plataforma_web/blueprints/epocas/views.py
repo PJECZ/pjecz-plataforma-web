@@ -91,7 +91,7 @@ def new():
     """Nueva Epoca"""
     form = EpocaForm()
     if form.validate_on_submit():
-        epoca = Epoca(nombre=safe_string(form.nombre.data))
+        epoca = Epoca(nombre=safe_string(form.nombre.data, save_enie=True))
         epoca.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -112,7 +112,7 @@ def edit(epoca_id):
     epoca = Epoca.query.get_or_404(epoca_id)
     form = EpocaForm()
     if form.validate_on_submit():
-        epoca.nombre = safe_string(form.nombre.data)
+        epoca.nombre = safe_string(form.nombre.data, save_enie=True)
         epoca.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),

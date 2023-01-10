@@ -91,7 +91,7 @@ def new():
     """Nuevo Tipo de Perito"""
     form = PeritoTipoForm()
     if form.validate_on_submit():
-        perito_tipo = PeritoTipo(nombre=safe_string(form.nombre.data))
+        perito_tipo = PeritoTipo(nombre=safe_string(form.nombre.data, save_enie=True))
         perito_tipo.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -112,7 +112,7 @@ def edit(perito_tipo_id):
     perito_tipo = PeritoTipo.query.get_or_404(perito_tipo_id)
     form = PeritoTipoForm()
     if form.validate_on_submit():
-        perito_tipo.nombre = safe_string(form.nombre.data)
+        perito_tipo.nombre = safe_string(form.nombre.data, save_enie=True)
         perito_tipo.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
