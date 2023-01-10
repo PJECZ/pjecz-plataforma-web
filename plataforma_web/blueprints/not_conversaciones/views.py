@@ -24,6 +24,7 @@ MODULO = "NOT CONVERSACIONES"
 # Roles que deben estar en la base de datos
 ROL_NOTARIA = "NOTARIA"
 ROL_JUZGADO = "JUZGADO PRIMERA INSTANCIA"
+ROL_ADMIN = "ADMINISTRADOR"
 
 not_conversaciones = Blueprint("not_conversaciones", __name__, template_folder="templates")
 
@@ -102,6 +103,30 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
+def _identifica_rol():
+    """Identifica el rol del usuario actual (current_user)"""
+    rol = None
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    if ROL_NOTARIA in current_user_roles:
+        rol = ROL_NOTARIA
+    elif ROL_JUZGADO in current_user_roles:
+        rol = ROL_JUZGADO
+    elif current_user.can_admin(MODULO):
+        return ROL_ADMIN
+    # si no tiene ninguno de los dos posibles roles, abortamos
+    if rol is None:
+        abort(403)
+    # Verificamos que tenga una autoridad asignada, porque sino se perdería el rastreo
+    if rol == ROL_NOTARIA and current_user.autoridad.es_notaria:
+        rol = ROL_NOTARIA
+    elif rol == ROL_JUZGADO and current_user.autoridad.es_jurisdiccional:
+        rol = ROL_JUZGADO
+    else:
+        abort(403)
+    return rol
+
+
 @not_conversaciones.route("/not_conversaciones")
 def list_active():
     """Listado de Conversaciones Activas"""
@@ -116,26 +141,15 @@ def list_active():
             estatus="A",
         )
 
-    # Establece el ROL para mostrar un listado diferente
-    rol = None
-    if current_user.autoridad.es_notaria:
-        rol = ROL_NOTARIA
-    elif current_user.autoridad.es_jurisdiccional:
-        rol = ROL_JUZGADO
-
-    # Banderas para modificar el template del jinja
-    mostrar_btn_nueva_conversacion = False
-    if rol == ROL_NOTARIA or rol == ROL_JUZGADO:
-        mostrar_btn_nueva_conversacion = True
-    else:
-        abort(403)
+    # Identificamos el rol del current_user
+    _identifica_rol()
 
     # Crea el html final
     return render_template(
         "not_conversaciones/list.jinja2",
         filtros=json.dumps({"estatus": "A", "estado": "ACTIVO"}),
         titulo="Conversaciones",
-        mostrar_btn_nueva_conversacion=mostrar_btn_nueva_conversacion,
+        mostrar_btn_nueva_conversacion=True,
         mostrar_btn_activas=False,
         mostrar_btn_archivadas=True,
         estatus="A",
@@ -156,26 +170,15 @@ def list_archive():
             estatus="A",
         )
 
-    # Establece el ROL para mostrar un listado diferente
-    rol = None
-    if current_user.autoridad.es_notaria:
-        rol = ROL_NOTARIA
-    elif current_user.autoridad.es_jurisdiccional:
-        rol = ROL_JUZGADO
-
-    # Banderas para modificar el template del jinja
-    mostrar_btn_nueva_conversacion = False
-    if rol == ROL_NOTARIA or rol == ROL_JUZGADO:
-        mostrar_btn_nueva_conversacion = True
-    else:
-        abort(403)
+    # Identificamos el rol del current_user
+    _identifica_rol()
 
     # Crea el html final
     return render_template(
         "not_conversaciones/list.jinja2",
         filtros=json.dumps({"estatus": "A", "estado": "ARCHIVADO"}),
         titulo="Conversaciones Archivadas",
-        mostrar_btn_nueva_conversacion=mostrar_btn_nueva_conversacion,
+        mostrar_btn_nueva_conversacion=False,
         mostrar_btn_activas=True,
         mostrar_btn_archivadas=False,
         estatus="A",
@@ -186,6 +189,7 @@ def list_archive():
 def detail(conversacion_id):
     """Detalle de una Conversación"""
     conversacion = NotConversacion.query.get_or_404(conversacion_id)
+    destinatario = Autoridad.query.get_or_404(conversacion.destinatario_id)
     if current_user.can_admin(MODULO) is False:
         if conversacion.autor_id != current_user.autoridad_id and conversacion.destinatario_id != current_user.autoridad_id:
             flash("No tiene persmisos para ver esta conversación", "danger")
@@ -218,13 +222,12 @@ def detail(conversacion_id):
         elif fechas[mensaje] == (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y/%m/%d"):
             fechas[mensaje] = "Ayer"
 
-    # Establece el ROL para mostrar un listado diferente
+    # Mostrar el botón de Archivar solo a los Juzgados
     mostrar_btn_archivar = False
-    if current_user.autoridad.es_jurisdiccional and current_user.autoridad.es_notaria is False:
+    # Identificamos el rol del current_user
+    rol = _identifica_rol()
+    if rol == ROL_JUZGADO:
         mostrar_btn_archivar = True
-
-    # Consultar el destinatario
-    destinatario = Autoridad.query.get_or_404(conversacion.destinatario_id)
 
     # Crea el html final
     return render_template(
@@ -269,9 +272,11 @@ def new():
             return redirect(url_for("not_conversaciones.list_active"))
     form.autor.data = current_user.nombre
     buscar = None
-    if current_user.autoridad.es_notaria:
+    # Identificamos el rol del current_user
+    rol = _identifica_rol()
+    if rol == ROL_NOTARIA:
         buscar = "JUZGADO"
-    elif current_user.autoridad.es_jurisdiccional:
+    elif rol == ROL_JUZGADO:
         buscar = "NOTARIA"
     return render_template("not_conversaciones/new.jinja2", buscar=buscar, form=form)
 
@@ -309,14 +314,15 @@ def new_message(conversacion_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def archive(conversacion_id):
     """Archivar conversación"""
+    # Identificamos el rol del current_user
+    rol = _identifica_rol()
     conversacion = NotConversacion.query.get_or_404(conversacion_id)
-    # Solo los juzgados pueden archivar conversaciones
-    if (current_user.autoridad.es_notaria is False and current_user.autoridad.es_jurisdiccional) and (conversacion.autor_id == current_user.autoridad.id or conversacion.destinatario_id == current_user.autoridad.id):
+    # Solo los juzgados pueden archivar conversaciones, además deben formar parte de la conversación
+    if (rol == ROL_JUZGADO) and (conversacion.autor_id == current_user.autoridad.id or conversacion.destinatario_id == current_user.autoridad.id):
         conversacion.leido = True
         conversacion.estado = "ARCHIVADO"
         conversacion.save()
         flash("Conversación Archivada correctamente.", "success")
         return redirect(url_for("not_conversaciones.list_active"))
-    else:
-        flash("No tiene permitido Archivar esta conversación", "danger")
-        return redirect(url_for("not_conversaciones.list_active"))
+    flash("No tiene permitido Archivar esta conversación", "danger")
+    return redirect(url_for("not_conversaciones.list_active"))
