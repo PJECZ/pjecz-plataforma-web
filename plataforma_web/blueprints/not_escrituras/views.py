@@ -1,16 +1,17 @@
 """
-Not Escrituras, vistas
+Notarías Escrituras, vistas
 """
 import json
-from delta import html
 from datetime import date
+
+from delta import html
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy.sql import or_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message
 from lib.time_working import next_labor_day
-from sqlalchemy.sql import or_
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora

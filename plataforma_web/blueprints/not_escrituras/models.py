@@ -1,5 +1,5 @@
 """
-Escrituras, modelos
+Notarías Escrituras, modelos
 """
 from collections import OrderedDict
 from plataforma_web.extensions import db

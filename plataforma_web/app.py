@@ -6,7 +6,6 @@ from redis import Redis
 import rq
 from plataforma_web.extensions import csrf, db, login_manager, moment
 
-
 from plataforma_web.blueprints.abogados.views import abogados
 from plataforma_web.blueprints.audiencias.views import audiencias
 from plataforma_web.blueprints.autoridades.views import autoridades
@@ -33,7 +32,6 @@ from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_d
 from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.modulos.views import modulos
-
 from plataforma_web.blueprints.not_escrituras.views import not_escrituras
 from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos

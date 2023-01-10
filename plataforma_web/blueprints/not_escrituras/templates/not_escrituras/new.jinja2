@@ -45,7 +45,6 @@
             const vacio = '{"ops":[{"insert":"\n"}]}';
             $('#contenido').val(vacio);
         });
-
     </script>
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -78,13 +77,11 @@
                 $("#estado").val("TRABAJADO");
                 $("#not_escritura_form").submit();
             });
-
             $('#enviar').click(function(){
                 event.preventDefault();
                 $("#estado").val("ENVIADO");
                 $("#not_escritura_form").submit();
             });
-            
         });
     </script>
 {% endblock %}
