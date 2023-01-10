@@ -11,10 +11,10 @@ class NotEscritura(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(
         [
-            ("TRABAJADO", "Trabajado"),
-            ("ENVIADO", "Enviado"),
-            ("REVISADO", "Revisado"),
-            ("FINALIZADO", "Finalizado"),
+            ("TRABAJADO", "Trabajado"),  # Paso 1: Creado por la notaría en el cual podemos modificar todos los campos que esten habilitados
+            ("ENVIADO", "Enviado"),  # Paso 2: Pasa al Juzgado
+            ("REVISADO", "Revisado"),  # Paso 3: El Juzgado manda correcciónes a notaría
+            ("FINALIZADO", "Finalizado"),  # Paso 4: Finaliza la escritura "Todo esta correcto"
         ]
     )
     # Nombre de la tabla

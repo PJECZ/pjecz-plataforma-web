@@ -89,7 +89,7 @@ def list_active():
     """Listado de Escrituras activos"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # Mostrar solo las Escrituras aprobadas
+    # Mostrar solo las Escrituras finalizadas
     return render_template(
         "not_escrituras/list.jinja2",
         titulo="Escrituras Finalizadas",
@@ -107,7 +107,7 @@ def list_approved():
     """Listado de Escrituras finalizadas"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # Si es administrador mostrar las Escrituras que se estan finalizadas
+    # vista para mostrar listado a Administrador y Juzgado
     if current_user.can_admin(MODULO) or ROL_JUZGADO in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
@@ -119,6 +119,7 @@ def list_approved():
             show_button_list_update=True,
             show_button_list_approved=True,
         )
+    # vista para mostrar listado a Administrador y Notaría
     elif current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
@@ -139,7 +140,7 @@ def list_update():
     """Listado de Escrituras revisadas"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # Si es administrador, coordinador, director o jefe o dueno de proceso, mostrar los procedimientos propios
+    # vista para mostrar listado a Administrador y Juzgado
     if current_user.can_admin(MODULO) or ROL_JUZGADO in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
@@ -151,6 +152,7 @@ def list_update():
             show_button_list_update=True,
             show_button_list_approved=True,
         )
+    # vista para mostrar listado a Administrador y Notaría
     elif current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
@@ -169,11 +171,9 @@ def list_update():
 @not_escrituras.route("/not_escrituras/trabajadas")
 def list_working():
     """Listado de Escrituras trabajadas"""
-
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-
-    # vista para mostrar listado a Administrador
+    # vista para mostrar listado a Administrador y Notaría
     if current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
@@ -185,7 +185,6 @@ def list_working():
             show_button_list_update=True,
             show_button_list_approved=True,
         )
-
     # si no, redirigir a la lista general
     return redirect(url_for("not_escrituras.list_active"))
 
@@ -195,7 +194,7 @@ def list_send():
     """Listado de Escrituras enviadas"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # vista para mostrar listado a Administrador
+    # vista para mostrar listado a Administrador y Juzgado
     if current_user.can_admin(MODULO) or ROL_JUZGADO in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
@@ -207,6 +206,7 @@ def list_send():
             show_button_list_update=True,
             show_button_list_approved=True,
         )
+    # vista para mostrar listado a Administrador y Notaría
     elif current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
@@ -242,24 +242,10 @@ def detail(not_escritura_id):
         "not_escrituras/detail.jinja2",
         not_escritura=not_escritura,
         contenido=str(html.render(not_escritura.contenido["ops"])),
+        # Mostrar botones de editar
         show_button_edit_juzgado=ROL_JUZGADO in current_user.get_roles(),
         show_button_edit_notaria=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user.get_roles(),
     )
-
-
-def calcfecha():
-    """Validación fecha 10 días hábiles"""
-    fecha_actual = date.today()
-    nuevo_dia = fecha_actual
-    dia = 1
-
-    while dia <= 10:
-        if nuevo_dia.weekday() < 6:
-            dia = dia + 1
-        dia_delta = timedelta(days=1)
-        nuevo_dia = nuevo_dia + dia_delta
-
-    return nuevo_dia
 
 
 @not_escrituras.route("/not_escrituras/nuevo", methods=["GET", "POST"])
@@ -275,7 +261,7 @@ def new():
             expediente=form.expediente.data,
             contenido=form.contenido.data,
             fecha=date.today(),
-            fecha_limite=calcfecha(),
+            fecha_limite=next_labor_day(date.today(), 10),
             estado=form.estado.data,
         )
         not_escritura.save()
@@ -310,25 +296,23 @@ def edit(not_escritura_id):
         return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
     form = NotEscriturasEditForm()
     if form.validate_on_submit():
-        if form.estado.data not in NotEscritura.ESTADOS:
-            flash("No es un estado valido", "warning")
-        else:
-            juzgado = Autoridad.query.get_or_404(form.autoridad.data)
-            not_escritura.contenido = form.contenido.data
-            not_escritura.autoridad = juzgado
-            not_escritura.estado = form.estado.data
-            not_escritura.expediente = form.expediente.data
-            not_escritura.fecha_limite = calcfecha()
-            not_escritura.save()
-            bitacora = Bitacora(
-                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                usuario=current_user,
-                descripcion=safe_message(f"Editado Escrituras {not_escritura.expediente}"),
-                url=url_for("not_escrituras.detail", not_escritura_id=not_escritura.id),
-            )
-            bitacora.save()
-            flash(bitacora.descripcion, "success")
-            return redirect(bitacora.url)
+
+        juzgado = Autoridad.query.get_or_404(form.autoridad.data)
+        not_escritura.contenido = form.contenido.data
+        not_escritura.autoridad = juzgado
+        not_escritura.estado = form.estado.data
+        not_escritura.expediente = form.expediente.data
+        not_escritura.fecha_limite = next_labor_day(date.today(), 10)
+        not_escritura.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Escrituras {not_escritura.expediente}"),
+            url=url_for("not_escrituras.detail", not_escritura_id=not_escritura.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     form.distrito.data = current_user.autoridad.distrito.nombre
     form.notaria.data = current_user.autoridad.descripcion
     form.autoridad.data = not_escritura.autoridad
@@ -358,23 +342,20 @@ def edit_juzgado(not_escritura_id):
         return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
     form = NotEscriturasEditJuzgadoForm()
     if form.validate_on_submit():
-        if form.estado.data not in NotEscritura.ESTADOS:
-            flash("No es un estado valido", "warning")
-        else:
-            not_escritura.contenido = form.contenido.data
-            not_escritura.estado = form.estado.data
-            not_escritura.expediente = form.expediente.data
-            not_escritura.fecha_limite = calcfecha()
-            not_escritura.save()
-            bitacora = Bitacora(
-                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                usuario=current_user,
-                descripcion=safe_message(f"Editado Escritura {not_escritura.id}"),
-                url=url_for("not_escrituras.detail", not_escritura_id=not_escritura.id),
-            )
-            bitacora.save()
-            flash(bitacora.descripcion, "success")
-            return redirect(bitacora.url)
+        not_escritura.contenido = form.contenido.data
+        not_escritura.estado = form.estado.data
+        not_escritura.expediente = form.expediente.data
+        not_escritura.fecha_limite = next_labor_day(date.today(), 10)
+        not_escritura.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editado Escritura {not_escritura.id}"),
+            url=url_for("not_escrituras.detail", not_escritura_id=not_escritura.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     form.distrito.data = current_user.autoridad.distrito.nombre
     form.notaria.data = current_user.autoridad.descripcion
     form.autoridad.data = not_escritura.autoridad_id
@@ -430,15 +411,13 @@ def recover(not_escritura_id):
     return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura.id))
 
 
-@not_escrituras.route("/not_escrituras/query_autoridades_json/<string:tipo>", methods=["POST"])
+@not_escrituras.route("/not_escrituras/query_autoridades_json", methods=["POST"])
 def query_autoridades_json(tipo):
     """Listado de Autoridades filtrar por juzgado"""
-    # Consultar
+    # Consultar las autoridades
     consulta = Autoridad.query
     if tipo == "juzgado":
         consulta = consulta.filter_by(estatus="A").filter_by(es_revision_escritura=True)
-    # elif tipo == "notaria":
-    #     consulta = consulta.filter_by(estatus="A").filter_by(es_revision_escritura=True)
     if "searchString" in request.form:
         busqueda = request.form["searchString"]
         consulta = consulta.filter(or_(Autoridad.clave.contains(busqueda), Autoridad.descripcion.contains(busqueda)))

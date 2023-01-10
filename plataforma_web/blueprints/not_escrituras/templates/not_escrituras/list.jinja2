@@ -18,7 +18,6 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {# {{ topbar.button('Aprobadas', url_for('not_escrituras.list_approved'), 'mdi:table-clock') }} #}
         {% if show_button_list_approved %}
             {{ topbar.button('Finalizadas', url_for('not_escrituras.list_approved'), 'mdi:table') }}
         {% endif %}
@@ -89,7 +88,7 @@
                 }
             },
             {
-                targets: 2, // notaria
+                targets: 2, // notaría
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {

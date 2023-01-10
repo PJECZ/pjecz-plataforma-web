@@ -25,9 +25,9 @@
     {% call detail.card(estatus=not_escritura.estatus) %}
         {{ detail.label_value_big('ID', not_escritura.id) }}
         {% if current_user.can_view('AUTORIDADES')%}
-            {{ detail.label_value('Notaria', not_escritura.notaria.descripcion, url_for('autoridades.detail', autoridad_id=not_escritura.notaria)) }}
+            {{ detail.label_value('Notaria', not_escritura.notaria, url_for('autoridades.detail', autoridad_id=not_escritura.notaria)) }}
         {% else %}
-            {{ detail.label_value('Notaria', not_escritura.notaria.descripcion)}}
+            {{ detail.label_value('Notaria', not_escritura.notaria)}}
         {% endif %}
         {{ detail.label_value('Juzgado', not_escritura.autoridad.descripcion) }}
         {{ detail.label_value('Expediente', not_escritura.expediente) }}
