@@ -62,13 +62,13 @@ def datatable_json():
     for resultado in registros:
         # definir la contraparte de la autoridad de la conversación
         if resultado.NotConversacion.autor_id == current_user.autoridad.id:
-            clave = resultado.NotConversacion.autor.clave
-            url_id = resultado.NotConversacion.autor_id
-            descripcion = resultado.NotConversacion.autor.descripcion_corta + " - " + resultado.NotConversacion.autor.distrito.nombre_corto
-        else:
             clave = resultado.Autoridad.clave
             url_id = resultado.NotConversacion.destinatario_id
             descripcion = resultado.Autoridad.descripcion_corta + " - " + resultado.Autoridad.distrito.nombre_corto
+        else:
+            clave = resultado.NotConversacion.autor.clave
+            url_id = resultado.NotConversacion.autor_id
+            descripcion = resultado.NotConversacion.autor.descripcion_corta + " - " + resultado.NotConversacion.autor.distrito.nombre_corto
         # Añadir registros al listado
         data.append(
             {
