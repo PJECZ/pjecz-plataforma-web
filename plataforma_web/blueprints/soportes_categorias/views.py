@@ -120,7 +120,7 @@ def new():
     form = SoporteCategoriaForm()
     if form.validate_on_submit():
         # Validar que el nombre no se repita
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         if SoporteCategoria.query.filter_by(nombre=nombre).first() is not None:
             flash("El nombre ya está en uso. Debe de ser único.", "warning")
         else:
@@ -152,7 +152,7 @@ def edit(soporte_categoria_id):
     if form.validate_on_submit():
         es_valido = True
         # Si cambia el nombre verificar que no este en uso
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         if soporte_categoria.nombre != nombre:
             soporte_categoria_existente = SoporteCategoria.query.filter_by(nombre=nombre).first()
             if soporte_categoria_existente and soporte_categoria_existente.id != soporte_categoria.id:

@@ -103,7 +103,7 @@ def search():
                 busqueda["clave"] = clave
                 titulos.append("clave " + clave)
         if form_search.nombre.data:
-            nombre = safe_string(form_search.nombre.data)
+            nombre = safe_string(form_search.nombre.data, save_enie=True)
             if nombre != "":
                 busqueda["nombre"] = nombre
                 titulos.append("nombre " + nombre)
@@ -131,7 +131,7 @@ def edit(centro_trabajo_id):
     centro_trabajo = CentroTrabajo.query.get_or_404(centro_trabajo_id)
     form = CentroTrabajoForm()
     if form.validate_on_submit():
-        centro_trabajo.nombre = safe_string(form.nombre.data)
+        centro_trabajo.nombre = safe_string(form.nombre.data, save_enie=True)
         centro_trabajo.telefono = safe_string(form.telefono.data)
         centro_trabajo.distrito = form.distrito.data
         centro_trabajo.domicilio = form.domicilio.data

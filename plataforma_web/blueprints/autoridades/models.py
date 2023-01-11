@@ -47,6 +47,7 @@ class Autoridad(db.Model, UniversalMixin):
     descripcion_corta = db.Column(db.String(64), nullable=False, default="", server_default="")
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
     es_notaria = db.Column(db.Boolean, nullable=False, default=False)
+    es_revisor_escrituras = db.Column(db.Boolean, nullable=False, default=False)
     organo_jurisdiccional = db.Column(
         db.Enum(*ORGANOS_JURISDICCIONALES, name="tipos_organos_jurisdiccionales", native_enum=False),
         index=True,
@@ -69,10 +70,10 @@ class Autoridad(db.Model, UniversalMixin):
     autor = db.relationship("NotConversacion", back_populates="autor", lazy="noload")
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="autoridad", lazy="noload")
     edictos = db.relationship("Edicto", back_populates="autoridad", lazy="noload")
-    escrituras = db.relationship("Escritura", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
     not_mensajes = db.relationship("NotMensaje", back_populates="autoridad")
+    not_escrituras = db.relationship("NotEscritura", back_populates="autoridad")
     redams = db.relationship("Redam", back_populates="autoridad", lazy="noload")
     sentencias = db.relationship("Sentencia", back_populates="autoridad", lazy="noload")
     tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="autoridad", lazy="noload")

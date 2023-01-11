@@ -31,7 +31,7 @@ def alimentar_inv_categorias():
                 click.echo(f"  AVISO: inv_categoria_id {inv_categoria_id} no es consecutivo")
                 continue
             InvCategoria(
-                nombre=safe_string(row["nombre"]),
+                nombre=safe_string(row["nombre"], save_enie=True),
                 estatus=row["estatus"],
             ).save()
             contador += 1

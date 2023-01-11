@@ -31,7 +31,7 @@ def alimentar_roles():
                 click.echo(f"  AVISO: rol_id {rol_id} no es consecutivo")
                 continue
             Rol(
-                nombre=safe_string(row["nombre"]),
+                nombre=safe_string(row["nombre"], save_enie=True),
                 estatus=row["estatus"],
             ).save()
             contador += 1

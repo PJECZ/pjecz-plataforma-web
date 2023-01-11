@@ -1,0 +1,87 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/quill.jinja2' as quill %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Escritura{% endblock %}
+
+{% block custom_head %}
+    {{ quill.head() }}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        #guardar { float: left; box-sizing: border-box; background-color: #0139A9;}
+        #enviar { float: right; box-sizing: border-box; }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nueva Escritura') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('not_escrituras.new', fid='not_escritura_form') %}
+            {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
+            {{ quill.div(div_id="contenido_quill")}}
+            <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
+            {% call f.form_group(form.estado) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+            {% call f.form_group(form.enviar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Quill -->
+    {{ quill.library() }}
+    {{ quill.editor(form_id='not_escritura_form', instance='contenidoQuill', div_id='contenido_quill', hidden_id='contenido', content='') }}
+    <!-- Llenar el input de contenido con un JSON vacío porque es nuevo -->
+    <script>
+        $(document).ready(function(){
+            const vacio = '{"ops":[{"insert":"\n"}]}';
+            $('#contenido').val(vacio);
+        });
+    </script>
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#autoridad').addClass('js-autoridad-data-ajax js-states form-control');
+            $("#autoridad").prop("selectedIndex", -1); // Poner en blanco el select
+            $(".js-autoridad-data-ajax").select2({
+                 // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/not_escrituras/query_autoridades_json/{{buscar}}',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term };
+                    }
+                },
+                placeholder: "{{buscar}}",
+                minimumInputLength: 3,
+                allowClear: true
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('#guardar').click(function(){
+                event.preventDefault();
+                $("#estado").val("TRABAJADO");
+                $("#not_escritura_form").submit();
+            });
+            $('#enviar').click(function(){
+                event.preventDefault();
+                $("#estado").val("ENVIADO");
+                $("#not_escritura_form").submit();
+            });
+        });
+    </script>
+{% endblock %}
