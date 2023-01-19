@@ -23,7 +23,7 @@
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'not_escritura_id': not_escritura.id} %}
-        {% if  not_escritura.estado == "TRABAJADO" %}
+        {% if  not_escritura.estado == show_form_draft %}
             {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
                 {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
                 {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
@@ -35,7 +35,7 @@
                 {% call f.form_group(form.guardar) %}{% endcall %}
                 {% call f.form_group(form.enviar) %}{% endcall %}
             {% endcall %}
-        {% elif  not_escritura.estado == "REVISADO" %}
+        {% elif  not_escritura.estado == show_form_update %}
          <div class="row">
             <div class="col-md-7">
                 {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
@@ -47,7 +47,6 @@
                     <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
                     {% call f.form_group(form.estado) %}{% endcall %}
                     {% call f.form_group(form.revision) %}{% endcall %}
-                    {# {% call f.form_group(form.enviar) %}{% endcall %} #}
                 {% endcall %}
             </div>
             <div class="col-md-5">
@@ -66,12 +65,14 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
+            //-- Al id del input le agregamos la clase para que sea slect2
             $('#autoridad').addClass('js-juzgado-data-ajax js-states form-control');
             $('#autoridad option').each(function() {
                 if($(this).text() == '{{not_escritura.autoridad_id}}') {
                     $("#autoridad").val( $(this).val() );
                 }
             });
+            // Traemos los datos por ajax
             if ('{{not_escritura.estado}}' == 'TRABAJANDO'){
                 $(".js-juzgado-data-ajax").select2({
                     // --- Carga de emails por Ajax --- //
@@ -103,6 +104,7 @@
     </script>
     <script>
         $(document).ready(function(){
+            // agregamos el estado para su ejecución
             $('#guardar').click(function(){
                 event.preventDefault();
                 $("#estado").val("TRABAJADO");

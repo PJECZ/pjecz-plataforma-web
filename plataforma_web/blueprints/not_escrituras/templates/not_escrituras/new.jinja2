@@ -3,7 +3,7 @@
 {% import 'macros/quill.jinja2' as quill %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Nuevo Escritura{% endblock %}
+{% block title %}Nueva Escritura{% endblock %}
 
 {% block custom_head %}
     {{ quill.head() }}
@@ -55,7 +55,7 @@
             $(".js-autoridad-data-ajax").select2({
                  // --- Carga de emails por Ajax --- //
                 ajax: {
-                    url: '/not_escrituras/query_autoridades_json/{{buscar}}',
+                    url: '/not_escrituras/autoridades_json',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
@@ -64,7 +64,7 @@
                         return { 'searchString': params.term };
                     }
                 },
-                placeholder: "{{buscar}}",
+                placeholder: "Buscar Juzgado o Notaría",
                 minimumInputLength: 3,
                 allowClear: true
             });
@@ -72,6 +72,7 @@
     </script>
     <script>
         $(document).ready(function(){
+            // agregamos el estado para su ejecución
             $('#guardar').click(function(){
                 event.preventDefault();
                 $("#estado").val("TRABAJADO");
