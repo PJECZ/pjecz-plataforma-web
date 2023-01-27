@@ -42,4 +42,4 @@ class NotEscritura(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<NotEscritura>"
+        return f"<NotEscritura {self.id}>"
