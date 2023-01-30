@@ -460,26 +460,28 @@ def recover(autoridad_id):
 @autoridades.route("/autoridades/notarias_json", methods=["POST"])
 def query_notarias_json():
     """Proporcionar el JSON de autoridades para elegir Notarías con un Select2"""
-    notaria = "%NOTARIA%"
-    consulta = Autoridad.query.filter(Autoridad.estatus == "A").filter(Autoridad.descripcion.like(notaria))
+    consulta = Autoridad.query.filter(Autoridad.estatus == "A").filter_by(es_notaria=True, es_jurisdiccional=True)
     if "searchString" in request.form:
         consulta = consulta.filter(Autoridad.descripcion.contains(request.form["searchString"]))
     results = []
     for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
-        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + " : " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
+        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + "  :  " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
     return {"results": results, "pagination": {"more": False}}
 
 
 @autoridades.route("/autoridades/juzgados_json", methods=["POST"])
 def query_juzgados_json():
     """Proporcionar el JSON de autoridades para elegir Juzgados con un Select2"""
-    juzgado = "%JUZGADO%"
-    consulta = Autoridad.query.filter(Autoridad.estatus == "A").filter(Autoridad.descripcion.like(juzgado))
+    consulta = Autoridad.query.filter(Autoridad.estatus == "A")
+    # Verificar si esta seleccionado es_jurisdiccional
+    consulta = consulta.filter_by(es_jurisdiccional=True)
+    # Consultar si el organo jurisdiccional es el correcto
+    consulta = consulta.filter(Autoridad.organo_jurisdiccional.between("JUZGADO DE PRIMERA INSTANCIA", "JUZGADO DE PRIMERA INSTANCIA ORAL"))
     if "searchString" in request.form:
         consulta = consulta.filter(Autoridad.descripcion.contains(request.form["searchString"]))
     results = []
     for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
-        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + " : " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
+        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + "  : " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
     return {"results": results, "pagination": {"more": False}}
 
 
@@ -491,5 +493,5 @@ def query_es_revisor_escrituras_json():
         consulta = consulta.filter(Autoridad.descripcion.contains(request.form["searchString"]))
     results = []
     for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
-        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + " : " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
+        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + "  :  " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
     return {"results": results, "pagination": {"more": False}}
