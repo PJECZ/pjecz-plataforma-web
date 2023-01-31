@@ -453,17 +453,3 @@ def recover(not_escritura_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura.id))
-
-
-@not_escrituras.route("/not_escrituras/autoridades_json", methods=["POST"])
-def query_autoridades_json():
-    """Listado de Autoridades filtrar por juzgado"""
-    # Consultar las autoridades que tengan el permiso de crear una escritura
-    consulta = Autoridad.query.filter(Autoridad.estatus == "A").filter_by(es_revisor_escrituras=True)
-    if "searchString" in request.form:
-        consulta = consulta.filter(or_(Autoridad.clave.contains(request.form["searchString"]), Autoridad.descripcion.contains(request.form["searchString"])))
-    # Elaborar datos para el Select2
-    results = []
-    for autoridad in consulta.order_by(Autoridad.id).limit(10).all():
-        results.append({"id": autoridad.id, "text": autoridad.clave + " : " + autoridad.descripcion})
-    return {"results": results, "pagination": {"more": False}}

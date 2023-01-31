@@ -77,7 +77,7 @@
                 $(".js-juzgado-data-ajax").select2({
                     // --- Carga de emails por Ajax --- //
                     ajax: {
-                        url: '/not_escrituras/query_autoridades_json/{{buscar}}',
+                        url: '/autoridades/es_revisor_escrituras_json',
                         headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                         dataType: 'json',
                         delay: 250,
@@ -86,7 +86,7 @@
                             return { 'searchString': params.term };
                         }
                     },
-                    placeholder: "{{buscar}}",
+                    placeholder: "Juzgados",
                     minimumInputLength: 3,
                     allowClear: true
                 });

@@ -55,7 +55,7 @@
             $(".js-autoridad-data-ajax").select2({
                  // --- Carga de emails por Ajax --- //
                 ajax: {
-                    url: '/not_escrituras/autoridades_json',
+                    url: '/autoridades/es_revisor_escrituras_json',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
@@ -64,7 +64,7 @@
                         return { 'searchString': params.term };
                     }
                 },
-                placeholder: "Buscar Juzgado o Notaría",
+                placeholder: "Juzgados",
                 minimumInputLength: 3,
                 allowClear: true
             });
