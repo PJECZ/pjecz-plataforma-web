@@ -79,10 +79,10 @@ Guarde sus configuraciones, contrasenas y tokens en un archivo `.env`
     TASK_QUEUE=pjecz_plataforma_web
 
     # Google Cloud Storage
-    CLOUD_STORAGE_DEPOSITO=pjecz-informatica
+    CLOUD_STORAGE_DEPOSITO=
 
     # Host
-    HOST=http://127.0.0.1:5003
+    HOST=
 
     # Salt sirve para cifrar el ID con HashID, debe ser igual en la API
     SALT=XXXXXXXXXXXXXXXX
@@ -184,6 +184,7 @@ Las tareas en el fondo requieren un servicio Redis
 
 Abra una terminal, cargue el entorno virtual y deje en ejecución el worker
 
+    source .bashrc
     fondear
 
 Estará vigilante de Redis
