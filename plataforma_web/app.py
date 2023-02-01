@@ -27,6 +27,14 @@ from plataforma_web.blueprints.funcionarios.views import funcionarios
 from plataforma_web.blueprints.funcionarios_oficinas.views import funcionarios_oficinas
 from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.identidades_generos.views import identidades_generos
+from plataforma_web.blueprints.inv_categorias.views import inv_categorias
+from plataforma_web.blueprints.inv_componentes.views import inv_componentes
+from plataforma_web.blueprints.inv_custodias.views import inv_custodias
+from plataforma_web.blueprints.inv_equipos.views import inv_equipos
+from plataforma_web.blueprints.inv_equipos_fotos.views import inv_equipos_fotos
+from plataforma_web.blueprints.inv_marcas.views import inv_marcas
+from plataforma_web.blueprints.inv_modelos.views import inv_modelos
+from plataforma_web.blueprints.inv_redes.views import inv_redes
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_de_acuerdos_acuerdos
 from plataforma_web.blueprints.materias.views import materias
@@ -56,14 +64,6 @@ from plataforma_web.blueprints.tesis_jurisprudencias_sentencias.views import tes
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
 from plataforma_web.blueprints.usuarios.views import usuarios
 from plataforma_web.blueprints.usuarios_roles.views import usuarios_roles
-from plataforma_web.blueprints.inv_equipos.views import inv_equipos
-from plataforma_web.blueprints.inv_marcas.views import inv_marcas
-from plataforma_web.blueprints.inv_modelos.views import inv_modelos
-from plataforma_web.blueprints.inv_redes.views import inv_redes
-from plataforma_web.blueprints.inv_componentes.views import inv_componentes
-from plataforma_web.blueprints.inv_categorias.views import inv_categorias
-from plataforma_web.blueprints.inv_custodias.views import inv_custodias
-from plataforma_web.blueprints.inv_equipos_fotos.views import inv_equipos_fotos
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -101,6 +101,14 @@ def create_app():
     app.register_blueprint(funcionarios_oficinas)
     app.register_blueprint(glosas)
     app.register_blueprint(identidades_generos)
+    app.register_blueprint(inv_categorias)
+    app.register_blueprint(inv_custodias)
+    app.register_blueprint(inv_componentes)
+    app.register_blueprint(inv_equipos)
+    app.register_blueprint(inv_equipos_fotos)
+    app.register_blueprint(inv_marcas)
+    app.register_blueprint(inv_modelos)
+    app.register_blueprint(inv_redes)
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(listas_de_acuerdos_acuerdos)
     app.register_blueprint(materias)
@@ -130,14 +138,6 @@ def create_app():
     app.register_blueprint(usuarios)
     app.register_blueprint(usuarios_roles)
     app.register_blueprint(ubicaciones_expedientes)
-    app.register_blueprint(inv_equipos)
-    app.register_blueprint(inv_marcas)
-    app.register_blueprint(inv_modelos)
-    app.register_blueprint(inv_redes)
-    app.register_blueprint(inv_componentes)
-    app.register_blueprint(inv_categorias)
-    app.register_blueprint(inv_custodias)
-    app.register_blueprint(inv_equipos_fotos)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)
