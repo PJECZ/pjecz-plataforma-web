@@ -17,6 +17,7 @@ class NotEscritura(db.Model, UniversalMixin):
             ("FINALIZADO", "Finalizado"),  # Paso 4: Finaliza la escritura "Todo esta correcto"
         ]
     )
+
     # Nombre de la tabla
     __tablename__ = "not_escrituras"
 
@@ -41,4 +42,4 @@ class NotEscritura(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<NotEscritura>"
+        return f"<NotEscritura {self.id}>"

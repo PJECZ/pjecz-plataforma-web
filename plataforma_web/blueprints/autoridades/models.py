@@ -71,12 +71,14 @@ class Autoridad(db.Model, UniversalMixin):
     edictos = db.relationship("Edicto", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
+    not_conversaciones = db.relationship("NotConversacion", back_populates="autor", lazy="noload")
     not_escrituras = db.relationship("NotEscritura", back_populates="autoridad")
+    not_mensajes = db.relationship("NotMensaje", back_populates="autoridad", lazy="noload")
     redams = db.relationship("Redam", back_populates="autoridad", lazy="noload")
     sentencias = db.relationship("Sentencia", back_populates="autoridad", lazy="noload")
     tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="autoridad", lazy="noload")
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", back_populates="autoridad", lazy="noload")
-    usuarios = db.relationship("Usuario", back_populates="autoridad")
+    usuarios = db.relationship("Usuario", back_populates="autoridad")  # Mantener sin lazy
 
     def __repr__(self):
         """Representación"""

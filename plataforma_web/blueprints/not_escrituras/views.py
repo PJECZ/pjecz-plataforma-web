@@ -2,7 +2,7 @@
 Notarías Escrituras, vistas
 """
 import json
-from datetime import date
+from datetime import datetime, date
 
 from delta import html
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -108,24 +108,36 @@ def list_approved():
     """Listado de Escrituras finalizadas"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # vista para mostrar listado a Administrador y Juzgado
-    if current_user.can_admin(MODULO) or ROL_JUZGADO in current_user_roles:
+    # vista para mostrar listado a Administrador
+    if current_user.can_admin(MODULO):
         return render_template(
             "not_escrituras/list.jinja2",
-            filtros=json.dumps({"estatus": "A", "estado": "FINALIZADO", "autoridad_id": current_user.autoridad_id}),
-            titulo="Escrituras finalizado",
+            filtros=json.dumps({"estatus": "A", "estado": "FINALIZADO"}),
+            titulo="Escrituras finalizadas",
             estatus="A",
             show_button_list_working=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles,
             show_button_list_send=True,
             show_button_list_update=True,
             show_button_list_approved=True,
         )
-    # vista para mostrar listado a Administrador y Notaría
-    elif current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles:
+    # vista para mostrar listado a Juzgado
+    if ROL_JUZGADO in current_user_roles:
+        return render_template(
+            "not_escrituras/list.jinja2",
+            filtros=json.dumps({"estatus": "A", "estado": "FINALIZADO", "autoridad_id": current_user.autoridad_id}),
+            titulo="Escrituras finalizadas",
+            estatus="A",
+            show_button_list_working=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles,
+            show_button_list_send=True,
+            show_button_list_update=True,
+            show_button_list_approved=True,
+        )
+    # vista para mostrar listado a Notaría
+    if ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
             filtros=json.dumps({"estatus": "A", "estado": "FINALIZADO", "notaria": current_user.autoridad_id}),
-            titulo="Escrituras finalizado",
+            titulo="Escrituras finalizadas",
             estatus="A",
             show_button_list_working=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles,
             show_button_list_send=True,
@@ -141,8 +153,20 @@ def list_update():
     """Listado de Escrituras revisadas"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # vista para mostrar listado a Administrador y Juzgado
-    if current_user.can_admin(MODULO) or ROL_JUZGADO in current_user_roles:
+    # vista para mostrar listado a Administrador
+    if current_user.can_admin(MODULO):
+        return render_template(
+            "not_escrituras/list.jinja2",
+            titulo="Escrituras revisadas",
+            filtros=json.dumps({"estatus": "A", "estado": "REVISADO"}),
+            estatus="A",
+            show_button_list_working=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles,
+            show_button_list_send=True,
+            show_button_list_update=True,
+            show_button_list_approved=True,
+        )
+    # vista para mostrar listado a Juzgado
+    if ROL_JUZGADO in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
             titulo="Escrituras revisadas",
@@ -153,8 +177,8 @@ def list_update():
             show_button_list_update=True,
             show_button_list_approved=True,
         )
-    # vista para mostrar listado a Administrador y Notaría
-    elif current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles:
+    # vista para mostrar listado a Notaría
+    if ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
             titulo="Escrituras revisadas",
@@ -174,12 +198,24 @@ def list_working():
     """Listado de Escrituras trabajadas"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # vista para mostrar listado a Administrador y Notaría
-    if current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles:
+    # vista para mostrar listado a Administrador
+    if current_user.can_admin(MODULO):
+        return render_template(
+            "not_escrituras/list.jinja2",
+            filtros=json.dumps({"estatus": "A", "estado": "TRABAJADO"}),
+            titulo="Escrituras trabajadas",
+            estatus="A",
+            show_button_list_working=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles,
+            show_button_list_send=True,
+            show_button_list_update=True,
+            show_button_list_approved=True,
+        )
+    # vista para mostrar listado a Notaría
+    if ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
             filtros=json.dumps({"estatus": "A", "estado": "TRABAJADO", "notaria": current_user.autoridad_id}),
-            titulo="Escrituras trabajado",
+            titulo="Escrituras trabajadas",
             estatus="A",
             show_button_list_working=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles,
             show_button_list_send=True,
@@ -195,8 +231,20 @@ def list_send():
     """Listado de Escrituras enviadas"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
-    # vista para mostrar listado a Administrador y Juzgado
-    if current_user.can_admin(MODULO) or ROL_JUZGADO in current_user_roles:
+    # vista para mostrar listado a Administrador
+    if current_user.can_admin(MODULO):
+        return render_template(
+            "not_escrituras/list.jinja2",
+            filtros=json.dumps({"estatus": "A", "estado": "ENVIADO"}),
+            titulo="Escrituras envíadas",
+            estatus="A",
+            show_button_list_working=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles,
+            show_button_list_send=True,
+            show_button_list_update=True,
+            show_button_list_approved=True,
+        )
+    # vista para mostrar listado a Juzgado
+    if ROL_JUZGADO in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
             filtros=json.dumps({"estatus": "A", "estado": "ENVIADO", "autoridad_id": current_user.autoridad_id}),
@@ -207,8 +255,8 @@ def list_send():
             show_button_list_update=True,
             show_button_list_approved=True,
         )
-    # vista para mostrar listado a Administrador y Notaría
-    elif current_user.can_admin(MODULO) or ROL_NOTARIA in current_user_roles:
+    # vista para mostrar listado a Notaría
+    if ROL_NOTARIA in current_user_roles:
         return render_template(
             "not_escrituras/list.jinja2",
             filtros=json.dumps({"estatus": "A", "estado": "ENVIADO", "notaria": current_user.autoridad_id}),
@@ -243,7 +291,7 @@ def detail(not_escritura_id):
         "not_escrituras/detail.jinja2",
         not_escritura=not_escritura,
         contenido=str(html.render(not_escritura.contenido["ops"])),
-        # Mostrar botones de editar
+        # Mostrar botones de editar dependiendo del ROL que se tenga
         show_button_edit_juzgado=ROL_JUZGADO in current_user.get_roles(),
         show_button_edit_notaria=current_user.can_admin(MODULO) or ROL_NOTARIA in current_user.get_roles(),
     )
@@ -279,12 +327,7 @@ def new():
         return redirect(bitacora.url)
     form.distrito.data = current_user.autoridad.distrito.nombre
     form.notaria.data = current_user.autoridad.descripcion
-    buscar = "Busca un juzgado o notaria"
-    if current_user.autoridad.es_notaria:
-        buscar = "JUZGADO"
-    elif current_user.autoridad.es_jurisdiccional:
-        buscar = "NOTARIA"
-    return render_template("not_escrituras/new.jinja2", form=form, buscar=buscar)
+    return render_template("not_escrituras/new.jinja2", form=form)
 
 
 @not_escrituras.route("/not_escrituras/edicion/<int:not_escritura_id>", methods=["GET", "POST"])
@@ -292,12 +335,16 @@ def new():
 def edit(not_escritura_id):
     """Editar Escrituras"""
     not_escritura = NotEscritura.query.get_or_404(not_escritura_id)
+    # Validamos en que estado se encuentra la escritura
     if not_escritura.estado not in ["TRABAJADO", "REVISADO"]:
         flash(f"No puede editar la escritura porque ya fue {not_escritura.estado}.", "warning")
         return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
+    # Validar fecha
+    if date.today() > not_escritura.fecha_limite:
+        flash(f"La escritura no puede ser modificada. La fecha limite fue: {not_escritura.fecha_limite}", "warning")
+        return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
     form = NotEscriturasEditForm()
     if form.validate_on_submit():
-
         juzgado = Autoridad.query.get_or_404(form.autoridad.data)
         not_escritura.contenido = form.contenido.data
         not_escritura.autoridad = juzgado
@@ -319,17 +366,14 @@ def edit(not_escritura_id):
     form.autoridad.data = not_escritura.autoridad
     form.expediente.data = not_escritura.expediente
     form.contenido.data = not_escritura.contenido
-    buscar = "Busca un juzgado o notaria"
-    if current_user.autoridad.es_notaria:
-        buscar = "JUZGADO"
-    elif current_user.autoridad.es_jurisdiccional:
-        buscar = "NOTARIA"
     return render_template(
         "not_escrituras/edit_borrador.jinja2",
         form=form,
         not_escritura=not_escritura,
-        buscar=buscar,
         contenido=json.dumps(not_escritura.contenido),
+        # Mostrar formulario en jinja
+        show_form_draft="TRABAJADO",
+        show_form_update="REVISADO",
     )
 
 
@@ -338,8 +382,13 @@ def edit(not_escritura_id):
 def edit_juzgado(not_escritura_id):
     """Editar Escritura juzgado"""
     not_escritura = NotEscritura.query.get_or_404(not_escritura_id)
+    # Validamos en que estado se encuentra la escritura
     if not_escritura.estado not in ["ENVIADO", "REVISADO"]:
         flash(f"No puede editar la escritura porque ya fue {not_escritura.estado}.", "warning")
+        return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
+    # Validar fecha
+    if date.today() > not_escritura.fecha_limite:
+        flash(f"La escritura no puede ser modificada. La fecha limite fue: {not_escritura.fecha_limite}", "warning")
         return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
     form = NotEscriturasEditJuzgadoForm()
     if form.validate_on_submit():
@@ -362,16 +411,10 @@ def edit_juzgado(not_escritura_id):
     form.autoridad.data = not_escritura.autoridad_id
     form.expediente.data = not_escritura.expediente
     form.contenido.data = not_escritura.contenido
-    buscar = "Busca un juzgado o notaria"
-    if current_user.autoridad.es_notaria:
-        buscar = "JUZGADO"
-    elif current_user.autoridad.es_jurisdiccional:
-        buscar = "NOTARIA"
     return render_template(
         "not_escrituras/edit_revision.jinja2",
         form=form,
         not_escritura=not_escritura,
-        buscar=buscar,
         contenido=json.dumps(not_escritura.contenido),
     )
 
