@@ -28,7 +28,7 @@
             {{ topbar.button('Envíadas', url_for('not_escrituras.list_send'), 'mdi:table-heart') }}
         {% endif %}
         {% if show_button_list_working %}
-            {{ topbar.button('Trabajadas', url_for('not_escrituras.list_working'), 'mdi:table-heart') }}
+            {{ topbar.button('Trabajando', url_for('not_escrituras.list_working'), 'mdi:table-heart') }}
         {% endif %}
         {% if current_user.can_edit('NOT ESCRITURAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('not_escrituras.list_inactive')) }}{% endif %}
@@ -124,6 +124,7 @@
                 }
             },
         ];
+        // Asignamos un color para datatables dependiendo del estado que se muestre
         configDataTable['rowCallback'] = function(row, data){
             switch(data.estado){
                 case "TRABAJADO": $(row).css("background-color","#FCFEE7"); break;

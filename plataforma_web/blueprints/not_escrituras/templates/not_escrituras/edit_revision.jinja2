@@ -10,8 +10,8 @@
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
      <style>
-        #correccion { float: left; box-sizing: border-box; background-color: #0139A9;}
-        #aprobar { float: right; box-sizing: border-box; }
+        #revision { float: left; box-sizing: border-box; background-color: #0139A9;}
+        #finalizado { float: right; box-sizing: border-box; }
     </style>
 {% endblock %}
 {% block topbar_actions %}
@@ -49,12 +49,14 @@
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        // Mostramos la autoridad read only
         $(document).ready(function(){
             $('#autoridad').val('{{not_escritura.autoridad.descripcion}}');
         });
     </script>
     <script>
         $(document).ready(function(){
+            // agregamos el estado para su ejecución
             $('#revision').click(function(){
                 event.preventDefault();
                 $("#estado").val("REVISADO");
