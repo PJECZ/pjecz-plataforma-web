@@ -32,12 +32,22 @@ from plataforma_web.blueprints.funcionarios.views import funcionarios
 from plataforma_web.blueprints.funcionarios_oficinas.views import funcionarios_oficinas
 from plataforma_web.blueprints.glosas.views import glosas
 from plataforma_web.blueprints.identidades_generos.views import identidades_generos
+from plataforma_web.blueprints.inv_categorias.views import inv_categorias
+from plataforma_web.blueprints.inv_componentes.views import inv_componentes
+from plataforma_web.blueprints.inv_custodias.views import inv_custodias
+from plataforma_web.blueprints.inv_equipos.views import inv_equipos
+from plataforma_web.blueprints.inv_equipos_fotos.views import inv_equipos_fotos
+from plataforma_web.blueprints.inv_marcas.views import inv_marcas
+from plataforma_web.blueprints.inv_modelos.views import inv_modelos
+from plataforma_web.blueprints.inv_redes.views import inv_redes
 from plataforma_web.blueprints.listas_de_acuerdos.views import listas_de_acuerdos
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.views import listas_de_acuerdos_acuerdos
 from plataforma_web.blueprints.materias.views import materias
 from plataforma_web.blueprints.materias_tipos_juicios.views import materias_tipos_juicios
 from plataforma_web.blueprints.modulos.views import modulos
+from plataforma_web.blueprints.not_conversaciones.views import not_conversaciones
 from plataforma_web.blueprints.not_escrituras.views import not_escrituras
+from plataforma_web.blueprints.not_mensajes.views import not_mensajes
 from plataforma_web.blueprints.oficinas.views import oficinas
 from plataforma_web.blueprints.peritos.views import peritos
 from plataforma_web.blueprints.peritos_tipos.views import peritos_tipos
@@ -59,14 +69,6 @@ from plataforma_web.blueprints.tesis_jurisprudencias_sentencias.views import tes
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
 from plataforma_web.blueprints.usuarios.views import usuarios
 from plataforma_web.blueprints.usuarios_roles.views import usuarios_roles
-from plataforma_web.blueprints.inv_equipos.views import inv_equipos
-from plataforma_web.blueprints.inv_marcas.views import inv_marcas
-from plataforma_web.blueprints.inv_modelos.views import inv_modelos
-from plataforma_web.blueprints.inv_redes.views import inv_redes
-from plataforma_web.blueprints.inv_componentes.views import inv_componentes
-from plataforma_web.blueprints.inv_categorias.views import inv_categorias
-from plataforma_web.blueprints.inv_custodias.views import inv_custodias
-from plataforma_web.blueprints.inv_equipos_fotos.views import inv_equipos_fotos
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -109,12 +111,22 @@ def create_app():
     app.register_blueprint(funcionarios_oficinas)
     app.register_blueprint(glosas)
     app.register_blueprint(identidades_generos)
+    app.register_blueprint(inv_categorias)
+    app.register_blueprint(inv_custodias)
+    app.register_blueprint(inv_componentes)
+    app.register_blueprint(inv_equipos)
+    app.register_blueprint(inv_equipos_fotos)
+    app.register_blueprint(inv_marcas)
+    app.register_blueprint(inv_modelos)
+    app.register_blueprint(inv_redes)
     app.register_blueprint(listas_de_acuerdos)
     app.register_blueprint(listas_de_acuerdos_acuerdos)
     app.register_blueprint(materias)
     app.register_blueprint(materias_tipos_juicios)
     app.register_blueprint(modulos)
+    app.register_blueprint(not_conversaciones)
     app.register_blueprint(not_escrituras)
+    app.register_blueprint(not_mensajes)
     app.register_blueprint(oficinas)
     app.register_blueprint(peritos)
     app.register_blueprint(peritos_tipos)
@@ -136,14 +148,6 @@ def create_app():
     app.register_blueprint(usuarios)
     app.register_blueprint(usuarios_roles)
     app.register_blueprint(ubicaciones_expedientes)
-    app.register_blueprint(inv_equipos)
-    app.register_blueprint(inv_marcas)
-    app.register_blueprint(inv_modelos)
-    app.register_blueprint(inv_redes)
-    app.register_blueprint(inv_componentes)
-    app.register_blueprint(inv_categorias)
-    app.register_blueprint(inv_custodias)
-    app.register_blueprint(inv_equipos_fotos)
     # Cargar las extensiones
     extensions(app)
     authentication(Usuario)
