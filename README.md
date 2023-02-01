@@ -79,10 +79,10 @@ Guarde sus configuraciones, contrasenas y tokens en un archivo `.env`
     TASK_QUEUE=pjecz_plataforma_web
 
     # Google Cloud Storage
-    CLOUD_STORAGE_DEPOSITO=pjecz-informatica
+    CLOUD_STORAGE_DEPOSITO=
 
     # Host
-    HOST=http://127.0.0.1:5003
+    HOST=
 
     # Salt sirve para cifrar el ID con HashID, debe ser igual en la API
     SALT=XXXXXXXXXXXXXXXX
@@ -157,9 +157,9 @@ Cree el archivo `.bashrc` para que un perfil de Konsole le facilite la inicializ
         echo "   PYTHONPATH: ${PYTHONPATH}"
         echo
         echo "-- Ejecutar Flask o RQ Worker"
-        alias arrancar="flask run --port=5003"
+        alias arrancar="flask run --host 0.0.0.0 --port=5003"
         alias fondear="rq worker ${TASK_QUEUE}"
-        echo "   arrancar = flask run --port=5003"
+        echo "   arrancar = flask run --host 0.0.0.0 --port=5003"
         echo "   fondear = rq worker ${TASK_QUEUE}"
         echo
     fi
@@ -184,12 +184,7 @@ Las tareas en el fondo requieren un servicio Redis
 
 Abra una terminal, cargue el entorno virtual y deje en ejecución el worker
 
+    source .bashrc
     fondear
 
 Estará vigilante de Redis
-
-## Crear archivos PDF con pdfkit
-
-Este paquete de python requiere que se instale wkhtmltopdf
-
-    sudo dnf install wkhtmltopdf
