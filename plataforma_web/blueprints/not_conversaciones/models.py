@@ -23,8 +23,8 @@ class NotConversacion(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    autor_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    autor = db.relationship("Autoridad", back_populates="autor")
+    autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad = db.relationship("Autoridad", back_populates="not_conversaciones")
 
     # Columnas
     destinatario_id = db.Column(db.Integer, nullable=False)
