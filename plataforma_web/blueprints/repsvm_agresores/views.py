@@ -60,12 +60,16 @@ def datatable_json():
                     "nombre": resultado.nombre,
                     "url": url_for("repsvm_agresores.detail", repsvm_agresor_id=resultado.id),
                 },
-                "consecutivo": resultado.consecutivo,
+                "change_consecutivo": {
+                    "id": resultado.id,
+                    "consecutivo": resultado.consecutivo,
+                },
                 "numero_causa": resultado.numero_causa,
                 "pena_impuesta": resultado.pena_impuesta,
                 "sentencia_url": resultado.sentencia_url,
                 "toggle_es_publico": {
                     "id": resultado.id,
+                    "consecutivo": resultado.consecutivo,
                     "es_publico": resultado.es_publico,
                     "url": url_for("repsvm_agresores.toggle_es_publico_json", repsvm_agresor_id=resultado.id),
                 },
@@ -105,7 +109,9 @@ def toggle_es_publico_json(repsvm_agresor_id):
     return {
         "success": True,
         "message": "Es publico" if repsvm_agresor.es_publico else "Es privado",
+        "consecutivo": repsvm_agresor.consecutivo,
         "es_publico": repsvm_agresor.es_publico,
+        "id": repsvm_agresor.id,
     }
 
 
@@ -140,7 +146,7 @@ def search():
         busqueda = {"estatus": "A"}
         titulos = []
         if form_search.nombre.data:
-            nombre = safe_string(form_search.nombre.data)
+            nombre = safe_string(form_search.nombre.data, save_enie=True)
             if nombre != "":
                 busqueda["nombre"] = nombre
                 titulos.append("nombre " + nombre)
@@ -249,6 +255,8 @@ def delete(repsvm_agresor_id):
     """Eliminar Agresor"""
     repsvm_agresor = REPSVMAgresor.query.get_or_404(repsvm_agresor_id)
     if repsvm_agresor.estatus == "A":
+        repsvm_agresor.consecutivo = 0  # Poner en cero el consecutivo
+        repsvm_agresor.es_publico = False  # Poner en privado
         repsvm_agresor.delete()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -267,6 +275,8 @@ def recover(repsvm_agresor_id):
     """Recuperar Agresor"""
     repsvm_agresor = REPSVMAgresor.query.get_or_404(repsvm_agresor_id)
     if repsvm_agresor.estatus == "B":
+        repsvm_agresor.consecutivo = 0  # Poner en cero el consecutivo
+        repsvm_agresor.es_publico = False  # Poner en privado
         repsvm_agresor.recover()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),

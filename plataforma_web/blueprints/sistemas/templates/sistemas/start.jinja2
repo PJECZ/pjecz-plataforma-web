@@ -93,7 +93,7 @@
                         {# Edictos #}
                         <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
                             <div class="text-center">
-                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/portal_notaria.png" class="img-fluid mb-2" style="height: 264px; width: 300px;">
+                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/portal_notaria.png" class="img-fluid mb-2" style="padding: 50px 0px 40px;">
                                 <h5>¿Necesitas publicar un edicto?</h5>
                                 <p>
                                     <a href="{{ url_for('edictos.new') }}"class="btn btn-success btn-tickets ml-auto">Subir un nuevo edicto</a>
@@ -104,18 +104,18 @@
                         {# Escrituras #}
                         <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
                             <div class="text-center">
-                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/escrituras.png" class="img-fluid mb-2" style="height: 264px; width: 300px;">
+                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/escrituras.png" class="img-fluid mb-2" style="padding: 20px 0px 20px;">
                                 <h5>¿Necesitas revisar una escritura?</h5>
                                 <div>
-                                    <a href="{{ url_for('escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Nueva escritura</a>
-                                    <a href="{{ url_for('escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis escrituras</a>
+                                    <a href="{{ url_for('not_escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Nueva escritura</a>
+                                    <a href="{{ url_for('not_escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis escrituras</a>
                                 </div>
                             </div>
                         </div>
                         {# Mensajes #}
                         <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
                             <div class="text-center">
-                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/mensajes.png" class="img-fluid mb-2" style="height: 264px; width: 300px;">
+                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/mensajes.png" class="img-fluid mb-2">
                                 <h5>¿Necesitas conversar?</h5>
                                 <p>
                                     <a href="#"class="btn btn-success btn-tickets ml-auto">Nueva conversación</a>

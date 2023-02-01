@@ -30,6 +30,7 @@ class AutoridadNewForm(FlaskForm):
     clave = StringField("Clave (única, máximo 16 caracteres)", validators=[DataRequired(), Length(max=16)])
     es_jurisdiccional = BooleanField("Es Jurisdiccional", validators=[Optional()])
     es_notaria = BooleanField("Es Notaría", validators=[Optional()])
+    es_revisor_escrituras = BooleanField("Es revisor de escrituras", validators=[Optional()])
     organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[DataRequired()])
     materia = QuerySelectField("Materia (si es de Primera Instancia)", query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     audiencia_categoria = SelectField("Categoría de audiencias", choices=Autoridad.AUDIENCIAS_CATEGORIAS, validators=[DataRequired()])
@@ -45,6 +46,7 @@ class AutoridadEditForm(FlaskForm):
     clave = StringField("Clave (única, máximo 16 caracteres)", validators=[DataRequired(), Length(max=16)])
     es_jurisdiccional = BooleanField("Es Jurisdiccional", validators=[Optional()])
     es_notaria = BooleanField("Es Notaría", validators=[Optional()])
+    es_revisor_escrituras = BooleanField("Es revisor de escrituras", validators=[Optional()])
     organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[DataRequired()])
     materia = QuerySelectField("Materia (si es de Primera Instancia)", query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     audiencia_categoria = SelectField("Categoría de audiencias", choices=Autoridad.AUDIENCIAS_CATEGORIAS, validators=[DataRequired()])
@@ -61,5 +63,4 @@ class AutoridadSearchForm(FlaskForm):
 
     descripcion = StringField("Descripción", validators=[Optional(), Length(max=256)])
     clave = StringField("Clave (máximo 16 caracteres)", validators=[Optional(), Length(max=16)])
-    organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[Optional()])
     buscar = SubmitField("Buscar")

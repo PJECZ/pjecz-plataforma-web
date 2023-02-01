@@ -314,7 +314,7 @@ def edit(fin_vale_id):
                 fin_vale.autorizo_nombre = autorizo.nombre
                 fin_vale.autorizo_puesto = autorizo.puesto
                 fin_vale.autorizo_email = autorizo.email
-            fin_vale.justificacion = safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False)
+            fin_vale.justificacion = safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, save_enie=True)
             fin_vale.monto = float(form.monto.data)
             fin_vale.tipo = form.tipo.data
             fin_vale.save()
@@ -404,7 +404,7 @@ def step_1_create():
         fin_vale = FinVale(
             usuario=current_user,
             estado="CREADO",
-            justificacion=safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, do_unidecode=False),
+            justificacion=safe_string(form.justificacion.data, max_len=1020, to_uppercase=False, save_enie=True),
             monto=float(form.monto.data),
             tipo=form.tipo.data,
         )

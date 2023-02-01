@@ -92,14 +92,14 @@ def new():
     if form.validate_on_submit():
         es_valido = True
         # Validar que no exista ese nombre
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         inv_red_existente = InvRed.query.filter_by(nombre=nombre).first()
         if inv_red_existente:
             flash("Ya existe una red con ese nombre.", "warning")
             es_valido = False
         # Si es valido insertar
         if es_valido:
-            red = InvRed(nombre=safe_string(form.nombre.data), tipo=safe_string(form.tipo.data))
+            red = InvRed(nombre=nombre, tipo=safe_string(form.tipo.data))
             red.save()
             flash(f"Red {red.nombre} guardado.", "success")
             return redirect(url_for("inv_redes.list_active"))
@@ -115,14 +115,14 @@ def edit(inv_red_id):
     if form.validate_on_submit():
         es_valido = True
         # Validar que no exista ese nombre
-        nombre = safe_string(form.nombre.data)
+        nombre = safe_string(form.nombre.data, save_enie=True)
         inv_red_existente = InvRed.query.filter_by(nombre=nombre).first()
         if inv_red_existente and inv_red_existente.id != inv_red.id:
             flash("Ya existe una red con ese nombre.", "warning")
             es_valido = False
         # Si es valido actualizar
         if es_valido:
-            inv_red.nombre = safe_string(form.nombre.data)
+            inv_red.nombre = nombre
             inv_red.tipo = form.tipo.data
             inv_red.save()
             flash(f"Red {inv_red.nombre} guardado.", "success")

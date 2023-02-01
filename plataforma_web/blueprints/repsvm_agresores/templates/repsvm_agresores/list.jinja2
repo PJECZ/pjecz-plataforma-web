@@ -45,7 +45,7 @@
         configDataTable['columns'] = [
             { data: "distrito" },
             { data: "detalle" },
-            { data: "consecutivo" },
+            { data: "change_consecutivo" },
             { data: "numero_causa" },
             { data: "pena_impuesta" },
             { data: "sentencia_url" },
@@ -60,6 +60,14 @@
                         return '<a href="' + data.url + '">' + data.nombre_corto + '</a>';
                     }
                     return data.nombre_corto;
+                }
+            },
+            {
+                targets: 2, // Consecutivo va a cambiar cuando se presiona el boton es_publico
+                data: null,
+                render: function(data, type, row, meta) {
+                    myId = 'consecutivo' + data.id;
+                    return '<span id="' + myId + '">' + data.consecutivo + '</span>';
                 }
             },
             {
@@ -95,13 +103,15 @@
                 }
             },
             {
-                targets: 6, // Toggle es_publico
+                targets: 6, // Boton es_publico
                 data: null,
                 render: function(data, type, row, meta) {
+                    myId = 'esPublico' + data.id;
+                    myOnClick = "toggleEsPublico('#" + myId + "', '" + data.url + "')";
                     if (data.es_publico) {
-                        return '<button id="toggle' + data.id + '" type="button" class="btn btn-sm btn-outline-primary" onclick="toggleEsPublico(\'#toggle' + data.id + '\', ' + data.es_publico + ', \'' + data.url + '\')"><span class="iconify" data-icon="mdi:eye"></span></button>';
+                        return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:eye"></span></button>';
                     } else {
-                        return '<button id="toggle' + data.id + '" type="button" class="btn btn-sm btn-light" onclick="toggleEsPublico(\'#toggle' + data.id + '\', ' + data.es_publico + ', \'' + data.url + '\')"><span class="iconify" data-icon="mdi:eye-off"></span></button>';
+                        return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:eye-off"></span></button>';
                     }
                 }
             },
@@ -119,7 +129,7 @@
         };
 
         // Boton es_publico
-        function toggleEsPublico(id, es_publico, url) {
+        function toggleEsPublico(id, url) {
             $(id).prop("disabled", true); // Deshabilitar boton para evitar multiples clicks
             fetch(url, myInit)
                 .then(response => response.json())
@@ -127,13 +137,14 @@
                     if (data.success) {
                         if (data.es_publico) {
                             $(id).removeClass('btn-light');
-                            $(id).addClass('btn-outline-primary');
-                            $(id).html('<span class="iconify" data-icon="mdi:eye"></span>');
+                            $(id).addClass('btn-outline-primary'); // Color azul
+                            $(id).html('<span class="iconify" data-icon="mdi:eye"></span>'); // Icono ojo
                         } else {
                             $(id).removeClass('btn-outline-primary');
-                            $(id).addClass('btn-light');
-                            $(id).html('<span class="iconify" data-icon="mdi:eye-off"></span>');
+                            $(id).addClass('btn-light'); // Color gris
+                            $(id).html('<span class="iconify" data-icon="mdi:eye-off"></span>'); // Icono ojo tacahado
                         }
+                        $("#consecutivo" + data.id).text(data.consecutivo); // Actualizar consecutivo
                         console.log(data.message);
                     } else {
                         console.log(data.message);

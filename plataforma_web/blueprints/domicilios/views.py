@@ -158,18 +158,18 @@ def new():
     if form.validate_on_submit():
         es_valido = True
         # Validar que el edificio no se repita
-        edificio = safe_string(form.edificio.data, max_len=64, do_unidecode=False)
+        edificio = safe_string(form.edificio.data, max_len=64, save_enie=True)
         if Domicilio.query.filter_by(edificio=edificio).first():
             es_valido = False
             flash("El edificio ya está en uso. Debe de ser único.", "warning")
         # Si es valido, insertar
         if es_valido:
-            estado = safe_string(form.estado.data, max_len=64, do_unidecode=False)
-            municipio = safe_string(form.municipio.data, max_len=64, do_unidecode=False)
-            calle = safe_string(form.calle.data, max_len=256, do_unidecode=False)
+            estado = safe_string(form.estado.data, max_len=64, save_enie=True)
+            municipio = safe_string(form.municipio.data, max_len=64, save_enie=True)
+            calle = safe_string(form.calle.data, max_len=256, save_enie=True)
             num_ext = safe_string(form.num_ext.data, max_len=24)
             num_int = safe_string(form.num_int.data, max_len=24)
-            colonia = safe_string(form.colonia.data, max_len=256, do_unidecode=False)
+            colonia = safe_string(form.colonia.data, max_len=256, save_enie=True)
             cp = form.cp.data
             completo = f"{calle} #{num_ext} {num_int}, {colonia}, {municipio}, {estado}, C.P. {cp}"
             domicilio = Domicilio(
@@ -204,7 +204,7 @@ def edit(domicilio_id):
     if form.validate_on_submit():
         es_valido = True
         # Si se cambia el edificio, validar que no se repita
-        edificio = safe_string(form.edificio.data, max_len=64, do_unidecode=False)
+        edificio = safe_string(form.edificio.data, max_len=64, save_enie=True)
         if domicilio.edificio != edificio:
             domicilio_existente = Domicilio.query.filter_by(edificio=edificio).first()
             if domicilio_existente and domicilio_existente.id != domicilio_id:
@@ -213,12 +213,12 @@ def edit(domicilio_id):
         # Si es valido, actualizar
         if es_valido:
             domicilio.edificio = edificio
-            domicilio.estado = safe_string(form.estado.data, max_len=64, do_unidecode=False)
-            domicilio.municipio = safe_string(form.municipio.data, max_len=64, do_unidecode=False)
-            domicilio.calle = safe_string(form.calle.data, max_len=256, do_unidecode=False)
+            domicilio.estado = safe_string(form.estado.data, max_len=64, save_enie=True)
+            domicilio.municipio = safe_string(form.municipio.data, max_len=64, save_enie=True)
+            domicilio.calle = safe_string(form.calle.data, max_len=256, save_enie=True)
             domicilio.num_ext = safe_string(form.num_ext.data, max_len=24)
             domicilio.num_int = safe_string(form.num_int.data, max_len=24)
-            domicilio.colonia = safe_string(form.colonia.data, max_len=256, do_unidecode=False)
+            domicilio.colonia = safe_string(form.colonia.data, max_len=256, save_enie=True)
             domicilio.cp = form.cp.data
             domicilio.completo = f"{domicilio.calle} #{domicilio.num_ext} {domicilio.num_int}, {domicilio.colonia}, {domicilio.municipio}, {domicilio.estado}, C.P. {domicilio.cp}"
             domicilio.save()

@@ -1,0 +1,125 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/quill.jinja2' as quill %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Escritura{% endblock %}
+
+{% block custom_head %}
+    {{ quill.head() }}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+     <style>
+        #guardar { float: left; box-sizing: border-box; background-color: #0139A9;}
+        #correccion { float: right; box-sizing: border-box; background-color: #0139A9;}
+        #enviar { float: right; box-sizing: border-box; }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + not_escritura.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'not_escritura_id': not_escritura.id} %}
+        {% if  not_escritura.estado == show_form_draft %}
+            {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
+                {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
+                {% call f.form_group(form.autoridad) %}{% endcall %}
+                {% call f.form_group(form.expediente) %}{% endcall %}
+                {{ quill.div(div_id="contenido_quill")}}
+                <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
+                {% call f.form_group(form.estado) %}{% endcall %}
+                {% call f.form_group(form.guardar) %}{% endcall %}
+                {% call f.form_group(form.enviar) %}{% endcall %}
+            {% endcall %}
+        {% elif  not_escritura.estado == show_form_update %}
+         <div class="row">
+            <div class="col-md-7">
+                {% call f.form_tag('not_escrituras.edit', fid='not_escritura_form', **form_kwargs) %}
+                    {% call f.form_group(form.distrito, readonly=true) %}{% endcall %}
+                    {% call f.form_group(form.notaria, readonly=true) %}{% endcall %}
+                    {% call f.form_group(form.autoridad, readonly=true) %}{% endcall %}
+                    {% call f.form_group(form.expediente) %}{% endcall %}
+                    {{ quill.div(div_id="contenido_quill")}}
+                    <div style="display: none;">{% call f.form_group(form.contenido, readonly=true) %}{% endcall %}</div>
+                    {% call f.form_group(form.estado) %}{% endcall %}
+                    {% call f.form_group(form.revision) %}{% endcall %}
+                {% endcall %}
+            </div>
+            <div class="col-md-5">
+                <h4>Conversaciones</h4>
+            </div>
+        </div>
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Quill -->
+    {{ quill.library() }}
+    {{ quill.editor(form_id='not_escritura_form', instance='contenidoQuill', div_id='contenido_quill', hidden_id='contenido', content=contenido) }}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            //-- Al id del input le agregamos la clase para que sea slect2
+            $('#autoridad').addClass('js-juzgado-data-ajax js-states form-control');
+            $('#autoridad option').each(function() {
+                if($(this).text() == '{{not_escritura.autoridad_id}}') {
+                    $("#autoridad").val( $(this).val() );
+                }
+            });
+            // Traemos los datos por ajax
+            if ('{{not_escritura.estado}}' == 'TRABAJANDO'){
+                $(".js-juzgado-data-ajax").select2({
+                    // --- Carga de emails por Ajax --- //
+                    ajax: {
+                        url: '/autoridades/es_revisor_escrituras_json',
+                        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                        dataType: 'json',
+                        delay: 250,
+                        type: "POST",
+                        data: function (params) {
+                            return { 'searchString': params.term };
+                        }
+                    },
+                    placeholder: "Juzgados",
+                    minimumInputLength: 3,
+                    allowClear: true
+                });
+            }else{
+                $('#autoridad').val('{{not_escritura.autoridad.descripcion}}');
+            }
+            // Usa Ajax para traer hasta 10 autoridades, se debe agregar el valor actual
+            let data_autoridad = {
+                id: '{{not_escritura.autoridad_id}}',
+                text: '{{not_escritura.autoridad.clave}}' + " : "  + '{{not_escritura.autoridad.descripcion}}'
+            };
+            let newOptionjuzgado = new Option(data_autoridad.text, data_autoridad.id, false, false);
+            $('#autoridad').append(newOptionjuzgado).trigger('change');
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+            // agregamos el estado para su ejecución
+            $('#guardar').click(function(){
+                event.preventDefault();
+                $("#estado").val("TRABAJADO");
+                $("#not_escritura_form").submit();
+            });
+            $('#enviar').click(function(){
+                event.preventDefault();
+                $("#estado").val("ENVIADO");
+                $("#not_escritura_form").submit();
+            });
+            $('#revision').click(function(){
+                event.preventDefault();
+                $("#estado").val("REVISADO");
+                $("#not_escritura_form").submit();
+            });
+        });
+    </script>
+{% endblock %}

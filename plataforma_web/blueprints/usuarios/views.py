@@ -308,11 +308,11 @@ def new():
             usuario = Usuario(
                 autoridad=autoridad,
                 oficina=form.oficina.data,
-                nombres=safe_string(form.nombres.data, do_unidecode=False),
-                apellido_paterno=safe_string(form.apellido_paterno.data, do_unidecode=False),
-                apellido_materno=safe_string(form.apellido_materno.data, do_unidecode=False),
+                nombres=safe_string(form.nombres.data, save_enie=True),
+                apellido_paterno=safe_string(form.apellido_paterno.data, save_enie=True),
+                apellido_materno=safe_string(form.apellido_materno.data, save_enie=True),
                 curp=safe_string(form.curp.data),
-                puesto=safe_string(form.puesto.data, do_unidecode=False),
+                puesto=safe_string(form.puesto.data, save_enie=True),
                 email=email,
                 workspace=form.workspace.data,
                 efirma_registro_id=form.efirma_registro_id.data,
@@ -343,11 +343,11 @@ def edit(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     form = UsuarioEditForm()
     if form.validate_on_submit():
-        usuario.nombres = safe_string(form.nombres.data)
-        usuario.apellido_paterno = safe_string(form.apellido_paterno.data)
-        usuario.apellido_materno = safe_string(form.apellido_materno.data)
+        usuario.nombres = safe_string(form.nombres.data, save_enie=True)
+        usuario.apellido_paterno = safe_string(form.apellido_paterno.data, save_enie=True)
+        usuario.apellido_materno = safe_string(form.apellido_materno.data, save_enie=True)
         usuario.curp = safe_string(form.curp.data)
-        usuario.puesto = safe_string(form.puesto.data)
+        usuario.puesto = safe_string(form.puesto.data, save_enie=True)
         usuario.oficina = form.oficina.data
         usuario.efirma_registro_id = form.efirma_registro_id.data
         usuario.save()
@@ -393,11 +393,11 @@ def edit_admin(usuario_id):
         # Si es valido actualizar
         if es_valido:
             usuario.autoridad = Autoridad.query.get_or_404(form.autoridad.data)
-            usuario.nombres = safe_string(form.nombres.data, do_unidecode=False)
-            usuario.apellido_paterno = safe_string(form.apellido_paterno.data, do_unidecode=False)
-            usuario.apellido_materno = safe_string(form.apellido_materno.data, do_unidecode=False)
+            usuario.nombres = safe_string(form.nombres.data, save_enie=True)
+            usuario.apellido_paterno = safe_string(form.apellido_paterno.data, save_enie=True)
+            usuario.apellido_materno = safe_string(form.apellido_materno.data, save_enie=True)
             usuario.curp = safe_string(form.curp.data)
-            usuario.puesto = safe_string(form.puesto.data, do_unidecode=False)
+            usuario.puesto = safe_string(form.puesto.data, save_enie=True)
             usuario.email = email
             usuario.workspace = safe_string(form.workspace.data)
             usuario.efirma_registro_id = form.efirma_registro_id.data
