@@ -41,13 +41,11 @@ class ArcDocumentoSolicitud(db.Model, UniversalMixin):
     arc_documento = db.relationship("ArcDocumento", back_populates="arc_documentos_solicitudes")
     autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
     autoridad = db.relationship("Autoridad", back_populates="arc_documentos_solicitudes")
-    # TODO: Dejar este campo como int sin ser llave foránea.
-    usuario_receptor_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True)
-    usuario_receptor = db.relationship("Usuario", foreign_keys="ArcDocumentoSolicitud.usuario_receptor_id")
     usuario_asignado_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True)
-    usuario_asignado = db.relationship("Usuario", foreign_keys="ArcDocumentoSolicitud.usuario_asignado_id")
+    usuario_asignado = db.relationship("Usuario", back_populates="arc_documentos_solicitudes_asignado")
 
     # Columnas
+    usuario_receptor_id = db.Column(db.Integer)
     esta_archivado = db.Column(db.Boolean, nullable=False, default=False)
     num_folio = db.Column(db.String(16))
     tiempo_recepcion = db.Column(db.DateTime)
