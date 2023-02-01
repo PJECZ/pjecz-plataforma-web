@@ -3,7 +3,7 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Documento{% endblock %}
+{% block title %}Expediente{% endblock %}
 
 {% block custom_head %}
     <!-- Select2 bootstrap -->
@@ -50,9 +50,9 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Documento - ' + documento.id | string ) %}
+    {% call topbar.page_buttons('Expediente - ' + documento.id | string ) %}
         {{ topbar.button_previous('Archivo', url_for('arc_archivos.list_active')) }}
-        {{ topbar.button_previous('Documentos', url_for('arc_documentos.list_active')) }}
+        {{ topbar.button_previous('Expedientes', url_for('arc_documentos.list_active')) }}
         {% if current_user.can_edit('ARC DOCUMENTOS') %}
             {{ topbar.button_edit('Editar', url_for('arc_documentos.edit', arc_documento_id=documento.id)) }}
             {# {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}

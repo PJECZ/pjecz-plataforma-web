@@ -2,7 +2,7 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Editar Documento{% endblock %}
+{% block title %}Editar Expediente{% endblock %}
 
 {% block custom_head %}
     <!-- Select2 bootstrap -->
@@ -34,7 +34,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Editar Documento - ' + documento.id | string) }}
+    {{ topbar.page('Editar Expediente - ' + documento.id | string) }}
 {% endblock %}
 
 {% block content %}
