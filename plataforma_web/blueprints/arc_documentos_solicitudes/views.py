@@ -236,11 +236,13 @@ def detail(solicitud_id):
             )
     if solicitud.estado == "ENTREGADO":
         mostrar_secciones["entregado"] = True
+        usuario_receptor = Usuario.query.get_or_404(solicitud.usuario_receptor_id)
         return render_template(
             "arc_documentos_solicitudes/detail.jinja2",
             solicitud=solicitud,
             mostrar_secciones=mostrar_secciones,
             estado_text=estado_text,
+            usuario_receptor=usuario_receptor,
         )
 
     # Por defecto mostramos solo los detalles de la solicitud
@@ -274,7 +276,7 @@ def new(documento_id):
             solicitud = ArcDocumentoSolicitud(
                 arc_documento=documento,
                 autoridad=documento.autoridad,
-                usuario_receptor=None,
+                usuario_receptor_id=None,
                 tiempo_recepcion=None,
                 esta_archivado=False,
                 num_folio=safe_string(form.num_folio.data),
@@ -499,7 +501,7 @@ def receive(solicitud_id):
         flash(f"Solo puede recibir el ROL de {ROL_SOLICITANTE}.", "warning")
     else:
         solicitud.estado = "ENTREGADO"
-        solicitud.usuario_receptor = current_user
+        solicitud.usuario_receptor_id = current_user.id
         solicitud.tiempo_recepcion = datetime.now()
         solicitud_bitacora = ArcDocumentoBitacora(
             arc_documento=solicitud.arc_documento,

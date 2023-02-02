@@ -35,7 +35,7 @@
             {{ topbar.button_delete('Cancelar', url_for('arc_documentos_solicitudes.cancel', solicitud_id=solicitud.id)) }}
         {% endif %}
         {% if mostrar_secciones["boton_pasar_historial"] %}
-            {{ topbar.button('Pasar al Hisotrial', url_for('arc_documentos_solicitudes.history', solicitud_id=solicitud.id), "mdi:history") }}
+            {{ topbar.button('Pasar al Historial', url_for('arc_documentos_solicitudes.history', solicitud_id=solicitud.id), "mdi:history") }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -86,29 +86,36 @@
         {{ detail.label_value('Fojas', solicitud.arc_documento.fojas) }}
     {% endcall %}
     {# Sección de asignaciones #}
-    {% call detail.card('Asignación (Archivista)') %}
-        {% if archivistas %}
-            {% set form_kwargs = {'solicitud_id': solicitud.id} %}
-                {% call f.form_tag('arc_documentos_solicitudes.asign', fid='solicitud_form', **form_kwargs) %}
-                    <div class="form-group mb-2">
-                        <label for="asignado">Archivista</label>
-                        <select class="form-control" id="asignado" name="asignado">
-                            <option selected value="">SIN ASIGNAR</option>
-                            {% for archivista in archivistas %}
-                                <option value="{{archivista.id}}" {% if archivista == solicitud.usuario_asignado %} selected {% endif %}>{{archivista.nombre}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% call f.form_group(form.asignar) %}{% endcall %}
-            {% endcall %}
-        {% else %}
-            {% if not solicitud.usuario_asignado %}
-                {{ detail.label_value('Asignado', 'SIN ASIGNAR') }}
+    <div class="card mb-3">
+        <div class="card-header bg-info text-light" style="font-weight: bold;">Asignación (Archivista)</div>
+            <div class="card-body" style="background-color: #d1e7dd;">
+            {% if archivistas %}
+                {% set form_kwargs = {'solicitud_id': solicitud.id} %}
+                    {% call f.form_tag('arc_documentos_solicitudes.asign', fid='solicitud_form', **form_kwargs) %}
+                        <div class="form-group mb-2">
+                            <label for="asignado">Archivista</label>
+                            <select class="form-control" id="asignado" name="asignado">
+                                <option selected value="">SIN ASIGNAR</option>
+                                {% for archivista in archivistas %}
+                                    <option value="{{archivista.id}}" {% if archivista == solicitud.usuario_asignado %} selected {% endif %}>{{archivista.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% call f.form_group(form.asignar) %}{% endcall %}
+                {% endcall %}
             {% else %}
-                {{ detail.label_value('Asignado', solicitud.usuario_asignado.nombre, url_for("usuarios.detail", usuario_id=solicitud.usuario_asignado.id)) }}
+                {% if not solicitud.usuario_asignado %}
+                    {{ detail.label_value('Asignado', 'SIN ASIGNAR') }}
+                {% else %}
+                    {% if current_user.can_view('USUARIOS') %}
+                        {{ detail.label_value('Asignado', solicitud.usuario_asignado.nombre, url_for("usuarios.detail", usuario_id=solicitud.usuario_asignado.id)) }}
+                    {% else %}
+                        {{ detail.label_value('Asignado', solicitud.usuario_asignado.nombre) }}
+                    {% endif %}
+                {% endif %}
             {% endif %}
-        {% endif %}
-    {% endcall %}
+        </div>
+    </div>
     {# Formulario para hacer asignaciones #}
     {% if mostrar_secciones['formulario_encontrado'] %}
         {% call detail.card('Encontrado') %}
@@ -168,7 +175,11 @@
             <div class="card-header bg-success text-light" style="font-weight: bold;">Entregado</div>
             <div class="card-body" style="background-color: #d1e7dd;">
                 {{ detail.label_value('Tiempo', moment(solicitud.tiempo_recepcion).format('llll')) }}
-                {{ detail.label_value('Usuario', solicitud.usuario_receptor.nombre, url_for('usuarios.detail', usuario_id=solicitud.usuario_receptor.id)) }}
+                {% if current_user.can_view('USUARIOS') %}
+                    {{ detail.label_value('Usuario', usuario_receptor.nombre, url_for('usuarios.detail', usuario_id=solicitud.usuario_receptor_id)) }}
+                {% else %}
+                    {{ detail.label_value('Usuario', usuario_receptor.nombre) }}
+                {% endif %}
             </div>
         </div>
     {% endif %}
