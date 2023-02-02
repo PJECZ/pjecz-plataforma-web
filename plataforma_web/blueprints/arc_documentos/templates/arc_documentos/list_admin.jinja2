@@ -60,7 +60,7 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select id="juzgadoInput" onchange="buscar(); return false;"></select>
+                            <select id="juzgadoInput" onchange="buscar(); return false;" style="text-transform: uppercase"></select>
                             <label for="juzgadoInput">Juzgado</label>
                         </div>
                     </div>
@@ -264,7 +264,7 @@
             $('#juzgadoInput').select2({
                 // --- Carga de juzgados por Ajax --- //
                 ajax: {
-                    url: '/autoridades/list_por_tipo_json/juzgado',
+                    url: '/autoridades/juzgados_json',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,

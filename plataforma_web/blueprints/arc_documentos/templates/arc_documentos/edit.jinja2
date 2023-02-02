@@ -73,7 +73,7 @@
             $('#juzgado_id').select2({
                 // --- Carga de emails por Ajax --- //
                 ajax: {
-                    url: '/autoridades/list_por_tipo_json/juzgado',
+                    url: '/autoridades/juzgados_json',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,

@@ -17,6 +17,7 @@ from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm, AutoridadSearchForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -480,10 +481,11 @@ def query_juzgados_json():
     # Consultar si el organo jurisdiccional es el correcto
     consulta = consulta.filter(Autoridad.organo_jurisdiccional.between("JUZGADO DE PRIMERA INSTANCIA", "JUZGADO DE PRIMERA INSTANCIA ORAL"))
     if "searchString" in request.form:
-        consulta = consulta.filter(Autoridad.descripcion.contains(request.form["searchString"]))
+        texto = safe_string(request.form["searchString"]).upper()
+        consulta = consulta.filter(or_(Autoridad.clave.contains(texto), Autoridad.descripcion_corta.contains(texto)))
     results = []
     for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
-        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + "  : " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
+        results.append({"id": autoridad.id, "text": autoridad.clave + "  : " + autoridad.descripcion_corta})
     return {"results": results, "pagination": {"more": False}}
 
 
