@@ -38,7 +38,7 @@ def cli():
 @click.command()
 @click.argument("entrada_csv", type=str)
 def alimentar_notarias(entrada_csv):
-    """Alimentar a partir de un archivo CSV"""
+    """Insertar notarias a usuarios a partir de un archivo CSV"""
     # Validar que exista el archivo CSV
     ruta = Path(entrada_csv)
     if not ruta.exists():
@@ -48,7 +48,7 @@ def alimentar_notarias(entrada_csv):
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         return
 
-    click.echo("Alimentando usuarios que son notarias...")
+    click.echo("Alimentando usuarios...")
 
     # Leer archivo CSV
     contador = 0
@@ -173,7 +173,7 @@ def sincronizar():
     click.echo("Sincronizar se está ejecutando en el fondo.")
 
 
-cli.add_command(alimentar)
+cli.add_command(alimentar_notarias)
 cli.add_command(estandarizar)
 cli.add_command(nueva_api_key)
 cli.add_command(nueva_contrasena)
