@@ -146,6 +146,7 @@
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "funcionario" },
+                { data: "funcionario_nombre" },
             ];
             configDataTable['columnDefs'] = [
                 {
@@ -157,6 +158,17 @@
                 },
                 {
                     targets: 1, // funcionario
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.curp;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.curp + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: 2, // funcionario_nombre
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url == '') {
