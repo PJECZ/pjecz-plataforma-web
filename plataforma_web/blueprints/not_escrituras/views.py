@@ -2,7 +2,7 @@
 Notarías Escrituras, vistas
 """
 import json
-from datetime import date
+from datetime import datetime, date
 
 from delta import html
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -339,6 +339,10 @@ def edit(not_escritura_id):
     if not_escritura.estado not in ["TRABAJADO", "REVISADO"]:
         flash(f"No puede editar la escritura porque ya fue {not_escritura.estado}.", "warning")
         return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
+    # Validar fecha
+    if date.today() > not_escritura.fecha_limite:
+        flash(f"La escritura no puede ser modificada. La fecha limite fue: {not_escritura.fecha_limite}", "warning")
+        return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
     form = NotEscriturasEditForm()
     if form.validate_on_submit():
         juzgado = Autoridad.query.get_or_404(form.autoridad.data)
@@ -367,7 +371,7 @@ def edit(not_escritura_id):
         form=form,
         not_escritura=not_escritura,
         contenido=json.dumps(not_escritura.contenido),
-        # Método para condicionar en jinja y mostrar formulario dependiendo de su acción
+        # Mostrar formulario en jinja
         show_form_draft="TRABAJADO",
         show_form_update="REVISADO",
     )
@@ -381,6 +385,10 @@ def edit_juzgado(not_escritura_id):
     # Validamos en que estado se encuentra la escritura
     if not_escritura.estado not in ["ENVIADO", "REVISADO"]:
         flash(f"No puede editar la escritura porque ya fue {not_escritura.estado}.", "warning")
+        return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
+    # Validar fecha
+    if date.today() > not_escritura.fecha_limite:
+        flash(f"La escritura no puede ser modificada. La fecha limite fue: {not_escritura.fecha_limite}", "warning")
         return redirect(url_for("not_escrituras.detail", not_escritura_id=not_escritura_id))
     form = NotEscriturasEditJuzgadoForm()
     if form.validate_on_submit():
