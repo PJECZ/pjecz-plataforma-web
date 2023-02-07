@@ -37,10 +37,16 @@ class ArcRemesa(db.Model, UniversalMixin):
     anio = db.Column(db.Integer, nullable=False)
     esta_archivado = db.Column(db.Boolean, nullable=False, default=False)
     num_oficio = db.Column(db.String(16))
+    rechazo = db.Column(db.String(256))
+    observaciones = db.Column(db.String(256))
+    tiempo_enviado = db.Column(db.DateTime)
     estado = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         nullable=False,
     )
+
+    # Hijos
+    arc_remesas_documentos = db.relationship("ArcRemesaDocumento", back_populates="arc_remesa", lazy="noload")
 
     def __repr__(self):
         """Representación"""

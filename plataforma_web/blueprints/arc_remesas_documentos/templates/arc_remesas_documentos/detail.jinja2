@@ -1,0 +1,16 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Documento Anexo de Remesa{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Documento Anexo de Remesa - ' + arc_remesa_documento.id | string ) %}
+        {{ topbar.button_previous('Remesa', url_for('arc_remesas.detail', remesa_id=arc_remesa_documento.arc_remesa_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Detalle #}
+{% endblock %}

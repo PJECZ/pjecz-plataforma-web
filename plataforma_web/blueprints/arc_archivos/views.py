@@ -58,7 +58,8 @@ def list_active():
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(
             "arc_archivos/list_jefe_remesa.jinja2",
-            filtros=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True}),
+            filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True}),
+            filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "omitir_pendientes": True}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
             estados=ArcDocumentoSolicitud.ESTADOS,
@@ -66,7 +67,8 @@ def list_active():
     if ROL_ARCHIVISTA in current_user_roles:
         return render_template(
             "arc_archivos/list_archivista.jinja2",
-            filtros=json.dumps({"estatus": "A", "omitir_archivados": True, "asignado_id": current_user.id}),
+            filtros_solicitudes=json.dumps({"asignado_id": current_user.id, "estatus": "A", "omitir_archivados": True}),
+            filtros_remesas=json.dumps({"asignado_id": current_user.id, "estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "omitir_pendientes": True}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
             estados=ArcDocumentoSolicitud.ESTADOS,

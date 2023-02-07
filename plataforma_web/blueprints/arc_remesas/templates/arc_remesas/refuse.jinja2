@@ -1,0 +1,36 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Rechazar Remesa{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Rechazar Remesa - ' + remesa.id | string ) %}
+        {{ topbar.button_previous('Bandeja de Entrada', url_for('arc_archivos.list_active')) }}
+        {{ topbar.button_previous('Remesa', url_for('arc_remesas.detail', remesa_id=remesa.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card('Detalle de la Remesa') %}
+        {{ detail.label_value('ID', remesa.id) }}
+        {{ detail.label_value('Enviada', moment(remesa.tiempo_enviado).format('llll')) }}
+        {{ detail.label_value('Autoridad', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta) }}
+        {{ detail.label_value('Año', remesa.anio) }}
+        {{ detail.label_value('Núm. Oficio', remesa.num_oficio) }}
+        {{ detail.label_value('Observaciones', remesa.observaciones) }}
+    {% endcall %}
+    <!-- Formulario para seleccionar Remesa -->
+    {% call f.card() %}
+        {% set form_kwargs = {'remesa_id': remesa.id} %}
+        {% call f.form_tag('arc_remesas.refuse', fid='remesa_form', **form_kwargs) %}
+            {% call f.form_group(form.observaciones) %}{% endcall %}
+            {% call f.form_group(form.rechazar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

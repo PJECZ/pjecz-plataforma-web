@@ -1,0 +1,223 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Detalle de Remesa{% endblock %}
+
+{% block custom_head %}
+    <style>
+    .bg-pink {
+        color: white;
+        background-color: #d63384;
+    }
+    .bg-purple {
+        color: white;
+        background-color: #6f42c1;
+    }
+    .bg-brown {
+        color: white;
+        background-color: #653208;
+    }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Remesa - ' + remesa.id | string ) %}
+        {% if remesa.esta_archivado %}
+            {{ topbar.button_previous('Remesas', url_for('arc_archivos.list_history')) }}
+        {% else %}
+            {{ topbar.button_previous('Remesas', url_for('arc_archivos.list_active')) }}
+        {% endif %}
+        {% if mostrar_secciones["boton_pasar_historial"] %}
+            {{ topbar.button('Pasar al Historial', url_for('arc_remesas.history', remesa_id=remesa.id), "mdi:history") }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Detalle #}
+    {% call detail.card('Detalles de la Remesa') %}
+        {{ detail.label_value('Creado', moment(remesa.creado).format('llll')) }}
+        {{ detail.label_value('Enviado', moment(remesa.tiempo_enviado).format('llll')) }}
+        {{ detail.label_value('Juzgado', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=remesa.autoridad.id)) }}
+        <div class="row">
+            {% if estado_text and estado_text['class'] %}
+                <div class="col-md-3 text-end">Estado</div>
+                <div class="col-md-9">
+                    <span class="badge rounded-pill {{estado_text['class']}}">{{ estado_text['texto'] }}</span>
+                {% if remesa.esta_archivado %}
+                    : <span class="badge rounded-pill bg-brown">EN HISTORIAL <span class="iconify" data-icon="mdi:history"></span></span>
+                {% endif %}
+            {% else %}
+                {{ detail.label_value('Estado', remesa.estado) }}
+            {% endif %}
+            </div>
+        </div>
+        {{ detail.label_value('Año', remesa.anio) }}
+        {{ detail.label_value('Número de Oficio', remesa.num_oficio) }}
+    {% endcall %}
+    {# Detalles Observaciones #}
+    {% if remesa.observaciones %}
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones </div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                <div class="col-md-9 text-start">{{ remesa.observaciones }}</div>
+            </div>
+        </div>
+    {% endif %}
+    {# Listados de Documentos #}
+    {% call detail.card('Listado de Documentos') %}
+        <!-- Datatable -->
+        <table id="arc_documentos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Expediente</th>
+                    <th>Tipo</th>
+                    <th>Juicio</th>
+                    <th>Partes</th>
+                    <th>Fojas Nuevas</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+    {# Sección de asignaciones #}
+    {% if not mostrar_secciones['asignar'] and mostrar_secciones['asignado'] %}
+        <div class="card mb-3">
+            <div class="card-header bg-info text-light" style="font-weight: bold;">Asignación (Archivista)</div>
+            <div class="card-body" style="background-color: #d1e1e7;">
+                {% if not remesa.usuario_asignado %}
+                    {{ detail.label_value('Asignado', 'SIN ASIGNAR') }}
+                {% else %}
+                    {% if current_user.can_view('USUARIOS') %}
+                        {{ detail.label_value('Asignado', remesa.usuario_asignado.nombre, url_for("usuarios.detail", usuario_id=remesa.usuario_asignado.id)) }}
+                    {% else %}
+                        {{ detail.label_value('Asignado', remesa.usuario_asignado.nombre) }}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    {% if mostrar_secciones['asignar'] %}
+        <div class="card mb-3">
+            <div class="card-header bg-info text-light" style="font-weight: bold;">Asignación (Archivista)</div>
+            <div class="card-body" style="background-color: #d1e1e7;">
+            {% if archivistas %}
+                {% set form_kwargs = {'remesa_id': remesa.id} %}
+                    {% call f.form_tag('arc_remesas.asign', fid='remesa_form', **form_kwargs) %}
+                        <div class="form-group mb-2">
+                            <label for="asignado">Archivista</label>
+                            <select class="form-control" id="asignado" name="asignado">
+                                <option selected value="">SIN ASIGNAR</option>
+                                {% for archivista in archivistas %}
+                                    <option value="{{archivista.id}}" {% if archivista == remesa.usuario_asignado %} selected {% endif %}>{{archivista.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% call f.form_group(form.asignar) %}{% endcall %}
+                {% endcall %}
+            {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    {# Sección de rechezar #}
+    {% if mostrar_secciones['rechazar'] %}
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Rechazar</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <a href="{{url_for('arc_remesas.refuse', remesa_id=remesa.id)}}" class="btn btn-danger">Rechazar</a>
+            </div>
+        </div>
+    {% endif %}
+    {# Sección Rechazo #}
+    {% if mostrar_secciones['rechazo'] %}
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Rechazo</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <textarea class="form-control" style="height: 100px" disabled>{{ remesa.rechazo }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+    <!-- Modal para confirmar la cancelación de la Remesa -->
+    {% if current_user.can_edit('ARC DOCUMENTOS SOLICITUDES') %}
+        {{ modals.custom_javascript_delete('Cancelar', '¿Desea Cancelar la Remesa ' + remesa.id | string + '?') }}
+    {% endif %}
+    <!-- Mostar estilo de cuando la remesa está en el historial -->
+    {% if remesa.esta_archivado %}
+        <script>
+            $('.card-body').css('background-color', '#ddd')
+        </script>
+    {% endif %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/arc_remesas_documentos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'id' },
+            { data: 'expediente' },
+            { data: 'tipo' },
+            { data: 'juicio' },
+            { data: 'partes' },
+            { data: 'fojas' },
+            { data: 'observaciones' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // ID
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // expediente
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.expediente + '</a>';
+                }
+            },
+            {
+                targets: 4, // partes
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.actor.length > 24)
+                        actor = '<span title="' + data.actor + '">' + data.actor.substr(0, 24) + '…' + '</span>';
+                    else
+                        actor = data.actor;
+                    if (data.demandado.length > 24)
+                        demandado = '<span title="' + data.demandado + '">' + data.demandado.substr(0, 24) + '…' + '</span>';
+                    else
+                        demandado = data.demandado;
+                    return '<strong>Actor:</strong> ' + actor + '<br>' + '<strong>Demandado:</strong> ' + demandado;
+                }
+            },
+            {
+                targets: 5, // Fojas
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.nuevas ;
+                }
+            },
+            {
+                targets: 6, // Observaciones
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16)
+                        return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                    else
+                        return data;
+                }
+            }
+        ];
+        // Datatable
+        $('#arc_documentos_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}

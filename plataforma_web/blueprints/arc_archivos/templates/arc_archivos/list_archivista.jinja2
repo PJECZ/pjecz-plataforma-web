@@ -53,12 +53,13 @@
     {% endcall %}
     {% call list.card() %}
         <!-- Datatable -->
-        <table id="arc_documentos_remesas_datatable" class="table display nowrap" style="width:100%">
+        <table id="arc_remesas_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Creado</th>
+                    <th>Última Actualización</th>
                     <th>Juzgado</th>
+                    <th>Núm. Oficio</th>
                     <th>Núm. Docs.</th>
                     <th>Estado</th>
                 </tr>
@@ -71,7 +72,7 @@
     {{ list.config_datatable() }}
     <script>
         configDataTable['ajax']['url'] = '/arc_documentos_solicitudes/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['ajax']['data'] = {{ filtros_solicitudes }};
         configDataTable['columns'] = [
             { data: 'solicitud' },
             { data: 'tiempo' },
@@ -137,6 +138,83 @@
 
         // Datatable
         $('#arc_documentos_solicitudes_datatable').DataTable(configDataTable);
+    </script>
+    <!-- DataTable para Remesas -->
+    <script>
+        configDataTable['ajax']['url'] = '/arc_remesas/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros_remesas }};
+        configDataTable['columns'] = [
+            { data: 'remesa' },
+            { data: 'tiempo' },
+            { data: 'juzgado' },
+            { data: 'num_oficio' },
+            { data: 'num_docs' },
+            { data: 'estado' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // id
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 2, // juzgado
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + data.clave + '</span></a>';
+                }
+            },
+            {
+                targets: 5, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "PENDIENTE":       return '<span class="badge rounded-pill bg-warning text-dark">PENDIENTE</span>';   break;
+                        case "CANCELADO":       return '<span class="badge rounded-pill bg-secondary">CANCELADO</span>';   break;
+                        case "ENVIADO":         return '<span class="badge rounded-pill bg-pink">ENVIANDO</span>';   break;
+                        case "ASIGNADO":        return '<span class="badge rounded-pill bg-primary">ASIGNADO</span>';   break;
+                        case "RECHAZADO":       return '<span class="badge rounded-pill bg-danger">RECHAZADO</span>';   break;
+                        case "ENCONTRADO":      return '<span class="badge rounded-pill bg-purple">ENCONTRADO</span>';   break;
+                        case "ENTREGADO":       return '<span class="badge rounded-pill bg-success">ENTREGADO</span>';   break;
+                    }
+                    return data;
+                }
+            },
+            {
+                targets: 5, // asignado
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url != "")
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return data.nombre;
+                }
+            }
+        ];
+        configDataTable['rowCallback'] = function(row, data) {
+            switch (data.estado)    {
+                case "PENDIENTE":       $(row).css("background-color", "#fef9e7");  break;
+                case "CANCELADO":       $(row).css("background-color", "#eeeeee");  break;
+                case "ENVIADO":         $(row).css("background-color", "#f7d6e6");  break;
+                case "ASIGNADO":        $(row).css("background-color", "#ebf5fb");  break;
+                case "RECHAZADO":       $(row).css("background-color", "#fdedec");  break;
+                case "ENCONTRADO":      $(row).css("background-color", "#f5eef8");  break;
+                case "ENTREGADO":       $(row).css("background-color", "#d1e7dd");  break;
+            }
+        };
+
+        // Búsqueda
+
+        // Datatable
+        $('#arc_remesas_datatable').DataTable(configDataTable);
     </script>
     <!-- Mostar historial -->
     {% if mostrando_historial %}
