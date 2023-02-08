@@ -20,8 +20,16 @@
         {{ detail.label_value('Fojas', arc_remesa_documento.fojas) }}
         {{ detail.label_value('Tipo', arc_remesa_documento.tipo) }}
         {{ detail.label_value('Tiene Anomalías', arc_remesa_documento.tiene_anomalia) }}
-        {{ detail.label_value('Observaciones', arc_remesa_documento.observaciones) }}
     {% endcall %}
+    {# Observaciones #}
+    {% if arc_remesa_documento.observaciones %}
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones del Archivador</div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                <textarea class="form-control" style="height: 100px;" disabled>{{ arc_remesa_documento.observaciones }}</textarea>
+            </div>
+        </div>
+    {% endif %}
     {# Detalle de la Remesa #}
     {% call detail.card('Detalles de la Remesa') %}
         {{ detail.label_value('Creado', moment(remesa.creado).format('llll')) }}
@@ -58,7 +66,7 @@
                     {% call f.form_group(form.archivar) %}{% endcall %}
                 {% endcall %}
             </div>
-        </div>
+        </div>        
     {% endif %}
 {% endblock %}
 

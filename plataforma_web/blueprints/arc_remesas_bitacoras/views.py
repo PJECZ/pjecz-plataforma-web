@@ -33,8 +33,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "arc_remesa_id" in request.form:
-        consulta = consulta.filter_by(arc_remesa_id=int(request.form["arc_remesa_id"]))
+    if "remesa_id" in request.form:
+        consulta = consulta.filter_by(arc_remesa_id=int(request.form["remesa_id"]))
     if "fecha_desde" in request.form:
         consulta = consulta.filter(ArcRemesaBitacora.modificado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
@@ -57,7 +57,7 @@ def datatable_json():
                 },
                 "accion": resultado.accion,
                 "observaciones": "" if resultado.observaciones is None else resultado.observaciones,
-                "modificado": resultado.modificado.strftime("%Y-%m-%d %H:%M:%S"),
+                "tiempo": resultado.creado.strftime("%Y-%m-%d %H:%M:%S"),
             }
         )
     # Entregar JSON

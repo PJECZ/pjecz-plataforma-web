@@ -96,6 +96,20 @@
     {% call detail.card() %}
         <a href="{{url_for('arc_remesas.send', remesa_id=remesa.id)}}" type="button" class="btn btn-success">Enviar <span class="iconify" data-icon="mdi:send"></span></a>
     {% endcall %}
+    {# Listado de la Bitacora de la Remesa #}
+    {% call detail.card('Bitacora Remesa') %}
+        <!-- Datatable -->
+        <table id="arc_remesa_bitacora_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -113,7 +127,7 @@
     {{ list.config_datatable() }}
     <script>
         configDataTable['ajax']['url'] = '/arc_remesas_documentos/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['ajax']['data'] = {{ filtros_documentos }};
         configDataTable['columns'] = [
             { data: 'expediente' },
             { data: 'tipo' },
@@ -176,5 +190,64 @@
         ];
         // Datatable
         $('#arc_documentos_datatable').DataTable(configDataTable);
+    </script>
+    <!-- DataTable para Bitacora -->
+    <script>
+        configDataTable['ajax']['url'] = '/arc_remesas_bitacoras/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros_bitacora }};
+        configDataTable['columns'] = [
+            { data: 'tiempo' },
+            { data: 'usuario' },
+            { data: 'accion' },
+            { data: 'observaciones' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 1, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.nombre.length > 24) 
+                        return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span></a>';
+                    else   
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 2, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "CREADA":       return '<span class="badge rounded-pill bg-warning text-dark">CREADA</span>';   break;
+                        case "ENVIADA":         return '<span class="badge rounded-pill bg-pink">ENVIADA</span>';   break;
+                        case "ASIGNADA":        return '<span class="badge rounded-pill bg-primary">ASIGNADA</span>';   break;
+                        case "RECHAZADA":       return '<span class="badge rounded-pill bg-danger">RECHAZADA</span>';   break;
+                        case "ARCHIVADA":       return '<span class="badge rounded-pill bg-success">ARCHIVADA</span>';   break;
+                    }
+                    return data;
+                }
+            },
+            {
+                targets: 3, // Observaciones
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 24)
+                        return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
+                    else
+                        return data;
+                }
+            },
+        ];
+
+        // Búsqueda
+
+        // Datatable
+        $('#arc_remesa_bitacora_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}

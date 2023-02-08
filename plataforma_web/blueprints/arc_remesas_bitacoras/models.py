@@ -13,6 +13,7 @@ class ArcRemesaBitacora(db.Model, UniversalMixin):
         [
             ("CREADA", "Creada"),
             ("ENVIADA", "Enviada"),
+            ("ASIGNADA", "Asignar"),
             ("RECHAZADA", "Rechazada"),
             ("ARCHIVADA", "Archivada"),
         ]

@@ -205,6 +205,9 @@ def archive(arc_remesa_documento_id):
             flash("El documento debe estar ubicado en REMESA.", "warning")
             return redirect(url_for("arc_remesas.detail", remesa_id=remesa_documento.arc_remesa_id))
 
+        # Guardamos las observaciones del Archivista sobre el anexo
+        remesa_documento.observaciones = safe_message(form.observaciones.data)
+        remesa_documento.save()
         # Guardamos cambios en el documento
         documento.fojas = int(form.fojas.data)
         documento.ubicacion = "ARCHIVO"

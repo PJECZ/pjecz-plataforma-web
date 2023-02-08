@@ -22,6 +22,8 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
+from plataforma_web.blueprints.arc_remesas_bitacoras.models import ArcRemesaBitacora
+
 from plataforma_web.blueprints.arc_remesas.forms import (
     ArcRemesaNewForm,
     ArcRemesaEditForm,
@@ -171,7 +173,8 @@ def detail(remesa_id):
                 remesa=remesa,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
-                filtros=json.dumps({"remesa_id": remesa.id}),
+                filtros_documentos=json.dumps({"remesa_id": remesa.id}),
+                filtros_bitacora=json.dumps({"remesa_id": remesa.id}),
             )
         else:
             flash("Su rol no tiene permitido ver remesas en estado PENDIENTE", "warning")
@@ -187,7 +190,8 @@ def detail(remesa_id):
                     remesa=remesa,
                     mostrar_secciones=mostrar_secciones,
                     estado_text=estado_text,
-                    filtros=json.dumps({"remesa_id": remesa.id}),
+                    filtros_documentos=json.dumps({"remesa_id": remesa.id}),
+                    filtros_bitacora=json.dumps({"remesa_id": remesa.id}),
                 )
 
     if remesa.estado == "ENVIADO":
@@ -205,7 +209,8 @@ def detail(remesa_id):
                 form=form,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
-                filtros=json.dumps({"remesa_id": remesa.id}),
+                filtros_documentos=json.dumps({"remesa_id": remesa.id}),
+                filtros_bitacora=json.dumps({"remesa_id": remesa.id}),
                 archivistas=archivistas,
             )
 
@@ -225,7 +230,8 @@ def detail(remesa_id):
                 form=form,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
-                filtros=json.dumps({"remesa_id": remesa.id}),
+                filtros_documentos=json.dumps({"remesa_id": remesa.id}),
+                filtros_bitacora=json.dumps({"remesa_id": remesa.id}),
                 archivistas=archivistas,
             )
         if ROL_ARCHIVISTA in current_user_roles:
@@ -241,7 +247,8 @@ def detail(remesa_id):
                 remesa=remesa,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
-                filtros=json.dumps({"remesa_id": remesa.id}),
+                filtros_documentos=json.dumps({"remesa_id": remesa.id}),
+                filtros_bitacora=json.dumps({"remesa_id": remesa.id}),
             )
 
     if remesa.estado == "RECHAZADO":
@@ -261,7 +268,8 @@ def detail(remesa_id):
         remesa=remesa,
         mostrar_secciones=mostrar_secciones,
         estado_text=estado_text,
-        filtros=json.dumps({"remesa_id": remesa.id}),
+        filtros_documentos=json.dumps({"remesa_id": remesa.id}),
+        filtros_bitacora=json.dumps({"remesa_id": remesa.id}),
     )
 
 
@@ -283,8 +291,14 @@ def new():
                 anio=int(form.anio.data),
                 num_oficio=safe_string(form.num_oficio.data),
                 estado="PENDIENTE",
-            )
-            remesa.save()
+            ).save()
+            # Guardado de acción en bitacora de la remesa
+            remesa_bitacora = ArcRemesaBitacora(
+                arc_remesa=remesa,
+                usuario=current_user,
+                accion="CREADA",
+            ).save()
+            # Guardado de registro en bitacora del sistema
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
@@ -457,7 +471,21 @@ def send(remesa_id):
     remesa.estado = "ENVIADO"
     remesa.tiempo_enviado = datetime.now()
     remesa.save()
+    # Guardado de acción en bitacora de la remesa
+    remesa_bitacora = ArcRemesaBitacora(
+        arc_remesa=remesa,
+        usuario=current_user,
+        accion="ENVIADA",
+    ).save()
+    # Guardado de registro en bitacora del sistema
+    bitacora = Bitacora(
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+        usuario=current_user,
+        descripcion=safe_message(f"Remesa enviada {remesa.id}"),
+        url=url_for("arc_archivos.list_active"),
+    ).save()
 
+    # Resultado final exitoso
     flash("La Remesa ha sido enviada correctamente.", "success")
     return redirect(url_for("arc_archivos.list_active"))
 
@@ -543,6 +571,18 @@ def asign(remesa_id):
                 remesa.estado = "ASIGNADO"
                 remesa.usuario_asignado_id = int(form.asignado.data)
             remesa.save()
+            # Guardado de acción en bitacora de la remesa
+            if remesa.usuario_asignado is None:
+                observacion = "Des-asignado"
+            else:
+                observacion = f"Asigando a: {remesa.usuario_asignado.nombre}."
+            remesa_bitacora = ArcRemesaBitacora(
+                arc_remesa=remesa,
+                usuario=current_user,
+                accion="ASIGNADA",
+                observaciones=observacion,
+            ).save()
+            # Guardado de registro en bitacora del sistema
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
@@ -570,6 +610,14 @@ def refuse(remesa_id):
             remesa.rechazo = safe_message(form.observaciones.data)
             remesa.estado = "RECHAZADO"
             remesa.save()
+            # Guardado de acción en bitacora de la remesa
+            remesa_bitacora = ArcRemesaBitacora(
+                arc_remesa=remesa,
+                usuario=current_user,
+                accion="RECHAZADA",
+                observaciones=remesa.rechazo,
+            ).save()
+            # Guardado de registro en bitacora del sistema
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
@@ -639,7 +687,20 @@ def complete(remesa_id):
     # Guardar cambios a la Remesa
     remesa.estado = "ARCHIVADO"
     remesa.save()
+    # Guardado de acción en bitacora de la remesa
+    remesa_bitacora = ArcRemesaBitacora(
+        arc_remesa=remesa,
+        usuario=current_user,
+        accion="ARCHIVADA",
+    ).save()
+    # Guardado de registro en bitacora del sistema
+    bitacora = Bitacora(
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+        usuario=current_user,
+        descripcion=safe_message(f"Nueva Remesa creada {remesa.id}"),
+        url=url_for("arc_archivos.list_active"),
+    ).save()
 
     # Resultado final de éxito
-    flash("La Remesa {} ha sido ARCHIVADA correctamente.", "success")
+    flash(f"La Remesa {remesa.id} ha sido ARCHIVADA correctamente.", "success")
     return redirect(url_for("arc_archivos.list_active"))
