@@ -43,5 +43,5 @@ class ArcDocumentoEditForm(FlaskForm):
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
     # Campos opcionales para la bitácora o historial
     fojas = IntegerField("Fojas", validators=[DataRequired()])
-    observaciones = TextAreaField("Motivo", validators=[DataRequired(), Length(max=256)])
+    observaciones = TextAreaField("Motivo", validators=[DataRequired(), Length(min=5, max=256)])
     guardar = SubmitField("Guardar")

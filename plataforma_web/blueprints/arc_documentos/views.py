@@ -200,8 +200,6 @@ def edit(arc_documento_id):
             flash(f"El Año debe ser una fecha entre 1950 y el año actual {date.today().year}", "warning")
         elif num_expediente is None:
             flash("El número de expediente no es válido", "warning")
-        elif motivo is None or len(motivo) < 10:
-            flash("Escriba un motivo más descriptivo", "warning")
         else:
             fojas = None
             if documento.fojas != int(form.fojas.data):

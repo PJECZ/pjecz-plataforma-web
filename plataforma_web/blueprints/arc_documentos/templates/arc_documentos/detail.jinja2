@@ -155,10 +155,24 @@
             </thead>
         </table>
     {% endcall %}
-    {# Solicitudes #}
+    {# Historial de Solicitudes #}
     {% call detail.card('Historial de Solicitudes') %}
     <!-- Datatable -->
         <table id="solicitudes_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tiempo</th>
+                    <th>Juzgado</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+    {# Historial de Remesas #}
+    {% call detail.card('Historial de Remesas') %}
+    <!-- Datatable -->
+        <table id="remesas_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -392,7 +406,7 @@
                 targets: 2, // juzgado
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + data.clave + '</span></a>';
                 }
             },
             {
@@ -415,5 +429,90 @@
         
         // Datatable
         $('#solicitudes_datatable').DataTable(configDataTable_2);
+    </script>
+    <!-- DataTable para Historial de Remesas -->
+    <script>
+    let configDataTable_3 = {
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: null,
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: null
+            },
+            columns: null,
+            columnDefs: null,
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        };
+        // ---
+        configDataTable_3['ajax']['url'] = '/arc_remesas/datatable_json';
+        configDataTable_3['ajax']['data'] = { 'estatus': "A", 'documento_id': {{ documento.id }}, 'orden_acendente': true };
+        configDataTable_3['columns'] = [
+            { data: 'remesa' },
+            { data: 'tiempo' },
+            { data: 'juzgado' },
+            { data: 'estado' }
+        ];
+        configDataTable_3['columnDefs'] = [
+            {
+                targets: 0, // remesa
+                type: "date",
+                render: function (data, type, row) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },{
+                targets: 1, // tiempo
+                type: "date",
+                render: function (data, type, row) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 2, // juzgado
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + data.clave + '</span></a>';
+                }
+            },
+            {
+                targets: 3, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "PENDIENTE":       return '<span class="badge rounded-pill bg-warning text-dark">PENDIENTE</span>';   break;
+                        case "CANCELADO":       return '<span class="badge rounded-pill bg-secondary">CANCELADO</span>';   break;
+                        case "ENVIADO":         return '<span class="badge rounded-pill bg-pink">ENVIANDO</span>';   break;
+                        case "ASIGNADO":        return '<span class="badge rounded-pill bg-primary">PROCESANDO</span>';   break;
+                        case "RECHAZADO":       return '<span class="badge rounded-pill bg-danger">RECHAZADO</span>';   break;
+                        case "ENCONTRADO":      return '<span class="badge rounded-pill bg-purple">ENCONTRADO</span>';   break;
+                        case "ARCHIVADO":       return '<span class="badge rounded-pill bg-success">ARCHIVADO</span>';   break;
+                    }
+                    return data;
+                }
+            }
+        ];
+        
+        // Datatable
+        $('#remesas_datatable').DataTable(configDataTable_3);
     </script>
 {% endblock %}

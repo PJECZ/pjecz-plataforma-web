@@ -12,6 +12,7 @@ from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
+from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDocumento
 from plataforma_web.blueprints.arc_documentos.models import ArcDocumento
 from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDocumento
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -63,6 +64,9 @@ def datatable_json():
         consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     if "asignado_id" in request.form:
         consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
+    if "documento_id" in request.form:
+        consulta = consulta.join(ArcRemesaDocumento)
+        consulta = consulta.filter(ArcRemesaDocumento.arc_documento_id == int(request.form["documento_id"]))
     if "esta_archivado" in request.form:
         consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
     if "omitir_cancelados" in request.form:
@@ -512,7 +516,7 @@ def add_document(documento_id):
     documento_en_otra_remesa = ArcRemesaDocumento.query
     documento_en_otra_remesa = documento_en_otra_remesa.filter_by(arc_documento_id=documento_id).first()
     if documento_en_otra_remesa:
-        if documento_en_otra_remesa.arc_remesa.estado not in ("CANCELADO", "ARCHIVADO"):
+        if documento_en_otra_remesa.arc_remesa.estado not in ("CANCELADO", "ARCHIVADO", "RECHAZADO"):
             flash(f"Este documento ya está asignado a la remesa [{documento_en_otra_remesa.arc_remesa.id}] que se encuentra en proceso.", "warning")
             return redirect(url_for("arc_documentos.detail", documento_id=documento_id))
         if documento_en_otra_remesa.arc_remesa.estatus != "A":

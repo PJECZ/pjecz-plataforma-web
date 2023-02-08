@@ -13,7 +13,7 @@ from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDoc
 
 
 def remesas_opciones():
-    """Distrito: opciones para select"""
+    """Remesas: opciones para select"""
     return ArcRemesa.query.filter_by(autoridad_id=current_user.autoridad.id).filter_by(estado="PENDIENTE").filter_by(estatus="A").order_by(ArcRemesa.anio).all()
 
 
