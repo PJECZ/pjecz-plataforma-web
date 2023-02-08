@@ -47,6 +47,7 @@ class ArcRemesa(db.Model, UniversalMixin):
 
     # Hijos
     arc_remesas_documentos = db.relationship("ArcRemesaDocumento", back_populates="arc_remesa", lazy="noload")
+    arc_remesas_bitacoras = db.relationship("ArcRemesaBitacora", back_populates="arc_remesa", lazy="noload")
 
     def __repr__(self):
         """Representación"""

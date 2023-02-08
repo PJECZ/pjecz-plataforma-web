@@ -12,6 +12,7 @@ from plataforma_web.blueprints.arc_documentos.views import arc_documentos
 from plataforma_web.blueprints.arc_documentos_bitacoras.views import arc_documentos_bitacoras
 from plataforma_web.blueprints.arc_documentos_solicitudes.views import arc_documentos_solicitudes
 from plataforma_web.blueprints.arc_remesas.views import arc_remesas
+from plataforma_web.blueprints.arc_remesas_bitacoras.views import arc_remesas_bitacoras
 from plataforma_web.blueprints.arc_remesas_documentos.views import arc_remesas_documentos
 from plataforma_web.blueprints.audiencias.views import audiencias
 from plataforma_web.blueprints.autoridades.views import autoridades
@@ -92,6 +93,7 @@ def create_app():
     app.register_blueprint(arc_documentos_bitacoras)
     app.register_blueprint(arc_documentos_solicitudes)
     app.register_blueprint(arc_remesas)
+    app.register_blueprint(arc_remesas_bitacoras)
     app.register_blueprint(arc_remesas_documentos)
     app.register_blueprint(audiencias)
     app.register_blueprint(autoridades)
