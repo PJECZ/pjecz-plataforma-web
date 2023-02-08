@@ -31,8 +31,8 @@
         {% else %}
             {{ topbar.button_previous('Remesas', url_for('arc_archivos.list_active')) }}
         {% endif %}
-        {% if mostrar_secciones["boton_pasar_historial"] %}
-            {{ topbar.button('Pasar al Historial', url_for('arc_remesas.history', remesa_id=remesa.id), "mdi:history") }}
+        {% if mostrar_secciones["boton_completado"] %}
+            {{ topbar.button_primary('Completado', url_for('arc_remesas.complete', remesa_id = remesa.id), "mdi:check") }}
         {% endif %}
     {% endcall %}
 {% endblock %}

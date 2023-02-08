@@ -18,8 +18,14 @@ class UniversalMixin(object):
     modificado = db.Column(db.DateTime, onupdate=func.now(), server_default=func.now())
     estatus = db.Column(db.String(1), server_default="A", nullable=False)
 
-    def delete(self):
+    def delete(self, permanently=False):
         """Eliminar registro"""
+        # Borrado Permanente: Ya no existe en la BD
+        if permanently:
+            db.session.delete(self)
+            db.session.commit()
+            return None
+        # Borrado lógico: Cambiar a estatus B de Borrado
         if self.estatus == "A":
             self.estatus = "B"
             return self.save()

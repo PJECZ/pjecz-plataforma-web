@@ -25,6 +25,19 @@ class ArcRemesaNewForm(FlaskForm):
     crear = SubmitField("Crear")
 
 
+class ArcRemesaEditForm(FlaskForm):
+    """Formulario para editar Remesa"""
+
+    # campos de solo lectura
+    creado = StringField("Creado")
+    juzgado = StringField("Juzgado")
+    # campos actulizables
+    num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
+    anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1950, date.today().year)])
+    observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
+    guardar = SubmitField("Guardar")
+
+
 class ArcRemesaAddDocumentForm(FlaskForm):
     """Formulario para añadir un documento a una Remesa"""
 

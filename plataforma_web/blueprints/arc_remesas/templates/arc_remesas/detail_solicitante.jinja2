@@ -31,8 +31,16 @@
         {% else %}
             {{ topbar.button_previous('Remesas', url_for('arc_archivos.list_active')) }}
         {% endif %}
-        {{ topbar.button_delete('Cancelar', url_for('arc_remesas.cancel', remesa_id=remesa.id)) }}
-        {{ topbar.button_edit('Editar', url_for('arc_remesas.edit', remesa_id=remesa.id)) }}
+        {% if mostrar_secciones["boton_cancelar"] %}
+            {{ topbar.button_delete('Cancelar', url_for('arc_remesas.cancel', remesa_id=remesa.id)) }}
+            {{ topbar.button_edit('Editar', url_for('arc_remesas.edit', remesa_id=remesa.id)) }}
+        {% endif %}
+        {% if mostrar_secciones["boton_recuperar"] %}
+            {{ topbar.button_primary('Recuperar', url_for('arc_remesas.recover', remesa_id=remesa.id), 'mdi:file-replace') }}
+        {% endif %}
+        {% if mostrar_secciones["boton_pasar_historial"] %}
+            {{ topbar.button('Pasar al Historial', url_for('arc_remesas.history', remesa_id=remesa.id), "mdi:history") }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -159,7 +167,8 @@
                 targets: 6, // Acciones
                 data: null,
                 render: function(data, type, row, meta) {
-                    html = '<a href="' + data.editar  + '" class="btn btn-sm btn-outline-warning"><span title="Editar" class="iconify" data-icon="mdi:pencil"></span></a> ';
+                    html = '<a href="' + data.ver  + '" class="btn btn-sm btn-outline-primary"><span title="Consultar" class="iconify" data-icon="mdi:eye"></span></a> ';
+                    html += '<a href="' + data.editar  + '" class="btn btn-sm btn-outline-warning"><span title="Editar" class="iconify" data-icon="mdi:pencil"></span></a> ';
                     html += '<a href="' + data.eliminar  + '" class="btn btn-sm btn-outline-danger"><span title="Quitar" class="iconify" data-icon="mdi:close"></span></a>'
                     return html;
                 }
