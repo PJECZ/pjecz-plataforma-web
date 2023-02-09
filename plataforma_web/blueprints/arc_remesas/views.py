@@ -611,6 +611,12 @@ def refuse(remesa_id):
         elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles():
             flash(f"Solo puede rechazar el ROL de {ROL_JEFE_REMESA}.", "warning")
         else:
+            # Cambiar de ubicación los documentos anexos
+            documentos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).all()
+            for documento in documentos:
+                documento.arc_documento.ubicacion = "JUZGADO"
+                documento.save()
+
             remesa.rechazo = safe_message(form.observaciones.data)
             remesa.estado = "RECHAZADO"
             remesa.save()
