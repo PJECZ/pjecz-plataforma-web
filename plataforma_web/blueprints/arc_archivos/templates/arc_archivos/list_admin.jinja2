@@ -18,6 +18,9 @@
         color: white;
         background-color: #653208;
     }
+    table.hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
     </style>
 {% endblock %}
 
@@ -40,7 +43,7 @@
     {% endcall %}
     {% call list.card() %}
         <!-- Datatable -->
-        <table id="arc_documentos_solicitudes_datatable" class="table display nowrap" style="width:100%">
+        <table id="arc_documentos_solicitudes_datatable" class="table hover display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -60,7 +63,7 @@
     {% endcall %}
     {% call list.card() %}
         <!-- Datatable -->
-        <table id="arc_documentos_remesas_datatable" class="table display nowrap" style="width:100%">
+        <table id="arc_documentos_remesas_datatable" class="table hover display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -163,7 +166,8 @@
     <!-- Mostar historial -->
     {% if mostrando_historial %}
     <script>
-        $('.card-body').css('background-color', '#ddd')
+        $('.card-body').css('background-color', '#ced4da');
+        $('.card-header').addClass('bg-dark text-light');
     </script>
     {% endif %}
 {% endblock %}

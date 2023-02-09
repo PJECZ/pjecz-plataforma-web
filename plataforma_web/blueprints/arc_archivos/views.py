@@ -50,7 +50,8 @@ def list_active():
     if ROL_SOLICITANTE in current_user_roles:
         return render_template(
             "arc_archivos/list_solicitante.jinja2",
-            filtros=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
+            filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
+            filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
             estados=ArcDocumentoSolicitud.ESTADOS,

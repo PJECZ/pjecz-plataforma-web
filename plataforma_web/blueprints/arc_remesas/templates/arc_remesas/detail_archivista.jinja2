@@ -168,7 +168,8 @@
     <!-- Mostar estilo de cuando la remesa está en el historial -->
     {% if remesa.esta_archivado %}
         <script>
-            $('.card-body').css('background-color', '#ddd')
+            $('.card-body').css('background-color', '#ced4da');
+            $('.card-header').addClass('bg-dark text-light');
         </script>
     {% endif %}
     {{ list.config_datatable() }}

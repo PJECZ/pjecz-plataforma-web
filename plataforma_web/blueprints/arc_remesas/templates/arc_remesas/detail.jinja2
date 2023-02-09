@@ -21,6 +21,9 @@
         color: white;
         background-color: #653208;
     }
+    table.hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
     </style>
 {% endblock %}
 
@@ -71,7 +74,7 @@
     {# Listados de Documentos #}
     {% call detail.card('Listado de Documentos') %}
         <!-- Datatable -->
-        <table id="arc_documentos_datatable" class="table display nowrap" style="width:100%">
+        <table id="arc_documentos_datatable" class="table hover display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -146,7 +149,7 @@
     {# Listado de la Bitacora de la Remesa #}
     {% call detail.card('Bitacora Remesa') %}
         <!-- Datatable -->
-        <table id="arc_remesa_bitacora_datatable" class="table display nowrap" style="width:100%">
+        <table id="arc_remesa_bitacora_datatable" class="table hover display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Fecha y Hora</th>
@@ -168,7 +171,8 @@
     <!-- Mostar estilo de cuando la remesa está en el historial -->
     {% if remesa.esta_archivado %}
         <script>
-            $('.card-body').css('background-color', '#ddd')
+            $('.card-body').css('background-color', '#ced4da');
+            $('.card-header').addClass('bg-dark text-light');
         </script>
     {% endif %}
     {{ list.config_datatable() }}
