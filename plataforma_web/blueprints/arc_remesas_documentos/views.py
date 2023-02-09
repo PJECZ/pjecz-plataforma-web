@@ -234,3 +234,15 @@ def archive(arc_remesa_documento_id):
         flash("La operación de ARCHIVAR NO se completo.", "danger")
 
     return redirect(url_for("arc_remesas.detail", remesa_id=remesa_documento.arc_remesa_id))
+
+
+@arc_remesas_documentos.route("/arc_remesas_documentos/imprimir_listado/<int:remesa_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def print_list(remesa_id):
+    """Envía a la hoja de impresión de listado de documentos anexos a una Remesa"""
+
+    # Extremos el listado de documentos anexos de la remesa
+    documentos_anexos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).filter_by(estatus="A").all()
+
+    # Resultado final de éxito
+    return render_template("arc_remesas_documentos/print.jinja2", remesa_id=remesa_id, documentos_anexos=documentos_anexos)

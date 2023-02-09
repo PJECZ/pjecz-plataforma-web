@@ -53,7 +53,7 @@
     {{ list.config_datatable() }}
     <script>
         configDataTable['ajax']['url'] = '/arc_documentos_solicitudes/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['ajax']['data'] = {{ filtros_solicitudes }};
         configDataTable['columns'] = [
             { data: 'solicitud' },
             { data: 'tiempo' },
