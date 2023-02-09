@@ -91,6 +91,7 @@
             </thead>
         </table>
         <a href="{{url_for('arc_documentos.list_active')}}" type="button" class="btn btn-primary"><span class="iconify" data-icon="mdi:file-document-plus"></span> Agregar Documento</a>
+        <a href="{{url_for('arc_remesas_documentos.print_list', remesa_id=remesa.id)}}" target="_blank" type="button" class="btn btn-primary"><span class="iconify" data-icon="mdi:printer"></span> Imprimir Listado</a>
     {% endcall %}
     {# Detalle Enviar #}
     {% call detail.card() %}
