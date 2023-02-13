@@ -22,6 +22,7 @@ class ArcRemesaNewForm(FlaskForm):
 
     num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1950, date.today().year)])
+    tipo_documentos = SelectField("Tipo de Documentos", choices=ArcRemesa.TIPOS, validators=[DataRequired()])
     crear = SubmitField("Crear")
 
 
@@ -31,7 +32,7 @@ class ArcRemesaEditForm(FlaskForm):
     # campos de solo lectura
     creado = StringField("Creado")
     juzgado = StringField("Juzgado")
-    # campos actulizables
+    # campos actualizables
     num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1950, date.today().year)])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
@@ -41,11 +42,10 @@ class ArcRemesaEditForm(FlaskForm):
 class ArcRemesaAddDocumentForm(FlaskForm):
     """Formulario para añadir un documento a una Remesa"""
 
-    fojas = IntegerField("Fojas", validators=[Optional()])
-    tipo = SelectField("Tipo", choices=ArcRemesaDocumento.TIPOS, validators=[DataRequired()])
+    remesas = SelectField("Remesa", coerce=int, validate_choice=False, validators=[DataRequired()])
+    fojas = IntegerField("Fojas", validators=[DataRequired()])
+    tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcRemesaDocumento.TIPOS, validators=[DataRequired()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
-    tiene_anomalia = BooleanField("Tiene Anomalía", validators=[Optional()])
-    remesas = QuerySelectField("Remesa", query_factory=remesas_opciones, get_label="anio", validators=[DataRequired()])
     agregar = SubmitField("Agregar Documento")
 
 

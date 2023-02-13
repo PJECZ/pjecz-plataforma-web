@@ -18,7 +18,7 @@
         {{ detail.label_value('Añadido', moment(arc_remesa_documento.creado).format('llll')) }}
         {{ detail.label_value('Última Actualización', moment(arc_remesa_documento.modificado).format('llll')) }}
         {{ detail.label_value('Fojas', arc_remesa_documento.fojas) }}
-        {{ detail.label_value('Tipo', arc_remesa_documento.tipo) }}
+        {{ detail.label_value('Tipo de Juzgado', arc_remesa_documento.tipo_juzgado) }}
         {{ detail.label_value('Tiene Anomalías', arc_remesa_documento.tiene_anomalia) }}
     {% endcall %}
     {# Observaciones #}

@@ -64,6 +64,7 @@
                     <th>ID</th>
                     <th>Última Actualización</th>
                     <th>Año</th>
+                    <th>Tipo Documentos</th>
                     <th>Núm. Oficio</th>
                     <th>Núm. Docs.</th>
                     <th>Estado</th>
@@ -148,6 +149,7 @@
             { data: 'remesa' },
             { data: 'tiempo' },
             { data: 'anio' },
+            { data: 'tipo_documentos' },
             { data: 'num_oficio' },
             { data: 'num_docs' },
             { data: 'estado' }
@@ -168,7 +170,7 @@
                 }
             },
             {
-                targets: 5, // estado
+                targets: 6, // estado
                 data: null,
                 render: function(data, type, row, meta) {
                     switch (data)    {

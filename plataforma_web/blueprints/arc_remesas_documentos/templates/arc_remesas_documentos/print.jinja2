@@ -36,6 +36,13 @@
             h1 {
                 font-size: 1.5em;
                 text-align: center;
+                margin-bottom: 0px;
+            }
+            h2 {
+                font-size: 1em;
+                text-align: center;
+                margin-top: 0px;
+                font-weight: normal;
             }
             button {
                 float: right;
@@ -58,14 +65,14 @@
     </head>
     <body>
         <button onclick="window.print(); return false;">Imprimir</button>
-        <h1>Listado de documentos anexos a la remesa {{ remesa_id }}</h1>
+        <h1>Listado de documentos anexos a la remesa {{ remesa.id }}</h1>
+        <h2>Juzgado: <strong>{{ remesa.autoridad.clave }} - {{ remesa.autoridad.descripcion_corta }}</strong>, Tipo de Documentos: <strong>{{ remesa.tipo_documentos }}</strong>, Núm. de Oficio: <strong>{{ remesa.num_oficio }}</strong></h2>
         <table id="arc_documentos_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Expediente</th>
-                    <th>Tipo</th>
-                    <th>Juicio</th>
+                    <th>Juzgado de Origen</th>
                     <th>Partes</th>
                     <th>Fojas Nuevas</th>
                     <th>Observaciones</th>
@@ -76,8 +83,7 @@
                 <tr>
                     <td>{{ documento.id }}</td>
                     <td>{{ documento.arc_documento.expediente }}</td>
-                    <td>{{ documento.arc_documento.tipo }}</td>
-                    <td>{{ documento.arc_documento.juicio }}</td>
+                    <td>{{ documento.arc_documento.juzgado_origen }}</td>
                     <td><strong>Actor:</strong> {{ documento.arc_documento.actor }}<br>
                         <strong>Demandado:</strong> {{ documento.arc_documento.demandado }}
                     </td>

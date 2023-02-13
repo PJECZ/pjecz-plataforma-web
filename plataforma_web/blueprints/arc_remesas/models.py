@@ -9,15 +9,27 @@ from lib.universal_mixin import UniversalMixin
 class ArcRemesa(db.Model, UniversalMixin):
     """Archivo - Remesa"""
 
-    ESTADOS = OrderedDict(  # varchar(16)
+    ESTADOS = OrderedDict(  # varchar(24)
         [
             ("PENDIENTE", "Pendiente"),  # El SOLICITANTE comienza una solicitud de Remesa
             ("CANCELADO", "Cancelado"),  # El SOLICITANTE se arrepiente de crear una Remesa
             ("ENVIADO", "Enviado"),  # El SOLICITANTE pide que recojan la remesa. El JEFE_REMESA ve el pedido
             ("RECHAZADO", "Rechazado"),  # El JEFE_REMESA rechaza la remesa
             ("ASIGNADO", "Asignado"),  # El JEFE_REMESA acepta la remesa y la asigna a un ARCHIVISTA
-            ("VERIFICADO", "Verificado"),  # El ARCHIVISTA revisa la remesa y la acepta
-            ("ARCHIVADO", "Archivado"),  # El ARCHIVISTA termina de procesar la solicitud
+            ("ARCHIVADO", "Archivado"),  # El ARCHIVISTA termina de procesar la remesa
+            ("ARCHIVADO_CON_ANOMALIA", "Archivado con Anomalía"),  # El ARCHIVISTA termina de procesar la remesa pero almenos un documento presentó anomalía
+        ]
+    )
+
+    TIPOS = OrderedDict(  # varchar(16)
+        [
+            ("CUADERNILLO", "Cuadernillo"),
+            ("ENCOMIENDA", "Encomienda"),
+            ("EXHORTO", "Exhorto"),
+            ("EXPEDIENTE", "Expediente"),
+            ("EXPEDIENTILLO", "Expedientillo"),
+            ("FOLIO", "Folio"),
+            ("LIBRO", "Libro"),
         ]
     )
 
@@ -40,6 +52,13 @@ class ArcRemesa(db.Model, UniversalMixin):
     rechazo = db.Column(db.String(256))
     observaciones = db.Column(db.String(256))
     tiempo_enviado = db.Column(db.DateTime)
+    tipo_documentos = db.Column(
+        db.Enum(*TIPOS, name="tipos", native_enum=False),
+        index=True,
+        nullable=False,
+    )
+    num_documentos = db.Column(db.Integer, nullable=False)
+    num_anomalias = db.Column(db.Integer, nullable=False)
     estado = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         nullable=False,

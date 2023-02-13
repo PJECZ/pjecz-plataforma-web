@@ -172,16 +172,20 @@ def detail(solicitud_id):
         mostrar_secciones["boton_pasar_historial"] = True
     if solicitud.estado == "ASIGNADO" and (current_user.can_admin(MODULO) or ROL_ARCHIVISTA in current_user_roles):
         mostrar_secciones["formulario_encontrado"] = True
+        mostrar_secciones["archivista"] = True
     if solicitud.estado == "NO ENCONTRADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
         mostrar_secciones["boton_pasar_historial"] = True
+        mostrar_secciones["archivista"] = True
     if solicitud.estado == "ENTREGADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
         mostrar_secciones["boton_pasar_historial"] = True
+        mostrar_secciones["archivista"] = True
     if solicitud.esta_archivado:
         mostrar_secciones["boton_pasar_historial"] = False
 
     # Mostrar vista con formulario de asignación
     if solicitud.estado == "SOLICITADO" or solicitud.estado == "ASIGNADO":
         if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles:
+            mostrar_secciones["archivista"] = True
             form = ArcDocumentoSolicitudAsignationForm()
             archivistas = Usuario.query.join(UsuarioRol).join(Rol)
             archivistas = archivistas.filter(Rol.nombre == ROL_ARCHIVISTA)
@@ -198,6 +202,7 @@ def detail(solicitud_id):
     if solicitud.estado == "ASIGNADO":
         if current_user.can_admin(MODULO) or ROL_ARCHIVISTA in current_user_roles:
             form = ArcDocumentoSolicitudFoundForm()
+            form.fojas.data = solicitud.arc_documento.fojas
             return render_template(
                 "arc_documentos_solicitudes/detail.jinja2",
                 solicitud=solicitud,
@@ -206,6 +211,7 @@ def detail(solicitud_id):
                 estado_text=estado_text,
             )
     if solicitud.estado == "NO ENCONTRADO":
+        mostrar_secciones["archivista"] = True
         return render_template(
             "arc_documentos_solicitudes/detail.jinja2",
             solicitud=solicitud,
@@ -213,6 +219,7 @@ def detail(solicitud_id):
             estado_text=estado_text,
         )
     if solicitud.estado == "ENCONTRADO":
+        mostrar_secciones["archivista"] = True
         if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles:
             form = ArcDocumentoSolicitudSendForm()
             mostrar_secciones["enviar"] = True
@@ -224,6 +231,7 @@ def detail(solicitud_id):
                 estado_text=estado_text,
             )
     if solicitud.estado == "ENVIANDO":
+        mostrar_secciones["archivista"] = True
         if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles:
             form = ArcDocumentoSolicitudReceiveForm()
             mostrar_secciones["recibir"] = True
@@ -268,11 +276,6 @@ def new(documento_id):
         elif ArcDocumentoSolicitud.query.filter_by(arc_documento=documento).filter_by(esta_archivado=False).filter_by(estatus="A").first():
             flash("Este documento ya se encuentra en proceso de solicitud.", "warning")
         else:
-            fojas = None
-            if form.fojas_nuevas.data is None or form.fojas_nuevas.data == "":
-                fojas = None
-            else:
-                fojas = int(form.fojas_nuevas.data)
             solicitud = ArcDocumentoSolicitud(
                 arc_documento=documento,
                 autoridad=documento.autoridad,
@@ -280,8 +283,8 @@ def new(documento_id):
                 tiempo_recepcion=None,
                 esta_archivado=False,
                 num_folio=safe_string(form.num_folio.data),
-                fojas=fojas,
-                observaciones_solicitud=safe_message(form.observaciones.data),
+                fojas=form.fojas_actuales.data,
+                observaciones_solicitud=safe_message(form.observaciones.data, return_void=True),
                 estado="SOLICITADO",
             )
             solicitud.save()
@@ -376,7 +379,7 @@ def history(solicitud_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Solicitud pasada al Historial {solicitud.id}"),
+            descripcion=safe_message(f"Solicitud {solicitud.id} pasada al Historial."),
             url=url_for("arc_archivos.list_active"),
         )
         bitacora.save()
@@ -396,22 +399,24 @@ def found(solicitud_id):
     elif not current_user.can_admin(MODULO) and ROL_ARCHIVISTA not in current_user.get_roles():
         flash(f"Solo puede cambiar el estado a ENCONTRADO el ROL de {ROL_ARCHIVISTA}.", "warning")
     else:
-        fojas = None
+        fojas = 0
         if "fojas" in request.form:
             fojas = int(request.form["fojas"])
+        if fojas is None or fojas == "":
+            fojas = 0
         solicitud.estado = "ENCONTRADO"
-        if documento.fojas != fojas:
+        if fojas > 0 and documento.fojas != fojas:
             documento.fojas = fojas
-        if "fojas" in request.form or "observaciones" in request.form:
-            solicitud_bitacora = ArcDocumentoBitacora(
-                arc_documento=solicitud.arc_documento,
-                usuario=current_user,
-                fojas=fojas,
-                observaciones=request.form["observaciones"],
-                accion="CORRECCION FOJAS",
-            )
-            solicitud_bitacora.save()
-        documento.save()
+            documento.save()
+            if "fojas" in request.form or "observaciones" in request.form:
+                solicitud_bitacora = ArcDocumentoBitacora(
+                    arc_documento=solicitud.arc_documento,
+                    usuario=current_user,
+                    fojas=fojas,
+                    observaciones=safe_message(request.form["observaciones"], return_void=True),
+                    accion="CORRECCION FOJAS",
+                )
+                solicitud_bitacora.save()
         solicitud.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),

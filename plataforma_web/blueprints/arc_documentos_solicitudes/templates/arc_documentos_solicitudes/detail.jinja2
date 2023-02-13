@@ -60,12 +60,11 @@
         </div>
     {% endcall %}
     {# Detalles Observaciones #}
-    {% if solicitud.num_folio or solicitud.fojas or solicitud.observaciones_solicitud %}
+    {% if solicitud.num_folio or solicitud.observaciones_solicitud %}
         <div class="card mb-3">
             <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones</div>
             <div class="card-body" style="background-color: #fff3cd;">
                 {{ detail.label_value('Núm. Folio', solicitud.num_folio) }}
-                {{ detail.label_value('Fojas', solicitud.fojas) }}
                 {{ detail.label_value('Observaciones', solicitud.observaciones_solicitud) }}
             </div>
         </div>
@@ -80,12 +79,13 @@
         <hr>
         {{ detail.label_value('Juzgado Origen', solicitud.arc_documento.juzgado_origen) }}
         {{ detail.label_value('Juicio', solicitud.arc_documento.juicio) }}
-        {{ detail.label_value('Tipo', solicitud.arc_documento.tipo) }}
+        {{ detail.label_value('Tipo de Documento', solicitud.arc_documento.tipo) }}
         {{ detail.label_value('Tipo de Juzgado', solicitud.arc_documento.tipo_juzgado) }}
         <hr>
         {{ detail.label_value('Fojas', solicitud.arc_documento.fojas) }}
     {% endcall %}
     {# Sección de asignaciones #}
+    {% if mostrar_secciones["archivista"] %}
     <div class="card mb-3">
         <div class="card-header bg-info text-light" style="font-weight: bold;">Asignación (Archivista)</div>
             <div class="card-body" style="background-color: #d1e7dd;">
@@ -116,6 +116,7 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
     {# Formulario para hacer asignaciones #}
     {% if mostrar_secciones['formulario_encontrado'] %}
         {% call detail.card('Encontrado') %}

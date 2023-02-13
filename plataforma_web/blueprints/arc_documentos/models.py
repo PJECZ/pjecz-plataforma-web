@@ -51,7 +51,7 @@ class ArcDocumento(db.Model, UniversalMixin):
     # Columnas
     actor = db.Column(db.String(256), nullable=False)
     anio = db.Column(db.Integer, nullable=False)
-    demandado = db.Column(db.String(256), nullable=False)
+    demandado = db.Column(db.String(256))
     expediente = db.Column(db.String(16), index=True, nullable=False)  # dígitos/YYYY-XXX
     juicio = db.Column(db.String(128))
     juzgado_origen = db.Column(db.String(64))

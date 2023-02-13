@@ -5,7 +5,7 @@ import json
 from datetime import date, datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import or_
+from sqlalchemy import or_, not_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
@@ -100,7 +100,8 @@ def datatable_json():
                 "tiempo": resultado.modificado.strftime("%Y-%m-%d %H:%M:%S"),
                 "anio": resultado.anio,
                 "num_oficio": resultado.num_oficio,
-                "num_docs": ArcRemesaDocumento.query.filter_by(arc_remesa_id=resultado.id).filter_by(estatus="A").count(),
+                "num_docs": resultado.num_documentos,
+                "tipo_documentos": resultado.tipo_documentos,
                 "estado": resultado.estado,
                 "asignado": {
                     "nombre": "SIN ASIGNAR" if resultado.usuario_asignado is None else resultado.usuario_asignado.nombre,
@@ -293,8 +294,11 @@ def new():
                 autoridad=current_user.autoridad,
                 esta_archivado=False,
                 anio=int(form.anio.data),
+                tipo_documentos=form.tipo_documentos.data,
                 num_oficio=safe_string(form.num_oficio.data),
                 estado="PENDIENTE",
+                num_documentos=0,
+                num_anomalias=0,
             ).save()
             # Guardado de acción en bitacora de la remesa
             remesa_bitacora = ArcRemesaBitacora(
@@ -513,8 +517,9 @@ def add_document(documento_id):
         flash("El documento se encuentra en una ubicación diferente a JUZGADO.", "warning")
         return redirect("arc_documentos.list_active")
     # Buscar si el documento ya está en otra remesa pendiente
-    documento_en_otra_remesa = ArcRemesaDocumento.query
-    documento_en_otra_remesa = documento_en_otra_remesa.filter_by(arc_documento_id=documento_id).first()
+    documento_en_otra_remesa = ArcRemesaDocumento.query.join(ArcRemesa)
+    documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesaDocumento.arc_documento_id == documento_id)
+    documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "ARCHIVADO").filter(ArcRemesa.estado != "RECHAZADO").first()
     if documento_en_otra_remesa:
         if documento_en_otra_remesa.arc_remesa.estado not in ("CANCELADO", "ARCHIVADO", "RECHAZADO"):
             flash(f"Este documento ya está asignado a la remesa [{documento_en_otra_remesa.arc_remesa.id}] que se encuentra en proceso.", "warning")
@@ -527,13 +532,15 @@ def add_document(documento_id):
     form = ArcRemesaAddDocumentForm()
     if form.validate_on_submit():
         # Validar la Remesa
-        remesa = ArcRemesa.query.get_or_404(form.remesas.data.id)
+        remesa = ArcRemesa.query.get_or_404(form.remesas.data)
         if remesa.autoridad_id != current_user.autoridad.id:
             flash("La remesa NO pertenece a su Autoridad.", "warning")
         elif remesa.estado != "PENDIENTE":
             flash("La remesa NO tiene un estado de PENDIENTE.", "warning")
         elif remesa.esta_archivado:
             flash("La remesa se encuentra ARCHIVADA, ya no puede ser modificada.", "warning")
+        elif remesa.tipo_documentos != documento.tipo:
+            flash(f"La remesa solo puede contener documentos del tipo {remesa.tipo_documentos}.", "warning")
         elif remesa.estatus != "A":
             flash("La remesa está eliminada.", "warning")
         else:
@@ -541,19 +548,24 @@ def add_document(documento_id):
                 arc_documento=documento,
                 arc_remesa=remesa,
                 fojas=form.fojas.data,
-                tipo=form.tipo.data,
-                tiene_anomalia=form.tiene_anomalia.data,
+                tipo_juzgado=form.tipo_juzgado.data,
+                tiene_anomalia=False,
                 observaciones=safe_message(form.observaciones.data),
             )
             documento_agregar.save()
+            # Actualizar el número de documentos anexos de la remesa
+            remesa.num_documentos = ArcRemesaDocumento.query.filter_by(arc_remesa=remesa).count()
+            remesa.save()
+            # Mostrar mensaje de éxito.
             flash(f"Se añadió el documento {documento.id} a la remesa {remesa.id}, correctamente.", "success")
             return redirect(url_for("arc_remesas.detail", remesa_id=remesa.id))
 
     # Datos sugeridos para el formulario
     form.fojas.data = documento.fojas
-    form.tipo.data = documento.tipo_juzgado
+    form.tipo_juzgado.data = documento.tipo_juzgado
+    remesas = ArcRemesa.query.filter_by(autoridad_id=current_user.autoridad.id).filter_by(estado="PENDIENTE").filter_by(estatus="A").all()
 
-    return render_template("arc_remesas/add_document.jinja2", documento=documento, form=form)
+    return render_template("arc_remesas/add_document.jinja2", remesas=remesas, documento=documento, form=form)
 
 
 @arc_remesas.route("/arc_remesas/asignar/<int:remesa_id>", methods=["GET", "POST"])

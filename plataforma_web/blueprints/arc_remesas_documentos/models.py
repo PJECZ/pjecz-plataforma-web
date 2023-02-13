@@ -32,7 +32,7 @@ class ArcRemesaDocumento(db.Model, UniversalMixin):
     tiene_anomalia = db.Column(db.Boolean, default=False)
     fojas = db.Column(db.Integer, nullable=False)
     observaciones = db.Column(db.String(256))
-    tipo = db.Column(
+    tipo_juzgado = db.Column(
         db.Enum(*TIPOS, name="tipos", native_enum=False),
         nullable=False,
     )

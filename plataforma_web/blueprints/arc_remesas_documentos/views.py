@@ -11,6 +11,7 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
 from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDocumento
 from plataforma_web.blueprints.arc_documentos.models import ArcDocumento
 from plataforma_web.blueprints.arc_documentos_bitacoras.models import ArcDocumentoBitacora
@@ -67,6 +68,7 @@ def datatable_json():
                 "anio": resultado.arc_documento.anio,
                 "tipo": resultado.arc_documento.tipo,
                 "juicio": resultado.arc_documento.juicio,
+                "juzgado_origen": resultado.arc_documento.juzgado_origen,
                 "fojas": {
                     "nuevas": resultado.fojas,
                     "anteriores": resultado.arc_documento.fojas,
@@ -137,18 +139,16 @@ def edit(arc_remesa_documento_id):
     form = ArcRemesaDocumentoEditForm()
     if form.validate_on_submit():
         remesa_documento.fojas = int(form.fojas.data)
-        remesa_documento.tipo = safe_string(form.tipo.data)
+        remesa_documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
         remesa_documento.observaciones = safe_message(form.observaciones.data)
-        remesa_documento.tiene_anomalia = form.tiene_anomalia.data
         remesa_documento.save()
         flash(f"Documento Anexo [{remesa_documento.arc_documento.expediente}] editado correctamente.", "success")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_documento.arc_remesa_id))
 
     # Pre-cargar de datos al formulario de edición
     form.fojas.data = remesa_documento.fojas
-    form.tipo.data = remesa_documento.tipo
+    form.tipo_juzgado.data = remesa_documento.tipo_juzgado
     form.observaciones.data = remesa_documento.observaciones
-    form.tiene_anomalia.data = remesa_documento.tiene_anomalia
 
     # Mostrar el template resultante
     return render_template("arc_remesas_documentos/edit.jinja2", remesa=remesa_documento.arc_remesa, documento=remesa_documento.arc_documento, arc_remesa_documento=remesa_documento, form=form)
@@ -165,15 +165,19 @@ def delete(arc_remesa_documento_id):
     # Datos temporales para consultar después de la eliminación
     expediente = remesa_documento.arc_documento.expediente
     remesa_id = remesa_documento.arc_remesa_id
+    remesa = ArcRemesa.query.get_or_404(remesa_id)
 
     # Validamos los roles permitidos para esta acción
     current_user_roles = current_user.get_roles()
-    if ROL_SOLICITANTE not in current_user_roles or not current_user.can_admin(MODULO):
+    if not (ROL_SOLICITANTE in current_user_roles or current_user.can_admin(MODULO)):
         flash("Solo el ROL de SOLICITANTE puede quitar anexos de una remesa.", "warning")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
     # Elimina permanentemente el registro de documento anexo a esta remesa.
     remesa_documento.delete(permanently=True)
+    # Actualizar el número de documentos anexos de la remesa
+    remesa.num_documentos = ArcRemesaDocumento.query.filter_by(arc_remesa=remesa).count()
+    remesa.save()
 
     # Mostramos el resultado obtenido
     flash(f"Documento Anexo [{expediente}] extraído de la lista de anexos correctamente.", "success")
@@ -241,8 +245,11 @@ def archive(arc_remesa_documento_id):
 def print_list(remesa_id):
     """Envía a la hoja de impresión de listado de documentos anexos a una Remesa"""
 
+    # Localizar remesa
+    remesa = ArcRemesa.query.get_or_404(remesa_id)
+
     # Extremos el listado de documentos anexos de la remesa
     documentos_anexos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).filter_by(estatus="A").all()
 
     # Resultado final de éxito
-    return render_template("arc_remesas_documentos/print.jinja2", remesa_id=remesa_id, documentos_anexos=documentos_anexos)
+    return render_template("arc_remesas_documentos/print.jinja2", remesa=remesa, documentos_anexos=documentos_anexos)
