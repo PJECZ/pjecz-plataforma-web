@@ -153,6 +153,7 @@ def detail(remesa_id):
             "ASIGNADO": "bg-primary",
             "VERIFICADO": "bg-purple",
             "ARCHIVADO": "bg-success",
+            "ARCHIVADO CON ANOMALIA": "bg-teal",
         },
     }
 
@@ -262,7 +263,7 @@ def detail(remesa_id):
             if not remesa.esta_archivado:
                 mostrar_secciones["boton_pasar_historial"] = True
 
-    if remesa.estado == "ARCHIVADO":
+    if remesa.estado == "ARCHIVADO" or remesa.estado == "ARCHIVADO CON ANOMALIA":
         if ROL_SOLICITANTE in current_user_roles:
             if not remesa.esta_archivado:
                 mostrar_secciones["boton_pasar_historial"] = True
@@ -344,6 +345,12 @@ def cancel(remesa_id):
     # Cancelar Remesa
     remesa.estado = "CANCELADO"
     remesa.save()
+    # Guardado de acción en bitacora de la remesa
+    ArcRemesaBitacora(
+        arc_remesa=remesa,
+        usuario=current_user,
+        accion="CANCELADA",
+    ).save()
 
     flash("La Remesa ha sido CANCELADA correctamente.", "success")
     return redirect(url_for("arc_archivos.list_active"))
@@ -666,6 +673,13 @@ def history(remesa_id):
     else:
         remesa.esta_archivado = True
         remesa.save()
+        # Guardado de acción en bitacora de la remesa
+        ArcRemesaBitacora(
+            arc_remesa=remesa,
+            usuario=current_user,
+            accion="PASADA AL HISTORIAL",
+        ).save()
+        # Guardado de registro en bitacora del sistema
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,

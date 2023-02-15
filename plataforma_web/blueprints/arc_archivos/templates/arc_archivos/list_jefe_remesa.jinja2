@@ -5,6 +5,8 @@
 {% block title %}Archivo{% endblock %}
 
 {% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
     .bg-pink {
         color: white;
@@ -17,6 +19,33 @@
     .bg-brown {
         color: white;
         background-color: #653208;
+    }
+    .bg-teal {
+        color: white;
+        background-color: var(--bs-teal);
+    }
+    .select2-container .select2-selection--single {
+        height: 58px;
+        border: 1px solid #ced4da;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 64px;
+        font-size: 1rem;
+        margin-left: -10px;
+    }
+    .select2-selection--single {
+        display: block;
+        width: 100%;
+        padding: .375rem 2.25rem .375rem .75rem;
+        color: #212529;
+        background-color: #fff;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right .75rem center;
+        background-size: 16px 12px;
+    }
+    .select2-selection__arrow, .select2-selection__clear  {
+        visibility: hidden;
     }
     </style>
 {% endblock %}
@@ -36,8 +65,54 @@
     {% call topbar.page_buttons('Solicitudes') %}
     {% endcall %}
     {% call list.card() %}
+        <!-- Formulario de filtros -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar_solicitud(); return false;" autocomplete="off">
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="idInput_solicitud" type="text" class="form-control" aria-label="ID" onchange="buscar_solicitud(); return false;">
+                            <label for="idInput_solicitud">ID</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <select id="juzgadoInput_solicitud" onchange="buscar_solicitud(); return false;" style="text-transform: uppercase"></select>
+                            <label for="juzgadoInput_solicitud">Juzgado</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="documentoInput_solicitud" type="text" class="form-control" aria-label="Documento" onchange="buscar_solicitud(); return false;">
+                            <label for="documentoInput_solicitud">Documento</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select class="form-select" id="estadoSelect_solicitud" name="estadoSelect_solicitud" aria-label="Estado" onchange="buscar_solicitud(); return false;" style="flex: inherit;">
+                                <option selected value="">CUALQUIERA</option>
+                                {% for estado in estados_solicitudes %}
+                                    <option value="{{estado}}">{{estado}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="estadoSelect_solicitud">Estado</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <select id="asignadoInput_solicitud" onchange="buscar_solicitud(); return false;" style="text-transform: uppercase"></select>
+                            <label for="asignadoInput_solicitud">Asignado</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar_solicitud(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar_solicitud();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <!-- Datatable -->
-        <table id="arc_documentos_solicitudes_datatable" class="table display nowrap" style="width:100%">
+        <table id="arc_solicitudes_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -60,6 +135,9 @@
                     <th>ID</th>
                     <th>Última Actualización</th>
                     <th>Juzgado</th>
+                    <th>Año</th>
+                    <th>Núm. Oficio</th>
+                    <th>Tipo Documentos</th>
                     <th>Núm. Docs.</th>
                     <th>Estado</th>
                     <th>Asignado</th>
@@ -72,7 +150,7 @@
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
-        configDataTable['ajax']['url'] = '/arc_documentos_solicitudes/datatable_json';
+        configDataTable['ajax']['url'] = '/arc_solicitudes/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros_solicitudes }};
         configDataTable['columns'] = [
             { data: 'solicitud' },
@@ -148,23 +226,144 @@
         };
 
         // Búsqueda
+        let id = document.getElementById('idInput_solicitud').value;
+        let documento = document.getElementById('documentoInput_solicitud').value;
+        let juzgado_id = document.getElementById('juzgadoInput_solicitud').value;
+        let asignado_id = document.getElementById('asignadoInput_solicitud').value;
+        let estado = document.getElementById('estadoSelect_solicitud').value;
+
+        if(id != '')
+            configDataTable['ajax']['data']['solicitud_id'] = id;
+        if(documento != '')
+            configDataTable['ajax']['data']['expediente'] = documento;
+        if(juzgado_id == '')
+            delete configDataTable['ajax']['data']['juzgado_id'];
+        else
+            configDataTable['ajax']['data']['juzgado_id'] = juzgado_id;
+        if(asignado_id == '')
+            delete configDataTable['ajax']['data']['asignado_id'];
+        else
+            configDataTable['ajax']['data']['asignado_id'] = asignado_id;
+        if(estado != '')
+            configDataTable['ajax']['data']['estado'] = estado;
 
         // Datatable
-        $('#arc_documentos_solicitudes_datatable').DataTable(configDataTable);
+        $('#arc_solicitudes_datatable').DataTable(configDataTable);
+    </script>
+    <!-- Función de buscador -->
+    <script type="text/javascript">
+        function buscar_solicitud() {
+            let id = document.getElementById('idInput_solicitud').value;
+            let documento = document.getElementById('documentoInput_solicitud').value;
+            let juzgado_id = document.getElementById('juzgadoInput_solicitud').value;
+            let asignado_id = document.getElementById('asignadoInput_solicitud').value;
+            let estado = document.getElementById('estadoSelect_solicitud').value;
+
+            if( configDataTable['ajax']['data']['solicitud_id'] === undefined && id === '' &&
+                configDataTable['ajax']['data']['expediente'] === undefined && documento === '' &&
+                configDataTable['ajax']['data']['juzgado_id'] === undefined && juzgado_id === '' &&
+                configDataTable['ajax']['data']['asignado_id'] === undefined && asignado_id === '' &&
+                configDataTable['ajax']['data']['estado'] === undefined && estado === ''
+            ) return false;
+
+            $('#arc_solicitudes_datatable').DataTable().destroy();
+
+            if(id == '')
+                delete configDataTable['ajax']['data']['solicitud_id'];
+            else
+                configDataTable['ajax']['data']['solicitud_id'] = id;
+            if(documento == '')
+                delete configDataTable['ajax']['data']['expediente'];
+            else
+                configDataTable['ajax']['data']['expediente'] = documento;
+            if(juzgado_id == '')
+                delete configDataTable['ajax']['data']['juzgado_id'];
+            else
+                configDataTable['ajax']['data']['juzgado_id'] = juzgado_id;
+            if(asignado_id == '')
+                delete configDataTable['ajax']['data']['asignado_id'];
+            else
+                configDataTable['ajax']['data']['asignado_id'] = asignado_id;
+            if(estado == '')
+                delete configDataTable['ajax']['data']['estado'];
+            else
+                configDataTable['ajax']['data']['estado'] = estado;
+
+            $('#arc_solicitudes_datatable').DataTable(configDataTable);
+        };
+
+        function limpiar_solicitud()  {
+            if( configDataTable['ajax']['data']['solicitud_id'] === undefined &&
+                configDataTable['ajax']['data']['expediente'] === undefined &&
+                configDataTable['ajax']['data']['juzgado_id'] === undefined &&
+                configDataTable['ajax']['data']['asignado_id'] === undefined &&
+                configDataTable['ajax']['data']['estado'] === undefined
+            ) return false;
+            
+            delete configDataTable['ajax']['data']['solicitud_id'];
+            delete configDataTable['ajax']['data']['expediente'];
+            delete configDataTable['ajax']['data']['juzgado_id'];
+            delete configDataTable['ajax']['data']['asignado_id'];
+            delete configDataTable['ajax']['data']['estado'];
+
+            document.getElementById('juzgadoInput_solicitud').textContent = '';
+            document.getElementById('juzgadoInput_solicitud').options[0] = null;
+            document.getElementById('asignadoInput_solicitud').textContent = '';
+            document.getElementById('asignadoInput_solicitud').options[0] = null;
+
+            $('#arc_solicitudes_datatable').DataTable().destroy();
+            $('#arc_solicitudes_datatable').DataTable(configDataTable);
+        };
     </script>
     <!-- DataTable para Remesas -->
     <script>
-        configDataTable['ajax']['url'] = '/arc_remesas/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros_remesas }};
-        configDataTable['columns'] = [
+        let configDataTable_2 = {
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: null,
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: null
+            },
+            columns: null,
+            columnDefs: null,
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        };
+        // ---
+        configDataTable_2['ajax']['url'] = '/arc_remesas/datatable_json';
+        configDataTable_2['ajax']['data'] = {{ filtros_remesas }};
+        configDataTable_2['columns'] = [
             { data: 'remesa' },
             { data: 'tiempo' },
             { data: 'juzgado' },
+            { data: 'anio' },
+            { data: 'num_oficio' },
+            { data: 'tipo_documentos' },
             { data: 'num_docs' },
             { data: 'estado' },
             { data: 'asignado' }
         ];
-        configDataTable['columnDefs'] = [
+        configDataTable_2['columnDefs'] = [
             {
                 targets: 0, // id
                 data: null,
@@ -187,23 +386,25 @@
                 }
             },
             {
-                targets: 4, // estado
+                targets: 7, // estado
                 data: null,
                 render: function(data, type, row, meta) {
+                    let bgcolor = "";
                     switch (data)    {
-                        case "PENDIENTE":       return '<span class="badge rounded-pill bg-warning text-dark">PENDIENTE</span>';   break;
-                        case "CANCELADO":       return '<span class="badge rounded-pill bg-secondary">CANCELADO</span>';   break;
-                        case "ENVIADO":         return '<span class="badge rounded-pill bg-pink">ENVIANDO</span>';   break;
-                        case "ASIGNADO":        return '<span class="badge rounded-pill bg-primary">ASIGNADO</span>';   break;
-                        case "RECHAZADO":       return '<span class="badge rounded-pill bg-danger">RECHAZADO</span>';   break;
-                        case "ENCONTRADO":      return '<span class="badge rounded-pill bg-purple">ENCONTRADO</span>';   break;
-                        case "ARCHIVADO":       return '<span class="badge rounded-pill bg-success">ARCHIVADO</span>';   break;
+                        case "PENDIENTE":       bgcolor = "bg-warning text-dark";   break;
+                        case "CANCELADO":       bgcolor = "bg-secondary";           break;
+                        case "ENVIADO":         bgcolor = "bg-pink";                break;
+                        case "ASIGNADO":        bgcolor = "bg-primary";             break;
+                        case "RECHAZADO":       bgcolor = "bg-danger";              break;
+                        case "ENCONTRADO":      bgcolor = "bg-purple";              break;
+                        case "ARCHIVADO":       bgcolor = "bg-success";             break;
+                        case "ARCHIVADO CON ANOMALIA":  bgcolor = "bg-teal";      break;
                     }
-                    return data;
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';;
                 }
             },
             {
-                targets: 5, // asignado
+                targets: 8, // asignado
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url != "")
@@ -212,7 +413,7 @@
                 }
             }
         ];
-        configDataTable['rowCallback'] = function(row, data) {
+        configDataTable_2['rowCallback'] = function(row, data) {
             switch (data.estado)    {
                 case "PENDIENTE":       $(row).css("background-color", "#fef9e7");  break;
                 case "CANCELADO":       $(row).css("background-color", "#eeeeee");  break;
@@ -221,19 +422,59 @@
                 case "RECHAZADO":       $(row).css("background-color", "#fdedec");  break;
                 case "ENCONTRADO":      $(row).css("background-color", "#f5eef8");  break;
                 case "ARCHIVADO":       $(row).css("background-color", "#d1e7dd");  break;
+                case "ARCHIVADO CON ANOMALIA": $(row).css("background-color", "#d2f4ea");  break;
             }
         };
 
         // Búsqueda
 
         // Datatable
-        $('#arc_remesas_datatable').DataTable(configDataTable);
+        $('#arc_remesas_datatable').DataTable(configDataTable_2);
     </script>
     <!-- Mostar historial -->
     {% if mostrando_historial %}
-    <script>
-        $('.card-body').css('background-color', '#ced4da');
-        $('.card-header').addClass('bg-dark text-light');
-    </script>
+        <script>
+            $('.card-body').css('background-color', '#ced4da');
+            $('.card-header').addClass('bg-dark text-light');
+        </script>
     {% endif %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#juzgadoInput_solicitud').addClass('js-data-example-ajax form-control');
+            $('#juzgadoInput_solicitud').select2({
+                // --- Carga de juzgados por Ajax --- //
+                ajax: {
+                    url: '/autoridades/juzgados_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 3,
+                cache: false
+            });
+            // ---
+            $('#asignadoInput_solicitud').addClass('js-data-example-ajax form-control');
+            $('#asignadoInput_solicitud').select2({
+                // --- Carga de juzgados por Ajax --- //
+                ajax: {
+                    url: '/usuarios_roles/usuarios_con_rol_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'nombre_usuario': params.term.toUpperCase(), 'rol_nombre': "{{ rol_archivista }}" };
+                    }
+                },
+                minimumInputLength: 3,
+                cache: false
+            });
+        });
+    </script>
 {% endblock %}

@@ -9,13 +9,15 @@ from lib.universal_mixin import UniversalMixin
 class ArcRemesaBitacora(db.Model, UniversalMixin):
     """Archivo Remesas Bitácora"""
 
-    ACCIONES = OrderedDict(  # varchar(16)
+    ACCIONES = OrderedDict(  # varchar(24)
         [
             ("CREADA", "Creada"),
+            ("CANCELADA", "Cancelada"),
             ("ENVIADA", "Enviada"),
             ("ASIGNADA", "Asignar"),
             ("RECHAZADA", "Rechazada"),
             ("ARCHIVADA", "Archivada"),
+            ("PASADA AL HISTORIAL", "Pasada al Historial"),
         ]
     )
 

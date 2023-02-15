@@ -5,10 +5,10 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, StringField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Optional, Length
 
-from plataforma_web.blueprints.arc_documentos_solicitudes.models import ArcDocumentoSolicitud
+from plataforma_web.blueprints.arc_solicitudes.models import ArcSolicitud
 
 
-class ArcDocumentoSolicitudNewForm(FlaskForm):
+class ArcSolicitudNewForm(FlaskForm):
     """Formulario nueva Solicitud"""
 
     num_expediente = StringField("Núm. Expediente")
@@ -27,32 +27,32 @@ class ArcDocumentoSolicitudNewForm(FlaskForm):
     solicitar = SubmitField("Solicitar")
 
 
-class ArcDocumentoSolicitudAsignationForm(FlaskForm):
+class ArcSolicitudAsignationForm(FlaskForm):
     """Formulario Asignación"""
 
     asignado = SelectField("Archivista", coerce=int, validate_choice=False, validators=[Optional()])
     asignar = SubmitField("Asignar")
 
 
-class ArcDocumentoSolicitudFoundForm(FlaskForm):
+class ArcSolicitudFoundForm(FlaskForm):
     """Formulario Asignación"""
 
     fojas = IntegerField("Fojas", validators=[Optional()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     encontrado = SubmitField("Encontrado")
     # Formulario de No Encontrado
-    razon = SelectField("Razón", choices=ArcDocumentoSolicitud.RAZONES, validators=[Optional()])
+    razon = SelectField("Razón", choices=ArcSolicitud.RAZONES, validators=[Optional()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     no_encontrado = SubmitField("NO Encontrado")
 
 
-class ArcDocumentoSolicitudSendForm(FlaskForm):
+class ArcSolicitudSendForm(FlaskForm):
     """Formulario para Enviar"""
 
     enviar = SubmitField("Enviar")
 
 
-class ArcDocumentoSolicitudReceiveForm(FlaskForm):
+class ArcSolicitudReceiveForm(FlaskForm):
     """Formulario para Recibir"""
 
     recibir = SubmitField("Recibir")

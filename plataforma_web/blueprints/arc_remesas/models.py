@@ -17,11 +17,11 @@ class ArcRemesa(db.Model, UniversalMixin):
             ("RECHAZADO", "Rechazado"),  # El JEFE_REMESA rechaza la remesa
             ("ASIGNADO", "Asignado"),  # El JEFE_REMESA acepta la remesa y la asigna a un ARCHIVISTA
             ("ARCHIVADO", "Archivado"),  # El ARCHIVISTA termina de procesar la remesa
-            ("ARCHIVADO_CON_ANOMALIA", "Archivado con Anomalía"),  # El ARCHIVISTA termina de procesar la remesa pero almenos un documento presentó anomalía
+            ("ARCHIVADO CON ANOMALIA", "Archivado con Anomalía"),  # El ARCHIVISTA termina de procesar la remesa pero almenos un documento presentó anomalía
         ]
     )
 
-    TIPOS = OrderedDict(  # varchar(16)
+    TIPOS_DOCUMENTOS = OrderedDict(  # varchar(16)
         [
             ("CUADERNILLO", "Cuadernillo"),
             ("ENCOMIENDA", "Encomienda"),
@@ -53,7 +53,7 @@ class ArcRemesa(db.Model, UniversalMixin):
     observaciones = db.Column(db.String(256))
     tiempo_enviado = db.Column(db.DateTime)
     tipo_documentos = db.Column(
-        db.Enum(*TIPOS, name="tipos", native_enum=False),
+        db.Enum(*TIPOS_DOCUMENTOS, name="tipos", native_enum=False),
         index=True,
         nullable=False,
     )

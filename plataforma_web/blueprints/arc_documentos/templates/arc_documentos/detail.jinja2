@@ -58,10 +58,10 @@
             {# {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
             {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}{% endif %} #}
         {% endif %}
-        {% if current_user.can_insert('ARC DOCUMENTOS SOLICITUDES') and documento.ubicacion == 'ARCHIVO' %}
-            {{ topbar.button_new('Solicitar', url_for('arc_documentos_solicitudes.new', documento_id=documento.id)) }}
+        {% if current_user.can_insert('ARC SOLICITUDES') and documento.ubicacion == 'ARCHIVO' %}
+            {{ topbar.button_new('Solicitar', url_for('arc_solicitudes.new', documento_id=documento.id)) }}
         {% endif %}
-        {% if current_user.can_insert('ARC DOCUMENTOS SOLICITUDES') and documento.ubicacion == 'JUZGADO' %}
+        {% if current_user.can_insert('ARC SOLICITUDES') and documento.ubicacion == 'JUZGADO' %}
             {{ topbar.button_new('Añadir a Remesa', url_for('arc_remesas.add_document', documento_id=documento.id)) }}
         {% endif %}
     {% endcall %}
@@ -380,7 +380,7 @@
             }
         };
         // ---
-        configDataTable_2['ajax']['url'] = '/arc_documentos_solicitudes/datatable_json';
+        configDataTable_2['ajax']['url'] = '/arc_solicitudes/datatable_json';
         configDataTable_2['ajax']['data'] = { 'estatus': "A", 'arc_documento_id': {{ documento.id }}, 'orden_acendente': true };
         configDataTable_2['columns'] = [
             { data: 'solicitud' },

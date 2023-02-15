@@ -2,6 +2,7 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
 {% import 'macros/form.jinja2' as f with context %}
 
 
@@ -32,10 +33,10 @@
             {{ topbar.button_previous('Solicitudes', url_for('arc_archivos.list_active')) }}
         {% endif %}
         {% if mostrar_secciones["boton_cancelar_solicitud"] %}
-            {{ topbar.button_delete('Cancelar', url_for('arc_documentos_solicitudes.cancel', solicitud_id=solicitud.id)) }}
+            {{ topbar.button_delete('Cancelar', url_for('arc_solicitudes.cancel', solicitud_id=solicitud.id)) }}
         {% endif %}
         {% if mostrar_secciones["boton_pasar_historial"] %}
-            {{ topbar.button('Pasar al Historial', url_for('arc_documentos_solicitudes.history', solicitud_id=solicitud.id), "mdi:history") }}
+            {{ topbar.button('Pasar al Historial', url_for('arc_solicitudes.history', solicitud_id=solicitud.id), "mdi:history") }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -91,7 +92,7 @@
             <div class="card-body" style="background-color: #d1e7dd;">
             {% if archivistas %}
                 {% set form_kwargs = {'solicitud_id': solicitud.id} %}
-                    {% call f.form_tag('arc_documentos_solicitudes.asign', fid='solicitud_form', **form_kwargs) %}
+                    {% call f.form_tag('arc_solicitudes.assign', fid='solicitud_form', **form_kwargs) %}
                         <div class="form-group mb-2">
                             <label for="asignado">Archivista</label>
                             <select class="form-control" id="asignado" name="asignado">
@@ -121,7 +122,7 @@
     {% if mostrar_secciones['formulario_encontrado'] %}
         {% call detail.card('Encontrado') %}
             {% set form_kwargs = {'solicitud_id': solicitud.id} %}
-            {% call f.form_tag('arc_documentos_solicitudes.found', fid='solicitud_form', **form_kwargs) %}
+            {% call f.form_tag('arc_solicitudes.found', fid='solicitud_form', **form_kwargs) %}
                 {% call f.form_group(form.fojas) %}{% endcall %}
                 {% call f.form_group(form.observaciones) %}{% endcall %}
                 {% call f.form_group(form.encontrado) %}{% endcall %}
@@ -129,7 +130,7 @@
         {% endcall %}
         {% call detail.card('NO Encontrado') %}
             {% set form_kwargs = {'solicitud_id': solicitud.id} %}
-            {% call f.form_tag('arc_documentos_solicitudes.no_found', fid='solicitud_form', **form_kwargs) %}
+            {% call f.form_tag('arc_solicitudes.no_found', fid='solicitud_form', **form_kwargs) %}
                 {% call f.form_group(form.razon) %}{% endcall %}
                 {% call f.form_group(form.observaciones) %}{% endcall %}
                 <input class="btn btn-danger" id="no_encontrado" name="no_encontrado" type="submit" value="NO Encontrado">
@@ -152,7 +153,7 @@
             <div class="card-header bg-pink text-light" style="font-weight: bold;">ENVIAR</div>
             <div class="card-body" style="background-color: #f7d6e6;">
                 {% set form_kwargs = {'solicitud_id': solicitud.id} %}
-                {% call f.form_tag('arc_documentos_solicitudes.send', fid='solicitud_form', **form_kwargs) %}
+                {% call f.form_tag('arc_solicitudes.send', fid='solicitud_form', **form_kwargs) %}
                     {% call f.form_group(form.enviar) %}{% endcall %}
                 {% endcall %}
             </div>
@@ -164,7 +165,7 @@
             <div class="card-header bg-success text-light" style="font-weight: bold;">RECIBIR</div>
             <div class="card-body" style="background-color: #d1e7dd;">
                 {% set form_kwargs = {'solicitud_id': solicitud.id} %}
-                {% call f.form_tag('arc_documentos_solicitudes.receive', fid='solicitud_form', **form_kwargs) %}
+                {% call f.form_tag('arc_solicitudes.receive', fid='solicitud_form', **form_kwargs) %}
                     {% call f.form_group(form.recibir) %}{% endcall %}
                 {% endcall %}
             </div>
@@ -184,11 +185,25 @@
             </div>
         </div>
     {% endif %}
+    {# Listado de la Bitacora Solicitud #}
+    {% call detail.card('Bitacora Solicitud') %}
+        <!-- Datatable -->
+        <table id="arc_solicitud_bitacora_datatable" class="table hover display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
     {{ detail.moment_js(moment) }}
-    {% if current_user.can_edit('ARC DOCUMENTOS SOLICITUDES') %}
+    {% if current_user.can_edit('ARC SOLICITUDES') %}
         {{ modals.custom_javascript_delete('Cancelar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?') }}
     {% endif %}
     <!-- Mostar historial -->
@@ -198,4 +213,64 @@
             $('.card-header').addClass('bg-dark text-light');
         </script>
     {% endif %}
+    <!-- DataTable para Bitacora -->
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/arc_solicitudes_bitacoras/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros_bitacora }};
+        configDataTable['columns'] = [
+            { data: 'tiempo' },
+            { data: 'usuario' },
+            { data: 'accion' },
+            { data: 'observaciones' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 1, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.nombre.length > 24) 
+                        return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span></a>';
+                    else   
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 2, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "SOLICITADA":          bgclass = "bg-warning text-dark";     break;
+                        case "CANCELADA":           bgclass = "bg-secondary";     break;
+                        case "ASIGNADA":            bgclass = "bg-primary";     break;
+                        case "ENCONTRADA":          bgclass = "bg-pink";     break;
+                        case "NO ENCONTRADA":       bgclass = "bg-danger";     break;
+                        case "ENVIADA":             bgclass = "bg-purple";     break;
+                        case "ENTREGADA":           bgclass = "bg-success";     break;
+                        case "PASADA AL HISTORIAL": bgclass = "bg-brown";     break;
+                    }
+                    return '<span class="badge rounded-pill ' + bgclass + '">' + data + '</span>';
+                }
+            },
+            {
+                targets: 3, // Observaciones
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 24)
+                        return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
+                    else
+                        return data;
+                }
+            },
+        ];
+        // Datatable
+        $('#arc_solicitud_bitacora_datatable').DataTable(configDataTable);
+    </script>
 {% endblock %}

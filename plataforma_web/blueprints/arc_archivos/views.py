@@ -11,7 +11,8 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_expediente, safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
-from plataforma_web.blueprints.arc_documentos_solicitudes.models import ArcDocumentoSolicitud
+from plataforma_web.blueprints.arc_solicitudes.models import ArcSolicitud
+from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
 from plataforma_web.blueprints.permisos.models import Permiso
 
 
@@ -45,7 +46,9 @@ def list_active():
             filtros=json.dumps({"estatus": "A", "omitir_archivados": True}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
-            estados=ArcDocumentoSolicitud.ESTADOS,
+            estados_solicitudes=ArcSolicitud.ESTADOS,
+            estados_remesas=ArcRemesa.ESTADOS,
+            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         )
     if ROL_SOLICITANTE in current_user_roles:
         return render_template(
@@ -54,7 +57,9 @@ def list_active():
             filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
-            estados=ArcDocumentoSolicitud.ESTADOS,
+            estados_solicitudes=ArcSolicitud.ESTADOS,
+            estados_remesas=ArcRemesa.ESTADOS,
+            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         )
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(
@@ -63,7 +68,10 @@ def list_active():
             filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "omitir_pendientes": True}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
-            estados=ArcDocumentoSolicitud.ESTADOS,
+            estados_solicitudes=ArcSolicitud.ESTADOS,
+            estados_remesas=ArcRemesa.ESTADOS,
+            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
+            rol_archivista=ROL_ARCHIVISTA,
         )
     if ROL_ARCHIVISTA in current_user_roles:
         return render_template(
@@ -72,7 +80,10 @@ def list_active():
             filtros_remesas=json.dumps({"asignado_id": current_user.id, "estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "omitir_pendientes": True}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
-            estados=ArcDocumentoSolicitud.ESTADOS,
+            estados_solicitudes=ArcSolicitud.ESTADOS,
+            estados_remesas=ArcRemesa.ESTADOS,
+            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
+            rol_archivista=ROL_ARCHIVISTA,
         )
     # Por defecto
     return render_template(
@@ -80,7 +91,9 @@ def list_active():
         filtros=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
         estatus="A",
         titulo="Archivo - Bandeja de Entrada 📥",
-        estados=ArcDocumentoSolicitud.ESTADOS,
+        estados_solicitudes=ArcSolicitud.ESTADOS,
+        estados_remesas=ArcRemesa.ESTADOS,
+        tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
     )
 
 
@@ -99,7 +112,9 @@ def list_history():
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
-            estados=ArcDocumentoSolicitud.ESTADOS,
+            estados_solicitudes=ArcSolicitud.ESTADOS,
+            estados_remesas=ArcRemesa.ESTADOS,
+            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         )
     if ROL_SOLICITANTE in current_user_roles:
         return render_template(
@@ -109,7 +124,9 @@ def list_history():
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
-            estados=ArcDocumentoSolicitud.ESTADOS,
+            estados_solicitudes=ArcSolicitud.ESTADOS,
+            estados_remesas=ArcRemesa.ESTADOS,
+            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         )
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(
@@ -119,7 +136,10 @@ def list_history():
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
-            estados=ArcDocumentoSolicitud.ESTADOS,
+            estados_solicitudes=ArcSolicitud.ESTADOS,
+            estados_remesas=ArcRemesa.ESTADOS,
+            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
+            rol_archivista=ROL_ARCHIVISTA,
         )
     if ROL_ARCHIVISTA in current_user_roles:
         return render_template(
@@ -129,7 +149,10 @@ def list_history():
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
-            estados=ArcDocumentoSolicitud.ESTADOS,
+            estados_solicitudes=ArcSolicitud.ESTADOS,
+            estados_remesas=ArcRemesa.ESTADOS,
+            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
+            rol_archivista=ROL_ARCHIVISTA,
         )
     # Por defecto
     return render_template(
@@ -139,5 +162,7 @@ def list_history():
         estatus="A",
         titulo="Archivo - Historial 🗃️",
         mostrando_historial=True,
-        estados=ArcDocumentoSolicitud.ESTADOS,
+        estados_solicitudes=ArcSolicitud.ESTADOS,
+        estados_remesas=ArcRemesa.ESTADOS,
+        tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
     )

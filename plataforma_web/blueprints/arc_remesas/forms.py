@@ -22,7 +22,7 @@ class ArcRemesaNewForm(FlaskForm):
 
     num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1950, date.today().year)])
-    tipo_documentos = SelectField("Tipo de Documentos", choices=ArcRemesa.TIPOS, validators=[DataRequired()])
+    tipo_documentos = SelectField("Tipo de Documentos", choices=ArcRemesa.TIPOS_DOCUMENTOS, validators=[DataRequired()])
     crear = SubmitField("Crear")
 
 

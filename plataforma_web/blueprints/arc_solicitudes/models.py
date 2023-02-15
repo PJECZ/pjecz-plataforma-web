@@ -4,10 +4,9 @@ Archivo Documentos Solicitudes, modelos
 from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
-from sqlalchemy.sql import func
 
 
-class ArcDocumentoSolicitud(db.Model, UniversalMixin):
+class ArcSolicitud(db.Model, UniversalMixin):
     """Archivo Documentos Solicitudes"""
 
     ESTADOS = OrderedDict(  # varchar(16)
@@ -31,18 +30,18 @@ class ArcDocumentoSolicitud(db.Model, UniversalMixin):
     )
 
     # Nombre de la tabla
-    __tablename__ = "arc_documentos_solicitudes"
+    __tablename__ = "arc_solicitudes"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
     arc_documento_id = db.Column(db.Integer, db.ForeignKey("arc_documentos.id"), index=True, nullable=False)
-    arc_documento = db.relationship("ArcDocumento", back_populates="arc_documentos_solicitudes")
+    arc_documento = db.relationship("ArcDocumento", back_populates="arc_solicitudes")
     autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    autoridad = db.relationship("Autoridad", back_populates="arc_documentos_solicitudes")
+    autoridad = db.relationship("Autoridad", back_populates="arc_solicitudes")
     usuario_asignado_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True)
-    usuario_asignado = db.relationship("Usuario", back_populates="arc_documentos_solicitudes_asignado")
+    usuario_asignado = db.relationship("Usuario", back_populates="arc_solicitudes_asignado")
 
     # Columnas
     usuario_receptor_id = db.Column(db.Integer)
@@ -57,6 +56,9 @@ class ArcDocumentoSolicitud(db.Model, UniversalMixin):
     razon = db.Column(db.Enum(*RAZONES, name="razon", native_enum=False))
     observaciones_solicitud = db.Column(db.String(256))
     observaciones_razon = db.Column(db.String(256))
+
+    # Hijos
+    arc_solicitudes_bitacoras = db.relationship("ArcSolicitudBitacora", back_populates="arc_solicitud", lazy="noload")
 
     def __repr__(self):
         """Representación"""

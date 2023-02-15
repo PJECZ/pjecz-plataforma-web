@@ -43,7 +43,7 @@
     {% endcall %}
     {% call list.card() %}
         <!-- Datatable -->
-        <table id="arc_documentos_solicitudes_datatable" class="table hover display nowrap" style="width:100%">
+        <table id="arc_solicitudes_datatable" class="table hover display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -81,7 +81,7 @@
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
-        configDataTable['ajax']['url'] = '/arc_documentos_solicitudes/datatable_json';
+        configDataTable['ajax']['url'] = '/arc_solicitudes/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros_solicitudes }};
         configDataTable['columns'] = [
             { data: 'solicitud' },
@@ -161,7 +161,7 @@
         // Búsqueda
 
         // Datatable
-        $('#arc_documentos_solicitudes_datatable').DataTable(configDataTable);
+        $('#arc_solicitudes_datatable').DataTable(configDataTable);
     </script>
     <!-- Mostar historial -->
     {% if mostrando_historial %}

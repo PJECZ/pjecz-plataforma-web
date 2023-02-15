@@ -58,7 +58,8 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
 
     # Hijos
     arc_documentos_bitacoras = db.relationship("ArcDocumentoBitacora", back_populates="usuario", lazy="noload")
-    arc_documentos_solicitudes_asignado = db.relationship("ArcDocumentoSolicitud", back_populates="usuario_asignado", lazy="noload")
+    arc_solicitudes_asignado = db.relationship("ArcSolicitud", back_populates="usuario_asignado", lazy="noload")
+    arc_solicitudes_bitacoras = db.relationship("ArcSolicitudBitacora", back_populates="usuario", lazy="noload")
     arc_remesas = db.relationship("ArcRemesa", back_populates="usuario_asignado", lazy="noload")
     arc_remesas_bitacoras = db.relationship("ArcRemesaBitacora", back_populates="usuario", lazy="noload")
     bitacoras = db.relationship("Bitacora", back_populates="usuario", lazy="noload")

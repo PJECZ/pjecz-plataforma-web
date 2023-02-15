@@ -7,12 +7,14 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_message
+from lib.safe_string import safe_message, safe_string
+from sqlalchemy import or_
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
+from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios_roles.forms import UsuarioRolWithUsuarioForm
 
 MODULO = "USUARIOS ROLES"
@@ -234,3 +236,21 @@ def recover(usuario_rol_id):
         flash(safe_message(f"Recuperado usuario-rol {usuario_rol.descripcion}"), "success")
         return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))
     return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))
+
+
+@usuarios_roles.route("/usuarios_roles/usuarios_con_rol_json", methods=["POST"])
+def query_usuarios_con_rol_json():
+    """Proporcionar el JSON de autoridades para elegir Juzgados con un Select2"""
+
+    if "rol_nombre" in request.form:
+        rol_nombre = safe_string(request.form["rol_nombre"]).upper()
+        consulta = UsuarioRol.query.join(Usuario).join(Rol)
+        consulta = consulta.filter(UsuarioRol.estatus == "A").filter(Usuario.estatus == "A").filter(Rol.estatus == "A")
+        consulta = consulta.filter(Rol.nombre == rol_nombre)
+        if "nombre_usuario" in request.form:
+            texto = safe_string(request.form["nombre_usuario"]).upper()
+            consulta = consulta.filter(or_(Usuario.nombres.contains(texto), Usuario.apellido_paterno.contains(texto), Usuario.apellido_materno.contains(texto)))
+    results = []
+    for usuario in consulta.order_by(Usuario.nombres).limit(15).all():
+        results.append({"id": usuario.usuario.id, "text": usuario.usuario.nombre})
+    return {"results": results, "pagination": {"more": False}}
