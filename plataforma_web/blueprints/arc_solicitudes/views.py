@@ -606,3 +606,22 @@ def receive(solicitud_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     return redirect(url_for("arc_solicitudes.detail", solicitud_id=solicitud_id))
+
+
+@arc_solicitudes.route("/arc_solicitudes/imprimir_listado/", methods=["GET", "POST"])
+def print_list():
+    """Pagina de impresión de listado de Solicitudes Activas por ROL"""
+
+    # Preparar la consulta
+    solicitudes = ArcSolicitud.query.filter_by(esta_archivado=False).filter_by(estatus="A")
+
+    # Asignación por Roles
+    current_user_roles = current_user.get_roles()
+    if ROL_ARCHIVISTA in current_user_roles:
+        solicitudes = solicitudes.filter_by(usuario_asignado=current_user)
+
+    # Listar todas las solicitudes
+    solicitudes = solicitudes.all()
+
+    # Resultado para impresión
+    return render_template("arc_solicitudes/print.jinja2", solicitudes=solicitudes)

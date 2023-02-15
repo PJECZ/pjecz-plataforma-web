@@ -117,7 +117,7 @@
                 </tr>
             </thead>
         </table>
-        <a href="#" target="_blank" type="button" class="btn btn-primary disabled" ><span class="iconify" data-icon="mdi:printer"></span> Imprimir Listado</a>
+        <a href="{{url_for('arc_solicitudes.print_list')}}" target="_blank" type="button" class="btn btn-primary" ><span class="iconify" data-icon="mdi:printer"></span> Imprimir Listado</a>
     {% endcall %}
     {% call topbar.page_buttons('Remesas') %}
     {% endcall %}
