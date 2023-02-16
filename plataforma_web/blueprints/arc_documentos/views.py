@@ -172,7 +172,7 @@ def new():
                 demandado=safe_string(form.demandado.data, save_enie=True),
                 juicio=safe_string(form.juicio.data, save_enie=True),
                 tipo_juzgado=safe_string(form.tipo_juzgado.data),
-                juzgado_origen=safe_string(form.juzgado_origen.data, save_enie=True),
+                arc_juzgado_origen=form.juzgado_origen.data,
                 tipo=safe_string(form.tipo.data),
                 fojas=int(form.fojas.data),
                 ubicacion=ubicacion,
@@ -225,9 +225,7 @@ def edit(arc_documento_id):
         if isinstance(form, ArcDocumentoEditArchivoForm):
             juzgado_id = int(form.juzgado_id.data)
             ubicacion = safe_string(form.ubicacion.data)
-            fojas = None
-            if documento.fojas != int(form.fojas.data):
-                fojas = int(form.fojas.data)
+            fojas = int(form.fojas.data)
         else:
             juzgado_id = current_user.autoridad.id
             ubicacion = documento.ubicacion
@@ -249,7 +247,7 @@ def edit(arc_documento_id):
             documento.demandado = safe_string(form.demandado.data, save_enie=True)
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
             documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
-            documento.juzgado_origen = safe_string(form.juzgado_origen.data, save_enie=True)
+            documento.arc_juzgado_origen = form.juzgado_origen.data
             documento.tipo = safe_string(form.tipo.data)
             documento.fojas = fojas
             documento.ubicacion = ubicacion
@@ -275,7 +273,7 @@ def edit(arc_documento_id):
     form.anio.data = documento.anio
     form.actor.data = documento.actor
     form.demandado.data = documento.demandado
-    form.juzgado_origen.data = documento.juzgado_origen
+    form.juzgado_origen.data = documento.arc_juzgado_origen
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.tipo

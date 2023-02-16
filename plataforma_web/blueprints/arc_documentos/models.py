@@ -47,6 +47,8 @@ class ArcDocumento(db.Model, UniversalMixin):
     # Clave foránea
     autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
     autoridad = db.relationship("Autoridad", back_populates="arc_documentos")
+    arc_juzgado_origen_id = db.Column(db.Integer, db.ForeignKey("arc_juzgados_extintos.id"), index=True, nullable=False)
+    arc_juzgado_origen = db.relationship("ArcJuzgadoExtinto", back_populates="arc_documentos")
 
     # Columnas
     actor = db.Column(db.String(256), nullable=False)
@@ -54,7 +56,6 @@ class ArcDocumento(db.Model, UniversalMixin):
     demandado = db.Column(db.String(256))
     expediente = db.Column(db.String(16), index=True, nullable=False)  # dígitos/YYYY-XXX
     juicio = db.Column(db.String(128))
-    juzgado_origen = db.Column(db.String(64))
     fojas = db.Column(db.Integer, nullable=False)
     tipo_juzgado = db.Column(
         db.Enum(*TIPO_JUZGADOS, name="tipo_juzgados", native_enum=False),

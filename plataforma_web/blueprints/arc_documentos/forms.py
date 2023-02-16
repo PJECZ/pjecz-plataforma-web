@@ -5,8 +5,15 @@ from flask_wtf import FlaskForm
 from datetime import date
 from wtforms import IntegerField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from plataforma_web.blueprints.arc_documentos.models import ArcDocumento
+from plataforma_web.blueprints.arc_juzgados_extintos.models import ArcJuzgadoExtinto
+
+
+def juzgados_extintos_opciones():
+    """Opciones para select"""
+    return ArcJuzgadoExtinto.query.filter_by(estatus="A").order_by(ArcJuzgadoExtinto.clave).all()
 
 
 class ArcDocumentoNewArchivoForm(FlaskForm):
@@ -18,7 +25,7 @@ class ArcDocumentoNewArchivoForm(FlaskForm):
     actor = StringField("Actor", validators=[DataRequired(), Length(max=256)])
     demandado = StringField("Demandado", validators=[Optional(), Length(max=256)])
     juicio = StringField("Juicio", validators=[Optional(), Length(max=128)])
-    juzgado_origen = StringField("Juzgado Origen", validators=[Optional(), Length(max=64)])
+    juzgado_origen = QuerySelectField("Juzgado Origen", query_factory=juzgados_extintos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
     tipo = SelectField("Tipo de Documento", choices=ArcDocumento.TIPOS, validators=[DataRequired()])
     ubicacion = SelectField("Ubicación", choices=ArcDocumento.UBICACIONES, validators=[DataRequired()])
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
@@ -37,7 +44,7 @@ class ArcDocumentoNewSolicitanteForm(FlaskForm):
     actor = StringField("Actor", validators=[DataRequired(), Length(max=256)])
     demandado = StringField("Demandado", validators=[Optional(), Length(max=256)])
     juicio = StringField("Juicio", validators=[Optional(), Length(max=128)])
-    juzgado_origen = StringField("Juzgado Origen", validators=[Optional(), Length(max=64)])
+    juzgado_origen = QuerySelectField("Juzgado Origen", query_factory=juzgados_extintos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
     tipo = SelectField("Tipo de Documento", choices=ArcDocumento.TIPOS, validators=[DataRequired()])
     ubicacion_readonly = StringField("Ubicación")
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
@@ -56,7 +63,7 @@ class ArcDocumentoEditArchivoForm(FlaskForm):
     actor = StringField("Actor", validators=[DataRequired(), Length(max=256)])
     demandado = StringField("Demandado", validators=[Optional(), Length(max=256)])
     juicio = StringField("Juicio", validators=[Optional(), Length(max=128)])
-    juzgado_origen = StringField("Juzgado Origen", validators=[Optional(), Length(max=64)])
+    juzgado_origen = QuerySelectField("Juzgado Origen", query_factory=juzgados_extintos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
     tipo = SelectField("Tipo de Documento", choices=ArcDocumento.TIPOS, validators=[DataRequired()])
     ubicacion = SelectField("Ubicación", choices=ArcDocumento.UBICACIONES, validators=[DataRequired()])
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
@@ -75,7 +82,7 @@ class ArcDocumentoEditSolicitanteForm(FlaskForm):
     actor = StringField("Actor", validators=[DataRequired(), Length(max=256)])
     demandado = StringField("Demandado", validators=[Optional(), Length(max=256)])
     juicio = StringField("Juicio", validators=[Optional(), Length(max=128)])
-    juzgado_origen = StringField("Juzgado Origen", validators=[Optional(), Length(max=64)])
+    juzgado_origen = QuerySelectField("Juzgado Origen", query_factory=juzgados_extintos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
     tipo = SelectField("Tipo de Documento", choices=ArcDocumento.TIPOS, validators=[DataRequired()])
     ubicacion_readonly = StringField("Ubicación")
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])

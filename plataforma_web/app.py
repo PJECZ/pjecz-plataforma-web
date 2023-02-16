@@ -10,6 +10,7 @@ from plataforma_web.blueprints.abogados.views import abogados
 from plataforma_web.blueprints.arc_archivos.views import arc_archivos
 from plataforma_web.blueprints.arc_documentos.views import arc_documentos
 from plataforma_web.blueprints.arc_documentos_bitacoras.views import arc_documentos_bitacoras
+from plataforma_web.blueprints.arc_juzgados_extintos.views import arc_juzgados_extintos
 from plataforma_web.blueprints.arc_solicitudes.views import arc_solicitudes
 from plataforma_web.blueprints.arc_solicitudes_bitacoras.views import arc_solicitudes_bitacoras
 from plataforma_web.blueprints.arc_remesas.views import arc_remesas
@@ -92,6 +93,7 @@ def create_app():
     app.register_blueprint(arc_archivos)
     app.register_blueprint(arc_documentos)
     app.register_blueprint(arc_documentos_bitacoras)
+    app.register_blueprint(arc_juzgados_extintos)
     app.register_blueprint(arc_solicitudes)
     app.register_blueprint(arc_solicitudes_bitacoras)
     app.register_blueprint(arc_remesas)

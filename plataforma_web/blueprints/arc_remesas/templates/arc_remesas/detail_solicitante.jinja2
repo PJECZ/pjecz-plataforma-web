@@ -72,9 +72,8 @@
         {% if remesa.num_anomalias > 0 %}
             <div class="row">
                 <div class="col-md-3 text-end">Núm. Anomalías</div>
-                    <div class="col-md-9">
-                        <span class="badge rounded-pill bg-danger">{{ remesa.num_anomalias }}</span>
-                    </div>
+                <div class="col-md-9">
+                    <span class="badge rounded-pill bg-danger">{{ remesa.num_anomalias }}</span>
                 </div>
             </div>
         {% endif %}
@@ -239,14 +238,16 @@
                 targets: 2, // estado
                 data: null,
                 render: function(data, type, row, meta) {
+                    bg_class = "";
                     switch (data)    {
-                        case "CREADA":       return '<span class="badge rounded-pill bg-warning text-dark">CREADA</span>';   break;
-                        case "ENVIADA":         return '<span class="badge rounded-pill bg-pink">ENVIADA</span>';   break;
-                        case "ASIGNADA":        return '<span class="badge rounded-pill bg-primary">ASIGNADA</span>';   break;
-                        case "RECHAZADA":       return '<span class="badge rounded-pill bg-danger">RECHAZADA</span>';   break;
-                        case "ARCHIVADA":       return '<span class="badge rounded-pill bg-success">ARCHIVADA</span>';   break;
+                        case "CREADA":                  bg_class="bg-warning text-dark";    break;
+                        case "ENVIADA":                 bg_class="bg-pink";                 break;
+                        case "ASIGNADA":                bg_class="bg-primary";              break;
+                        case "RECHAZADA":               bg_class="bg-danger";               break;
+                        case "ARCHIVADA":               bg_class="bg-success";              break;
+                        case "ARCHIVADA CON ANOMALIA":  bg_class="bg-teal";                 break;
                     }
-                    return data;
+                    return '<span class="badge rounded-pill ' + bg_class + '">' + data + '</span>';
                 }
             },
             {

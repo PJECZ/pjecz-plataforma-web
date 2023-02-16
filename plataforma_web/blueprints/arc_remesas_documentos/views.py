@@ -68,7 +68,7 @@ def datatable_json():
                 "anio": resultado.arc_documento.anio,
                 "tipo": resultado.arc_documento.tipo,
                 "juicio": resultado.arc_documento.juicio,
-                "juzgado_origen": resultado.arc_documento.juzgado_origen,
+                "juzgado_origen": resultado.arc_documento.arc_juzgado_origen.nombre,
                 "fojas": {
                     "nuevas": resultado.fojas,
                     "anteriores": resultado.arc_documento.fojas,
