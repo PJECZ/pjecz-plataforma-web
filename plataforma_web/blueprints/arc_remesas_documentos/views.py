@@ -252,4 +252,4 @@ def print_list(remesa_id):
     documentos_anexos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).filter_by(estatus="A").all()
 
     # Resultado final de éxito
-    return render_template("arc_remesas_documentos/print.jinja2", remesa=remesa, documentos_anexos=documentos_anexos)
+    return render_template("arc_remesas_documentos/print_list.jinja2", remesa=remesa, documentos_anexos=documentos_anexos)

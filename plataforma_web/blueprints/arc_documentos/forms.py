@@ -9,7 +9,7 @@ from wtforms.validators import DataRequired, Length, NumberRange, Optional
 from plataforma_web.blueprints.arc_documentos.models import ArcDocumento
 
 
-class ArcDocumentoNewForm(FlaskForm):
+class ArcDocumentoNewArchivoForm(FlaskForm):
     """Formulario nuevo Documento"""
 
     num_expediente = StringField("Núm. Expediente", validators=[DataRequired(), Length(max=16)])
@@ -25,10 +25,29 @@ class ArcDocumentoNewForm(FlaskForm):
     # Campos opcionales para la bitácora o historial
     fojas = IntegerField("Fojas", validators=[DataRequired()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
-    guardar = SubmitField("Guardar")
+    crear = SubmitField("Crear")
 
 
-class ArcDocumentoEditForm(FlaskForm):
+class ArcDocumentoNewSolicitanteForm(FlaskForm):
+    """Formulario nuevo Documento"""
+
+    num_expediente = StringField("Núm. Expediente", validators=[DataRequired(), Length(max=16)])
+    anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1950, date.today().year)])
+    juzgado_readonly = StringField("Juzgado")
+    actor = StringField("Actor", validators=[DataRequired(), Length(max=256)])
+    demandado = StringField("Demandado", validators=[Optional(), Length(max=256)])
+    juicio = StringField("Juicio", validators=[Optional(), Length(max=128)])
+    juzgado_origen = StringField("Juzgado Origen", validators=[Optional(), Length(max=64)])
+    tipo = SelectField("Tipo de Documento", choices=ArcDocumento.TIPOS, validators=[DataRequired()])
+    ubicacion_readonly = StringField("Ubicación")
+    tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
+    # Campos opcionales para la bitácora o historial
+    fojas = IntegerField("Fojas", validators=[DataRequired()])
+    observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
+    crear = SubmitField("Crear")
+
+
+class ArcDocumentoEditArchivoForm(FlaskForm):
     """Formulario modificar Documento"""
 
     num_expediente = StringField("Núm. Expediente", validators=[DataRequired(), Length(max=16)])
@@ -43,5 +62,24 @@ class ArcDocumentoEditForm(FlaskForm):
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
     # Campos opcionales para la bitácora o historial
     fojas = IntegerField("Fojas", validators=[DataRequired()])
+    observaciones = TextAreaField("Motivo", validators=[DataRequired(), Length(min=5, max=256)])
+    guardar = SubmitField("Guardar")
+
+
+class ArcDocumentoEditSolicitanteForm(FlaskForm):
+    """Formulario modificar Documento"""
+
+    num_expediente = StringField("Núm. Expediente", validators=[DataRequired(), Length(max=16)])
+    anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1950, date.today().year)])
+    juzgado_readonly = StringField("Juzgado")
+    actor = StringField("Actor", validators=[DataRequired(), Length(max=256)])
+    demandado = StringField("Demandado", validators=[Optional(), Length(max=256)])
+    juicio = StringField("Juicio", validators=[Optional(), Length(max=128)])
+    juzgado_origen = StringField("Juzgado Origen", validators=[Optional(), Length(max=64)])
+    tipo = SelectField("Tipo de Documento", choices=ArcDocumento.TIPOS, validators=[DataRequired()])
+    ubicacion_readonly = StringField("Ubicación")
+    tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
+    # Campos opcionales para la bitácora o historial
+    fojas_readonly = IntegerField("Fojas")
     observaciones = TextAreaField("Motivo", validators=[DataRequired(), Length(min=5, max=256)])
     guardar = SubmitField("Guardar")

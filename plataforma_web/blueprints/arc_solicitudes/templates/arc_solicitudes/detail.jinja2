@@ -60,10 +60,10 @@
             </div>
         </div>
     {% endcall %}
-    {# Detalles Observaciones #}
+    {# Detalles Observaciones por el solicitante #}
     {% if solicitud.num_folio or solicitud.observaciones_solicitud %}
         <div class="card mb-3">
-            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones</div>
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones por el Solicitante</div>
             <div class="card-body" style="background-color: #fff3cd;">
                 {{ detail.label_value('Núm. Folio', solicitud.num_folio) }}
                 {{ detail.label_value('Observaciones', solicitud.observaciones_solicitud) }}
@@ -250,9 +250,9 @@
                         case "SOLICITADA":          bgclass = "bg-warning text-dark";     break;
                         case "CANCELADA":           bgclass = "bg-secondary";     break;
                         case "ASIGNADA":            bgclass = "bg-primary";     break;
-                        case "ENCONTRADA":          bgclass = "bg-pink";     break;
+                        case "ENCONTRADA":          bgclass = "bg-purple";     break;
                         case "NO ENCONTRADA":       bgclass = "bg-danger";     break;
-                        case "ENVIADA":             bgclass = "bg-purple";     break;
+                        case "ENVIADA":             bgclass = "bg-pink";     break;
                         case "ENTREGADA":           bgclass = "bg-success";     break;
                         case "PASADA AL HISTORIAL": bgclass = "bg-brown";     break;
                     }

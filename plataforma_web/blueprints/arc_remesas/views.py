@@ -302,7 +302,7 @@ def new():
                 num_anomalias=0,
             ).save()
             # Guardado de acción en bitacora de la remesa
-            remesa_bitacora = ArcRemesaBitacora(
+            ArcRemesaBitacora(
                 arc_remesa=remesa,
                 usuario=current_user,
                 accion="CREADA",
@@ -425,8 +425,9 @@ def edit(remesa_id):
     form = ArcRemesaEditForm()
     if form.validate_on_submit():
         remesa.anio = form.anio.data
+        remesa.tipo_documentos = safe_string(form.tipo_documentos.data)
         remesa.num_oficio = safe_string(form.num_oficio.data)
-        remesa.observaciones = safe_message(form.observaciones.data)
+        remesa.observaciones = safe_message(form.observaciones.data, default_output_str=None)
         remesa.save()
 
         # Agregamos a la bitácora la acción realizada
@@ -441,10 +442,11 @@ def edit(remesa_id):
         return redirect(bitacora.url)
 
     # Datos pre-cargados
-    form.creado.data = remesa.creado.strftime("%Y/%m/%d - %H:%M %p")
-    form.juzgado.data = remesa.autoridad.clave + " : " + remesa.autoridad.descripcion_corta
-    form.num_oficio.data = remesa.num_oficio
+    form.creado_readonly.data = remesa.creado.strftime("%Y/%m/%d - %H:%M %p")
+    form.juzgado_readonly.data = remesa.autoridad.clave + " : " + remesa.autoridad.descripcion_corta
     form.anio.data = remesa.anio
+    form.tipo_documentos.data = remesa.tipo_documentos
+    form.num_oficio.data = remesa.num_oficio
     form.observaciones.data = remesa.observaciones
 
     # Entregar template
@@ -740,3 +742,22 @@ def complete(remesa_id):
     # Resultado final de éxito
     flash(f"La Remesa {remesa.id} ha sido ARCHIVADA correctamente.", "success")
     return redirect(url_for("arc_archivos.list_active"))
+
+
+@arc_remesas.route("/arc_remesas/imprimir_listado/", methods=["GET", "POST"])
+def print_list():
+    """Pagina de impresión de listado de Remesas"""
+
+    # Preparar la consulta
+    remesas = ArcRemesa.query.filter_by(esta_archivado=False).filter_by(estatus="A")
+
+    # Asignación por Roles
+    current_user_roles = current_user.get_roles()
+    if ROL_ARCHIVISTA in current_user_roles:
+        remesas = remesas.filter_by(usuario_asignado=current_user)
+
+    # Listar todas las remesas
+    remesas = remesas.all()
+
+    # Resultado para impresión
+    return render_template("arc_remesas/print_list.jinja2", remesas=remesas)

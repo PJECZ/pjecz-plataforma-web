@@ -112,13 +112,11 @@ def safe_text(input_str, max_len=4096, to_uppercase=True):
     return (final[:max_len] + "...") if len(final) > max_len else final
 
 
-def safe_message(input_str, max_len=250, return_void=False):
+def safe_message(input_str, max_len=250, default_output_str="Sin descripción"):
     """Safe message"""
     message = str(input_str)
     if message == "":
-        if return_void:
-            return ""
-        message = "Sin descripción"
+        return default_output_str
     return (message[:max_len] + "...") if len(message) > max_len else message
 
 

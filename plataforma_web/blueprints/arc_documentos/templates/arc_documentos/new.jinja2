@@ -18,18 +18,26 @@
         {% call f.form_tag('arc_documentos.new', fid='documento_form') %}
             {% call f.form_group(form.num_expediente) %}{% endcall %}
             {% call f.form_group(form.anio) %}{% endcall %}
-            {% call f.form_group(form.juzgado_id) %}{% endcall %}
+            {% if form.juzgado_readonly %}
+                {% call f.form_group(form.juzgado_readonly, readonly=true) %}{% endcall %}
+            {% else %}
+                {% call f.form_group(form.juzgado_id) %}{% endcall %}
+            {% endif %}
             {% call f.form_group(form.actor) %}{% endcall %}
             {% call f.form_group(form.demandado) %}{% endcall %}
             {% call f.form_group(form.juicio) %}{% endcall %}
             {% call f.form_group(form.tipo_juzgado) %}{% endcall %}
             {% call f.form_group(form.juzgado_origen) %}{% endcall %}
             {% call f.form_group(form.tipo) %}{% endcall %}
-            {% call f.form_group(form.ubicacion) %}{% endcall %}
+            {% if form.ubicacion_readonly %}
+                {% call f.form_group(form.ubicacion_readonly, readonly=true) %}{% endcall %}
+            {% else %}
+                {% call f.form_group(form.ubicacion) %}{% endcall %}
+            {% endif %}
             <hr>
             {% call f.form_group(form.fojas) %}{% endcall %}
             {% call f.form_group(form.observaciones) %}{% endcall %}
-            {% call f.form_group(form.guardar) %}{% endcall %}
+            {% call f.form_group(form.crear) %}{% endcall %}
         {% endcall %}
     {% endcall %}
 {% endblock %}

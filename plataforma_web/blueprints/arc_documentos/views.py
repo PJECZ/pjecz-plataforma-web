@@ -17,7 +17,12 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
-from plataforma_web.blueprints.arc_documentos.forms import ArcDocumentoNewForm, ArcDocumentoEditForm
+from plataforma_web.blueprints.arc_documentos.forms import (
+    ArcDocumentoNewArchivoForm,
+    ArcDocumentoNewSolicitanteForm,
+    ArcDocumentoEditArchivoForm,
+    ArcDocumentoEditSolicitanteForm,
+)
 
 from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE
 
@@ -129,14 +134,27 @@ def detail(documento_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Documento"""
-    form = ArcDocumentoNewForm()
+    current_user_roles = current_user.get_roles()
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO):
+        form = ArcDocumentoNewArchivoForm()
+    elif ROL_SOLICITANTE in current_user_roles:
+        form = ArcDocumentoNewSolicitanteForm()
+    else:
+        flash("No tiene el ROL para realizar está acción.", "warning")
+        return redirect(url_for("arc_documentos.list_active"))
+    # Recepción del Formulario
     if form.validate_on_submit():
         # Validar que la clave no se repita
         try:
             num_expediente = safe_expediente(form.num_expediente.data)
         except ValueError:
             num_expediente = None
-        juzgado_id = int(form.juzgado_id.data)
+        if isinstance(form, ArcDocumentoNewArchivoForm):
+            juzgado_id = int(form.juzgado_id.data)
+            ubicacion = safe_string(form.ubicacion.data)
+        else:
+            juzgado_id = current_user.autoridad.id
+            ubicacion = "JUZGADO"
         anio = int(form.anio.data)
         if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).first():
             flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
@@ -145,6 +163,7 @@ def new():
         elif num_expediente is None:
             flash("El número de expediente no es válido", "warning")
         else:
+
             documento = ArcDocumento(
                 autoridad_id=juzgado_id,
                 expediente=num_expediente,
@@ -156,7 +175,7 @@ def new():
                 juzgado_origen=safe_string(form.juzgado_origen.data, save_enie=True),
                 tipo=safe_string(form.tipo.data),
                 fojas=int(form.fojas.data),
-                ubicacion=safe_string(form.ubicacion.data),
+                ubicacion=ubicacion,
             )
             documento.save()
             documento_bitacora = ArcDocumentoBitacora(
@@ -176,6 +195,10 @@ def new():
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
+    # Bloquear campos según el ROL
+    if ROL_SOLICITANTE in current_user_roles:
+        form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
+        form.ubicacion_readonly.data = "JUZGADO"
     return render_template("arc_documentos/new.jinja2", form=form)
 
 
@@ -184,14 +207,31 @@ def new():
 def edit(arc_documento_id):
     """Editar Documento"""
     documento = ArcDocumento.query.get_or_404(arc_documento_id)
-    form = ArcDocumentoEditForm()
+    current_user_roles = current_user.get_roles()
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO):
+        form = ArcDocumentoEditArchivoForm()
+    elif ROL_SOLICITANTE in current_user_roles:
+        form = ArcDocumentoEditSolicitanteForm()
+    else:
+        flash("No tiene el ROL para realizar está acción.", "warning")
+        return redirect(url_for("arc_documentos.list_active"))
+    # Recepción del Formulario
     if form.validate_on_submit():
         # Validar que la clave no se repita
         try:
             num_expediente = safe_expediente(form.num_expediente.data)
         except ValueError:
             num_expediente = None
-        juzgado_id = int(form.juzgado_id.data)
+        if isinstance(form, ArcDocumentoEditArchivoForm):
+            juzgado_id = int(form.juzgado_id.data)
+            ubicacion = safe_string(form.ubicacion.data)
+            fojas = None
+            if documento.fojas != int(form.fojas.data):
+                fojas = int(form.fojas.data)
+        else:
+            juzgado_id = current_user.autoridad.id
+            ubicacion = documento.ubicacion
+            fojas = documento.fojas
         anio = int(form.anio.data)
         motivo = safe_message(form.observaciones.data, max_len=256)
         if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).filter(ArcDocumento.id != arc_documento_id).first():
@@ -201,10 +241,8 @@ def edit(arc_documento_id):
         elif num_expediente is None:
             flash("El número de expediente no es válido", "warning")
         else:
-            fojas = None
-            if documento.fojas != int(form.fojas.data):
-                fojas = int(form.fojas.data)
-            documento.autoridad_id = int(juzgado_id)
+
+            documento.autoridad_id = juzgado_id
             documento.expediente = safe_expediente(num_expediente)
             documento.anio = int(anio)
             documento.actor = safe_string(form.actor.data, save_enie=True)
@@ -213,8 +251,8 @@ def edit(arc_documento_id):
             documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
             documento.juzgado_origen = safe_string(form.juzgado_origen.data, save_enie=True)
             documento.tipo = safe_string(form.tipo.data)
-            documento.ubicacion = safe_string(form.ubicacion.data)
-            documento.fojas = int(form.fojas.data)
+            documento.fojas = fojas
+            documento.ubicacion = ubicacion
             documento_bitacora = ArcDocumentoBitacora(
                 arc_documento_id=documento.id,
                 usuario=current_user,
@@ -235,13 +273,18 @@ def edit(arc_documento_id):
             return redirect(bitacora.url)
     form.num_expediente.data = documento.expediente
     form.anio.data = documento.anio
-    form.juzgado_id.data = documento.autoridad_id
     form.actor.data = documento.actor
     form.demandado.data = documento.demandado
     form.juzgado_origen.data = documento.juzgado_origen
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.tipo
-    form.fojas.data = documento.fojas
-    form.ubicacion.data = documento.ubicacion
+    if isinstance(form, ArcDocumentoEditArchivoForm):
+        form.juzgado_id.data = documento.autoridad_id
+        form.ubicacion.data = documento.ubicacion
+        form.fojas.data = documento.fojas
+    else:
+        form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
+        form.ubicacion_readonly.data = documento.ubicacion
+        form.fojas_readonly.data = documento.fojas
     return render_template("arc_documentos/edit.jinja2", form=form, documento=documento)

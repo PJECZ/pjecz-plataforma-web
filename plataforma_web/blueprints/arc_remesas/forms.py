@@ -12,11 +12,6 @@ from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
 from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDocumento
 
 
-def remesas_opciones():
-    """Remesas: opciones para select"""
-    return ArcRemesa.query.filter_by(autoridad_id=current_user.autoridad.id).filter_by(estado="PENDIENTE").filter_by(estatus="A").order_by(ArcRemesa.anio).all()
-
-
 class ArcRemesaNewForm(FlaskForm):
     """Formulario nueva Remesa"""
 
@@ -30,11 +25,12 @@ class ArcRemesaEditForm(FlaskForm):
     """Formulario para editar Remesa"""
 
     # campos de solo lectura
-    creado = StringField("Creado")
-    juzgado = StringField("Juzgado")
+    creado_readonly = StringField("Creado")
+    juzgado_readonly = StringField("Juzgado")
     # campos actualizables
-    num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1950, date.today().year)])
+    tipo_documentos = SelectField("Tipo de Documentos", choices=ArcRemesa.TIPOS_DOCUMENTOS, validators=[DataRequired()])
+    num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
 

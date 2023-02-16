@@ -65,23 +65,31 @@
     </head>
     <body>
         <button onclick="window.print(); return false;">Imprimir</button>
-        <h1>Listado de Solicitudes</h1>
-        <table id="arc_solicitudes_datatable" class="table display nowrap" style="width:100%">
+        <h1>Listado de Remesas</h1>
+        <table id="arc_remesas_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Juzgado</th>
-                    <th>Documento</th>
+                    <th>Año</th>
+                    <th>Núm. Oficio</th>
+                    <th>Tipo Documentos</th>
+                    <th>Núm. Docs</th>
+                    <th>Estado</th>
                     <th>Observaciones</th>
                 </tr>
             </thead>
             <tbody>
-            {% for solicitud in solicitudes %}
+            {% for remesa in remesas %}
                 <tr>
-                    <td>{{ solicitud.id }}</td>
-                    <td>{{ solicitud.autoridad.clave }}</td>
-                    <td>{{ solicitud.arc_documento.expediente }}</td>
-                    <td>{{ solicitud.observaciones }}</td>
+                    <td>{{ remesa.id }}</td>
+                    <td>{{ remesa.autoridad.clave }}</td>
+                    <td>{{ remesa.anio }}</td>
+                    <td>{{ remesa.num_oficio }}</td>
+                    <td>{{ remesa.tipo_documentos }}</td>
+                    <td>{{ remesa.num_documentos }}</td>
+                    <td>{{ remesa.estado }}</td>
+                    <td>{{ remesa.observaciones }}</td>
                 </tr>
             {% endfor %}
             </tbody>

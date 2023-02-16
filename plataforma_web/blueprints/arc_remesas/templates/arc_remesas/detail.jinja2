@@ -179,7 +179,7 @@
 {% block custom_javascript %}
     {{ detail.moment_js(moment) }}
     <!-- Modal para confirmar la cancelación de la Remesa -->
-    {% if current_user.can_edit('ARC DOCUMENTOS SOLICITUDES') %}
+    {% if current_user.can_edit('ARC SOLICITUDES') %}
         {{ modals.custom_javascript_delete('Cancelar', '¿Desea Cancelar la Remesa ' + remesa.id | string + '?') }}
     {% endif %}
     <!-- Mostar estilo de cuando la remesa está en el historial -->

@@ -292,23 +292,34 @@ def new(documento_id):
         elif ArcSolicitud.query.filter_by(arc_documento=documento).filter_by(esta_archivado=False).filter_by(estatus="A").first():
             flash("Este documento ya se encuentra en proceso de solicitud.", "warning")
         else:
+            num_folio = safe_string(form.num_folio.data)
+            if num_folio == "":
+                num_folio = None
             solicitud = ArcSolicitud(
                 arc_documento=documento,
                 autoridad=documento.autoridad,
                 usuario_receptor_id=None,
                 tiempo_recepcion=None,
                 esta_archivado=False,
-                num_folio=safe_string(form.num_folio.data),
-                fojas=form.fojas_actuales.data,
-                observaciones_solicitud=safe_message(form.observaciones.data, return_void=True),
+                num_folio=num_folio,
+                observaciones_solicitud=safe_message(form.observaciones.data, default_output_str=True),
                 estado="SOLICITADO",
             )
             solicitud.save()
             # Añadir acción a la bitácora de Solicitudes
+            observaciones = ""
+            if num_folio is not None:
+                observaciones += f"Núm. Folio: {num_folio}."
+            if solicitud.observaciones_solicitud is not None:
+                observaciones += solicitud.observaciones_solicitud
+            observaciones = safe_message(observaciones, default_output_str=True)
+            if observaciones == "":
+                observaciones = None
             ArcSolicitudBitacora(
                 arc_solicitud=solicitud,
                 usuario=current_user,
                 accion="SOLICITADA",
+                observaciones=observaciones,
             ).save()
             # Añadir acción a la bitácora del Sistema
             bitacora = Bitacora(
@@ -348,11 +359,11 @@ def assign(solicitud_id):
             if form.asignado.data is None or form.asignado.data == "":
                 solicitud.estado = "SOLICITADO"
                 solicitud.usuario_asignado = None
-                observaciones = (safe_message("Desasignado", return_void=True),)
+                observaciones = (safe_message("Desasignado", default_output_str=True),)
             else:
                 solicitud.estado = "ASIGNADO"
                 solicitud.usuario_asignado_id = int(form.asignado.data)
-                observaciones = (safe_message(f"Asigando a: {solicitud.usuario_asignado.nombre}", return_void=True),)
+                observaciones = (safe_message(f"Asigando a: {solicitud.usuario_asignado.nombre}", default_output_str=True),)
             solicitud.save()
             # Añadir acción a la bitácora de Solicitudes
             ArcSolicitudBitacora(
@@ -462,17 +473,19 @@ def found(solicitud_id):
                     arc_documento=solicitud.arc_documento,
                     usuario=current_user,
                     fojas=fojas,
-                    observaciones=safe_message(request.form["observaciones"], return_void=True),
+                    observaciones=safe_message(request.form["observaciones"], default_output_str=True),
                     accion="CORRECCION FOJAS",
                 )
                 observaciones = f"Tuvo corrección en Fojas de {documento.fojas} a {fojas}."
                 solicitud_bitacora.save()
+        else:
+            observaciones = safe_message(request.form["observaciones"], default_output_str=True)
         # Añadir acción a la bitácora de Solicitudes
         ArcSolicitudBitacora(
             arc_solicitud=solicitud,
             usuario=current_user,
             accion="ENCONTRADA",
-            observaciones=safe_message(observaciones, return_void=True),
+            observaciones=safe_message(observaciones, default_output_str=True),
         ).save()
         # Añadir acción a la bitácora del Sistema
         solicitud.save()
@@ -510,10 +523,13 @@ def no_found(solicitud_id):
         solicitud_bitacora.save()
         solicitud.save()
         # Añadir acción a la bitácora de Solicitudes
+        observaciones = safe_message(request.form["observaciones"], default_output_str=True)
+        observaciones = f"Razón: {solicitud.razon}. {observaciones}"
         ArcSolicitudBitacora(
             arc_solicitud=solicitud,
             usuario=current_user,
             accion="NO ENCONTRADA",
+            observaciones=observaciones,
         ).save()
         # Añadir acción a la bitácora del Sistema
         bitacora = Bitacora(
@@ -540,12 +556,6 @@ def send(solicitud_id):
         flash(f"Solo puede enviar el ROL de {ROL_JEFE_REMESA}.", "warning")
     else:
         solicitud.estado = "ENVIANDO"
-        solicitud_bitacora = ArcDocumentoBitacora(
-            arc_documento=solicitud.arc_documento,
-            usuario=current_user,
-            accion="ENVIADO",
-        )
-        solicitud_bitacora.save()
         solicitud.save()
         # Añadir acción a la bitácora de Solicitudes
         ArcSolicitudBitacora(
@@ -580,14 +590,8 @@ def receive(solicitud_id):
         solicitud.estado = "ENTREGADO"
         solicitud.usuario_receptor_id = current_user.id
         solicitud.tiempo_recepcion = datetime.now()
-        solicitud_bitacora = ArcDocumentoBitacora(
-            arc_documento=solicitud.arc_documento,
-            usuario=current_user,
-            accion="ENTREGADO",
-        )
         documento.ubicacion = "JUZGADO"
         documento.save()
-        solicitud_bitacora.save()
         solicitud.save()
         # Añadir acción a la bitácora de Solicitudes
         ArcSolicitudBitacora(
@@ -624,4 +628,4 @@ def print_list():
     solicitudes = solicitudes.all()
 
     # Resultado para impresión
-    return render_template("arc_solicitudes/print.jinja2", solicitudes=solicitudes)
+    return render_template("arc_solicitudes/print_list.jinja2", solicitudes=solicitudes)
