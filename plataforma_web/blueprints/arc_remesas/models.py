@@ -33,6 +33,12 @@ class ArcRemesa(db.Model, UniversalMixin):
         ]
     )
 
+    RAZONES = OrderedDict(  # varchar(32)
+        [
+            ("SIN ORDEN CRONOLÓGICO", "Sin orden cronológico."),
+        ]
+    )
+
     # Nombre de la tabla
     __tablename__ = "arc_remesas"
 
@@ -59,6 +65,7 @@ class ArcRemesa(db.Model, UniversalMixin):
     )
     num_documentos = db.Column(db.Integer, nullable=False)
     num_anomalias = db.Column(db.Integer, nullable=False)
+    razon = db.Column(db.Enum(*RAZONES, name="razones", native_enum=False))
     estado = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         nullable=False,

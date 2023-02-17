@@ -17,16 +17,25 @@
     {% call detail.card('Detalles del Documento Anexo a la Remesa') %}
         {{ detail.label_value('Añadido', moment(arc_remesa_documento.creado).format('llll')) }}
         {{ detail.label_value('Última Actualización', moment(arc_remesa_documento.modificado).format('llll')) }}
-        {{ detail.label_value('Fojas', arc_remesa_documento.fojas) }}
+        {{ detail.label_value('Fojas Nuevas', arc_remesa_documento.fojas) }}
         {{ detail.label_value('Tipo de Juzgado', arc_remesa_documento.tipo_juzgado) }}
-        {{ detail.label_value('Tiene Anomalías', arc_remesa_documento.tiene_anomalia) }}
+        {{ detail.label_value('Tiene Anomalías', arc_remesa_documento.anomalia) }}
     {% endcall %}
-    {# Observaciones #}
-    {% if arc_remesa_documento.observaciones %}
+    {# Observaciones - Solicitante #}
+    {% if arc_remesa_documento.observaciones_solicitudes %}
         <div class="card mb-3">
-            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones del Archivador</div>
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones del Solicitante</div>
             <div class="card-body" style="background-color: #fff3cd;">
-                <textarea class="form-control" style="height: 100px;" disabled>{{ arc_remesa_documento.observaciones }}</textarea>
+                <textarea class="form-control" style="height: 100px;" disabled>{{ arc_remesa_documento.observaciones_solicitudes }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    {# Observaciones - Archivo #}
+    {% if arc_remesa_documento.observaciones_archivo %}
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones del Archivista</div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                <textarea class="form-control" style="height: 100px;" disabled>{{ arc_remesa_documento.observaciones_archivo }}</textarea>
             </div>
         </div>
     {% endif %}
@@ -51,7 +60,7 @@
         {{ detail.label_value('Juicio', documento.juicio) }}
         {{ detail.label_value('Tipo', documento.tipo) }}
         {{ detail.label_value('Tipo de Juzgado', documento.tipo_juzgado) }}
-        {{ detail.label_value('Fojas', documento.fojas) }}
+        {{ detail.label_value('Fojas Actuales', documento.fojas) }}
         {{ detail.label_value('Ubicacion', documento.ubicacion) }}
     {% endcall %}
     {# Formulario de Archivamiento #}
@@ -62,8 +71,16 @@
                 {% set form_kwargs = {'arc_remesa_documento_id': arc_remesa_documento.id} %}
                 {% call f.form_tag('arc_remesas_documentos.archive', fid='remesa_documento_form', **form_kwargs) %}
                     {% call f.form_group(form.fojas) %}{% endcall %}
-                    {% call f.form_group(form.observaciones) %}{% endcall %}
-                    {% call f.form_group(form.archivar) %}{% endcall %}
+                    {% call f.form_group(form.anomalia) %}{% endcall %}
+                    {% call f.form_group(form.observaciones_archivo) %}{% endcall %}
+                    <div class="row justify-content-between">
+                        <div class="col-4">
+                            <input class="btn btn-primary" id="archivar" name="archivar" type="submit" value="Archivar">
+                        </div>
+                        <div class="col-4 text-end">
+                            <input class="btn btn-danger" id="archivar_con_anomalia" name="archivar_con_anomalia" type="submit" value="Archivar con Anomalía">
+                        </div>
+                    </div>
                 {% endcall %}
             </div>
         </div>        

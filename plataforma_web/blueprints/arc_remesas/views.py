@@ -60,13 +60,20 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "remesa_id" in request.form:
+        consulta = consulta.filter_by(id=int(request.form["remesa_id"]))
     if "juzgado_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     if "asignado_id" in request.form:
         consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
-    if "documento_id" in request.form:
-        consulta = consulta.join(ArcRemesaDocumento)
-        consulta = consulta.filter(ArcRemesaDocumento.arc_documento_id == int(request.form["documento_id"]))
+    if "anio" in request.form:
+        consulta = consulta.filter_by(anio=int(request.form["anio"]))
+    if "tipo_documento" in request.form:
+        consulta = consulta.filter_by(tipo_documentos=request.form["tipo_documento"])
+    if "num_oficio" in request.form:
+        consulta = consulta.filter_by(num_oficio=request.form["num_oficio"])
+    if "estado" in request.form:
+        consulta = consulta.filter_by(estado=request.form["estado"])
     if "esta_archivado" in request.form:
         consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
     if "omitir_cancelados" in request.form:
@@ -77,6 +84,9 @@ def datatable_json():
         consulta = consulta.filter(ArcRemesa.esta_archivado != True)
     if "mostrar_archivados" in request.form:
         consulta = consulta.filter_by(esta_archivado=True)
+    if "documento_id" in request.form:
+        consulta = consulta.join(ArcRemesaDocumento)
+        consulta = consulta.filter(ArcRemesaDocumento.arc_documento_id == int(request.form["documento_id"]))
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     if "orden_acendente" in request.form:
         registros = consulta.order_by(ArcRemesa.id.desc()).offset(start).limit(rows_per_page).all()
@@ -425,7 +435,6 @@ def edit(remesa_id):
     form = ArcRemesaEditForm()
     if form.validate_on_submit():
         remesa.anio = form.anio.data
-        remesa.tipo_documentos = safe_string(form.tipo_documentos.data)
         remesa.num_oficio = safe_string(form.num_oficio.data)
         remesa.observaciones = safe_message(form.observaciones.data, default_output_str=None)
         remesa.save()
@@ -444,8 +453,8 @@ def edit(remesa_id):
     # Datos pre-cargados
     form.creado_readonly.data = remesa.creado.strftime("%Y/%m/%d - %H:%M %p")
     form.juzgado_readonly.data = remesa.autoridad.clave + " : " + remesa.autoridad.descripcion_corta
+    form.tipo_documentos_readonly.data = remesa.tipo_documentos
     form.anio.data = remesa.anio
-    form.tipo_documentos.data = remesa.tipo_documentos
     form.num_oficio.data = remesa.num_oficio
     form.observaciones.data = remesa.observaciones
 
@@ -558,8 +567,7 @@ def add_document(documento_id):
                 arc_remesa=remesa,
                 fojas=form.fojas.data,
                 tipo_juzgado=form.tipo_juzgado.data,
-                tiene_anomalia=False,
-                observaciones=safe_message(form.observaciones.data),
+                observaciones_solicitante=safe_message(form.observaciones.data, default_output_str=None),
             )
             documento_agregar.save()
             # Actualizar el número de documentos anexos de la remesa

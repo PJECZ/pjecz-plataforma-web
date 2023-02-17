@@ -14,6 +14,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
 from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDocumento
 from plataforma_web.blueprints.arc_documentos.models import ArcDocumento
+from plataforma_web.blueprints.arc_juzgados_extintos.models import ArcJuzgadoExtinto
 from plataforma_web.blueprints.arc_documentos_bitacoras.models import ArcDocumentoBitacora
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -41,13 +42,13 @@ def datatable_json():
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
-    consulta = ArcRemesaDocumento.query
+    consulta = ArcRemesaDocumento.query.join(ArcDocumento)
     if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
+        consulta = consulta.filter(ArcRemesaDocumento.estatus == request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus="A")
+        consulta = consulta.filter(ArcRemesaDocumento.estatus == "A")
     if "remesa_id" in request.form:
-        consulta = consulta.filter_by(arc_remesa_id=request.form["remesa_id"])
+        consulta = consulta.filter(ArcRemesaDocumento.arc_remesa_id == request.form["remesa_id"])
 
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     registros = consulta.order_by(ArcRemesaDocumento.id.desc()).offset(start).limit(rows_per_page).all()
@@ -68,7 +69,7 @@ def datatable_json():
                 "anio": resultado.arc_documento.anio,
                 "tipo": resultado.arc_documento.tipo,
                 "juicio": resultado.arc_documento.juicio,
-                "juzgado_origen": resultado.arc_documento.arc_juzgado_origen.nombre,
+                "juzgado_origen": resultado.arc_documento.arc_juzgado_origen.nombre if resultado.arc_documento.arc_juzgado_origen_id is not None else None,
                 "fojas": {
                     "nuevas": resultado.fojas,
                     "anteriores": resultado.arc_documento.fojas,
@@ -79,7 +80,8 @@ def datatable_json():
                     "actor": resultado.arc_documento.actor,
                     "demandado": resultado.arc_documento.demandado,
                 },
-                "observaciones": resultado.observaciones,
+                "observaciones_solicitante": resultado.observaciones_solicitante if resultado.observaciones_solicitante else "",
+                "observaciones_archivo": resultado.observaciones_archivo if resultado.observaciones_archivo else "",
                 "ubicacion": resultado.arc_documento.ubicacion,
                 "acciones": {
                     "ver": url_for("arc_remesas_documentos.detail", arc_remesa_documento_id=resultado.id),
@@ -107,6 +109,7 @@ def detail(arc_remesa_documento_id):
         if remesa_documento.arc_documento.ubicacion == "REMESA":
             mostrar_secciones["archivar"] = True
             form = ArcRemesaDocumentoArchiveForm()
+            form.fojas.data = remesa_documento.fojas
             # Mostrar el template resultante
             return render_template(
                 "arc_remesas_documentos/detail.jinja2",
@@ -131,6 +134,7 @@ def detail(arc_remesa_documento_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(arc_remesa_documento_id):
     """Editar un documento anexo de una Remesa"""
+    # TODO: Separar la edición por parte del Solicitante y por Archivo
 
     # Localizamos el documento anexo de la remesa
     remesa_documento = ArcRemesaDocumento.query.get_or_404(arc_remesa_documento_id)
@@ -140,7 +144,7 @@ def edit(arc_remesa_documento_id):
     if form.validate_on_submit():
         remesa_documento.fojas = int(form.fojas.data)
         remesa_documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
-        remesa_documento.observaciones = safe_message(form.observaciones.data)
+        remesa_documento.observaciones_solicitante = safe_message(form.observaciones_solicitante.data, default_output_str=None)
         remesa_documento.save()
         flash(f"Documento Anexo [{remesa_documento.arc_documento.expediente}] editado correctamente.", "success")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_documento.arc_remesa_id))
@@ -148,7 +152,7 @@ def edit(arc_remesa_documento_id):
     # Pre-cargar de datos al formulario de edición
     form.fojas.data = remesa_documento.fojas
     form.tipo_juzgado.data = remesa_documento.tipo_juzgado
-    form.observaciones.data = remesa_documento.observaciones
+    form.observaciones_solicitante.data = remesa_documento.observaciones_solicitante
 
     # Mostrar el template resultante
     return render_template("arc_remesas_documentos/edit.jinja2", remesa=remesa_documento.arc_remesa, documento=remesa_documento.arc_documento, arc_remesa_documento=remesa_documento, form=form)
@@ -188,6 +192,8 @@ def delete(arc_remesa_documento_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def archive(arc_remesa_documento_id):
     """Archivar un documento anexo de una Remesa"""
+    # TODO: Distinguir entre presionar ARCHIVAR y ARCHIVAR CON ANOMALÍA
+    # TODO: si presiona botón archivar con anomalía pedir haber seleccionado una anomalía
 
     # Localizamos el documento anexo de la remesa
     remesa_documento = ArcRemesaDocumento.query.get_or_404(arc_remesa_documento_id)
@@ -210,7 +216,7 @@ def archive(arc_remesa_documento_id):
             return redirect(url_for("arc_remesas.detail", remesa_id=remesa_documento.arc_remesa_id))
 
         # Guardamos las observaciones del Archivista sobre el anexo
-        remesa_documento.observaciones = safe_message(form.observaciones.data)
+        remesa_documento.observaciones_archivo = safe_message(form.observaciones_archivo.data, default_output_str=None)
         remesa_documento.save()
         # Guardamos cambios en el documento
         documento.fojas = int(form.fojas.data)
@@ -221,7 +227,7 @@ def archive(arc_remesa_documento_id):
             arc_documento=documento,
             usuario=current_user,
             fojas=int(form.fojas.data),
-            observaciones=safe_message(form.observaciones.data),
+            observaciones=safe_message(form.observaciones.data, default_output_str=None),
             accion="ARCHIVAR",
         )
         documento_bitacora.save()

@@ -38,7 +38,7 @@
         {% call f.form_tag('arc_remesas_documentos.edit', fid='remesa_documento_form', **form_kwargs) %}
             {% call f.form_group(form.tipo_juzgado) %}{% endcall %}
             {% call f.form_group(form.fojas) %}{% endcall %}
-            {% call f.form_group(form.observaciones) %}{% endcall %}
+            {% call f.form_group(form.observaciones_solicitante) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

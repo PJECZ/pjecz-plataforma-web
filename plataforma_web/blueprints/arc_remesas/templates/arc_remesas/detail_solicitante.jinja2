@@ -89,10 +89,34 @@
     {% endif %}
     {# Listados de Documentos #}
     {% call detail.card('Listado de Documentos') %}
+        <!-- Formulario de filtros -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar_docsAnexos(); return false;" autocomplete="off">
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="idInput_docsAnexos" type="text" class="form-control" onchange="buscar_docsAnexos(); return false;">
+                            <label for="idInput_docsAnexos">ID</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="expedienteInput_docsAnexos" type="text" class="form-control" onchange="buscar_docsAnexos(); return false;">
+                            <label for="expedienteInput_docsAnexos">Expediente</label>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <!-- Datatable -->
         <table id="arc_documentos_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Expediente</th>
                     <th>Juicio</th>
                     <th>Juzgado Origen</th>
@@ -141,27 +165,67 @@
     {% endif %}
     {{ list.config_datatable() }}
     <script>
-        configDataTable['ajax']['url'] = '/arc_remesas_documentos/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros_documentos }};
-        configDataTable['columns'] = [
+        let configDataTable_2 = {
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: null,
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: null
+            },
+            columns: null,
+            columnDefs: null,
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        };
+        // ---
+        configDataTable_2['ajax']['url'] = '/arc_remesas_documentos/datatable_json';
+        configDataTable_2['ajax']['data'] = {{ filtros_documentos }};
+        configDataTable_2['columns'] = [
+            { data: 'id' },
             { data: 'expediente' },
             { data: 'juicio' },
             { data: 'juzgado_origen' },
             { data: 'partes' },
             { data: 'fojas' },
-            { data: 'observaciones' },
+            { data: 'observaciones_solicitante' },
             { data: 'acciones' }
         ];
-        configDataTable['columnDefs'] = [
+        configDataTable_2['columnDefs'] = [
             {
-                targets: 0, // expediente
+                targets: 0, // ID
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },{
+                targets: 1, // expediente
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.expediente + '</a>';
                 }
             },
             {
-                targets: 3, // partes
+                targets: 4, // partes
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.actor.length > 24)
@@ -176,14 +240,14 @@
                 }
             },
             {
-                targets: 4, // Fojas
+                targets: 5, // Fojas
                 data: null,
                 render: function(data, type, row, meta) {
                     return data.nuevas ;
                 }
             },
             {
-                targets: 5, // Observaciones
+                targets: 6, // Observaciones
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 16)
@@ -193,7 +257,7 @@
                 }
             },
             {
-                targets: 6, // Acciones
+                targets: 7, // Acciones
                 data: null,
                 render: function(data, type, row, meta) {
                     html = '<a href="' + data.ver  + '" class="btn btn-sm btn-outline-primary"><span title="Consultar" class="iconify" data-icon="mdi:eye"></span></a> ';
@@ -204,7 +268,7 @@
             }
         ];
         // Datatable
-        $('#arc_documentos_datatable').DataTable(configDataTable);
+        $('#arc_documentos_datatable').DataTable(configDataTable_2);
     </script>
     <!-- DataTable para Bitacora -->
     <script>

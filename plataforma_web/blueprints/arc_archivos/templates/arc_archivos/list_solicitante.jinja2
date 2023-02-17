@@ -62,7 +62,7 @@
                     <div class="col-4">
                         <div class="form-floating">
                             <select class="form-select" id="estadoSelect_solicitud" name="estadoSelect_solicitud" aria-label="Estado" onchange="buscar_solicitud(); return false;" style="flex: inherit;">
-                                <option selected value="">CUALQUIERA</option>
+                                <option selected value=""></option>
                                 {% for estado in estados_solicitudes %}
                                     <option value="{{estado}}">{{estado}}</option>
                                 {% endfor %}
@@ -95,7 +95,7 @@
         {% endif %}
     {% endcall %}
     {% call list.card() %}
-    <!-- Formulario de filtros -->
+    <!-- Formulario de filtros REMESA -->
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar_remesa(); return false;" autocomplete="off">
@@ -113,13 +113,13 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select class="form-select" id="tipoSelect_remesa" name="tipoSelect" onchange="buscar_remesa(); return false;" style="flex: inherit;">
-                                <option selected value="">CUALQUIERA</option>
+                            <select class="form-select" id="tipoDocumentoSelect_remesa" name="tipoSelect" onchange="buscar_remesa(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
                                 {% for tipo_documento in tipos_documentos_remesas %}
                                     <option value="{{tipo_documento}}">{{tipo_documento}}</option>
                                 {% endfor %}
                             </select>
-                            <label for="tipoSelect_remesa">Tipo de Documentos</label>
+                            <label for="tipoDocumentoSelect_remesa">Tipo de Documentos</label>
                         </div>
                     </div>
                     <div class="col-4">
@@ -131,17 +131,17 @@
                     <div class="col-4">
                         <div class="form-floating">
                             <select class="form-select" id="estadoSelect_remesa" name="estadoSelect_remesa" aria-label="Estado" onchange="buscar_remesa(); return false;" style="flex: inherit;">
-                                <option selected value="">CUALQUIERA</option>
+                                <option selected value=""></option>
                                 {% for estado in estados_remesas %}
-                                    <option value="{{tipo}}">{{estado}}</option>
+                                    <option value="{{estado}}">{{estado}}</option>
                                 {% endfor %}
                             </select>
                             <label for="estadoSelect_remesa">Estado</label>
                         </div>
                     </div>
                     <div class="col-4 text-end">
-                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
-                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar_remesa(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar_remesa();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
                 </form>
             </div>
@@ -378,9 +378,85 @@
         };
 
         // Búsqueda
+        let id_remesa = document.getElementById('idInput_remesa').value;
+        let anio = document.getElementById('anioInput_remesa').value;
+        let tipo_documento = document.getElementById('tipoDocumentoSelect_remesa').value;
+        let num_oficio = document.getElementById('numOficioInput_remesa').value;
+        let estado_remesa = document.getElementById('estadoSelect_remesa').value;
+
+        if(id_remesa != '')
+            configDataTable_2['ajax']['data']['remesa_id'] = id_remesa;
+        if(anio != '')
+            configDataTable_2['ajax']['data']['anio'] = anio;
+        if(tipo_documento != '')
+            configDataTable_2['ajax']['data']['tipo_documento'] = tipo_documento;
+        if(num_oficio != '')
+            configDataTable_2['ajax']['data']['num_oficio'] = num_oficio;
+        if(estado_remesa != '')
+            configDataTable_2['ajax']['data']['estado'] = estado_remesa;
 
         // Datatable
         $('#arc_remesas_datatable').DataTable(configDataTable_2);
+    </script>
+    <!-- Función de buscador -->
+    <script type="text/javascript">
+        function buscar_remesa() {
+            let id = document.getElementById('idInput_remesa').value;
+            let anio = document.getElementById('anioInput_remesa').value;
+            let tipo_documento = document.getElementById('tipoDocumentoSelect_remesa').value;
+            let num_oficio = document.getElementById('numOficioInput_remesa').value;
+            let estado = document.getElementById('estadoSelect_remesa').value;
+
+            if( configDataTable_2['ajax']['data']['remesa_id'] === undefined && id === '' &&
+                configDataTable_2['ajax']['data']['anio'] === undefined && anio === '' &&
+                configDataTable_2['ajax']['data']['tipo_documento'] === undefined && tipo_documento === '' &&
+                configDataTable_2['ajax']['data']['num_oficio'] === undefined && num_oficio === '' &&
+                configDataTable_2['ajax']['data']['estado'] === undefined && estado === ''
+            ) return false;
+
+            $('#arc_remesas_datatable').DataTable().destroy();
+
+            if(id == '')
+                delete configDataTable_2['ajax']['data']['remesa_id'];
+            else
+                configDataTable_2['ajax']['data']['remesa_id'] = id;
+            if(anio == '')
+                delete configDataTable_2['ajax']['data']['anio'];
+            else
+                configDataTable_2['ajax']['data']['anio'] = anio;
+            if(tipo_documento == '')
+                delete configDataTable_2['ajax']['data']['tipo_documento'];
+            else
+                configDataTable_2['ajax']['data']['tipo_documento'] = tipo_documento;
+            if(num_oficio == '')
+                delete configDataTable_2['ajax']['data']['num_oficio'];
+            else
+                configDataTable_2['ajax']['data']['num_oficio'] = num_oficio;
+            if(estado == '')
+                delete configDataTable_2['ajax']['data']['estado'];
+            else
+                configDataTable_2['ajax']['data']['estado'] = estado;
+
+            $('#arc_remesas_datatable').DataTable(configDataTable_2);
+        };
+
+        function limpiar_remesa()  {
+            if( configDataTable_2['ajax']['data']['remesa_id'] === undefined &&
+                configDataTable_2['ajax']['data']['anio'] === undefined &&
+                configDataTable_2['ajax']['data']['tipo_documento'] === undefined &&
+                configDataTable_2['ajax']['data']['num_oficio'] === undefined &&
+                configDataTable_2['ajax']['data']['estado'] === undefined
+            ) return false;
+            
+            delete configDataTable_2['ajax']['data']['remesa_id'];
+            delete configDataTable_2['ajax']['data']['anio'];
+            delete configDataTable_2['ajax']['data']['tipo_documento'];
+            delete configDataTable_2['ajax']['data']['num_oficio'];
+            delete configDataTable_2['ajax']['data']['estado'];
+
+            $('#arc_remesas_datatable').DataTable().destroy();
+            $('#arc_remesas_datatable').DataTable(configDataTable_2);
+        };
     </script>
     <!-- Mostar historial -->
     {% if mostrando_historial %}

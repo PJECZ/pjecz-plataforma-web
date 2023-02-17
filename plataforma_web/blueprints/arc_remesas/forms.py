@@ -27,9 +27,9 @@ class ArcRemesaEditForm(FlaskForm):
     # campos de solo lectura
     creado_readonly = StringField("Creado")
     juzgado_readonly = StringField("Juzgado")
+    tipo_documentos_readonly = StringField("Tipo de Documentos")
     # campos actualizables
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1950, date.today().year)])
-    tipo_documentos = SelectField("Tipo de Documentos", choices=ArcRemesa.TIPOS_DOCUMENTOS, validators=[DataRequired()])
     num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
