@@ -18,6 +18,7 @@ class ArcDocumentoBitacora(db.Model, UniversalMixin):
             ("ENVIADO", "Enviado"),
             ("ENTREGADO", "Entregado"),
             ("ARCHIVAR", "Archivar"),
+            ("ANOMALIA", "Anomalía"),
         ]
     )
 

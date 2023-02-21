@@ -476,13 +476,14 @@ def query_notarias_json():
 def query_juzgados_json():
     """Proporcionar el JSON de autoridades para elegir Juzgados con un Select2"""
     consulta = Autoridad.query.filter(Autoridad.estatus == "A")
-    # Verificar si esta seleccionado es_jurisdiccional
-    consulta = consulta.filter_by(es_jurisdiccional=True)
-    # Consultar si el organo jurisdiccional es el correcto
-    consulta = consulta.filter(Autoridad.organo_jurisdiccional.between("JUZGADO DE PRIMERA INSTANCIA", "JUZGADO DE PRIMERA INSTANCIA ORAL"))
-    if "searchString" in request.form:
-        texto = safe_string(request.form["searchString"]).upper()
-        consulta = consulta.filter(or_(Autoridad.clave.contains(texto), Autoridad.descripcion_corta.contains(texto)))
+    if "es_jurisdiccional" in request.form:
+        # Verificar si esta seleccionado es_jurisdiccional
+        consulta = consulta.filter_by(es_jurisdiccional=True)
+        # Consultar si el organo jurisdiccional es el correcto
+        consulta = consulta.filter(Autoridad.organo_jurisdiccional.between("JUZGADO DE PRIMERA INSTANCIA", "JUZGADO DE PRIMERA INSTANCIA ORAL"))
+    if "clave" in request.form:
+        texto = safe_string(request.form["clave"]).upper()
+        consulta = consulta.filter(Autoridad.clave.contains(texto))
     results = []
     for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
         results.append({"id": autoridad.id, "text": autoridad.clave + "  : " + autoridad.descripcion_corta})

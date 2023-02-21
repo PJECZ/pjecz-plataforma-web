@@ -33,7 +33,12 @@ from plataforma_web.blueprints.arc_remesas.forms import (
     ArcRemesaAsignationForm,
 )
 
-from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE
+from plataforma_web.blueprints.arc_archivos.views import (
+    ROL_JEFE_REMESA,
+    ROL_ARCHIVISTA,
+    ROL_SOLICITANTE,
+    ROL_RECEPCIONISTA,
+)
 
 
 MODULO = "ARC REMESAS"
@@ -145,10 +150,18 @@ def detail(remesa_id):
         rol_activo = ROL_JEFE_REMESA
     elif ROL_ARCHIVISTA in current_user_roles:
         rol_activo = ROL_ARCHIVISTA
+    elif ROL_RECEPCIONISTA in current_user_roles:
+        rol_activo = ROL_RECEPCIONISTA
 
     # Sobre-escribir estados dependiendo del ROL
     estados = {
         ROL_SOLICITANTE: {
+            "ASIGNADO": {
+                "TEXTO": "PROCESANDO",
+                "COLOR": "bg-primary",
+            },
+        },
+        ROL_RECEPCIONISTA: {
             "ASIGNADO": {
                 "TEXTO": "PROCESANDO",
                 "COLOR": "bg-primary",
@@ -182,7 +195,7 @@ def detail(remesa_id):
 
     # Lógica para mostrar secciones
     if remesa.estado == "PENDIENTE":
-        if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles:
+        if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
             mostrar_secciones["boton_cancelar"] = True
             return render_template(
                 "arc_remesas/detail_solicitante.jinja2",
@@ -197,12 +210,12 @@ def detail(remesa_id):
             return redirect(url_for("arc_archivos.list_active"))
 
     if remesa.estado == "CANCELADO":
-        if ROL_SOLICITANTE in current_user_roles:
+        if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
             if not remesa.esta_archivado:
                 mostrar_secciones["boton_pasar_historial"] = True
                 mostrar_secciones["boton_recuperar"] = True
                 return render_template(
-                    "arc_remesas/detail.jinja2",
+                    "arc_remesas/detail_solicitante.jinja2",
                     remesa=remesa,
                     mostrar_secciones=mostrar_secciones,
                     estado_text=estado_text,
@@ -251,10 +264,10 @@ def detail(remesa_id):
                 archivistas=archivistas,
             )
         if ROL_ARCHIVISTA in current_user_roles:
-            # Revisar si todos los anexos están archivados
+            # Revisar si no hay documentos anexos dentro de la remesa
             documentos_anexos_count = ArcRemesaDocumento.query.join(ArcDocumento)
             documentos_anexos_count = documentos_anexos_count.filter(ArcRemesaDocumento.arc_remesa_id == remesa_id)
-            documentos_anexos_count = documentos_anexos_count.filter(ArcDocumento.ubicacion != "ARCHIVO")
+            documentos_anexos_count = documentos_anexos_count.filter(ArcDocumento.ubicacion == "REMESA")
             documentos_anexos_count = documentos_anexos_count.count()
             if documentos_anexos_count == 0:
                 mostrar_secciones["boton_completado"] = True
@@ -269,12 +282,12 @@ def detail(remesa_id):
 
     if remesa.estado == "RECHAZADO":
         mostrar_secciones["rechazo"] = True
-        if ROL_SOLICITANTE in current_user_roles:
+        if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
             if not remesa.esta_archivado:
                 mostrar_secciones["boton_pasar_historial"] = True
 
     if remesa.estado == "ARCHIVADO" or remesa.estado == "ARCHIVADO CON ANOMALIA":
-        if ROL_SOLICITANTE in current_user_roles:
+        if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
             if not remesa.esta_archivado:
                 mostrar_secciones["boton_pasar_historial"] = True
 
@@ -298,8 +311,8 @@ def new():
     if form.validate_on_submit():
         if form.anio.data < 1950 or form.anio.data > date.today().year:
             flash(f"El año se encuentra fuera de un rango permitido 1950-{date.today().year}.", "warning")
-        elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-            flash(f"Solo se pueden crear nuevas remesas por el Administrador o {ROL_SOLICITANTE}.", "warning")
+        elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+            flash(f"Solo se pueden crear nuevas remesas por el Administrador o {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
         else:
             remesa = ArcRemesa(
                 autoridad=current_user.autoridad,
@@ -336,8 +349,8 @@ def cancel(remesa_id):
     """Cancelar Remesa"""
 
     # Validar Permisos
-    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede cancelar remesas el ROL de {ROL_SOLICITANTE}.", "warning")
+    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede cancelar remesas el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
     # Validar Remesa
@@ -372,8 +385,8 @@ def recover(remesa_id):
     """Recuperar Remesa Cancelada"""
 
     # Validar Permisos
-    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede RECUPERAR una remesas el ROL de {ROL_SOLICITANTE}.", "warning")
+    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede RECUPERAR una remesas el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
     # Validar Remesa
@@ -416,8 +429,8 @@ def edit(remesa_id):
     """Editar Remesa"""
 
     # Validar Permisos
-    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede EDITAR una remesas el ROL de {ROL_SOLICITANTE}.", "warning")
+    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede EDITAR una remesas el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
     # Validar Remesa
@@ -468,8 +481,8 @@ def send(remesa_id):
     """Enviar Remesa"""
 
     # Validar Permisos
-    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede enviar remesas el ROL de {ROL_SOLICITANTE}.", "warning")
+    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede enviar remesas el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
         return redirect(url_for("arc_archivos.list_active"))
 
     # Validar Remesa
@@ -522,9 +535,9 @@ def add_document(documento_id):
     """Añadir documento a Remesa"""
 
     # Validar Permisos
-    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede editar remesas el ROL de {ROL_SOLICITANTE}.", "warning")
-        return redirect("arc_documentos.list_active")
+    if not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede editar remesas el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
+        return redirect(url_for("arc_documentos.list_active"))
 
     # Validar Documento
     documento = ArcDocumento.query.get_or_404(documento_id)
@@ -544,7 +557,7 @@ def add_document(documento_id):
             return redirect(url_for("arc_documentos.detail", documento_id=documento_id))
         if documento_en_otra_remesa.arc_remesa.estatus != "A":
             flash("Esta Remesa está eliminada.", "warning")
-            return redirect("arc_documentos.list_active")
+            return redirect(url_for("arc_documentos.list_active"))
 
     # Validar el Formulario
     form = ArcRemesaAddDocumentForm()
@@ -676,10 +689,10 @@ def refuse(remesa_id):
 def history(remesa_id):
     """Pasar al historial una Remesa"""
     remesa = ArcRemesa.query.get_or_404(remesa_id)
-    if remesa.estado not in ["CANCELADO", "RECHAZADO", "ARCHIVADO"]:
+    if remesa.estado not in ["CANCELADO", "RECHAZADO", "ARCHIVADO", "ARCHIVADO CON ANOMALIA"]:
         flash("No puede pasar al historial una remesa en este estado.", "warning")
-    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede pasar al historial el ROL de {ROL_SOLICITANTE}.", "warning")
+    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede pasar al historial el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
     else:
         remesa.esta_archivado = True
         remesa.save()
@@ -721,26 +734,37 @@ def complete(remesa_id):
         flash("Solo el rol de ARCHIVISTA puede ARCHIVAR una Remesa.", "warning")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
-    # Validamos si todos sus anexos están archivados
+    # Validamos si todos sus anexos fuera de la REMESA
     documentos_anexos_count = ArcRemesaDocumento.query.join(ArcDocumento)
     documentos_anexos_count = documentos_anexos_count.filter(ArcRemesaDocumento.arc_remesa_id == remesa_id)
-    documentos_anexos_count = documentos_anexos_count.filter(ArcDocumento.ubicacion != "ARCHIVO")
+    documentos_anexos_count = documentos_anexos_count.filter(ArcDocumento.ubicacion == "REMESA")
     documentos_anexos_count = documentos_anexos_count.count()
     if documentos_anexos_count > 0:
         flash(f"Hay {documentos_anexos_count} documentos anexos sin archivar. Necesita que todos estén archivados para archivar la remesa", "warning")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
     # Guardar cambios a la Remesa
-    remesa.estado = "ARCHIVADO"
-    remesa.save()
-    # Guardado de acción en bitacora de la remesa
-    remesa_bitacora = ArcRemesaBitacora(
-        arc_remesa=remesa,
-        usuario=current_user,
-        accion="ARCHIVADA",
-    ).save()
+    if remesa.num_anomalias > 0:
+        remesa.estado = "ARCHIVADO CON ANOMALIA"
+        remesa.save()
+        # Guardado de acción en bitacora de la remesa
+        ArcRemesaBitacora(
+            arc_remesa=remesa,
+            usuario=current_user,
+            accion="ARCHIVADA CON ANOMALIA",
+            observaciones=safe_message(f"Núm. de Anomalías: {remesa.num_anomalias}"),
+        ).save()
+    else:
+        remesa.estado = "ARCHIVADO"
+        remesa.save()
+        # Guardado de acción en bitacora de la remesa
+        ArcRemesaBitacora(
+            arc_remesa=remesa,
+            usuario=current_user,
+            accion="ARCHIVADA",
+        ).save()
     # Guardado de registro en bitacora del sistema
-    bitacora = Bitacora(
+    Bitacora(
         modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
         descripcion=safe_message(f"Nueva Remesa creada {remesa.id}"),

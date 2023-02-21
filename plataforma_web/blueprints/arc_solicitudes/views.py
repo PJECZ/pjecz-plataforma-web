@@ -24,9 +24,9 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.roles.models import Rol
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
-from plataforma_web.blueprints.arc_solicitudes.forms import ArcSolicitudNewForm, ArcSolicitudAsignationForm, ArcSolicitudFoundForm, ArcSolicitudSendForm, ArcSolicitudReceiveForm
+from plataforma_web.blueprints.arc_solicitudes.forms import ArcSolicitudNewForm, ArcSolicitudAsignationForm, ArcSolicitudFoundForm
 
-from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE
+from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE, ROL_RECEPCIONISTA
 
 
 MODULO = "ARC SOLICITUDES"
@@ -175,17 +175,17 @@ def detail(solicitud_id):
                 estado_text["class"] = estados[rol_activo][solicitud.estado]["COLOR"]
 
     # Lógica para mostrar secciones
-    if solicitud.estado == "SOLICITADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
+    if solicitud.estado == "SOLICITADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
         mostrar_secciones["boton_cancelar_solicitud"] = True
-    if solicitud.estado == "CANCELADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
+    if solicitud.estado == "CANCELADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
         mostrar_secciones["boton_pasar_historial"] = True
     if solicitud.estado == "ASIGNADO" and (current_user.can_admin(MODULO) or ROL_ARCHIVISTA in current_user_roles):
         mostrar_secciones["formulario_encontrado"] = True
         mostrar_secciones["archivista"] = True
-    if solicitud.estado == "NO ENCONTRADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
+    if solicitud.estado == "NO ENCONTRADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
         mostrar_secciones["boton_pasar_historial"] = True
         mostrar_secciones["archivista"] = True
-    if solicitud.estado == "ENTREGADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles):
+    if solicitud.estado == "ENTREGADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
         mostrar_secciones["boton_pasar_historial"] = True
         mostrar_secciones["archivista"] = True
     if solicitud.esta_archivado:
@@ -233,25 +233,21 @@ def detail(solicitud_id):
     if solicitud.estado == "ENCONTRADO":
         mostrar_secciones["archivista"] = True
         if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles:
-            form = ArcSolicitudSendForm()
             mostrar_secciones["enviar"] = True
             return render_template(
                 "arc_solicitudes/detail.jinja2",
                 solicitud=solicitud,
-                form=form,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
                 filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
             )
     if solicitud.estado == "ENVIANDO":
         mostrar_secciones["archivista"] = True
-        if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles:
-            form = ArcSolicitudReceiveForm()
+        if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
             mostrar_secciones["recibir"] = True
             return render_template(
                 "arc_solicitudes/detail.jinja2",
                 solicitud=solicitud,
-                form=form,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
                 filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
@@ -285,52 +281,58 @@ def new(documento_id):
     documento = ArcDocumento.query.get_or_404(documento_id)
     form = ArcSolicitudNewForm()
     if form.validate_on_submit():
+        current_user_roles = current_user.get_roles()
         if documento.ubicacion != "ARCHIVO":
             flash("El documento solo puede ser solicitado cuando su ubicación está en ARCHIVO.", "warning")
-        elif not current_user.can_admin(MODULO) and documento.autoridad != current_user.autoridad:
-            flash("Solo se pueden solicitar documentos de la misma Autoridad.", "warning")
+            return render_template("arc_solicitudes/new.jinja2", documento_id=documento.id, form=form)
+        elif documento.autoridad_id != current_user.autoridad.id:
+            if not (current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles):
+                flash(f"Solo se pueden solicitar documentos de la misma Autoridad.", "warning")
+                return render_template("arc_solicitudes/new.jinja2", documento_id=documento.id, form=form)
         elif ArcSolicitud.query.filter_by(arc_documento=documento).filter_by(esta_archivado=False).filter_by(estatus="A").first():
             flash("Este documento ya se encuentra en proceso de solicitud.", "warning")
-        else:
-            num_folio = safe_string(form.num_folio.data)
-            if num_folio == "":
-                num_folio = None
-            solicitud = ArcSolicitud(
-                arc_documento=documento,
-                autoridad=documento.autoridad,
-                usuario_receptor_id=None,
-                tiempo_recepcion=None,
-                esta_archivado=False,
-                num_folio=num_folio,
-                observaciones_solicitud=safe_message(form.observaciones.data, default_output_str=True),
-                estado="SOLICITADO",
-            )
-            solicitud.save()
-            # Añadir acción a la bitácora de Solicitudes
-            observaciones = ""
-            if num_folio is not None:
-                observaciones += f"Núm. Folio: {num_folio}."
-            if solicitud.observaciones_solicitud is not None:
-                observaciones += solicitud.observaciones_solicitud
-            observaciones = safe_message(observaciones, default_output_str=True)
-            if observaciones == "":
-                observaciones = None
-            ArcSolicitudBitacora(
-                arc_solicitud=solicitud,
-                usuario=current_user,
-                accion="SOLICITADA",
-                observaciones=observaciones,
-            ).save()
-            # Añadir acción a la bitácora del Sistema
-            bitacora = Bitacora(
-                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                usuario=current_user,
-                descripcion=safe_message(f"Nueva Solicitud de Documento {solicitud.id}"),
-                url=url_for("arc_archivos.list_active"),
-            )
-            bitacora.save()
-            flash(bitacora.descripcion, "success")
-            return redirect(bitacora.url)
+            return render_template("arc_solicitudes/new.jinja2", documento_id=documento.id, form=form)
+        # Crear Solicitud
+        num_folio = safe_string(form.num_folio.data)
+        if num_folio == "":
+            num_folio = None
+        solicitud = ArcSolicitud(
+            arc_documento=documento,
+            autoridad=current_user.autoridad,
+            usuario_receptor_id=None,
+            tiempo_recepcion=None,
+            esta_archivado=False,
+            num_folio=num_folio,
+            observaciones_solicitud=safe_message(form.observaciones.data, default_output_str=None),
+            estado="SOLICITADO",
+        )
+        solicitud.save()
+        # Añadir acción a la bitácora de Solicitudes
+        observaciones = ""
+        if num_folio is not None:
+            observaciones += f"Núm. Folio: {num_folio}."
+        if solicitud.observaciones_solicitud is not None:
+            observaciones += solicitud.observaciones_solicitud
+        observaciones = safe_message(observaciones, default_output_str=None)
+        if observaciones == "":
+            observaciones = None
+        ArcSolicitudBitacora(
+            arc_solicitud=solicitud,
+            usuario=current_user,
+            accion="SOLICITADA",
+            observaciones=observaciones,
+        ).save()
+        # Añadir acción a la bitácora del Sistema
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva Solicitud de Documento {solicitud.id}"),
+            url=url_for("arc_archivos.list_active"),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    # Carga de datos en el formulario
     form.num_expediente.data = documento.expediente
     form.anio.data = documento.anio
     form.actor.data = documento.actor
@@ -359,11 +361,11 @@ def assign(solicitud_id):
             if form.asignado.data is None or form.asignado.data == "":
                 solicitud.estado = "SOLICITADO"
                 solicitud.usuario_asignado = None
-                observaciones = (safe_message("Desasignado", default_output_str=True),)
+                observaciones = (safe_message("Desasignado", default_output_str=None),)
             else:
                 solicitud.estado = "ASIGNADO"
                 solicitud.usuario_asignado_id = int(form.asignado.data)
-                observaciones = (safe_message(f"Asigando a: {solicitud.usuario_asignado.nombre}", default_output_str=True),)
+                observaciones = (safe_message(f"Asigando a: {solicitud.usuario_asignado.nombre}", default_output_str=None),)
             solicitud.save()
             # Añadir acción a la bitácora de Solicitudes
             ArcSolicitudBitacora(
@@ -392,8 +394,8 @@ def cancel(solicitud_id):
     solicitud = ArcSolicitud.query.get_or_404(solicitud_id)
     if solicitud.estado != "SOLICITADO":
         flash("No puede cancelar una solicitud en un estado diferente a SOLICITADO.", "warning")
-    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede cancelar el ROL de {ROL_SOLICITANTE}.", "warning")
+    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede cancelar el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}..", "warning")
     else:
         solicitud.estado = "CANCELADO"
         solicitud.save()
@@ -423,8 +425,8 @@ def history(solicitud_id):
     solicitud = ArcSolicitud.query.get_or_404(solicitud_id)
     if solicitud.estado not in ["CANCELADO", "NO ENCONTRADO", "ENTREGADO"]:
         flash("No puede pasar al historial una solicitud en este estado.", "warning")
-    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede pasar al historial el ROL de {ROL_SOLICITANTE}.", "warning")
+    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede pasar al historial el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
     else:
         solicitud.esta_archivado = True
         solicitud.save()
@@ -473,19 +475,19 @@ def found(solicitud_id):
                     arc_documento=solicitud.arc_documento,
                     usuario=current_user,
                     fojas=fojas,
-                    observaciones=safe_message(request.form["observaciones"], default_output_str=True),
+                    observaciones=safe_message(request.form["observaciones"], default_output_str=None),
                     accion="CORRECCION FOJAS",
                 )
                 observaciones = f"Tuvo corrección en Fojas de {documento.fojas} a {fojas}."
                 solicitud_bitacora.save()
         else:
-            observaciones = safe_message(request.form["observaciones"], default_output_str=True)
+            observaciones = safe_message(request.form["observaciones"], default_output_str=None)
         # Añadir acción a la bitácora de Solicitudes
         ArcSolicitudBitacora(
             arc_solicitud=solicitud,
             usuario=current_user,
             accion="ENCONTRADA",
-            observaciones=safe_message(observaciones, default_output_str=True),
+            observaciones=safe_message(observaciones, default_output_str=None),
         ).save()
         # Añadir acción a la bitácora del Sistema
         solicitud.save()
@@ -523,7 +525,7 @@ def no_found(solicitud_id):
         solicitud_bitacora.save()
         solicitud.save()
         # Añadir acción a la bitácora de Solicitudes
-        observaciones = safe_message(request.form["observaciones"], default_output_str=True)
+        observaciones = safe_message(request.form["observaciones"], default_output_str=None)
         observaciones = f"Razón: {solicitud.razon}. {observaciones}"
         ArcSolicitudBitacora(
             arc_solicitud=solicitud,
@@ -584,8 +586,8 @@ def receive(solicitud_id):
     documento = ArcDocumento.query.get_or_404(solicitud.arc_documento_id)
     if solicitud.estado != "ENVIANDO":
         flash("No puede RECIBIR si la solicitud no está en estado ENVIANDO.", "warning")
-    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles():
-        flash(f"Solo puede recibir el ROL de {ROL_SOLICITANTE}.", "warning")
+    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
+        flash(f"Solo puede recibir el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
     else:
         solicitud.estado = "ENTREGADO"
         solicitud.usuario_receptor_id = current_user.id

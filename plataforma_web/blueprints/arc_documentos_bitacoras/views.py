@@ -11,7 +11,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.arc_documentos_bitacoras.models import ArcDocumentoBitacora
 from plataforma_web.blueprints.permisos.models import Permiso
 
-MODULO = "ARC DOCUMENTOS BITACORAS"
+MODULO = "ARC DOCUMENTOS"
 
 arc_documentos_bitacoras = Blueprint("arc_documentos_bitacoras", __name__, template_folder="templates")
 

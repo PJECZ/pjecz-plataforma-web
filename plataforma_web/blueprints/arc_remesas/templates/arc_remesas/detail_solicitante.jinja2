@@ -89,7 +89,7 @@
     {% endif %}
     {# Listados de Documentos #}
     {% call detail.card('Listado de Documentos') %}
-        <!-- Formulario de filtros -->
+        <!-- Formulario de filtros Documentos Anexos -->
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar_docsAnexos(); return false;" autocomplete="off">
@@ -107,12 +107,12 @@
                     </div>
                     <div class="col-4 text-end">
                         <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
-                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar_docsAnexos();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
                 </form>
             </div>
         </div>
-        <!-- Datatable -->
+        <!-- Datatable documentos anexos -->
         <table id="arc_documentos_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -132,7 +132,7 @@
     {% endcall %}
     {# Detalle Enviar #}
     {% call detail.card() %}
-        <a href="{{url_for('arc_remesas.send', remesa_id=remesa.id)}}" type="button" class="btn btn-success">Enviar <span class="iconify" data-icon="mdi:send"></span></a>
+        <a href="{{url_for('arc_remesas.send', remesa_id=remesa.id)}}" type="button" class="btn bg-pink">Enviar <span class="iconify" data-icon="mdi:send"></span></a>
     {% endcall %}
     {# Listado de la Bitacora de la Remesa #}
     {% call detail.card('Bitacora Remesa') %}
@@ -225,6 +225,15 @@
                 }
             },
             {
+                targets: 2, // Juicio
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16 )
+                        return '<span title="' + data + '">' + data.substr(0,16) + '…' + '</span>';
+                    return data
+                }
+            },
+            {
                 targets: 4, // partes
                 data: null,
                 render: function(data, type, row, meta) {
@@ -267,6 +276,15 @@
                 }
             }
         ];
+        // Busqueda
+        let id = document.getElementById('idInput_docsAnexos').value;
+        let documento = document.getElementById('expedienteInput_docsAnexos').value;
+
+        if(id != '')
+            configDataTable_2['ajax']['data']['id'] = id;
+        if(documento != '')
+            configDataTable_2['ajax']['data']['expediente'] = documento;
+
         // Datatable
         $('#arc_documentos_datatable').DataTable(configDataTable_2);
     </script>
@@ -305,6 +323,7 @@
                     bg_class = "";
                     switch (data)    {
                         case "CREADA":                  bg_class="bg-warning text-dark";    break;
+                        case "CANCELADA":               bg_class="bg-secondary";            break;
                         case "ENVIADA":                 bg_class="bg-pink";                 break;
                         case "ASIGNADA":                bg_class="bg-primary";              break;
                         case "RECHAZADA":               bg_class="bg-danger";               break;
@@ -330,5 +349,40 @@
 
         // Datatable
         $('#arc_remesa_bitacora_datatable').DataTable(configDataTable);
+    </script>
+    <!-- Función de buscador documentos anexos -->
+    <script type="text/javascript">
+        function buscar_docsAnexos() {
+            let id = document.getElementById('idInput_docsAnexos').value;
+            let documento = document.getElementById('expedienteInput_docsAnexos').value;
+
+            if( configDataTable_2['ajax']['data']['id'] === undefined && id === '' &&
+                configDataTable_2['ajax']['data']['expediente'] === undefined && documento === ''
+            ) return false;
+
+            $('#arc_documentos_datatable').DataTable().destroy();
+
+            if(id == '')
+                delete configDataTable_2['ajax']['data']['id'];
+            else
+                configDataTable_2['ajax']['data']['id'] = id;
+            if(documento == '')
+                delete configDataTable_2['ajax']['data']['expediente'];
+            else
+                configDataTable_2['ajax']['data']['expediente'] = documento;
+
+            $('#arc_documentos_datatable').DataTable(configDataTable_2);
+        };
+        function limpiar_docsAnexos()  {
+            if( configDataTable_2['ajax']['data']['id'] === undefined &&
+                configDataTable_2['ajax']['data']['expediente'] === undefined
+            ) return false;
+            
+            delete configDataTable_2['ajax']['data']['id'];
+            delete configDataTable_2['ajax']['data']['expediente'];
+
+            $('#arc_documentos_datatable').DataTable().destroy();
+            $('#arc_documentos_datatable').DataTable(configDataTable_2);
+        };
     </script>
 {% endblock %}

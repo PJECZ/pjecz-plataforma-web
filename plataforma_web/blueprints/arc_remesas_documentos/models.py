@@ -18,8 +18,8 @@ class ArcRemesaDocumento(db.Model, UniversalMixin):
 
     ANOMALIAS = OrderedDict(  # varchar(64)
         [
-            ("EXPEDIENTE CON NÚMERO INCORRECTO", "Expediente con número incorrecto"),
-            ("EXPEDIENTE CON AÑO INCORRECTO", "Expediente con año incorrecto"),
+            ("EXPEDIENTE CON NUMERO INCORRECTO", "Expediente con número incorrecto"),
+            ("EXPEDIENTE CON ANO INCORRECTO", "Expediente con año incorrecto"),
             ("EXPEDIENTE ENLISTADO Y NO ENVIADO", "Expediente enlistado y no enviado"),
             ("EXPEDIENTE CON PARTES INCORRECTAS", "Expediente con partes incorrectas"),
             ("EXPEDIENTE SIN FOLIAR", "Expediente sin foliar"),
@@ -27,8 +27,8 @@ class ArcRemesaDocumento(db.Model, UniversalMixin):
             ("EXPEDIENTE DESGLOSADO", "Expediente desglosado"),
             ("EXPEDIENTE CON CARATULA EN MAL ESTADO", "Expediente con caratula en mal estado"),
             ("EXPEDIENTE SIN CARATULA", "Expediente sin caratula"),
-            ("EXPEDIENTE SIN ESPECIFICACIÓN DE TOMOS ENVIADOS", "Expediente sin especificación de tomos enviados"),
-            ("EXPEDIENTE CON CAPTURA ERRÓNEA DE FOJAS", "Expediente con captura errónea de fojas"),
+            ("EXPEDIENTE SIN ESPECIFICACION DE TOMOS ENVIADOS", "Expediente sin especificación de tomos enviados"),
+            ("EXPEDIENTE CON CAPTURA ERRONEA DE FOJAS", "Expediente con captura errónea de fojas"),
         ]
     )
 
@@ -48,7 +48,7 @@ class ArcRemesaDocumento(db.Model, UniversalMixin):
     anomalia = db.Column(db.Enum(*ANOMALIAS, name="anomalias", native_enum=False))
     fojas = db.Column(db.Integer, nullable=False)
     observaciones_solicitante = db.Column(db.String(256))
-    observaciones_archivo = db.Column(db.String(256))
+    observaciones_archivista = db.Column(db.String(256))
     tipo_juzgado = db.Column(
         db.Enum(*TIPOS, name="tipos", native_enum=False),
         nullable=False,

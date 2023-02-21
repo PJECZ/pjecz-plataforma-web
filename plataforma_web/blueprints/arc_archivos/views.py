@@ -2,13 +2,9 @@
 Archivo Documentos Solicitudes, vistas
 """
 import json
-from datetime import date
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, render_template
 from flask_login import current_user, login_required
-from sqlalchemy import or_
 
-from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_expediente, safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.arc_solicitudes.models import ArcSolicitud
@@ -22,6 +18,7 @@ MODULO = "ARC ARCHIVOS"
 ROL_JEFE_REMESA = "ARCHIVO JEFE REMESA"
 ROL_ARCHIVISTA = "ARCHIVO ARCHIVISTA"
 ROL_SOLICITANTE = "ARCHIVO SOLICITANTE"
+ROL_RECEPCIONISTA = "ARCHIVO RECEPCIONISTA"
 
 arc_archivos = Blueprint("arc_archivos", __name__, template_folder="templates")
 
@@ -50,7 +47,7 @@ def list_active():
             estados_remesas=ArcRemesa.ESTADOS,
             tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         )
-    if ROL_SOLICITANTE in current_user_roles:
+    if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
         return render_template(
             "arc_archivos/list_solicitante.jinja2",
             filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
@@ -116,7 +113,7 @@ def list_history():
             estados_remesas=ArcRemesa.ESTADOS,
             tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         )
-    if ROL_SOLICITANTE in current_user_roles:
+    if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
         return render_template(
             "arc_archivos/list_solicitante.jinja2",
             filtros_solicitudes=json.dumps({"estatus": "A", "mostrar_archivados": True, "juzgado_id": current_user.autoridad.id, "orden_acendente": True}),

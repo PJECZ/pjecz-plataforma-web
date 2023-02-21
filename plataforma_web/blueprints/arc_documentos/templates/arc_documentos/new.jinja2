@@ -58,7 +58,7 @@
                     delay: 250,
                     type: "POST",
                     data: function (params) {
-                        return { 'searchString': params.term.toUpperCase() };
+                        return { 'clave': params.term.toUpperCase(), "es_jurisdiccional": true };
                     }
                 },
                 placeholder: "{{buscar}}",

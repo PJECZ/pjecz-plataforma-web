@@ -31,7 +31,7 @@
                     <div class="col-6">
                         <div class="form-floating">
                             <select class="form-select" id="tipoSelect" name="tipoSelect" aria-label="tIPO" onchange="buscar(); return false;" style="flex: inherit;">
-                                <option selected value="">CUALQUIERA</option>
+                                <option selected value=""></option>
                                 {% for tipo in tipos %}
                                     <option value="{{tipo}}">{{tipo}}</option>
                                 {% endfor %}
@@ -48,7 +48,7 @@
                     <div class="col-3">
                         <div class="form-floating">
                             <select class="form-select" id="ubicacionSelect" name="ubicacionSelect" aria-label="Todas" onchange="buscar(); return false;" style="flex: inherit;">
-                                <option selected value="">TODAS</option>
+                                <option selected value=""></option>
                                 {% for ubicacion in ubicaciones %}
                                     <option value="{{ubicacion}}">{{ubicacion}}</option>
                                 {% endfor %}

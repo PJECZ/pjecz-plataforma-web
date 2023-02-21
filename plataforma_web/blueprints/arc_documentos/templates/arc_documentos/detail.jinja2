@@ -53,7 +53,7 @@
     {% call topbar.page_buttons('Expediente - ' + documento.id | string ) %}
         {{ topbar.button_previous('Archivo', url_for('arc_archivos.list_active')) }}
         {{ topbar.button_previous('Expedientes', url_for('arc_documentos.list_active')) }}
-        {% if current_user.can_edit('ARC DOCUMENTOS') %}
+        {% if mostrar_secciones['boton_editar'] %}
             {{ topbar.button_edit('Editar', url_for('arc_documentos.edit', arc_documento_id=documento.id)) }}
             {# {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
             {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}{% endif %} #}

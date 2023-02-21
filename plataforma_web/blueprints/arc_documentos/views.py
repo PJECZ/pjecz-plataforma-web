@@ -24,7 +24,12 @@ from plataforma_web.blueprints.arc_documentos.forms import (
     ArcDocumentoEditSolicitanteForm,
 )
 
-from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE
+from plataforma_web.blueprints.arc_archivos.views import (
+    ROL_JEFE_REMESA,
+    ROL_ARCHIVISTA,
+    ROL_SOLICITANTE,
+    ROL_RECEPCIONISTA,
+)
 
 
 MODULO = "ARC DOCUMENTOS"
@@ -103,7 +108,7 @@ def list_active():
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
 
-    if current_user.can_admin(MODULO) or ROL_ARCHIVISTA in current_user_roles:
+    if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_ARCHIVISTA in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
         return render_template(
             "arc_documentos/list_admin.jinja2",
             filtros=json.dumps({"estatus": "A"}),
@@ -127,7 +132,19 @@ def list_active():
 def detail(documento_id):
     """Detalle de un Documento"""
     documento = ArcDocumento.query.get_or_404(documento_id)
-    return render_template("arc_documentos/detail.jinja2", documento=documento, acciones=ArcDocumentoBitacora.ACCIONES)
+
+    # mostrar secciones según el ROL
+    mostrar_secciones = {}
+    current_user_roles = current_user.get_roles()
+    if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_SOLICITANTE in current_user_roles:
+        mostrar_secciones["boton_editar"] = True
+
+    return render_template(
+        "arc_documentos/detail.jinja2",
+        documento=documento,
+        acciones=ArcDocumentoBitacora.ACCIONES,
+        mostrar_secciones=mostrar_secciones,
+    )
 
 
 @arc_documentos.route("/arc_documentos/nuevo", methods=["GET", "POST"])
@@ -135,7 +152,7 @@ def detail(documento_id):
 def new():
     """Nuevo Documento"""
     current_user_roles = current_user.get_roles()
-    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO):
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
         form = ArcDocumentoNewArchivoForm()
     elif ROL_SOLICITANTE in current_user_roles:
         form = ArcDocumentoNewSolicitanteForm()

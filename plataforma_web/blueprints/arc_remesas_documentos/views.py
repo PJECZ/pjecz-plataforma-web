@@ -22,7 +22,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 
 from plataforma_web.blueprints.arc_remesas_documentos.forms import ArcRemesaDocumentoEditForm, ArcRemesaDocumentoArchiveForm
 
-from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE
+from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE, ROL_RECEPCIONISTA
 
 MODULO = "ARC REMESAS"
 
@@ -43,6 +43,10 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = ArcRemesaDocumento.query.join(ArcDocumento)
+    if "id" in request.form:
+        consulta = consulta.filter(ArcRemesaDocumento.id == request.form["id"])
+    if "expediente" in request.form:
+        consulta = consulta.filter(ArcDocumento.expediente.contains(request.form["expediente"]))
     if "estatus" in request.form:
         consulta = consulta.filter(ArcRemesaDocumento.estatus == request.form["estatus"])
     else:
@@ -81,8 +85,9 @@ def datatable_json():
                     "demandado": resultado.arc_documento.demandado,
                 },
                 "observaciones_solicitante": resultado.observaciones_solicitante if resultado.observaciones_solicitante else "",
-                "observaciones_archivo": resultado.observaciones_archivo if resultado.observaciones_archivo else "",
+                "observaciones_archivista": resultado.observaciones_archivista if resultado.observaciones_archivista else "",
                 "ubicacion": resultado.arc_documento.ubicacion,
+                "anomalia": resultado.anomalia,
                 "acciones": {
                     "ver": url_for("arc_remesas_documentos.detail", arc_remesa_documento_id=resultado.id),
                     "editar": url_for("arc_remesas_documentos.edit", arc_remesa_documento_id=resultado.id),
@@ -106,10 +111,23 @@ def detail(arc_remesa_documento_id):
     current_user_roles = current_user.get_roles()
     mostrar_secciones = {}
     if ROL_ARCHIVISTA in current_user_roles or current_user.can_admin(MODULO):
-        if remesa_documento.arc_documento.ubicacion == "REMESA":
+        mostrar_secciones["estado_actual"] = False
+        mostrar_secciones["observaciones_archivista"] = False
+        remesa = ArcRemesa.query.get_or_404(remesa_documento.arc_remesa_id)
+        if remesa.estado == "ASIGNADO":
             mostrar_secciones["archivar"] = True
             form = ArcRemesaDocumentoArchiveForm()
             form.fojas.data = remesa_documento.fojas
+            if remesa_documento.anomalia is not None:
+                form.anomalia.data = remesa_documento.anomalia
+                form.observaciones_archivista.data = remesa_documento.observaciones_archivista
+                if remesa_documento.arc_documento.ubicacion == "ARCHIVO":
+                    mostrar_secciones["estado_actual"] = "ARCHIVADO CON ANOMALÍA"
+                else:
+                    mostrar_secciones["estado_actual"] = "RECHAZADO"
+            else:
+                if remesa_documento.arc_documento.ubicacion == "ARCHIVO":
+                    mostrar_secciones["estado_actual"] = "ARCHIVADO"
             # Mostrar el template resultante
             return render_template(
                 "arc_remesas_documentos/detail.jinja2",
@@ -173,7 +191,7 @@ def delete(arc_remesa_documento_id):
 
     # Validamos los roles permitidos para esta acción
     current_user_roles = current_user.get_roles()
-    if not (ROL_SOLICITANTE in current_user_roles or current_user.can_admin(MODULO)):
+    if not (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
         flash("Solo el ROL de SOLICITANTE puede quitar anexos de una remesa.", "warning")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
@@ -192,8 +210,6 @@ def delete(arc_remesa_documento_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def archive(arc_remesa_documento_id):
     """Archivar un documento anexo de una Remesa"""
-    # TODO: Distinguir entre presionar ARCHIVAR y ARCHIVAR CON ANOMALÍA
-    # TODO: si presiona botón archivar con anomalía pedir haber seleccionado una anomalía
 
     # Localizamos el documento anexo de la remesa
     remesa_documento = ArcRemesaDocumento.query.get_or_404(arc_remesa_documento_id)
@@ -211,35 +227,119 @@ def archive(arc_remesa_documento_id):
         if documento.estatus != "A":
             flash("El documento se encuentra eliminado.", "warning")
             return redirect(url_for("arc_remesas.detail", remesa_id=remesa_documento.arc_remesa_id))
-        elif documento.ubicacion != "REMESA":
-            flash("El documento debe estar ubicado en REMESA.", "warning")
-            return redirect(url_for("arc_remesas.detail", remesa_id=remesa_documento.arc_remesa_id))
 
-        # Guardamos las observaciones del Archivista sobre el anexo
-        remesa_documento.observaciones_archivo = safe_message(form.observaciones_archivo.data, default_output_str=None)
-        remesa_documento.save()
-        # Guardamos cambios en el documento
-        documento.fojas = int(form.fojas.data)
-        documento.ubicacion = "ARCHIVO"
-        documento.save()
-        # Guardamos operación en la operación de la bitácora del documento
-        documento_bitacora = ArcDocumentoBitacora(
-            arc_documento=documento,
-            usuario=current_user,
-            fojas=int(form.fojas.data),
-            observaciones=safe_message(form.observaciones.data, default_output_str=None),
-            accion="ARCHIVAR",
-        )
-        documento_bitacora.save()
-        # Añadir acción a la bitácora del sistema
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Documento {documento.id} Archivado."),
-            url=url_for("arc_archivos.list_active"),
-        )
-        bitacora.save()
-        flash("Documento Anexo ARCHIVADO con éxito.", "success")
+        # Identificamos la acción a realizar dependiendo del botón presionado en el formulario
+        if "archivar" in request.form:
+            if request.form["archivar"] == "Archivar":
+                if not "fojas" in request.form or request.form["fojas"] == "":
+                    flash("Para ARCHIVAR necesita indicar el número de fojas", "warning")
+                    return redirect(url_for("arc_remesas_documentos.detail", arc_remesa_documento_id=arc_remesa_documento_id))
+                # Guardamos las observaciones del Archivista sobre el anexo
+                remesa_documento.observaciones_archivista = safe_message(form.observaciones_archivista.data, default_output_str=None)
+                remesa_documento.anomalia = None
+                remesa_documento.save()
+                # Guardamos cambios del documento
+                documento.fojas = int(form.fojas.data)
+                documento.ubicacion = "ARCHIVO"
+                documento.save()
+                # Añadir acción a la bitácora del documento
+                documento_bitacora = ArcDocumentoBitacora(
+                    arc_documento=documento,
+                    usuario=current_user,
+                    fojas=int(form.fojas.data),
+                    observaciones=safe_message(form.observaciones_archivista.data, default_output_str=None),
+                    accion="ARCHIVAR",
+                )
+                documento_bitacora.save()
+                # Añadir acción a la bitácora del sistema
+                bitacora = Bitacora(
+                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                    usuario=current_user,
+                    descripcion=safe_message(f"Documento {documento.id} Archivado."),
+                    url=url_for("arc_archivos.list_active"),
+                )
+                bitacora.save()
+                # Actualizamos el número de anomalías registradas en la remesa padre
+                remesa = ArcRemesa.query.get_or_404(remesa_documento.arc_remesa_id)
+                num_anomalias = ArcRemesaDocumento.query.filter_by(arc_remesa=remesa).filter(ArcRemesaDocumento.anomalia != None).count()
+                remesa.num_anomalias = num_anomalias
+                remesa.save()
+
+                flash("El documento anexo ha sido ARCHIVADO con éxito.", "success")
+            elif request.form["archivar"] == "Rechazar":
+                if not "anomalia" in request.form or request.form["anomalia"] == "":
+                    flash("Para RECHAZAR necesita indicar una anomalía", "warning")
+                    return redirect(url_for("arc_remesas_documentos.detail", arc_remesa_documento_id=arc_remesa_documento_id))
+                # Guardamos las observaciones del Archivista sobre el anexo
+                remesa_documento.observaciones_archivista = safe_message(form.observaciones_archivista.data, default_output_str=None)
+                remesa_documento.anomalia = safe_string(form.anomalia.data)
+                remesa_documento.save()
+                # Guardamos cambios del documento
+                documento.ubicacion = "JUZGADO"
+                documento.save()
+                # Añadir acción a la bitácora del documento
+                documento_bitacora = ArcDocumentoBitacora(
+                    arc_documento=documento,
+                    usuario=current_user,
+                    observaciones=safe_message(f"ANOMALÍA: {remesa_documento.anomalia}. NOTA: {remesa_documento.observaciones_archivista}", default_output_str=None),
+                    accion="ANOMALIA",
+                )
+                documento_bitacora.save()
+                # Añadir acción a la bitácora del sistema
+                bitacora = Bitacora(
+                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                    usuario=current_user,
+                    descripcion=safe_message(f"Documento {documento.id} Rechazado."),
+                    url=url_for("arc_archivos.list_active"),
+                )
+                bitacora.save()
+                # Actualizamos el número de anomalías registradas en la remesa padre
+                remesa = ArcRemesa.query.get_or_404(remesa_documento.arc_remesa_id)
+                num_anomalias = ArcRemesaDocumento.query.filter_by(arc_remesa=remesa).filter(ArcRemesaDocumento.anomalia != None).count()
+                remesa.num_anomalias = num_anomalias
+                remesa.save()
+
+                flash("El documento anexo ha sido RECHAZADO con éxito.", "success")
+            elif request.form["archivar"] == "Archivar con Anomalía":
+                if not "fojas" in request.form or request.form["fojas"] == "" or not "anomalia" in request.form or request.form["anomalia"] == "":
+                    flash("Para ARCHIVAR CON ANOMALÍA necesita indicar un número de fojas y una anomalía", "warning")
+                    return redirect(url_for("arc_remesas_documentos.detail", arc_remesa_documento_id=arc_remesa_documento_id))
+                # Guardamos las observaciones del Archivista sobre el anexo
+                remesa_documento.observaciones_archivista = safe_message(form.observaciones_archivista.data, default_output_str=None)
+                remesa_documento.anomalia = safe_string(form.anomalia.data)
+                remesa_documento.save()
+                # Guardamos cambios del documento
+                documento.fojas = int(form.fojas.data)
+                documento.ubicacion = "ARCHIVO"
+                documento.save()
+                # Añadir acción a la bitácora del documento
+                documento_bitacora = ArcDocumentoBitacora(
+                    arc_documento=documento,
+                    usuario=current_user,
+                    fojas=int(form.fojas.data),
+                    observaciones=safe_message(f"ANOMALÍA: {remesa_documento.anomalia}. NOTA: {remesa_documento.observaciones_archivista}", default_output_str=None),
+                    accion="ARCHIVAR",
+                )
+                documento_bitacora.save()
+                # Añadir acción a la bitácora del sistema
+                bitacora = Bitacora(
+                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                    usuario=current_user,
+                    descripcion=safe_message(f"Documento {documento.id} Archivado con Anomalía."),
+                    url=url_for("arc_archivos.list_active"),
+                )
+                bitacora.save()
+                # Actualizamos el número de anomalías registradas en la remesa padre
+                remesa = ArcRemesa.query.get_or_404(remesa_documento.arc_remesa_id)
+                num_anomalias = ArcRemesaDocumento.query.filter_by(arc_remesa=remesa).filter(ArcRemesaDocumento.anomalia != None).count()
+                remesa.num_anomalias = num_anomalias
+                remesa.save()
+
+                flash("El documento anexo ha sido ARCHIVADO CON ANOMALÍA con éxito.", "success")
+            else:
+                flash(f"No se reconoce la acción '{request.form['archivar']}'.", "warning")
+        else:
+            flash("Acción desconocida", "warning")
     else:
         flash("La operación de ARCHIVAR NO se completo.", "danger")
 

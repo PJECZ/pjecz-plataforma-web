@@ -83,7 +83,30 @@
     {% endif %}
     {# Listados de Documentos #}
     {% call detail.card('Listado de Documentos') %}
-        <!-- Datatable -->
+        <!-- Formulario de filtros Documentos Anexos -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar_docsAnexos(); return false;" autocomplete="off">
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="idInput_docsAnexos" type="text" class="form-control" onchange="buscar_docsAnexos(); return false;">
+                            <label for="idInput_docsAnexos">ID</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="expedienteInput_docsAnexos" type="text" class="form-control" onchange="buscar_docsAnexos(); return false;">
+                            <label for="expedienteInput_docsAnexos">Expediente</label>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar_docsAnexos();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable Documentos Anexos -->
         <table id="arc_documentos_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -94,7 +117,9 @@
                     <th>Partes</th>
                     <th>Fojas Nuevas</th>
                     <th>Ubicación</th>
-                    <th>Observaciones</th>
+                    <th>Anomalía</th>
+                    <th>Observaciones Solicitante</th>
+                    <th>Observaciones Archivista</th>
                 </tr>
             </thead>
         </table>
@@ -102,7 +127,7 @@
     {% endcall %}
     {# Sección de asignaciones #}
     {% if not mostrar_secciones['asignar'] and mostrar_secciones['asignado'] %}
-        <div class="card mb-3">
+        <div class="card mb-3 border-info">
             <div class="card-header bg-info text-light" style="font-weight: bold;">Asignación (Archivista)</div>
             <div class="card-body" style="background-color: #d1e1e7;">
                 {% if not remesa.usuario_asignado %}
@@ -118,7 +143,7 @@
         </div>
     {% endif %}
     {% if mostrar_secciones['asignar'] %}
-        <div class="card mb-3">
+        <div class="card mb-3 border-info">
             <div class="card-header bg-info text-light" style="font-weight: bold;">Asignación (Archivista)</div>
             <div class="card-body" style="background-color: #d1e1e7;">
             {% if archivistas %}
@@ -193,7 +218,9 @@
             { data: 'partes' },
             { data: 'fojas' },
             { data: 'ubicacion' },
-            { data: 'observaciones_solicitante' }
+            { data: 'anomalia' },
+            { data: 'observaciones_solicitante' },
+            { data: 'observaciones_archivista' }
         ];
         configDataTable['columnDefs'] = [
             {
@@ -246,7 +273,26 @@
                 }
             },
             {
-                targets: 7, // Observaciones
+                targets: 7, // Anomalía
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data)
+                        return '<span title="' + data + '" class="badge rounded-pill bg-danger"><span class="iconify" data-icon="mdi:check-decagram"></span></span>';
+                    return "";
+                }
+            },
+            {
+                targets: 8, // Observaciones Solicitante
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16)
+                        return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                    else
+                        return data;
+                }
+            },
+            {
+                targets: 9, // Observaciones Archivo
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 16)
@@ -256,20 +302,102 @@
                 }
             }
         ];
+        configDataTable['rowCallback'] = function(row, data) {
+            if (data.anomalia)    {
+                $(row).css("background-color", "#f8d7da");
+            }
+        };
+        // Busqueda
+        let id = document.getElementById('idInput_docsAnexos').value;
+        let documento = document.getElementById('expedienteInput_docsAnexos').value;
+
+        if(id != '')
+            configDataTable['ajax']['data']['id'] = id;
+        if(documento != '')
+            configDataTable['ajax']['data']['expediente'] = documento;
+
         // Datatable
         $('#arc_documentos_datatable').DataTable(configDataTable);
     </script>
+    <!-- Función de buscador documentos anexos -->
+    <script type="text/javascript">
+        function buscar_docsAnexos() {
+            let id = document.getElementById('idInput_docsAnexos').value;
+            let documento = document.getElementById('expedienteInput_docsAnexos').value;
+
+            if( configDataTable['ajax']['data']['id'] === undefined && id === '' &&
+                configDataTable['ajax']['data']['expediente'] === undefined && documento === ''
+            ) return false;
+
+            $('#arc_documentos_datatable').DataTable().destroy();
+
+            if(id == '')
+                delete configDataTable['ajax']['data']['id'];
+            else
+                configDataTable['ajax']['data']['id'] = id;
+            if(documento == '')
+                delete configDataTable['ajax']['data']['expediente'];
+            else
+                configDataTable['ajax']['data']['expediente'] = documento;
+
+            $('#arc_documentos_datatable').DataTable(configDataTable);
+        };
+        function limpiar_docsAnexos()  {
+            if( configDataTable['ajax']['data']['id'] === undefined &&
+                configDataTable['ajax']['data']['expediente'] === undefined
+            ) return false;
+            
+            delete configDataTable['ajax']['data']['id'];
+            delete configDataTable['ajax']['data']['expediente'];
+
+            $('#arc_documentos_datatable').DataTable().destroy();
+            $('#arc_documentos_datatable').DataTable(configDataTable);
+        };
+    </script>
     <!-- DataTable para Bitacora -->
     <script>
-        configDataTable['ajax']['url'] = '/arc_remesas_bitacoras/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros_bitacora }};
-        configDataTable['columns'] = [
+        let configDataTable_2 = {
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: null,
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: null
+            },
+            columns: null,
+            columnDefs: null,
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        };
+        // ---
+        configDataTable_2['ajax']['url'] = '/arc_remesas_bitacoras/datatable_json';
+        configDataTable_2['ajax']['data'] = {{ filtros_bitacora }};
+        configDataTable_2['columns'] = [
             { data: 'tiempo' },
             { data: 'usuario' },
             { data: 'accion' },
             { data: 'observaciones' }
         ];
-        configDataTable['columnDefs'] = [
+        configDataTable_2['columnDefs'] = [
             {
                 targets: 0, // tiempo
                 data: null,
@@ -294,6 +422,7 @@
                     bg_class = "";
                     switch (data)    {
                         case "CREADA":                  bg_class="bg-warning text-dark";    break;
+                        case "CANCELADA":               bg_class="bg-secondary";            break;
                         case "ENVIADA":                 bg_class="bg-pink";                 break;
                         case "ASIGNADA":                bg_class="bg-primary";              break;
                         case "RECHAZADA":               bg_class="bg-danger";               break;
@@ -313,11 +442,12 @@
                         return data;
                 }
             },
+            
         ];
 
         // Búsqueda
 
         // Datatable
-        $('#arc_remesa_bitacora_datatable').DataTable(configDataTable);
+        $('#arc_remesa_bitacora_datatable').DataTable(configDataTable_2);
     </script>
 {% endblock %}

@@ -30,5 +30,5 @@ class ArcRemesaDocumentoArchiveForm(FlaskForm):
 
     fojas = IntegerField("Fojas", validators=[Optional()])
     anomalia = SelectField("Anomalía", validators=[Optional()], choices=anomalias_tipos())
-    observaciones_archivo = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
+    observaciones_archivista = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     archivar = SubmitField("Archivar")

@@ -44,15 +44,3 @@ class ArcSolicitudFoundForm(FlaskForm):
     razon = SelectField("Razón", choices=ArcSolicitud.RAZONES, validators=[Optional()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     no_encontrado = SubmitField("NO Encontrado")
-
-
-class ArcSolicitudSendForm(FlaskForm):
-    """Formulario para Enviar"""
-
-    enviar = SubmitField("Enviar")
-
-
-class ArcSolicitudReceiveForm(FlaskForm):
-    """Formulario para Recibir"""
-
-    recibir = SubmitField("Recibir")
