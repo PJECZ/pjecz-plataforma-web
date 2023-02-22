@@ -552,7 +552,7 @@ def add_document(documento_id):
     documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesaDocumento.arc_documento_id == documento_id)
     documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "ARCHIVADO").filter(ArcRemesa.estado != "RECHAZADO").first()
     if documento_en_otra_remesa:
-        if documento_en_otra_remesa.arc_remesa.estado not in ("CANCELADO", "ARCHIVADO", "RECHAZADO"):
+        if documento_en_otra_remesa.arc_remesa.estado not in ("CANCELADO", "ARCHIVADO", "RECHAZADO", "ARCHIVADO CON ANOMALIA"):
             flash(f"Este documento ya está asignado a la remesa [{documento_en_otra_remesa.arc_remesa.id}] que se encuentra en proceso.", "warning")
             return redirect(url_for("arc_documentos.detail", documento_id=documento_id))
         if documento_en_otra_remesa.arc_remesa.estatus != "A":
@@ -762,6 +762,7 @@ def complete(remesa_id):
             arc_remesa=remesa,
             usuario=current_user,
             accion="ARCHIVADA",
+            observaciones=safe_message(f"Núm. de Docs: {remesa.num_documentos}"),
         ).save()
     # Guardado de registro en bitacora del sistema
     Bitacora(
