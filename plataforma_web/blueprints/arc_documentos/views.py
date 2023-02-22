@@ -2,7 +2,11 @@
 Archivo Documentos, vistas
 """
 import json
+import os
+import requests
 from datetime import date
+from dotenv import load_dotenv
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
@@ -303,3 +307,56 @@ def edit(arc_documento_id):
         form.ubicacion_readonly.data = documento.ubicacion
         form.fojas_readonly.data = documento.fojas
     return render_template("arc_documentos/edit.jinja2", form=form, documento=documento)
+
+
+@arc_documentos.route("/arc_documentos/buscar", methods=["GET", "POST"])
+def search():
+    """Buscar Documento dentro de Expediente Virtual API"""
+    num_expediente = ""
+    current_user_roles = current_user.get_roles()
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
+        form = ArcDocumentoNewArchivoForm()
+    elif ROL_SOLICITANTE in current_user_roles:
+        form = ArcDocumentoNewSolicitanteForm()
+    else:
+        flash("No tiene el ROL para realizar está acción.", "warning")
+        return redirect(url_for("arc_documentos.list_active"))
+    # Proceso de búsqueda
+    if "num_expediente" in request.form:
+        num_expediente = request.form["num_expediente"]
+        load_dotenv()
+        API_URL_EXPEDIENTE_VIRTUAL = os.environ.get("API_URL_EXPEDIENTE_VIRTUAL", "")
+        if API_URL_EXPEDIENTE_VIRTUAL == "":
+            flash("No se declaro la variable de entorno API_URL_EXPEDIENTE_VIRTUAL", "warning")
+            return redirect(url_for("arc_documentos.new"))
+        API_KEY_EXPEDIENTE_VIRTUAL = os.environ.get("API_KEY_EXPEDIENTE_VIRTUAL", "")
+        if API_KEY_EXPEDIENTE_VIRTUAL == "":
+            flash("No se declaro la variable de entorno API_KEY_EXPEDIENTE_VIRTUAL", "warning")
+            return redirect(url_for("arc_documentos.new"))
+        if "/" not in num_expediente or len(num_expediente) < 6:
+            flash("Número de Expediente NO válido", "warning")
+            return redirect(url_for("arc_documentos.new"))
+        num_consecutivo, anio = num_expediente.split("/")
+        juzgado_id = 1  # TODO: Id temporal de prueba
+        url_api = f"{API_URL_EXPEDIENTE_VIRTUAL}?apiFunctionName=InfoExpediente&apiParamConsecutivo={num_consecutivo}&apiParamAnio={anio}&apiParamidJuzgado={juzgado_id}&apiKey={API_KEY_EXPEDIENTE_VIRTUAL}"
+        # Hace el llamado a la API
+        response = requests.request("GET", url_api)
+        respuesta_api = json.loads(response.text)
+        if respuesta_api["success"]:
+            if respuesta_api["success"] == "1":
+                flash("Registro encontrado", "success")
+                form.num_expediente.data = num_expediente
+                form.anio.data = anio
+                form.juicio.data = respuesta_api["Juicio"]
+                form.actor.data = respuesta_api["Actor"]
+                form.demandado.data = respuesta_api["Demandado"]
+                form.tipo.data = "EXPEDIENTE"
+            else:
+                flash("Registro NO encontrado", "warning")
+        else:
+            flash(f"{respuesta_api['response']}: {respuesta_api['Description']}", "danger")
+    # Bloquear campos según el ROL
+    if ROL_SOLICITANTE in current_user_roles:
+        form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
+        form.ubicacion_readonly.data = "JUZGADO"
+    return render_template("arc_documentos/new.jinja2", form=form, num_expediente=num_expediente)
