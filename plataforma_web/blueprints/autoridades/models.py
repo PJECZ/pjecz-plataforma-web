@@ -63,6 +63,7 @@ class Autoridad(db.Model, UniversalMixin):
         nullable=False,
     )
     limite_dias_listas_de_acuerdos = db.Column(db.Integer(), nullable=False, default=0)
+    datawarehouse_id = db.Column(db.Integer(), nullable=True)  # Columna para comunicación con SAJI
 
     # Hijos
     audiencias = db.relationship("Audiencia", back_populates="autoridad", lazy="noload")
