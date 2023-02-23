@@ -340,8 +340,15 @@ def search():
         juzgado_id = 1  # TODO: Id temporal de prueba
         url_api = f"{API_URL_EXPEDIENTE_VIRTUAL}?apiFunctionName=InfoExpediente&apiParamConsecutivo={num_consecutivo}&apiParamAnio={anio}&apiParamidJuzgado={juzgado_id}&apiKey={API_KEY_EXPEDIENTE_VIRTUAL}"
         # Hace el llamado a la API
-        response = requests.request("GET", url_api)
-        respuesta_api = json.loads(response.text)
+        respuesta_api = {}
+        try:
+            response = requests.request("GET", url_api, timeout=32)
+            respuesta_api = json.loads(response.text)
+        except requests.exceptions.RequestException as err:
+            flash(f"Error en API {err}", "danger")
+            respuesta_api["success"] = None
+            respuesta_api["response"] = "ERROR DE API"
+            respuesta_api["Description"] = "No hubo comunicación con la API"
         if respuesta_api["success"]:
             if respuesta_api["success"] == "1":
                 flash("Registro encontrado", "success")
