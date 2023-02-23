@@ -84,6 +84,11 @@ class Autoridad(db.Model, UniversalMixin):
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", back_populates="autoridad", lazy="noload")
     usuarios = db.relationship("Usuario", back_populates="autoridad")  # Mantener sin lazy
 
+    @property
+    def nombre(self):
+        """Junta clave : descripcion_corta"""
+        return self.clave + " : " + self.descripcion_corta
+
     def __repr__(self):
         """Representación"""
         return f"<Autoridad {self.clave}>"

@@ -17,6 +17,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.arc_documentos.models import ArcDocumento
 from plataforma_web.blueprints.arc_documentos_bitacoras.models import ArcDocumentoBitacora
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
@@ -155,9 +156,11 @@ def detail(documento_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Documento"""
+    mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
     if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
         form = ArcDocumentoNewArchivoForm()
+        mostrar_secciones["select_juzgado"] = True
     elif ROL_SOLICITANTE in current_user_roles:
         form = ArcDocumentoNewSolicitanteForm()
     else:
@@ -220,7 +223,7 @@ def new():
     if ROL_SOLICITANTE in current_user_roles:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = "JUZGADO"
-    return render_template("arc_documentos/new.jinja2", form=form)
+    return render_template("arc_documentos/new.jinja2", form=form, mostrar_secciones=mostrar_secciones)
 
 
 @arc_documentos.route("/arc_documentos/edicion/<int:arc_documento_id>", methods=["GET", "POST"])
@@ -313,9 +316,11 @@ def edit(arc_documento_id):
 def search():
     """Buscar Documento dentro de Expediente Virtual API"""
     num_expediente = ""
+    mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
     if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
         form = ArcDocumentoNewArchivoForm()
+        mostrar_secciones["select_juzgado"] = True
     elif ROL_SOLICITANTE in current_user_roles:
         form = ArcDocumentoNewSolicitanteForm()
     else:
@@ -336,34 +341,54 @@ def search():
         if "/" not in num_expediente or len(num_expediente) < 6:
             flash("Número de Expediente NO válido", "warning")
             return redirect(url_for("arc_documentos.new"))
+        autoridad_id = 0
         num_consecutivo, anio = num_expediente.split("/")
-        juzgado_id = 1  # TODO: Id temporal de prueba
-        url_api = f"{API_URL_EXPEDIENTE_VIRTUAL}?apiFunctionName=InfoExpediente&apiParamConsecutivo={num_consecutivo}&apiParamAnio={anio}&apiParamidJuzgado={juzgado_id}&apiKey={API_KEY_EXPEDIENTE_VIRTUAL}"
-        # Hace el llamado a la API
-        respuesta_api = {}
-        try:
-            response = requests.request("GET", url_api, timeout=32)
-            respuesta_api = json.loads(response.text)
-        except requests.exceptions.RequestException as err:
-            flash(f"Error en API {err}", "danger")
-            respuesta_api["success"] = None
-            respuesta_api["response"] = "ERROR DE API"
-            respuesta_api["Description"] = "No hubo comunicación con la API"
-        if respuesta_api["success"]:
-            if respuesta_api["success"] == "1":
-                flash("Registro encontrado", "success")
-                form.num_expediente.data = num_expediente
-                form.anio.data = anio
-                form.juicio.data = respuesta_api["Juicio"]
-                form.actor.data = respuesta_api["Actor"]
-                form.demandado.data = respuesta_api["Demandado"]
-                form.tipo.data = "EXPEDIENTE"
+        if ROL_SOLICITANTE in current_user_roles:
+            autoridad_id = current_user.autoridad.id
+        elif ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
+            if "juzgadoInput_buscar" not in request.form:
+                flash("Necesita indicar un Juzgado en el formulario de búsqueda ", "warning")
+                autoridad_id = 0
             else:
-                flash("Registro NO encontrado", "warning")
-        else:
-            flash(f"{respuesta_api['response']}: {respuesta_api['Description']}", "danger")
+                autoridad_id = int(request.form["juzgadoInput_buscar"])
+                mostrar_secciones["juzgado_id"] = autoridad_id
+        if autoridad_id > 0:
+            autoridad = Autoridad.query.get_or_404(autoridad_id)
+            juzgado_id = autoridad.datawarehouse_id
+            if juzgado_id:
+                url_api = f"{API_URL_EXPEDIENTE_VIRTUAL}?apiFunctionName=InfoExpediente&apiParamConsecutivo={num_consecutivo}&apiParamAnio={anio}&apiParamidJuzgado={juzgado_id}&apiKey={API_KEY_EXPEDIENTE_VIRTUAL}"
+                # Hace el llamado a la API
+                respuesta_api = {}
+                try:
+                    response = requests.request("GET", url_api, timeout=32)
+                    respuesta_api = json.loads(response.text)
+                except requests.exceptions.RequestException as err:
+                    flash(f"Error en API {err}", "danger")
+                    respuesta_api["success"] = None
+                    respuesta_api["response"] = "ERROR DE API"
+                    respuesta_api["Description"] = "No hubo comunicación con la API"
+                if respuesta_api["success"]:
+                    if respuesta_api["success"] == "1":
+                        flash("Registro encontrado", "success")
+                        form.num_expediente.data = num_expediente
+                        form.anio.data = anio
+                        form.juicio.data = respuesta_api["Juicio"]
+                        form.actor.data = respuesta_api["Actor"]
+                        form.demandado.data = respuesta_api["Demandado"]
+                        form.tipo.data = "EXPEDIENTE"
+                        if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
+                            form.juzgado_id.data = autoridad_id
+                            mostrar_secciones["juzgado_nombre"] = autoridad.nombre
+                    else:
+                        flash("Registro NO encontrado", "warning")
+                else:
+                    flash(f"{respuesta_api['response']}: {respuesta_api['Description']}", "danger")
+            else:
+                flash("No tiene una autoridad asignada compatible con el campo datawarehouse_id", "warning")
     # Bloquear campos según el ROL
     if ROL_SOLICITANTE in current_user_roles:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = "JUZGADO"
-    return render_template("arc_documentos/new.jinja2", form=form, num_expediente=num_expediente)
+    elif ROL_JEFE_REMESA in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
+        mostrar_secciones["select_juzgado"] = True
+    return render_template("arc_documentos/new.jinja2", form=form, num_expediente=num_expediente, mostrar_secciones=mostrar_secciones)
