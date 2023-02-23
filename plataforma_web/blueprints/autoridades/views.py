@@ -391,6 +391,7 @@ def edit(autoridad_id):
             autoridad.directorio_edictos = form.directorio_edictos.data.strip()
             autoridad.directorio_glosas = form.directorio_glosas.data.strip()
             autoridad.limite_dias_listas_de_acuerdos = form.limite_dias_listas_de_acuerdos.data
+            autoridad.datawarehouse_id = form.datawarehouse_id.data
             autoridad.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -416,6 +417,7 @@ def edit(autoridad_id):
     form.directorio_edictos.data = autoridad.directorio_edictos
     form.directorio_glosas.data = autoridad.directorio_glosas
     form.limite_dias_listas_de_acuerdos.data = autoridad.limite_dias_listas_de_acuerdos
+    form.datawarehouse_id.data = autoridad.datawarehouse_id
     return render_template("autoridades/edit.jinja2", form=form, autoridad=autoridad)
 
 
