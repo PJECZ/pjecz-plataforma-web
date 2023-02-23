@@ -73,6 +73,7 @@
         {{ detail.label_value('Directorio para listas de acuerdos', autoridad.directorio_listas_de_acuerdos) }}
         {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias) }}
         {{ detail.label_value('Límite días para listas de acuerdos', autoridad.limite_dias_listas_de_acuerdos) }}
+        {{ detail.label_value('DataWareHouse ID', autoridad.datawarehouse_id) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
     {# Usuarios de la autoridad #}
@@ -146,6 +147,7 @@
             configDataTable['columns'] = [
                 { data: "detalle" },
                 { data: "funcionario" },
+                { data: "funcionario_nombre" },
             ];
             configDataTable['columnDefs'] = [
                 {
@@ -157,6 +159,17 @@
                 },
                 {
                     targets: 1, // funcionario
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.curp;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.curp + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: 2, // funcionario_nombre
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url == '') {
