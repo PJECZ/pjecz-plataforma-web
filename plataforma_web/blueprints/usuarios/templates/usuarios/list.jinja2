@@ -28,22 +28,22 @@
     <!-- Formulario de filtros -->
         <div class="row">
             <div class="col">
-                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_usuarios.buscar(); return false;">
                     <div class="col-5">
                         <div class="form-floating">
-                            <input id="emailInput" type="text" class="form-control" aria-label="email" onchange="buscar(); return false;" style="text-transform: lowercase;">
+                            <input id="emailInput" type="text" class="form-control" aria-label="email" onchange="filtros_usuarios.buscar(); return false;" style="text-transform: lowercase;">
                             <label for="emailInput">email</label>
                         </div>
                     </div>
                     <div class="col-5">
                         <div class="form-floating">
-                            <input id="nombre_completoInput" type="text" class="form-control" aria-label="email" onchange="buscar(); return false;" style="text-transform: uppercase;">
+                            <input id="nombre_completoInput" type="text" class="form-control" aria-label="email" onchange="filtros_usuarios.buscar(); return false;" style="text-transform: uppercase;">
                             <label for="nombre_completoInput">Nombre Completo</label>
                         </div>
                     </div>
                     <div class="col-2 text-end">
-                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
-                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_usuarios.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_usuarios.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
                 </form>
             </div>
@@ -127,38 +127,68 @@
     </script>
     <!-- Función de buscador -->
     <script type="text/javascript">
-        function buscar() {
-            let email = document.getElementById('emailInput').value.toLowerCase();
-            let nombre_completo = document.getElementById('nombre_completoInput').value.toUpperCase();
+        function Filtros(dataTable, configDataTable) {
+            const UPPER = 'UPPER';
+            const LOWER = 'LOWER';
+            this.dataTable = dataTable;
+            this.configDataTable = configDataTable;
+            this.inputs = [];
 
-            if( configDataTable['ajax']['data']['email'] === undefined && email === '' &&
-                configDataTable['ajax']['data']['nombre_completo'] === undefined && nombre_completo === ''
-            ) return false;
+            // Añada un campo input para su procesamiento
+            this.add_input = function(elementById_input, data_name, case_sensitive=UPPER) {
+                let input = {
+                    object: NaN,
+                    data_name: "",
+                    value: "",
+                    case: 'UPPER'
+                };
+                input.object = document.getElementById(elementById_input);
+                input.data_name = data_name;
+                input.case = case_sensitive;
 
-            $('#usuarios_datatable').DataTable().destroy();
+                this.inputs.push(input);
+            };
 
-            if(email == '')
-                delete configDataTable['ajax']['data']['email'];
-            else
-                configDataTable['ajax']['data']['email'] = email;
-            if(nombre_completo == '')
-                delete configDataTable['ajax']['data']['nombre_completo'];
-            else
-                configDataTable['ajax']['data']['nombre_completo'] = nombre_completo;
+            this.limpiar = function() {
+                // Elimina todos los valore enviados
+                for( let i=0; i < this.inputs.length; i++)
+                    delete this.configDataTable['ajax']['data'][this.inputs[i].data_name];
 
-            $('#usuarios_datatable').DataTable(configDataTable);
+                // Actualiza los resultados en el DataTable
+                $(this.dataTable).DataTable().destroy();
+                $(this.dataTable).DataTable(this.configDataTable);
+            };
+
+            this.buscar = function() {
+                // Extrae el valor del input
+                for( let i=0; i < this.inputs.length; i++) {
+                    switch (this.inputs[i].case ) {
+                        case UPPER:
+                            this.inputs[i].value = this.inputs[i].object.value.toUpperCase();
+                            break;
+                        case LOWER:
+                            this.inputs[i].value = this.inputs[i].object.value.toLowerCase();
+                            break;
+                        default:
+                            this.inputs[i].value = this.inputs[i].object.value;
+                    }
+                    // Si está vacío lo omite y busca en los demás
+                    if(this.inputs[i].value == '')
+                        delete this.configDataTable['ajax']['data'][this.inputs[i].data_name];
+                    else
+                        this.configDataTable['ajax']['data'][this.inputs[i].data_name] = this.inputs[i].value;
+                }
+                // Actualiza los resultados en el DataTable
+                $(this.dataTable).DataTable().destroy();
+                $(this.dataTable).DataTable(this.configDataTable);
+
+            }
         };
 
-        function limpiar()  {
-            if( configDataTable['ajax']['data']['email'] === undefined &&
-                configDataTable['ajax']['data']['nombre_completo'] === undefined
-            ) return false;
-            
-            delete configDataTable['ajax']['data']['email'];
-            delete configDataTable['ajax']['data']['nombre_completo'];
-
-            $('#usuarios_datatable').DataTable().destroy();
-            $('#usuarios_datatable').DataTable(configDataTable);
-        };
+        // Creación del Objeto manejador de Filtros
+        const filtros_usuarios = new Filtros('#usuarios_datatable', configDataTable);
+        // Añadimos los difrentes inputs utilizados
+        filtros_usuarios.add_input('emailInput', 'email', filtros_usuarios.LOWER);
+        filtros_usuarios.add_input('nombre_completoInput', 'nombre_completo', filtros_usuarios.UPPER);
     </script>
 {% endblock %}
