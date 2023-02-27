@@ -25,6 +25,30 @@
 
 {% block content %}
     {% call list.card() %}
+    <!-- Formulario de filtros -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
+                    <div class="col-5">
+                        <div class="form-floating">
+                            <input id="emailInput" type="text" class="form-control" aria-label="email" onchange="buscar(); return false;" style="text-transform: lowercase;">
+                            <label for="emailInput">email</label>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="form-floating">
+                            <input id="nombre_completoInput" type="text" class="form-control" aria-label="email" onchange="buscar(); return false;" style="text-transform: uppercase;">
+                            <label for="nombre_completoInput">Nombre Completo</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable de Usuarios -->
         <table id="usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -89,6 +113,52 @@
                 }
             }
         ];
+        // Búsqueda
+        let email = document.getElementById('emailInput').value.toLowerCase();
+        let nombre_completo = document.getElementById('nombre_completoInput').value.toUpperCase();
+
+        if(email != '')
+            configDataTable['ajax']['data']['email'] = email;
+        if(nombre_completo != '')
+            configDataTable['ajax']['data']['nombre_completo'] = nombre_completo;
+        
+        // Datatable
         $('#usuarios_datatable').DataTable(configDataTable);
+    </script>
+    <!-- Función de buscador -->
+    <script type="text/javascript">
+        function buscar() {
+            let email = document.getElementById('emailInput').value.toLowerCase();
+            let nombre_completo = document.getElementById('nombre_completoInput').value.toUpperCase();
+
+            if( configDataTable['ajax']['data']['email'] === undefined && email === '' &&
+                configDataTable['ajax']['data']['nombre_completo'] === undefined && nombre_completo === ''
+            ) return false;
+
+            $('#usuarios_datatable').DataTable().destroy();
+
+            if(email == '')
+                delete configDataTable['ajax']['data']['email'];
+            else
+                configDataTable['ajax']['data']['email'] = email;
+            if(nombre_completo == '')
+                delete configDataTable['ajax']['data']['nombre_completo'];
+            else
+                configDataTable['ajax']['data']['nombre_completo'] = nombre_completo;
+
+            $('#usuarios_datatable').DataTable(configDataTable);
+        };
+
+        function limpiar()  {
+            if( configDataTable['ajax']['data']['email'] === undefined &&
+                configDataTable['ajax']['data']['nombre_completo'] === undefined
+            ) return false;
+            
+            delete configDataTable['ajax']['data']['email'];
+            delete configDataTable['ajax']['data']['nombre_completo'];
+
+            $('#usuarios_datatable').DataTable().destroy();
+            $('#usuarios_datatable').DataTable(configDataTable);
+        };
     </script>
 {% endblock %}
