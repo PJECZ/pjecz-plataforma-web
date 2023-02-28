@@ -25,6 +25,30 @@
 
 {% block content %}
     {% call list.card() %}
+    <!-- Formulario de filtros de usuarios -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_usuarios.buscar(); return false;">
+                    <div class="col-5">
+                        <div class="form-floating">
+                            <input id="emailInput" type="text" class="form-control" aria-label="email" onchange="filtros_usuarios.buscar(); return false;" style="text-transform: lowercase;">
+                            <label for="emailInput">email</label>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="form-floating">
+                            <input id="nombre_completoInput" type="text" class="form-control" aria-label="email" onchange="filtros_usuarios.buscar(); return false;" style="text-transform: uppercase;">
+                            <label for="nombre_completoInput">Nombre Completo</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_usuarios.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_usuarios.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable de Usuarios -->
         <table id="usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -40,8 +64,15 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/config_dataTable.js"></script>
+    <!-- Importación de los fitlros para dataTable -->
+    <script src="/static/js/filtros_dataTable.js"></script>
+    <!-- Configuración del DataTable -->
     <script>
+        const dataTable_funcs = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable = dataTable_funcs.config;
+
         configDataTable['ajax']['url'] = '/usuarios/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
@@ -56,39 +87,31 @@
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.email + '</a>';
+                    return dataTable_funcs.texto_con_url(data.email, data.url);
                 }
             },
             {
                 targets: [1, 2], // nombre, puesto
                 data: null,
                 render: function(data, type, row, meta) {
-                    return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    return dataTable_funcs.texto_cortado(data, 32);
                 }
             },
             {
-                targets: 3, // autoridad
+                targets: [3, 4], // autoridad, oficina
                 data: null,
                 render: function(data, type, row, meta) {
-                    if (data.url == '') {
-                        return data.clave;
-                    } else {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
-                    }
-                }
-            },
-            {
-                targets: 4, // oficina
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.url == '') {
-                        return data.clave;
-                    } else {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
-                    }
+                    return dataTable_funcs.texto_con_url(data.clave, data.url);
                 }
             }
         ];
-        $('#usuarios_datatable').DataTable(configDataTable);
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_usuarios = new Filtros('#usuarios_datatable', configDataTable);
+        // Añadimos los difrentes inputs utilizados
+        filtros_usuarios.add_input('emailInput', 'email', filtros_usuarios.LOWER);
+        filtros_usuarios.add_input('nombre_completoInput', 'nombre_completo', filtros_usuarios.UPPER);
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_usuarios.precarga();
     </script>
 {% endblock %}

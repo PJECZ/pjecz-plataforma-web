@@ -222,6 +222,11 @@ def datatable_json():
         consulta = consulta.filter(Usuario.apellido_paterno.contains(safe_string(request.form["apellido_paterno"])))
     if "apellido_materno" in request.form:
         consulta = consulta.filter(Usuario.apellido_materno.contains(safe_string(request.form["apellido_materno"])))
+    if "nombre_completo" in request.form:
+        palabras = safe_string(request.form["nombre_completo"]).split(" ")
+        for palabra in palabras:
+            consulta = consulta.filter(or_(Usuario.nombres.contains(palabra), Usuario.apellido_paterno.contains(palabra), Usuario.apellido_materno.contains(palabra)))
+
     if "curp" in request.form:
         consulta = consulta.filter(Usuario.curp.contains(safe_string(request.form["curp"])))
     if "puesto" in request.form:
