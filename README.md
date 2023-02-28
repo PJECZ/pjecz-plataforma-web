@@ -51,15 +51,10 @@ Debe crear un archivo `instance/settings.py` que defina su conexion a la base de
     DB_PASS = os.environ.get("DB_PASS", "badpassword")
     DB_NAME = os.environ.get("DB_NAME", "pjecz_plataforma_web")
     DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
-
-    # MariaDB o MySQL
-    # SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
+    DB_PORT = os.environ.get("DB_PORT", "5432")
 
     # PostgreSQL
-    SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
-
-    # SQLite
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///pjecz_plataforma_web.sqlite3'
+    SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 Guarde sus configuraciones, contrasenas y tokens en un archivo `.env`
 
@@ -70,6 +65,7 @@ Guarde sus configuraciones, contrasenas y tokens en un archivo `.env`
 
     # Base de datos
     DB_HOST=127.0.0.1
+    DB_PORT=8432
     DB_NAME=pjecz_plataforma_web
     DB_USER=adminpjeczplataformaweb
     DB_PASS=XXXXXXXXXXXXXXXX
@@ -131,6 +127,7 @@ Cree el archivo `.bashrc` para que un perfil de Konsole le facilite la inicializ
         echo "   CLOUD_STORAGE_DEPOSITO: ${CLOUD_STORAGE_DEPOSITO}"
         echo "   DEPLOYMENT_ENVIRONMENT: ${DEPLOYMENT_ENVIRONMENT}"
         echo "   DB_HOST: ${DB_HOST}"
+        echo "   DB_PORT: ${DB_PORT}"
         echo "   DB_NAME: ${DB_NAME}"
         echo "   DB_USER: ${DB_USER}"
         echo "   DB_PASS: ${DB_PASS}"
