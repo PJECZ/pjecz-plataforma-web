@@ -64,8 +64,10 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <script src="/static/js/config_dataTable.js"></script>
     <script>
+        let configDataTable = new ConfigDataTable( "{{ csrf_token() }}" ).config;
+
         configDataTable['ajax']['url'] = '/usuarios/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
