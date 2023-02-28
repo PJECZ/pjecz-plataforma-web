@@ -25,7 +25,7 @@
 
 {% block content %}
     {% call list.card() %}
-    <!-- Formulario de filtros -->
+    <!-- Formulario de filtros de usuarios -->
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_usuarios.buscar(); return false;">
@@ -68,6 +68,7 @@
     <script src="/static/js/config_dataTable.js"></script>
     <!-- Importación de los fitlros para dataTable -->
     <script src="/static/js/filtros_dataTable.js"></script>
+    <!-- Configuración del DataTable -->
     <script>
         const dataTable_funcs = new ConfigDataTable( "{{ csrf_token() }}" );
         let configDataTable = dataTable_funcs.config;
@@ -110,7 +111,7 @@
         // Añadimos los difrentes inputs utilizados
         filtros_usuarios.add_input('emailInput', 'email', filtros_usuarios.LOWER);
         filtros_usuarios.add_input('nombre_completoInput', 'nombre_completo', filtros_usuarios.UPPER);
-
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
         filtros_usuarios.precarga();
     </script>
 {% endblock %}
