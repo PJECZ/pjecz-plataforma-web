@@ -1,0 +1,134 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Documento Anexo en Remesa{% endblock %}
+
+{% block custom_head %}
+    <style>
+    .bg-teal {
+        color: white;
+        background-color: var(--bs-teal);
+    }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Documento Anexo en Remesa ' + remesa.id | string + ' - ' + arc_remesa_documento.id | string ) %}
+        {{ topbar.button_previous('Remesa', url_for('arc_remesas.detail', remesa_id=remesa.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Detalle del Documento Anexo a la Remesa #}
+    {% call detail.card('Detalles del Documento Anexo a la Remesa') %}
+        {{ detail.label_value('Añadido', moment(arc_remesa_documento.creado).format('llll')) }}
+        {{ detail.label_value('Última Actualización', moment(arc_remesa_documento.modificado).format('llll')) }}
+        {{ detail.label_value('Fojas Nuevas', arc_remesa_documento.fojas) }}
+        {{ detail.label_value('Tipo de Juzgado', arc_remesa_documento.tipo_juzgado) }}
+        {{ detail.label_value('Tiene Anomalías', arc_remesa_documento.anomalia) }}
+    {% endcall %}
+    {# Observaciones - Solicitante #}
+    {% if arc_remesa_documento.observaciones_solicitante %}
+        <div class="card mb-3 border-warning">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones del Solicitante</div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                <textarea class="form-control bg-transparent border-warning" style="height: 100px;" disabled>{{ arc_remesa_documento.observaciones_solicitante }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    {# Observaciones - Archivo #}
+    {% if arc_remesa_documento.observaciones_archivista %}
+        <div class="card mb-3 border-info">
+            <div class="card-header bg-info" style="font-weight: bold;">Observaciones del Archivista</div>
+            <div class="card-body" style="background-color: #cff4fc;">
+                <textarea class="form-control bg-transparent border-info" style="height: 100px;" disabled>{{ arc_remesa_documento.observaciones_archivista }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    {# Detalle de la Remesa #}
+    {% call detail.card('Detalles de la Remesa') %}
+        {{ detail.label_value('Creado', moment(remesa.creado).format('llll')) }}
+        {{ detail.label_value('Última Actualización', moment(remesa.modificado).format('llll')) }}
+        {{ detail.label_value('Juzgado', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=remesa.autoridad_id)) }}
+        {{ detail.label_value('Año', remesa.anio) }}
+        {{ detail.label_value('Número de Oficio', remesa.num_oficio) }}
+        {{ detail.label_value('Estado', remesa.estado) }}
+        {{ detail.label_value('Observaciones', remesa.observaciones) }}
+    {% endcall %}
+    {# Detalle del Documento #}
+    {% call detail.card('Detalles del Documento') %}
+        {{ detail.label_value('Núm. Expediente', documento.expediente, url_for("arc_documentos.detail", documento_id=documento.id)) }}
+        {{ detail.label_value('Año', documento.anio) }}
+        <hr>
+        {{ detail.label_value('Actor', documento.actor) }}
+        {{ detail.label_value('Demandado', documento.demandado) }}
+        <hr>
+        {{ detail.label_value('Juicio', documento.juicio) }}
+        {{ detail.label_value('Tipo', documento.tipo) }}
+        {{ detail.label_value('Tipo de Juzgado', documento.tipo_juzgado) }}
+        {{ detail.label_value('Fojas Actuales', documento.fojas) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Ubicación</div>
+            <div class="col-md-9">
+                {% if documento.ubicacion == "JUZGADO" %}
+                    <span class="badge rounded-pill bg-info text-dark">{{ documento.ubicacion }} <span class="iconify" data-icon="mdi:gavel"></span></span>
+                {% elif documento.ubicacion == "NO DEFINIDO" %}
+                    <span class="badge rounded-pill bg-danger">{{ documento.ubicacion }} <span class="iconify" data-icon="mdi:close-octagon"></span></span>
+                {% elif documento.ubicacion == "ARCHIVO" %}
+                    <span class="badge rounded-pill bg-secondary">{{ documento.ubicacion }} <span class="iconify" data-icon="mdi:archive"></span></span>
+                {% elif documento.ubicacion == "REMESA" %}
+                    <span class="badge rounded-pill bg-warning text-dark">{{ documento.ubicacion }} <span class="iconify" data-icon="mdi:truck"></span></span>
+                {% else %}
+                    <strong>{{ documento.ubicacion }}</strong>
+                {% endif %}
+            </div>
+        </div>
+    {% endcall %}
+    {# Formulario para Archivar #}
+    {% if mostrar_secciones["archivar"] %}
+        <div class="card mb-3 border-primary">
+            <div class="card-header bg-primary text-light" style="font-weight: bold;">Archivar</div>
+            <div class="card-body" style="background-color: #cfe2ff;">
+                {% if mostrar_secciones["estado_actual"] %}
+                    <div class="row justify-content-between mb-3">
+                        <div class="col-4">
+                            {% if mostrar_secciones["estado_actual"] == "ARCHIVADO" %}
+                                <p>Estado Acutual: <span class="badge rounded-pill bg-success">{{mostrar_secciones["estado_actual"]}} <span class="iconify" data-icon="mdi:archive-arrow-down"></span></span></p>
+                            {% elif mostrar_secciones["estado_actual"] == "RECHAZADO" %}
+                                <p>Estado Acutual: <span class="badge rounded-pill bg-danger">{{mostrar_secciones["estado_actual"]}} <span class="iconify" data-icon="mdi:close-octagon"></span></span></p>
+                            {% elif mostrar_secciones["estado_actual"] == "ARCHIVADO CON ANOMALÍA" %}
+                                <p>Estado Acutual: <span class="badge rounded-pill bg-teal">{{mostrar_secciones["estado_actual"]}} <span class="iconify" data-icon="mdi:archive-star"></span></span></p>
+                            {% else %}
+                                <p>Estado Acutual: {{mostrar_secciones["estado_actual"]}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+                {% set form_kwargs = {'arc_remesa_documento_id': arc_remesa_documento.id} %}
+                {% call f.form_tag('arc_remesas_documentos.archive', fid='remesa_documento_form', **form_kwargs) %}
+                    {% call f.form_group(form.fojas) %}{% endcall %}
+                    {% call f.form_group(form.anomalia) %}{% endcall %}
+                    {% call f.form_group(form.observaciones_archivista) %}{% endcall %}
+                    <div class="row justify-content-between">
+                        <div class="col-4">
+                            <input class="btn btn-success" id="archivar" name="archivar" type="submit" value="Archivar">
+                        </div>
+                        <div class="col-4">
+                            <input class="btn btn-danger" id="rechazar" name="archivar" type="submit" value="Rechazar">
+                        </div>
+                        <div class="col-4 text-end">
+                            <input class="btn bg-teal" id="archivar_con_anomalia" name="archivar" type="submit" value="Archivar con Anomalía">
+                        </div>
+                    </div>
+                {% endcall %}
+            </div>
+        </div>        
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

@@ -1,0 +1,455 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/form.jinja2' as f with context %}
+
+{% block title %}Detalle de Remesa{% endblock %}
+
+{% block custom_head %}
+    <style>
+    .bg-pink {
+        color: white;
+        background-color: #d63384;
+    }
+    .bg-purple {
+        color: white;
+        background-color: #6f42c1;
+    }
+    .bg-brown {
+        color: white;
+        background-color: #653208;
+    }
+    .bg-teal {
+        color: white;
+        background-color: var(--bs-teal);
+    }
+    table.hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Remesa - ' + remesa.id | string ) %}
+        {% if remesa.esta_archivado %}
+            {{ topbar.button_previous('Remesas', url_for('arc_archivos.list_history')) }}
+        {% else %}
+            {{ topbar.button_previous('Remesas', url_for('arc_archivos.list_active')) }}
+        {% endif %}
+        {% if mostrar_secciones["boton_pasar_historial"] %}
+            {{ topbar.button('Pasar al Historial', url_for('arc_remesas.history', remesa_id=remesa.id), "mdi:history") }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Detalle #}
+    {% call detail.card('Detalles de la Remesa') %}
+        {{ detail.label_value('Creado', moment(remesa.creado).format('llll')) }}
+        {{ detail.label_value('Enviado', moment(remesa.tiempo_enviado).format('llll')) }}
+        {{ detail.label_value('Juzgado', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=remesa.autoridad.id)) }}
+        <div class="row">
+            {% if estado_text and estado_text['class'] %}
+                <div class="col-md-3 text-end">Estado</div>
+                <div class="col-md-9">
+                    <span class="badge rounded-pill {{estado_text['class']}}">{{ estado_text['texto'] }}</span>
+                {% if remesa.esta_archivado %}
+                    : <span class="badge rounded-pill bg-brown">EN HISTORIAL <span class="iconify" data-icon="mdi:history"></span></span>
+                {% endif %}
+            {% else %}
+                {{ detail.label_value('Estado', remesa.estado) }}
+            {% endif %}
+            </div>
+        </div>
+        {{ detail.label_value('Año', remesa.anio) }}
+        {{ detail.label_value('Núm. Oficio', remesa.num_oficio) }}
+        {{ detail.label_value('Tipo de Documentos', remesa.tipo_documentos) }}
+        {% if remesa.num_anomalias > 0 %}
+            <div class="row">
+                <div class="col-md-3 text-end">Núm. Anomalías</div>
+                <div class="col-md-9">
+                    <span class="badge rounded-pill bg-danger">{{ remesa.num_anomalias }}</span>
+                </div>
+            </div>
+        {% endif %}
+    {% endcall %}
+    {# Detalles Observaciones #}
+    {% if remesa.observaciones %}
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones </div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                <div class="col-md-9 text-start">{{ remesa.observaciones }}</div>
+            </div>
+        </div>
+    {% endif %}
+    {# Listados de Documentos #}
+    {% call detail.card('Listado de Documentos') %}
+        <!-- Formulario de filtros Documentos Anexos -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar_docsAnexos(); return false;" autocomplete="off">
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="idInput_docsAnexos" type="text" class="form-control" onchange="buscar_docsAnexos(); return false;">
+                            <label for="idInput_docsAnexos">ID</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="expedienteInput_docsAnexos" type="text" class="form-control" onchange="buscar_docsAnexos(); return false;">
+                            <label for="expedienteInput_docsAnexos">Expediente</label>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar_docsAnexos();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable Documentos Anexos -->
+        <table id="arc_documentos_datatable" class="table hover display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Expediente</th>
+                    <th>Juicio</th>
+                    <th>Juzgado Origen</th>
+                    <th>Partes</th>
+                    <th>Fojas Nuevas</th>
+                    <th>Anomalía</th>
+                    <th>Observaciones Solicitante</th>
+                    <th>Observaciones Archivista</th>
+                </tr>
+            </thead>
+        </table>
+        <a href="{{url_for('arc_remesas_documentos.print_list', remesa_id=remesa.id)}}" target="_blank" type="button" class="btn btn-primary"><span class="iconify" data-icon="mdi:printer"></span> Imprimir Listado</a>
+    {% endcall %}
+    {# Sección de asignaciones #}
+    {% if not mostrar_secciones['asignar'] and mostrar_secciones['asignado'] %}
+        <div class="card mb-3 border-info">
+            <div class="card-header bg-info text-light" style="font-weight: bold;">Asignación (Archivista)</div>
+            <div class="card-body" style="background-color: #d1e1e7;">
+                {% if not remesa.usuario_asignado %}
+                    {{ detail.label_value('Asignado', 'SIN ASIGNAR') }}
+                {% else %}
+                    {% if current_user.can_view('USUARIOS') %}
+                        {{ detail.label_value('Asignado', remesa.usuario_asignado.nombre, url_for("usuarios.detail", usuario_id=remesa.usuario_asignado.id)) }}
+                    {% else %}
+                        {{ detail.label_value('Asignado', remesa.usuario_asignado.nombre) }}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    {% if mostrar_secciones['asignar'] %}
+        <div class="card mb-3 border-info">
+            <div class="card-header bg-info text-light" style="font-weight: bold;">Asignación (Archivista)</div>
+            <div class="card-body" style="background-color: #d1e1e7;">
+            {% if archivistas %}
+                {% set form_kwargs = {'remesa_id': remesa.id} %}
+                    {% call f.form_tag('arc_remesas.asign', fid='remesa_form', **form_kwargs) %}
+                        <div class="form-group mb-2">
+                            <label for="asignado">Archivista</label>
+                            <select class="form-control" id="asignado" name="asignado">
+                                <option selected value="">SIN ASIGNAR</option>
+                                {% for archivista in archivistas %}
+                                    <option value="{{archivista.id}}" {% if archivista == remesa.usuario_asignado %} selected {% endif %}>{{archivista.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% call f.form_group(form.asignar) %}{% endcall %}
+                {% endcall %}
+            {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    {# Sección de rechezar #}
+    {% if mostrar_secciones['rechazar'] %}
+        <div class="card mb-3 border-danger">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Rechazar</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <a href="{{url_for('arc_remesas.refuse', remesa_id=remesa.id)}}" class="btn btn-danger">Rechazar</a>
+            </div>
+        </div>
+    {% endif %}
+    {# Sección Rechazo #}
+    {% if mostrar_secciones['rechazo'] %}
+        <div class="card mb-3 border-danger">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Rechazo</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <textarea class="form-control bg-transparent border-danger" style="height: 100px" disabled>{{ remesa.rechazo }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    {# Listado de la Bitacora de la Remesa #}
+    {% call detail.card('Bitacora Remesa') %}
+        <!-- Datatable -->
+        <table id="arc_remesa_bitacora_datatable" class="table hover display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+    <!-- Modal para confirmar la cancelación de la Remesa -->
+    {% if current_user.can_edit('ARC SOLICITUDES') %}
+        {{ modals.custom_javascript_delete('Cancelar', '¿Desea Cancelar la Remesa ' + remesa.id | string + '?') }}
+    {% endif %}
+    <!-- Mostar estilo de cuando la remesa está en el historial -->
+    {% if remesa.esta_archivado %}
+        <script>
+            $('.card-body').css('background-color', '#ced4da');
+            $('.card-header').addClass('bg-dark text-light');
+        </script>
+    {% endif %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/arc_remesas_documentos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros_documentos }};
+        configDataTable['columns'] = [
+            { data: 'id' },
+            { data: 'expediente' },
+            { data: 'juicio' },
+            { data: 'juzgado_origen' },
+            { data: 'partes' },
+            { data: 'fojas' },
+            { data: 'anomalia' },
+            { data: 'observaciones_solicitante' },
+            { data: 'observaciones_archivista' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // ID
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // expediente
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.expediente + '</a>';
+                }
+            },
+            {
+                targets: 2, // Juicio
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16 )
+                        return '<span title="' + data + '">' + data.substr(0,16) + '…' + '</span>';
+                    return data
+                }
+            },
+            {
+                targets: 4, // partes
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.actor.length > 24)
+                        actor = '<span title="' + data.actor + '">' + data.actor.substr(0, 24) + '…' + '</span>';
+                    else
+                        actor = data.actor;
+                    if (data.demandado.length > 24)
+                        demandado = '<span title="' + data.demandado + '">' + data.demandado.substr(0, 24) + '…' + '</span>';
+                    else
+                        demandado = data.demandado;
+                    return '<strong>Actor:</strong> ' + actor + '<br>' + '<strong>Demandado:</strong> ' + demandado;
+                }
+            },
+            {
+                targets: 5, // Fojas
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.nuevas ;
+                }
+            },
+            {
+                targets: 6, // Anomalía
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data)
+                        return '<span title="' + data + '" class="badge rounded-pill bg-danger"><span class="iconify" data-icon="mdi:check-decagram"></span></span>';
+                    return "";
+                }
+            },
+            {
+                targets: 7, // Observaciones Solicitante
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16)
+                        return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                    else
+                        return data;
+                }
+            },
+            {
+                targets: 8, // Observaciones Archivo
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16)
+                        return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
+                    else
+                        return data;
+                }
+            }
+        ];
+        configDataTable['rowCallback'] = function(row, data) {
+            if (data.anomalia)    {
+                $(row).css("background-color", "#f8d7da");
+            }
+        };
+        // Busqueda
+        let id = document.getElementById('idInput_docsAnexos').value;
+        let documento = document.getElementById('expedienteInput_docsAnexos').value;
+
+        if(id != '')
+            configDataTable['ajax']['data']['id'] = id;
+        if(documento != '')
+            configDataTable['ajax']['data']['expediente'] = documento;
+
+        // Datatable
+        $('#arc_documentos_datatable').DataTable(configDataTable);
+    </script>
+    <!-- Función de buscador documentos anexos -->
+    <script type="text/javascript">
+        function buscar_docsAnexos() {
+            let id = document.getElementById('idInput_docsAnexos').value;
+            let documento = document.getElementById('expedienteInput_docsAnexos').value;
+
+            if( configDataTable['ajax']['data']['id'] === undefined && id === '' &&
+                configDataTable['ajax']['data']['expediente'] === undefined && documento === ''
+            ) return false;
+
+            $('#arc_documentos_datatable').DataTable().destroy();
+
+            if(id == '')
+                delete configDataTable['ajax']['data']['id'];
+            else
+                configDataTable['ajax']['data']['id'] = id;
+            if(documento == '')
+                delete configDataTable['ajax']['data']['expediente'];
+            else
+                configDataTable['ajax']['data']['expediente'] = documento;
+
+            $('#arc_documentos_datatable').DataTable(configDataTable);
+        };
+        function limpiar_docsAnexos()  {
+            if( configDataTable['ajax']['data']['id'] === undefined &&
+                configDataTable['ajax']['data']['expediente'] === undefined
+            ) return false;
+            
+            delete configDataTable['ajax']['data']['id'];
+            delete configDataTable['ajax']['data']['expediente'];
+
+            $('#arc_documentos_datatable').DataTable().destroy();
+            $('#arc_documentos_datatable').DataTable(configDataTable);
+        };
+    </script>
+    <!-- DataTable para Bitacora -->
+    <script>
+    let configDataTable_2 = {
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            responsive: true,
+            scrollX: true,
+            ajax: {
+                url: null,
+                type: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                dataType: "json",
+                dataSrc: "data",
+                data: null
+            },
+            columns: null,
+            columnDefs: null,
+            language: {
+                lengthMenu: "Mostrar _MENU_",
+                search: "Filtrar:",
+                zeroRecords: "No se encontraron registros",
+                info: "Total de registros _TOTAL_ ",
+                infoEmpty: "No hay registros",
+                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
+                oPaginate: {
+                    sFirst: "Primero",
+                    sLast: "Último",
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            }
+        };
+        // ---
+        configDataTable_2['ajax']['url'] = '/arc_remesas_bitacoras/datatable_json';
+        configDataTable_2['ajax']['data'] = {{ filtros_bitacora }};
+        configDataTable_2['columns'] = [
+            { data: 'tiempo' },
+            { data: 'usuario' },
+            { data: 'accion' },
+            { data: 'observaciones' }
+        ];
+        configDataTable_2['columnDefs'] = [
+            {
+                targets: 0, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 1, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.nombre.length > 24) 
+                        return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span></a>';
+                    else   
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 2, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    bg_class = "";
+                    switch (data)    {
+                        case "CREADA":                  bg_class="bg-warning text-dark";    break;
+                        case "CANCELADA":               bg_class="bg-secondary";            break;
+                        case "ENVIADA":                 bg_class="bg-pink";                 break;
+                        case "ASIGNADA":                bg_class="bg-primary";              break;
+                        case "RECHAZADA":               bg_class="bg-danger";               break;
+                        case "ARCHIVADA":               bg_class="bg-success";              break;
+                        case "ARCHIVADA CON ANOMALIA":  bg_class="bg-teal";                 break;
+                        case "PASADA AL HISTORIAL":     bg_class="bg-brown";                break;
+                    }
+                    return '<span class="badge rounded-pill ' + bg_class + '">' + data + '</span>';
+                }
+            },
+            {
+                targets: 3, // Observaciones
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 24)
+                        return '<span title="' + data + '">' + data.substr(0, 24) + '…' + '</span>';
+                    else
+                        return data;
+                }
+            },
+        ];
+
+        // Búsqueda
+
+        // Datatable
+        $('#arc_remesa_bitacora_datatable').DataTable(configDataTable_2);
+    </script>
+{% endblock %}

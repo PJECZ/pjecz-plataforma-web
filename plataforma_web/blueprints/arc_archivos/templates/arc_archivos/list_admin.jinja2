@@ -1,0 +1,173 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Archivo{% endblock %}
+
+{% block custom_head %}
+    <style>
+    .bg-pink {
+        color: white;
+        background-color: #d63384;
+    }
+    .bg-purple {
+        color: white;
+        background-color: #6f42c1;
+    }
+    .bg-brown {
+        color: white;
+        background-color: #653208;
+    }
+    table.hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    </style>
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if mostrando_historial %}
+            <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
+            <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:history"></span> Historial</button>
+        {% else %}
+            {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call topbar.page_buttons('Solicitudes') %}
+        {% if not mostrando_historial %}
+            {{ topbar.button_new('Nueva Solicitud', url_for('arc_documentos.list_active')) }}
+        {% endif %}
+    {% endcall %}
+    {% call list.card() %}
+        <!-- Datatable -->
+        <table id="arc_solicitudes_datatable" class="table hover display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Creado</th>
+                    <th>Juzgado</th>
+                    <th>Documento</th>
+                    <th>Estado</th>
+                    <th>Asignado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+    {% call topbar.page_buttons('Remesas') %}
+        {% if not mostrando_historial %}
+            {{ topbar.button_new('Nueva Remesa', url_for('arc_remesas.new')) }}
+        {% endif %}
+    {% endcall %}
+    {% call list.card() %}
+        <!-- Datatable -->
+        <table id="arc_documentos_remesas_datatable" class="table hover display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Creado</th>
+                    <th>Juzgado</th>
+                    <th>Núm. Docs.</th>
+                    <th>Estado</th>
+                    <th>Asignado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/arc_solicitudes/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros_solicitudes }};
+        configDataTable['columns'] = [
+            { data: 'solicitud' },
+            { data: 'tiempo' },
+            { data: 'juzgado' },
+            { data: 'documento' },
+            { data: 'estado' },
+            { data: 'asignado' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // id
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                }
+            },
+            {
+                targets: 2, // juzgado
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<span title="' + data.nombre + '"><a href="' + data.url + '">' + data.clave + '</span></a>';
+                }
+            },
+            {
+                targets: 3, // documento
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.expediente + '</a>';
+                }
+            },
+            {
+                targets: 4, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "SOLICITADO":      return '<span class="badge rounded-pill bg-warning text-dark">SOLICITADO</span>';   break;
+                        case "ASIGNADO":        return '<span class="badge rounded-pill bg-primary">ASIGNADO</span>';   break;
+                        case "CANCELADO":       return '<span class="badge rounded-pill bg-secondary">CANCELADO</span>';   break;
+                        case "ENCONTRADO":      return '<span class="badge rounded-pill bg-purple">ENCONTRADO</span>';   break;
+                        case "NO ENCONTRADO":   return '<span class="badge rounded-pill bg-danger">NO ENCONTRADO</span>';   break;
+                        case "ENVIANDO":        return '<span class="badge rounded-pill bg-pink">ENVIANDO</span>';   break;
+                        case "ENTREGADO":       return '<span class="badge rounded-pill bg-success">ENTREGADO</span>';   break;
+                    }
+                    return data;
+                }
+            },
+            {
+                targets: 5, // asignado
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url != "")
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return data.nombre;
+                }
+            }
+        ];
+        configDataTable['rowCallback'] = function(row, data) {
+            switch (data.estado)    {
+                case "SOLICITADO":      $(row).css("background-color", "#fef9e7");  break;
+                case "ASIGNADO":        $(row).css("background-color", "#ebf5fb");  break;
+                case "CANCELADO":       $(row).css("background-color", "#eeeeee");  break;
+                case "ENCONTRADO":      $(row).css("background-color", "#f5eef8");  break;
+                case "NO ENCONTRADO":   $(row).css("background-color", "#fdedec");  break;
+                case "ENVIANDO":        $(row).css("background-color", "#f7d6e6");  break;
+                case "ENTREGADO":       $(row).css("background-color", "#d1e7dd");  break;
+            }
+        };
+
+        // Búsqueda
+
+        // Datatable
+        $('#arc_solicitudes_datatable').DataTable(configDataTable);
+    </script>
+    <!-- Mostar historial -->
+    {% if mostrando_historial %}
+    <script>
+        $('.card-body').css('background-color', '#ced4da');
+        $('.card-header').addClass('bg-dark text-light');
+    </script>
+    {% endif %}
+{% endblock %}

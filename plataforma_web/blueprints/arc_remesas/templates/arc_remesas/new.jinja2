@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nueva Remesa{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nueva Remesa') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('arc_remesas.new', fid='remesa_form') %}
+            {% call f.form_group(form.num_oficio) %}{% endcall %}
+            {% call f.form_group(form.anio) %}{% endcall %}
+            {% call f.form_group(form.tipo_documentos) %}{% endcall %}
+            {% call f.form_group(form.crear) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

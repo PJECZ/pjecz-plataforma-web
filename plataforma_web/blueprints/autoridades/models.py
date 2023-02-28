@@ -68,6 +68,9 @@ class Autoridad(db.Model, UniversalMixin):
     datawarehouse_id = db.Column(db.Integer(), nullable=True)  # Columna para comunicación con SAJI
 
     # Hijos
+    arc_documentos = db.relationship("ArcDocumento", back_populates="autoridad", lazy="noload")
+    arc_remesas = db.relationship("ArcRemesa", back_populates="autoridad", lazy="noload")
+    arc_solicitudes = db.relationship("ArcSolicitud", back_populates="autoridad", lazy="noload")
     audiencias = db.relationship("Audiencia", back_populates="autoridad", lazy="noload")
     autoridades_funcionarios = db.relationship("AutoridadFuncionario", back_populates="autoridad")
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="autoridad", lazy="noload")
@@ -82,6 +85,11 @@ class Autoridad(db.Model, UniversalMixin):
     tesis_jurisprudencias = db.relationship("TesisJurisprudencia", back_populates="autoridad", lazy="noload")
     ubicaciones_expedientes = db.relationship("UbicacionExpediente", back_populates="autoridad", lazy="noload")
     usuarios = db.relationship("Usuario", back_populates="autoridad")  # Mantener sin lazy
+
+    @property
+    def nombre(self):
+        """Junta clave : descripcion_corta"""
+        return self.clave + " : " + self.descripcion_corta
 
     def __repr__(self):
         """Representación"""

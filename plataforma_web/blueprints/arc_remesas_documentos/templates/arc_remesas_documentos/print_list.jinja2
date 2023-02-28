@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Listado de documentos anexos de una remesa</title>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.3.1/dt-1.10.25/b-1.7.1/b-html5-1.7.1/r-2.2.9/datatables.min.css">
+        <script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.2/b-2.3.4/b-html5-2.3.4/b-print-2.3.4/r-2.4.0/datatables.min.js"></script>
+        <!-- Estilos de tabla generado con ayuda de: https://divtable.com/table-styler -->
+        <style>
+            table {
+                width: 100%;
+                text-align: center;
+                border-collapse: collapse;
+            }
+            table td, table th {
+                border: 1px solid #BBBBBB;
+                padding: 3px 4px;
+            }
+            table tr:nth-child(even) {
+                background: #EDEDED;
+            }
+            table thead {
+                background: #adb5bd;
+                border-bottom: 2px solid #333333;
+            }
+            table thead th {
+                font-weight: bold;
+                text-align: center;
+                border-left: 2px solid #333333;
+            }
+            table thead th:first-child {
+                border-left: none;
+            }
+            h1 {
+                font-size: 1.5em;
+                text-align: center;
+                margin-bottom: 0px;
+            }
+            h2 {
+                font-size: 1em;
+                text-align: center;
+                margin-top: 0px;
+                font-weight: normal;
+            }
+            button {
+                float: right;
+                padding: 10px 20px;
+                border: 0;
+                background-color: #0d6efd;
+                color: #cfe2ff;
+                font-weight: bolder;
+                border-radius: 2cm;
+            }
+            @media print {
+                button {
+                    display: none;
+                }
+                body {
+                    margin: 0px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <button onclick="window.print(); return false;">Imprimir</button>
+        <h1>Listado de documentos anexos a la remesa {{ remesa.id }}</h1>
+        <h2>Juzgado: <strong>{{ remesa.autoridad.clave }} - {{ remesa.autoridad.descripcion_corta }}</strong>, Tipo de Documentos: <strong>{{ remesa.tipo_documentos }}</strong>, Núm. de Oficio: <strong>{{ remesa.num_oficio }}</strong></h2>
+        <table id="arc_documentos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Expediente</th>
+                    <th>Juzgado de Origen</th>
+                    <th>Partes</th>
+                    <th>Fojas Nuevas</th>
+                    <th>Observaciones del Solicitante</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for documento in documentos_anexos %}
+                <tr>
+                    <td>{{ documento.id }}</td>
+                    <td>{{ documento.arc_documento.expediente }}</td>
+                    <td>{{ documento.arc_documento.arc_juzgado_origen.nombre }}</td>
+                    <td><strong>Actor:</strong> {{ documento.arc_documento.actor }}<br>
+                        <strong>Demandado:</strong> {{ documento.arc_documento.demandado }}
+                    </td>
+                    <td>{{ documento.fojas }}</td>
+                    <td>{{ documento.observaciones }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

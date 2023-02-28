@@ -11,10 +11,13 @@ from flask_login import current_user, login_required
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_clave, safe_string, safe_message
 
+from sqlalchemy import or_
+
 from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm, AutoridadSearchForm
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -481,15 +484,17 @@ def query_notarias_json():
 def query_juzgados_json():
     """Proporcionar el JSON de autoridades para elegir Juzgados con un Select2"""
     consulta = Autoridad.query.filter(Autoridad.estatus == "A")
-    # Verificar si esta seleccionado es_jurisdiccional
-    consulta = consulta.filter_by(es_jurisdiccional=True)
-    # Consultar si el organo jurisdiccional es el correcto
-    consulta = consulta.filter(Autoridad.organo_jurisdiccional.between("JUZGADO DE PRIMERA INSTANCIA", "JUZGADO DE PRIMERA INSTANCIA ORAL"))
-    if "searchString" in request.form:
-        consulta = consulta.filter(Autoridad.descripcion.contains(request.form["searchString"]))
+    if "es_jurisdiccional" in request.form:
+        # Verificar si esta seleccionado es_jurisdiccional
+        consulta = consulta.filter_by(es_jurisdiccional=True)
+        # Consultar si el organo jurisdiccional es el correcto
+        consulta = consulta.filter(Autoridad.organo_jurisdiccional.between("JUZGADO DE PRIMERA INSTANCIA", "JUZGADO DE PRIMERA INSTANCIA ORAL"))
+    if "clave" in request.form:
+        texto = safe_string(request.form["clave"]).upper()
+        consulta = consulta.filter(Autoridad.clave.contains(texto))
     results = []
     for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
-        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + "  : " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
+        results.append({"id": autoridad.id, "text": autoridad.clave + "  : " + autoridad.descripcion_corta})
     return {"results": results, "pagination": {"more": False}}
 
 

@@ -5,6 +5,7 @@ import json
 import os
 import re
 from datetime import datetime, timedelta
+from sqlalchemy import or_
 
 import google.auth.transport.requests
 import google.oauth2.id_token
@@ -255,6 +256,25 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@usuarios.route("/usuarios/list_usuarios_json/", methods=["POST"])
+def list_usuarios_json():
+    """Listado de Usuarios"""
+
+    # Consultar
+    consulta = Usuario.query
+    if "searchString" in request.form:
+        busqueda = safe_string(request.form["searchString"])
+        consulta = consulta.filter(or_(Usuario.nombres.contains(busqueda), Usuario.apellido_paterno.contains(busqueda), Usuario.apellido_materno.contains(busqueda)))
+        consulta = consulta.order_by(Usuario.apellido_paterno).limit(15).all()
+
+    # Elaborar datos para el Select2
+    results = []
+    for usuario in consulta:
+        results.append({"id": usuario.id, "text": usuario.nombre})
+
+    return {"results": results, "pagination": {"more": False}}
 
 
 @usuarios.route("/usuarios/<int:usuario_id>")

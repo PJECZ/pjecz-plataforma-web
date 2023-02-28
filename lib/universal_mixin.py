@@ -20,6 +20,7 @@ class UniversalMixin(object):
 
     def delete(self):
         """Eliminar registro"""
+        # Borrado lógico: Cambiar a estatus B de Borrado
         if self.estatus == "A":
             self.estatus = "B"
             return self.save()

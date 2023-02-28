@@ -56,7 +56,7 @@ class TestSafeString(unittest.TestCase):
         ("Acentos áéíóúñ y ÁÉÍÓÚÑ.", "ACENTOS AEIOUN Y AEIOUN."),
     ]
 
-    def test_safe_string(self):
+    def test_safe_string_con_enie(self):
         for string, expected in self.strings:
             self.assertEqual(safe_string(string, do_unidecode=True, save_enie=True), expected)
 
