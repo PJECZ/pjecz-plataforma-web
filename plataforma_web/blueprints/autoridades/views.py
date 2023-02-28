@@ -333,6 +333,8 @@ def new():
                 descripcion=descripcion,
                 descripcion_corta=safe_string(form.descripcion_corta.data, save_enie=True),
                 clave=clave,
+                es_cemasc=form.es_cemasc.data,
+                es_defensoria=form.es_defensoria.data,
                 es_jurisdiccional=es_jurisdiccional,
                 es_notaria=es_notaria,
                 es_revisor_escrituras=es_revisor_escrituras,
@@ -380,6 +382,8 @@ def edit(autoridad_id):
             autoridad.descripcion = safe_string(form.descripcion.data, save_enie=True)
             autoridad.descripcion_corta = safe_string(form.descripcion_corta.data, save_enie=True)
             autoridad.clave = clave
+            autoridad.es_cemasc = form.es_cemasc.data
+            autoridad.es_defensoria = form.es_defensoria.data
             autoridad.es_jurisdiccional = form.es_jurisdiccional.data
             autoridad.es_notaria = form.es_notaria.data
             autoridad.es_revisor_escrituras = form.es_revisor_escrituras.data
@@ -406,6 +410,8 @@ def edit(autoridad_id):
     form.descripcion.data = autoridad.descripcion
     form.descripcion_corta.data = autoridad.descripcion_corta
     form.clave.data = autoridad.clave
+    form.es_cemasc.data = autoridad.es_cemasc
+    form.es_defensoria.data = autoridad.es_defensoria
     form.es_jurisdiccional.data = autoridad.es_jurisdiccional
     form.es_notaria.data = autoridad.es_notaria
     form.es_revisor_escrituras.data = autoridad.es_revisor_escrituras
