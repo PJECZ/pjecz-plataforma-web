@@ -64,9 +64,13 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Importación de la configuración para DataTables -->
     <script src="/static/js/config_dataTable.js"></script>
+    <!-- Importación de los fitlros para dataTable -->
+    <script src="/static/js/filtros_dataTable.js"></script>
     <script>
-        let configDataTable = new ConfigDataTable( "{{ csrf_token() }}" ).config;
+        const dataTable_funcs = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable = dataTable_funcs.config;
 
         configDataTable['ajax']['url'] = '/usuarios/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
@@ -82,59 +86,31 @@
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.email + '</a>';
+                    return dataTable_funcs.texto_con_url(data.email, data.url);
                 }
             },
             {
                 targets: [1, 2], // nombre, puesto
                 data: null,
                 render: function(data, type, row, meta) {
-                    return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    return dataTable_funcs.texto_cortado(data, 32);
                 }
             },
             {
-                targets: 3, // autoridad
+                targets: [3, 4], // autoridad, oficina
                 data: null,
                 render: function(data, type, row, meta) {
-                    if (data.url == '') {
-                        return data.clave;
-                    } else {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
-                    }
-                }
-            },
-            {
-                targets: 4, // oficina
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.url == '') {
-                        return data.clave;
-                    } else {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
-                    }
+                    return dataTable_funcs.texto_con_url(data.clave, data.url);
                 }
             }
         ];
-        // Búsqueda
-        let email = document.getElementById('emailInput').value.toLowerCase();
-        let nombre_completo = document.getElementById('nombre_completoInput').value.toUpperCase();
-
-        if(email != '')
-            configDataTable['ajax']['data']['email'] = email;
-        if(nombre_completo != '')
-            configDataTable['ajax']['data']['nombre_completo'] = nombre_completo;
-        
-        // Datatable
-        $('#usuarios_datatable').DataTable(configDataTable);
-    </script>
-    <!-- Importación de los fitlros para dataTable -->
-    <script src="/static/js/filtros_dataTable.js"></script>
-    <script type="text/javascript">
+        // Declaración de los Filtros utilizados
         // Creación del Objeto manejador de Filtros
         const filtros_usuarios = new Filtros('#usuarios_datatable', configDataTable);
         // Añadimos los difrentes inputs utilizados
         filtros_usuarios.add_input('emailInput', 'email', filtros_usuarios.LOWER);
         filtros_usuarios.add_input('nombre_completoInput', 'nombre_completo', filtros_usuarios.UPPER);
-    </script>
 
+        filtros_usuarios.precarga();
+    </script>
 {% endblock %}

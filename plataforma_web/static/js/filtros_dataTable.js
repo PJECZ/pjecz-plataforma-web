@@ -24,18 +24,8 @@ function Filtros(dataTable, configDataTable) {
     this.inputs.push(input);
   };
 
-  this.limpiar = function () {
-    // Elimina todos los valore enviados
-    for (let i = 0; i < this.inputs.length; i++)
-      delete this.configDataTable["ajax"]["data"][this.inputs[i].data_name];
-
-    // Actualiza los resultados en el DataTable
-    $(this.dataTable).DataTable().destroy();
-    $(this.dataTable).DataTable(this.configDataTable);
-  };
-
-  this.buscar = function () {
-    // Extrae el valor del input
+  this.lecturaValoresInputs = function () {
+    // Extrae el valor de los inputs
     for (let i = 0; i < this.inputs.length; i++) {
       switch (this.inputs[i].case) {
         case UPPER:
@@ -54,8 +44,27 @@ function Filtros(dataTable, configDataTable) {
         this.configDataTable["ajax"]["data"][this.inputs[i].data_name] =
           this.inputs[i].value;
     }
+  };
+
+  this.limpiar = function () {
+    // Elimina todos los valore enviados
+    for (let i = 0; i < this.inputs.length; i++)
+      delete this.configDataTable["ajax"]["data"][this.inputs[i].data_name];
+
     // Actualiza los resultados en el DataTable
     $(this.dataTable).DataTable().destroy();
+    $(this.dataTable).DataTable(this.configDataTable);
+  };
+
+  this.buscar = function () {
+    this.lecturaValoresInputs();
+    // Actualiza los resultados en el DataTable
+    $(this.dataTable).DataTable().destroy();
+    $(this.dataTable).DataTable(this.configDataTable);
+  };
+
+  this.precarga = function () {
+    this.lecturaValoresInputs();
     $(this.dataTable).DataTable(this.configDataTable);
   };
 }
