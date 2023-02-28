@@ -125,70 +125,14 @@
         // Datatable
         $('#usuarios_datatable').DataTable(configDataTable);
     </script>
-    <!-- Función de buscador -->
+    <!-- Importación de los fitlros para dataTable -->
+    <script src="/static/js/filtros_dataTable.js"></script>
     <script type="text/javascript">
-        function Filtros(dataTable, configDataTable) {
-            const UPPER = 'UPPER';
-            const LOWER = 'LOWER';
-            this.dataTable = dataTable;
-            this.configDataTable = configDataTable;
-            this.inputs = [];
-
-            // Añada un campo input para su procesamiento
-            this.add_input = function(elementById_input, data_name, case_sensitive=UPPER) {
-                let input = {
-                    object: NaN,
-                    data_name: "",
-                    value: "",
-                    case: 'UPPER'
-                };
-                input.object = document.getElementById(elementById_input);
-                input.data_name = data_name;
-                input.case = case_sensitive;
-
-                this.inputs.push(input);
-            };
-
-            this.limpiar = function() {
-                // Elimina todos los valore enviados
-                for( let i=0; i < this.inputs.length; i++)
-                    delete this.configDataTable['ajax']['data'][this.inputs[i].data_name];
-
-                // Actualiza los resultados en el DataTable
-                $(this.dataTable).DataTable().destroy();
-                $(this.dataTable).DataTable(this.configDataTable);
-            };
-
-            this.buscar = function() {
-                // Extrae el valor del input
-                for( let i=0; i < this.inputs.length; i++) {
-                    switch (this.inputs[i].case ) {
-                        case UPPER:
-                            this.inputs[i].value = this.inputs[i].object.value.toUpperCase();
-                            break;
-                        case LOWER:
-                            this.inputs[i].value = this.inputs[i].object.value.toLowerCase();
-                            break;
-                        default:
-                            this.inputs[i].value = this.inputs[i].object.value;
-                    }
-                    // Si está vacío lo omite y busca en los demás
-                    if(this.inputs[i].value == '')
-                        delete this.configDataTable['ajax']['data'][this.inputs[i].data_name];
-                    else
-                        this.configDataTable['ajax']['data'][this.inputs[i].data_name] = this.inputs[i].value;
-                }
-                // Actualiza los resultados en el DataTable
-                $(this.dataTable).DataTable().destroy();
-                $(this.dataTable).DataTable(this.configDataTable);
-
-            }
-        };
-
         // Creación del Objeto manejador de Filtros
         const filtros_usuarios = new Filtros('#usuarios_datatable', configDataTable);
         // Añadimos los difrentes inputs utilizados
         filtros_usuarios.add_input('emailInput', 'email', filtros_usuarios.LOWER);
         filtros_usuarios.add_input('nombre_completoInput', 'nombre_completo', filtros_usuarios.UPPER);
     </script>
+
 {% endblock %}
