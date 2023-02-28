@@ -139,7 +139,7 @@ Cree el archivo `.bashrc` para que un perfil de Konsole le facilite la inicializ
         echo "   TASK_QUEUE: ${TASK_QUEUE}"
         echo
         export PGHOST=$DB_HOST
-        export PGPORT=5432
+        export PGPORT=$DB_PORT
         export PGDATABASE=$DB_NAME
         export PGUSER=$DB_USER
         export PGPASSWORD=$DB_PASS
