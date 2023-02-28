@@ -41,6 +41,10 @@ function ConfigDataTable(csrf_token) {
 
   /* Corta el texto a una longitud especificada, al pasar de ésta, agrega la puntuación '…' al final */
   this.texto_cortado = function (texto, longitud = 32) {
-    return texto.length > longitud ? texto.substr(0, longitud) + "…" : texto;
+    if (texto.length > longitud) {
+      texto_cortado = texto.substr(0, longitud) + "…";
+      return "<span title='" + texto + "'>" + texto_cortado + "</span>";
+    }
+    return texto;
   };
 }
