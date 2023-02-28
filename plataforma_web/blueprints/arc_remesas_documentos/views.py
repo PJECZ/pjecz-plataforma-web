@@ -5,7 +5,9 @@ import json
 from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import or_
+from sqlalchemy import or_, text
+from sqlalchemy.sql.expression import delete
+from plataforma_web.extensions import db
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
@@ -196,7 +198,8 @@ def delete(arc_remesa_documento_id):
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
     # Elimina permanentemente el registro de documento anexo a esta remesa.
-    remesa_documento.delete(permanently=True)
+    sql = text(f"DELETE FROM {ArcRemesaDocumento.__tablename__} WHERE id = {arc_remesa_documento_id};")
+    db.engine.execute(sql)
     # Actualizar el número de documentos anexos de la remesa
     remesa.num_documentos = ArcRemesaDocumento.query.filter_by(arc_remesa=remesa).count()
     remesa.save()
