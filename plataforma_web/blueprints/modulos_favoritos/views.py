@@ -3,7 +3,7 @@ Modulos Favoritos, vistas
 """
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, render_template, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
@@ -11,7 +11,6 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.modulos_favoritos.models import ModuloFavorito
 from plataforma_web.blueprints.modulos.models import Modulo
-from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.permisos.models import Permiso
 
 MODULO = "MODULOS"
@@ -28,31 +27,40 @@ def before_request():
 
 @modulos_favoritos.route("/modulos_favoritos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
-    """DataTable JSON para listado de Módulos Favoritos"""
+    """DataTable JSON de todos los modulos en navegación"""
     # Tomar parámetros de DataTables
     draw, start, rows_per_page = get_datatable_parameters()
-    # Consultar
-    consulta = ModuloFavorito.query.join(Modulo)
-    if "estatus" in request.form:
-        consulta = consulta.filter(ModuloFavorito.estatus == request.form["estatus"])
-    else:
-        consulta = consulta.filter(ModuloFavorito.estatus == "A")
-    if "usuario_id" in request.form:
-        consulta = consulta.filter(ModuloFavorito.usuario_id == request.form["usuario_id"])
-    registros = consulta.order_by(ModuloFavorito.modulo.nombre).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
+    # Consultamos los modulos favoritos
+    modulos_favoritos = {}
+    consulta = ModuloFavorito.query.filter(ModuloFavorito.usuario == current_user).all()
+    for modulo in consulta:
+        modulos_favoritos[modulo.modulo.id] = modulo.estatus
+    # Consultamos los modulos del usuario actual
+    modulos = []
+    for modulo in current_user.modulos_menu_principal:
+        if modulo.id in modulos_favoritos:
+            if modulos_favoritos[modulo.id] == "B":
+                modulo.estatus = "B"
+        else:
+            modulo.estatus = "B"
+        modulos.append(modulo)
+    modulos = modulos[start : start + rows_per_page]
+    total = len(current_user.modulos_menu_principal)
     # Elaborar datos para DataTable
     data = []
-    for resultado in registros:
+    for resultado in modulos:
         data.append(
             {
                 "detalle": {
-                    "nombre": resultado.Modulo.nombre,
-                    "url": url_for("modulos.detail", modulo_id=resultado.Modulo.id),
+                    "nombre": resultado.nombre,
+                    "url": url_for("modulos.detail", modulo_id=resultado.id),
                 },
-                "icono": resultado.Modulo.icono,
-                "acciones": {
-                    "remover": url_for("modulos_favoritos.remove", modulo_favorito_id=resultado.ModuloFavorito.id),
+                "icono": resultado.icono,
+                "nombre_corto": resultado.nombre_corto,
+                "toggle_estatus": {
+                    "id": resultado.id,
+                    "estatus": resultado.estatus,
+                    "url": url_for("modulos_favoritos.toggle_estatus_json", modulo_id=resultado.id),
                 },
             }
         )
@@ -65,36 +73,43 @@ def list_active():
     """Listado de Módulos Favoritos activos"""
     return render_template(
         "modulos_favoritos/list.jinja2",
-        filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
+        filtros=json.dumps({}),
         titulo="Módulos Favoritos",
         estatus="A",
     )
 
 
-@modulos_favoritos.route("/modulos_favoritos/agregar/<int:modulo_id>", methods=["GET", "POST"])
-def add(modulo_id):
-    """Agregar un nuevo Modulo al listado de Favoritos"""
-    # Validar el Modulo ID
+@modulos_favoritos.route("/modulos_favoritos/toggle_estatus_json/<int:modulo_id>", methods=["GET", "POST"])
+def toggle_estatus_json(modulo_id):
+    """Cambiar el estatus de un usuario-rol"""
+
+    # Consultar ModuloFavorito
     modulo = Modulo.query.get_or_404(modulo_id)
-    if modulo.estatus != "A":
-        flash(f"El Módulo {modulo.nombre} se encuentra eliminado.", "warning")
-        return redirect(url_for("modulos_favoritos.list_active"))
-    # TODO: Validar si tiene acceso a este Módulo
-    # TODO: Validar si el módulo no se encuentra ya agregado
-    # Añadir el módulo al listado de Favoritos
-    ModuloFavorito(
-        modulo=modulo,
-        usuario=current_user,
-    ).save()
-    flash(f"El Módulo {modulo.nombre} se añadió a la lista de favoritos.", "success")
-    return redirect(url_for("modulos_favoritos.list_active"))
+    if modulo is None:
+        return {"success": False, "message": "No encontrado"}
 
+    # Buscar si ya está en favoritos
+    modulo_favorito = ModuloFavorito.query.filter_by(usuario=current_user).filter_by(modulo=modulo).first()
 
-@modulos_favoritos.route("/modulos_favoritos/remover/<int:modulo_favorito_id>", methods=["GET", "POST"])
-def remove(modulo_favorito_id):
-    """Quitar un Modulo del listado de Favoritos"""
-    # Validar el Modulo ID
-    modulo_favorito = ModuloFavorito.query.get_or_404(modulo_favorito_id)
-    # TODO: Remover vía SQL RAW el registro
-    flash(f"El Módulo {modulo_favorito.modulo.nombre} se removió de su lista de favoritos.", "success")
-    return redirect(url_for("modulos_favoritos.list_active"))
+    if modulo_favorito:
+        # Cambiar estatus a su opuesto
+        if modulo_favorito.estatus == "A":
+            modulo_favorito.estatus = "B"
+        else:
+            modulo_favorito.estatus = "A"
+    else:
+        modulo_favorito = ModuloFavorito(
+            modulo=modulo,
+            usuario=current_user,
+        )
+
+    # Guardar
+    modulo_favorito.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if modulo_favorito.estatus == "A" else "Inactivo",
+        "estatus": modulo_favorito.estatus,
+        "id": modulo_favorito.id,
+    }

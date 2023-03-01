@@ -15,10 +15,10 @@
             <thead>
                 <tr>
                     <th>Icono</th>
-                    <th>Nombre</th>
-                    <th>Acciones</th>
+                    <th>Nombre en Menú</th>
+                    <th>Nombre Clave</th>
+                    <th>Estatus</th>
                 </tr>
-            </thead>
         </table>
     {% endcall %}
 {% endblock %}
@@ -30,8 +30,9 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: 'icono' },
+            { data: 'nombre_corto' },
             { data: 'detalle' },
-            { data: 'acciones' }
+            { data: 'toggle_estatus' }
         ];
         configDataTable['columnDefs'] = [
             {
@@ -42,20 +43,63 @@
                 }
             },
             {
-                targets: 1, // detalle
+                targets: 2, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.nombre + '</a>';
                 }
             },
             {
-                targets: 2, // acciones
+                targets: 3, // Boton toggle estatus
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="#">X</a>';
+                    myId = 'estatus' + data.id;
+                    myOnClick = "toggleEstatus('#" + myId + "', '" + data.url + "')";
+                    if (data.estatus === 'A') {
+                        return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                    } else {
+                        return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                    }
                 }
             }
         ];
         $('#modulos_favoritos_datatable').DataTable(configDataTable);
+
+        // Preparar headers para POST
+        const myHeaders = new Headers();
+        myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
+        const myInit = {
+            method: 'POST',
+            headers: myHeaders,
+            mode: 'cors',
+            cache: 'default'
+        };
+
+        // Boton toggle estatus
+        function toggleEstatus(id, url) {
+            $(id).prop("disabled", true); // Deshabilitar boton para evitar multiples clicks
+            fetch(url, myInit)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.estatus === 'A') {
+                            $(id).removeClass('btn-light');
+                            $(id).addClass('btn-outline-primary'); // Color azul
+                            $(id).html('<span class="iconify" data-icon="mdi:toggle-switch"></span>'); // Icono toggle-switch
+                        } else {
+                            $(id).removeClass('btn-outline-primary');
+                            $(id).addClass('btn-light'); // Color gris
+                            $(id).html('<span class="iconify" data-icon="mdi:toggle-switch-off"></span>'); // Icono toggle-switch-off
+                        }
+                        console.log(data.message);
+                    } else {
+                        console.log(data.message);
+                    }
+                    $(id).prop("disabled", false); // Habilitar boton
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
     </script>
 {% endblock %}

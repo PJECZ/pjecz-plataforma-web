@@ -11,6 +11,7 @@ from plataforma_web.extensions import db, pwd_context
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.tareas.models import Tarea
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
+from plataforma_web.blueprints.modulos_favoritos.models import ModuloFavorito
 
 
 class Usuario(db.Model, UserMixin, UniversalMixin):
@@ -74,6 +75,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
 
     # Propiedades
     modulos_menu_principal_consultados = []
+    modulos_favoritos_menu_principal_consultados = []
     permisos_consultados = {}
 
     @property
@@ -86,6 +88,11 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
         """Elaborar listado con los modulos ordenados para el menu principal"""
         if len(self.modulos_menu_principal_consultados) > 0:
             return self.modulos_menu_principal_consultados
+        modulos_favoritos_query = ModuloFavorito.query.filter(ModuloFavorito.estatus == "A").filter(ModuloFavorito.usuario_id == self.id).all()
+        modulos_favoritos_coleccion = []
+        for modulo in modulos_favoritos_query:
+            modulos_favoritos_coleccion.append(modulo.modulo_id)
+        modulos_favoritos = []
         modulos = []
         modulos_nombres = []
         for usuario_rol in self.usuarios_roles:
@@ -94,8 +101,16 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
                     if permiso.modulo.nombre not in modulos_nombres and permiso.estatus == "A" and permiso.nivel > 0 and permiso.modulo.en_navegacion:
                         modulos.append(permiso.modulo)
                         modulos_nombres.append(permiso.modulo.nombre)
+                        if permiso.modulo.id in modulos_favoritos_coleccion:
+                            modulos_favoritos.append(permiso.modulo)
+        self.modulos_favoritos_menu_principal_consultados = sorted(modulos_favoritos, key=lambda x: x.nombre_corto)
         self.modulos_menu_principal_consultados = sorted(modulos, key=lambda x: x.nombre_corto)
         return self.modulos_menu_principal_consultados
+
+    @property
+    def modulos_favoritos_menu_principal(self):
+        """Entrega el listado con los modulos favoritos ordenados para el menu principal"""
+        return self.modulos_favoritos_menu_principal_consultados
 
     @property
     def permisos(self):
