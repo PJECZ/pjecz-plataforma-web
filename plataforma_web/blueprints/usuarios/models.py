@@ -67,6 +67,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     entradas_salidas = db.relationship("EntradaSalida", back_populates="usuario", lazy="noload")
     fin_vales = db.relationship("FinVale", back_populates="usuario", lazy="noload")
     inv_custodias = db.relationship("InvCustodia", back_populates="usuario", lazy="noload")
+    modulos_favoritos = db.relationship("ModuloFavorito", back_populates="usuario")
     soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
     tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
     usuarios_roles = db.relationship("UsuarioRol", back_populates="usuario")  # Sin lazy="noload" para que funcione el menu
