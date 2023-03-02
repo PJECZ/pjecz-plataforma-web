@@ -15,6 +15,7 @@ class Distrito(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Columnas
+    clave = db.Column(db.String(16), nullable=False, unique=True)
     nombre = db.Column(db.String(256), unique=True, nullable=False)
     nombre_corto = db.Column(db.String(64), nullable=False, default="", server_default="")
     es_distrito_judicial = db.Column(db.Boolean, nullable=False, default=False)

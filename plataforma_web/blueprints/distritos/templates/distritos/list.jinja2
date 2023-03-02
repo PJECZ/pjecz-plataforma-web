@@ -24,6 +24,7 @@
         <table id="distritos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Clave</th>
                     <th>Nombre</th>
                     <th>Nombre corto</th>
                     <th>Es Distrito Judicial</th>
@@ -40,6 +41,7 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: 'detalle' },
+            { data: 'nombre' },
             { data: 'nombre_corto' },
             { data: 'es_distrito_judicial' }
         ];
@@ -48,11 +50,11 @@
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
                 }
             },
             {
-                targets: 2, // es_distrito_judicial
+                targets: 3, // es_distrito_judicial
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data) { return 'Si'; } else { return ''; }
