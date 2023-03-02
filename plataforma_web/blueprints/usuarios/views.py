@@ -10,7 +10,7 @@ from sqlalchemy import or_
 import google.auth.transport.requests
 import google.oauth2.id_token
 from pytz import timezone
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session
 from flask_login import current_user, login_required, login_user, logout_user
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
@@ -554,3 +554,16 @@ def recover(usuario_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("usuarios.detail", usuario_id=usuario_id))
+
+
+@usuarios.route("/usuarios/toggle_menu/<int:tipo_menu>")
+@login_required
+def toggle_menu(tipo_menu):
+    """Toggle Menú Bar Navigation"""
+
+    if tipo_menu == 0:
+        session["tipo_menu"] = "colapsado"
+    else:
+        session["tipo_menu"] = "extendido"
+
+    return redirect(url_for("sistemas.start"))

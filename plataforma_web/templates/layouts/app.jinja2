@@ -25,11 +25,31 @@
     <!-- Container with navigation and main -->
     <div class="container-fluid h-100">
         <div class="row h-100">
+            {% set tipo_menu = session.get('tipo_menu', 'not set') %}
+            {% if tipo_menu == 'colapsado' %}
+            <nav id="sidebarMenu" class="col-md-1 col-lg-1 d-md-block bg-dark sidebar-collapse collapse pjecz-bg-dark">
+                {% call navigation.menu_colapsado(usuario_email=current_user.email) %}
+                    {{ navigation.menu_colapsado_option('Inicio', '/', 'mdi:view-dashboard') }}
+                    {# Menú de Favoritos #}
+                    {{ navigation.menu_colapsado_option('Favoritos', url_for("modulos_favoritos.list_active"), 'mdi:star') }}
+                    {% for modulo in current_user.modulos_favoritos_menu_principal %}
+                        {{ navigation.menu_colapsado_option(modulo.nombre_corto, modulo.ruta, modulo.icono) }}
+                    {% endfor %}
+                    <hr>
+                    {% for modulo in current_user.modulos_menu_principal %}
+                        {{ navigation.menu_colapsado_option(modulo.nombre_corto, modulo.ruta, modulo.icono) }}
+                    {% endfor %}
+                    {# Botón de colapsar menú #}
+                    <hr>
+                    <a class="btn btn-sm btn-outline-light p-0" href="{{url_for('usuarios.toggle_menu', tipo_menu=1)}}" type="button" title="Expandir Menú Lateral" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;"><span class="iconify" data-icon="mdi:chevron-double-right" style="font-size: 1em;"></span></a>
+                {% endcall %}
+            </nav>
+            {% else %}
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse pjecz-bg-dark">
                 {% call navigation.menu(usuario_email=current_user.email) %}
                     {{ navigation.menu_option('Inicio', '/', 'mdi:view-dashboard') }}
+                    {# Menú de Favoritos #}
                     {{ navigation.menu_option('Favoritos', url_for("modulos_favoritos.list_active"), 'mdi:star') }}
-                    {% set modulos = current_user.modulos_menu_principal %}
                     {% for modulo in current_user.modulos_favoritos_menu_principal %}
                         {{ navigation.menu_option(modulo.nombre_corto, modulo.ruta, modulo.icono) }}
                     {% endfor %}
@@ -37,9 +57,17 @@
                     {% for modulo in current_user.modulos_menu_principal %}
                         {{ navigation.menu_option(modulo.nombre_corto, modulo.ruta, modulo.icono) }}
                     {% endfor %}
+                    {# Botón de colapsar menú #}
+                    <hr>
+                    <a class="btn btn-sm btn-outline-light ms-5 me-5 p-0" href="{{url_for('usuarios.toggle_menu', tipo_menu=0)}}" type="button" title="Colapasar Menú Lateral"><span class="iconify" data-icon="mdi:chevron-double-left" style="font-size: 1.4em; margin-right: 4px;"></span></a>
                 {% endcall %}
             </nav>
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            {% endif %}
+            {% if tipo_menu == 'colapsado' %}
+                <main class="col-md-11 col-lg-11 px-md-4 main-expand">
+            {% else %}
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            {% endif %}
                 {% block topbar_actions %}{% endblock %}
                 {{ flash.render() }}
                 {# include 'layouts/tasks_progress.jinja2' #}
