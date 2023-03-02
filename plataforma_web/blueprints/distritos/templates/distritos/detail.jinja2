@@ -18,6 +18,7 @@
 
 {% block content %}
     {% call detail.card(estatus=distrito.estatus) %}
+        {{ detail.label_value_big('Clave', distrito.clave) }}
         {{ detail.label_value('Nombre', distrito.nombre) }}
         {{ detail.label_value('Nombre corto', distrito.nombre_corto) }}
         {{ detail.label_value_boolean('Es Distrito Judicial', distrito.es_distrito_judicial) }}

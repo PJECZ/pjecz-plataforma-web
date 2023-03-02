@@ -6,7 +6,7 @@ from flask import Blueprint, flash, render_template, redirect, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_clave, safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
@@ -46,9 +46,10 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "nombre": resultado.nombre,
+                    "clave": resultado.clave,
                     "url": url_for("distritos.detail", distrito_id=resultado.id),
                 },
+                "nombre": resultado.nombre,
                 "nombre_corto": resultado.nombre_corto,
                 "es_distrito_judicial": resultado.es_distrito_judicial,
             }
@@ -93,12 +94,21 @@ def new():
     """Nuevo Distrito"""
     form = DistritoForm()
     if form.validate_on_submit():
+        es_valido = True
+        # Validar que la clave no se repita
+        clave = safe_clave(form.clave.data)
+        if Distrito.query.filter_by(clave=clave).first():
+            flash("La clave ya está en uso. Debe de ser única.", "warning")
+            es_valido = False
         # Validar que el nombre no se repita
         nombre = safe_string(form.nombre.data, save_enie=True)
         if Distrito.query.filter_by(nombre=nombre).first():
             flash("La nombre ya está en uso. Debe de ser único.", "warning")
-        else:
+            es_valido = False
+        # Si es válido, guardar
+        if es_valido is True:
             distrito = Distrito(
+                clave=clave,
                 nombre=nombre,
                 nombre_corto=safe_string(form.nombre_corto.data, save_enie=True),
                 es_distrito_judicial=form.es_distrito_judicial.data,
@@ -124,6 +134,13 @@ def edit(distrito_id):
     form = DistritoForm()
     if form.validate_on_submit():
         es_valido = True
+        # Si cambia la clave verificar que no este en uso
+        clave = safe_clave(form.clave.data)
+        if distrito.clave != clave:
+            distrito_existente = Distrito.query.filter_by(clave=clave).first()
+            if distrito_existente and distrito_existente.id != distrito.id:
+                es_valido = False
+                flash("La clave ya está en uso. Debe de ser única.", "warning")
         # Si cambia el nombre verificar que no este en uso
         nombre = safe_string(form.nombre.data, save_enie=True)
         if distrito.nombre != nombre:
@@ -131,8 +148,9 @@ def edit(distrito_id):
             if distrito_existente and distrito_existente.id != distrito.id:
                 es_valido = False
                 flash("El nombre ya está en uso. Debe de ser único.", "warning")
-        # Si es valido actualizar
+        # Si es válido, actualizar
         if es_valido:
+            distrito.clave = clave
             distrito.nombre = nombre
             distrito.nombre_corto = safe_string(form.nombre_corto.data, save_enie=True)
             distrito.es_distrito_judicial = form.es_distrito_judicial.data
@@ -146,6 +164,7 @@ def edit(distrito_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
+    form.clave.data = distrito.clave
     form.nombre.data = distrito.nombre
     form.nombre_corto.data = distrito.nombre_corto
     form.es_distrito_judicial.data = distrito.es_distrito_judicial
