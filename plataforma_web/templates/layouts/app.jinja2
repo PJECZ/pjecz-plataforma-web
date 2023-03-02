@@ -82,4 +82,10 @@
     <script>
         $(document).ready(function() { moment.locale('es-mx'); });
     </script>
+    {% if session.get('tipo_menu', 'not set') == 'colapsado' %}
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+    {% endif %}
 {% endblock %}

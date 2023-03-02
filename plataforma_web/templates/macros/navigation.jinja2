@@ -48,7 +48,7 @@
 
 {%- macro menu_colapsado_option(label, url, icon='mdi:folder', li_class='') -%}
     <li class="nav-item-collapse {{li_class}}">
-        <a class="nav-link-collapse text-white" href="{{ url }}" title="{{ label }}">
+        <a class="nav-link-collapse text-white" href="{{ url }}" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{{ label }}">
             <span class="iconify" data-icon="{{ icon }}" style="font-size: 1.2em; margin-right: 4px;"></span>
         </a>
     </li>
