@@ -129,14 +129,19 @@ def profile():
     )
 
 
-@usuarios.route("/usuarios")
+@usuarios.route("/usuarios", methods=["GET", "POST"])
+@usuarios.route("/usuarios/<filtros>", methods=["GET", "POST"])
 @login_required
 @permission_required(MODULO, Permiso.VER)
-def list_active():
+def list_active(filtros=None):
     """Listado de Usuarios activos"""
+    filtros_param = {}
+    if filtros:
+        filtros_param = json.loads(filtros)
+
     return render_template(
         "usuarios/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
+        filtros=json.dumps({**{"estatus": "A"}, **filtros_param}),
         titulo="Usuarios",
         estatus="A",
     )
@@ -567,3 +572,62 @@ def toggle_menu(tipo_menu):
         session["tipo_menu"] = "extendido"
 
     return redirect(url_for("sistemas.start"))
+
+
+@usuarios.route("/usuarios/busqueda_global", methods=["GET", "POST"])
+def global_search():
+    """Barra de Búsqueda del Sistema"""
+
+    params = []
+    texto_buscar = ""
+    modulo = ""
+    campo = ""
+    valor = ""
+    filtros = {}
+
+    # Establecer los parámetros de búsqueda
+    if "texto_buscar" in request.form:
+        texto_buscar = request.form["texto_buscar"]
+        params = texto_buscar
+        if " " in params:
+            params = params.split(" ")
+            if len(params) > 0:
+                modulo = params[0]
+            if len(params) > 1:
+                campo = params[1]
+            if len(params) > 2:
+                valor = params[2]
+        else:
+            modulo = params
+
+    if campo != "":
+        # Si solo hay dos argumentos, dejamos el campo como el valor, y el campo como ID.
+        if valor == "":
+            if campo != "":
+                valor = campo
+                campo = "id"
+        filtros = {campo: valor}
+
+    # Definir el módulo
+    if modulo != "":
+        url = modulo + ".list_active"
+        try:
+            redirect_resp = redirect(url_for(url, filtros=json.dumps(filtros)))
+            return redirect_resp
+        except Exception:
+            flash("Módulo no encontrado", "warning")
+            return render_template(
+                "usuarios/global_search.jinja2",
+                params=texto_buscar,
+                modulo=modulo,
+                campo=campo,
+                valor=valor,
+            )
+
+    return render_template(
+        "usuarios/global_search.jinja2",
+        params=texto_buscar,
+        modulo=modulo,
+        campo=campo,
+        valor=valor,
+    )

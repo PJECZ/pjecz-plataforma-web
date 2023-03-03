@@ -20,7 +20,10 @@
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <input class="form-control form-control-dark w-100" type="text" placeholder="Buscar" aria-label="Buscar">
+        <form class="w-100" id="busqueda_form" action="{{url_for('usuarios.global_search')}}" method="POST" role="form">
+            <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+            <input name="texto_buscar" class="form-control form-control-dark w-100" type="text" placeholder="Buscar" aria-label="Buscar" autocomplete="off">
+        </form>
     </header>
     <!-- Container with navigation and main -->
     <div class="container-fluid h-100">

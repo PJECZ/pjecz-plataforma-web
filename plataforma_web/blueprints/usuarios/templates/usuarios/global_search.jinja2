@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Búsqueda Global{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Búsqueda Global') }}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+    <h6 class="text-center">Buscando: {{ params }}</h6>
+    <p class="text-center">
+        <span style="color: green;">{{ modulo }}</span>
+        <span style="color: navy;">{{ campo }}</span>
+        <span style="color: maroon;">{{ valor }}</span>
+    </p>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><span style="color: green; font-weight: bold;">Módulo</span> : Nombre del módulo</li>
+        <li class="list-group-item"><span style="color: navy; font-weight: bold;">Campo</span> : Nombre del campo en cual se quiere búscar</li>
+        <li class="list-group-item"><span style="color: maroon; font-weight: bold;">Valor</span> : Texto dentro del campo a búscar</li>
+    </ul>
+    {% endcall %}
+{% endblock %}
