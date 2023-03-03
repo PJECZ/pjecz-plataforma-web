@@ -64,7 +64,7 @@ function Filtros(dataTable, configDataTable) {
   };
 
   this.precarga = function () {
-    this.lecturaValoresInputs();
+    //this.lecturaValoresInputs();
     $(this.dataTable).DataTable(this.configDataTable);
   };
 }

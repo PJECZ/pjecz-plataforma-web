@@ -18,14 +18,14 @@ def post_buscar_to_filtros(campo_defecto="id"):
             if len(params) > 1:
                 campo = params[1]
             if len(params) > 2:
-                valor = params[2]
+                valor = " ".join(params[2:])
 
-    if campo != "":
-        # Si solo hay dos argumentos, dejamos el campo como el valor, y el campo como ID.
-        if valor == "":
-            if campo != "":
-                valor = campo
-                campo = campo_defecto
+        if campo != "":
+            # Si solo hay dos argumentos, dejamos el campo como el valor, y el campo como campo por defecto.
+            if valor == "":
+                if campo != "":
+                    valor = campo
+                    campo = campo_defecto
+
         filtros = {campo: valor}
-
     return filtros
