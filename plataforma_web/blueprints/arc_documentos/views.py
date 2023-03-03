@@ -330,13 +330,13 @@ def search():
     if "num_expediente" in request.form:
         num_expediente = request.form["num_expediente"]
         load_dotenv()
-        API_URL_EXPEDIENTE_VIRTUAL = os.environ.get("API_URL_EXPEDIENTE_VIRTUAL", "")
-        if API_URL_EXPEDIENTE_VIRTUAL == "":
-            flash("No se declaro la variable de entorno API_URL_EXPEDIENTE_VIRTUAL", "warning")
+        EXPEDIENTE_VIRTUAL_API_URL = os.environ.get("EXPEDIENTE_VIRTUAL_API_URL", "")
+        if EXPEDIENTE_VIRTUAL_API_URL == "":
+            flash("No se declaro la variable de entorno EXPEDIENTE_VIRTUAL_API_URL", "warning")
             return redirect(url_for("arc_documentos.new"))
-        API_KEY_EXPEDIENTE_VIRTUAL = os.environ.get("API_KEY_EXPEDIENTE_VIRTUAL", "")
-        if API_KEY_EXPEDIENTE_VIRTUAL == "":
-            flash("No se declaro la variable de entorno API_KEY_EXPEDIENTE_VIRTUAL", "warning")
+        EXPEDIENTE_VIRTUAL_API_KEY = os.environ.get("EXPEDIENTE_VIRTUAL_API_KEY", "")
+        if EXPEDIENTE_VIRTUAL_API_KEY == "":
+            flash("No se declaro la variable de entorno EXPEDIENTE_VIRTUAL_API_KEY", "warning")
             return redirect(url_for("arc_documentos.new"))
         if "/" not in num_expediente or len(num_expediente) < 6:
             flash("Número de Expediente NO válido", "warning")
@@ -356,7 +356,7 @@ def search():
             autoridad = Autoridad.query.get_or_404(autoridad_id)
             juzgado_id = autoridad.datawarehouse_id
             if juzgado_id:
-                url_api = f"{API_URL_EXPEDIENTE_VIRTUAL}?apiFunctionName=InfoExpediente&apiParamConsecutivo={num_consecutivo}&apiParamAnio={anio}&apiParamidJuzgado={juzgado_id}&apiKey={API_KEY_EXPEDIENTE_VIRTUAL}"
+                url_api = f"{EXPEDIENTE_VIRTUAL_API_URL}?apiFunctionName=InfoExpediente&apiParamConsecutivo={num_consecutivo}&apiParamAnio={anio}&apiParamidJuzgado={juzgado_id}&apiKey={EXPEDIENTE_VIRTUAL_API_KEY}"
                 # Hace el llamado a la API
                 respuesta_api = {}
                 try:
