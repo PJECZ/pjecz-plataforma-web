@@ -2,15 +2,18 @@
 REPSVM
 
 - alimentar: Alimentar desde un archivo CSV
-- publicar: Cambiar es_publico de los agresores a verdadero o falso
 - reiniciar_consecutivos: Reiniciar los consecutivos de los agresores
 - respaldar: Respaldar los agresores a un archivo CSV
 """
 import csv
 from pathlib import Path
+import os
 
 import click
-from lib.safe_string import safe_clave, safe_string, safe_text, safe_url
+from dotenv import load_dotenv
+from google.cloud import storage
+
+from lib.safe_string import safe_string, safe_text, safe_url
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -21,11 +24,9 @@ from plataforma_web.blueprints.repsvm_agresores.models import REPSVMAgresor
 app = create_app()
 db.app = app
 
-TIPOS_JUZGADOS_CLAVES = {
-    "ND": "NO DEFINIDO",
-    "J-EVF": "JUZGADO ESPECIALIZADO EN VIOLENCIA FAMILIAR",
-    "J-PEN": "JUZGADO DE PRIMERA INSTANCIA EN MATERIA PENAL",
-}
+load_dotenv()  # Take environment variables from .env
+
+SUBDIRECTORIO = "REPSVM"
 
 
 @click.group()
@@ -69,7 +70,6 @@ def alimentar(entrada_csv):
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-
             # Tomar el tipo de juzgado
             tipo_juzgado = "ND"
             if "tipo_juzgado" in row:
@@ -130,61 +130,40 @@ def alimentar(entrada_csv):
 
 
 @click.command()
-@click.option("--es_publico", default=True, type=bool, help="True o False")
-@click.option("--repsvm_agresor_id", default=None, type=int, help="ID del agresor")
-def publicar(es_publico, repsvm_agresor_id):
-    """Cambiar es_publico de los agresores a verdadero o falso"""
+@click.option("--distrito_id", default=None, type=int, help="ID del Distrito")
+def reiniciar_consecutivos(distrito_id):
+    """Reiniciar los consecutivos de los agresores"""
+    distritos = []
 
-    # Si se especifica el ID del agresor
-    if repsvm_agresor_id is not None:
-        repsvm_agresor = REPSVMAgresor.query.get(repsvm_agresor_id)
-        if repsvm_agresor is None:
-            click.echo(f"! No existe el agresor {repsvm_agresor_id}")
+    # Si se especifica el ID del distrito
+    if distrito_id is not None:
+        distrito = Distrito.query.get(distrito_id)
+        if distrito is None:
+            click.echo(f"! No existe el distrito {distrito_id}")
             return
-        repsvm_agresor.es_publico = es_publico
-        if es_publico is False:
-            repsvm_agresor.consecutivo = 0
-        repsvm_agresor.save()
-        click.echo(f"Se cambió es_publico de {repsvm_agresor_id} a {es_publico}")
-        return
+        distritos.append(distrito)
+    else:
+        distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.id).all()
 
-    # Consultar el consecutivo mas alto por distrito
-    consecutivos = {}
-    for distrito in Distrito.query.filter_by(estatus="A").all():
-        repsvm_agresor = REPSVMAgresor.query.filter_by(distrito_id=distrito.id).order_by(REPSVMAgresor.consecutivo.desc()).first()
-        if repsvm_agresor is None:
-            consecutivos[distrito.id] = 0
-        else:
-            consecutivos[distrito.id] = repsvm_agresor.consecutivo
-
-    # Bucle por todos los agresores
+    # Bucle en todos los distritos
     contador = 0
-    distrito_id = None
-    for repsvm_agresor in REPSVMAgresor.query.filter_by(estatus="A").order_by(REPSVMAgresor.distrito_id, REPSVMAgresor.nombre):
+    for distrito in distritos:
+        click.echo(f"  {repr(distrito)}...")
+        # Iniciar en cero
+        consecutivo = 0
+        # Bucle en todos los agresores del distrito ordenados por nombre
+        for agresor in REPSVMAgresor.query.filter(REPSVMAgresor.distrito == distrito).filter_by(estatus="A").order_by(REPSVMAgresor.nombre).all():
+            # Incrementar el consecutivo
+            consecutivo += 1
+            # Actualizar el consecutivo
+            agresor.consecutivo = consecutivo
+            agresor.save()
+            # Incrementar el contador
+            contador += 1
+            if contador % 100 == 0:
+                click.echo(f"  Van {contador}...")
 
-        # Si es el primer registro o si cambia el distrito
-        if distrito_id != repsvm_agresor.distrito_id:
-            distrito_id = repsvm_agresor.distrito_id
-
-        # Cambiar es_publico
-        repsvm_agresor.es_publico = es_publico
-
-        # Si es_publico es verdadero, incrementar el consecutivo y asignarlo
-        if es_publico:
-            consecutivos[distrito_id] += 1
-            repsvm_agresor.consecutivo = consecutivos[distrito_id]
-        else:
-            repsvm_agresor.consecutivo = 0  # De lo contrario, ponerlo en cero
-
-        # Guardar
-        repsvm_agresor.save()
-
-        # Incrementar contador
-        contador += 1
-        if contador % 100 == 0:
-            click.echo(f"  Van {contador}...")
-
-    click.echo(f"Se cambiaron {contador} agresores con es_publico a {es_publico}")
+    click.echo(f"Se reiniciaron los consecutivos de {contador} agresores")
 
 
 @click.command()
@@ -246,43 +225,68 @@ def respaldar(distrito_id, output):
 
 
 @click.command()
-@click.option("--distrito_id", default=None, type=int, help="ID del Distrito")
-def reiniciar(distrito_id):
-    """Reiniciar los consecutivos de los agresores"""
-    distritos = []
+@click.option("--output", default="repsvm.csv", type=str, help="Archivo CSV a escribir")
+def subir_descargable(output):
+    """Crear archivo CSV para descargar como datos abiertos"""
+    ruta = Path(output)
 
-    # Si se especifica el ID del distrito
-    if distrito_id is not None:
-        distrito = Distrito.query.get(distrito_id)
-        if distrito is None:
-            click.echo(f"! No existe el distrito {distrito_id}")
-            return
-        distritos.append(distrito)
-    else:
-        distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.id).all()
+    # Si el archivo existe, lo borramos
+    if ruta.exists():
+        ruta.unlink()
 
-    # Bucle en todos los distritos
+    # Consultar los agresores que tengan es_publico en verdadero
+    agresores = REPSVMAgresor.query.filter_by(estatus="A").filter_by(es_publico=True).order_by(REPSVMAgresor.distrito_id, REPSVMAgresor.consecutivo).all()
+
+    # Escribir al archivo CSV
     contador = 0
-    for distrito in distritos:
-        click.echo(f"  {repr(distrito)}...")
-        # Iniciar en cero
-        consecutivo = 0
-        # Bucle en todos los agresores del distrito ordenados por nombre
-        for agresor in REPSVMAgresor.query.filter(REPSVMAgresor.distrito == distrito).filter_by(estatus="A").order_by(REPSVMAgresor.nombre).all():
-            # Incrementar el consecutivo
-            consecutivo += 1
-            # Actualizar el consecutivo
-            agresor.consecutivo = consecutivo
-            agresor.save()
-            # Incrementar el contador
+    with open(ruta, "w", encoding="utf8") as puntero:
+        descargable = csv.writer(puntero)
+        encabezados = [
+            "distrito_nombre_corto",
+            "consecutivo",
+            "nombre",
+            "delito_generico",
+            "delito_especifico",
+            "numero_causa",
+            "pena_impuesta",
+            "observaciones",
+            "tipo_juzgado",
+            "tipo_sentencia",
+            "sentencia_url",
+        ]
+        descargable.writerow(encabezados)
+        for agresor in agresores:
+            fila = [
+                agresor.distrito.nombre_corto,
+                agresor.consecutivo,
+                agresor.nombre,
+                agresor.delito_generico,
+                agresor.delito_especifico,
+                agresor.numero_causa,
+                agresor.pena_impuesta,
+                agresor.observaciones,
+                agresor.tipo_juzgado,
+                agresor.tipo_sentencia,
+                agresor.sentencia_url,
+            ]
+            descargable.writerow(fila)
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
+    click.echo(f"Descargables {contador} agresores en {ruta.name}")
 
-    click.echo(f"Se reiniciaron los consecutivos de {contador} agresores")
+    # Mandar una copia a Google Storage
+    cloud_storage_bucket = os.getenv("CLOUD_STORAGE_DEPOSITO", None)
+    if cloud_storage_bucket is not None:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(cloud_storage_bucket)
+        blob = bucket.blob(f"{SUBDIRECTORIO}/repsvm.csv")
+        blob.upload_from_filename(ruta, content_type="text/csv")
+        url = blob.public_url
+        click.echo(f"Archivo subido a {url}")
 
 
 cli.add_command(alimentar)
+cli.add_command(reiniciar_consecutivos)
 cli.add_command(respaldar)
-cli.add_command(publicar)
-cli.add_command(reiniciar)
+cli.add_command(subir_descargable)
