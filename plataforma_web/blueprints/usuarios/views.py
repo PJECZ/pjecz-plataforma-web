@@ -130,18 +130,35 @@ def profile():
 
 
 @usuarios.route("/usuarios", methods=["GET", "POST"])
-@usuarios.route("/usuarios/<filtros>", methods=["GET", "POST"])
 @login_required
 @permission_required(MODULO, Permiso.VER)
-def list_active(filtros=None):
+def list_active():
     """Listado de Usuarios activos"""
-    filtros_param = {}
-    if filtros:
-        filtros_param = json.loads(filtros)
+    campo = ""
+    valor = ""
+    filtros = {}
+    # if filtros:
+    #     filtros_param = json.loads(filtros)
+    if "texto_buscar" in request.form:
+        texto_buscar = request.form["texto_buscar"]
+        params = texto_buscar
+        if " " in params:
+            params = params.split(" ")
+            if len(params) > 1:
+                campo = params[1]
+            if len(params) > 2:
+                valor = params[2]
+    if campo != "":
+        # Si solo hay dos argumentos, dejamos el campo como el valor, y el campo como ID.
+        if valor == "":
+            if campo != "":
+                valor = campo
+                campo = "id"
+        filtros = {campo: valor}
 
     return render_template(
         "usuarios/list.jinja2",
-        filtros=json.dumps({**{"estatus": "A"}, **filtros_param}),
+        filtros=json.dumps({**{"estatus": "A"}, **filtros}),
         titulo="Usuarios",
         estatus="A",
     )
@@ -612,10 +629,12 @@ def global_search():
     if modulo != "":
         url = modulo + ".list_active"
         try:
-            redirect_resp = redirect(url_for(url, filtros=json.dumps(filtros)))
+            # filtros=json.dumps(filtros)
+            # request.form["filtros"] = json.dumps(filtros)
+            redirect_resp = redirect(url_for(url), code=307)
             return redirect_resp
-        except Exception:
-            flash("Módulo no encontrado", "warning")
+        except Exception as err:
+            flash(f"Módulo no encontrado {err}", "warning")
             return render_template(
                 "usuarios/global_search.jinja2",
                 params=texto_buscar,
