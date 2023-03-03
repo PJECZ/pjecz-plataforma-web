@@ -577,6 +577,7 @@ def global_search():
 
     texto_buscar = ""
     modulo = ""
+    valor_id = None
 
     # Establecer los parámetros de búsqueda
     if "texto_buscar" in request.form:
@@ -585,6 +586,8 @@ def global_search():
             texto_buscar = texto_buscar.split(" ")
             if len(texto_buscar) > 0:
                 modulo = texto_buscar[0]
+            if len(texto_buscar) == 2:
+                valor_id = texto_buscar[1]
         else:
             modulo = texto_buscar
 
@@ -592,10 +595,16 @@ def global_search():
     if modulo != "":
         url = modulo + ".list_active"
         try:
-            if modulo == "usuarios":
-                redirect_resp = redirect(url_for(url), code=307)
+            if modulo == "usuarios":  # TODO: Este if es para pruebas, una vez añadido la función `post_buscar_to_filtros()` en list_active() se quitará
+                if valor_id:
+                    redirect_resp = redirect("/" + modulo + "/" + valor_id)
+                else:
+                    redirect_resp = redirect(url_for(url), code=307)
             else:
-                redirect_resp = redirect(url_for(url))
+                if valor_id:
+                    redirect_resp = redirect("/" + modulo + "/" + valor_id)
+                else:
+                    redirect_resp = redirect(url_for(url))
             return redirect_resp
         except Exception:
             flash("Módulo no encontrado", "warning")
