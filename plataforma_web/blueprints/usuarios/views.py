@@ -18,6 +18,7 @@ from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_api_key, generar_contrasena
 from lib.safe_next_url import safe_next_url
 from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string
+from lib.busqueda_global import post_buscar_to_filtros
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
@@ -134,27 +135,7 @@ def profile():
 @permission_required(MODULO, Permiso.VER)
 def list_active():
     """Listado de Usuarios activos"""
-    campo = ""
-    valor = ""
-    filtros = {}
-    # if filtros:
-    #     filtros_param = json.loads(filtros)
-    if "texto_buscar" in request.form:
-        texto_buscar = request.form["texto_buscar"]
-        params = texto_buscar
-        if " " in params:
-            params = params.split(" ")
-            if len(params) > 1:
-                campo = params[1]
-            if len(params) > 2:
-                valor = params[2]
-    if campo != "":
-        # Si solo hay dos argumentos, dejamos el campo como el valor, y el campo como ID.
-        if valor == "":
-            if campo != "":
-                valor = campo
-                campo = "id"
-        filtros = {campo: valor}
+    filtros = post_buscar_to_filtros()
 
     return render_template(
         "usuarios/list.jinja2",
@@ -595,58 +576,30 @@ def toggle_menu(tipo_menu):
 def global_search():
     """Barra de Búsqueda del Sistema"""
 
-    params = []
     texto_buscar = ""
     modulo = ""
-    campo = ""
-    valor = ""
-    filtros = {}
 
     # Establecer los parámetros de búsqueda
     if "texto_buscar" in request.form:
         texto_buscar = request.form["texto_buscar"]
-        params = texto_buscar
-        if " " in params:
-            params = params.split(" ")
-            if len(params) > 0:
-                modulo = params[0]
-            if len(params) > 1:
-                campo = params[1]
-            if len(params) > 2:
-                valor = params[2]
+        if " " in texto_buscar:
+            texto_buscar = texto_buscar.split(" ")
+            if len(texto_buscar) > 0:
+                modulo = texto_buscar[0]
         else:
-            modulo = params
-
-    if campo != "":
-        # Si solo hay dos argumentos, dejamos el campo como el valor, y el campo como ID.
-        if valor == "":
-            if campo != "":
-                valor = campo
-                campo = "id"
-        filtros = {campo: valor}
+            modulo = texto_buscar
 
     # Definir el módulo
     if modulo != "":
         url = modulo + ".list_active"
         try:
-            # filtros=json.dumps(filtros)
-            # request.form["filtros"] = json.dumps(filtros)
             redirect_resp = redirect(url_for(url), code=307)
             return redirect_resp
-        except Exception as err:
-            flash(f"Módulo no encontrado {err}", "warning")
-            return render_template(
-                "usuarios/global_search.jinja2",
-                params=texto_buscar,
-                modulo=modulo,
-                campo=campo,
-                valor=valor,
-            )
+        except Exception:
+            flash("Módulo no encontrado", "warning")
 
     return render_template(
         "usuarios/global_search.jinja2",
         params=texto_buscar,
         modulo=modulo,
-        campo=campo,
-        valor=valor,
     )
