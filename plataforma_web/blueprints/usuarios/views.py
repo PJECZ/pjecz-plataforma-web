@@ -592,7 +592,10 @@ def global_search():
     if modulo != "":
         url = modulo + ".list_active"
         try:
-            redirect_resp = redirect(url_for(url), code=307)
+            if modulo == "usuarios":
+                redirect_resp = redirect(url_for(url), code=307)
+            else:
+                redirect_resp = redirect(url_for(url))
             return redirect_resp
         except Exception:
             flash("Módulo no encontrado", "warning")
