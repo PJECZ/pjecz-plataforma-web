@@ -19,7 +19,7 @@
         {% if current_user.can_insert('USUARIOS') %}
             {{ topbar.button_new('Nuevo Usuario', url_for('usuarios.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('usuarios.search')) }}
+        {# topbar.button_search('Buscar', url_for('usuarios.search')) #}
     {% endcall %}
 {% endblock %}
 
@@ -72,7 +72,6 @@
     <script>
         const dataTable_funcs = new ConfigDataTable( "{{ csrf_token() }}" );
         let configDataTable = dataTable_funcs.config;
-
         configDataTable['ajax']['url'] = '/usuarios/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
