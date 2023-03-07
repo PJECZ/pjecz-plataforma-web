@@ -80,7 +80,6 @@
     {{ detail.config_datatable() }}
     {% if current_user.can_view('AUTORIDADES') %}
         <script>
-
             // DataTable Autoridades
             configDataTable['ajax']['url'] = '/autoridades/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'distrito_id': {{ distrito.id}} };
@@ -115,7 +114,6 @@
     {% endif %}
     {% if current_user.can_view('OFICINAS') %}
         <script>
-
             // DataTable Oficinas
             configDataTable['ajax']['url'] = '/oficinas/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'distrito_id': {{ distrito.id}} };
@@ -163,7 +161,6 @@
     {% endif %}
     {% if current_user.can_view('REPSVM AGRESORES') %}
         <script>
-
             // DataTable REPSVM Agresores
             configDataTable['ajax']['url'] = '/repsvm_agresores/datatable_json';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'distrito_id': {{ distrito.id}} };
@@ -231,7 +228,6 @@
                 },
             ];
             $('#repsvm_agresores_datatable').DataTable(configDataTable);
-
             // Preparar headers para POST
             const myHeaders = new Headers();
             myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
@@ -241,7 +237,6 @@
                 mode: 'cors',
                 cache: 'default'
             };
-
             // Boton es_publico
             function toggleEsPublico(id, url) {
                 $(id).prop("disabled", true); // Deshabilitar boton para evitar multiples clicks
@@ -269,7 +264,6 @@
                         console.log(error);
                     });
             }
-
         </script>
     {% endif %}
     {{ detail.moment_js(moment) }}
