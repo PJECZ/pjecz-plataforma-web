@@ -22,6 +22,8 @@
         {{ detail.label_value('Nombre', distrito.nombre) }}
         {{ detail.label_value('Nombre corto', distrito.nombre_corto) }}
         {{ detail.label_value_boolean('Es Distrito Judicial', distrito.es_distrito_judicial) }}
+        {{ detail.label_value_boolean('NUEVO Es Distrito (geográfico)', distrito.es_distrito) }}
+        {{ detail.label_value_boolean('NUEVO Es Jurisdiccional', distrito.es_jurisdiccional) }}
         {{ detail.label_value('Creado', moment(distrito.creado).format('llll')) }}
     {% endcall %}
     {% if current_user.can_view('AUTORIDADES') %}
