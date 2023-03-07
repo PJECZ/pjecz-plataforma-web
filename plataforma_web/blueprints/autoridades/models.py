@@ -50,6 +50,7 @@ class Autoridad(db.Model, UniversalMixin):
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
     es_notaria = db.Column(db.Boolean, nullable=False, default=False)
     es_revisor_escrituras = db.Column(db.Boolean, nullable=False, default=False)
+    es_organo_especializado = db.Column(db.Boolean, nullable=False, default=False)
     organo_jurisdiccional = db.Column(
         db.Enum(*ORGANOS_JURISDICCIONALES, name="tipos_organos_jurisdiccionales", native_enum=False),
         index=True,
