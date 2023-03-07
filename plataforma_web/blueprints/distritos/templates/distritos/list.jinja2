@@ -27,7 +27,9 @@
                     <th>Clave</th>
                     <th>Nombre</th>
                     <th>Nombre corto</th>
-                    <th>Es Distrito Judicial</th>
+                    <th>Es D.J.</th>
+                    <th>Es D.</th>
+                    <th>Es J.</th>
                 </tr>
             </thead>
         </table>
@@ -43,7 +45,9 @@
             { data: 'detalle' },
             { data: 'nombre' },
             { data: 'nombre_corto' },
-            { data: 'es_distrito_judicial' }
+            { data: 'es_distrito_judicial' },
+            { data: 'es_distrito' },
+            { data: 'es_jurisdiccional' },
         ];
         configDataTable['columnDefs'] = [
             {
@@ -54,7 +58,7 @@
                 }
             },
             {
-                targets: 3, // es_distrito_judicial
+                targets: [3,4,5], // es_distrito_judicial, es_distrito, es_jurisdiccional
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data) { return 'Si'; } else { return ''; }
