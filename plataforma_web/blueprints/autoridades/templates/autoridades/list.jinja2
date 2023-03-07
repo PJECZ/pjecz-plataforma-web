@@ -81,9 +81,9 @@
 
 {% block custom_javascript %}
     <!-- Importación de la configuración para DataTables -->
-    <script src="/static/js/config_dataTable.js"></script>
+    <script src="/static/js/datatables_config.js"></script>
     <!-- Importación de los fitlros para dataTable -->
-    <script src="/static/js/filtros_dataTable.js"></script>
+    <script src="/static/js/datatables_filtros.js"></script>
     <!-- Configuración del DataTable -->
     <script>
         const dataTable_funcs = new ConfigDataTable( "{{ csrf_token() }}" );
