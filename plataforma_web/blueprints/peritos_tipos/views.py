@@ -27,27 +27,27 @@ def before_request():
     """Permiso por defecto"""
 
 
-@peritos_tipos.route('/peritos_tipos/datatable_json', methods=['GET', 'POST'])
+@peritos_tipos.route("/peritos_tipos/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para listado de Tipos de Peritos"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = PeritoTipo.query
-    if 'estatus' in request.form:
-        consulta = consulta.filter_by(estatus=request.form['estatus'])
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus='A')
-    registros = consulta.order_by(PeritoTipo.id).offset(start).limit(rows_per_page).all()
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(PeritoTipo.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
         data.append(
             {
-                'detalle': {
-                    'nombre': resultado.nombre,
-                    'url': url_for('peritos_tipos.detail', perito_tipo_id=resultado.id),
+                "detalle": {
+                    "nombre": resultado.nombre,
+                    "url": url_for("peritos_tipos.detail", perito_tipo_id=resultado.id),
                 },
             }
         )
@@ -55,26 +55,26 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
-@peritos_tipos.route('/peritos_tipos')
+@peritos_tipos.route("/peritos_tipos")
 def list_active():
     """Listado de Tipos de Peritos activos"""
     return render_template(
-        'peritos_tipos/list.jinja2',
-        filtros=json.dumps({'estatus': 'A'}),
-        titulo='Tipos de Peritos',
-        estatus='A',
+        "peritos_tipos/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Tipos de Peritos",
+        estatus="A",
     )
 
 
-@peritos_tipos.route('/peritos_tipos/inactivos')
+@peritos_tipos.route("/peritos_tipos/inactivos")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def list_inactive():
     """Listado de Tipos de Peritos inactivos"""
     return render_template(
-        'peritos_tipos/list.jinja2',
-        filtros=json.dumps({'estatus': 'B'}),
-        titulo='Tipos de Peritos inactivos',
-        estatus='B',
+        "peritos_tipos/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Tipos de Peritos inactivos",
+        estatus="B",
     )
 
 

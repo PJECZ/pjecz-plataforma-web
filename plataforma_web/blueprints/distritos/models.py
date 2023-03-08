@@ -19,6 +19,8 @@ class Distrito(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
     nombre_corto = db.Column(db.String(64), nullable=False, default="", server_default="")
     es_distrito_judicial = db.Column(db.Boolean, nullable=False, default=False)
+    es_distrito = db.Column(db.Boolean, nullable=False, default=False)
+    es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
     autoridades = db.relationship("Autoridad", back_populates="distrito")

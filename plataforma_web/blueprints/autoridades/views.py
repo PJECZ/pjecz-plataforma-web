@@ -69,6 +69,19 @@ def datatable_json():
         consulta = consulta.filter(Autoridad.descripcion.contains(safe_string(request.form["descripcion"], to_uppercase=False)))
     if "organo_jurisdiccional" in request.form:
         consulta = consulta.filter(Autoridad.organo_jurisdiccional == safe_string(request.form["organo_jurisdiccional"]))
+    if "caracteristicas" in request.form:
+        if request.form["caracteristicas"] == "CEMASC":
+            consulta = consulta.filter_by(es_cemasc=True)
+        elif request.form["caracteristicas"] == "DEFENSORIA":
+            consulta = consulta.filter_by(es_defensoria=True)
+        elif request.form["caracteristicas"] == "JURISDICCIONAL":
+            consulta = consulta.filter_by(es_jurisdiccional=True)
+        elif request.form["caracteristicas"] == "NOTARIA":
+            consulta = consulta.filter_by(es_notaria=True)
+        elif request.form["caracteristicas"] == "ORGANO_ESPECIALIZADO":
+            consulta = consulta.filter_by(es_organo_especializado=True)
+        elif request.form["caracteristicas"] == "REVISOR_ESCRITURAS":
+            consulta = consulta.filter_by(es_revisor_escrituras=True)
     registros = consulta.order_by(Autoridad.clave).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -104,6 +117,7 @@ def list_active():
         filtros=json.dumps({"estatus": "A"}),
         titulo="Autoridades",
         estatus="A",
+        distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").all(),
     )
 
 
@@ -340,6 +354,7 @@ def new():
                 es_defensoria=form.es_defensoria.data,
                 es_jurisdiccional=es_jurisdiccional,
                 es_notaria=es_notaria,
+                es_organo_especializado=form.es_organo_especializado.data,
                 es_revisor_escrituras=es_revisor_escrituras,
                 organo_jurisdiccional=form.organo_jurisdiccional.data,
                 materia=form.materia.data,
@@ -389,6 +404,7 @@ def edit(autoridad_id):
             autoridad.es_defensoria = form.es_defensoria.data
             autoridad.es_jurisdiccional = form.es_jurisdiccional.data
             autoridad.es_notaria = form.es_notaria.data
+            autoridad.es_organo_especializado = form.es_organo_especializado.data
             autoridad.es_revisor_escrituras = form.es_revisor_escrituras.data
             autoridad.organo_jurisdiccional = form.organo_jurisdiccional.data
             autoridad.materia = form.materia.data
@@ -417,6 +433,7 @@ def edit(autoridad_id):
     form.es_defensoria.data = autoridad.es_defensoria
     form.es_jurisdiccional.data = autoridad.es_jurisdiccional
     form.es_notaria.data = autoridad.es_notaria
+    form.es_organo_especializado.data = autoridad.es_organo_especializado
     form.es_revisor_escrituras.data = autoridad.es_revisor_escrituras
     form.organo_jurisdiccional.data = autoridad.organo_jurisdiccional
     form.materia.data = autoridad.materia

@@ -22,4 +22,4 @@ class PeritoTipo(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<PeritoTipo>"
+        return f"<PeritoTipo {self.nombre}>"
