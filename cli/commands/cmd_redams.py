@@ -154,7 +154,7 @@ def respaldar(output):
 
 
 @click.command()
-@click.option("--output", default="redams.csv", type=str, help="Archivo CSV a escribir")
+@click.option("--output", default="redam.csv", type=str, help="Archivo CSV a escribir")
 def subir_descargable(output):
     """Subir archivo CSV a Google Storage para descargar como datos abiertos"""
     contador = 0
