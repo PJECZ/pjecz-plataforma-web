@@ -1,6 +1,24 @@
 {
   "versiones": [
     {
+      "numero": "2.3",
+      "fecha": "2023-03-08",
+      "novedades": [
+        {
+          "titulo": "Módulo Favoritos",
+          "descripcion": "Integramos la sección de Favoritos, donde podrá asignar los módulos más utilizados para que estén más accesibles."
+        },
+        {
+          "titulo": "Barra Colapsable",
+          "descripcion": "La barra de menú lateral izquierda, puede estar colapsada y ocupar menos espacio."
+        },
+        {
+          "titulo": "Barra de Búsqueda Global",
+          "descripcion": "Puede acceder a cualquier módulo haciendo uso de la barra superior de búsqueda global."
+        }
+      ]
+    },
+    {
       "numero": "2.2",
       "fecha": "2022-03-08",
       "novedades": [
