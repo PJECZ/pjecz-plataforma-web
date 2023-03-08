@@ -585,15 +585,15 @@ def global_search():
         if " " in texto_buscar:
             texto_buscar = texto_buscar.split(" ")
             if len(texto_buscar) > 0:
-                modulo = texto_buscar[0]
+                modulo = texto_buscar[0].lower()
             if len(texto_buscar) == 2:
                 valor_id = texto_buscar[1]
         else:
-            modulo = texto_buscar
+            modulo = texto_buscar.lower()
 
     # Definir el módulo
     if modulo != "":
-        url = modulo + ".list_active"
+        url = modulo.lower() + ".list_active"
         try:
             if modulo == "usuarios":  # TODO: Este if es para pruebas, una vez añadido la función `post_buscar_to_filtros()` en list_active() se quitará
                 if valor_id:
