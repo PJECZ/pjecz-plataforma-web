@@ -16,7 +16,7 @@ def post_buscar_to_filtros(campo_defecto="id"):
         if " " in params:
             params = params.split(" ")
             if len(params) > 1:
-                campo = params[1]
+                campo = params[1].lower()
             if len(params) > 2:
                 valor = " ".join(params[2:])
 
