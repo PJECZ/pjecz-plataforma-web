@@ -4,6 +4,7 @@ REPSVM
 - alimentar: Alimentar desde un archivo CSV
 - reiniciar_consecutivos: Reiniciar los consecutivos de los agresores
 - respaldar: Respaldar los agresores a un archivo CSV
+- subir_descargable: Subir archivo CSV a Google Storage para descargar como datos abiertos
 """
 import csv
 from pathlib import Path
@@ -105,7 +106,7 @@ def alimentar(entrada_csv):
                 consecutivo = consecutivos[distrito.id]
                 es_publico = row["es_publico"].strip().lower() == "si"
 
-            # Insertar agresor
+            # Insertar el registro
             REPSVMAgresor(
                 distrito=distrito,
                 consecutivo=consecutivo,
@@ -119,6 +120,7 @@ def alimentar(entrada_csv):
                 sentencia_url=safe_url(row["sentencia_url"]),
                 tipo_juzgado=tipo_juzgado,
                 tipo_sentencia=tipo_sentencia,
+                estatus=row["estatus"],
             ).save()
 
             # Incrementar contador
@@ -171,18 +173,28 @@ def reiniciar_consecutivos(distrito_id):
 @click.option("--output", default="repsvm.csv", type=str, help="Archivo CSV a escribir")
 def respaldar(distrito_id, output):
     """Respaldar los agresores a un archivo CSV"""
+    contador = 0
+
+    # Verificar que el archivo no exista
     ruta = Path(output)
     if ruta.exists():
         click.echo(f"AVISO: {ruta.name} existe, no voy a sobreescribirlo.")
         return
-    contador = 0
-    agresores = REPSVMAgresor.query.filter_by(estatus="A")
+
+    # Consultar los agresores
+    agresores = REPSVMAgresor.query
+
+    # Si se especifica el ID del distrito
     if distrito_id is not None:
         agresores = agresores.filter(REPSVMAgresor.distrito_id == distrito_id)
         click.echo(f"Respaldando los agresores de REPSVM del distrito ID {distrito_id}...")
     else:
         click.echo("Respaldando TODOS los agresores de REPSVM...")
-    agresores = agresores.order_by(REPSVMAgresor.distrito_id, REPSVMAgresor.consecutivo).all()
+
+    # Ordenar por distrito y consecutivo
+    agresores = agresores.order_by(REPSVMAgresor.id).all()
+
+    # Escribir el archivo CSV
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         encabezados = [
@@ -190,35 +202,39 @@ def respaldar(distrito_id, output):
             "distrito_id",
             "distrito_nombre_corto",
             "consecutivo",
-            "nombre",
             "delito_generico",
             "delito_especifico",
+            "es_publico",
+            "nombre",
             "numero_causa",
             "pena_impuesta",
             "observaciones",
+            "sentencia_url",
             "tipo_juzgado",
             "tipo_sentencia",
-            "sentencia_url",
+            "estatus",
         ]
         respaldo.writerow(encabezados)
         for agresor in agresores:
+            contador += 1
             fila = [
-                agresor.id,
+                contador,
                 agresor.distrito_id,
                 agresor.distrito.nombre_corto,
                 agresor.consecutivo,
-                agresor.nombre,
                 agresor.delito_generico,
                 agresor.delito_especifico,
+                agresor.es_publico,
+                agresor.nombre,
                 agresor.numero_causa,
                 agresor.pena_impuesta,
                 agresor.observaciones,
+                agresor.sentencia_url,
                 agresor.tipo_juzgado,
                 agresor.tipo_sentencia,
-                agresor.sentencia_url,
+                agresor.estatus,
             ]
             respaldo.writerow(fila)
-            contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
     click.echo(f"Respaldados {contador} agresores en {ruta.name}")
@@ -227,7 +243,8 @@ def respaldar(distrito_id, output):
 @click.command()
 @click.option("--output", default="repsvm.csv", type=str, help="Archivo CSV a escribir")
 def subir_descargable(output):
-    """Crear archivo CSV para descargar como datos abiertos"""
+    """Subir archivo CSV a Google Storage para descargar como datos abiertos"""
+    contador = 0
     ruta = Path(output)
 
     # Si el archivo existe, lo borramos
@@ -238,7 +255,6 @@ def subir_descargable(output):
     agresores = REPSVMAgresor.query.filter_by(estatus="A").filter_by(es_publico=True).order_by(REPSVMAgresor.distrito_id, REPSVMAgresor.consecutivo).all()
 
     # Escribir al archivo CSV
-    contador = 0
     with open(ruta, "w", encoding="utf8") as puntero:
         descargable = csv.writer(puntero)
         encabezados = [
@@ -256,6 +272,7 @@ def subir_descargable(output):
         ]
         descargable.writerow(encabezados)
         for agresor in agresores:
+            contador += 1
             fila = [
                 agresor.distrito.nombre_corto,
                 agresor.consecutivo,
@@ -270,17 +287,16 @@ def subir_descargable(output):
                 agresor.sentencia_url,
             ]
             descargable.writerow(fila)
-            contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
     click.echo(f"Descargables {contador} agresores en {ruta.name}")
 
-    # Mandar una copia a Google Storage
+    # Subir el archivo a Google Storage
     cloud_storage_bucket = os.getenv("CLOUD_STORAGE_DEPOSITO", None)
     if cloud_storage_bucket is not None:
         storage_client = storage.Client()
         bucket = storage_client.bucket(cloud_storage_bucket)
-        blob = bucket.blob(f"{SUBDIRECTORIO}/repsvm.csv")
+        blob = bucket.blob(f"{SUBDIRECTORIO}/{ruta.name}")
         blob.upload_from_filename(ruta, content_type="text/csv")
         url = blob.public_url
         click.echo(f"Archivo subido a {url}")
