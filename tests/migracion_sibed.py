@@ -52,7 +52,8 @@ def main():
     engine = create_engine(ENGINE_SIBED)
 
     # Leer los juzgados de empate
-    juzgados = {}
+    juzgados_id = {}
+    juzgados_origen_id = {}
     ruta = Path(SIBED_JUZGADOS_CSV)
     if not ruta.exists():
         print(f"AVISO: {ruta.name} no se encontró.")
@@ -66,11 +67,16 @@ def main():
             juzgado_id_sibed = int(row["juzgado_id_sibed"])
             juzgado_id_plataforma_web = row["juzgado_id_plataforma_web"]
             if juzgado_id_plataforma_web.isnumeric() and int(juzgado_id_plataforma_web) > 0:
-                if juzgado_id_sibed in juzgados:
+                if juzgado_id_sibed in juzgados_id:
                     print(f"ERROR: Juzgado con valor repetido en archivo {JUZGADOS_SIBED_CSV}")
                     exit
-                juzgados[int(juzgado_id_sibed)] = int(juzgado_id_plataforma_web)
-    bitacora.info(f"Juzgados cargados: {len(juzgados)}")
+                juzgados_id[juzgado_id_sibed] = int(juzgado_id_plataforma_web)
+                if row["juzgado_origen_id"] == 0:
+                    juzgados_origen_id[juzgado_id_sibed] = None
+                else:
+                    juzgados_origen_id[juzgado_id_sibed] = int(row["juzgado_origen_id"])
+    print(f"Juzgados cargados: {len(juzgados_id)}")
+    bitacora.info(f"Juzgados cargados: {len(juzgados_id)}")
 
     # Simulación o Ejecución
     simulacion = True
@@ -110,44 +116,73 @@ def main():
         # --- Comienzo de las validaciones ---
         for row in result:
             # Validar valor del juzgado
-            if row["juzgadoId"] == "" or row["juzgadoId"] is None or row["juzgadoId"] not in juzgados:
-                bitacora.info("Valor de JUZGADO inválido [ID:%d]", {row["id"]})
+            if row["juzgadoId"] == "" or row["juzgadoId"] is None or row["juzgadoId"] not in juzgados_id:
+                bitacora.info("Valor de JUZGADO inválido [ID:%d]", row["id"])
                 count_error["juzgado_invalido"] += 1
                 continue
             # Validar valor del número de expediente
-            if row["numero_expediente"] <= 0:
-                bitacora.info("NÚMERO DE EXPEDIENTE inválido [ID:%d]", {row["id"]})
+            if row["numero_expediente"] != "" and row["numero_expediente"] is not None:
+                try:
+                    num_expediente = int(row["numero_expediente"])
+                    if num_expediente <= 0:
+                        bitacora.info("NÚMERO DE EXPEDIENTE inválido [ID:%d]", row["id"])
+                        count_error["numero_expediente_invalido"] += 1
+                        continue
+                except ValueError:
+                    bitacora.info("NÚMERO DE EXPEDIENTE inválido [ID:%d]", row["id"])
+                    count_error["numero_expediente_invalido"] += 1
+                    continue
+            else:
+                bitacora.info(f"NÚMERO DE EXPEDIENTE vacío")
                 count_error["numero_expediente_invalido"] += 1
                 continue
             # Validar nombre del juicio
             if safe_string(row["juicio"]) == "":
-                bitacora.info("Nombre de JUICIO inválido [ID:%d]", {row["id"]})
+                bitacora.info("Nombre de JUICIO inválido [ID:%d]", row["id"])
                 count_error["juicio_nombre_invalido"] += 1
                 continue
             # Validar nombre del actor
             if safe_string(row["actor"]) == "":
-                bitacora.info("Nombre del ACTOR inválido [ID:%d]", {row["id"]})
+                bitacora.info("Nombre del ACTOR inválido [ID:%d]", row["id"])
                 count_error["actor_nombre_invalido"] += 1
                 continue
             # Validar año
-            if not row["anno"].isnumeric() or int(row["anno"]) <= 0 or int(row["anno"]) > 2023:
-                bitacora.info("AÑO inválido [ID:%d]", {row["id"]})
+            try:
+                anio = int(row["anno"])
+                if 0 <= anio > 2023:
+                    bitacora.info("AÑO inválido [ID:%d] = %d", row["id"], anio)
+                    count_error["anio_invalido"] += 1
+                    continue
+            except ValueError:
+                bitacora.info("AÑO inválido [ID:%d]", row["id"])
                 count_error["anio_invalido"] += 1
                 continue
             # Correcciones en el año
             anio = int(row["anno"])
             if 23 > anio < 99:
                 anio = 1900 + anio
-            else:
-                bitacora.info("AÑO inválido [ID:%d]", {row["id"]})
+            elif 99 > anio < 1900:
+                bitacora.info("AÑO inválido [ID:%d] = %d", row["id"], anio)
                 count_error["anio_invalido"] += 1
                 continue
+            # Correcciones de juzgado
+            juzgado_id = juzgados_id[int(row["juzgadoId"])]
+            if juzgado_id == 67 or juzgado_id == 68:
+                if int(row["numero_expediente"]) % 2 == 0:
+                    juzgado_id = 359
+                else:
+                    juzgado_id = 38
             # --- Fin de las validaciones ---
 
             # Ajustar el número de fojas
             fojas = None
-            if row["numero_fojas"].isnumeric() and int(row["numero_fojas"]) > 0:
-                fojas = int(row["numero_fojas"])
+            if row["numero_fojas"] != "" and row["numero_fojas"] is not None:
+                try:
+                    fojas = int(row["numero_fojas"])
+                    if fojas <= 0:
+                        fojas = None
+                except ValueError:
+                    fojas = None
             # Ajustar el tipo
             tipo = safe_string(row["type"])
             if tipo not in SIBED_Documento.TIPOS:
@@ -159,7 +194,8 @@ def main():
                 SIBED_Documento(
                     expediente=f"{row['numero_expediente']}/{anio}",
                     anio=anio,
-                    juzgado_id=juzgados[row["juzgadoId"]],
+                    juzgado_id=juzgado_id,
+                    juzgado_origen_id=juzgados_origen_id[row["juzgadoId"]],
                     juicio=safe_string(row["juicio"]),
                     actor=safe_string(row["actor"]),
                     demandado=safe_string(row["demandado"]),
@@ -170,18 +206,23 @@ def main():
 
             # imprimir el progreso
             avance = num_registros_total - count_insert
-            if avance % 500 == 0:
-                print(f"Avance {count_insert} de {num_registros_total}")
+            porcentaje = (count_insert * 100) / num_registros_total
+            if avance % 1000 == 0:
+                print(f"Avance {porcentaje:.2f}% : {count_insert} de {num_registros_total}")
+                print(row)
 
         # Da el total de errores encontrados
         sum_errors = 0
         for _, value in count_error.items():
             sum_errors += value
         bitacora.info(f"Total de registros insertados {count_insert} de {num_registros_total}, omitidos {sum_errors}:{count_error}")
+        print(f"Total de registros insertados {count_insert} de {num_registros_total}")
         if sum_errors == 0:
             bitacora.info("¡¡¡Sin Errores!!!")
+            print("¡¡¡Sin Errores!!!")
         else:
             bitacora.info(f"Total de errores: {sum_errors}")
+            print(f"Total de errores: {sum_errors}")
 
 
 if __name__ == "__main__":

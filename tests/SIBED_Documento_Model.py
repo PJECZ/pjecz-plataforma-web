@@ -35,6 +35,7 @@ class SIBED_Documento(db.Model, UniversalMixin):
     expediente = db.Column(db.String(16), index=True, nullable=False)  # dígitos/YYYY-XXX
     juicio = db.Column(db.String(128))
     juzgado_id = db.Column(db.Integer, nullable=False)
+    juzgado_origen_id = db.Column(db.Integer)
     fojas = db.Column(db.Integer, nullable=False)
     observaciones = db.Column(db.String(256))
     tipo = db.Column(
