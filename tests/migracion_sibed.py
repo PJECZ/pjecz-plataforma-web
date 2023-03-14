@@ -111,6 +111,7 @@ def main():
             "juicio_nombre_invalido": 0,
             "actor_nombre_invalido": 0,
             "anio_invalido": 0,
+            "expediente_repetido": 0,
         }
 
         # --- Comienzo de las validaciones ---
@@ -186,13 +187,21 @@ def main():
             # Ajustar el tipo
             tipo = safe_string(row["type"])
             if tipo not in SIBED_Documento.TIPOS:
-                tipo = SIBED_Documento.TIPOS["NO DEFINIDO"]
+                tipo = "NO DEFINIDO"
+
+            # Validar que no haya un expediente con el mismo juzgado ingresado
+            num_expediente = f"{row['numero_expediente']}/{anio}"
+            consulta = SIBED_Documento.query.filter_by(expediente=num_expediente).filter_by(juzgado_id=juzgado_id).first()
+            if consulta:
+                bitacora.info("Expediente ya cargado")
+                count_error["expediente_repetido"] += 1
+                continue
 
             # Insertar registro
             count_insert += 1
             if simulacion is False:
                 SIBED_Documento(
-                    expediente=f"{row['numero_expediente']}/{anio}",
+                    expediente=num_expediente,
                     anio=anio,
                     juzgado_id=juzgado_id,
                     juzgado_origen_id=juzgados_origen_id[row["juzgadoId"]],
