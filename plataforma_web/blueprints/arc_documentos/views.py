@@ -390,7 +390,7 @@ def search():
                             flash("No se declaro la variable de entorno PEGASO_API_KEY", "warning")
                             return redirect(url_for("arc_documentos.new"))
                         headers = {"Accept": "application/json", "X-Api-Key": PEGASO_API_KEY}
-                        url_api = f"{PEGASO_API_URL}/{autoridad_id}/{num_consecutivo}-{anio}"
+                        url_api = f"{PEGASO_API_URL}?juzgado_id={autoridad_id}&num_expediente{num_expediente}"
                         # Hace el llamado a la API
                         respuesta_api = {}
                         try:
