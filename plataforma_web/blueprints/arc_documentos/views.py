@@ -385,17 +385,23 @@ def search():
                         if PEGASO_API_URL == "":
                             flash("No se declaro la variable de entorno PEGASO_API_URL", "warning")
                             return redirect(url_for("arc_documentos.new"))
+                        PEGASO_API_KEY = os.environ.get("PEGASO_API_KEY", "")
+                        if PEGASO_API_KEY == "":
+                            flash("No se declaro la variable de entorno PEGASO_API_KEY", "warning")
+                            return redirect(url_for("arc_documentos.new"))
+                        headers = {"Accept": "application/json", "X-Api-Key": PEGASO_API_KEY}
                         url_api = f"{PEGASO_API_URL}/{autoridad_id}/{num_consecutivo}-{anio}"
                         # Hace el llamado a la API
                         respuesta_api = {}
                         try:
-                            response = requests.request("GET", url_api, timeout=32)
+                            response = requests.request("GET", url=url_api, headers=headers, timeout=32)
                             respuesta_api = json.loads(response.text)
                         except requests.exceptions.RequestException as err:
                             flash(f"Error en API {err}", "danger")
                             respuesta_api["success"] = None
                             respuesta_api["response"] = "ERROR DE API"
                             respuesta_api["Description"] = "No hubo comunicación con la API"
+
                         if "success" in respuesta_api:
                             if respuesta_api["success"]:
                                 flash("Registro encontrado en SIBED", "success")
@@ -425,7 +431,7 @@ def search():
                                 if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
                                     mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                         else:
-                            flash("Error en API", "danger")
+                            flash(f"Error en API {response.text}", "danger")
                 else:
                     flash(f"{respuesta_api['response']}: {respuesta_api['Description']}", "danger")
             else:
