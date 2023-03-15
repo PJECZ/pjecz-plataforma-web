@@ -41,7 +41,7 @@
 {% block content %}
     {# Sección de búsqueda en Expendiente Virtual #}
     <div class="card mb-3 border-info">
-        <div class="card-header bg-info text-light" style="font-weight: bold;">Búsqueda en Expendiente Virtual</div>
+        <div class="card-header bg-info text-light" style="font-weight: bold;">Búsqueda en Expendiente Virtual o SIBED</div>
         <div class="card-body" style="background-color: #cff4fc;">
             <form class="row g-3" action="{{url_for('arc_documentos.search')}}" id="busqueda_form" method="POST" role="form">
                 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">

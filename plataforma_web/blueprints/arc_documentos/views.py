@@ -369,7 +369,7 @@ def search():
                     respuesta_api["Description"] = "No hubo comunicación con la API"
                 if respuesta_api["success"]:
                     if respuesta_api["success"] == "1":
-                        flash("Registro encontrado", "success")
+                        flash("Registro encontrado en Expediente Virtual", "success")
                         form.num_expediente.data = num_expediente
                         form.anio.data = anio
                         form.juicio.data = respuesta_api["Juicio"]
@@ -380,7 +380,52 @@ def search():
                             form.juzgado_id.data = autoridad_id
                             mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                     else:
-                        flash("Registro NO encontrado", "warning")
+                        # Si no encontró nada en Expediente Virtual ahora buscar en SIBED
+                        PEGASO_API_URL = os.environ.get("PEGASO_API_URL", "")
+                        if PEGASO_API_URL == "":
+                            flash("No se declaro la variable de entorno PEGASO_API_URL", "warning")
+                            return redirect(url_for("arc_documentos.new"))
+                        url_api = f"{PEGASO_API_URL}{autoridad_id}/{num_consecutivo}-{anio}"
+                        # Hace el llamado a la API
+                        respuesta_api = {}
+                        try:
+                            response = requests.request("GET", url_api, timeout=32)
+                            respuesta_api = json.loads(response.text)
+                        except requests.exceptions.RequestException as err:
+                            flash(f"Error en API {err}", "danger")
+                            respuesta_api["success"] = None
+                            respuesta_api["response"] = "ERROR DE API"
+                            respuesta_api["Description"] = "No hubo comunicación con la API"
+                        if "success" in respuesta_api:
+                            if respuesta_api["success"]:
+                                flash("Registro encontrado en SIBED", "success")
+                                form.num_expediente.data = num_expediente
+                                form.anio.data = anio
+                                form.juicio.data = respuesta_api["juicio"]
+                                form.actor.data = respuesta_api["actor"]
+                                form.demandado.data = respuesta_api["demandado"]
+                                form.tipo.data = respuesta_api["tipo"]
+                                if respuesta_api["juzgado_origen_id"] is None:
+                                    form.juzgado_origen.data = ""
+                                else:
+                                    form.juzgado_origen.data = respuesta_api["juzgado_origen_id"]
+                                if respuesta_api["fojas"] is None:
+                                    form.fojas.data = ""
+                                else:
+                                    form.fojas.data = respuesta_api["fojas"]
+                                if respuesta_api["observaciones"] is None:
+                                    form.observaciones.data = ""
+                                else:
+                                    form.observaciones.data = respuesta_api["observaciones"]
+                                if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
+                                    form.juzgado_id.data = autoridad_id
+                                    mostrar_secciones["juzgado_nombre"] = autoridad.nombre
+                            else:
+                                flash("Registro NO encontrado", "warning")
+                                if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
+                                    mostrar_secciones["juzgado_nombre"] = autoridad.nombre
+                        else:
+                            flash(f"{respuesta_api['message']}", "danger")
                 else:
                     flash(f"{respuesta_api['response']}: {respuesta_api['Description']}", "danger")
             else:
