@@ -385,7 +385,7 @@ def search():
                         if PEGASO_API_URL == "":
                             flash("No se declaro la variable de entorno PEGASO_API_URL", "warning")
                             return redirect(url_for("arc_documentos.new"))
-                        url_api = f"{PEGASO_API_URL}{autoridad_id}/{num_consecutivo}-{anio}"
+                        url_api = f"{PEGASO_API_URL}/{autoridad_id}/{num_consecutivo}-{anio}"
                         # Hace el llamado a la API
                         respuesta_api = {}
                         try:
@@ -425,7 +425,7 @@ def search():
                                 if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
                                     mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                         else:
-                            flash(f"{respuesta_api['message']}", "danger")
+                            flash("Error en API", "danger")
                 else:
                     flash(f"{respuesta_api['response']}: {respuesta_api['Description']}", "danger")
             else:
