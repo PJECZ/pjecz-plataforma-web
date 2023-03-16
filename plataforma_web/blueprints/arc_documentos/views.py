@@ -367,7 +367,7 @@ def search():
                     respuesta_api["success"] = None
                     respuesta_api["response"] = "ERROR DE API"
                     respuesta_api["Description"] = "No hubo comunicación con la API"
-                if respuesta_api["success"]:
+                if "success" in respuesta_api:
                     if respuesta_api["success"] == "1":
                         flash("Registro encontrado en Expediente Virtual", "success")
                         form.num_expediente.data = num_expediente
