@@ -100,6 +100,14 @@ Guarde sus configuraciones, contrasenas y tokens en un archivo `.env`
     RRHH_PERSONAL_API_USERNAME=
     RRHH_PERSONAL_API_PASSWORD=
 
+    # Expediente Virtual API
+    EXPEDIENTE_VIRTUAL_API_URL=
+    EXPEDIENTE_VIRTUAL_API_KEY=
+
+    # Pegaso API cosulta de SIBED
+    PEGASO_API_URL=
+    PEGASO_API_KEY=
+
     # Si esta en PRODUCTION se evita reiniciar la base de datos
     DEPLOYMENT_ENVIRONMENT=develop
 
@@ -137,6 +145,14 @@ Cree el archivo `.bashrc` para que un perfil de Konsole le facilite la inicializ
         echo "   SALT: ${SALT}"
         echo "   SECRET_KEY: ${SECRET_KEY}"
         echo "   TASK_QUEUE: ${TASK_QUEUE}"
+        echo
+        echo "   API's Variables"
+        echo "   - Expediente Virtual API -"
+        echo "   EXPEDIENTE_VIRTUAL_API_URL: ${EXPEDIENTE_VIRTUAL_API_URL}"
+        echo "   EXPEDIENTE_VIRTUAL_API_KEY: ${EXPEDIENTE_VIRTUAL_API_KEY}"
+        echo "   - Pegaso API cosulta de SIBED -"
+        echo "   PEGASO_API_URL: ${PEGASO_API_URL}"
+        echo "   PEGASO_API_KEY: ${PEGASO_API_KEY}"
         echo
         export PGHOST=$DB_HOST
         export PGPORT=$DB_PORT
