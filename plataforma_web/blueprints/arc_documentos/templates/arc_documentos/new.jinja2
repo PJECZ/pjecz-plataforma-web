@@ -7,31 +7,6 @@
 {% block custom_head %}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-    .select2-container .select2-selection--single {
-        height: 58px;
-        border: 1px solid #ced4da;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 64px;
-        font-size: 1rem;
-        margin-left: -10px;
-    }
-    .select2-selection--single {
-        display: block;
-        width: 100%;
-        padding: .375rem 2.25rem .375rem .75rem;
-        color: #212529;
-        background-color: #fff;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right .75rem center;
-        background-size: 16px 12px;
-    }
-    .select2-selection__arrow, .select2-selection__clear  {
-        visibility: hidden;
-    }
-    </style>
 {% endblock %}
 
 {% block topbar_actions %}
@@ -41,27 +16,27 @@
 {% block content %}
     {# Sección de búsqueda en Expendiente Virtual #}
     <div class="card mb-3 border-info">
-        <div class="card-header bg-info text-light" style="font-weight: bold;">Búsqueda en Expendiente Virtual o SIBED</div>
+        <div class="card-header bg-info text-light" style="font-weight: bold;">Búsqueda en Expendiente Virtual</div>
         <div class="card-body" style="background-color: #cff4fc;">
             <form class="row g-3" action="{{url_for('arc_documentos.search')}}" id="busqueda_form" method="POST" role="form">
                 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
-                <div class="form-floating mb-3 col-10">
+                <div class="form-floating mb-3 col-12">
                     <input type="text" class="form-control" id="num_expediente" name="num_expediente" value="{{num_expediente}}">
                     <label for="num_expediente_sige" class="form-label">Núm. Expediente (núm/año):</label>
                 </div>
-                <div class="col-2">
-                    <input class="btn btn-lg btn-primary" id="btn_buscar" name="btn_buscar" type="submit" value="Buscar">
-                </div>
                 {% if mostrar_secciones["select_juzgado"] %}
-                    <div class="col-10">
-                        <label for="juzgadoInput_buscar">Juzgado</label>
-                        <select id="juzgadoInput_buscar" name="juzgadoInput_buscar" style="text-transform: uppercase">
+                    <div class="col-12 form-floating">
+                        <select class="form-control js-select2-filter" id="juzgadoInput_buscar" name="juzgadoInput_buscar" style="text-transform: uppercase">
                         {% if mostrar_secciones["juzgado_id"] %}
                             <option value="{{mostrar_secciones['juzgado_id']}}" selected>{{mostrar_secciones["juzgado_nombre"]}}</option>
                         {% endif %}
                         </select>
+                        <label for="juzgadoInput_buscar">Juzgado</label>
                     </div>
                 {% endif %}
+                <div class="col-2">
+                    <input class="btn btn-lg btn-primary" id="btn_buscar" name="btn_buscar" type="submit" value="Buscar">
+                </div>
             </form>
         </div>
     </div>
@@ -99,8 +74,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            $('#juzgadoInput_buscar').addClass('js-example-placeholder-single js-states form-control');
-            $(".js-example-placeholder-single").select2({
+            $("#juzgadoInput_buscar").select2({
                 // --- Carga de emails por Ajax --- //
                 ajax: {
                     url: '/autoridades/juzgados_json',
@@ -120,8 +94,8 @@
     </script>
     <script>
         $(document).ready(function(){
-            $('#juzgado_id').addClass('js-example-placeholder-single js-states form-control');
-            $(".js-example-placeholder-single").select2({
+            $('#juzgado_id').addClass('js-example-placeholder-single');
+            $("#juzgado_id").select2({
                 // --- Carga de emails por Ajax --- //
                 ajax: {
                     url: '/autoridades/juzgados_json',

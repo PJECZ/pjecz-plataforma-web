@@ -131,3 +131,79 @@ body {
   float: right;
   margin-top: -46px;
 }
+
+/*
+ * Select2
+ */
+
+/* --- Select2 Bootstrap5 para filtros --- */
+
+.js-select2-filter + .select2-container .select2-selection--single {
+  height: 58px;
+  border: 1px solid #ced4da;
+}
+
+.js-select2-filter
+  + .select2-container--default
+  .select2-selection--single
+  .select2-selection__rendered {
+  line-height: 71px;
+  font-size: 1rem;
+  margin-left: -10px;
+}
+
+.js-select2-filter + .select2-selection--single {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  color: #212529;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+}
+
+.js-select2-filter + .select2-selection__arrow,
+.js-select2-filter + .select2-selection__clear {
+  visibility: hidden;
+}
+
+/* --- Select2 Bootstrap5 para formularios normales --- */
+
+.select2-container .select2-selection--single {
+  height: 39px;
+  border: 1px solid #ced4da;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__rendered {
+  line-height: 40px;
+  font-size: 1rem;
+  margin-left: -10px;
+}
+
+/*
+ * Badges new colors
+ */
+
+.bg-pink {
+  color: white;
+  background-color: var(--bs-pink);
+}
+
+.bg-purple {
+  color: white;
+  background-color: var(--bs-purple);
+}
+
+.bg-brown {
+  color: white;
+  background-color: #653208;
+}
+
+.bg-teal {
+  color: white;
+  background-color: var(--bs-teal);
+}
