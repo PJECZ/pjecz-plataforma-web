@@ -17,10 +17,59 @@ from pathlib import Path
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
-from SIBED_Documento_Model import SIBED_Documento
+from collections import OrderedDict
+from plataforma_web.extensions import db
+from lib.universal_mixin import UniversalMixin
 
-SIBED_JUZGADOS_CSV = "seed/SIBED_juzgados.csv"
-SIBED_CONFIG_ENV = "seed/sibed.env"
+
+# Archivos necesarios
+SIBED_JUZGADOS_CSV = "seed/SIBED_juzgados.csv"  # Contiene la relación de juzgados SIBED - Plataforma-Web
+SIBED_CONFIG_ENV = "seed/sibed.env"  # Contiene los datos de conexión a la BD de MySQL
+
+
+class SIBED_Documento(db.Model, UniversalMixin):
+    """Documento SIBED Modelo"""
+
+    TIPOS = OrderedDict(  # varchar(16)
+        [
+            ("NO DEFINIDO", "No Definido"),
+            ("CUADERNILLO", "Cuadernillo"),
+            ("ENCOMIENDA", "Encomienda"),
+            ("EXHORTO", "Exhorto"),
+            ("EXPEDIENTE", "Expediente"),
+            ("EXPEDIENTILLO", "Expedientillo"),
+            ("FOLIO", "Folio"),
+            ("LIBRO", "Libro"),
+        ]
+    )
+
+    # Nombre de la tabla
+    __tablename__ = "sibed_documentos"
+
+    # Clave primaria
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Columnas
+    actor = db.Column(db.String(256), nullable=False)
+    anio = db.Column(db.Integer, nullable=False)
+    demandado = db.Column(db.String(256))
+    expediente = db.Column(db.String(16), index=True, nullable=False)  # dígitos/YYYY-XXX
+    juicio = db.Column(db.String(128))
+    juzgado_id = db.Column(db.Integer, nullable=False)
+    juzgado_origen_id = db.Column(db.Integer)
+    fojas = db.Column(db.Integer, nullable=False)
+    observaciones = db.Column(db.String(256))
+    tipo = db.Column(
+        db.Enum(*TIPOS, name="tipos", native_enum=False),
+        index=True,
+        nullable=False,
+        default="NO DEFINIDO",
+        server_default="NO DEFINIDO",
+    )
+
+    def __repr__(self):
+        """Representación"""
+        return f"<Documento SIBED> {self.id}"
 
 
 def main():
@@ -51,7 +100,7 @@ def main():
     ENGINE_SIBED = os.getenv("ENGINE_SIBED", "")  # Ruta de conexión de la BD.
     engine = create_engine(ENGINE_SIBED)
 
-    # Leer los juzgados de empate
+    # Leer archivo de juzgados para relacionarlos con los existentes en Plataforma-Web
     juzgados_id = {}
     juzgados_origen_id = {}
     ruta = Path(SIBED_JUZGADOS_CSV)
@@ -226,6 +275,7 @@ def main():
             sum_errors += value
         bitacora.info(f"Total de registros insertados {count_insert} de {num_registros_total}, omitidos {sum_errors}:{count_error}")
         print(f"Total de registros insertados {count_insert} de {num_registros_total}")
+        # Añade un reporte final de los errores ocurridos
         if sum_errors == 0:
             bitacora.info("¡¡¡Sin Errores!!!")
             print("¡¡¡Sin Errores!!!")
@@ -235,4 +285,5 @@ def main():
 
 
 if __name__ == "__main__":
+    """Ejecución del programa"""
     main()
