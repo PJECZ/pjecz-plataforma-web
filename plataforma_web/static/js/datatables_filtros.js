@@ -49,8 +49,18 @@ class Filtros {
 
     this.limpiar = function () {
       // Elimina todos los valore enviados
-      for (let i = 0; i < this.inputs.length; i++)
+      for (let i = 0; i < this.inputs.length; i++) {
         delete this.configDataTable["ajax"]["data"][this.inputs[i].data_name];
+        // Si es tipo select elimina la option seleccionada.
+        if (this.inputs[i].object.nodeName == 'SELECT' && this.inputs[i].object.classList.contains('js-select2-filter')) {
+          this.inputs[i].object.textContent = '';
+          this.inputs[i].object.options[0] = null;
+        }
+      }
+
+      // Destruir option en caso de ser un input select
+      /*document.getElementById('juzgadoInput_remesa').textContent = '';
+      document.getElementById('juzgadoInput_remesa').options[0] = null;*/
 
       // Actualiza los resultados en el DataTable
       $(this.dataTable).DataTable().destroy();
