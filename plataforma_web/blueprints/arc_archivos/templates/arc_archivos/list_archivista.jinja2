@@ -7,47 +7,7 @@
 {% block custom_head %}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-    .bg-pink {
-        color: white;
-        background-color: #d63384;
-    }
-    .bg-purple {
-        color: white;
-        background-color: #6f42c1;
-    }
-    .bg-brown {
-        color: white;
-        background-color: #653208;
-    }
-    .bg-teal {
-        color: white;
-        background-color: var(--bs-teal);
-    }
-    .select2-container .select2-selection--single {
-        height: 58px;
-        border: 1px solid #ced4da;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 64px;
-        font-size: 1rem;
-        margin-left: -10px;
-    }
-    .select2-selection--single {
-        display: block;
-        width: 100%;
-        padding: .375rem 2.25rem .375rem .75rem;
-        color: #212529;
-        background-color: #fff;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right .75rem center;
-        background-size: 16px 12px;
-    }
-    .select2-selection__arrow, .select2-selection__clear  {
-        visibility: hidden;
-    }
-    </style>
+    <link href="https://storage.googleapis.com/pjecz-informatica/static/css/select2.css" rel="stylesheet" />
 {% endblock %}
 
 {% block topbar_actions %}
@@ -68,28 +28,28 @@
         <!-- Formulario de filtros Solicitudes -->
         <div class="row">
             <div class="col">
-                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar_solicitud(); return false;" autocomplete="off">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_solicitudes.buscar(); return false;" autocomplete="off">
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="idInput_solicitud" type="text" class="form-control" aria-label="ID" onchange="buscar_solicitud(); return false;">
+                            <input id="idInput_solicitud" type="text" class="form-control" aria-label="ID" onchange="filtros_solicitudes.buscar(); return false;">
                             <label for="idInput_solicitud">ID</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select id="juzgadoInput_solicitud" onchange="buscar_solicitud(); return false;" style="text-transform: uppercase"></select>
+                            <select id="juzgadoInput_solicitud" class="form-control js-select2-filter" onchange="filtros_solicitudes.buscar(); return false;" style="text-transform: uppercase"></select>
                             <label for="juzgadoInput_solicitud">Juzgado</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="documentoInput_solicitud" type="text" class="form-control" aria-label="Documento" onchange="buscar_solicitud(); return false;">
-                            <label for="documentoInput_solicitud">Documento</label>
+                            <input id="documentoInput_solicitud" type="text" class="form-control" aria-label="Documento" onchange="filtros_solicitudes.buscar(); return false;">
+                            <label for="documentoInput_solicitud">Expediente</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <select class="form-select" id="estadoSelect_solicitud" name="estadoSelect_solicitud" aria-label="Estado" onchange="buscar_solicitud(); return false;" style="flex: inherit;">
+                            <select class="form-select" id="estadoSelect_solicitud" name="estadoSelect_solicitud" aria-label="Estado" onchange="filtros_solicitudes.buscar(); return false;" style="flex: inherit;">
                                 <option selected value=""></option>
                                 {% for estado in estados_solicitudes %}
                                     <option value="{{estado}}">{{estado}}</option>
@@ -99,8 +59,8 @@
                         </div>
                     </div>
                     <div class="col-2 text-end">
-                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar_solicitud(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
-                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar_solicitud();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_solicitudes.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_solicitudes.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
                 </form>
             </div>
@@ -125,34 +85,34 @@
         <!-- Formulario de filtros REMESA -->
         <div class="row">
             <div class="col">
-                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar_remesa(); return false;" autocomplete="off">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_remesas.buscar(); return false;" autocomplete="off">
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="idInput_remesa" type="text" class="form-control" onchange="buscar_remesa(); return false;">
+                            <input id="idInput_remesa" type="text" class="form-control" onchange="filtros_remesas.buscar(); return false;">
                             <label for="idInput_remesa">ID</label>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-floating">
-                            <select id="juzgadoInput_remesa" onchange="buscar_remesa(); return false;" style="text-transform: uppercase"></select>
+                            <select id="juzgadoInput_remesa" class="form-control js-select2-filter" onchange="filtros_remesas.buscar(); return false;" style="text-transform: uppercase"></select>
                             <label for="juzgadoInput_remesa">Juzgado</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="anioInput_remesa" type="text" class="form-control" onchange="buscar_remesa(); return false;">
+                            <input id="anioInput_remesa" type="text" class="form-control" onchange="filtros_remesas.buscar(); return false;">
                             <label for="anioInput_remesa">Año</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="numOficioInput_remesa" type="text" class="form-control" onchange="buscar_remesa(); return false;">
+                            <input id="numOficioInput_remesa" type="text" class="form-control" onchange="filtros_remesas.buscar(); return false;">
                             <label for="numOficioInput_remesa">Núm. Oficio</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select class="form-select" id="tipoDocumentoSelect_remesa" name="tipoDocumentoSelect_remesa" onchange="buscar_remesa(); return false;" style="flex: inherit;">
+                            <select class="form-select" id="tipoDocumentoSelect_remesa" name="tipoDocumentoSelect_remesa" onchange="filtros_remesas.buscar(); return false;" style="flex: inherit;">
                                 <option selected value=""></option>
                                 {% for tipo_documento in tipos_documentos_remesas %}
                                     <option value="{{tipo_documento}}">{{tipo_documento}}</option>
@@ -163,7 +123,7 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select class="form-select" id="estadoSelect_remesa" name="estadoSelect_remesa" aria-label="Estado" onchange="buscar_remesa(); return false;" style="flex: inherit;">
+                            <select class="form-select" id="estadoSelect_remesa" name="estadoSelect_remesa" aria-label="Estado" onchange="filtros_remesas.buscar(); return false;" style="flex: inherit;">
                                 <option selected value=""></option>
                                 {% for estado in estados_remesas %}
                                     <option value="{{estado}}">{{estado}}</option>
@@ -173,8 +133,8 @@
                         </div>
                     </div>
                     <div class="col-4 text-end">
-                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar_remesa(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
-                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar_remesa();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_remesas.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_remesas.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
                 </form>
             </div>
@@ -199,62 +159,69 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    <!-- Importación de los fitlros para dataTable -->
+    <script src="/static/js/datatables_filtros.js"></script>
     <script>
-        configDataTable['ajax']['url'] = '/arc_solicitudes/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros_solicitudes }};
-        configDataTable['columns'] = [
+        const dataTable_funcs_solicitudes = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_solicitudes = dataTable_funcs_solicitudes.config;
+        configDataTable_solicitudes['ajax']['url'] = '/arc_solicitudes/datatable_json';
+        configDataTable_solicitudes['ajax']['data'] = {{ filtros_solicitudes }};
+        configDataTable_solicitudes['columns'] = [
             { data: 'solicitud' },
             { data: 'tiempo' },
             { data: 'juzgado' },
             { data: 'documento' },
             { data: 'estado' }
         ];
-        configDataTable['columnDefs'] = [
+        configDataTable_solicitudes['columnDefs'] = [
             {
                 targets: 0, // id
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                    return dataTable_funcs_solicitudes.texto_con_url(data.id, data.url);
                 }
             },
             {
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    return dataTable_funcs_solicitudes.texto_tiempo(data, moment, "YYYY-MM-DD HH:mm:ss");
                 }
             },
             {
                 targets: 2, // juzgado
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<span title="' + data.nombre + '"><a href="' + data.url + '">' + data.clave + '</span></a>';
+                    return dataTable_funcs_solicitudes.texto_con_url(data.clave, data.url, data.nombre);
                 }
             },
             {
                 targets: 3, // documento
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.expediente + '</a>';
+                    return dataTable_funcs_solicitudes.texto_con_url(data.expediente, data.url);
                 }
             },
             {
                 targets: 4, // estado
                 data: null,
                 render: function(data, type, row, meta) {
+                    let bgcolor = "bg-dark";
                     switch (data)    {
-                        case "ASIGNADO":        return '<span class="badge rounded-pill bg-warning text-dark">PENDIENTE</span>';   break;
-                        case "ENCONTRADO":      return '<span class="badge rounded-pill bg-purple">ENCONTRADO</span>';   break;
-                        case "NO ENCONTRADO":   return '<span class="badge rounded-pill bg-danger">NO ENCONTRADO</span>';   break;
-                        case "ENVIANDO":        return '<span class="badge rounded-pill bg-pink">ENVIANDO</span>';   break;
-                        case "ENTREGADO":       return '<span class="badge rounded-pill bg-success">ENTREGADO</span>';   break;
+                        case "SOLICITADO":      bgcolor = 'bg-warning text-dark';   break;
+                        case "ASIGNADO":        bgcolor = 'bg-primary';             break;
+                        case "ENCONTRADO":      bgcolor = 'bg-purple';              break;
+                        case "NO ENCONTRADO":   bgcolor = 'bg-danger';              break;
+                        case "ENVIANDO":        bgcolor = 'bg-pink';                break;
+                        case "ENTREGADO":       bgcolor = 'bg-success';             break;
                     }
-                    return data;
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
                 }
-            }
+            },
         ];
-        configDataTable['rowCallback'] = function(row, data) {
+        configDataTable_solicitudes['rowCallback'] = function(row, data) {
             switch (data.estado)    {
                 case "ASIGNADO":        $(row).css("background-color", "#fef9e7");  break;
                 case "ENCONTRADO":      $(row).css("background-color", "#f5eef8");  break;
@@ -264,120 +231,24 @@
             }
         };
 
-        // Búsqueda
-        let id = document.getElementById('idInput_solicitud').value;
-        let documento = document.getElementById('documentoInput_solicitud').value;
-        let juzgado_id = document.getElementById('juzgadoInput_solicitud').value;
-        let estado = document.getElementById('estadoSelect_solicitud').value;
-
-        if(id != '')
-            configDataTable['ajax']['data']['solicitud_id'] = id;
-        if(documento != '')
-            configDataTable['ajax']['data']['expediente'] = documento;
-        if(juzgado_id == '')
-            delete configDataTable['ajax']['data']['juzgado_id'];
-        else
-            configDataTable['ajax']['data']['juzgado_id'] = juzgado_id;
-        if(estado != '')
-            configDataTable['ajax']['data']['estado'] = estado;
-
-        // Datatable
-        $('#arc_solicitudes_datatable').DataTable(configDataTable);
-    </script>
-    <!-- Función de buscador -->
-    <script type="text/javascript">
-        function buscar_solicitud() {
-            let id = document.getElementById('idInput_solicitud').value;
-            let documento = document.getElementById('documentoInput_solicitud').value;
-            let juzgado_id = document.getElementById('juzgadoInput_solicitud').value;
-            let estado = document.getElementById('estadoSelect_solicitud').value;
-
-            if( configDataTable['ajax']['data']['solicitud_id'] === undefined && id === '' &&
-                configDataTable['ajax']['data']['expediente'] === undefined && documento === '' &&
-                configDataTable['ajax']['data']['juzgado_id'] === undefined && juzgado_id === '' &&
-                configDataTable['ajax']['data']['estado'] === undefined && estado === ''
-            ) return false;
-
-            $('#arc_solicitudes_datatable').DataTable().destroy();
-
-            if(id == '')
-                delete configDataTable['ajax']['data']['solicitud_id'];
-            else
-                configDataTable['ajax']['data']['solicitud_id'] = id;
-            if(documento == '')
-                delete configDataTable['ajax']['data']['expediente'];
-            else
-                configDataTable['ajax']['data']['expediente'] = documento;
-            if(juzgado_id == '')
-                delete configDataTable['ajax']['data']['juzgado_id'];
-            else
-                configDataTable['ajax']['data']['juzgado_id'] = juzgado_id;
-            if(estado == '')
-                delete configDataTable['ajax']['data']['estado'];
-            else
-                configDataTable['ajax']['data']['estado'] = estado;
-
-            $('#arc_solicitudes_datatable').DataTable(configDataTable);
-        };
-
-        function limpiar_solicitud()  {
-            if( configDataTable['ajax']['data']['solicitud_id'] === undefined &&
-                configDataTable['ajax']['data']['expediente'] === undefined &&
-                configDataTable['ajax']['data']['juzgado_id'] === undefined &&
-                configDataTable['ajax']['data']['asignado_id'] === undefined &&
-                configDataTable['ajax']['data']['estado'] === undefined
-            ) return false;
-            
-            delete configDataTable['ajax']['data']['solicitud_id'];
-            delete configDataTable['ajax']['data']['expediente'];
-            delete configDataTable['ajax']['data']['juzgado_id'];
-            delete configDataTable['ajax']['data']['estado'];
-
-            document.getElementById('juzgadoInput_solicitud').textContent = '';
-            document.getElementById('juzgadoInput_solicitud').options[0] = null;
-
-            $('#arc_solicitudes_datatable').DataTable().destroy();
-            $('#arc_solicitudes_datatable').DataTable(configDataTable);
-        };
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_solicitudes = new Filtros('#arc_solicitudes_datatable', configDataTable_solicitudes);
+        // Añadimos los difrentes inputs utilizados
+        filtros_solicitudes.add_input('idInput_solicitud', 'solicitud_id');
+        filtros_solicitudes.add_input('documentoInput_solicitud', 'expediente');
+        filtros_solicitudes.add_input('juzgadoInput_solicitud', 'juzgado_id');
+        filtros_solicitudes.add_input('estadoSelect_solicitud', 'estado');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_solicitudes.precarga();
     </script>
     <!-- DataTable para Remesas -->
     <script>
-        let configDataTable_2 = {
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: null,
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: null
-            },
-            columns: null,
-            columnDefs: null,
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
-        };
-        // ---
-        configDataTable_2['ajax']['url'] = '/arc_remesas/datatable_json';
-        configDataTable_2['ajax']['data'] = {{ filtros_remesas }};
-        configDataTable_2['columns'] = [
+        const dataTable_funcs_remesas = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_remesas = dataTable_funcs_remesas.config;
+        configDataTable_remesas['ajax']['url'] = '/arc_remesas/datatable_json';
+        configDataTable_remesas['ajax']['data'] = {{ filtros_remesas }};
+        configDataTable_remesas['columns'] = [
             { data: 'remesa' },
             { data: 'tiempo' },
             { data: 'juzgado' },
@@ -387,26 +258,26 @@
             { data: 'num_docs' },
             { data: 'estado' }
         ];
-        configDataTable_2['columnDefs'] = [
+        configDataTable_remesas['columnDefs'] = [
             {
                 targets: 0, // id
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                    return dataTable_funcs_remesas.texto_con_url(data.id, data.url);
                 }
             },
             {
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    return dataTable_funcs_remesas.texto_tiempo(data, moment, "YYYY-MM-DD HH:mm:ss");
                 }
             },
             {
                 targets: 2, // juzgado
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + data.clave + '</span></a>';
+                    return dataTable_funcs_remesas.texto_con_url(data.clave, data.url, data.nombre);
                 }
             },
             {
@@ -428,7 +299,7 @@
                 }
             }
         ];
-        configDataTable_2['rowCallback'] = function(row, data) {
+        configDataTable_remesas['rowCallback'] = function(row, data) {
             switch (data.estado)    {
                 case "PENDIENTE":       $(row).css("background-color", "#fef9e7");  break;
                 case "CANCELADO":       $(row).css("background-color", "#eeeeee");  break;
@@ -441,101 +312,20 @@
             }
         };
 
-        // Búsqueda
-        let id_remesa = document.getElementById('idInput_remesa').value;
-        let anio = document.getElementById('anioInput_remesa').value;
-        let tipo_documento = document.getElementById('tipoDocumentoSelect_remesa').value;
-        let num_oficio = document.getElementById('numOficioInput_remesa').value;
-        let juzgado_id_remesa = document.getElementById('juzgadoInput_remesa').value;
-        let estado_remesa = document.getElementById('estadoSelect_remesa').value;
-
-        if(id_remesa != '')
-            configDataTable_2['ajax']['data']['remesa_id'] = id_remesa;
-        if(anio != '')
-            configDataTable_2['ajax']['data']['anio'] = anio;
-        if(tipo_documento != '')
-            configDataTable_2['ajax']['data']['tipo_documento'] = tipo_documento;
-        if(num_oficio != '')
-            configDataTable_2['ajax']['data']['num_oficio'] = num_oficio;
-        if(juzgado_id_remesa != '')
-            configDataTable_2['ajax']['data']['juzgado_id'] = juzgado_id_remesa;
-        if(estado_remesa != '')
-            configDataTable_2['ajax']['data']['estado'] = estado_remesa;
-
-        // Datatable
-        $('#arc_remesas_datatable').DataTable(configDataTable_2);
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_remesas = new Filtros('#arc_remesas_datatable', configDataTable_remesas);
+        // Añadimos los difrentes inputs utilizados
+        filtros_remesas.add_input('idInput_remesa', 'remesa_id');
+        filtros_remesas.add_input('anioInput_remesa', 'anio');
+        filtros_remesas.add_input('tipoDocumentoSelect_remesa', 'tipo_documento');
+        filtros_remesas.add_input('numOficioInput_remesa', 'num_oficio');
+        filtros_remesas.add_input('juzgadoInput_remesa', 'juzgado_id');
+        filtros_remesas.add_input('estadoSelect_remesa', 'estado');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_remesas.precarga();
     </script>
-    <!-- Función de buscador remesas -->
-    <script type="text/javascript">
-        function buscar_remesa() {
-            let id = document.getElementById('idInput_remesa').value;
-            let anio = document.getElementById('anioInput_remesa').value;
-            let tipo_documento = document.getElementById('tipoDocumentoSelect_remesa').value;
-            let num_oficio = document.getElementById('numOficioInput_remesa').value;
-            let juzgado_id_remesa = document.getElementById('juzgadoInput_remesa').value;
-            let estado_remesa = document.getElementById('estadoSelect_remesa').value;
 
-            if( configDataTable_2['ajax']['data']['remesa_id'] === undefined && id === '' &&
-                configDataTable_2['ajax']['data']['anio'] === undefined && anio === '' &&
-                configDataTable_2['ajax']['data']['tipo_documento'] === undefined && tipo_documento === '' &&
-                configDataTable_2['ajax']['data']['num_oficio'] === undefined && num_oficio === '' &&
-                configDataTable_2['ajax']['data']['juzgado_id'] === undefined && juzgado_id_remesa === '' &&
-                configDataTable_2['ajax']['data']['estado'] === undefined && estado_remesa === ''
-            ) return false;
-
-            $('#arc_remesas_datatable').DataTable().destroy();
-
-            if(id == '')
-                delete configDataTable_2['ajax']['data']['remesa_id'];
-            else
-                configDataTable_2['ajax']['data']['remesa_id'] = id;
-            if(anio == '')
-                delete configDataTable_2['ajax']['data']['anio'];
-            else
-                configDataTable_2['ajax']['data']['anio'] = anio;
-            if(tipo_documento == '')
-                delete configDataTable_2['ajax']['data']['tipo_documento'];
-            else
-                configDataTable_2['ajax']['data']['tipo_documento'] = tipo_documento;
-            if(num_oficio == '')
-                delete configDataTable_2['ajax']['data']['num_oficio'];
-            else
-                configDataTable_2['ajax']['data']['num_oficio'] = num_oficio;
-            if(juzgado_id_remesa == '')
-                delete configDataTable_2['ajax']['data']['juzgado_id'];
-            else
-                configDataTable_2['ajax']['data']['juzgado_id'] = juzgado_id_remesa;
-            if(estado_remesa == '')
-                delete configDataTable_2['ajax']['data']['estado'];
-            else
-                configDataTable_2['ajax']['data']['estado'] = estado_remesa;
-
-            $('#arc_remesas_datatable').DataTable(configDataTable_2);
-        };
-
-        function limpiar_remesa()  {
-            if( configDataTable_2['ajax']['data']['remesa_id'] === undefined &&
-                configDataTable_2['ajax']['data']['anio'] === undefined &&
-                configDataTable_2['ajax']['data']['tipo_documento'] === undefined &&
-                configDataTable_2['ajax']['data']['num_oficio'] === undefined &&
-                configDataTable_2['ajax']['data']['juzgado_id'] === undefined &&
-                configDataTable_2['ajax']['data']['estado'] === undefined
-            ) return false;
-            
-            delete configDataTable_2['ajax']['data']['remesa_id'];
-            delete configDataTable_2['ajax']['data']['anio'];
-            delete configDataTable_2['ajax']['data']['tipo_documento'];
-            delete configDataTable_2['ajax']['data']['num_oficio'];
-            delete configDataTable_2['ajax']['data']['juzgado_id'];
-            delete configDataTable_2['ajax']['data']['estado'];
-
-            document.getElementById('juzgadoInput_remesa').textContent = '';
-            document.getElementById('juzgadoInput_remesa').options[0] = null;
-
-            $('#arc_remesas_datatable').DataTable().destroy();
-            $('#arc_remesas_datatable').DataTable(configDataTable_2);
-        };
-    </script>
     <!-- Mostar historial -->
     {% if mostrando_historial %}
     <script>
