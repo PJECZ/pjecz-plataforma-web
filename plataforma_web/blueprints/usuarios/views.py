@@ -135,6 +135,7 @@ def profile():
 @permission_required(MODULO, Permiso.VER)
 def list_active():
     """Listado de Usuarios activos"""
+    # función en librería para procesar los parámetros extra como nombre de campo y valor a buscar
     filtros = post_buscar_to_filtros()
 
     return render_template(
@@ -575,19 +576,23 @@ def toggle_menu(tipo_menu):
 def global_search():
     """Barra de Búsqueda del Sistema"""
 
-    texto_buscar = ""
-    modulo = ""
-    valor_id = None
+    # Variables para hacer la búsqueda
+    texto_buscar = ""  # Texto escrito en el input
+    modulo = ""  # Nombre del módulo indicado
+    valor_id = None  # Valor a buscar
 
-    # Establecer los parámetros de búsqueda
+    # Establecer los parámetros de búsqueda: módulo + [campo] + [valor]
     if "texto_buscar" in request.form:
         texto_buscar = request.form["texto_buscar"]
+        # Si hay más de una palabra en el texto de búsqueda, leer cada palabra
         if " " in texto_buscar:
-            texto_buscar = texto_buscar.split(" ")
-            if len(texto_buscar) > 0:
-                modulo = texto_buscar[0].lower()
-            if len(texto_buscar) == 2:
-                valor_id = texto_buscar[1]
+            palabras = texto_buscar.split(" ")
+            if len(palabras) > 0:
+                modulo = palabras[0].lower()
+            # Si solo hay dos palabras se cree que son el nombre del módulo y el valor del id a buscar.
+            if len(palabras) == 2:
+                valor_id = palabras[1]
+        # Si solo hay una palabra en el texto de búsqueda, se busca el nombre del módulo
         else:
             modulo = texto_buscar.lower()
 
@@ -595,18 +600,24 @@ def global_search():
     if modulo != "":
         url = modulo.lower() + ".list_active"
         try:
+            # Para poder buscar dentro del módulo, es necesario que el módulo reciba peticiones POST y procese el filtro de parámetros enviado con la función `post_buscar_to_filtros()`
             if modulo == "usuarios":  # TODO: Este if es para pruebas, una vez añadido la función `post_buscar_to_filtros()` en list_active() se quitará
+                # Si contiene un valor a buscar se lo pasa como parámetro al módulo
                 if valor_id:
                     redirect_resp = redirect("/" + modulo + "/" + valor_id)
                 else:
                     redirect_resp = redirect(url_for(url), code=307)
             else:
+                # Si contiene un valor a buscar se lo pasa como parámetro al módulo
                 if valor_id:
                     redirect_resp = redirect("/" + modulo + "/" + valor_id)
+                # Si solo se conoce el nombre del módulo, se redirecciona a él.
                 else:
                     redirect_resp = redirect(url_for(url))
+            # Se redirecciona al módulo deseado
             return redirect_resp
         except Exception:
+            # Si no hay coincidencia con el módulo indicado, se muestra una hoja de ayuda
             flash("Módulo no encontrado", "warning")
 
     return render_template(
