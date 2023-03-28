@@ -159,3 +159,27 @@ body {
   float: right;
   margin-top: -46px;
 }
+
+/*
+ * Badges new colors
+ */
+
+.bg-pink {
+  color: white;
+  background-color: var(--bs-pink);
+}
+
+.bg-purple {
+  color: white;
+  background-color: var(--bs-purple);
+}
+
+.bg-brown {
+  color: white;
+  background-color: #653208;
+}
+
+.bg-teal {
+  color: white;
+  background-color: var(--bs-teal);
+}

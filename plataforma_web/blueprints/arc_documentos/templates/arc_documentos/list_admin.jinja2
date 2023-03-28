@@ -7,31 +7,7 @@
 {% block custom_head %}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-    .select2-container .select2-selection--single {
-        height: 58px;
-        border: 1px solid #ced4da;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 64px;
-        font-size: 1rem;
-        margin-left: -10px;
-    }
-    .select2-selection--single {
-        display: block;
-        width: 100%;
-        padding: .375rem 2.25rem .375rem .75rem;
-        color: #212529;
-        background-color: #fff;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right .75rem center;
-        background-size: 16px 12px;
-    }
-    .select2-selection__arrow, .select2-selection__clear  {
-        visibility: hidden;
-    }
-    </style>
+    <link href="https://storage.googleapis.com/pjecz-informatica/static/css/select2.css" rel="stylesheet" />
 {% endblock %}
 
 {% block topbar_actions %}
@@ -59,7 +35,7 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select id="juzgadoInput" onchange="buscar(); return false;" style="text-transform: uppercase"></select>
+                            <select id="juzgadoInput" class="form-control js-select2-filter" onchange="buscar(); return false;" style="text-transform: uppercase"></select>
                             <label for="juzgadoInput">Juzgado</label>
                         </div>
                     </div>
@@ -259,7 +235,6 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            $('#juzgadoInput').addClass('js-data-example-ajax form-control');
             $('#juzgadoInput').select2({
                 // --- Carga de juzgados por Ajax --- //
                 ajax: {
