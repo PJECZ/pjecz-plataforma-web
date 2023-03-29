@@ -622,7 +622,7 @@ def global_search():
             # Se redirecciona al módulo deseado
             return redirect_resp
         except Exception:
-            flash("Módulo no encontrado", "warning")
+            flash("Su búsqueda no arrojo ningún resultado. A continuación le muestro cómo utilizar está función", "danger")
 
     # Cuando la búsqueda falla. No es redirigida a ningún módulo y muestra está ayuda.
     return render_template(
