@@ -10,6 +10,18 @@
 
 {% block content %}
     {% call list.card() %}
+    <p class="alert alert-danger">Su búsqueda no arrojo ningún resultado. A continuación le muestro cómo utilizar está función:</p>
+    <h6>Instrucciones:</h6>
+    <p>Escriba el nombre del <span style="color: green; font-weight: bold;">módulo</span> que quiere utilizar. Después añada el ID que desea acceder. Si lo que quiere es acceder a un valor de campo especifico, después del nombre del módulo añada el nombre del <span style="color: navy; font-weight: bold;">campo</span> y finalmente el <span style="color: maroon; font-weight: bold;">valor</span> a búscar.</p>
+    
+    <div class="mb-3" style="background-color:#eeeeee; padding:1rem;">
+        <code class="color:black;">
+            <span style="color: green; font-weight: bold;">Módulo</span> ID<br/>
+            ó<br/>
+            <span style="color: green; font-weight: bold;">Módulo</span> <span style="color: navy; font-weight: bold;">Campo</span> <span style="color: maroon; font-weight: bold;">Valor</span>
+        </code>
+    </div>
+
     <h6 class="text-center">Buscando: {{ params }}</h6>
     <p class="text-center">
         <span style="color: green;">{{ modulo }}</span>
