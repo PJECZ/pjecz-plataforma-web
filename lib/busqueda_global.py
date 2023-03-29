@@ -2,16 +2,17 @@
 Función para Búsqueda Global
 """
 from flask import request
+from lib.safe_string import safe_message
 
 
-def post_buscar_to_filtros(campo_defecto="id"):
+def post_buscar_to_filtros(campo_defecto: str = "id") -> dict:
     """Procesa el post de búsqueda global y lo entrega como un dict de filtros"""
     campo = ""  # Nombre del campo en el cual se quiere buscar
     valor = ""  # Valor que se quiere buscar
 
     # Procesamiento del texto a buscar
     if "texto_buscar" in request.form:
-        texto_buscar = request.form["texto_buscar"]
+        texto_buscar = safe_message(request.form["texto_buscar"])
         if " " in texto_buscar:
             params = texto_buscar.split(" ")
             if len(params) > 1:

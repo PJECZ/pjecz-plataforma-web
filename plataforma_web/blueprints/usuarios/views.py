@@ -564,6 +564,7 @@ def recover(usuario_id):
 def toggle_menu(tipo_menu):
     """Toggle Menú Bar Navigation"""
 
+    # Se utiliza la una variable de Session provista por Flask para guardar el estado del menú lateral.
     if tipo_menu == 0:
         session["tipo_menu"] = "colapsado"
     else:
@@ -583,7 +584,7 @@ def global_search():
 
     # Establecer los parámetros de búsqueda: módulo + [campo] + [valor]
     if "texto_buscar" in request.form:
-        texto_buscar = request.form["texto_buscar"]
+        texto_buscar = safe_message(request.form["texto_buscar"])
         # Si hay más de una palabra en el texto de búsqueda, leer cada palabra
         if " " in texto_buscar:
             palabras = texto_buscar.split(" ")
@@ -598,6 +599,10 @@ def global_search():
 
     # Definir el módulo
     if modulo != "":
+        # Buscamos si el nombre del módulo se parece al nombre corto dado en el menú. De ser así preferimos ese como nombre del módulo.
+        consulta_modulo = Modulo.query.filter(Modulo.nombre_corto.ilike("%" + modulo + "%")).filter_by(estatus="A").first()
+        if consulta_modulo:
+            modulo = consulta_modulo.ruta[1:]
         url = modulo.lower() + ".list_active"
         try:
             # Para poder buscar dentro del módulo, es necesario que el módulo reciba peticiones POST y procese el filtro de parámetros enviado con la función `post_buscar_to_filtros()`
@@ -617,9 +622,9 @@ def global_search():
             # Se redirecciona al módulo deseado
             return redirect_resp
         except Exception:
-            # Si no hay coincidencia con el módulo indicado, se muestra una hoja de ayuda
             flash("Módulo no encontrado", "warning")
 
+    # Cuando la búsqueda falla. No es redirigida a ningún módulo y muestra está ayuda.
     return render_template(
         "usuarios/global_search.jinja2",
         params=texto_buscar,

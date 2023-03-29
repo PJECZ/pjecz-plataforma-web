@@ -110,8 +110,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     @property
     def modulos_favoritos_menu_principal(self):
         """Entrega el listado con los modulos favoritos ordenados para el menu principal"""
-        # Se necesita definir los módulos a los cuales tiene acceso antes de definir los favoritos
-        self.modulos_menu_principal
+        self.modulos_menu_principal  # Se necesita definir los módulos a los cuales tiene acceso antes de definir los favoritos
         return self.modulos_favoritos_menu_principal_consultados
 
     @property
