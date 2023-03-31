@@ -31,7 +31,7 @@ HUSO_HORARIO = "America/Mexico_City"
 MODULO = "LISTAS DE ACUERDOS"
 SUBDIRECTORIO = "Listas de Acuerdos"
 LIMITE_DIAS = 30  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
-LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
+LIMITE_ADMINISTRADORES_DIAS = 730  # Administradores pueden manipular dos anios
 ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("JUZGADO DE PRIMERA INSTANCIA ORAL", "PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
 
 
