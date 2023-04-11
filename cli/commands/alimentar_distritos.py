@@ -29,6 +29,7 @@ def alimentar_distritos():
                 click.echo(f"  AVISO: distrito_id {distrito_id} no es consecutivo")
                 continue
             Distrito(
+                clave=row["clave"],
                 nombre=row["nombre"],
                 nombre_corto=row["nombre_corto"],
                 es_distrito_judicial=(row["es_distrito_judicial"] == "1"),

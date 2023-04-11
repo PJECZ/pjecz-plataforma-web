@@ -22,6 +22,7 @@ def respaldar_distritos(salida: str = "distritos.csv"):
         respaldo.writerow(
             [
                 "distrito_id",
+                "clave",
                 "nombre",
                 "nombre_corto",
                 "es_distrito_judicial",
@@ -32,6 +33,7 @@ def respaldar_distritos(salida: str = "distritos.csv"):
             respaldo.writerow(
                 [
                     distrito.id,
+                    distrito.clave,
                     distrito.nombre,
                     distrito.nombre_corto,
                     int(distrito.es_distrito_judicial),
