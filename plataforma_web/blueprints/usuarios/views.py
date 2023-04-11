@@ -121,7 +121,7 @@ def profile():
     """Mostrar el Perfil"""
     ahora_utc = datetime.now(timezone("UTC"))
     ahora_mx_coah = ahora_utc.astimezone(timezone("America/Mexico_City"))
-    formato_fecha = "%Y-%m-%d"
+    formato_fecha = "%Y-%m-%d %H:%M %p"
     return render_template(
         "usuarios/profile.jinja2",
         ahora_utc_str=ahora_utc.strftime(formato_fecha),
