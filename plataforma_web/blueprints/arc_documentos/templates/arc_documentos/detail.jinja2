@@ -8,45 +8,7 @@
 {% block custom_head %}
     <!-- Select2 bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-    .select2-container .select2-selection--single {
-        height: 58px;
-        border: 1px solid #ced4da;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 64px;
-        font-size: 1rem;
-        margin-left: -10px;
-    }
-    .select2-selection--single {
-        display: block;
-        width: 100%;
-        padding: .375rem 2.25rem .375rem .75rem;
-        color: #212529;
-        background-color: #fff;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right .75rem center;
-        background-size: 16px 12px;
-    }
-    .select2-selection__arrow   {
-        visibility: hidden;
-    }
-    </style>
-    <style>
-    .bg-pink {
-        color: white;
-        background-color: var(--bs-pink); /*#d63384;*/
-    }
-    .bg-purple {
-        color: white;
-        background-color: var(--bs-purple); /*#6f42c1;*/
-    }
-    .bg-brown {
-        color: white;
-        background-color: #653208;
-    }
-    </style>
+    <link href="https://storage.googleapis.com/pjecz-informatica/static/css/select2.css" rel="stylesheet" />
 {% endblock %}
 
 {% block topbar_actions %}
@@ -55,10 +17,8 @@
         {{ topbar.button_previous('Expedientes', url_for('arc_documentos.list_active')) }}
         {% if mostrar_secciones['boton_editar'] %}
             {{ topbar.button_edit('Editar', url_for('arc_documentos.edit', arc_documento_id=documento.id)) }}
-            {# {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
-            {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}{% endif %} #}
         {% endif %}
-        {% if current_user.can_insert('ARC SOLICITUDES') and documento.ubicacion == 'ARCHIVO' %}
+        {% if mostrar_secciones['boton_solicitar'] %}
             {{ topbar.button_new('Solicitar', url_for('arc_solicitudes.new', documento_id=documento.id)) }}
         {% endif %}
         {% if current_user.can_insert('ARC SOLICITUDES') and documento.ubicacion == 'JUZGADO' %}
@@ -105,22 +65,22 @@
         <!-- Formulario de filtros -->
         <div class="row">
             <div class="col">
-                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_bitacoras.buscar(); return false;">
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="fechaDesdeInput" type="date" class="form-control" aria-label="desde" aria-describedby="button-buscar" onchange="buscar(); return false;">
+                            <input id="fechaDesdeInput" type="date" class="form-control" aria-label="desde" aria-describedby="button-buscar" onchange="filtros_bitacoras.buscar(); return false;">
                             <label for="fechaDesdeInput">Fecha Desde</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="fechaHastaInput" type="date" class="form-control" aria-label="hasta" aria-describedby="button-buscar" onchange="buscar(); return false;">
+                            <input id="fechaHastaInput" type="date" class="form-control" aria-label="hasta" aria-describedby="button-buscar" onchange="filtros_bitacoras.buscar(); return false;">
                             <label for="fechaHastaInput">Fecha Hasta</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select class="form-select" id="accionSelect" name="accionSelect" aria-label="Todas" onchange="buscar(); return false;" style="flex: inherit;">
+                            <select class="form-select" id="accionSelect" name="accionSelect" aria-label="Todas" onchange="filtros_bitacoras.buscar(); return false;" style="flex: inherit;">
                                 <option selected value="">TODAS</option>
                                 {% for accion in acciones %}
                                     <option value="{{accion}}">{{accion}}</option>
@@ -131,13 +91,13 @@
                     </div>
                     <div class="col-10">
                         <div class="form-floating">
-                            <select id="usuarioSelect" class="form-select" onchange="buscar(); return false;"></select>
+                            <select id="usuarioSelect" class="form-control js-select2-filter" onchange="filtros_bitacoras.buscar(); return false;"></select>
                             <label for="usuarioSelect">Usuario</label>
                         </div>
                     </div>
                     <div class="col-2 text-end">
-                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
-                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_bitacoras.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_bitacoras.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
                 </form>
             </div>
@@ -158,7 +118,7 @@
     {# Historial de Solicitudes #}
     {% call detail.card('Historial de Solicitudes') %}
     <!-- Datatable -->
-        <table id="solicitudes_datatable" class="table display nowrap" style="width:100%">
+        <table id="arc_solicitudes_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -172,7 +132,7 @@
     {# Historial de Remesas #}
     {% call detail.card('Historial de Remesas') %}
     <!-- Datatable -->
-        <table id="remesas_datatable" class="table display nowrap" style="width:100%">
+        <table id="arc_remesas_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -191,18 +151,23 @@
         {% if documento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar?') }}{% endif %}
         {% if documento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar?') }}{% endif %}
     {% endif %}
-    {{ detail.config_datatable() }}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    <!-- Importación de los fitlros para dataTable -->
+    <script src="/static/js/datatables_filtros.js"></script>
     <script>
-        configDataTable['ajax']['url'] = '/arc_documentos_bitacoras/datatable_json';
-        configDataTable['ajax']['data'] = { 'estatus': "A", 'arc_documento_id': {{ documento.id }} };
-        configDataTable['columns'] = [
+        const dataTable_funcs_bitacoras = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_bitacoras = dataTable_funcs_bitacoras.config;
+        configDataTable_bitacoras['ajax']['url'] = '/arc_documentos_bitacoras/datatable_json';
+        configDataTable_bitacoras['ajax']['data'] = { 'estatus': "A", 'arc_documento_id': {{ documento.id }} };
+        configDataTable_bitacoras['columns'] = [
             { data: "modificado" },
             { data: "usuario" },
             { data: "fojas" },
             { data: "observaciones" },
             { data: "accion" }
         ];
-        configDataTable['columnDefs'] = [
+        configDataTable_bitacoras['columnDefs'] = [
             {
                 targets: 0, // modificado
                 type: "date",
@@ -236,17 +201,17 @@
                 targets: 4, // accion
                 data: null,
                 render: function(data, type, row, meta) {
-
+                    let bgcolor = "bg-dark";
                     switch (data)    {
-                        case "ALTA":        return '<span class="badge rounded-pill bg-info">ALTA</span>';   break;
-                        case "EDICION DOC": return '<span class="badge rounded-pill bg-warning text-dark">EDICION DOC</span>';   break;
-                        case "CORRECCION FOJAS":  return '<span class="badge rounded-pill bg-warning text-dark">CORRECCION FOJAS</span>';   break;
-                        case "NO ENCONTRADO":     return '<span class="badge rounded-pill bg-danger">NO ENCONTRADO</span>';   break;
-                        case "ENVIADO":         return '<span class="badge rounded-pill bg-pink">ENVIADO</span>';   break;
-                        case "ENTREGADO":       return '<span class="badge rounded-pill bg-success">ENTREGADO</span>';   break;
-                        case "ARCHIVAR":        return '<span class="badge rounded-pill bg-secondary">ARCHIVAR</span>';   break;
+                        case "ALTA":            bgcolor = 'bg-info';        break;
+                        case "EDICION DOC":     bgcolor = 'bg-warning text-dark';       break;
+                        case "CORRECCION FOJAS":  bgcolor = 'bg-warning text-dark';     break;
+                        case "NO ENCONTRADO":     bgcolor = 'bg-danger';    break;
+                        case "ENVIADO":         bgcolor = 'bg-pink';        break;
+                        case "ENTREGADO":       bgcolor = 'bg-success';     break;
+                        case "ARCHIVAR":        bgcolor = 'bg-secondary';   break;
                     }
-                    return data;
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
                 }
             }
         ];
@@ -257,72 +222,16 @@
         let accion = document.getElementById('accionSelect').value;
         let usuario = document.getElementById('usuarioSelect').value.toUpperCase();
 
-        if(fechaDesde != '')
-            configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
-        if(fechaHasta != '')
-            configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
-        if(accion != '')
-            configDataTable['ajax']['data']['accion'] = accion;
-        if(usuario != '')
-            configDataTable['ajax']['data']['usuario_id'] = usuario;
-        
-        // Datatable
-        $('#documentos_bitacora_datatable').DataTable(configDataTable);
-    </script>
-    <!-- Función de buscador -->
-    <script type="text/javascript">
-        function buscar() {
-            let fechaDesde = document.getElementById('fechaDesdeInput').value
-            let fechaHasta = document.getElementById('fechaHastaInput').value
-            let accion = document.getElementById('accionSelect').value;
-            let usuario = document.getElementById('usuarioSelect').value.toUpperCase();
-
-            if( configDataTable['ajax']['data']['fecha_desde'] === undefined && fechaDesde === '' &&
-                configDataTable['ajax']['data']['fecha_hasta'] === undefined && fechaHasta === '' &&
-                configDataTable['ajax']['data']['accion'] === undefined && accion === '' &&
-                configDataTable['ajax']['data']['usuario_id'] === undefined && usuario === ''
-            ) return false;
-
-            $('#documentos_bitacora_datatable').DataTable().destroy();
-
-            if(fechaDesde == '')
-                delete configDataTable['ajax']['data']['fecha_desde'];
-            else
-                configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
-            if(fechaHasta == '')
-                delete configDataTable['ajax']['data']['fecha_hasta'];
-            else
-                configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
-            if(accion == '')
-                delete configDataTable['ajax']['data']['accion'];
-            else
-                configDataTable['ajax']['data']['accion'] = accion;
-            if(usuario == '')
-                delete configDataTable['ajax']['data']['usuario_id'];
-            else
-                configDataTable['ajax']['data']['usuario_id'] = usuario;
-
-            $('#documentos_bitacora_datatable').DataTable(configDataTable);
-        };
-
-        function limpiar()  {
-            if( configDataTable['ajax']['data']['fecha_desde'] === undefined &&
-                configDataTable['ajax']['data']['fecha_hasta'] === undefined &&
-                configDataTable['ajax']['data']['accion'] === undefined &&
-                configDataTable['ajax']['data']['usuario_id'] === undefined
-            ) return false;
-
-            delete configDataTable['ajax']['data']['fecha_desde'];
-            delete configDataTable['ajax']['data']['fecha_hasta'];
-            delete configDataTable['ajax']['data']['accion'];
-            delete configDataTable['ajax']['data']['usuario_id'];
-
-            document.getElementById('usuarioSelect').textContent = '';
-            document.getElementById('usuarioSelect').options[0] = null;
-
-            $('#documentos_bitacora_datatable').DataTable().destroy();
-            $('#documentos_bitacora_datatable').DataTable(configDataTable);
-        };
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_bitacoras = new Filtros('#documentos_bitacora_datatable', configDataTable_bitacoras);
+        // Añadimos los difrentes inputs utilizados
+        filtros_bitacoras.add_input('fechaDesdeInput', 'fecha_desde');
+        filtros_bitacoras.add_input('fechaHastaInput', 'fecha_hasta');
+        filtros_bitacoras.add_input('accionSelect', 'accion');
+        filtros_bitacoras.add_input('usuarioSelect', 'usuario_id');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_bitacoras.precarga();
     </script>
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -346,49 +255,19 @@
         });
     </script>
     <!-- DataTable para Historial de Solicitudes -->
+    
     <script>
-    let configDataTable_2 = {
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: null,
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: null
-            },
-            columns: null,
-            columnDefs: null,
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
-        };
-        // ---
-        configDataTable_2['ajax']['url'] = '/arc_solicitudes/datatable_json';
-        configDataTable_2['ajax']['data'] = { 'estatus': "A", 'arc_documento_id': {{ documento.id }}, 'orden_acendente': true };
-        configDataTable_2['columns'] = [
+        const dataTable_funcs_solicitudes = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_solicitudes = dataTable_funcs_solicitudes.config;
+        configDataTable_solicitudes['ajax']['url'] = '/arc_solicitudes/datatable_json';
+        configDataTable_solicitudes['ajax']['data'] = { 'estatus': "A", 'arc_documento_id': {{ documento.id }}, 'orden_acendente': true };
+        configDataTable_solicitudes['columns'] = [
             { data: 'solicitud' },
             { data: 'tiempo' },
             { data: 'juzgado' },
             { data: 'estado' }
         ];
-        configDataTable_2['columnDefs'] = [
+        configDataTable_solicitudes['columnDefs'] = [
             {
                 targets: 0, // solicitud
                 type: "date",
@@ -427,53 +306,23 @@
             }
         ];
         
-        // Datatable
-        $('#solicitudes_datatable').DataTable(configDataTable_2);
+        // Creación del Objeto manejador
+        const datatable_solicitudes = new Filtros('#arc_solicitudes_datatable', configDataTable_solicitudes);
+        datatable_solicitudes.precarga();
     </script>
     <!-- DataTable para Historial de Remesas -->
     <script>
-    let configDataTable_3 = {
-            processing: true,
-            serverSide: true,
-            ordering: false,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: null,
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: null
-            },
-            columns: null,
-            columnDefs: null,
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
-        };
-        // ---
-        configDataTable_3['ajax']['url'] = '/arc_remesas/datatable_json';
-        configDataTable_3['ajax']['data'] = { 'estatus': "A", 'documento_id': {{ documento.id }}, 'orden_acendente': true };
-        configDataTable_3['columns'] = [
+        const dataTable_funcs_remesas = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_remesas = dataTable_funcs_remesas.config;
+        configDataTable_remesas['ajax']['url'] = '/arc_remesas/datatable_json';
+        configDataTable_remesas['ajax']['data'] = { 'estatus': "A", 'documento_id': {{ documento.id }}, 'orden_acendente': true };
+        configDataTable_remesas['columns'] = [
             { data: 'remesa' },
             { data: 'tiempo' },
             { data: 'juzgado' },
             { data: 'estado' }
         ];
-        configDataTable_3['columnDefs'] = [
+        configDataTable_remesas['columnDefs'] = [
             {
                 targets: 0, // remesa
                 type: "date",
@@ -498,21 +347,24 @@
                 targets: 3, // estado
                 data: null,
                 render: function(data, type, row, meta) {
+                    let bgcolor = "";
                     switch (data)    {
-                        case "PENDIENTE":       return '<span class="badge rounded-pill bg-warning text-dark">PENDIENTE</span>';   break;
-                        case "CANCELADO":       return '<span class="badge rounded-pill bg-secondary">CANCELADO</span>';   break;
-                        case "ENVIADO":         return '<span class="badge rounded-pill bg-pink">ENVIANDO</span>';   break;
-                        case "ASIGNADO":        return '<span class="badge rounded-pill bg-primary">PROCESANDO</span>';   break;
-                        case "RECHAZADO":       return '<span class="badge rounded-pill bg-danger">RECHAZADO</span>';   break;
-                        case "ENCONTRADO":      return '<span class="badge rounded-pill bg-purple">ENCONTRADO</span>';   break;
-                        case "ARCHIVADO":       return '<span class="badge rounded-pill bg-success">ARCHIVADO</span>';   break;
+                        case "PENDIENTE":       bgcolor = "bg-warning text-dark";   break;
+                        case "CANCELADO":       bgcolor = "bg-secondary";           break;
+                        case "ENVIADO":         bgcolor = "bg-pink";                break;
+                        case "ASIGNADO":        bgcolor = "bg-primary";             break;
+                        case "RECHAZADO":       bgcolor = "bg-danger";              break;
+                        case "ENCONTRADO":      bgcolor = "bg-purple";              break;
+                        case "ARCHIVADO":       bgcolor = "bg-success";             break;
+                        case "ARCHIVADO CON ANOMALIA":  bgcolor = "bg-teal";        break;
                     }
-                    return data;
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
                 }
-            }
+            },
         ];
         
-        // Datatable
-        $('#remesas_datatable').DataTable(configDataTable_3);
+        // Creación del Objeto manejador
+        const datatable_remesas = new Filtros('#arc_remesas_datatable', configDataTable_remesas);
+        datatable_remesas.precarga();
     </script>
 {% endblock %}

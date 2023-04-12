@@ -21,6 +21,7 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.arc_solicitudes.models import ArcSolicitud
 
 from plataforma_web.blueprints.arc_documentos.forms import (
     ArcDocumentoNewArchivoForm,
@@ -143,6 +144,10 @@ def detail(documento_id):
     current_user_roles = current_user.get_roles()
     if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_SOLICITANTE in current_user_roles:
         mostrar_secciones["boton_editar"] = True
+    if current_user.can_insert(MODULO) and documento.ubicacion == "ARCHIVO":
+        documento_en_proceso = ArcSolicitud.query.filter_by(arc_documento=documento).filter_by(esta_archivado=False).filter_by(estatus="A").first()
+        if not documento_en_proceso:
+            mostrar_secciones["boton_solicitar"] = True
 
     return render_template(
         "arc_documentos/detail.jinja2",
