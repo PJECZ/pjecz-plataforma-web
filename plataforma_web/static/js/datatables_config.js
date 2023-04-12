@@ -35,9 +35,15 @@ class ConfigDataTable {
 
     /* Renderiza una celda de la tabla con el texto indicado haciéndolo un enlace a la url indicada
     y dejando el texto plano si el enlace está vacío. */
-    this.texto_con_url = function (texto, url) {
-      if (url == "") return texto;
-      return '<a href="' + url + '">' + texto + "</a>";
+    this.texto_con_url = function (texto, url, tooltip=null) {
+      let texto_html = "";
+      if (url == "")
+        texto_html = texto;
+      else
+        texto_html = '<a href="' + url + '">' + texto + "</a>";
+      if (tooltip != null)
+        return '<span title="' + tooltip + '">' + texto_html + '</span>';
+      return texto_html;
     };
 
     /* Corta el texto a una longitud especificada, al pasar de ésta, agrega la puntuación '…' al final */
@@ -47,6 +53,11 @@ class ConfigDataTable {
         return "<span title='" + texto + "'>" + texto_cortado + "</span>";
       }
       return texto;
+    };
+
+    /* Texto con formato de tiempo */
+    this.texto_tiempo = function(texto, moment, formato="YYYY-MM-DD HH:mm:ss") {
+      return moment.utc(texto).local().format(formato);
     };
   }
 }

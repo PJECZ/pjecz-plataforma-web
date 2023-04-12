@@ -409,7 +409,7 @@ def cancel(solicitud_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Cancelación de Solicitud {solicitud.id}"),
+            descripcion=safe_message(f"Se ha cancelado con éxito la Solicitud: {solicitud.id}"),
             url=url_for("arc_archivos.list_active"),
         )
         bitacora.save()

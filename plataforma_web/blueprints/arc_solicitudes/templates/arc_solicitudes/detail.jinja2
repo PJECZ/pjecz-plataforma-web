@@ -199,7 +199,7 @@
 {% block custom_javascript %}
     {{ detail.moment_js(moment) }}
     {% if current_user.can_edit('ARC SOLICITUDES') %}
-        {{ modals.custom_javascript_delete('Cancelar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?') }}
+        {{ modals.custom_javascript_delete('Aceptar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?') }}
     {% endif %}
     <!-- Mostar historial -->
     {% if solicitud.esta_archivado %}
