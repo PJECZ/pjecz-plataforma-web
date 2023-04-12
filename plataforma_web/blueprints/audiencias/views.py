@@ -7,6 +7,7 @@ from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_expediente, safe_message, safe_string
+from datetime import datetime
 from lib.time_utc import combine_to_utc, decombine_to_local, join_for_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -176,7 +177,7 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "tiempo": audiencia.tiempo,
+                    "tiempo": audiencia.tiempo.strftime("%Y-%m-%d %H:%M"),
                     "url": url_for("audiencias.detail", audiencia_id=audiencia.id),
                 },
                 "tipo_audiencia": audiencia.tipo_audiencia,
@@ -222,7 +223,7 @@ def datatable_json_admin():
                 "creado": audiencia.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": audiencia.autoridad.clave,
                 "detalle": {
-                    "tiempo": audiencia.tiempo,
+                    "tiempo": audiencia.tiempo.strftime("%Y-%m-%d %H:%M"),
                     "url": url_for("audiencias.detail", audiencia_id=audiencia.id),
                 },
                 "tipo_audiencia": audiencia.tipo_audiencia,
@@ -290,7 +291,8 @@ def new_generica():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = f"{form.tiempo_fecha.data} {form.tiempo_horas_minutos.data}"
+            tiempo = datetime.strptime(tiempo, "%Y-%m-%d %H:%M:%S")
             tiempo_mensaje = join_for_message(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError as error:
             flash(str(error), "warning")
@@ -356,7 +358,8 @@ def new_mapo():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = f"{form.tiempo_fecha.data} {form.tiempo_horas_minutos.data}"
+            tiempo = datetime.strptime(tiempo, "%Y-%m-%d %H:%M:%S")
             tiempo_mensaje = join_for_message(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError as error:
             flash(str(error), "warning")
@@ -416,7 +419,8 @@ def new_dipe():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = f"{form.tiempo_fecha.data} {form.tiempo_horas_minutos.data}"
+            tiempo = datetime.strptime(tiempo, "%Y-%m-%d %H:%M:%S")
             tiempo_mensaje = join_for_message(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError as error:
             flash(str(error), "warning")
@@ -485,7 +489,8 @@ def new_sape():
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = f"{form.tiempo_fecha.data} {form.tiempo_horas_minutos.data}"
+            tiempo = datetime.strptime(tiempo, "%Y-%m-%d %H:%M:%S")
             tiempo_mensaje = join_for_message(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError as error:
             flash(str(error), "warning")
@@ -588,7 +593,8 @@ def edit_generica(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = f"{form.tiempo_fecha.data} {form.tiempo_horas_minutos.data}"
+            tiempo = datetime.strptime(tiempo, "%Y-%m-%d %H:%M:%S")
             tiempo_mensaje = join_for_message(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError as error:
             flash(str(error), "warning")
@@ -626,7 +632,8 @@ def edit_generica(audiencia_id):
         return redirect(bitacora.url)
 
     # Descombinar el tiempo en fecha y horas:minutos
-    form.tiempo_fecha.data, form.tiempo_horas_minutos.data = decombine_to_local(audiencia.tiempo)
+    form.tiempo_fecha.data = audiencia.tiempo.date()
+    form.tiempo_horas_minutos.data = audiencia.tiempo.time()
 
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
@@ -661,10 +668,10 @@ def edit_mapo(audiencia_id):
     # Si viene el formulario
     form = AudienciaMapoForm()
     if form.validate_on_submit():
-
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = f"{form.tiempo_fecha.data} {form.tiempo_horas_minutos.data}"
+            tiempo = datetime.strptime(tiempo, "%Y-%m-%d %H:%M:%S")
             tiempo_mensaje = join_for_message(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError as error:
             flash(str(error), "warning")
@@ -696,8 +703,8 @@ def edit_mapo(audiencia_id):
         return redirect(bitacora.url)
 
     # Descombinar el tiempo en fecha y horas:minutos
-    form.tiempo_fecha.data, form.tiempo_horas_minutos.data = decombine_to_local(audiencia.tiempo)
-
+    form.tiempo_fecha.data = audiencia.tiempo.date()
+    form.tiempo_horas_minutos.data = audiencia.tiempo.time()
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
     form.autoridad.data = autoridad.descripcion
@@ -735,7 +742,8 @@ def edit_dipe(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = f"{form.tiempo_fecha.data} {form.tiempo_horas_minutos.data}"
+            tiempo = datetime.strptime(tiempo, "%Y-%m-%d %H:%M:%S")
             tiempo_mensaje = join_for_message(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError as error:
             flash(str(error), "warning")
@@ -776,7 +784,8 @@ def edit_dipe(audiencia_id):
         return redirect(bitacora.url)
 
     # Descombinar el tiempo en fecha y horas:minutos
-    form.tiempo_fecha.data, form.tiempo_horas_minutos.data = decombine_to_local(audiencia.tiempo)
+    form.tiempo_fecha.data = audiencia.tiempo.date()
+    form.tiempo_horas_minutos.data = audiencia.tiempo.time()
 
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
@@ -817,7 +826,8 @@ def edit_sape(audiencia_id):
 
         # Definir tiempo con la fecha y horas:minutos
         try:
-            tiempo = combine_to_utc(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
+            tiempo = f"{form.tiempo_fecha.data} {form.tiempo_horas_minutos.data}"
+            tiempo = datetime.strptime(tiempo, "%Y-%m-%d %H:%M:%S")
             tiempo_mensaje = join_for_message(form.tiempo_fecha.data, form.tiempo_horas_minutos.data)
         except ValueError as error:
             flash(str(error), "warning")
@@ -859,7 +869,8 @@ def edit_sape(audiencia_id):
         return redirect(bitacora.url)
 
     # Descombinar el tiempo en fecha y horas:minutos
-    form.tiempo_fecha.data, form.tiempo_horas_minutos.data = decombine_to_local(audiencia.tiempo)
+    form.tiempo_fecha.data = audiencia.tiempo.date()
+    form.tiempo_horas_minutos.data = audiencia.tiempo.time()
 
     # Prellenado del formulario
     form.distrito.data = autoridad.distrito.nombre
