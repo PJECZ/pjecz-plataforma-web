@@ -105,7 +105,7 @@ def list_history():
 
     if current_user.can_admin(MODULO):
         return render_template(
-            "arc_archivos/list_admin.jinja2",
+            "arc_archivos/list_jefe_remesa.jinja2",
             filtros_solicitudes=json.dumps({"estatus": "A", "mostrar_archivados": True, "orden_acendente": True}),
             filtros_remesas=json.dumps({"estatus": "A", "mostrar_archivados": True, "orden_acendente": True}),
             estatus="A",

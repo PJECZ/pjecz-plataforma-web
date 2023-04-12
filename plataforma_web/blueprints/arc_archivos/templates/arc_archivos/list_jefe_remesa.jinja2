@@ -224,6 +224,7 @@
                     let bgcolor = "bg-dark";
                     switch (data)    {
                         case "SOLICITADO":      bgcolor = 'bg-warning text-dark';   break;
+                        case "CANCELADO":       bgcolor = "bg-secondary";           break;
                         case "ASIGNADO":        bgcolor = 'bg-primary';             break;
                         case "ENCONTRADO":      bgcolor = 'bg-purple';              break;
                         case "NO ENCONTRADO":   bgcolor = 'bg-danger';              break;
@@ -244,6 +245,7 @@
         configDataTable_solicitudes['rowCallback'] = function(row, data) {
             switch (data.estado)    {
                 case "SOLICITADO":      $(row).css("background-color", "#fef9e7");  break;
+                case "CANCELADO":       $(row).css("background-color", "#eeeeee");  break;
                 case "ASIGNADO":        $(row).css("background-color", "#ebf5fb");  break;
                 case "ENCONTRADO":      $(row).css("background-color", "#f5eef8");  break;
                 case "NO ENCONTRADO":   $(row).css("background-color", "#fdedec");  break;
