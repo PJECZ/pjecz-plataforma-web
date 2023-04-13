@@ -70,7 +70,7 @@
                     targets: 0,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + moment.utc(data.tiempo).local().format("YYYY-MM-DD HH:mm:ss") + '</a>';
+                        return '<a href="' + data.url + '">' + data.tiempo + '</a>';
                     }
                 },
                 {
