@@ -52,7 +52,7 @@
     {% call detail.card('Detalles de la Remesa') %}
         {{ detail.label_value('Creado', moment(remesa.creado).format('llll')) }}
         {{ detail.label_value('Última Actualización', moment(remesa.modificado).format('llll')) }}
-        {{ detail.label_value('Juzgado', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=remesa.autoridad_id)) }}
+        {{ detail.label_value('Juzgado', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta) }}
         {{ detail.label_value('Año', remesa.anio) }}
         {{ detail.label_value('Número de Oficio', remesa.num_oficio) }}
         {{ detail.label_value('Estado', remesa.estado) }}
