@@ -54,17 +54,42 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "solicitud_id" in request.form:
-        consulta = consulta.filter_by(id=int(request.form["solicitud_id"]))
+        try:
+            id = int(request.form["solicitud_id"])
+            consulta = consulta.filter_by(id=id)
+        except ValueError:
+            pass
+        # consulta = consulta.filter_by(id=int(request.form["solicitud_id"]))
     if "estado" in request.form:
         consulta = consulta.filter_by(estado=request.form["estado"])
     if "juzgado_id" in request.form:
-        consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
+        try:
+            autoridad_id = int(request.form["juzgado_id"])
+            consulta = consulta.filter_by(autoridad_id=autoridad_id)
+        except ValueError:
+            pass
+        # consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     if "asignado_id" in request.form:
-        consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
+        try:
+            usuario_asignado_id = int(request.form["asignado_id"])
+            consulta = consulta.filter_by(usuario_asignado_id=usuario_asignado_id)
+        except ValueError:
+            pass
+        # consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
     if "arc_documento_id" in request.form:
-        consulta = consulta.filter_by(arc_documento_id=int(request.form["arc_documento_id"]))
+        try:
+            arc_documento_id = int(request.form["arc_documento_id"])
+            consulta = consulta.filter_by(arc_documento_id=arc_documento_id)
+        except ValueError:
+            pass
+        # consulta = consulta.filter_by(arc_documento_id=int(request.form["arc_documento_id"]))
     if "esta_archivado" in request.form:
-        consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
+        try:
+            esta_archivado = bool(request.form["esta_archivado"])
+            consulta = consulta.filter_by(esta_archivado=esta_archivado)
+        except ValueError:
+            pass
+        # consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
     if "omitir_cancelados" in request.form:
         consulta = consulta.filter(ArcSolicitud.estado != "CANCELADO")
     if "omitir_archivados" in request.form:
