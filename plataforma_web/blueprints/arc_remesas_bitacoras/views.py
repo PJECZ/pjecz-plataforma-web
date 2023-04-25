@@ -34,7 +34,12 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "remesa_id" in request.form:
-        consulta = consulta.filter_by(arc_remesa_id=int(request.form["remesa_id"]))
+        try:
+            arc_remesa_id = int(request.form["remesa_id"])
+            consulta = consulta.filter_by(arc_remesa_id=arc_remesa_id)
+        except ValueError:
+            pass
+        # consulta = consulta.filter_by(arc_remesa_id=int(request.form["remesa_id"]))
     if "fecha_desde" in request.form:
         consulta = consulta.filter(ArcRemesaBitacora.modificado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:

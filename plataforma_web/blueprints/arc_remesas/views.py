@@ -66,13 +66,28 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "remesa_id" in request.form:
-        consulta = consulta.filter_by(id=int(request.form["remesa_id"]))
+        try:
+            id = int(request.form["remesa_id"])
+            consulta = consulta.filter_by(id=id)
+        except:
+            pass
+        # consulta = consulta.filter_by(id=int(request.form["remesa_id"]))
     if "juzgado_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     if "asignado_id" in request.form:
-        consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
+        try:
+            usuario_asignado_id = int(request.form["asignado_id"])
+            consulta = consulta.filter_by(usuario_asignado_id=usuario_asignado_id)
+        except:
+            pass
+        # consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
     if "anio" in request.form:
-        consulta = consulta.filter_by(anio=int(request.form["anio"]))
+        try:
+            anio = int(request.form["anio"])
+            consulta = consulta.filter_by(anio=anio)
+        except:
+            pass
+        # consulta = consulta.filter_by(anio=int(request.form["anio"]))
     if "tipo_documento" in request.form:
         consulta = consulta.filter_by(tipo_documentos=request.form["tipo_documento"])
     if "num_oficio" in request.form:
@@ -80,7 +95,12 @@ def datatable_json():
     if "estado" in request.form:
         consulta = consulta.filter_by(estado=request.form["estado"])
     if "esta_archivado" in request.form:
-        consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
+        try:
+            esta_archivado = bool(request.form["esta_archivado"])
+            consulta = consulta.filter_by(esta_archivado=esta_archivado)
+        except:
+            pass
+        # consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
     if "omitir_cancelados" in request.form:
         consulta = consulta.filter(ArcRemesa.estado != "CANCELADO")
     if "omitir_pendientes" in request.form:
