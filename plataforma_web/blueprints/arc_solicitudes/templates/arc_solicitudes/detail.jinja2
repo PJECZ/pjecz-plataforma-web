@@ -45,7 +45,7 @@
     {# Detalle #}
     {% call detail.card('Detalles de la Solicitud') %}
         {{ detail.label_value('Tiempo de Solicitud', moment(solicitud.creado).format('llll')) }}
-        {{ detail.label_value('Juzgado', solicitud.autoridad.clave + ' : ' + solicitud.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=solicitud.autoridad.id)) }}
+        {{ detail.label_value('Juzgado', solicitud.autoridad.clave + ' : ' + solicitud.autoridad.descripcion_corta) }}
         <div class="row">
             <div class="col-md-3 text-end">Estado</div>
             <div class="col-md-9">
@@ -74,7 +74,7 @@
     {% call detail.card('Detalles del Documento') %}
         {{ detail.label_value('Núm. Expediente', solicitud.arc_documento.expediente, url_for('arc_documentos.detail', documento_id=solicitud.arc_documento.id)) }}
         {{ detail.label_value('Año', solicitud.arc_documento.anio) }}
-        {{ detail.label_value('Juzgado', solicitud.arc_documento.autoridad.clave + ' : ' + solicitud.arc_documento.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=solicitud.arc_documento.autoridad.id)) }}
+        {{ detail.label_value('Juzgado', solicitud.arc_documento.autoridad.clave + ' : ' + solicitud.arc_documento.autoridad.descripcion_corta) }}
         <hr>
         {{ detail.label_value('Actor', solicitud.arc_documento.actor) }}
         {{ detail.label_value('Demandado', solicitud.arc_documento.demandado) }}
@@ -232,9 +232,9 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.nombre.length > 24) 
-                        return '<a href="' + data.url + '"><span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span></a>';
+                        return '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
                     else   
-                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        return data.nombre;
                 }
             },
             {

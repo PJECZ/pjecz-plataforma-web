@@ -194,7 +194,7 @@
                 targets: 2, // juzgado
                 data: null,
                 render: function(data, type, row, meta) {
-                    return dataTable_funcs_solicitudes.texto_con_url(data.clave, data.url, data.nombre);
+                    return dataTable_funcs_solicitudes.texto_con_tooltip(data.clave, data.nombre);
                 }
             },
             {
@@ -277,7 +277,7 @@
                 targets: 2, // juzgado
                 data: null,
                 render: function(data, type, row, meta) {
-                    return dataTable_funcs_remesas.texto_con_url(data.clave, data.url, data.nombre);
+                    return dataTable_funcs_remesas.texto_con_tooltip(data.clave, data.nombre);
                 }
             },
             {
