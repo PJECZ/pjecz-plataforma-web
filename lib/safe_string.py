@@ -49,6 +49,8 @@ def safe_expediente(input_str):
     if not isinstance(input_str, str) or input_str.strip() == "":
         return ""
     elementos = re.sub(r"[^a-zA-Z0-9]+", "|", unidecode(input_str)).split("|")
+    if len(elementos) != 2:
+        raise ValueError("Número de elementos incorrecto")
     try:
         numero = int(elementos[0])
         ano = int(elementos[1])
