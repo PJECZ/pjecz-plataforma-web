@@ -76,8 +76,8 @@ def datatable_json():
                 "tipo": resultado.arc_documento.tipo,
                 "juicio": resultado.arc_documento.juicio,
                 "juzgado_origen": {
-                    "clave": resultado.arc_documento.arc_juzgado_origen.clave if resultado.arc_documento.arc_juzgado_origen_id is not None else None,
-                    "nombre": resultado.arc_documento.arc_juzgado_origen.descripcion_corta if resultado.arc_documento.arc_juzgado_origen_id is not None else None,
+                    "clave": resultado.arc_documento.arc_juzgado_origen.clave if resultado.arc_documento.arc_juzgado_origen_id is not None else "",
+                    "nombre": resultado.arc_documento.arc_juzgado_origen.descripcion_corta if resultado.arc_documento.arc_juzgado_origen_id is not None else "",
                 },
                 "fojas": {
                     "nuevas": resultado.fojas,
