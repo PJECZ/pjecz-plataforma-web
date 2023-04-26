@@ -364,7 +364,7 @@ def new(documento_id):
     form.demandado.data = documento.demandado
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
-    form.juzgado_origen.data = documento.arc_juzgado_origen.nombre
+    form.juzgado_origen.data = documento.arc_juzgado_origen.nombre if documento.arc_juzgado_origen is not None else ""
     form.tipo.data = documento.tipo
     form.fojas_actuales.data = documento.fojas
     form.ubicacion.data = documento.ubicacion

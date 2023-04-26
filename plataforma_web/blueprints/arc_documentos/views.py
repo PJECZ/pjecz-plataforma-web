@@ -190,7 +190,7 @@ def new():
         elif anio < 1950 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1950 y el año actual {date.today().year}", "warning")
         elif num_expediente is None:
-            flash("El número de expediente no es válido", "warning")
+            flash("El número de expediente no es válido. El formato esperado es (número/año) (999/2023)", "warning")
         else:
 
             documento = ArcDocumento(
