@@ -48,7 +48,8 @@ def safe_expediente(input_str):
     """Safe expediente"""
     if not isinstance(input_str, str) or input_str.strip() == "":
         return ""
-    elementos = re.sub(r"[^a-zA-Z0-9]+", "|", unidecode(input_str)).split("|")
+    limpio = input_str.strip().upper()
+    elementos = re.sub(r"[^a-zA-Z0-9]+", "|", unidecode(input_str.strip())).split("|")
     if len(elementos) != 2:
         raise ValueError("Número de elementos incorrecto")
     try:
