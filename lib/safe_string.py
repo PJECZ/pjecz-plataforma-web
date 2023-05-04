@@ -45,12 +45,10 @@ def safe_email(input_str, search_fragment=False):
 
 
 def safe_expediente(input_str):
-    """Safe expediente"""
+    """Safe expediente convierte la cadena en un formato de expediente valido como 123/2023, 123/2023-II, 123/2023-II-2, 123/2023-F2"""
     if not isinstance(input_str, str) or input_str.strip() == "":
         return ""
-    elementos = re.sub(r"[^a-zA-Z0-9]+", "|", unidecode(input_str)).split("|")
-    if len(elementos) != 2:
-        raise ValueError("Número de elementos incorrecto")
+    elementos = re.sub(r"[^a-zA-Z0-9]+", "|", unidecode(input_str.strip())).split("|")
     try:
         numero = int(elementos[0])
         ano = int(elementos[1])
