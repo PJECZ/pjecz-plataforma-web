@@ -21,7 +21,7 @@ class ArcDocumento(db.Model, UniversalMixin):
     TIPO_JUZGADOS = OrderedDict(  # varchar(16)
         [
             ("ORAL", "Oral"),
-            ("TRADICCIONAL", "Tradicional"),
+            ("TRADICIONAL", "Tradicional"),
         ]
     )
 
