@@ -645,12 +645,12 @@ def print_list():
     """Pagina de impresión de listado de Solicitudes Activas por ROL"""
 
     # Preparar la consulta
-    solicitudes = ArcSolicitud.query.filter_by(esta_archivado=False).filter_by(estatus="A")
+    solicitudes = ArcSolicitud.query.join(ArcDocumento).filter(ArcSolicitud.esta_archivado==False).filter(ArcSolicitud.estatus=="A").order_by(ArcDocumento.anio)
 
     # Asignación por Roles
     current_user_roles = current_user.get_roles()
     if ROL_ARCHIVISTA in current_user_roles:
-        solicitudes = solicitudes.filter_by(usuario_asignado=current_user)
+        solicitudes = solicitudes.filter(ArcSolicitud.usuario_asignado==current_user)
 
     # Listar todas las solicitudes
     solicitudes = solicitudes.all()
