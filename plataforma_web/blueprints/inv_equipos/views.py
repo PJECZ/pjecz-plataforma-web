@@ -59,7 +59,7 @@ def datatable_json():
     if "numero_serie" in request.form:
         consulta = consulta.filter(InvEquipo.numero_serie.contains(request.form["numero_serie"]))
     if "numero_inventario" in request.form:
-        consulta = consulta.filter(InvEquipo.numero_inventario.contains(request.form["numero_inventario"]))
+        consulta = consulta.filter(InvEquipo.numero_inventario == request.form["numero_inventario"])
     if "tipo" in request.form:
         consulta = consulta.filter(InvEquipo.tipo.contains(request.form["tipo"]))
     if "direccion_mac" in request.form:
@@ -277,9 +277,8 @@ def search():
         if form_search.numero_inventario.data:
             numero_inventario = int(form_search.numero_inventario.data)
             if numero_inventario != 0:
-                numero_inventario = InvEquipo.query.get(numero_inventario)
-                if numero_inventario is not None:
-                    return redirect(url_for("inv_equipos.detail", numero_inventario=numero_inventario))
+                busqueda["numero_inventario"] = numero_inventario
+                titulos.append("numero inventario " + str(numero_inventario))
         if form_search.tipo.data:
             tipo_equipo = safe_string(form_search.tipo.data)
             if tipo_equipo != "":
