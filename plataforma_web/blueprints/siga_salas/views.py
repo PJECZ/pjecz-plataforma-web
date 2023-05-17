@@ -10,12 +10,12 @@ from lib.safe_string import safe_string, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-# from plataforma_web.blueprints.siga_salas.forms import DomicilioForm, siga_salasearchForm
+# from plataforma_web.blueprints.siga_salas.forms import SIGASalaNewForm, SIGASalaEditForm
 from plataforma_web.blueprints.siga_salas.models import SIGASala
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
-MODULO = "SIGA Salas"
+MODULO = "SIGA_SALAS"
 
 siga_salas = Blueprint("siga_salas", __name__, template_folder="templates")
 
