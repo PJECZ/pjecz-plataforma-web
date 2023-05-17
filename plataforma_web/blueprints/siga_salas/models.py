@@ -6,7 +6,7 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class SIGASalas(db.Model, UniversalMixin):
+class SIGASala(db.Model, UniversalMixin):
     """SIGA Salas"""
 
     ESTADOS = OrderedDict(
