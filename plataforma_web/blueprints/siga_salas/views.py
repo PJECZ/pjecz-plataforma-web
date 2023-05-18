@@ -6,14 +6,16 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_string, safe_message, safe_text
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-# from plataforma_web.blueprints.siga_salas.forms import SIGASalaNewForm, SIGASalaEditForm
+from plataforma_web.blueprints.siga_salas.forms import SIGASalaNewForm, SIGASalaEditForm
 from plataforma_web.blueprints.siga_salas.models import SIGASala
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.domicilios.models import Domicilio
+
 
 MODULO = "SIGA_SALAS"
 
@@ -38,6 +40,14 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "clave" in request.form:
+        clave = safe_string(request.form["clave"])
+        consulta = consulta.filter(SIGASala.clave.contains(clave))
+    if "edificio" in request.form:
+        edificio_id = int(request.form['edificio'])
+        consulta = consulta.filter_by(domicilio_id=edificio_id)
+    if "estado" in request.form:
+        consulta = consulta.filter_by(estado=request.form['estado'])
     registros = consulta.order_by(SIGASala.clave).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -49,6 +59,7 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("siga_salas.detail", siga_sala_id=resultado.id),
                 },
+                "edificio": resultado.domicilio.edificio,
                 "direccion_ip": resultado.direccion_ip,
                 "direccion_nvr": resultado.direccion_nvr,
                 "estado": resultado.estado,
@@ -65,8 +76,9 @@ def list_active():
     return render_template(
         "siga_salas/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="siga_salas",
+        titulo="SIGA Salas",
         estatus="A",
+        estados_salas=SIGASala.ESTADOS,
     )
 
 
@@ -77,7 +89,7 @@ def list_inactive():
     return render_template(
         "siga_salas/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="siga_salas inactivos",
+        titulo="SIGA Salas Inactivas",
         estatus="B",
     )
 
@@ -89,51 +101,82 @@ def detail(siga_sala_id):
     return render_template("siga_salas/detail.jinja2", siga_sala=siga_sala)
 
 
-# @siga_salas.route("/siga_salas/edicion/<int:siga_sala_id>", methods=["GET", "POST"])
-# @permission_required(MODULO, Permiso.MODIFICAR)
-# def edit(siga_sala_id):
-#     """Editar SIGASala"""
-#     siga_sala = SIGASala.query.get_or_404(siga_sala_id)
-#     form = SIGASalaEditForm()
-#     if form.validate_on_submit():
-#         es_valido = True
-#         # Si se cambia el edificio, validar que no se repita
-#         edificio = safe_string(form.edificio.data, max_len=64, save_enie=True)
-#         if domicilio.edificio != edificio:
-#             domicilio_existente = Domicilio.query.filter_by(edificio=edificio).first()
-#             if domicilio_existente and domicilio_existente.id != domicilio_id:
-#                 es_valido = False
-#                 flash("El edificio ya está en uso. Debe de ser único.", "warning")
-#         # Si es valido, actualizar
-#         if es_valido:
-#             domicilio.edificio = edificio
-#             domicilio.estado = safe_string(form.estado.data, max_len=64, save_enie=True)
-#             domicilio.municipio = safe_string(form.municipio.data, max_len=64, save_enie=True)
-#             domicilio.calle = safe_string(form.calle.data, max_len=256, save_enie=True)
-#             domicilio.num_ext = safe_string(form.num_ext.data, max_len=24)
-#             domicilio.num_int = safe_string(form.num_int.data, max_len=24)
-#             domicilio.colonia = safe_string(form.colonia.data, max_len=256, save_enie=True)
-#             domicilio.cp = form.cp.data
-#             domicilio.completo = f"{domicilio.calle} #{domicilio.num_ext} {domicilio.num_int}, {domicilio.colonia}, {domicilio.municipio}, {domicilio.estado}, C.P. {domicilio.cp}"
-#             domicilio.save()
-#             bitacora = Bitacora(
-#                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-#                 usuario=current_user,
-#                 descripcion=safe_message(f"Editado el Domicilio {domicilio.edificio}"),
-#                 url=url_for("siga_salas.detail", domicilio_id=domicilio.id),
-#             )
-#             bitacora.save()
-#             flash(bitacora.descripcion, "success")
-#             return redirect(bitacora.url)
-#     form.edificio.data = domicilio.edificio
-#     form.estado.data = domicilio.estado
-#     form.municipio.data = domicilio.municipio
-#     form.calle.data = domicilio.calle
-#     form.num_ext.data = domicilio.num_ext
-#     form.num_int.data = domicilio.num_int
-#     form.colonia.data = domicilio.colonia
-#     form.cp.data = domicilio.cp
-#     return render_template("siga_salas/edit.jinja2", form=form, domicilio=domicilio)
+@siga_salas.route("/siga_salas/nuevo", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.CREAR)
+def new():
+    """"Crear una nueva SIGA Sala"""
+    form = SIGASalaNewForm()
+    if form.validate_on_submit():
+        es_valido = True
+        clave = safe_string(form.clave.data)
+        if SIGASala.query.filter_by(clave=clave).first():
+            es_valido = False
+            flash("La Clave de la Sala ya está en uso.", "warning")
+        edificio_id = int(form.edificio.data)
+        edificio =  Domicilio.query.filter_by(id=edificio_id).first()
+        if edificio is None:
+            es_valido = False
+            flash("El Edificio no es válido.", "warning")
+        # Si es valido, insertar
+        if es_valido:
+            sala = SIGASala(
+                clave=clave,
+                domicilio=edificio,
+                direccion_ip=form.direccion_ip.data,
+                direccion_nvr=form.direccion_nvr.data,
+                estado="OPERATIVO",
+                descripcion=safe_text(form.descripcion.data),
+            )
+            sala.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nueva SIGA Sala {sala}"),
+                url=url_for("siga_salas.list_active"),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+    # Mostrar formulario
+    return render_template("siga_salas/new.jinja2", form=form)
+
+@siga_salas.route("/siga_salas/edicion/<int:siga_sala_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit(siga_sala_id):
+    """Editar SIGASala"""
+    siga_sala = SIGASala.query.get_or_404(siga_sala_id)
+    form = SIGASalaEditForm()
+    if form.validate_on_submit():
+        es_valido = True
+        edificio_id = int(form.edificio.data)
+        edificio =  Domicilio.query.filter_by(id=edificio_id).first()
+        if edificio is None:
+            es_valido = False
+            flash("El Edificio no es válido.", "warning")
+        # Si es valido, actualizar
+        if es_valido:
+            siga_sala.edificio = edificio
+            siga_sala.direccion_ip = form.direccion_ip.data
+            siga_sala.direccion_nvr = form.direccion_nvr.data
+            siga_sala.estado = form.estado.data
+            siga_sala.descripcion=safe_text(form.descripcion.data)
+            siga_sala.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Editado la Sala {siga_sala.clave}"),
+                url=url_for("siga_salas.list_active"),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+    form.clave_readOnly.data = siga_sala.clave
+    form.edificio.data = siga_sala.domicilio
+    form.direccion_ip.data = siga_sala.direccion_ip
+    form.direccion_nvr.data = siga_sala.direccion_nvr
+    form.estado.data = siga_sala.estado
+    form.descripcion.data = siga_sala.descripcion
+    return render_template("siga_salas/edit.jinja2", form=form, siga_sala=siga_sala)
 
 
 @siga_salas.route("/siga_salas/eliminar/<int:siga_sala_id>")

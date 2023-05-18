@@ -1,0 +1,41 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}SIGA Sala{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('SIGA Sala') %}
+        {{ topbar.button_previous('Salas', url_for('siga_salas.list_active')) }}
+        {% if current_user.can_admin('SIGA_SALAS') %}
+            {{ topbar.button_edit('Editar', url_for('siga_salas.edit', siga_sala_id=siga_sala.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('SIGA_SALAS') or (current_user.can_edit('SIGA_SALAS')) %}
+            {% if siga_sala.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('siga_salas.delete', siga_sala_id=siga_sala.id)) }}{% endif %}
+            {% if siga_sala.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('siga_salas.recover', siga_sala_id=siga_sala.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=siga_sala.estatus) %}
+        {{ detail.label_value_big('Clave', siga_sala.clave) }}
+        {{ detail.label_value('Edificio', siga_sala.domicilio.edificio) }}
+        {{ detail.label_value('Dirección IP', siga_sala.direccion_ip) }}
+        {{ detail.label_value('Dirección NVR', siga_sala.direccion_nvr) }}
+        {{ detail.label_value('Estado', siga_sala.estado) }}
+        {{ detail.label_value('Descripción', siga_sala.descripcion) }}
+    {% endcall %}
+
+    {% call detail.card(title='Bitacora') %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('SIGA_SALAS') or (current_user.can_edit('SIGA_SALAS')) %}
+        {% if siga_sala.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar la sala ' + siga_sala.clave + '?') }}{% endif %}
+        {% if siga_sala.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar la sala ' + siga_sala.clave + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

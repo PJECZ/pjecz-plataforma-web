@@ -1,0 +1,164 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}SIGA Salas{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://storage.googleapis.com/pjecz-informatica/static/css/select2.css" rel="stylesheet" />
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_insert('SIGA_SALAS') %}
+            {{ topbar.button_new('Nueva Sala', url_for('siga_salas.new')) }}
+        {% endif %}
+        {% if current_user.can_admin('SIGA_SALAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('siga_salas.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('siga_salas.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <!-- Formulario de filtros Salas -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm_salas" onsubmit="filtros_salas.buscar(); return false;" autocomplete="off">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="claveInput" type="text" class="form-control" aria-label="Clave" onchange="filtros_salas.buscar(); return false;">
+                            <label for="claveInput">Clave</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <select id="edificioInput" class="form-control js-select2-filter" onchange="filtros_salas.buscar(); return false;" style="text-transform: uppercase"></select>
+                            <label for="edificioInput">Edificio</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <select class="form-select" id="estadoSelect" name="estadoSelect" aria-label="Estado" onchange="filtros_salas.buscar(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
+                                {% for estado in estados_salas %}
+                                    <option value="{{estado}}">{{estado}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="estadoSelect">Estado</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_salas.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_salas.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable Salas -->
+        <table id="salas_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Clave</th>
+                    <th>Edificio</th>
+                    <th>Dirección IP</th>
+                    <th>Dirección NVR</th>
+                    <th>Estado</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    <script src="/static/js/datatables_filtros.js"></script>
+    <script>
+        const dataTable_funcs_salas = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_salas = dataTable_funcs_salas.config;
+        configDataTable_salas['ajax']['url'] = '/siga_salas/datatable_json';
+        configDataTable_salas['ajax']['data'] = {{ filtros }};
+        configDataTable_salas['columns'] = [
+            { data: 'detalle' },
+            { data: 'edificio' },
+            { data: 'direccion_ip' },
+            { data: 'direccion_nvr' },
+            { data: 'estado' },
+            { data: 'descripcion' }
+        ];
+        configDataTable_salas['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_salas.texto_con_url(data.clave, data.url);
+                }
+            },
+            {
+                targets: 1, // edificio
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_salas.texto_cortado(data);
+                }
+            },
+            {
+                targets: 4, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    let bgcolor = "bg-dark";
+                    switch (data)    {
+                        case "OPERATIVO":       bgcolor = 'bg-primary';     break;
+                        case "FUERA DE LINEA":  bgcolor = "bg-secondary";   break;
+                    }
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
+                }
+            },
+            {
+                targets: 5, // descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_salas.texto_cortado(data);
+                }
+            }
+        ];
+
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_salas = new Filtros('#salas_datatable', configDataTable_salas);
+        // Añadimos los difrentes inputs utilizados
+        filtros_salas.add_input('claveInput', 'clave');
+        filtros_salas.add_input('edificioInput', 'edificio');
+        filtros_salas.add_input('estadoSelect', 'estado');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_salas.precarga();
+    </script>
+
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        // Select2 para Juzgado Filtro Remesas
+        $(document).ready(function(){
+            $('#edificioInput').select2({
+                // --- Carga de juzgados por Ajax --- //
+                ajax: {
+                    url: '/domicilios/edificios_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'edificio': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 3,
+                cache: false
+            });
+        });
+    </script>
+{% endblock %}

@@ -12,7 +12,7 @@ class SIGASala(db.Model, UniversalMixin):
     ESTADOS = OrderedDict(
         [
             ("OPERATIVO", "Operativo"),
-            ("FUERA_DE_LINEA", "Fuera de línea"),
+            ("FUERA DE LINEA", "Fuera de línea"),
         ]
     )
 
