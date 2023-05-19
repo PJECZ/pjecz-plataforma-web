@@ -34,7 +34,6 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    # TODO - filtrar por periodo de tiempo
     if "desde" in request.form:
         consulta = consulta.filter(SIGABitacora.modificado >= request.form['desde'])
     if "hasta" in request.form:
