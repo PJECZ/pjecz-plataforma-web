@@ -29,6 +29,17 @@
     {% endcall %}
 
     {% call detail.card(title='Bitacora') %}
+        <!-- Datatable Bitacora -->
+        <table id="bitacoras_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Tiempo</th>
+                    <th>Acción</th>
+                    <th>Estado</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+        </table>
     {% endcall %}
 {% endblock %}
 
@@ -38,4 +49,51 @@
         {% if siga_sala.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar la sala ' + siga_sala.clave + '?') }}{% endif %}
     {% endif %}
     {{ detail.moment_js(moment) }}
+
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    <script src="/static/js/datatables_filtros.js"></script>
+    <script>
+        const dataTable_funcs_bitacoras = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_bitacoras = dataTable_funcs_bitacoras.config;
+        configDataTable_bitacoras['ajax']['url'] = '/siga_bitacoras/datatable_json';
+        configDataTable_bitacoras['ajax']['data'] = '{{ filtros }}';
+        configDataTable_bitacoras['columns'] = [
+            { data: 'tiempo' },
+            { data: 'accion' },
+            { data: 'estado' },
+            { data: 'descripcion' }
+        ];
+        configDataTable_bitacoras['columnDefs'] = [
+            {
+                targets: 2, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    let bgcolor = "bg-dark";
+                    switch (data)    {
+                        case "CORRECTO":        bgcolor = 'bg-success';             break;
+                        case "PENDIENTE":       bgcolor = "bg-warning text-dark";   break;
+                        case "CANCELADO":       bgcolor = 'bg-secondary';           break;
+                        case "ERROR":           bgcolor = 'bg-danger';              break;
+                    }
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
+                }
+            },
+            {
+                targets: 3, // descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_bitacoras.texto_cortado(data);
+                }
+            }
+        ];
+
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_bitacoras = new Filtros('#bitacoras_datatable', configDataTable_bitacoras);
+        // Añadimos los difrentes inputs utilizados
+        //filtros_bitacoras.add_input('claveInput', 'clave');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_bitacoras.precarga();
+    </script>
 {% endblock %}

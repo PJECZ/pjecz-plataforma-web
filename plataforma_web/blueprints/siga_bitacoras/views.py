@@ -47,7 +47,7 @@ def datatable_json():
         data.append(
             {
                 "id": resultado.id,
-                "tiempo": resultado.modificado,
+                "tiempo": resultado.modificado.strftime('%Y/%m/%d - %H:%M:%S'),
                 "accion": resultado.accion,
                 "estado": resultado.estado,
                 "descripcion": resultado.descripcion,

@@ -98,7 +98,7 @@ def list_inactive():
 def detail(siga_sala_id):
     """Detalle de un SIGASala"""
     siga_sala = SIGASala.query.get_or_404(siga_sala_id)
-    return render_template("siga_salas/detail.jinja2", siga_sala=siga_sala)
+    return render_template("siga_salas/detail.jinja2", siga_sala=siga_sala, filtros=json.dumps({"estatus": "A"}))
 
 
 @siga_salas.route("/siga_salas/nuevo", methods=["GET", "POST"])
