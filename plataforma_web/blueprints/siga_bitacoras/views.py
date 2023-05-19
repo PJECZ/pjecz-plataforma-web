@@ -35,11 +35,15 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     # TODO - filtrar por periodo de tiempo
+    if "desde" in request.form:
+        consulta = consulta.filter(SIGABitacora.modificado >= request.form['desde'])
+    if "hasta" in request.form:
+        consulta = consulta.filter(SIGABitacora.modificado <= request.form['hasta'] + " 23:59:59")
     if "accion" in request.form:
         consulta = consulta.filter_by(accion=request.form['accion'])
     if "estado" in request.form:
         consulta = consulta.filter_by(estado=request.form['estado'])
-    registros = consulta.order_by(SIGABitacora.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(SIGABitacora.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []

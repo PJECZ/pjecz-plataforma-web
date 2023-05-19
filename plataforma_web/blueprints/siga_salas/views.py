@@ -15,6 +15,7 @@ from plataforma_web.blueprints.siga_salas.models import SIGASala
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.domicilios.models import Domicilio
+from plataforma_web.blueprints.siga_bitacoras.models import SIGABitacora
 
 
 MODULO = "SIGA_SALAS"
@@ -98,7 +99,13 @@ def list_inactive():
 def detail(siga_sala_id):
     """Detalle de un SIGASala"""
     siga_sala = SIGASala.query.get_or_404(siga_sala_id)
-    return render_template("siga_salas/detail.jinja2", siga_sala=siga_sala, filtros=json.dumps({"estatus": "A"}))
+    return render_template(
+        "siga_salas/detail.jinja2",
+        siga_sala=siga_sala,
+        filtros=json.dumps({"estatus": "A"}),
+        acciones_bitacoras=SIGABitacora.ACCIONES,
+        estados_bitacoras=SIGABitacora.ESTADOS,
+        )
 
 
 @siga_salas.route("/siga_salas/nuevo", methods=["GET", "POST"])
