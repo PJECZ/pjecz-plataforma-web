@@ -33,6 +33,9 @@ class SIGASala(db.Model, UniversalMixin):
     estado = db.Column(db.Enum(*ESTADOS, name="tipos_estados", native_enum=False), index=True, nullable=False)
     descripcion = db.Column(db.String(1024), nullable=True)
 
+    # Hijos
+    siga_bitacoras = db.relationship('SIGABitacora', back_populates='siga_sala', lazy='noload')
+    
 
     @property
     def clave_nombre(self):
