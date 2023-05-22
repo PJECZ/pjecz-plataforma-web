@@ -28,14 +28,13 @@ class SIGASala(db.Model, UniversalMixin):
 
     # Columnas
     clave = db.Column(db.String(16), unique=True, nullable=False)
-    direccion_ip = db.Column(db.String(16), nullable=True)
-    direccion_nvr = db.Column(db.String(16), nullable=True)
+    direccion_ip = db.Column(db.String(16))
+    direccion_nvr = db.Column(db.String(16))
     estado = db.Column(db.Enum(*ESTADOS, name="tipos_estados", native_enum=False), index=True, nullable=False)
-    descripcion = db.Column(db.String(1024), nullable=True)
+    descripcion = db.Column(db.String(1024))
 
     # Hijos
-    siga_bitacoras = db.relationship('SIGABitacora', back_populates='siga_sala', lazy='noload')
-    
+    siga_bitacoras = db.relationship("SIGABitacora", back_populates="siga_sala", lazy="noload")
 
     @property
     def clave_nombre(self):

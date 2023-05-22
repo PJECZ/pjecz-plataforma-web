@@ -11,7 +11,6 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.siga_grabaciones.models import SIGAGrabacion
 from plataforma_web.blueprints.permisos.models import Permiso
 
-
 MODULO = "SIGA_GRABACIONES"
 
 siga_grabaciones = Blueprint("siga_grabaciones", __name__, template_folder="templates")
@@ -36,11 +35,11 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "desde" in request.form:
-        consulta = consulta.filter(SIGAGrabacion.modificado >= request.form['desde'])
+        consulta = consulta.filter(SIGAGrabacion.modificado >= request.form["desde"])
     if "hasta" in request.form:
-        consulta = consulta.filter(SIGAGrabacion.modificado <= request.form['hasta'] + " 23:59:59")
+        consulta = consulta.filter(SIGAGrabacion.modificado <= request.form["hasta"] + " 23:59:59")
     if "estado" in request.form:
-        consulta = consulta.filter_by(estado=request.form['estado'])
+        consulta = consulta.filter_by(estado=request.form["estado"])
     registros = consulta.order_by(SIGAGrabacion.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -49,7 +48,7 @@ def datatable_json():
         data.append(
             {
                 "id": resultado.id,
-                "tiempo": resultado.modificado.strftime('%Y/%m/%d - %H:%M:%S'),
+                "tiempo": resultado.modificado.strftime("%Y/%m/%d - %H:%M:%S"),
                 "estado": resultado.estado,
                 "nota": resultado.nota,
             }
