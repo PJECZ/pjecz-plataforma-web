@@ -9,7 +9,7 @@ from lib.universal_mixin import UniversalMixin
 class SIGABitacora(db.Model, UniversalMixin):
     """SIGA Salas"""
 
-    ESTADOS = OrderedDict( # str(16)
+    ESTADOS = OrderedDict(
         [
             ("PENDIENTE", "Operación pendiente de realizar"),
             ("CORRECTO", "Operación terminada con éxito"),
@@ -18,7 +18,7 @@ class SIGABitacora(db.Model, UniversalMixin):
         ]
     )
 
-    ACCIONES = OrderedDict(    # Tipos de resultados logrados (str 16)
+    ACCIONES = OrderedDict(
         [
             ("LEER NOMBRE", "Leer el nombre del archivo"),
             ("INSERT", "Crear nuevo registro en la tabla"),
@@ -41,8 +41,7 @@ class SIGABitacora(db.Model, UniversalMixin):
     # Columnas
     accion = db.Column(db.Enum(*ACCIONES, name="tipos_acciones", native_enum=False), index=True, nullable=False)
     estado = db.Column(db.Enum(*ESTADOS, name="tipos_estados", native_enum=False), index=True, nullable=False)
-    descripcion = db.Column(db.String(512), nullable=True)
-
+    descripcion = db.Column(db.String(512))
 
     @property
     def accion_description(self):
@@ -52,7 +51,6 @@ class SIGABitacora(db.Model, UniversalMixin):
     def estado_description(self):
         """Entrega la descripción del estado"""
         return self.ESTADOS[self.estado][1]
-
 
     def __repr__(self):
         """Representación"""

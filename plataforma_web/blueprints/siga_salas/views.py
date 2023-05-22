@@ -17,7 +17,6 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.domicilios.models import Domicilio
 from plataforma_web.blueprints.siga_bitacoras.models import SIGABitacora
 
-
 MODULO = "SIGA_SALAS"
 
 siga_salas = Blueprint("siga_salas", __name__, template_folder="templates")
@@ -45,10 +44,10 @@ def datatable_json():
         clave = safe_string(request.form["clave"])
         consulta = consulta.filter(SIGASala.clave.contains(clave))
     if "edificio" in request.form:
-        edificio_id = int(request.form['edificio'])
+        edificio_id = int(request.form["edificio"])
         consulta = consulta.filter_by(domicilio_id=edificio_id)
     if "estado" in request.form:
-        consulta = consulta.filter_by(estado=request.form['estado'])
+        consulta = consulta.filter_by(estado=request.form["estado"])
     registros = consulta.order_by(SIGASala.clave).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -105,13 +104,13 @@ def detail(siga_sala_id):
         filtros=json.dumps({"estatus": "A"}),
         acciones_bitacoras=SIGABitacora.ACCIONES,
         estados_bitacoras=SIGABitacora.ESTADOS,
-        )
+    )
 
 
 @siga_salas.route("/siga_salas/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """"Crear una nueva SIGA Sala"""
+    """ "Crear una nueva SIGA Sala"""
     form = SIGASalaNewForm()
     if form.validate_on_submit():
         es_valido = True
@@ -120,7 +119,7 @@ def new():
             es_valido = False
             flash("La Clave de la Sala ya está en uso.", "warning")
         edificio_id = int(form.edificio.data)
-        edificio =  Domicilio.query.filter_by(id=edificio_id).first()
+        edificio = Domicilio.query.filter_by(id=edificio_id).first()
         if edificio is None:
             es_valido = False
             flash("El Edificio no es válido.", "warning")
@@ -147,6 +146,7 @@ def new():
     # Mostrar formulario
     return render_template("siga_salas/new.jinja2", form=form)
 
+
 @siga_salas.route("/siga_salas/edicion/<int:siga_sala_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(siga_sala_id):
@@ -156,7 +156,7 @@ def edit(siga_sala_id):
     if form.validate_on_submit():
         es_valido = True
         edificio_id = int(form.edificio.data)
-        edificio =  Domicilio.query.filter_by(id=edificio_id).first()
+        edificio = Domicilio.query.filter_by(id=edificio_id).first()
         if edificio is None:
             es_valido = False
             flash("El Edificio no es válido.", "warning")
@@ -166,7 +166,7 @@ def edit(siga_sala_id):
             siga_sala.direccion_ip = form.direccion_ip.data
             siga_sala.direccion_nvr = form.direccion_nvr.data
             siga_sala.estado = form.estado.data
-            siga_sala.descripcion=safe_text(form.descripcion.data)
+            siga_sala.descripcion = safe_text(form.descripcion.data)
             siga_sala.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),

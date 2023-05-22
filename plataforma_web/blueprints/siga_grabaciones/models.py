@@ -31,16 +31,15 @@ class SIGAGrabacion(db.Model, UniversalMixin):
     # Columnas
     expediente = db.Column(db.String(32), nullable=False)
     inicio = db.Column(db.DateTime(), nullable=False)
-    termino = db.Column(db.DateTime(), nullable=False)
+    termino = db.Column(db.DateTime())
     archivo_nombre = db.Column(db.String(128), nullable=False)
-    justicia_ruta = db.Column(db.String(512), nullable=False)
-    storage_url = db.Column(db.String(512), nullable=True)
-    tamanio = db.Column(db.Integer(), nullable=False)
-    duracion = db.Column(db.Time(), nullable=False)
-    transcripcion = db.Column(db.Text(), nullable=False)
+    justicia_ruta = db.Column(db.String(512))
+    storage_url = db.Column(db.String(512))
+    tamanio = db.Column(db.Integer())
+    duracion = db.Column(db.Time())
+    transcripcion = db.Column(db.JSON())
     estado = db.Column(db.Enum(*ESTADOS, name="tipos_estados", native_enum=False), index=True, nullable=False)
-    nota = db.Column(db.String(512), nullable=True)
-
+    nota = db.Column(db.String(512))
 
     def __repr__(self):
         """Representación"""
