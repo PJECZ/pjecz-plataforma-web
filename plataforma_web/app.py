@@ -63,6 +63,9 @@ from plataforma_web.blueprints.repsvm_agresores_delitos.views import repsvm_agre
 from plataforma_web.blueprints.repsvm_delitos.views import repsvm_delitos
 from plataforma_web.blueprints.roles.views import roles
 from plataforma_web.blueprints.sentencias.views import sentencias
+from plataforma_web.blueprints.siga_bitacoras.views import siga_bitacoras
+from plataforma_web.blueprints.siga_grabaciones.views import siga_grabaciones
+from plataforma_web.blueprints.siga_salas.views import siga_salas
 from plataforma_web.blueprints.sistemas.views import sistemas
 from plataforma_web.blueprints.soportes_categorias.views import soportes_categorias
 from plataforma_web.blueprints.soportes_tickets.views import soportes_tickets
@@ -147,6 +150,9 @@ def create_app():
     app.register_blueprint(repsvm_delitos)
     app.register_blueprint(roles)
     app.register_blueprint(sentencias)
+    app.register_blueprint(siga_bitacoras)
+    app.register_blueprint(siga_grabaciones)
+    app.register_blueprint(siga_salas)
     app.register_blueprint(sistemas)
     app.register_blueprint(soportes_categorias)
     app.register_blueprint(soportes_tickets)

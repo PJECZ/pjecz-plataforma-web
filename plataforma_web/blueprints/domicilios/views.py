@@ -276,3 +276,16 @@ def recover(domicilio_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("domicilios.detail", domicilio_id=domicilio_id))
+
+
+@domicilios.route("/domicilios/edificios_json", methods=["POST"])
+def query_edificios_json():
+    """Proporcionar el JSON de edificios para elegir un Edificio con un Select2"""
+    consulta = Domicilio.query.filter(Domicilio.estatus == "A")
+    if "edificio" in request.form:
+        edificio_nombre = safe_string(request.form["edificio"]).upper()
+        consulta = consulta.filter(Domicilio.edificio.contains(edificio_nombre))
+    results = []
+    for edificio in consulta.order_by(Domicilio.edificio).limit(20).all():
+        results.append({"id": edificio.id, "text": edificio.edificio})
+    return {"results": results, "pagination": {"more": False}}

@@ -29,6 +29,7 @@ class Domicilio(db.Model, UniversalMixin):
     # Hijos
     centros_trabajos = db.relationship("CentroTrabajo", back_populates="domicilio", lazy="noload")
     oficinas = db.relationship("Oficina", back_populates="domicilio", lazy="noload")
+    siga_salas = db.relationship("SIGASala", back_populates="domicilio", lazy="noload")
 
     def elaborar_completo(self):
         """Elaborar completo"""

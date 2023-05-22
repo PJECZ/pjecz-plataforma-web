@@ -1,0 +1,60 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar SIGA Sala{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://storage.googleapis.com/pjecz-informatica/static/css/select2.css" rel="stylesheet" />
+{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar SIGA Sala : ' + siga_sala.clave) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'siga_sala_id': siga_sala.id} %}
+        {% call f.form_tag('siga_salas.edit', fid='siga_sala_form', **form_kwargs) %}
+            {% call f.form_group(form.clave_readOnly, readOnly=true) %}{% endcall %}
+            {% call f.form_group(form.edificio) %}{% endcall %}
+            {% call f.form_group(form.direccion_ip) %}{% endcall %}
+            {% call f.form_group(form.direccion_nvr) %}{% endcall %}
+            {% call f.form_group(form.estado) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#edificio').addClass('js-example-placeholder-single');
+            // --- Carga de la opción elegida --- //
+            const newEdificioOption = new Option('{{siga_sala.domicilio.edificio}}', '{{siga_sala.domicilio.id}}', false, false);
+            $('#edificio').append(newEdificioOption).trigger('change');
+            // --- Select2 --- //
+            $('#edificio').select2({
+                // --- Carga por Ajax --- //
+                ajax: {
+                    url: '/domicilios/edificios_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'edificio': params.term.toUpperCase() };
+                    }
+                },
+                placeholder: "{{buscar}}",
+                minimumInputLength: 3,
+                allowClear: true
+            });
+        });
+    </script>
+{% endblock %}
