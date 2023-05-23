@@ -28,8 +28,8 @@
                 <tr>
                     <th>ID</th>
                     <th>Inicio - Termino</th>
+                    <th>Sala</th>
                     <th>Autoridad</th>
-                    <th>Materia</th>
                     <th>Expediente</th>
                     <th>Duración</th>
                     <th>Estado</th>
@@ -41,4 +41,100 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    <script src="/static/js/datatables_filtros.js"></script>
+    <script>
+        const dataTable_funcs_grabaciones = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_grabaciones = dataTable_funcs_grabaciones.config;
+        configDataTable_grabaciones['ajax']['url'] = '/siga_grabaciones/datatable_json';
+        configDataTable_grabaciones['ajax']['data'] = {{ filtros }};
+        configDataTable_grabaciones['columns'] = [
+            { data: 'id' },
+            { data: 'tiempo' },
+            { data: 'sala' },
+            { data: 'autoridad_materia' },
+            { data: 'expediente' },
+            { data: 'duracion' },
+            { data: 'estado' },
+            { data: 'nota' }
+        ];
+        configDataTable_grabaciones['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_grabaciones.texto_con_url(data.id, data.url);
+                }
+            },
+            {
+                targets: 1, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    texto = "<strong>I:</strong> " + data.inicio + "<br/>";
+                    texto += "<strong>T:</strong> " + data.termino;
+                    return texto;
+                }
+            },
+            {
+                targets: 2, // sala
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_grabaciones.texto_con_url(data.nombre, data.url);
+                }
+            },
+            {
+                targets: 3, // autoridad_materia
+                data: null,
+                render: function(data, type, row, meta) {
+                    texto = "<strong>Autoridad:</strong> <a href='" + data.autoridad.url + "'>" + data.autoridad.nombre + "</a><br/>";
+                    texto += "<strong>Materia:</strong> <a href='" + data.materia.url + "'>" + data.materia.nombre + "</a>";
+                    return texto;
+                }
+            },
+            {
+                targets: 6, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    let bgcolor = "bg-dark";
+                    switch (data)    {
+                        case "VALIDO":       bgcolor = 'bg-primary';    break;
+                        case "INVALIDO":     bgcolor = "bg-danger";     break;
+                    }
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
+                }
+            }
+        ];
+
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_grabaciones = new Filtros('#grabaciones_datatable', configDataTable_grabaciones);
+        // Añadimos los difrentes inputs utilizados
+        //filtros_grabaciones.add_input('claveInput', 'clave');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_grabaciones.precarga();
+    </script>
+
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // Select2 para Autoridades
+        $(document).ready(function(){
+            $('#edificioInput').select2({
+                // --- Carga por Ajax --- //
+                ajax: {
+                    url: '/domicilios/edificios_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'edificio': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 3,
+                cache: false
+            });
+        });
+    </script>
 {% endblock %}

@@ -2,7 +2,7 @@
 SIGA Grabaciones, vistas
 """
 import json
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, url_for
 from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
@@ -47,8 +47,40 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "id": resultado.id,
-                "tiempo": resultado.modificado.strftime("%Y/%m/%d - %H:%M:%S"),
+                "id": {
+                    "id": resultado.id,
+                    "url": url_for("siga_grabaciones.detail", siga_grabacion_id=resultado.id),
+                },
+                "tiempo": {
+                    "inicio": resultado.inicio.strftime("%Y/%m/%d - %H:%M:%S"),
+                    "termino": resultado.termino.strftime("%Y/%m/%d - %H:%M:%S"),
+                },
+                "sala": {
+                    "nombre": resultado.siga_sala.clave,
+                    "url": url_for("siga_salas.detail", siga_sala_id=resultado.siga_sala.id),
+                },
+                "inicio": resultado.inicio.strftime("%Y/%m/%d - %H:%M:%S"),
+                "termino": resultado.termino.strftime("%Y/%m/%d - %H:%M:%S"),
+                "autoridad_materia": {
+                    "autoridad": {
+                        "nombre": resultado.autoridad.clave,
+                        "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
+                    },
+                    "materia": {
+                        "nombre": resultado.materia.nombre,
+                        "url": url_for("materias.detail", materia_id=resultado.materia.id),
+                    },
+                },
+                "autoridad": {
+                    "nombre": resultado.autoridad.clave,
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
+                },
+                "materia": {
+                    "nombre": resultado.materia.nombre,
+                    "url": url_for("materias.detail", materia_id=resultado.materia.id),
+                },
+                "expediente": resultado.expediente,
+                "duracion": resultado.duracion.strftime("%H:%M:%S"),
                 "estado": resultado.estado,
                 "nota": resultado.nota,
             }
@@ -77,4 +109,16 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="SIGA Grabaciones Inactivas",
         estatus="B",
+    )
+
+
+@siga_grabaciones.route("/siga_grabaciones/<int:siga_grabacion_id>")
+def detail(siga_grabacion_id):
+    """Detalle de un SIGAGrabacion"""
+    siga_grabacion = SIGAGrabacion.query.get_or_404(siga_grabacion_id)
+    return render_template(
+        "siga_grabaciones/detail.jinja2",
+        siga_grabacion=siga_grabacion,
+        filtros=json.dumps({"estatus": "A"}),
+        estados_bitacoras=SIGAGrabacion.ESTADOS,
     )

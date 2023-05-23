@@ -1,0 +1,46 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}SIGA Grabación{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('SIGA Grabación') %}
+        {{ topbar.button_previous('Grabaciones', url_for('siga_grabaciones.list_active')) }}
+        {% if current_user.can_edit('SIGA_GRABACIONES') %}
+            {# {{ topbar.button_edit('Añadir Nota', url_for('siga_salas.edit', siga_sala_id=siga_sala.id)) }} #}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=siga_grabacion.estatus) %}
+        {{ detail.label_value_big('ID', siga_grabacion.id) }}
+        {{ detail.label_value('Sala', siga_grabacion.siga_sala.clave, url_for('siga_salas.detail', siga_sala_id=siga_grabacion.siga_sala_id)) }}
+        {{ detail.label_value('Autoridad', siga_grabacion.autoridad.nombre, url_for('autoridades.detail', autoridad_id=siga_grabacion.autoridad_id)) }}
+        {{ detail.label_value('Materia', siga_grabacion.materia.nombre, url_for('materias.detail', materia_id=siga_grabacion.materia_id)) }}
+        {{ detail.label_value('Expediente', siga_grabacion.expediente) }}
+        {{ detail.label_value('Duración', siga_grabacion.duracion) }}
+        {{ detail.label_value('Inicio', siga_grabacion.inicio) }}
+        {{ detail.label_value('Termino', siga_grabacion.termino) }}
+        {{ detail.label_value('Tamaño', siga_grabacion.tamanio) }}
+        {{ detail.label_value('Justicia ruta', siga_grabacion.justicia_ruta) }}
+        {{ detail.label_value('Google Storage', siga_grabacion.storage_url) }}
+        {{ detail.label_value('Estado', siga_grabacion.estado) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Estado</div>
+            <div class="col-md-9">
+                {% if siga_grabacion.estado == "VALIDO" %}
+                    <span class="badge rounded-pill bg-primary">{{ siga_grabacion.estado}}</span>
+                {% elif siga_grabacion.estado == "INVALIDO" %}
+                    <span class="badge rounded-pill bg-danger">{{ siga_grabacion.estado }}</span>
+                {% else %}
+                    {{ siga_grabacion.estado }}
+                {% endif %}
+            </div>
+        </div>
+        {{ detail.label_value('Nombre del Archivo', siga_grabacion.archivo_nombre) }}
+        {{ detail.label_value('Nota', siga_grabacion.nota) }}
+    {% endcall %}
+{% endblock %}

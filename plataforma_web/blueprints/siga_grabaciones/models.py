@@ -23,6 +23,8 @@ class SIGAGrabacion(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Claves foráneas
+    siga_sala_id = db.Column(db.Integer, db.ForeignKey("siga_salas.id"), index=True, nullable=False)
+    siga_sala = db.relationship("SIGASala", back_populates="siga_grabaciones")
     autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
     autoridad = db.relationship("Autoridad", back_populates="siga_grabaciones")
     materia_id = db.Column(db.Integer, db.ForeignKey("materias.id"), index=True, nullable=False)
