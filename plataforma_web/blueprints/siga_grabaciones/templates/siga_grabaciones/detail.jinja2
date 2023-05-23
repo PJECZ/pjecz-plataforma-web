@@ -9,7 +9,7 @@
     {% call topbar.page_buttons('SIGA Grabación') %}
         {{ topbar.button_previous('Grabaciones', url_for('siga_grabaciones.list_active')) }}
         {% if current_user.can_edit('SIGA_GRABACIONES') %}
-            {# {{ topbar.button_edit('Añadir Nota', url_for('siga_salas.edit', siga_sala_id=siga_sala.id)) }} #}
+            {{ topbar.button_edit('Editar Nota', url_for('siga_grabaciones.edit_note', siga_grabacion_id=siga_grabacion.id)) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -24,10 +24,14 @@
         {{ detail.label_value('Duración', siga_grabacion.duracion) }}
         {{ detail.label_value('Inicio', siga_grabacion.inicio) }}
         {{ detail.label_value('Termino', siga_grabacion.termino) }}
-        {{ detail.label_value('Tamaño', siga_grabacion.tamanio) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Tamaño</div>
+            <div class="col-md-9">
+                <strong id="tamanio">{{ siga_grabacion.tamanio }}</strong>
+            </div>
+        </div>
         {{ detail.label_value('Justicia ruta', siga_grabacion.justicia_ruta) }}
         {{ detail.label_value('Google Storage', siga_grabacion.storage_url) }}
-        {{ detail.label_value('Estado', siga_grabacion.estado) }}
         <div class="row">
             <div class="col-md-3 text-end">Estado</div>
             <div class="col-md-9">
@@ -43,4 +47,33 @@
         {{ detail.label_value('Nombre del Archivo', siga_grabacion.archivo_nombre) }}
         {{ detail.label_value('Nota', siga_grabacion.nota) }}
     {% endcall %}
+
+    {% call detail.card("Previsualización") %}
+        <video controls>
+            <source src="path/to/video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Script para mostrar diferentes tamaños de archivo -->
+    <script>
+        function convertBytesTo(bytes) {
+            let tamanio = bytes / 1024
+            if (tamanio < 1024) {
+                return tamanio.toFixed(2) + " KB";
+            }
+            tamanio = bytes / (1024 * 1024)
+            if (tamanio < 1024) {
+                return tamanio.toFixed(2) + " MB";
+            }
+            return tamanio;
+        }
+        $(document).ready(function(){
+            const tamanio_in_bytes = $('#tamanio').text();
+            const tamanio_escalar = convertBytesTo(tamanio_in_bytes);
+            $('#tamanio').text(tamanio_escalar);
+        });
+    </script>
 {% endblock %}

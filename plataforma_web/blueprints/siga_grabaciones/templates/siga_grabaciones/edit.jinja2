@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar SIGA Grabación{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar SIGA Grabación : ' + siga_grabacion.id | string) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'siga_grabacion_id': siga_grabacion.id} %}
+        {% call f.form_tag('siga_grabaciones.edit_note', fid='siga_grabacion_form', **form_kwargs) %}
+            {% call f.form_group(form.sala, readOnly=true) %}{% endcall %}
+            {% call f.form_group(form.expediente, readOnly=true) %}{% endcall %}
+            {% call f.form_group(form.inicio, readOnly=true) %}{% endcall %}
+            {% call f.form_group(form.nota) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+{% endblock %}

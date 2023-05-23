@@ -2,14 +2,19 @@
 SIGA Grabaciones, vistas
 """
 import json
-from flask import Blueprint, request, render_template, url_for
-from flask_login import login_required
+from flask import Blueprint, flash, redirect, request, render_template, url_for
+from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
+from lib.safe_string import safe_string, safe_text, safe_message
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.siga_grabaciones.models import SIGAGrabacion
 from plataforma_web.blueprints.permisos.models import Permiso
+
+from plataforma_web.blueprints.siga_grabaciones.forms import SIGAGrabacionEditForm
 
 MODULO = "SIGA_GRABACIONES"
 
@@ -97,6 +102,7 @@ def list_active():
         filtros=json.dumps({"estatus": "A"}),
         titulo="SIGA Grabaciones",
         estatus="A",
+        estados_bitacoras=SIGAGrabacion.ESTADOS,
     )
 
 
@@ -109,6 +115,7 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="SIGA Grabaciones Inactivas",
         estatus="B",
+        estados_bitacoras=SIGAGrabacion.ESTADOS,
     )
 
 
@@ -119,6 +126,36 @@ def detail(siga_grabacion_id):
     return render_template(
         "siga_grabaciones/detail.jinja2",
         siga_grabacion=siga_grabacion,
-        filtros=json.dumps({"estatus": "A"}),
-        estados_bitacoras=SIGAGrabacion.ESTADOS,
+    )
+
+
+@siga_grabaciones.route("/siga_grabaciones/editar_nota/<int:siga_grabacion_id>", methods=["GET", "POST"])
+def edit_note(siga_grabacion_id):
+    """Detalle de un SIGAGrabacion"""
+    siga_grabacion = SIGAGrabacion.query.get_or_404(siga_grabacion_id)
+
+    form = SIGAGrabacionEditForm()
+    if form.validate_on_submit():
+        siga_grabacion.nota = safe_text(form.nota.data)
+        siga_grabacion.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Editada la Nota de la SIGA Grabación {siga_grabacion.id}"),
+            url=url_for("siga_grabaciones.detail", siga_grabacion_id=siga_grabacion.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+
+    # Pasar los datos de solo lectura
+    form.sala.data = siga_grabacion.siga_sala.clave
+    form.expediente.data = siga_grabacion.expediente
+    form.inicio.data = siga_grabacion.inicio.strftime("%Y/%m/%d - %H:%M:%S")
+    form.nota.data = siga_grabacion.nota
+
+    return render_template(
+        "siga_grabaciones/edit.jinja2",
+        siga_grabacion=siga_grabacion,
+        form=form,
     )

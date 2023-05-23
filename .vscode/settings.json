@@ -29,5 +29,6 @@
   "python.formatting.provider": "none",
   "python.formatting.blackArgs": ["--line-length", "256"],
   "python.linting.pylintEnabled": true,
-  "python.linting.enabled": true
+  "python.linting.enabled": true,
+  "python.analysis.typeCheckingMode": "basic"
 }

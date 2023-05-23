@@ -103,6 +103,13 @@
                     }
                     return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
                 }
+            },
+            {
+                targets: 7, // nota
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_grabaciones.texto_cortado(data);
+                }
             }
         ];
 
