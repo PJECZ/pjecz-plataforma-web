@@ -22,6 +22,84 @@
 
 {% block content %}
     {% call list.card() %}
+        <!-- Formulario de filtros Grabaciones -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm_salas" onsubmit="filtros_grabaciones.buscar(); return false;" autocomplete="off">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="idInput" type="number" class="form-control" aria-label="Id" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="idInput">Id</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="expedienteInput" type="text" class="form-control" aria-label="Expediente" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="expedienteInput">Expediente</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="desdeInput" type="datetime-local" class="form-control" aria-label="Desde" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="desdeInput">Desde</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="hastaInput" type="datetime-local" class="form-control" aria-label="Hasta" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="hastaInput">Hasta</label>
+                        </div>
+                    </div>
+                    <!-- Renglon 2 -->
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select id="salaSelect" class="form-control js-select2-filter" onchange="filtros_grabaciones.buscar(); return false;" style="text-transform: uppercase"></select>
+                            <label for="salaSelect">Sala</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select id="autoridadSelect" class="form-control js-select2-filter" onchange="filtros_grabaciones.buscar(); return false;" style="text-transform: uppercase"></select>
+                            <label for="autoridadSelect">Autoridad</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select id="materiaSelect" class="form-control js-select2-filter" onchange="filtros_grabaciones.buscar(); return false;" style="text-transform: uppercase"></select>
+                            <label for="materiaSelect">Materia</label>
+                        </div>
+                    </div>
+                    <!-- Renglon 3 -->
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="duracionInput" type="time" class="form-control" aria-label="duracion" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="duracionInput">Duración Mayor a</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="tamanoInput" type="number" class="form-control" aria-label="tamano" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="tamanoInput">Tamaño en MB mayor a</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <select class="form-select" id="estadoSelect" name="estadoSelect" aria-label="Estado" onchange="filtros_grabaciones.buscar(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
+                                {% for estado in estados_grabaciones %}
+                                    <option value="{{estado}}">{{estado}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="estadoSelect">Estado</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_grabaciones.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_grabaciones.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <!-- Datatable Grabaciones -->
         <table id="grabaciones_datatable" class="table display nowrap" style="width:100%">
             <thead>
@@ -120,7 +198,6 @@
                     if (data == null)
                         return ""
                     return "<span title='" + data + "' class='badge rounded-pill bg-warning text-dark'><span class='iconify' data-icon='mdi:note'></span></span>"
-                    return dataTable_funcs_grabaciones.texto_cortado(data);
                 }
             }
         ];
@@ -129,7 +206,16 @@
         // Creación del Objeto manejador de Filtros
         const filtros_grabaciones = new Filtros('#grabaciones_datatable', configDataTable_grabaciones);
         // Añadimos los difrentes inputs utilizados
-        //filtros_grabaciones.add_input('claveInput', 'clave');
+        filtros_grabaciones.add_input('idInput', 'id');
+        filtros_grabaciones.add_input('expedienteInput', 'expediente');
+        filtros_grabaciones.add_input('desdeInput', 'desde');
+        filtros_grabaciones.add_input('hastaInput', 'hasta');
+        filtros_grabaciones.add_input('salaSelect', 'sala_id');
+        filtros_grabaciones.add_input('autoridadSelect', 'autoridad_id');
+        filtros_grabaciones.add_input('materiaSelect', 'materia_id');
+        filtros_grabaciones.add_input('duracionInput', 'duracion');
+        filtros_grabaciones.add_input('tamanoInput', 'tamanio');
+        filtros_grabaciones.add_input('estadoSelect', 'estado');
         // Precarga de los valores de los inputs mantenidos después de la carga de la página.
         filtros_grabaciones.precarga();
     </script>
@@ -137,18 +223,58 @@
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        // Select2 para Autoridades
+        // Select2 para Salas
         $(document).ready(function(){
-            $('#edificioInput').select2({
+            $('#salaSelect').select2({
                 // --- Carga por Ajax --- //
                 ajax: {
-                    url: '/domicilios/edificios_json',
+                    url: '/siga_salas/salas_json',
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     dataType: 'json',
                     delay: 250,
                     type: "POST",
                     data: function (params) {
-                        return { 'edificio': params.term.toUpperCase() };
+                        return { 'clave': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 2,
+                cache: false
+            });
+        });
+    </script>
+    <script>
+        // Select2 para Autoridades
+        $(document).ready(function(){
+            $('#autoridadSelect').select2({
+                // --- Carga por Ajax --- //
+                ajax: {
+                    url: '/autoridades/juzgados_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'clave': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 3,
+                cache: false
+            });
+        });
+    </script>
+    <script>
+        // Select2 para Materias
+        $(document).ready(function(){
+            $('#materiaSelect').select2({
+                // --- Carga por Ajax --- //
+                ajax: {
+                    url: '/materias/materias_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'nombre': params.term.toUpperCase() };
                     }
                 },
                 minimumInputLength: 3,

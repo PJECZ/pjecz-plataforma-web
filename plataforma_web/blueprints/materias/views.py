@@ -176,3 +176,15 @@ def recover(materia_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("materias.detail", materia_id=materia.id))
+
+
+@materias.route("/materias/materias_json", methods=["POST"])
+def query_materias_json():
+    """Proporcionar el JSON de materias para elegir Materia con un Select2"""
+    consulta = Materia.query.filter(Materia.estatus == "A")
+    if "nombre" in request.form:
+        consulta = consulta.filter(Materia.nombre.contains(request.form["nombre"]))
+    results = []
+    for materia in consulta.order_by(Materia.nombre).limit(15).all():
+        results.append({"id": materia.id, "text": materia.nombre})
+    return {"results": results, "pagination": {"more": False}}

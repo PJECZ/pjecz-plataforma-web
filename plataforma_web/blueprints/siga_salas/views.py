@@ -102,7 +102,7 @@ def detail(siga_sala_id):
     return render_template(
         "siga_salas/detail.jinja2",
         siga_sala=siga_sala,
-        filtros=json.dumps({"estatus": "A"}),
+        filtros=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
         acciones_bitacoras=SIGABitacora.ACCIONES,
         estados_bitacoras=SIGABitacora.ESTADOS,
     )
@@ -224,3 +224,15 @@ def recover(siga_sala_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("siga_salas.detail", siga_sala_id=siga_sala_id))
+
+
+@siga_salas.route("/siga_salas/salas_json", methods=["POST"])
+def query_salas_json():
+    """Proporcionar el JSON de salas para elegir Salas con un Select2"""
+    consulta = SIGASala.query.filter(SIGASala.estatus == "A")
+    if "clave" in request.form:
+        consulta = consulta.filter(SIGASala.clave.contains(request.form["clave"]))
+    results = []
+    for sala in consulta.order_by(SIGASala.clave).limit(15).all():
+        results.append({"id": sala.id, "text": sala.clave + " : " + sala.domicilio.edificio})
+    return {"results": results, "pagination": {"more": False}}
