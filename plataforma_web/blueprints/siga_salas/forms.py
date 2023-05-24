@@ -23,7 +23,7 @@ class SIGASalaNewForm(FlaskForm):
 class SIGASalaEditForm(FlaskForm):
     """Formulario para editar Salas"""
 
-    clave_readOnly = StringField("Clave")
+    clave = StringField("Clave")
     edificio = SelectField("Edificio", coerce=int, validate_choice=False, validators=[DataRequired()])
     direccion_ip = StringField("Dirección IP", validators=[Optional(), Length(max=16), Regexp(DIRECCION_IP_REGEXP)])
     direccion_nvr = StringField("Dirección NVR", validators=[Optional(), Length(max=16), Regexp(DIRECCION_IP_REGEXP)])

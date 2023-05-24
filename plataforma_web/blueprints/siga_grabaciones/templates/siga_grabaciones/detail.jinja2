@@ -9,7 +9,9 @@
     {% call topbar.page_buttons('SIGA Grabación') %}
         {{ topbar.button_previous('Grabaciones', url_for('siga_grabaciones.list_active')) }}
         {% if current_user.can_edit('SIGA_GRABACIONES') %}
-            {{ topbar.button_edit('Editar Nota', url_for('siga_grabaciones.edit_note', siga_grabacion_id=siga_grabacion.id)) }}
+            {% if not siga_grabacion.nota %}
+                {{ topbar.button_new('Añadir Nota', url_for('siga_grabaciones.edit_note', siga_grabacion_id=siga_grabacion.id)) }}
+            {% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -21,9 +23,9 @@
         {{ detail.label_value('Autoridad', siga_grabacion.autoridad.nombre, url_for('autoridades.detail', autoridad_id=siga_grabacion.autoridad_id)) }}
         {{ detail.label_value('Materia', siga_grabacion.materia.nombre, url_for('materias.detail', materia_id=siga_grabacion.materia_id)) }}
         {{ detail.label_value('Expediente', siga_grabacion.expediente) }}
-        {{ detail.label_value('Duración', siga_grabacion.duracion) }}
         {{ detail.label_value('Inicio', siga_grabacion.inicio) }}
         {{ detail.label_value('Termino', siga_grabacion.termino) }}
+        {{ detail.label_value('Duración', siga_grabacion.duracion) }}
         <div class="row">
             <div class="col-md-3 text-end">Tamaño</div>
             <div class="col-md-9">
@@ -45,12 +47,27 @@
             </div>
         </div>
         {{ detail.label_value('Nombre del Archivo', siga_grabacion.archivo_nombre) }}
-        {{ detail.label_value('Nota', siga_grabacion.nota) }}
     {% endcall %}
 
+    {# NOTA #}
+    {% if siga_grabacion.nota %}
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Nota</div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                <div class="col-md-9 text-start">{{ siga_grabacion.nota }}</div>
+            </div>
+            {% if current_user.can_edit('SIGA_GRABACIONES') %}
+                <div class="card-footer">
+                    <a type="button" href="{{ url_for('siga_grabaciones.edit_note', siga_grabacion_id=siga_grabacion.id) }}" class="btn btn-warning text-dark"><span class="iconify" data-icon="mdi:pencil"></span> Editar Nota</a>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {# Previsualización del video #}
     {% call detail.card("Previsualización") %}
         <video controls>
-            <source src="path/to/video.mp4" type="video/mp4">
+            <source src="path/to/video.mp4" type="video/mp4" style="width:100%; text-align: center;">
             Your browser does not support the video tag.
         </video>
     {% endcall %}
@@ -59,21 +76,11 @@
 {% block custom_javascript %}
     <!-- Script para mostrar diferentes tamaños de archivo -->
     <script>
-        function convertBytesTo(bytes) {
-            let tamanio = bytes / 1024
-            if (tamanio < 1024) {
-                return tamanio.toFixed(2) + " KB";
-            }
-            tamanio = bytes / (1024 * 1024)
-            if (tamanio < 1024) {
-                return tamanio.toFixed(2) + " MB";
-            }
-            return tamanio;
+        function convertBytesToMegaBytes(bytes) {
+            return (bytes / (1024 * 1024)).toFixed(2)  + " MB";
         }
         $(document).ready(function(){
-            const tamanio_in_bytes = $('#tamanio').text();
-            const tamanio_escalar = convertBytesTo(tamanio_in_bytes);
-            $('#tamanio').text(tamanio_escalar);
+            $('#tamanio').text( convertBytesToMegaBytes( $('#tamanio').text() ) );
         });
     </script>
 {% endblock %}

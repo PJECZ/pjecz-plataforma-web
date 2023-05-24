@@ -86,6 +86,10 @@ def datatable_json():
                 },
                 "expediente": resultado.expediente,
                 "duracion": resultado.duracion.strftime("%H:%M:%S"),
+                "duracion_tamanio": {
+                    "duracion": resultado.duracion.strftime("%H:%M:%S"),
+                    "tamanio": f"{resultado.tamanio / (1024 * 1024):0.2f}",
+                },
                 "estado": resultado.estado,
                 "nota": resultado.nota,
             }

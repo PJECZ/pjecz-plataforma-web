@@ -8,6 +8,7 @@ from flask_login import current_user, login_required
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message, safe_text
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from sqlalchemy import func
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.siga_salas.forms import SIGASalaNewForm, SIGASalaEditForm
@@ -111,6 +112,8 @@ def detail(siga_sala_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """ "Crear una nueva SIGA Sala"""
+    siga_sala_max_id = SIGASala.query.order_by(SIGASala.id.desc()).first()
+    siga_sala_max_id = siga_sala_max_id.id
     form = SIGASalaNewForm()
     if form.validate_on_submit():
         es_valido = True
@@ -144,6 +147,7 @@ def new():
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     # Mostrar formulario
+    form.clave.data = f"S{str(siga_sala_max_id + 1).zfill(3)}"
     return render_template("siga_salas/new.jinja2", form=form)
 
 
@@ -177,7 +181,7 @@ def edit(siga_sala_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.clave_readOnly.data = siga_sala.clave
+    form.clave.data = siga_sala.clave
     form.edificio.data = siga_sala.domicilio
     form.direccion_ip.data = siga_sala.direccion_ip
     form.direccion_nvr.data = siga_sala.direccion_nvr

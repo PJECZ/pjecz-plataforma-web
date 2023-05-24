@@ -18,7 +18,7 @@
     {% call f.card() %}
         {% set form_kwargs = {'siga_sala_id': siga_sala.id} %}
         {% call f.form_tag('siga_salas.edit', fid='siga_sala_form', **form_kwargs) %}
-            {% call f.form_group(form.clave_readOnly, readOnly=true) %}{% endcall %}
+            {% call f.form_group(form.clave, readOnly=true) %}{% endcall %}
             {% call f.form_group(form.edificio) %}{% endcall %}
             {% call f.form_group(form.direccion_ip) %}{% endcall %}
             {% call f.form_group(form.direccion_nvr) %}{% endcall %}

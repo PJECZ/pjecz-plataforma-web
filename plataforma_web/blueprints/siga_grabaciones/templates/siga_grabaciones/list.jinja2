@@ -55,7 +55,7 @@
             { data: 'sala' },
             { data: 'autoridad_materia' },
             { data: 'expediente' },
-            { data: 'duracion' },
+            { data: 'duracion_tamanio' },
             { data: 'estado' },
             { data: 'nota' }
         ];
@@ -93,6 +93,15 @@
                 }
             },
             {
+                targets: 5, // duracion_tamanio
+                data: null,
+                render: function(data, type, row, meta) {
+                    texto = data.duracion + "<br/>";
+                    texto += data.tamanio + " <strong>MB</strong>";
+                    return texto;
+                }
+            },
+            {
                 targets: 6, // estado
                 data: null,
                 render: function(data, type, row, meta) {
@@ -108,6 +117,9 @@
                 targets: 7, // nota
                 data: null,
                 render: function(data, type, row, meta) {
+                    if (data == null)
+                        return ""
+                    return "<span title='" + data + "' class='badge rounded-pill bg-warning text-dark'><span class='iconify' data-icon='mdi:note'></span></span>"
                     return dataTable_funcs_grabaciones.texto_cortado(data);
                 }
             }
