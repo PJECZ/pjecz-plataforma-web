@@ -114,7 +114,7 @@ def new():
     """ "Crear una nueva SIGA Sala"""
     siga_sala_max_id = SIGASala.query.order_by(SIGASala.id.desc()).first()
     if siga_sala_max_id is None:
-        siga_sala_max_id = 1
+        siga_sala_max_id = 0
     else:
         siga_sala_max_id = siga_sala_max_id.id
     form = SIGASalaNewForm()
