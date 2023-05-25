@@ -14,6 +14,10 @@ class Domicilio(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
+    # Clave foránea
+    distrito_id = db.Column(db.Integer, db.ForeignKey("distritos.id"), index=True, nullable=False)
+    distrito = db.relationship("Distrito", back_populates="domicilios")
+
     # Columnas
     edificio = db.Column(db.String(64), nullable=True, unique=True)
     estado = db.Column(db.String(64), nullable=False)

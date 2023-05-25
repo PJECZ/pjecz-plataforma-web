@@ -4,6 +4,7 @@ Domicilios, vistas
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
@@ -12,6 +13,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.domicilios.forms import DomicilioForm, DomicilioSearchForm
 from plataforma_web.blueprints.domicilios.models import Domicilio
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
@@ -283,9 +285,13 @@ def query_edificios_json():
     """Proporcionar el JSON de edificios para elegir un Edificio con un Select2"""
     consulta = Domicilio.query.filter(Domicilio.estatus == "A")
     if "edificio" in request.form:
-        edificio_nombre = safe_string(request.form["edificio"]).upper()
+        edificio_nombre = safe_string(request.form["edificio"])
         consulta = consulta.filter(Domicilio.edificio.contains(edificio_nombre))
+    if "edificio_or_distrito_clave" in request.form:
+        edificio_or_distrito_clave = safe_string(request.form["edificio_or_distrito_clave"])
+        consulta = consulta.join(Distrito)
+        consulta = consulta.filter(or_(Domicilio.edificio.contains(edificio_or_distrito_clave), Distrito.clave.contains(edificio_or_distrito_clave)))
     results = []
     for edificio in consulta.order_by(Domicilio.edificio).limit(20).all():
-        results.append({"id": edificio.id, "text": edificio.edificio})
+        results.append({"id": edificio.id, "text": edificio.distrito.clave + " : " + edificio.edificio})
     return {"results": results, "pagination": {"more": False}}

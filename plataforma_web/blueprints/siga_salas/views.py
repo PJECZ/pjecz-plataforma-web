@@ -60,7 +60,7 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("siga_salas.detail", siga_sala_id=resultado.id),
                 },
-                "edificio": resultado.domicilio.edificio,
+                "edificio": resultado.domicilio.distrito.clave + " : " + resultado.domicilio.edificio,
                 "direccion_ip": resultado.direccion_ip,
                 "direccion_nvr": resultado.direccion_nvr,
                 "estado": resultado.estado,
@@ -112,11 +112,6 @@ def detail(siga_sala_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """ "Crear una nueva SIGA Sala"""
-    siga_sala_max_id = SIGASala.query.order_by(SIGASala.id.desc()).first()
-    if siga_sala_max_id is None:
-        siga_sala_max_id = 0
-    else:
-        siga_sala_max_id = siga_sala_max_id.id
     form = SIGASalaNewForm()
     if form.validate_on_submit():
         es_valido = True
@@ -150,7 +145,6 @@ def new():
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     # Mostrar formulario
-    form.clave.data = f"S{str(siga_sala_max_id + 1).zfill(3)}"
     return render_template("siga_salas/new.jinja2", form=form)
 
 
@@ -162,6 +156,10 @@ def edit(siga_sala_id):
     form = SIGASalaEditForm()
     if form.validate_on_submit():
         es_valido = True
+        clave = safe_string(form.clave.data)
+        if SIGASala.query.filter_by(clave=clave).filter(SIGASala.id != siga_sala_id).first():
+            es_valido = False
+            flash("La Clave de la Sala ya está en uso.", "warning")
         edificio_id = int(form.edificio.data)
         edificio = Domicilio.query.filter_by(id=edificio_id).first()
         if edificio is None:
@@ -169,6 +167,7 @@ def edit(siga_sala_id):
             flash("El Edificio no es válido.", "warning")
         # Si es valido, actualizar
         if es_valido:
+            siga_sala.clave = clave
             siga_sala.edificio = edificio
             siga_sala.direccion_ip = form.direccion_ip.data
             siga_sala.direccion_nvr = form.direccion_nvr.data
