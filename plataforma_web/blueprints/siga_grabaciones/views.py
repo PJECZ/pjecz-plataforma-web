@@ -12,6 +12,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.siga_grabaciones.models import SIGAGrabacion
+from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.permisos.models import Permiso
 
 from plataforma_web.blueprints.siga_grabaciones.forms import SIGAGrabacionEditForm
@@ -46,17 +47,13 @@ def datatable_json():
     if "desde" in request.form:
         consulta = consulta.filter(SIGAGrabacion.inicio >= request.form["desde"])
     if "hasta" in request.form:
-        consulta = consulta.filter(SIGAGrabacion.inicio <= request.form["hasta"])
+        consulta = consulta.filter(SIGAGrabacion.inicio <= request.form["hasta"] + " 23:59:59")
     if "sala_id" in request.form:
         consulta = consulta.filter(SIGAGrabacion.siga_sala_id == request.form["sala_id"])
     if "autoridad_id" in request.form:
         consulta = consulta.filter(SIGAGrabacion.autoridad_id == request.form["autoridad_id"])
     if "materia_id" in request.form:
         consulta = consulta.filter(SIGAGrabacion.materia_id == request.form["materia_id"])
-    if "duracion" in request.form:
-        consulta = consulta.filter(SIGAGrabacion.duracion >= request.form["duracion"])
-    if "tamanio" in request.form:
-        consulta = consulta.filter((SIGAGrabacion.tamanio / (1024 * 1024)) >= request.form["tamanio"])
     if "estado" in request.form:
         consulta = consulta.filter_by(estado=request.form["estado"])
     registros = consulta.order_by(SIGAGrabacion.id.desc()).offset(start).limit(rows_per_page).all()
@@ -120,6 +117,7 @@ def list_active():
         filtros=json.dumps({"estatus": "A"}),
         titulo="SIGA Grabaciones",
         estatus="A",
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
         estados_grabaciones=SIGAGrabacion.ESTADOS,
     )
 
@@ -133,6 +131,7 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="SIGA Grabaciones Inactivas",
         estatus="B",
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
         estados_grabaciones=SIGAGrabacion.ESTADOS,
     )
 

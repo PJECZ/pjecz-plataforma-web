@@ -16,7 +16,9 @@ from plataforma_web.blueprints.siga_salas.models import SIGASala
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.domicilios.models import Domicilio
+from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.siga_bitacoras.models import SIGABitacora
+from plataforma_web.blueprints.siga_grabaciones.models import SIGAGrabacion
 
 MODULO = "SIGA_SALAS"
 
@@ -92,6 +94,7 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="SIGA Salas Inactivas",
         estatus="B",
+        estados_salas=SIGASala.ESTADOS,
     )
 
 
@@ -103,8 +106,10 @@ def detail(siga_sala_id):
         "siga_salas/detail.jinja2",
         siga_sala=siga_sala,
         filtros=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
         acciones_bitacoras=SIGABitacora.ACCIONES,
         estados_bitacoras=SIGABitacora.ESTADOS,
+        estados_grabaciones=SIGAGrabacion.ESTADOS,
     )
 
 
