@@ -6,7 +6,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message, safe_text
+from lib.safe_string import safe_string, safe_message, safe_text, safe_clave
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from sqlalchemy import func
 
@@ -120,7 +120,7 @@ def new():
     form = SIGASalaNewForm()
     if form.validate_on_submit():
         es_valido = True
-        clave = safe_string(form.clave.data)
+        clave = safe_clave(form.clave.data)
         if SIGASala.query.filter_by(clave=clave).first():
             es_valido = False
             flash("La Clave de la Sala ya está en uso.", "warning")
@@ -161,7 +161,7 @@ def edit(siga_sala_id):
     form = SIGASalaEditForm()
     if form.validate_on_submit():
         es_valido = True
-        clave = safe_string(form.clave.data)
+        clave = safe_clave(form.clave.data)
         if SIGASala.query.filter_by(clave=clave).filter(SIGASala.id != siga_sala_id).first():
             es_valido = False
             flash("La Clave de la Sala ya está en uso.", "warning")

@@ -12,5 +12,5 @@ class SIGAGrabacionEditForm(FlaskForm):
     expediente = StringField("Expediente")
     sala = StringField("Sala")
     inicio = StringField("Inicio")
-    nota = TextAreaField("Nota", validators=[Optional(), Length(max=1024)])
+    nota = TextAreaField("Nota", validators=[Optional(), Length(max=512)])
     guardar = SubmitField("Guardar")
