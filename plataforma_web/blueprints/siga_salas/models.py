@@ -35,6 +35,7 @@ class SIGASala(db.Model, UniversalMixin):
 
     # Hijos
     siga_bitacoras = db.relationship("SIGABitacora", back_populates="siga_sala", lazy="noload")
+    siga_grabaciones = db.relationship("SIGAGrabacion", back_populates="siga_sala", lazy="noload")
 
     @property
     def clave_nombre(self):

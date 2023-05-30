@@ -5,6 +5,12 @@
 
 {% block title %}SIGA Sala{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://storage.googleapis.com/pjecz-informatica/static/css/select2.css" rel="stylesheet" />
+{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons('SIGA Sala') %}
         {{ topbar.button_previous('Salas', url_for('siga_salas.list_active')) }}
@@ -35,14 +41,14 @@
                 <form class="row g-1 mb-3" id="buscadorForm_salas" onsubmit="filtros_bitacoras.buscar(); return false;" autocomplete="off">
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="desdeInput" type="date" class="form-control" aria-label="Desde" onchange="filtros_bitacoras.buscar(); return false;">
-                            <label for="desdeInput">Desde</label>
+                            <input id="desdeInput_salas" type="date" class="form-control" aria-label="Desde" onchange="filtros_bitacoras.buscar(); return false;">
+                            <label for="desdeInput_salas">Desde</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="hastaInput" type="date" class="form-control" aria-label="Hasta" onchange="filtros_bitacoras.buscar(); return false;">
-                            <label for="hastaInput">Hasta</label>
+                            <input id="hastaInput_salas" type="date" class="form-control" aria-label="Hasta" onchange="filtros_bitacoras.buscar(); return false;">
+                            <label for="hastaInput_salas">Hasta</label>
                         </div>
                     </div>
                     <div class="col-3">
@@ -88,6 +94,84 @@
     {% endcall %}
 
     {% call detail.card(title='Grabaciones') %}
+        <!-- Formulario de filtros Grabaciones -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm_salas" onsubmit="filtros_grabaciones.buscar(); return false;" autocomplete="off">
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="idInput" type="text" class="form-control" aria-label="Id" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="idInput">Id</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="expedienteInput" type="text" class="form-control" aria-label="Expediente" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="expedienteInput">Expediente</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="desdeInput_grabaciones" type="date" class="form-control" aria-label="Desde" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="desdeInput_grabaciones">Desde</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="hastaInput_grabaciones" type="date" class="form-control" aria-label="Hasta" onchange="filtros_grabaciones.buscar(); return false;">
+                            <label for="hastaInput_grabaciones">Hasta</label>
+                        </div>
+                    </div>
+                    <!-- Renglon 2 -->
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select id="autoridadSelect" class="form-control js-select2-filter" onchange="filtros_grabaciones.buscar(); return false;" style="text-transform: uppercase"></select>
+                            <label for="autoridadSelect">Autoridad</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <select class="form-select" id="materiaSelect" name="materiaSelect" aria-label="Materia" onchange="filtros_grabaciones.buscar(); return false;" style="flex: inherit;">
+                            <option selected value=""></option>
+                                {% for materia in materias %}
+                                    <option value="{{materia.id}}">{{materia.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="materiaSelect">Materia</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <select class="form-select" id="estadoSelect" name="estadoSelect" aria-label="Estado" onchange="filtros_grabaciones.buscar(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
+                                {% for estado in estados_grabaciones %}
+                                    <option value="{{estado}}">{{estado}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="estadoSelect">Estado</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_grabaciones.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_grabaciones.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable Grabaciones -->
+        <table id="grabaciones_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Inicio - Termino</th>
+                    <th>Autoridad</th>
+                    <th>Expediente</th>
+                    <th>Duración</th>
+                    <th>Estado</th>
+                    <th>Nota</th>
+                </tr>
+            </thead>
+        </table>
     {% endcall %}
 {% endblock %}
 
@@ -140,11 +224,142 @@
         // Creación del Objeto manejador de Filtros
         const filtros_bitacoras = new Filtros('#bitacoras_datatable', configDataTable_bitacoras);
         // Añadimos los difrentes inputs utilizados
-        filtros_bitacoras.add_input('desdeInput', 'desde');
-        filtros_bitacoras.add_input('hastaInput', 'hasta');
+        filtros_bitacoras.add_input('desdeInput_salas', 'desde');
+        filtros_bitacoras.add_input('hastaInput_salas', 'hasta');
         filtros_bitacoras.add_input('accionSelect', 'accion');
         filtros_bitacoras.add_input('estadoSelect', 'estado');
         // Precarga de los valores de los inputs mantenidos después de la carga de la página.
         filtros_bitacoras.precarga();
+    </script>
+
+    <!-- Datatable para Grabaciones -->
+    <script>
+        const dataTable_funcs_grabaciones = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_grabaciones = dataTable_funcs_grabaciones.config;
+        configDataTable_grabaciones['ajax']['url'] = '/siga_grabaciones/datatable_json';
+        configDataTable_grabaciones['ajax']['data'] = {{ filtros }};
+        configDataTable_grabaciones['columns'] = [
+            { data: 'id' },
+            { data: 'tiempo' },
+            { data: 'autoridad_materia' },
+            { data: 'expediente' },
+            { data: 'duracion_tamanio' },
+            { data: 'estado' },
+            { data: 'nota' }
+        ];
+        configDataTable_grabaciones['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_grabaciones.texto_con_url(data.id, data.url);
+                }
+            },
+            {
+                targets: 1, // tiempo
+                data: null,
+                render: function(data, type, row, meta) {
+                    texto = "<strong>I:</strong> " + data.inicio + "<br/>";
+                    texto += "<strong>T:</strong> " + data.termino;
+                    return texto;
+                }
+            },
+            {
+                targets: 2, // autoridad_materia
+                data: null,
+                render: function(data, type, row, meta) {
+                    texto = "<strong>Autoridad:</strong> <a href='" + data.autoridad.url + "'>" + data.autoridad.nombre + "</a><br/>";
+                    texto += "<strong>Materia:</strong> <a href='" + data.materia.url + "'>" + data.materia.nombre + "</a>";
+                    return texto;
+                }
+            },
+            {
+                targets: 4, // duracion_tamanio
+                data: null,
+                render: function(data, type, row, meta) {
+                    texto = data.duracion + "<br/>";
+                    texto += data.tamanio + " <strong>MB</strong>";
+                    return texto;
+                }
+            },
+            {
+                targets: 5, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    let bgcolor = "bg-dark";
+                    switch (data)    {
+                        case "VALIDO":       bgcolor = 'bg-primary';    break;
+                        case "INVALIDO":     bgcolor = "bg-danger";     break;
+                    }
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
+                }
+            },
+            {
+                targets: 6, // nota
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data == null)
+                        return ""
+                    return "<span title='" + data + "' class='badge rounded-pill bg-warning text-dark'><span class='iconify' data-icon='mdi:note'></span></span>"
+                }
+            }
+        ];
+
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_grabaciones = new Filtros('#grabaciones_datatable', configDataTable_grabaciones);
+        // Añadimos los difrentes inputs utilizados
+        filtros_grabaciones.add_input('idInput', 'id');
+        filtros_grabaciones.add_input('expedienteInput', 'expediente');
+        filtros_grabaciones.add_input('desdeInput_grabaciones', 'desde');
+        filtros_grabaciones.add_input('hastaInput_grabaciones', 'hasta');
+        filtros_grabaciones.add_input('autoridadSelect', 'autoridad_id');
+        filtros_grabaciones.add_input('materiaSelect', 'materia_id');
+        filtros_grabaciones.add_input('estadoSelect', 'estado');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_grabaciones.precarga();
+    </script>
+
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // Select2 para Salas
+        $(document).ready(function(){
+            $('#salaSelect').select2({
+                // --- Carga por Ajax --- //
+                ajax: {
+                    url: '/siga_salas/salas_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'clave': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 2,
+                cache: false
+            });
+        });
+    </script>
+    <script>
+        // Select2 para Autoridades
+        $(document).ready(function(){
+            $('#autoridadSelect').select2({
+                // --- Carga por Ajax --- //
+                ajax: {
+                    url: '/autoridades/juzgados_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'clave': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 3,
+                cache: false
+            });
+        });
     </script>
 {% endblock %}

@@ -18,7 +18,7 @@
     {% call f.card() %}
         {% set form_kwargs = {'siga_sala_id': siga_sala.id} %}
         {% call f.form_tag('siga_salas.edit', fid='siga_sala_form', **form_kwargs) %}
-            {% call f.form_group(form.clave_readOnly, readOnly=true) %}{% endcall %}
+            {% call f.form_group(form.clave) %}{% endcall %}
             {% call f.form_group(form.edificio) %}{% endcall %}
             {% call f.form_group(form.direccion_ip) %}{% endcall %}
             {% call f.form_group(form.direccion_nvr) %}{% endcall %}
@@ -36,7 +36,7 @@
         $(document).ready(function(){
             $('#edificio').addClass('js-example-placeholder-single');
             // --- Carga de la opción elegida --- //
-            const newEdificioOption = new Option('{{siga_sala.domicilio.edificio}}', '{{siga_sala.domicilio.id}}', false, false);
+            const newEdificioOption = new Option('{{siga_sala.domicilio.distrito.clave}} : {{siga_sala.domicilio.edificio}}', '{{siga_sala.domicilio.id}}', false, false);
             $('#edificio').append(newEdificioOption).trigger('change');
             // --- Select2 --- //
             $('#edificio').select2({
@@ -48,7 +48,7 @@
                     delay: 250,
                     type: "POST",
                     data: function (params) {
-                        return { 'edificio': params.term.toUpperCase() };
+                        return { 'edificio_or_distrito_clave': params.term.toUpperCase() };
                     }
                 },
                 placeholder: "{{buscar}}",

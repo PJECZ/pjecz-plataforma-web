@@ -1,0 +1,86 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}SIGA Grabación{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('SIGA Grabación') %}
+        {{ topbar.button_previous('Grabaciones', url_for('siga_grabaciones.list_active')) }}
+        {% if current_user.can_edit('SIGA_GRABACIONES') %}
+            {% if not siga_grabacion.nota %}
+                {{ topbar.button_new('Añadir Nota', url_for('siga_grabaciones.edit_note', siga_grabacion_id=siga_grabacion.id)) }}
+            {% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=siga_grabacion.estatus) %}
+        {{ detail.label_value_big('ID', siga_grabacion.id) }}
+        {{ detail.label_value('Sala', siga_grabacion.siga_sala.clave, url_for('siga_salas.detail', siga_sala_id=siga_grabacion.siga_sala_id)) }}
+        {{ detail.label_value('Autoridad', siga_grabacion.autoridad.nombre, url_for('autoridades.detail', autoridad_id=siga_grabacion.autoridad_id)) }}
+        {{ detail.label_value('Materia', siga_grabacion.materia.nombre, url_for('materias.detail', materia_id=siga_grabacion.materia_id)) }}
+        {{ detail.label_value('Expediente', siga_grabacion.expediente) }}
+        {{ detail.label_value('Inicio', siga_grabacion.inicio) }}
+        {{ detail.label_value('Termino', siga_grabacion.termino) }}
+        {{ detail.label_value('Duración', siga_grabacion.duracion) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Tamaño</div>
+            <div class="col-md-9">
+                <strong id="tamanio">{{ siga_grabacion.tamanio }}</strong>
+            </div>
+        </div>
+        {{ detail.label_value('Justicia ruta', siga_grabacion.justicia_ruta) }}
+        {{ detail.label_value('Google Storage', siga_grabacion.storage_url) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Estado</div>
+            <div class="col-md-9">
+                {% if siga_grabacion.estado == "VALIDO" %}
+                    <span class="badge rounded-pill bg-primary">{{ siga_grabacion.estado}}</span>
+                {% elif siga_grabacion.estado == "INVALIDO" %}
+                    <span class="badge rounded-pill bg-danger">{{ siga_grabacion.estado }}</span>
+                {% else %}
+                    {{ siga_grabacion.estado }}
+                {% endif %}
+            </div>
+        </div>
+        {{ detail.label_value('Nombre del Archivo', siga_grabacion.archivo_nombre) }}
+    {% endcall %}
+
+    {# NOTA #}
+    {% if siga_grabacion.nota %}
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Nota</div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                <div class="col-md-9 text-start">{{ siga_grabacion.nota }}</div>
+            </div>
+            {% if current_user.can_edit('SIGA_GRABACIONES') %}
+                <div class="card-footer">
+                    <a type="button" href="{{ url_for('siga_grabaciones.edit_note', siga_grabacion_id=siga_grabacion.id) }}" class="btn btn-warning text-dark"><span class="iconify" data-icon="mdi:pencil"></span> Editar Nota</a>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {# Previsualización del video #}
+    {% call detail.card("Previsualización") %}
+        <video controls>
+            <source src="path/to/video.mp4" type="video/mp4" style="width:100%; text-align: center;">
+            Your browser does not support the video tag.
+        </video>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Script para mostrar diferentes tamaños de archivo -->
+    <script>
+        function convertBytesToMegaBytes(bytes) {
+            return (bytes / (1024 * 1024)).toFixed(2)  + " MB";
+        }
+        $(document).ready(function(){
+            $('#tamanio').text( convertBytesToMegaBytes( $('#tamanio').text() ) );
+        });
+    </script>
+{% endblock %}

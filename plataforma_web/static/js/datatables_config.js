@@ -46,6 +46,8 @@ class ConfigDataTable {
 
     /* Corta el texto a una longitud especificada, al pasar de ésta, agrega la puntuación '…' al final */
     this.texto_cortado = function (texto, longitud = 32) {
+      if (texto == null)
+        return "";
       if (texto.length > longitud) {
         const texto_cortado = texto.substr(0, longitud) + "…";
         return "<span title='" + texto + "'>" + texto_cortado + "</span>";

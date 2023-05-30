@@ -6,8 +6,9 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message, safe_text
+from lib.safe_string import safe_string, safe_message, safe_text, safe_clave
 from plataforma_web.blueprints.usuarios.decorators import permission_required
+from sqlalchemy import func
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.siga_salas.forms import SIGASalaNewForm, SIGASalaEditForm
@@ -15,7 +16,9 @@ from plataforma_web.blueprints.siga_salas.models import SIGASala
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.domicilios.models import Domicilio
+from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.siga_bitacoras.models import SIGABitacora
+from plataforma_web.blueprints.siga_grabaciones.models import SIGAGrabacion
 
 MODULO = "SIGA_SALAS"
 
@@ -59,7 +62,7 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("siga_salas.detail", siga_sala_id=resultado.id),
                 },
-                "edificio": resultado.domicilio.edificio,
+                "edificio": resultado.domicilio.distrito.clave + " : " + resultado.domicilio.edificio,
                 "direccion_ip": resultado.direccion_ip,
                 "direccion_nvr": resultado.direccion_nvr,
                 "estado": resultado.estado,
@@ -91,6 +94,7 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="SIGA Salas Inactivas",
         estatus="B",
+        estados_salas=SIGASala.ESTADOS,
     )
 
 
@@ -101,9 +105,11 @@ def detail(siga_sala_id):
     return render_template(
         "siga_salas/detail.jinja2",
         siga_sala=siga_sala,
-        filtros=json.dumps({"estatus": "A"}),
+        filtros=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
+        materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
         acciones_bitacoras=SIGABitacora.ACCIONES,
         estados_bitacoras=SIGABitacora.ESTADOS,
+        estados_grabaciones=SIGAGrabacion.ESTADOS,
     )
 
 
@@ -114,7 +120,7 @@ def new():
     form = SIGASalaNewForm()
     if form.validate_on_submit():
         es_valido = True
-        clave = safe_string(form.clave.data)
+        clave = safe_clave(form.clave.data)
         if SIGASala.query.filter_by(clave=clave).first():
             es_valido = False
             flash("La Clave de la Sala ya está en uso.", "warning")
@@ -155,6 +161,10 @@ def edit(siga_sala_id):
     form = SIGASalaEditForm()
     if form.validate_on_submit():
         es_valido = True
+        clave = safe_clave(form.clave.data)
+        if SIGASala.query.filter_by(clave=clave).filter(SIGASala.id != siga_sala_id).first():
+            es_valido = False
+            flash("La Clave de la Sala ya está en uso.", "warning")
         edificio_id = int(form.edificio.data)
         edificio = Domicilio.query.filter_by(id=edificio_id).first()
         if edificio is None:
@@ -162,6 +172,7 @@ def edit(siga_sala_id):
             flash("El Edificio no es válido.", "warning")
         # Si es valido, actualizar
         if es_valido:
+            siga_sala.clave = clave
             siga_sala.edificio = edificio
             siga_sala.direccion_ip = form.direccion_ip.data
             siga_sala.direccion_nvr = form.direccion_nvr.data
@@ -177,7 +188,7 @@ def edit(siga_sala_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.clave_readOnly.data = siga_sala.clave
+    form.clave.data = siga_sala.clave
     form.edificio.data = siga_sala.domicilio
     form.direccion_ip.data = siga_sala.direccion_ip
     form.direccion_nvr.data = siga_sala.direccion_nvr
@@ -220,3 +231,15 @@ def recover(siga_sala_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("siga_salas.detail", siga_sala_id=siga_sala_id))
+
+
+@siga_salas.route("/siga_salas/salas_json", methods=["POST"])
+def query_salas_json():
+    """Proporcionar el JSON de salas para elegir Salas con un Select2"""
+    consulta = SIGASala.query.filter(SIGASala.estatus == "A")
+    if "clave" in request.form:
+        consulta = consulta.filter(SIGASala.clave.contains(request.form["clave"]))
+    results = []
+    for sala in consulta.order_by(SIGASala.clave).limit(15).all():
+        results.append({"id": sala.id, "text": sala.clave + " : " + sala.domicilio.edificio})
+    return {"results": results, "pagination": {"more": False}}
