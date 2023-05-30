@@ -1,7 +1,8 @@
 """
 SIGA Bitacoras, vistas
 """
-from flask import Blueprint, request
+import json
+from flask import Blueprint, request, render_template, url_for
 from flask_login import login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
@@ -33,6 +34,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "sala_id" in request.form:
+        consulta = consulta.filter_by(id=request.form["sala_id"])
     if "desde" in request.form:
         consulta = consulta.filter(SIGABitacora.modificado >= request.form["desde"])
     if "hasta" in request.form:
@@ -50,6 +53,11 @@ def datatable_json():
             {
                 "id": resultado.id,
                 "tiempo": resultado.modificado.strftime("%Y/%m/%d - %H:%M:%S"),
+                "sala": {
+                    "nombre": resultado.siga_sala.clave,
+                    "url": url_for("siga_salas.detail", siga_sala_id=resultado.siga_sala.id),
+                    "tooltip": resultado.siga_sala.domicilio.edificio,
+                },
                 "accion": resultado.accion,
                 "estado": resultado.estado,
                 "descripcion": resultado.descripcion,
@@ -57,3 +65,16 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@siga_bitacoras.route("/siga_bitacoras")
+def list_active():
+    """Listado de SIGASala activas"""
+    return render_template(
+        "siga_bitacoras/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="SIGA Bitácoras",
+        estatus="A",
+        acciones=SIGABitacora.ACCIONES,
+        estados=SIGABitacora.ESTADOS,
+    )

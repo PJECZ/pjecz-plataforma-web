@@ -105,7 +105,8 @@ def detail(siga_sala_id):
     return render_template(
         "siga_salas/detail.jinja2",
         siga_sala=siga_sala,
-        filtros=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
+        filtros_bitacoras=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
+        filtros_grabaciones=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
         materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
         acciones_bitacoras=SIGABitacora.ACCIONES,
         estados_bitacoras=SIGABitacora.ESTADOS,
@@ -124,16 +125,16 @@ def new():
         if SIGASala.query.filter_by(clave=clave).first():
             es_valido = False
             flash("La Clave de la Sala ya está en uso.", "warning")
-        edificio_id = int(form.edificio.data)
-        edificio = Domicilio.query.filter_by(id=edificio_id).first()
-        if edificio is None:
+        edificio_id = int(form.domicilio.data)
+        domicilio = Domicilio.query.filter_by(id=edificio_id).first()
+        if domicilio is None:
             es_valido = False
             flash("El Edificio no es válido.", "warning")
         # Si es valido, insertar
         if es_valido:
             sala = SIGASala(
                 clave=clave,
-                domicilio=edificio,
+                domicilio=domicilio,
                 direccion_ip=form.direccion_ip.data,
                 direccion_nvr=form.direccion_nvr.data,
                 estado="OPERATIVO",
@@ -165,15 +166,15 @@ def edit(siga_sala_id):
         if SIGASala.query.filter_by(clave=clave).filter(SIGASala.id != siga_sala_id).first():
             es_valido = False
             flash("La Clave de la Sala ya está en uso.", "warning")
-        edificio_id = int(form.edificio.data)
-        edificio = Domicilio.query.filter_by(id=edificio_id).first()
-        if edificio is None:
+        edificio_id = int(form.domicilio.data)
+        domicilio = Domicilio.query.filter_by(id=edificio_id).first()
+        if domicilio is None:
             es_valido = False
             flash("El Edificio no es válido.", "warning")
         # Si es valido, actualizar
         if es_valido:
             siga_sala.clave = clave
-            siga_sala.edificio = edificio
+            siga_sala.domicilio = domicilio
             siga_sala.direccion_ip = form.direccion_ip.data
             siga_sala.direccion_nvr = form.direccion_nvr.data
             siga_sala.estado = form.estado.data
@@ -189,7 +190,7 @@ def edit(siga_sala_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.clave.data = siga_sala.clave
-    form.edificio.data = siga_sala.domicilio
+    form.domicilio.data = siga_sala.domicilio
     form.direccion_ip.data = siga_sala.direccion_ip
     form.direccion_nvr.data = siga_sala.direccion_nvr
     form.estado.data = siga_sala.estado

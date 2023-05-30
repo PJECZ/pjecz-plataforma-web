@@ -12,12 +12,14 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_insert('SIGA_SALAS') %}
-            {{ topbar.button_new('Nueva Sala', url_for('siga_salas.new')) }}
-        {% endif %}
+        {{ topbar.button('Grabaciones', url_for('siga_grabaciones.list_active'), 'mdi:file-video') }}
+        {{ topbar.button('Bitácoras', url_for('siga_bitacoras.list_active'), 'mdi:list-status') }}
         {% if current_user.can_admin('SIGA_SALAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('siga_salas.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('siga_salas.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('SIGA_SALAS') %}
+            {{ topbar.button_new('Nueva Sala', url_for('siga_salas.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}

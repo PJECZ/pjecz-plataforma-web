@@ -43,15 +43,6 @@ class SIGABitacora(db.Model, UniversalMixin):
     estado = db.Column(db.Enum(*ESTADOS, name="tipos_estados", native_enum=False), index=True, nullable=False)
     descripcion = db.Column(db.String(512))
 
-    @property
-    def accion_description(self):
-        """Entrega la descripción de la acción"""
-        return self.ACCIONES[self.accion][1]
-
-    def estado_description(self):
-        """Entrega la descripción del estado"""
-        return self.ESTADOS[self.estado][1]
-
     def __repr__(self):
         """Representación"""
-        return f"<SIGA Bitacora {self.id}: {self.accion} — {self.tipo}> : {self.descripcion}"
+        return f"<SIGA Bitacora {self.id}"

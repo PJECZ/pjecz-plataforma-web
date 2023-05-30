@@ -1,0 +1,175 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}SIGA Bitácoras{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://storage.googleapis.com/pjecz-informatica/static/css/select2.css" rel="stylesheet" />
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('SIGA_SALAS') %}
+            {{ topbar.button('Salas', url_for('siga_salas.list_active'), 'mdi:video-box') }}
+        {% endif %}
+        {% if current_user.can_view('SIGA_bitacoras') %}
+            {{ topbar.button('bitacoras', url_for('siga_bitacoras.list_active'), 'mdi:file-video') }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <!-- Formulario de filtros Salas -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_bitacoras.buscar(); return false;" autocomplete="off">
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="desdeInput" type="date" class="form-control" aria-label="Desde" onchange="filtros_bitacoras.buscar(); return false;">
+                            <label for="desdeInput">Desde</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="hastaInput" type="date" class="form-control" aria-label="Hasta" onchange="filtros_bitacoras.buscar(); return false;">
+                            <label for="hastaInput">Hasta</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <select id="salaSelect" class="form-control js-select2-filter" onchange="filtros_bitacoras.buscar(); return false;" style="text-transform: uppercase"></select>
+                            <label for="salaSelect">Sala</label>
+                        </div>
+                    </div>
+                    <!-- Renglon 2 -->
+                    <div class="col-5">
+                        <div class="form-floating">
+                            <select class="form-select" id="accionSelect" name="accionSelect" aria-label="accion" onchange="filtros_bitacoras.buscar(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
+                                {% for accion in acciones %}
+                                    <option value="{{accion}}">{{accion}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="accionSelect">Acción</label>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="form-floating">
+                            <select class="form-select" id="estadoSelect" name="estadoSelect" aria-label="Estado" onchange="filtros_bitacoras.buscar(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
+                                {% for estado in estados %}
+                                    <option value="{{estado}}">{{estado}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="estadoSelect">Estado</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_bitacoras.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_bitacoras.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable bitacoras -->
+        <table id="bitacoras_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Tiempo</th>
+                    <th>Sala</th>
+                    <th>Acción</th>
+                    <th>Estado</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    <script src="/static/js/datatables_filtros.js"></script>
+    <script>
+        const dataTable_funcs_bitacoras = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_bitacoras = dataTable_funcs_bitacoras.config;
+        configDataTable_bitacoras['ajax']['url'] = '/siga_bitacoras/datatable_json';
+        configDataTable_bitacoras['ajax']['data'] = {{ filtros }};
+        configDataTable_bitacoras['columns'] = [
+            { data: 'tiempo' },
+            { data: 'sala' },
+            { data: 'accion' },
+            { data: 'estado' },
+            { data: 'descripcion' }
+        ];
+        configDataTable_bitacoras['columnDefs'] = [
+            {
+                targets: 1, // sala
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_bitacoras.texto_con_url(data.nombre, data.url, data.tooltip);
+                }
+            },
+            {
+                targets: 3, // estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    let bgcolor = "bg-dark";
+                    switch (data)    {
+                        case "CORRECTO":        bgcolor = 'bg-success';             break;
+                        case "PENDIENTE":       bgcolor = "bg-warning text-dark";   break;
+                        case "CANCELADO":       bgcolor = 'bg-secondary';           break;
+                        case "ERROR":           bgcolor = 'bg-danger';              break;
+                    }
+                    return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
+                }
+            },
+            {
+                targets: 4, // descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs_bitacoras.texto_cortado(data);
+                }
+            }
+        ];
+
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_bitacoras = new Filtros('#bitacoras_datatable', configDataTable_bitacoras);
+        // Añadimos los difrentes inputs utilizados
+        filtros_bitacoras.add_input('desdeInput', 'desde');
+        filtros_bitacoras.add_input('hastaInput', 'hasta');
+        filtros_bitacoras.add_input('salaSelect', 'sala_id');
+        filtros_bitacoras.add_input('accionSelect', 'accion');
+        filtros_bitacoras.add_input('estadoSelect', 'estado');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_bitacoras.precarga();
+    </script>
+
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // Select2 para Salas
+        $(document).ready(function(){
+            $('#salaSelect').select2({
+                // --- Carga por Ajax --- //
+                ajax: {
+                    url: '/siga_salas/salas_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'clave': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 2,
+                cache: false
+            });
+        });
+    </script>
+{% endblock %}

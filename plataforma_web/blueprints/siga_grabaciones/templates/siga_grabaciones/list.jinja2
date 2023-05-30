@@ -15,6 +15,7 @@
         {% if current_user.can_view('SIGA_SALAS') %}
             {{ topbar.button('Salas', url_for('siga_salas.list_active'), 'mdi:video-box') }}
         {% endif %}
+        {{ topbar.button('Bitácoras', url_for('siga_bitacoras.list_active'), 'mdi:list-status') }}
         {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('siga_grabaciones.list_inactive')) }}{% endif %}
         {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('siga_grabaciones.list_active')) }}{% endif %}
     {% endcall %}
@@ -150,15 +151,24 @@
                 targets: 2, // sala
                 data: null,
                 render: function(data, type, row, meta) {
-                    return dataTable_funcs_grabaciones.texto_con_url(data.nombre, data.url);
+                    return dataTable_funcs_grabaciones.texto_con_url(data.nombre, data.url, data.tooltip);
                 }
             },
             {
                 targets: 3, // autoridad_materia
                 data: null,
                 render: function(data, type, row, meta) {
-                    texto = "<strong>Autoridad:</strong> <a href='" + data.autoridad.url + "'>" + data.autoridad.nombre + "</a><br/>";
-                    texto += "<strong>Materia:</strong> <a href='" + data.materia.url + "'>" + data.materia.nombre + "</a>";
+                    let texto = "";
+                    if (data.autoridad.url === "") {
+                        texto = "<strong>Autoridad:</strong> " + data.autoridad.nombre + "<br/>";
+                    } else {
+                        texto = "<strong>Autoridad:</strong> <a href='" + data.autoridad.url + "'>" + data.autoridad.nombre + "</a><br/>";
+                    }
+                    if (data.materia.url === "") {
+                        texto = "<strong>Materia:</strong> " + data.materia.nombre + "<br/>";
+                    } else {
+                        texto += "<strong>Materia:</strong> <a href='" + data.materia.url + "'>" + data.materia.nombre + "</a>";
+                    }
                     return texto;
                 }
             },
