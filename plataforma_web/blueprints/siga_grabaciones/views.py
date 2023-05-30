@@ -73,27 +73,28 @@ def datatable_json():
                 },
                 "sala": {
                     "nombre": resultado.siga_sala.clave,
-                    "url": url_for("siga_salas.detail", siga_sala_id=resultado.siga_sala.id),
+                    "url": url_for("siga_salas.detail", siga_sala_id=resultado.siga_sala.id) if current_user.can_view("SIGA_SALAS") else "",
+                    "tooltip": resultado.siga_sala.domicilio.edificio,
                 },
                 "inicio": resultado.inicio.strftime("%Y/%m/%d - %H:%M:%S"),
                 "termino": resultado.termino.strftime("%Y/%m/%d - %H:%M:%S"),
                 "autoridad_materia": {
                     "autoridad": {
                         "nombre": resultado.autoridad.clave,
-                        "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
+                        "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id) if current_user.can_view("AUTORIDADES") else "",
                     },
                     "materia": {
                         "nombre": resultado.materia.nombre,
-                        "url": url_for("materias.detail", materia_id=resultado.materia.id),
+                        "url": url_for("materias.detail", materia_id=resultado.materia.id) if current_user.can_view("MATERIAS") else "",
                     },
                 },
                 "autoridad": {
                     "nombre": resultado.autoridad.clave,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
+                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id) if current_user.can_view("AUTORIDADES") else "",
                 },
                 "materia": {
                     "nombre": resultado.materia.nombre,
-                    "url": url_for("materias.detail", materia_id=resultado.materia.id),
+                    "url": url_for("materias.detail", materia_id=resultado.materia.id) if current_user.can_view("MATERIAS") else "",
                 },
                 "expediente": resultado.expediente,
                 "duracion": resultado.duracion.strftime("%H:%M:%S"),
