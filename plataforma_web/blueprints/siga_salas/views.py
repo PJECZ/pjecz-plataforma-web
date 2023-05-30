@@ -105,7 +105,8 @@ def detail(siga_sala_id):
     return render_template(
         "siga_salas/detail.jinja2",
         siga_sala=siga_sala,
-        filtros=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
+        filtros_bitacoras=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
+        filtros_grabaciones=json.dumps({"estatus": "A", "sala_id": siga_sala.id}),
         materias=Materia.query.filter_by(estatus="A").order_by(Materia.nombre).all(),
         acciones_bitacoras=SIGABitacora.ACCIONES,
         estados_bitacoras=SIGABitacora.ESTADOS,

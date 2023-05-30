@@ -15,6 +15,7 @@
         {% if current_user.can_view('SIGA_SALAS') %}
             {{ topbar.button('Salas', url_for('siga_salas.list_active'), 'mdi:video-box') }}
         {% endif %}
+        {{ topbar.button('Bitácoras', url_for('siga_bitacoras.list_active'), 'mdi:list-status') }}
         {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('siga_grabaciones.list_inactive')) }}{% endif %}
         {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('siga_grabaciones.list_active')) }}{% endif %}
     {% endcall %}

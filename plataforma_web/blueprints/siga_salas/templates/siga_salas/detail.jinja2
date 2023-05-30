@@ -189,7 +189,7 @@
         const dataTable_funcs_bitacoras = new ConfigDataTable( "{{ csrf_token() }}" );
         let configDataTable_bitacoras = dataTable_funcs_bitacoras.config;
         configDataTable_bitacoras['ajax']['url'] = '/siga_bitacoras/datatable_json';
-        configDataTable_bitacoras['ajax']['data'] = {{ filtros }};
+        configDataTable_bitacoras['ajax']['data'] = {{ filtros_bitacoras }};
         configDataTable_bitacoras['columns'] = [
             { data: 'tiempo' },
             { data: 'accion' },
@@ -237,7 +237,7 @@
         const dataTable_funcs_grabaciones = new ConfigDataTable( "{{ csrf_token() }}" );
         let configDataTable_grabaciones = dataTable_funcs_grabaciones.config;
         configDataTable_grabaciones['ajax']['url'] = '/siga_grabaciones/datatable_json';
-        configDataTable_grabaciones['ajax']['data'] = {{ filtros }};
+        configDataTable_grabaciones['ajax']['data'] = {{ filtros_grabaciones }};
         configDataTable_grabaciones['columns'] = [
             { data: 'id' },
             { data: 'tiempo' },
