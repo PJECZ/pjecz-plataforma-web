@@ -4,6 +4,15 @@ Domicilios, formularios
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, Length, Optional
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from sqlalchemy import or_, and_
+
+from plataforma_web.blueprints.distritos.models import Distrito
+
+
+def distritos_juridiccionales_y_distritales():
+    """Opciones para select"""
+    return Distrito.query.filter_by(estatus="A").filter(or_(Distrito.nombre_corto == "NO DEFINIDO", and_(Distrito.es_jurisdiccional == True, Distrito.es_distrito == True))).order_by(Distrito.nombre_corto).all()
 
 
 class DomicilioForm(FlaskForm):
@@ -12,6 +21,7 @@ class DomicilioForm(FlaskForm):
     edificio = StringField("Edificio", validators=[DataRequired(), Length(max=64)])
     estado = StringField("Estado", validators=[DataRequired(), Length(max=64)])
     municipio = StringField("Municipio", validators=[DataRequired(), Length(max=64)])
+    distrito_id = QuerySelectField("Distrito", query_factory=distritos_juridiccionales_y_distritales, get_label="nombre_corto", validators=[DataRequired()])
     calle = StringField("Calle", validators=[DataRequired(), Length(max=256)])
     num_ext = StringField("Núm. Exterior", validators=[Optional()])
     num_int = StringField("Núm. Interior", validators=[Optional()])
