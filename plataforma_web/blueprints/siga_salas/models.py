@@ -38,8 +38,8 @@ class SIGASala(db.Model, UniversalMixin):
     siga_grabaciones = db.relationship("SIGAGrabacion", back_populates="siga_sala", lazy="noload")
 
     @property
-    def clave_nombre(self):
-        """Entrega clave - descripción para usar en select"""
+    def clave_descripcion(self):
+        """Entrega (clave - descripción) para usar en select"""
         return f"{self.clave} — {self.descripcion}"
 
     def __repr__(self):
