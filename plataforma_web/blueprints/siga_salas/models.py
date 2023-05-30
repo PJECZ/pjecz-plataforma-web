@@ -44,4 +44,4 @@ class SIGASala(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Sala {self.id}: {self.clave} — {self.descripcion}>"
+        return f"<Sala {self.clave}>"
