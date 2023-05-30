@@ -19,7 +19,7 @@
         {% set form_kwargs = {'siga_sala_id': siga_sala.id} %}
         {% call f.form_tag('siga_salas.edit', fid='siga_sala_form', **form_kwargs) %}
             {% call f.form_group(form.clave) %}{% endcall %}
-            {% call f.form_group(form.edificio) %}{% endcall %}
+            {% call f.form_group(form.domicilio) %}{% endcall %}
             {% call f.form_group(form.direccion_ip) %}{% endcall %}
             {% call f.form_group(form.direccion_nvr) %}{% endcall %}
             {% call f.form_group(form.estado) %}{% endcall %}
@@ -34,12 +34,12 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            $('#edificio').addClass('js-example-placeholder-single');
+            $('#domicilio').addClass('js-example-placeholder-single');
             // --- Carga de la opción elegida --- //
             const newEdificioOption = new Option('{{siga_sala.domicilio.distrito.clave}} : {{siga_sala.domicilio.edificio}}', '{{siga_sala.domicilio.id}}', false, false);
-            $('#edificio').append(newEdificioOption).trigger('change');
+            $('#domicilio').append(newEdificioOption).trigger('change');
             // --- Select2 --- //
-            $('#edificio').select2({
+            $('#domicilio').select2({
                 // --- Carga por Ajax --- //
                 ajax: {
                     url: '/domicilios/edificios_json',
