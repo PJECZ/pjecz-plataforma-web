@@ -12,11 +12,11 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_view('SIGA_SALAS') %}
+        {% if current_user.can_view('SIGA SALAS') %}
             {{ topbar.button('Salas', url_for('siga_salas.list_active'), 'mdi:video-box') }}
         {% endif %}
-        {% if current_user.can_view('SIGA_bitacoras') %}
-            {{ topbar.button('bitacoras', url_for('siga_bitacoras.list_active'), 'mdi:file-video') }}
+        {% if current_user.can_view('SIGA GRABACIONES') %}
+            {{ topbar.button('grabaciones', url_for('siga_grabaciones.list_active'), 'mdi:file-video') }}
         {% endif %}
     {% endcall %}
 {% endblock %}

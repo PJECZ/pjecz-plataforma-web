@@ -14,10 +14,10 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('SIGA Sala') %}
         {{ topbar.button_previous('Salas', url_for('siga_salas.list_active')) }}
-        {% if current_user.can_admin('SIGA_SALAS') %}
+        {% if current_user.can_admin('SIGA SALAS') %}
             {{ topbar.button_edit('Editar', url_for('siga_salas.edit', siga_sala_id=siga_sala.id)) }}
         {% endif %}
-        {% if current_user.can_admin('SIGA_SALAS') or (current_user.can_edit('SIGA_SALAS')) %}
+        {% if current_user.can_admin('SIGA SALAS') or (current_user.can_edit('SIGA SALAS')) %}
             {% if siga_sala.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('siga_salas.delete', siga_sala_id=siga_sala.id)) }}{% endif %}
             {% if siga_sala.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('siga_salas.recover', siga_sala_id=siga_sala.id)) }}{% endif %}
         {% endif %}
@@ -176,7 +176,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_admin('SIGA_SALAS') or (current_user.can_edit('SIGA_SALAS')) %}
+    {% if current_user.can_admin('SIGA SALAS') or (current_user.can_edit('SIGA SALAS')) %}
         {% if siga_sala.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar la sala ' + siga_sala.clave + '?') }}{% endif %}
         {% if siga_sala.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar la sala ' + siga_sala.clave + '?') }}{% endif %}
     {% endif %}

@@ -20,7 +20,7 @@ from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.siga_bitacoras.models import SIGABitacora
 from plataforma_web.blueprints.siga_grabaciones.models import SIGAGrabacion
 
-MODULO = "SIGA_SALAS"
+MODULO = "SIGA SALAS"
 
 siga_salas = Blueprint("siga_salas", __name__, template_folder="templates")
 
