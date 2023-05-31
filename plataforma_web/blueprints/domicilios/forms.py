@@ -20,7 +20,7 @@ class DomicilioForm(FlaskForm):
     edificio = StringField("Edificio", validators=[DataRequired(), Length(max=64)])
     estado = StringField("Estado", validators=[DataRequired(), Length(max=64)])
     municipio = StringField("Municipio", validators=[DataRequired(), Length(max=64)])
-    distrito_id = QuerySelectField("Distrito", query_factory=distritos_distritales, get_label="nombre_corto", validators=[DataRequired()])
+    distrito = QuerySelectField("Distrito", query_factory=distritos_distritales, get_label="nombre_corto", validators=[DataRequired()])
     calle = StringField("Calle", validators=[DataRequired(), Length(max=256)])
     num_ext = StringField("Núm. Exterior", validators=[Optional()])
     num_int = StringField("Núm. Interior", validators=[Optional()])

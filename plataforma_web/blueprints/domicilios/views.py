@@ -164,11 +164,6 @@ def new():
         if Domicilio.query.filter_by(edificio=edificio).first():
             es_valido = False
             flash("El edificio ya está en uso. Debe de ser único.", "warning")
-        distrito_id = form.distrito_id.data
-        distrito = Distrito.query.filter_by(id=distrito_id).first()
-        if not distrito:
-            es_valido = False
-            flash("El Distrito no es válido.", "warning")
         # Si es valido, insertar
         if es_valido:
             estado = safe_string(form.estado.data, max_len=64, save_enie=True)
@@ -183,7 +178,7 @@ def new():
                 edificio=edificio,
                 estado=estado,
                 municipio=municipio,
-                distrito=distrito,
+                distrito=form.distrito.data,
                 calle=calle,
                 num_ext=num_ext,
                 num_int=num_int,
@@ -218,17 +213,12 @@ def edit(domicilio_id):
             if domicilio_existente and domicilio_existente.id != domicilio_id:
                 es_valido = False
                 flash("El edificio ya está en uso. Debe de ser único.", "warning")
-        distrito_id = form.distrito_id.data.id
-        distrito = Distrito.query.filter_by(id=distrito_id).first()
-        if not distrito:
-            es_valido = False
-            flash("El Distrito no es válido.", "warning")
         # Si es valido, actualizar
         if es_valido:
             domicilio.edificio = edificio
             domicilio.estado = safe_string(form.estado.data, max_len=64, save_enie=True)
             domicilio.municipio = safe_string(form.municipio.data, max_len=64, save_enie=True)
-            domicilio.distrito = distrito
+            domicilio.distrito = form.distrito.data
             domicilio.calle = safe_string(form.calle.data, max_len=256, save_enie=True)
             domicilio.num_ext = safe_string(form.num_ext.data, max_len=24)
             domicilio.num_int = safe_string(form.num_int.data, max_len=24)
@@ -248,7 +238,7 @@ def edit(domicilio_id):
     form.edificio.data = domicilio.edificio
     form.estado.data = domicilio.estado
     form.municipio.data = domicilio.municipio
-    form.distrito_id.data = domicilio.distrito
+    form.distrito.data = domicilio.distrito
     form.calle.data = domicilio.calle
     form.num_ext.data = domicilio.num_ext
     form.num_int.data = domicilio.num_int
