@@ -11,7 +11,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.siga_bitacoras.models import SIGABitacora
 from plataforma_web.blueprints.permisos.models import Permiso
 
-MODULO = "SIGA_SALAS"  # Utilizo el nombre del módulo de SALAS para evitar dar de alta otro módulo y sus permisos
+MODULO = "SIGA SALAS"  # Utilizo el nombre del módulo de SALAS para evitar dar de alta otro módulo y sus permisos
 
 siga_bitacoras = Blueprint("siga_bitacoras", __name__, template_folder="templates")
 

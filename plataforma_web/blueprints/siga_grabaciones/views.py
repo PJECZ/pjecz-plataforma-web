@@ -17,7 +17,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 
 from plataforma_web.blueprints.siga_grabaciones.forms import SIGAGrabacionEditForm
 
-MODULO = "SIGA_GRABACIONES"
+MODULO = "SIGA GRABACIONES"
 
 siga_grabaciones = Blueprint("siga_grabaciones", __name__, template_folder="templates")
 
@@ -73,7 +73,7 @@ def datatable_json():
                 },
                 "sala": {
                     "nombre": resultado.siga_sala.clave,
-                    "url": url_for("siga_salas.detail", siga_sala_id=resultado.siga_sala.id) if current_user.can_view("SIGA_SALAS") else "",
+                    "url": url_for("siga_salas.detail", siga_sala_id=resultado.siga_sala.id) if current_user.can_view("SIGA SALAS") else "",
                     "tooltip": resultado.siga_sala.domicilio.edificio,
                 },
                 "inicio": resultado.inicio.strftime("%Y/%m/%d - %H:%M:%S"),

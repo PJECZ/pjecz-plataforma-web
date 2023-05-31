@@ -8,7 +8,7 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('SIGA Grabación') %}
         {{ topbar.button_previous('Grabaciones', url_for('siga_grabaciones.list_active')) }}
-        {% if current_user.can_edit('SIGA_GRABACIONES') %}
+        {% if current_user.can_edit('SIGA GRABACIONES') %}
             {% if not siga_grabacion.nota %}
                 {{ topbar.button_new('Añadir Nota', url_for('siga_grabaciones.edit_note', siga_grabacion_id=siga_grabacion.id)) }}
             {% endif %}
@@ -56,7 +56,7 @@
             <div class="card-body" style="background-color: #fff3cd;">
                 <div class="col-md-9 text-start">{{ siga_grabacion.nota }}</div>
             </div>
-            {% if current_user.can_edit('SIGA_GRABACIONES') %}
+            {% if current_user.can_edit('SIGA GRABACIONES') %}
                 <div class="card-footer">
                     <a type="button" href="{{ url_for('siga_grabaciones.edit_note', siga_grabacion_id=siga_grabacion.id) }}" class="btn btn-warning text-dark"><span class="iconify" data-icon="mdi:pencil"></span> Editar Nota</a>
                 </div>
