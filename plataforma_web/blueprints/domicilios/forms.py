@@ -5,14 +5,13 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from sqlalchemy import or_, and_
 
 from plataforma_web.blueprints.distritos.models import Distrito
 
 
 def distritos_juridiccionales_y_distritales():
     """Opciones para select"""
-    return Distrito.query.filter_by(estatus="A").filter(or_(Distrito.nombre_corto == "NO DEFINIDO", and_(Distrito.es_jurisdiccional == True, Distrito.es_distrito == True))).order_by(Distrito.nombre_corto).all()
+    return Distrito.query.filter_by(estatus="A").filter_by(es_distrito=True).order_by(Distrito.nombre_corto).all()
 
 
 class DomicilioForm(FlaskForm):
