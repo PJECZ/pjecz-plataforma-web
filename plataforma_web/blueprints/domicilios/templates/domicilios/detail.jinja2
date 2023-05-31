@@ -24,6 +24,7 @@
         {{ detail.label_value('No. Interior', domicilio.num_int) }}
         {{ detail.label_value('Colonia', domicilio.colonia) }}
         {{ detail.label_value('Municipio', domicilio.municipio) }}
+        {{ detail.label_value('Distrito', domicilio.distrito.nombre_corto) }}
         {{ detail.label_value('Estado', domicilio.estado) }}
         {{ detail.label_value('C.P.', domicilio.cp) }}
     {% endcall %}
