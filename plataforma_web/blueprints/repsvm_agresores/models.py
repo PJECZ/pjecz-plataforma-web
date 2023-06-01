@@ -12,6 +12,7 @@ class REPSVMAgresor(db.Model, UniversalMixin):
     TIPOS_JUZGADOS = OrderedDict(
         [
             ("ND", "No Definido"),
+            ("JUZGADO ESPECIALIZADO EN VIOLENCIA CONTRA LAS MUJERES", "Juzgado Especializado en Violencia contra las Mujeres"),
             ("JUZGADO ESPECIALIZADO EN VIOLENCIA FAMILIAR", "Juzgado Especializado en Violencia Familiar"),
             ("JUZGADO DE PRIMERA INSTANCIA EN MATERIA PENAL", "Juzgado de Primera Instancia en Materia Penal"),
         ]
