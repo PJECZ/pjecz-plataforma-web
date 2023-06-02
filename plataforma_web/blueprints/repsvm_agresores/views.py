@@ -193,6 +193,7 @@ def new():
             sentencia_url=safe_url(form.sentencia_url.data),
             tipo_juzgado=safe_string(form.tipo_juzgado.data),
             tipo_sentencia=safe_string(form.tipo_sentencia.data),
+            es_publico=True,
         )
         repsvm_agresor.save()
         bitacora = Bitacora(
