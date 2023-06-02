@@ -38,7 +38,7 @@ class SIGAGrabacion(db.Model, UniversalMixin):
     justicia_ruta = db.Column(db.String(512))
     storage_url = db.Column(db.String(512))
     tamanio = db.Column(db.Integer())
-    duracion = db.Column(db.Time())
+    duracion = db.Column(db.Interval())
     transcripcion = db.Column(db.JSON())
     estado = db.Column(db.Enum(*ESTADOS, name="tipos_estados", native_enum=False), index=True, nullable=False)
     nota = db.Column(db.String(512))

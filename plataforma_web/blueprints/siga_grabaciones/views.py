@@ -97,9 +97,9 @@ def datatable_json():
                     "url": url_for("materias.detail", materia_id=resultado.materia.id) if current_user.can_view("MATERIAS") else "",
                 },
                 "expediente": resultado.expediente,
-                "duracion": resultado.duracion.strftime("%H:%M:%S"),
+                "duracion": str(resultado.duracion),
                 "duracion_tamanio": {
-                    "duracion": resultado.duracion.strftime("%H:%M:%S"),
+                    "duracion": str(resultado.duracion),
                     "tamanio": f"{resultado.tamanio / (1024 * 1024):0.2f}",
                 },
                 "estado": resultado.estado,
