@@ -329,8 +329,8 @@ def new():
 
     form = ArcRemesaNewForm()
     if form.validate_on_submit():
-        if form.anio.data < 1950 or form.anio.data > date.today().year:
-            flash(f"El año se encuentra fuera de un rango permitido 1950-{date.today().year}.", "warning")
+        if form.anio.data < 1900 or form.anio.data > date.today().year:
+            flash(f"El año se encuentra fuera de un rango permitido 1900-{date.today().year}.", "warning")
         elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
             flash(f"Solo se pueden crear nuevas remesas por el Administrador o {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
         else:

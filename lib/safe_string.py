@@ -55,7 +55,7 @@ def safe_expediente(input_str):
         ano = int(elementos[1])
     except (IndexError, ValueError) as error:
         raise error
-    if ano < 1950 or ano > date.today().year:
+    if ano < 1900 or ano > date.today().year:
         raise ValueError
     extra_1 = ""
     if len(elementos) >= 3:
@@ -138,7 +138,7 @@ def safe_sentencia(input_str):
         raise error
     if numero <= 0:
         raise ValueError
-    if ano < 1950 or ano > date.today().year:
+    if ano < 1900 or ano > date.today().year:
         raise ValueError
     limpio = f"{str(numero)}/{str(ano)}"
     if len(limpio) > 16:

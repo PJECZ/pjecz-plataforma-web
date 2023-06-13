@@ -67,7 +67,7 @@ def alimentar(entrada_csv):
                     raise error
                 if numero < 0:
                     raise ValueError
-                if ano < 1950 or ano > date.today().year:
+                if ano < 1900 or ano > date.today().year:
                     raise ValueError
                 expediente = f"{str(numero)}/{str(ano)}{str(texto)}"
             except (IndexError, ValueError):
