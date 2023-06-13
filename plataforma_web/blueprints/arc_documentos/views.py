@@ -196,8 +196,8 @@ def new():
         anio = int(form.anio.data)
         if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).first():
             flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
-        elif anio < 1950 or anio > date.today().year:
-            flash(f"El Año debe ser una fecha entre 1950 y el año actual {date.today().year}", "warning")
+        elif anio < 1900 or anio > date.today().year:
+            flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
         elif num_expediente is None:
             flash("El número de expediente no es válido. El formato esperado es (número/año) (999/2023)", "warning")
         else:
@@ -271,8 +271,8 @@ def edit(arc_documento_id):
         motivo = safe_message(form.observaciones.data, max_len=256)
         if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).filter(ArcDocumento.id != arc_documento_id).first():
             flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
-        elif anio < 1950 or anio > date.today().year:
-            flash(f"El Año debe ser una fecha entre 1950 y el año actual {date.today().year}", "warning")
+        elif anio < 1900 or anio > date.today().year:
+            flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
         elif num_expediente is None:
             flash("El número de expediente no es válido", "warning")
         else:
