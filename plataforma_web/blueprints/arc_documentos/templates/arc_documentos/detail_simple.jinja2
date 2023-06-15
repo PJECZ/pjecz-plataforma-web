@@ -47,6 +47,15 @@
             </div>
         </div>
     {% endcall %}
+    {# Detalles Observaciones por el solicitante #}
+    {% if observaciones_alta %}
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones en el alta del documento</div>
+            <div class="card-body" style="background-color: #fff3cd;">
+                <div class="col-md-9 text-start">{{ observaciones_alta }}</div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
