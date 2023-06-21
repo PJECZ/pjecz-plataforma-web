@@ -65,6 +65,7 @@
             {% else %}
                 <hr>
                 {% call f.form_group(form.fojas) %}{% endcall %}
+                {% call f.form_group(form.notas) %}{% endcall %}
             {% endif %}
             {% call f.form_group(form.observaciones) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
