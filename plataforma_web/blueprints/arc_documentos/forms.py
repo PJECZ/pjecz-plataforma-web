@@ -34,7 +34,6 @@ class ArcDocumentoNewArchivoForm(FlaskForm):
     # Campos opcionales para la bitácora o historial
     fojas = IntegerField("Fojas", validators=[DataRequired()])
     notas = TextAreaField("Notas", validators=[Optional(), Length(max=256)])
-    observaciones = TextAreaField("Observaciones en la Alta", validators=[Optional(), Length(max=256)])
     crear = SubmitField("Crear")
 
 
@@ -54,7 +53,6 @@ class ArcDocumentoNewSolicitanteForm(FlaskForm):
     # Campos opcionales para la bitácora o historial
     fojas = IntegerField("Fojas", validators=[DataRequired()])
     notas = TextAreaField("Notas", validators=[Optional(), Length(max=256)])
-    observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     crear = SubmitField("Crear")
 
 

@@ -220,7 +220,6 @@ def new():
                 arc_documento_id=documento.id,
                 usuario=current_user,
                 fojas=int(form.fojas.data),
-                observaciones=safe_message(form.observaciones.data, max_len=256, default_output_str=None),
                 accion="ALTA",
             )
             documento_bitacora.save()
