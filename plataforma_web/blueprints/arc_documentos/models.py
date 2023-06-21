@@ -74,6 +74,7 @@ class ArcDocumento(db.Model, UniversalMixin):
         default="NO DEFINIDO",
         server_default="NO DEFINIDO",
     )
+    notas = db.Column(db.String(256))
 
     # Hijos
     arc_documentos_bitacoras = db.relationship("ArcDocumentoBitacora", back_populates="arc_documento", lazy="noload")

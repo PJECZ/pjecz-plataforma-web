@@ -151,16 +151,11 @@ def detail(documento_id):
             mostrar_secciones["boton_solicitar"] = True
 
     if ROL_LEVANTAMENTISTA in current_user_roles:
-        observacion = None
-        arc_documento_bitacora = ArcDocumentoBitacora.query.filter_by(arc_documento=documento).filter_by(accion="ALTA").filter(ArcDocumentoBitacora.observaciones != "Sin descripción").first()
-        if arc_documento_bitacora:
-            observacion = arc_documento_bitacora.observaciones
         mostrar_secciones["boton_editar"] = True
         return render_template(
             "arc_documentos/detail_simple.jinja2",
             documento=documento,
             mostrar_secciones=mostrar_secciones,
-            observaciones_alta=observacion,
         )
 
     return render_template(
