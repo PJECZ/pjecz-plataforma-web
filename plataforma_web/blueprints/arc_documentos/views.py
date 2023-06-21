@@ -151,16 +151,11 @@ def detail(documento_id):
             mostrar_secciones["boton_solicitar"] = True
 
     if ROL_LEVANTAMENTISTA in current_user_roles:
-        observacion = None
-        arc_documento_bitacora = ArcDocumentoBitacora.query.filter_by(arc_documento=documento).filter_by(accion="ALTA").filter(ArcDocumentoBitacora.observaciones != "Sin descripción").first()
-        if arc_documento_bitacora:
-            observacion = arc_documento_bitacora.observaciones
         mostrar_secciones["boton_editar"] = True
         return render_template(
             "arc_documentos/detail_simple.jinja2",
             documento=documento,
             mostrar_secciones=mostrar_secciones,
-            observaciones_alta=observacion,
         )
 
     return render_template(
@@ -217,6 +212,7 @@ def new():
                 arc_juzgado_origen=form.juzgado_origen.data,
                 tipo=safe_string(form.tipo.data),
                 fojas=int(form.fojas.data),
+                notas=safe_message(form.notas.data, default_output_str=None),
                 ubicacion=ubicacion,
             )
             documento.save()
@@ -224,7 +220,7 @@ def new():
                 arc_documento_id=documento.id,
                 usuario=current_user,
                 fojas=int(form.fojas.data),
-                observaciones=safe_message(form.observaciones.data, max_len=256),
+                observaciones=safe_message(form.observaciones.data, max_len=256, default_output_str=None),
                 accion="ALTA",
             )
             documento_bitacora.save()
@@ -291,6 +287,7 @@ def edit(arc_documento_id):
             documento.arc_juzgado_origen = form.juzgado_origen.data
             documento.tipo = safe_string(form.tipo.data)
             documento.fojas = fojas
+            documento.notas = safe_message(form.notas.data, default_output_str=None)
             documento.ubicacion = ubicacion
             documento_bitacora = ArcDocumentoBitacora(
                 arc_documento_id=documento.id,
@@ -318,6 +315,7 @@ def edit(arc_documento_id):
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.tipo
+    form.notas.data = documento.notas
     if isinstance(form, ArcDocumentoEditArchivoForm):
         form.juzgado_id.data = documento.autoridad_id
         form.ubicacion.data = documento.ubicacion

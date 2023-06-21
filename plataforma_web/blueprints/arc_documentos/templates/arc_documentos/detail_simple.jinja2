@@ -47,12 +47,11 @@
             </div>
         </div>
     {% endcall %}
-    {# Detalles Observaciones por el solicitante #}
-    {% if observaciones_alta %}
+    {% if documento.notas %}
         <div class="card mb-3">
-            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones en el alta del documento</div>
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Notas</div>
             <div class="card-body" style="background-color: #fff3cd;">
-                <div class="col-md-9 text-start">{{ observaciones_alta }}</div>
+                <div class="col-md-9 text-start">{{ documento.notas }}</div>
             </div>
         </div>
     {% endif %}

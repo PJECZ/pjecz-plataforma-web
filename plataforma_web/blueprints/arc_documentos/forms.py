@@ -33,7 +33,8 @@ class ArcDocumentoNewArchivoForm(FlaskForm):
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
     # Campos opcionales para la bitácora o historial
     fojas = IntegerField("Fojas", validators=[DataRequired()])
-    observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
+    notas = TextAreaField("Notas", validators=[Optional(), Length(max=256)])
+    observaciones = TextAreaField("Observaciones en la Alta", validators=[Optional(), Length(max=256)])
     crear = SubmitField("Crear")
 
 
@@ -52,6 +53,7 @@ class ArcDocumentoNewSolicitanteForm(FlaskForm):
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
     # Campos opcionales para la bitácora o historial
     fojas = IntegerField("Fojas", validators=[DataRequired()])
+    notas = TextAreaField("Notas", validators=[Optional(), Length(max=256)])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     crear = SubmitField("Crear")
 
@@ -71,6 +73,7 @@ class ArcDocumentoEditArchivoForm(FlaskForm):
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
     # Campos opcionales para la bitácora o historial
     fojas = IntegerField("Fojas", validators=[DataRequired()])
+    notas = TextAreaField("Notas", validators=[Optional(), Length(max=256)])
     observaciones = TextAreaField("Motivo", validators=[DataRequired(), Length(min=5, max=256)])
     guardar = SubmitField("Guardar")
 
@@ -90,5 +93,6 @@ class ArcDocumentoEditSolicitanteForm(FlaskForm):
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
     # Campos opcionales para la bitácora o historial
     fojas_readonly = IntegerField("Fojas")
+    notas = TextAreaField("Notas", validators=[Optional(), Length(max=256)])
     observaciones = TextAreaField("Motivo", validators=[DataRequired(), Length(min=5, max=256)])
     guardar = SubmitField("Guardar")
