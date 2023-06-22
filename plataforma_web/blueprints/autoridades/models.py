@@ -45,6 +45,7 @@ class Autoridad(db.Model, UniversalMixin):
     clave = db.Column(db.String(16), nullable=False, unique=True)
     descripcion = db.Column(db.String(256), nullable=False)
     descripcion_corta = db.Column(db.String(64), nullable=False, default="", server_default="")
+    es_archivo_solicitante = db.Column(db.Boolean, nullable=False, default=False)
     es_cemasc = db.Column(db.Boolean, nullable=False, default=False)
     es_defensoria = db.Column(db.Boolean, nullable=False, default=False)
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
