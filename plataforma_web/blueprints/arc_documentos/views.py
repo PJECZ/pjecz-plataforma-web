@@ -76,7 +76,7 @@ def datatable_json():
     if "juzgado_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
-    registros = consulta.order_by(ArcDocumento.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
