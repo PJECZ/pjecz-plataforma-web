@@ -35,6 +35,7 @@ class ArcDocumento(db.Model, UniversalMixin):
             ("EXPEDIENTILLO", "Expedientillo"),
             ("FOLIO", "Folio"),
             ("LIBRO", "Libro"),
+            ("TOCA", "TOCA"),
         ]
     )
 
