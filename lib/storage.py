@@ -120,6 +120,7 @@ from werkzeug.utils import secure_filename
 
 from .time_to_text import mes_en_palabra
 
+
 class NotAllowedExtesionError(Exception):
     """Exception raised when the extension is not allowed"""
 
@@ -150,7 +151,14 @@ class GoogleCloudStorage:
         "png": "image/png",
     }
 
-    def __init__(self, base_directory: str, upload_date: date = None, allowed_extensions: list = None, month_in_word: bool = False):
+    def __init__(
+        self,
+        base_directory: str,
+        upload_date: date = None,
+        allowed_extensions: list = None,
+        month_in_word: bool = False,
+        bucket_name: str = None,
+    ):
         """Storage constructor"""
         self.base_directory = base_directory
         if upload_date is None:
@@ -166,6 +174,10 @@ class GoogleCloudStorage:
         self.filename = None
         self.url = None
         self.content_type = None
+        if bucket_name is None:
+            self.bucket_name = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+        else:
+            self.bucket_name = bucket_name
 
     def set_content_type(self, original_filename: str):
         """Set content type from original filename, casuses an error on wrong extension"""
@@ -226,12 +238,8 @@ class GoogleCloudStorage:
         else:
             month_str = self.upload_date.strftime("%m")
         path_str = str(Path(self.base_directory, year_str, month_str, self.filename))
-        try:
-            bucket_name = current_app.config["CLOUD_STORAGE_DEPOSITO"]
-        except KeyError as error:
-            raise NotConfiguredError from error
         storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
+        bucket = storage_client.bucket(self.bucket_name)
         blob = bucket.blob(path_str)
         blob.upload_from_string(data, self.content_type)
         self.url = blob.public_url

@@ -78,9 +78,9 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     bitacora.info("- Tiene %d registros en la base de datos", total_en_bd)
 
     # Obtener el nombre del deposito
-    deposito = os.getenv("CLOUD_STORAGE_DEPOSITO", "")
+    deposito = os.getenv("CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS", "")
     if deposito == "":
-        mensaje = "Falta la variable de entorno CLOUD_STORAGE_DEPOSITO"
+        mensaje = "Falta la variable de entorno CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
