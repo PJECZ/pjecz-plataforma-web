@@ -479,7 +479,7 @@ def new():
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
-        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"]
         storage_client = storage.Client()
         bucket = storage_client.bucket(deposito)
         blob = bucket.blob(ruta_str)
@@ -596,7 +596,7 @@ def new_for_autoridad(autoridad_id):
         ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
-        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO"]
+        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"]
         storage_client = storage.Client()
         bucket = storage_client.bucket(deposito)
         blob = bucket.blob(ruta_str)

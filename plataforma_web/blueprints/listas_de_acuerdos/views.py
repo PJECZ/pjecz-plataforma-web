@@ -4,7 +4,7 @@ Listas de Acuerdos, vistas
 import datetime
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from pytz import timezone
 from werkzeug.datastructures import CombinedMultiDict
@@ -401,6 +401,7 @@ def new():
             upload_date=fecha,
             allowed_extensions=["pdf"],
             month_in_word=True,
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS"],
         )
 
         # Validar archivo
@@ -531,6 +532,7 @@ def new_for_autoridad(autoridad_id):
             upload_date=fecha,
             allowed_extensions=["pdf"],
             month_in_word=True,
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS"],
         )
 
         # Validar archivo

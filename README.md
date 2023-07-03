@@ -76,6 +76,10 @@ Guarde sus configuraciones, contrasenas y tokens en un archivo `.env`
 
     # Google Cloud Storage
     CLOUD_STORAGE_DEPOSITO=
+    CLOUD_STORAGE_DEPOSITO_EDICTOS=
+    CLOUD_STORAGE_DEPOSITO_GLOSAS=
+    CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS=
+    CLOUD_STORAGE_DEPOSITO_SENTENCIAS=
 
     # Host
     HOST=
@@ -133,6 +137,10 @@ Cree el archivo `.bashrc` para que un perfil de Konsole le facilite la inicializ
         echo "-- Variables de entorno"
         export $(grep -v '^#' .env | xargs)
         echo "   CLOUD_STORAGE_DEPOSITO: ${CLOUD_STORAGE_DEPOSITO}"
+        echo "   CLOUD_STORAGE_DEPOSITO_EDICTOS: ${CLOUD_STORAGE_DEPOSITO_EDICTOS}"
+        echo "   CLOUD_STORAGE_DEPOSITO_GLOSAS: ${CLOUD_STORAGE_DEPOSITO_GLOSAS}"
+        echo "   CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS: ${CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS}"
+        echo "   CLOUD_STORAGE_DEPOSITO_SENTENCIAS: ${CLOUD_STORAGE_DEPOSITO_SENTENCIAS}"
         echo "   DEPLOYMENT_ENVIRONMENT: ${DEPLOYMENT_ENVIRONMENT}"
         echo "   DB_HOST: ${DB_HOST}"
         echo "   DB_PORT: ${DB_PORT}"

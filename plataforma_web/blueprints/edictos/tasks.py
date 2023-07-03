@@ -95,7 +95,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     bitacora.info("- Tiene %d registros en la base de datos", total_en_bd)
 
     # Obtener archivos en el depósito
-    deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO", "pjecz-pruebas")
+    deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO_EDICTOS", "pjecz-pruebas")
     bucket = storage.Client().get_bucket(deposito)
     subdirectorio = f"{SUBDIRECTORIO}/{autoridad.directorio_edictos}"
     blobs = list(bucket.list_blobs(prefix=subdirectorio))

@@ -28,6 +28,10 @@ TASK_QUEUE = os.environ.get("TASK_QUEUE", "pjecz_plataforma_web")
 
 # Google Cloud Storage
 CLOUD_STORAGE_DEPOSITO = os.environ.get("CLOUD_STORAGE_DEPOSITO", "pjecz-pruebas")
+CLOUD_STORAGE_DEPOSITO_EDICTOS = os.environ.get("CLOUD_STORAGE_DEPOSITO_EDICTOS", "pjecz-pruebas")
+CLOUD_STORAGE_DEPOSITO_GLOSAS = os.environ.get("CLOUD_STORAGE_DEPOSITO_GLOSAS", "pjecz-pruebas")
+CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS = os.environ.get("CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS", "pjecz-pruebas")
+CLOUD_STORAGE_DEPOSITO_SENTENCIAS = os.environ.get("CLOUD_STORAGE_DEPOSITO_SENTENCIAS", "pjecz-pruebas")
 
 # Host, para los vínculos en los mensajes como <HOST>/ficha/<HASHID>
 HOST = os.environ.get("HOST", "https://plataforma-web.justiciadigital.gob.mx")
