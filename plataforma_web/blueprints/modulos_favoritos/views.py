@@ -13,19 +13,11 @@ from plataforma_web.blueprints.modulos_favoritos.models import ModuloFavorito
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
-MODULO = "USUARIOS"
-
 modulos_favoritos = Blueprint("modulos_favoritos", __name__, template_folder="templates")
 
 
-@modulos_favoritos.before_request
-@login_required
-@permission_required(MODULO, Permiso.VER)
-def before_request():
-    """Permiso por defecto"""
-
-
 @modulos_favoritos.route("/modulos_favoritos/datatable_json", methods=["GET", "POST"])
+@login_required
 def datatable_json():
     """DataTable JSON de todos los modulos en navegación"""
     # Tomar parámetros de DataTables
@@ -69,6 +61,7 @@ def datatable_json():
 
 
 @modulos_favoritos.route("/modulos_favoritos")
+@login_required
 def list_active():
     """Listado de Módulos Favoritos activos"""
     return render_template(
@@ -80,6 +73,7 @@ def list_active():
 
 
 @modulos_favoritos.route("/modulos_favoritos/toggle_estatus_json/<int:modulo_id>", methods=["GET", "POST"])
+@login_required
 def toggle_estatus_json(modulo_id):
     """Cambiar el estatus de un usuario-rol"""
 
