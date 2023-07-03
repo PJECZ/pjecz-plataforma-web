@@ -13,7 +13,7 @@ from plataforma_web.blueprints.modulos_favoritos.models import ModuloFavorito
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 
-MODULO = "MODULOS"
+MODULO = "USUARIOS"
 
 modulos_favoritos = Blueprint("modulos_favoritos", __name__, template_folder="templates")
 
