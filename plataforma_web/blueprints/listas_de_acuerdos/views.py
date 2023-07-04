@@ -29,7 +29,6 @@ listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="
 
 HUSO_HORARIO = "America/Mexico_City"
 MODULO = "LISTAS DE ACUERDOS"
-SUBDIRECTORIO = "Listas de Acuerdos"
 LIMITE_DIAS = 30  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
 LIMITE_ADMINISTRADORES_DIAS = 730  # Administradores pueden manipular dos anios
 ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("JUZGADO DE PRIMERA INSTANCIA ORAL", "PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
@@ -397,7 +396,7 @@ def new():
 
         # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
         gcstorage = GoogleCloudStorage(
-            base_directory=f"{SUBDIRECTORIO}/{autoridad.directorio_listas_de_acuerdos}",
+            base_directory=autoridad.directorio_listas_de_acuerdos,
             upload_date=fecha,
             allowed_extensions=["pdf"],
             month_in_word=True,
@@ -528,7 +527,7 @@ def new_for_autoridad(autoridad_id):
 
         # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
         gcstorage = GoogleCloudStorage(
-            base_directory=f"{SUBDIRECTORIO}/{autoridad.directorio_listas_de_acuerdos}",
+            base_directory=autoridad.directorio_listas_de_acuerdos,
             upload_date=fecha,
             allowed_extensions=["pdf"],
             month_in_word=True,

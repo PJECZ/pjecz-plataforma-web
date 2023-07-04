@@ -27,7 +27,6 @@ from plataforma_web.blueprints.permisos.models import Permiso
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
 MODULO = "EDICTOS"
-SUBDIRECTORIO = "Edictos"
 LIMITE_DIAS = 365
 LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
 
@@ -473,10 +472,10 @@ def new():
         elementos.append(edicto.encode_id())
         archivo_str = "-".join(elementos) + ".pdf"
 
-        # Elaborar ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
+        # Elaborar ruta Autoridad/YYYY/MES/archivo.pdf
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
+        ruta_str = str(Path(autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
         deposito = current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"]
@@ -590,10 +589,10 @@ def new_for_autoridad(autoridad_id):
         elementos.append(edicto.encode_id())
         archivo_str = "-".join(elementos) + ".pdf"
 
-        # Elaborar ruta SUBDIRECTORIO/Autoridad/YYYY/MES/archivo.pdf
+        # Elaborar ruta Autoridad/YYYY/MES/archivo.pdf
         ano_str = fecha.strftime("%Y")
         mes_str = mes_en_palabra(fecha.month)
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
+        ruta_str = str(Path(autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
         deposito = current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"]
