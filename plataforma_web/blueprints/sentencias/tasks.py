@@ -37,8 +37,6 @@ app.app_context().push()
 
 locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 
-SUBDIRECTORIO = "Sentencias"
-
 
 def enviar_reporte():
     """Enviar via correo electronico el reporte de sentencias"""
@@ -52,7 +50,7 @@ def enviar_reporte():
     subject = f"Sentencias del {fecha.strftime('%d/%B/%Y')}"
 
     # Definir la ruta al archivo temporal CSV
-    random_hex = "%030x" % random.randrange(16 ** 30)
+    random_hex = "%030x" % random.randrange(16**30)
     reporte_ruta = Path("/tmp/reporte-sentencias-" + random_hex + ".csv")
     reporte_archivo = f"reporte-sentencias-{fecha.strftime('%Y-%m-%d')}.csv"
 
@@ -180,7 +178,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     # Obtener archivos en el depósito
     deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO_SENTENCIAS", "pjecz-pruebas")
     bucket = storage.Client().get_bucket(deposito)
-    subdirectorio = f"{SUBDIRECTORIO}/{autoridad.directorio_sentencias}"
+    subdirectorio = autoridad.directorio_sentencias
     blobs = list(bucket.list_blobs(prefix=subdirectorio))
     total_en_deposito = len(blobs)
     if total_en_deposito == 0:
@@ -198,7 +196,6 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
 
     # Bucle por los archivos en el depósito
     for blob in blobs:
-
         # Validar que sea PDF
         ruta = Path(blob.name)
         if ruta.suffix.lower() != ".pdf":

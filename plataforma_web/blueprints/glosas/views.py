@@ -27,7 +27,6 @@ from plataforma_web.blueprints.permisos.models import Permiso
 glosas = Blueprint("glosas", __name__, template_folder="templates")
 
 MODULO = "GLOSAS"
-SUBDIRECTORIO = "Glosas"
 ORGANOS_JURISDICCIONALES = ["PLENO O SALA DEL TSJ", "TRIBUNAL DE CONCILIACION Y ARBITRAJE"]
 LIMITE_DIAS = 365
 LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
@@ -446,7 +445,7 @@ def new():
         expediente_str = expediente.replace("/", "-")
         descripcion_str = descripcion.replace(" ", "-")
         archivo_str = f"{fecha_str}-{expediente_str}-{descripcion_str}-{glosa.encode_id()}.pdf"
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
+        ruta_str = str(Path(autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
         deposito = current_app.config["CLOUD_STORAGE_DEPOSITO_GLOSAS"]
@@ -552,7 +551,7 @@ def new_for_autoridad(autoridad_id):
         expediente_str = expediente.replace("/", "-")
         descripcion_str = descripcion.replace(" ", "-")
         archivo_str = f"{fecha_str}-{expediente_str}-{descripcion_str}-{glosa.encode_id()}.pdf"
-        ruta_str = str(Path(SUBDIRECTORIO, autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
+        ruta_str = str(Path(autoridad.directorio_glosas, ano_str, mes_str, archivo_str))
 
         # Subir el archivo
         deposito = current_app.config["CLOUD_STORAGE_DEPOSITO_GLOSAS"]

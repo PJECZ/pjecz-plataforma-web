@@ -27,7 +27,6 @@ from plataforma_web.blueprints.sentencias.models import Sentencia
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
 MODULO = "SENTENCIAS"
-SUBDIRECTORIO = "Sentencias"
 LIMITE_DIAS = 10950  # 30 años
 LIMITE_ADMINISTRADORES_DIAS = 10950  # 30 años
 
@@ -447,7 +446,7 @@ def new():
 
         # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
         gcstorage = GoogleCloudStorage(
-            base_directory=f"{SUBDIRECTORIO}/{autoridad.directorio_sentencias}",
+            base_directory=autoridad.directorio_sentencias,
             upload_date=fecha,
             allowed_extensions=["pdf"],
             month_in_word=True,
@@ -597,7 +596,7 @@ def new_for_autoridad(autoridad_id):
 
         # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
         gcstorage = GoogleCloudStorage(
-            base_directory=f"{SUBDIRECTORIO}/{autoridad.directorio_sentencias}",
+            base_directory=autoridad.directorio_sentencias,
             upload_date=fecha,
             allowed_extensions=["pdf"],
             month_in_word=True,

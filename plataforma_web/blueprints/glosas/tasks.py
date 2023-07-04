@@ -27,7 +27,6 @@ bitacora.addHandler(empunadura)
 app = create_app()
 app.app_context().push()
 
-SUBDIRECTORIO = "Glosas"
 METADATOS_CSV = "seed/glosas-metadatos.csv"
 
 
@@ -96,7 +95,7 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     # Obtener archivos en el depósito
     deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO_GLOSAS", "pjecz-pruebas")
     bucket = storage.Client().get_bucket(deposito)
-    subdirectorio = f"{SUBDIRECTORIO}/{autoridad.directorio_glosas}"
+    subdirectorio = autoridad.directorio_glosas
     blobs = list(bucket.list_blobs(prefix=subdirectorio))
     total_en_deposito = len(blobs)
     if total_en_deposito == 0:
