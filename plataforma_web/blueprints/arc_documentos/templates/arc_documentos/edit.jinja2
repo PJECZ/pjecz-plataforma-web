@@ -59,14 +59,9 @@
             {% else %}
                 {% call f.form_group(form.ubicacion) %}{% endcall %}
             {% endif %}
-            {% if form.fojas_readonly %}
-                {% call f.form_group(form.fojas_readonly, readonly=true) %}{% endcall %}
-                <hr>
-            {% else %}
-                <hr>
-                {% call f.form_group(form.fojas) %}{% endcall %}
-                {% call f.form_group(form.notas) %}{% endcall %}
-            {% endif %}
+            <hr>
+            {% call f.form_group(form.fojas) %}{% endcall %}
+            {% call f.form_group(form.notas) %}{% endcall %}
             {% call f.form_group(form.observaciones) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}

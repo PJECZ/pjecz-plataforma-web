@@ -90,7 +90,7 @@ class ArcDocumentoEditSolicitanteForm(FlaskForm):
     ubicacion_readonly = StringField("Ubicación")
     tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
     # Campos opcionales para la bitácora o historial
-    fojas_readonly = IntegerField("Fojas")
+    fojas = IntegerField("Fojas", validators=[DataRequired()])
     notas = TextAreaField("Notas", validators=[Optional(), Length(max=256)])
     observaciones = TextAreaField("Motivo", validators=[DataRequired(), Length(min=5, max=256)])
     guardar = SubmitField("Guardar")
