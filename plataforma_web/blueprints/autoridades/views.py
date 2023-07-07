@@ -504,6 +504,9 @@ def query_notarias_json():
 def query_juzgados_json():
     """Proporcionar el JSON de autoridades para elegir Juzgados con un Select2"""
     consulta = Autoridad.query.filter(Autoridad.estatus == "A")
+    if "es_archivo_solicitante" in request.form:
+        # Verificar si esta seleccionado es_jurisdiccional
+        consulta = consulta.filter_by(es_archivo_solicitante=True)
     if "es_jurisdiccional" in request.form:
         # Verificar si esta seleccionado es_jurisdiccional
         consulta = consulta.filter_by(es_jurisdiccional=True)

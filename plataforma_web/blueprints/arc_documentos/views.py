@@ -34,7 +34,6 @@ from plataforma_web.blueprints.arc_archivos.views import (
     ROL_JEFE_REMESA,
     ROL_ARCHIVISTA,
     ROL_SOLICITANTE,
-    ROL_RECEPCIONISTA,
     ROL_LEVANTAMENTISTA,
 )
 
@@ -115,7 +114,7 @@ def list_active():
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
 
-    if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_ARCHIVISTA in current_user_roles or ROL_RECEPCIONISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
+    if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_ARCHIVISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
         return render_template(
             "arc_documentos/list_admin.jinja2",
             filtros=json.dumps({"estatus": "A"}),
@@ -128,7 +127,7 @@ def list_active():
     return render_template(
         "arc_documentos/list.jinja2",
         filtros=json.dumps({"estatus": "A", "juzgado_id": current_user.autoridad.id}),
-        titulo="Expedientes",
+        titulo=f"Expedientes del {current_user.autoridad.descripcion_corta}",
         estatus="A",
         tipos=ArcDocumento.TIPOS,
         ubicaciones=ArcDocumento.UBICACIONES,
@@ -143,12 +142,22 @@ def detail(documento_id):
     # mostrar secciones según el ROL
     mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
+
+    if current_user.can_edit(MODULO):
+        mostrar_secciones["boton_editar"] = True
+
     if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_SOLICITANTE in current_user_roles:
         mostrar_secciones["boton_editar"] = True
-    if current_user.can_insert(MODULO) and documento.ubicacion == "ARCHIVO":
-        documento_en_proceso = ArcSolicitud.query.filter_by(arc_documento=documento).filter_by(esta_archivado=False).filter_by(estatus="A").first()
-        if not documento_en_proceso:
-            mostrar_secciones["boton_solicitar"] = True
+        if current_user.can_insert(MODULO) and documento.ubicacion == "ARCHIVO":
+            documento_en_proceso = ArcSolicitud.query.filter_by(arc_documento=documento).filter_by(esta_archivado=False).filter_by(estatus="A").first()
+            if not documento_en_proceso:
+                mostrar_secciones["boton_solicitar"] = True
+        return render_template(
+            "arc_documentos/detail.jinja2",
+            documento=documento,
+            acciones=ArcDocumentoBitacora.ACCIONES,
+            mostrar_secciones=mostrar_secciones,
+        )
 
     if ROL_LEVANTAMENTISTA in current_user_roles:
         mostrar_secciones["boton_editar"] = True
@@ -159,7 +168,7 @@ def detail(documento_id):
         )
 
     return render_template(
-        "arc_documentos/detail.jinja2",
+        "arc_documentos/detail_simple.jinja2",
         documento=documento,
         acciones=ArcDocumentoBitacora.ACCIONES,
         mostrar_secciones=mostrar_secciones,
@@ -172,14 +181,11 @@ def new():
     """Nuevo Documento"""
     mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
-    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
         form = ArcDocumentoNewArchivoForm()
         mostrar_secciones["select_juzgado"] = True
-    elif ROL_SOLICITANTE in current_user_roles:
-        form = ArcDocumentoNewSolicitanteForm()
     else:
-        flash("No tiene el ROL para realizar está acción.", "warning")
-        return redirect(url_for("arc_documentos.list_active"))
+        form = ArcDocumentoNewSolicitanteForm()
     # Recepción del Formulario
     if form.validate_on_submit():
         # Validar que la clave no se repita
@@ -233,7 +239,9 @@ def new():
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     # Bloquear campos según el ROL
-    if ROL_SOLICITANTE in current_user_roles:
+    if isinstance(form, ArcDocumentoNewArchivoForm):
+        form.ubicacion.data = "ARCHIVO"
+    else:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = "JUZGADO"
     return render_template("arc_documentos/new.jinja2", form=form, mostrar_secciones=mostrar_secciones)
@@ -247,14 +255,13 @@ def edit(arc_documento_id):
     current_user_roles = current_user.get_roles()
     if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
         form = ArcDocumentoEditArchivoForm()
-    elif ROL_SOLICITANTE in current_user_roles:
-        form = ArcDocumentoEditSolicitanteForm()
     else:
-        flash("No tiene el ROL para realizar está acción.", "warning")
-        return redirect(url_for("arc_documentos.list_active"))
+        form = ArcDocumentoEditSolicitanteForm()
+
     # Recepción del Formulario
     if form.validate_on_submit():
         # Validar que la clave no se repita
+        fojas = int(form.fojas.data)
         try:
             num_expediente = safe_expediente(form.num_expediente.data)
         except ValueError:
@@ -262,11 +269,9 @@ def edit(arc_documento_id):
         if isinstance(form, ArcDocumentoEditArchivoForm):
             juzgado_id = int(form.juzgado_id.data)
             ubicacion = safe_string(form.ubicacion.data)
-            fojas = int(form.fojas.data)
         else:
             juzgado_id = current_user.autoridad.id
             ubicacion = documento.ubicacion
-            fojas = documento.fojas
         anio = int(form.anio.data)
         motivo = safe_message(form.observaciones.data, max_len=256)
         if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).filter(ArcDocumento.id != arc_documento_id).first():
@@ -314,15 +319,14 @@ def edit(arc_documento_id):
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.tipo
+    form.fojas.data = documento.fojas
     form.notas.data = documento.notas
     if isinstance(form, ArcDocumentoEditArchivoForm):
         form.juzgado_id.data = documento.autoridad_id
         form.ubicacion.data = documento.ubicacion
-        form.fojas.data = documento.fojas
     else:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = documento.ubicacion
-        form.fojas_readonly.data = documento.fojas
     return render_template("arc_documentos/edit.jinja2", form=form, documento=documento)
 
 
@@ -332,14 +336,11 @@ def search():
     num_expediente = ""
     mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
-    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
         form = ArcDocumentoNewArchivoForm()
         mostrar_secciones["select_juzgado"] = True
-    elif ROL_SOLICITANTE in current_user_roles:
-        form = ArcDocumentoNewSolicitanteForm()
     else:
-        flash("No tiene el ROL para realizar está acción.", "warning")
-        return redirect(url_for("arc_documentos.list_active"))
+        form = ArcDocumentoNewSolicitanteForm()
     # Proceso de búsqueda
     if "num_expediente" in request.form:
         num_expediente = request.form["num_expediente"]
@@ -357,16 +358,15 @@ def search():
             flash("Número de Expediente NO válido", "warning")
             return redirect(url_for("arc_documentos.new"))
         # Determinamos el id del juzgado en base a su autoridad asignada o juzgado seleccionado
-        autoridad_id = 0
-        if ROL_SOLICITANTE in current_user_roles:
-            autoridad_id = current_user.autoridad.id
-        elif ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
+        autoridad_id = current_user.autoridad.id
+        if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
             if "juzgadoInput_buscar" not in request.form:
                 flash("Necesita indicar un Juzgado en el formulario de búsqueda ", "warning")
                 autoridad_id = 0
             else:
                 autoridad_id = int(request.form["juzgadoInput_buscar"])
                 mostrar_secciones["juzgado_id"] = autoridad_id
+
         if autoridad_id > 0:
             autoridad = Autoridad.query.get_or_404(autoridad_id)
             juzgado_id = autoridad.datawarehouse_id
@@ -407,9 +407,11 @@ def search():
                         form.demandado.data = respuesta_api["demandado"]
                         form.tipo.data = "EXPEDIENTE"
                         encontrado_paij = True
-                        if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
+                        if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
                             form.juzgado_id.data = autoridad_id
                             mostrar_secciones["juzgado_nombre"] = autoridad.nombre
+                    else:
+                        flash("Registro NO encontrado en PAIJ", "warning")
                 else:
                     flash("Respuesta no esperada por parte del API de DataWareHouse", "danger")
                 # Si no fue encontrado en PAIJ ahora buscar en SIBED
@@ -457,12 +459,12 @@ def search():
                                 form.observaciones.data = ""
                             else:
                                 form.observaciones.data = respuesta_api["observaciones"]
-                            if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
+                            if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO):
                                 form.juzgado_id.data = autoridad_id
                                 mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                         else:
                             flash("Registro NO encontrado en SIBED", "warning")
-                            if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_RECEPCIONISTA in current_user_roles:
+                            if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO):
                                 mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                     else:
                         flash("Respuesta no esperada del API por parte de PEGASO", "danger")
@@ -472,8 +474,12 @@ def search():
     if ROL_SOLICITANTE in current_user_roles:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = "JUZGADO"
-    elif ROL_JEFE_REMESA in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
+    elif ROL_JEFE_REMESA in current_user_roles:
         mostrar_secciones["select_juzgado"] = True
     elif ROL_LEVANTAMENTISTA in current_user_roles:
         form.ubicacion.data = "ARCHIVO"
+    else:
+        if isinstance(form, ArcDocumentoNewSolicitanteForm):
+            form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
+            form.ubicacion_readonly.data = "JUZGADO"
     return render_template("arc_documentos/new.jinja2", form=form, num_expediente=num_expediente, mostrar_secciones=mostrar_secciones)
