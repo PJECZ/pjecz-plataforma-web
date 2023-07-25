@@ -33,7 +33,7 @@
         {{ detail.label_value('Fecha', moment(edicto.fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Expediente', edicto.expediente) }}
         {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
-        {{ detail.label_value_new_tab('Archivo PDF', edicto.archivo, edicto.url) }}
+        {{ detail.label_value_new_tab('Archivo PDF', edicto.archivo, edicto.descargar_url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
         {{ detail.label_value('Creado', moment(edicto.creado).format('llll')) }}
     {% endcall %}

@@ -33,7 +33,7 @@
         {{ detail.label_value('Fecha', moment(glosa.fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Tipo de juicio', glosa.tipo_juicio) }}
         {{ detail.label_value('Expediente', glosa.expediente) }}
-        {{ detail.label_value_new_tab('Archivo PDF', glosa.archivo, glosa.url) }}
+        {{ detail.label_value_new_tab('Archivo PDF', glosa.archivo, glosa.descargar_url) }}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('glosas.checkout', id_hashed=glosa.encode_id())) }}
         {{ detail.label_value('Creado', moment(glosa.creado).format('llll')) }}
     {% endcall %}

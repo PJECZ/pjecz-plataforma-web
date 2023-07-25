@@ -3,6 +3,7 @@ Listas de Acuerdos, vistas
 """
 import datetime
 import json
+from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -10,6 +11,8 @@ from pytz import timezone
 from werkzeug.datastructures import CombinedMultiDict
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
+from lib.exceptions import MyAnyError
+from lib.google_cloud_storage import get_blob_name_from_url, get_media_type_from_filename, get_file_from_gcs
 from lib.safe_string import safe_message, safe_string
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.time_to_text import dia_mes_ano
@@ -243,7 +246,7 @@ def datatable_json():
                     "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
                 },
                 "archivo": {
-                    "url": lista_de_acuerdo.url,
+                    "descargar_url": f"/listas_de_acuerdos/descargar?url={quote(lista_de_acuerdo.url)}",
                 },
             }
         )
@@ -285,12 +288,30 @@ def datatable_json_admin():
                     "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
                 },
                 "archivo": {
-                    "url": lista_de_acuerdo.url,
+                    "descargar_url": f"/listas_de_acuerdos/descargar?url={quote(lista_de_acuerdo.url)}",
                 },
             }
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/descargar", methods=["GET"])
+def download():
+    """Descargar archivo desde Google Cloud Storage"""
+    url = request.args.get("url")
+    try:
+        # Obtener nombre del blob
+        blob_name = get_blob_name_from_url(url)
+        # Obtener tipo de media
+        media_type = get_media_type_from_filename(blob_name)
+        # Obtener archivo
+        archivo = get_file_from_gcs(current_app.config["CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS"], blob_name)
+    except MyAnyError as error:
+        flash(str(error), "warning")
+        return redirect(url_for("listas_de_acuerdos.list_active"))
+    # Entregar archivo
+    return current_app.response_class(archivo, mimetype=media_type)
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")

@@ -1,6 +1,8 @@
 """
 Sentencias, modelos
 """
+from urllib.parse import quote
+
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -31,7 +33,12 @@ class Sentencia(db.Model, UniversalMixin):
     url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     # Hijos
-    tesis_jurisprudencias_sentencias = db.relationship('TesisJurisprudenciaSentencia', back_populates='sentencia')
+    tesis_jurisprudencias_sentencias = db.relationship("TesisJurisprudenciaSentencia", back_populates="sentencia")
+
+    @property
+    def descargar_url(self):
+        """URL para descargar el archivo desde Google Cloud Storage"""
+        return f"/sentencias/descargar?url={quote(self.url)}"
 
     def __repr__(self):
         """Representación"""

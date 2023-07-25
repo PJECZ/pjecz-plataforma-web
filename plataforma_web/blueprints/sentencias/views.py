@@ -3,12 +3,15 @@ Sentencias, vistas
 """
 import datetime
 import json
+from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
+from lib.exceptions import MyAnyError
+from lib.google_cloud_storage import get_blob_name_from_url, get_media_type_from_filename, get_file_from_gcs
 from lib.safe_string import safe_expediente, safe_message, safe_sentencia, safe_string
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.time_to_text import dia_mes_ano
@@ -275,7 +278,7 @@ def datatable_json():
                 "materia_tipo_juicio_descripcion": sentencia.materia_tipo_juicio.descripcion,
                 "es_perspectiva_genero": "Sí" if sentencia.es_perspectiva_genero else "",
                 "archivo": {
-                    "url": sentencia.url,
+                    "descargar_url": f"/sentencias/descargar?url={quote(sentencia.url)}",
                 },
             }
         )
@@ -334,12 +337,30 @@ def datatable_json_admin():
                 "materia_tipo_juicio_descripcion": sentencia.materia_tipo_juicio.descripcion,
                 "es_perspectiva_genero": "Sí" if sentencia.es_perspectiva_genero else "",
                 "archivo": {
-                    "url": sentencia.url,
+                    "descargar_url": f"/sentencias/descargar?url={quote(sentencia.url)}",
                 },
             }
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@sentencias.route("/sentencias/descargar", methods=["GET"])
+def download():
+    """Descargar archivo desde Google Cloud Storage"""
+    url = request.args.get("url")
+    try:
+        # Obtener nombre del blob
+        blob_name = get_blob_name_from_url(url)
+        # Obtener tipo de media
+        media_type = get_media_type_from_filename(blob_name)
+        # Obtener archivo
+        archivo = get_file_from_gcs(current_app.config["CLOUD_STORAGE_DEPOSITO_SENTENCIAS"], blob_name)
+    except MyAnyError as error:
+        flash(str(error), "warning")
+        return redirect(url_for("sentencias.list_active"))
+    # Entregar archivo
+    return current_app.response_class(archivo, mimetype=media_type)
 
 
 @sentencias.route("/sentencias/refrescar/<int:autoridad_id>")
@@ -466,7 +487,6 @@ def new():
 
         # Si es valido
         if es_valido:
-
             # Insertar registro
             sentencia = Sentencia(
                 autoridad=autoridad,
@@ -616,7 +636,6 @@ def new_for_autoridad(autoridad_id):
 
         # Si es valido
         if es_valido:
-
             # Insertar registro
             sentencia = Sentencia(
                 autoridad=autoridad,

@@ -1,8 +1,10 @@
 """
 Edictos, modelos
 """
-from plataforma_web.extensions import db
+from urllib.parse import quote
+
 from lib.universal_mixin import UniversalMixin
+from plataforma_web.extensions import db
 
 
 class Edicto(db.Model, UniversalMixin):
@@ -26,10 +28,11 @@ class Edicto(db.Model, UniversalMixin):
     archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
     url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
+    @property
+    def descargar_url(self):
+        """URL para descargar el archivo desde Google Cloud Storage"""
+        return f"/edictos/descargar?url={quote(self.url)}"
+
     def __repr__(self):
         """Representación"""
         return f"<Edicto {self.descripcion}>"
-
-    @property
-    def ruta(self):
-        """Ruta para guardar el archivo"""
