@@ -4,6 +4,7 @@ Edictos, vistas
 import datetime
 import json
 from pathlib import Path
+from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -12,6 +13,8 @@ from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
+from lib.exceptions import MyAnyError
+from lib.google_cloud_storage import get_blob_name_from_url, get_media_type_from_filename, get_file_from_gcs
 from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -278,7 +281,7 @@ def datatable_json():
                 "expediente": edicto.expediente,
                 "numero_publicacion": edicto.numero_publicacion,
                 "archivo": {
-                    "url": edicto.url,
+                    "descargar_url": f"/edictos/descargar?url={quote(edicto.url)}",
                 },
             }
         )
@@ -337,12 +340,30 @@ def datatable_json_admin():
                 "expediente": edicto.expediente,
                 "numero_publicacion": edicto.numero_publicacion,
                 "archivo": {
-                    "url": edicto.url,
+                    "descargar_url": f"/edictos/descargar?url={quote(edicto.url)}",
                 },
             }
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@edictos.route("/edictos/descargar", methods=["GET"])
+def download():
+    """Descargar archivo desde Google Cloud Storage"""
+    url = request.args.get("url")
+    try:
+        # Obtener nombre del blob
+        blob_name = get_blob_name_from_url(url)
+        # Obtener tipo de media
+        media_type = get_media_type_from_filename(blob_name)
+        # Obtener archivo
+        archivo = get_file_from_gcs(current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"], blob_name)
+    except MyAnyError as error:
+        flash(str(error), "warning")
+        return redirect(url_for("edictos.list_active"))
+    # Entregar archivo
+    return current_app.response_class(archivo, mimetype=media_type)
 
 
 @edictos.route("/edictos/refrescar/<int:autoridad_id>")
@@ -416,7 +437,6 @@ def new():
     # Si viene el formulario
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
-
         # Validar fecha
         fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
@@ -533,7 +553,6 @@ def new_for_autoridad(autoridad_id):
     # Si viene el formulario
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
-
         # Validar fecha
         fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
