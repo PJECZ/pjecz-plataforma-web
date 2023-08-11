@@ -9,6 +9,7 @@ from plataforma_web.extensions import csrf, db, login_manager, moment
 from plataforma_web.blueprints.abogados.views import abogados
 from plataforma_web.blueprints.arc_archivos.views import arc_archivos
 from plataforma_web.blueprints.arc_documentos.views import arc_documentos
+from plataforma_web.blueprints.arc_documentos_tipos.views import arc_documentos_tipos
 from plataforma_web.blueprints.arc_documentos_bitacoras.views import arc_documentos_bitacoras
 from plataforma_web.blueprints.arc_juzgados_extintos.views import arc_juzgados_extintos
 from plataforma_web.blueprints.arc_solicitudes.views import arc_solicitudes
@@ -96,6 +97,7 @@ def create_app():
     app.register_blueprint(abogados)
     app.register_blueprint(arc_archivos)
     app.register_blueprint(arc_documentos)
+    app.register_blueprint(arc_documentos_tipos)
     app.register_blueprint(arc_documentos_bitacoras)
     app.register_blueprint(arc_juzgados_extintos)
     app.register_blueprint(arc_solicitudes)
