@@ -56,8 +56,8 @@ def datatable_json():
     if "remesa_id" in request.form:
         consulta = consulta.filter(ArcRemesaDocumento.arc_remesa_id == request.form["remesa_id"])
 
-    # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
-    registros = consulta.order_by(ArcRemesaDocumento.id.desc()).offset(start).limit(rows_per_page).all()
+    # Ordena los registros resultantes por fecha y número de expediente
+    registros = consulta.order_by(ArcDocumento.anio.desc()).order_by(ArcDocumento.expediente.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
