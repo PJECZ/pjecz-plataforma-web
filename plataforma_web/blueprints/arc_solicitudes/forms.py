@@ -16,10 +16,10 @@ class ArcSolicitudNewForm(FlaskForm):
     actor = StringField("Actor")
     demandado = StringField("Demandado")
     juicio = StringField("Juicio")
-    juzgado_origen = StringField("Juzgado Origen")
+    juzgado_origen = StringField("Instancia de Origen")
     tipo = StringField("Tipo de Documento")
     ubicacion = StringField("Ubicación")
-    tipo_juzgado = StringField("Tipo de Juzgado")
+    tipo_juzgado = StringField("Tipo de Instancia")
     fojas_actuales = IntegerField("Fojas")
     # Campos opcionales para la bitácora o historial
     num_folio = StringField("Núm. de Folio", validators=[Optional()])

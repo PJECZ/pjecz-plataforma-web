@@ -26,7 +26,7 @@ class ArcRemesaEditForm(FlaskForm):
 
     # campos de solo lectura
     creado_readonly = StringField("Creado")
-    juzgado_readonly = StringField("Juzgado")
+    juzgado_readonly = StringField("Instancia")
     tipo_documentos_readonly = StringField("Tipo de Documentos")
     # campos actualizables
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1900, date.today().year)])
@@ -40,7 +40,7 @@ class ArcRemesaAddDocumentForm(FlaskForm):
 
     remesas = SelectField("Remesa", coerce=int, validate_choice=False, validators=[DataRequired()])
     fojas = IntegerField("Fojas", validators=[DataRequired()])
-    tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcRemesaDocumento.TIPOS, validators=[DataRequired()])
+    tipo_juzgado = SelectField("Tipo de Instancia", choices=ArcRemesaDocumento.TIPOS, validators=[DataRequired()])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     agregar = SubmitField("Agregar Documento")
 
