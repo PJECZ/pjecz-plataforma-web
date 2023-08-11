@@ -361,7 +361,9 @@ def print_list(remesa_id):
     remesa = ArcRemesa.query.get_or_404(remesa_id)
 
     # Extremos el listado de documentos anexos de la remesa
-    documentos_anexos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).filter_by(estatus="A").all()
+    documentos_anexos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).filter_by(estatus="A")
+    documentos_anexos = documentos_anexos.join(ArcDocumento)
+    documentos_anexos = documentos_anexos.order_by(ArcDocumento.anio.desc()).order_by(ArcDocumento.expediente.desc()).all()
 
     # Resultado final de éxito
     return render_template("arc_remesas_documentos/print_list.jinja2", remesa=remesa, documentos_anexos=documentos_anexos)
