@@ -1,0 +1,31 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Archivo Tipo de Documento{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(arc_documento_tipo.nombre) %}
+        {{ topbar.button_previous('Tipos de Documentos', url_for('arc_documentos_tipos.list_active')) }}
+        {% if current_user.can_edit('ARC DOCUMENTOS TIPOS') %}
+            {{ topbar.button_edit('Editar', url_for('arc_documentos_tipos.edit', arc_documento_tipo_id=arc_documento_tipo.id)) }}
+            {% if arc_documento_tipo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('arc_documentos_tipos.delete', arc_documento_tipo_id=arc_documento_tipo.id)) }}{% endif %}
+            {% if arc_documento_tipo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('arc_documentos_tipos.recover', arc_documento_tipo_id=arc_documento_tipo.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=arc_documento_tipo.estatus) %}
+        {{ detail.label_value_big('Nombre', arc_documento_tipo.nombre) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('ARC DOCUMENTOS TIPOS') %}
+        {% if arc_documento_tipo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar el tipo ' + arc_documento_tipo.nombre + '?') }}{% endif %}
+        {% if arc_documento_tipo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar el tipo ' + arc_documento_tipo.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

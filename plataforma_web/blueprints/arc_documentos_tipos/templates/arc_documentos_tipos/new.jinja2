@@ -1,0 +1,18 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Archivo Tipo de Documento{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Archivo Tipo de Documento') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('arc_documentos_tipos.new', fid='arc_documento_tipo_form') %}
+            {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

@@ -15,6 +15,9 @@
         {% if current_user.can_edit('ARC DOCUMENTOS') %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('arc_documentos.list_active')) }}{% endif %}
         {% endif %}
+        {% if current_user.can_insert('ARC DOCUMENTOS TIPOS') %}
+            {{ topbar.button('Tipos de Documentos', url_for('arc_documentos_tipos.list_active'), 'mdi:file-code') }}
+        {% endif %}
         {% if current_user.can_insert('ARC DOCUMENTOS') %}
             {{ topbar.button_new('Nuevo Documento', url_for('arc_documentos.new')) }}
         {% endif %}
@@ -36,7 +39,7 @@
                     <div class="col-4">
                         <div class="form-floating">
                             <select id="juzgadoInput" class="form-control js-select2-filter" onchange="buscar(); return false;" style="text-transform: uppercase"></select>
-                            <label for="juzgadoInput">Juzgado</label>
+                            <label for="juzgadoInput">Instancia</label>
                         </div>
                     </div>
                     <div class="col-4">
@@ -79,7 +82,7 @@
             <thead>
                 <tr>
                     <th>Expediente</th>
-                    <th>Juzgado</th>
+                    <th>Instancia</th>
                     <th>Tipo</th>
                     <th>Partes</th>
                     <th>Ubicación</th>

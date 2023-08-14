@@ -20,7 +20,7 @@ class ArcRemesaDocumentoEditForm(FlaskForm):
     """Formulario para editar Documento anexo en Remesa"""
 
     fojas = IntegerField("Fojas", validators=[DataRequired()])
-    tipo_juzgado = SelectField("Tipo de Juzgado", choices=ArcRemesaDocumento.TIPOS, validators=[DataRequired()])
+    tipo_juzgado = SelectField("Tipo de Instancia", choices=ArcRemesaDocumento.TIPOS, validators=[DataRequired()])
     observaciones_solicitante = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
 

@@ -19,15 +19,15 @@
     {% call detail.card(estatus=documento.estatus) %}
         {{ detail.label_value('Núm. Expediente', documento.expediente) }}
         {{ detail.label_value('Año', documento.anio) }}
-        {{ detail.label_value('Juzgado', documento.autoridad.clave + ' : ' + documento.autoridad.descripcion_corta) }}
+        {{ detail.label_value('Instancia', documento.autoridad.clave + ' : ' + documento.autoridad.descripcion_corta) }}
         <hr>
         {{ detail.label_value('Actor', documento.actor) }}
         {{ detail.label_value('Demandado', documento.demandado) }}
         <hr>
-        {{ detail.label_value('Juzgado Origen', documento.arc_juzgado_origen.nombre) }}
+        {{ detail.label_value('Instancia de Origen', documento.arc_juzgado_origen.nombre) }}
         {{ detail.label_value('Juicio', documento.juicio) }}
         {{ detail.label_value('Tipo', documento.tipo) }}
-        {{ detail.label_value('Tipo de Juzgado', documento.tipo_juzgado) }}
+        {{ detail.label_value('Tipo de Instancia', documento.tipo_juzgado) }}
         <hr>
         {{ detail.label_value('Fojas', documento.fojas) }}
         <div class="row">

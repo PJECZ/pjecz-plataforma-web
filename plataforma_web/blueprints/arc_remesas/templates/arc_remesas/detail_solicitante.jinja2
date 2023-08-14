@@ -52,7 +52,7 @@
     {# Detalle #}
     {% call detail.card('Detalles de la Remesa') %}
         {{ detail.label_value('Creado', moment(remesa.creado).format('llll')) }}
-        {{ detail.label_value('Juzgado', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta) }}
+        {{ detail.label_value('Instancia', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta) }}
         <div class="row">
             {% if estado_text and estado_text['class'] %}
                 <div class="col-md-3 text-end">Estado</div>
@@ -119,7 +119,7 @@
                     <th>ID</th>
                     <th>Expediente</th>
                     <th>Juicio</th>
-                    <th>Juzgado Origen</th>
+                    <th>Instancia de Origen</th>
                     <th>Partes</th>
                     <th>Fojas Nuevas</th>
                     <th>Observaciones</th>
@@ -234,7 +234,7 @@
                 }
             },
             {
-                targets: 3, // jJuzgado de Origen
+                targets: 3, // Juzgado de Origen
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<span title="' + data.nombre + '">' + data.clave + '</span>';

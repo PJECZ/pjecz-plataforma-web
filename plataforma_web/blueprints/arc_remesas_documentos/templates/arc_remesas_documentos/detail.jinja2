@@ -27,7 +27,7 @@
         {{ detail.label_value('Añadido', moment(arc_remesa_documento.creado).format('llll')) }}
         {{ detail.label_value('Última Actualización', moment(arc_remesa_documento.modificado).format('llll')) }}
         {{ detail.label_value('Fojas Nuevas', arc_remesa_documento.fojas) }}
-        {{ detail.label_value('Tipo de Juzgado', arc_remesa_documento.tipo_juzgado) }}
+        {{ detail.label_value('Tipo de Instancia', arc_remesa_documento.tipo_juzgado) }}
         {{ detail.label_value('Tiene Anomalías', arc_remesa_documento.anomalia) }}
     {% endcall %}
     {# Observaciones - Solicitante #}
@@ -52,7 +52,7 @@
     {% call detail.card('Detalles de la Remesa') %}
         {{ detail.label_value('Creado', moment(remesa.creado).format('llll')) }}
         {{ detail.label_value('Última Actualización', moment(remesa.modificado).format('llll')) }}
-        {{ detail.label_value('Juzgado', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta) }}
+        {{ detail.label_value('Instancia', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta) }}
         {{ detail.label_value('Año', remesa.anio) }}
         {{ detail.label_value('Número de Oficio', remesa.num_oficio) }}
         {{ detail.label_value('Estado', remesa.estado) }}
@@ -68,7 +68,7 @@
         <hr>
         {{ detail.label_value('Juicio', documento.juicio) }}
         {{ detail.label_value('Tipo', documento.tipo) }}
-        {{ detail.label_value('Tipo de Juzgado', documento.tipo_juzgado) }}
+        {{ detail.label_value('Tipo de Instancia', documento.tipo_juzgado) }}
         {{ detail.label_value('Fojas Actuales', documento.fojas) }}
         <div class="row">
             <div class="col-md-3 text-end">Ubicación</div>
