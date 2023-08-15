@@ -10,6 +10,9 @@
             {# {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('arc_documentos.list_inactive')) }}{% endif %} #}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('arc_documentos.list_active')) }}{% endif %}
         {% endif %}
+        {% if current_user.can_view('ARC DOCUMENTOS TIPOS') %}
+            {{ topbar.button('Tipos de Documentos', url_for('arc_documentos_tipos.list_active'), 'mdi:file-code') }}
+        {% endif %}
         {% if current_user.can_insert('ARC DOCUMENTOS') %}
             {{ topbar.button_new('Nuevo Documento', url_for('arc_documentos.new')) }}
         {% endif %}
