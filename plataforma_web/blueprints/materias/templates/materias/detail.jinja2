@@ -42,17 +42,6 @@
             </table>
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('MATERIAS TIPOS JUZGADOS') %}
-        {% call detail.card(title='Tipos de Juzgados') %}
-            <table id="materias_tipos_juzgados_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Tipos de Jugzados</th>
-                    </tr>
-                </thead>
-            </table>
-        {% endcall %}
-    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -110,25 +99,6 @@
                 }
             ];
             $('#materias_tipos_juicios_datatable').DataTable(configDataTable);
-        </script>
-    {% endif %}
-    {% if current_user.can_view('MATERIAS TIPOS JUZGADOS') %}
-        <script>
-            configDataTable['ajax']['url'] = '/materias_tipos_juzgados/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_id': {{ materia.id}} };
-            configDataTable['columns'] = [
-                { data: "detalle" }
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                    }
-                }
-            ];
-            $('#materias_tipos_juzgados_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
 {% endblock %}

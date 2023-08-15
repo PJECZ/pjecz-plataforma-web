@@ -541,7 +541,7 @@ def new():
         "sentencias/new.jinja2",
         form=form,
         autoridad=autoridad,
-        materias=Materia.query.filter_by(estatus="A").order_by(Materia.id).all(),
+        materias=Materia.query.filter_by(en_sentencias=True).filter_by(estatus="A").order_by(Materia.id).all(),
         materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
     )
 
@@ -690,7 +690,7 @@ def new_for_autoridad(autoridad_id):
         "sentencias/new_for_autoridad.jinja2",
         form=form,
         autoridad=autoridad,
-        materias=Materia.query.filter_by(estatus="A").order_by(Materia.id).all(),
+        materias=Materia.query.filter_by(en_sentencias=True).filter_by(estatus="A").order_by(Materia.id).all(),
         materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
     )
 
@@ -775,7 +775,7 @@ def edit(sentencia_id):
         "sentencias/edit.jinja2",
         form=form,
         sentencia=sentencia,
-        materias=Materia.query.filter_by(estatus="A").order_by(Materia.id).all(),
+        materias=Materia.query.filter_by(en_sentencias=True).filter_by(estatus="A").order_by(Materia.id).all(),
         materias_tipos_juicios=MateriaTipoJuicio.query.filter_by(estatus="A").order_by(MateriaTipoJuicio.materia_id, MateriaTipoJuicio.descripcion).all(),
     )
 

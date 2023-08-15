@@ -16,6 +16,7 @@ class Materia(db.Model, UniversalMixin):
 
     # Columnas
     nombre = db.Column(db.String(64), unique=True, nullable=False)
+    en_sentencias = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
     autoridades = db.relationship("Autoridad", back_populates="materia", lazy="noload")
