@@ -4,11 +4,21 @@
 
 {% block title %}Expedientes{% endblock %}
 
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://storage.googleapis.com/pjecz-informatica/static/css/select2.css" rel="stylesheet" />
+{% endblock %}
+
+
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_edit('ARC DOCUMENTOS') %}
             {# {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('arc_documentos.list_inactive')) }}{% endif %} #}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('arc_documentos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_view('ARC DOCUMENTOS TIPOS') %}
+            {{ topbar.button('Tipos de Documentos', url_for('arc_documentos_tipos.list_active'), 'mdi:file-code') }}
         {% endif %}
         {% if current_user.can_insert('ARC DOCUMENTOS') %}
             {{ topbar.button_new('Nuevo Documento', url_for('arc_documentos.new')) }}
@@ -30,12 +40,7 @@
                     </div>
                     <div class="col-6">
                         <div class="form-floating">
-                            <select class="form-select" id="tipoSelect" name="tipoSelect" aria-label="tIPO" onchange="buscar(); return false;" style="flex: inherit;">
-                                <option selected value=""></option>
-                                {% for tipo in tipos %}
-                                    <option value="{{tipo}}">{{tipo}}</option>
-                                {% endfor %}
-                            </select>
+                            <select id="tipoSelect" class="form-control js-select2-filter" onchange="buscar(); return false;" style="text-transform: uppercase;"></select>
                             <label for="tipoSelect">Tipo</label>
                         </div>
                     </div>
@@ -192,8 +197,34 @@
             delete configDataTable['ajax']['data']['partes'];
             delete configDataTable['ajax']['data']['ubicacion'];
 
+            document.getElementById('tipoSelect').textContent = '';
+            document.getElementById('tipoSelect').options[0] = null;
+
             $('#arc_documentos_datatable').DataTable().destroy();
             $('#arc_documentos_datatable').DataTable(configDataTable);
         };
+    </script>
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#tipoSelect').addClass('js-example-placeholder-single');
+            $("#tipoSelect").select2({
+                // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/arc_documentos_tipos/tipos_documentos_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'nombre': params.term.toUpperCase() };
+                    }
+                },
+                placeholder: "",
+                minimumInputLength: 1,
+                allowClear: true
+            });
+        });
     </script>
 {% endblock %}

@@ -25,20 +25,6 @@ class ArcDocumento(db.Model, UniversalMixin):
         ]
     )
 
-    TIPOS = OrderedDict(  # varchar(16)
-        [
-            ("NO DEFINIDO", "No Definido"),
-            ("CUADERNILLO", "Cuadernillo"),
-            ("ENCOMIENDA", "Encomienda"),
-            ("EXHORTO", "Exhorto"),
-            ("EXPEDIENTE", "Expediente"),
-            ("EXPEDIENTILLO", "Expedientillo"),
-            ("FOLIO", "Folio"),
-            ("LIBRO", "Libro"),
-            ("TOCA", "TOCA"),
-        ]
-    )
-
     # Nombre de la tabla
     __tablename__ = "arc_documentos"
 
@@ -50,6 +36,8 @@ class ArcDocumento(db.Model, UniversalMixin):
     autoridad = db.relationship("Autoridad", back_populates="arc_documentos")
     arc_juzgado_origen_id = db.Column(db.Integer, db.ForeignKey("arc_juzgados_extintos.id"), index=True, nullable=True)
     arc_juzgado_origen = db.relationship("ArcJuzgadoExtinto", back_populates="arc_documentos")
+    arc_documento_tipo_id = db.Column(db.Integer, db.ForeignKey("arc_documentos_tipos.id"), index=True, nullable=True)
+    arc_documento_tipo = db.relationship("ArcDocumentoTipo", back_populates="arc_documentos_tipos")
 
     # Columnas
     actor = db.Column(db.String(256), nullable=False)
@@ -64,13 +52,6 @@ class ArcDocumento(db.Model, UniversalMixin):
     )
     ubicacion = db.Column(
         db.Enum(*UBICACIONES, name="ubicaciones", native_enum=False),
-        nullable=False,
-        default="NO DEFINIDO",
-        server_default="NO DEFINIDO",
-    )
-    tipo = db.Column(
-        db.Enum(*TIPOS, name="tipos", native_enum=False),
-        index=True,
         nullable=False,
         default="NO DEFINIDO",
         server_default="NO DEFINIDO",

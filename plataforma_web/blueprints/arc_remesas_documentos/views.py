@@ -73,7 +73,7 @@ def datatable_json():
                     "url": url_for("arc_documentos.detail", documento_id=resultado.arc_documento.id),
                 },
                 "anio": resultado.arc_documento.anio,
-                "tipo": resultado.arc_documento.tipo,
+                "tipo": resultado.arc_documento.arc_documento_tipo.nombre,
                 "juicio": resultado.arc_documento.juicio,
                 "juzgado_origen": {
                     "clave": resultado.arc_documento.arc_juzgado_origen.clave if resultado.arc_documento.arc_juzgado_origen_id is not None else "",

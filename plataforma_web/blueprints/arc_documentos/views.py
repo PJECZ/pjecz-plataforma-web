@@ -69,7 +69,7 @@ def datatable_json():
     if "partes" in request.form:
         consulta = consulta.filter(or_(ArcDocumento.actor.contains(safe_string(request.form["partes"], save_enie=True)), ArcDocumento.demandado.contains(safe_string(request.form["partes"], save_enie=True))))
     if "tipo" in request.form:
-        consulta = consulta.filter_by(tipo=request.form["tipo"])
+        consulta = consulta.filter_by(arc_documento_tipo_id=int(request.form["tipo"]))
     if "ubicacion" in request.form:
         consulta = consulta.filter_by(ubicacion=request.form["ubicacion"])
     if "juzgado_id" in request.form:
@@ -92,7 +92,7 @@ def datatable_json():
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
                 },
                 "anio": resultado.anio,
-                "tipo": resultado.tipo,
+                "tipo": resultado.arc_documento_tipo.nombre,
                 "fojas": resultado.fojas,
                 "actor": resultado.actor,
                 "demandado": resultado.demandado,
@@ -120,7 +120,6 @@ def list_active():
             filtros=json.dumps({"estatus": "A"}),
             titulo="Expedientes",
             estatus="A",
-            tipos=ArcDocumento.TIPOS,
             ubicaciones=ArcDocumento.UBICACIONES,
         )
 
@@ -129,7 +128,6 @@ def list_active():
         filtros=json.dumps({"estatus": "A", "juzgado_id": current_user.autoridad.id}),
         titulo=f"Expedientes del {current_user.autoridad.descripcion_corta}",
         estatus="A",
-        tipos=ArcDocumento.TIPOS,
         ubicaciones=ArcDocumento.UBICACIONES,
     )
 
@@ -216,7 +214,7 @@ def new():
                 juicio=safe_string(form.juicio.data, save_enie=True),
                 tipo_juzgado=safe_string(form.tipo_juzgado.data),
                 arc_juzgado_origen=form.juzgado_origen.data,
-                tipo=safe_string(form.tipo.data),
+                arc_documento_tipo_id=int(form.tipo.data),
                 fojas=int(form.fojas.data),
                 notas=safe_message(form.notas.data, default_output_str=None),
                 ubicacion=ubicacion,
@@ -289,7 +287,7 @@ def edit(arc_documento_id):
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
             documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
             documento.arc_juzgado_origen = form.juzgado_origen.data
-            documento.tipo = safe_string(form.tipo.data)
+            documento.arc_documento_tipo_id = int(form.tipo.data)
             documento.fojas = fojas
             documento.notas = safe_message(form.notas.data, default_output_str=None)
             documento.ubicacion = ubicacion
@@ -318,7 +316,7 @@ def edit(arc_documento_id):
     form.juzgado_origen.data = documento.arc_juzgado_origen
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
-    form.tipo.data = documento.tipo
+    form.tipo.data = documento.arc_documento_tipo
     form.fojas.data = documento.fojas
     form.notas.data = documento.notas
     if isinstance(form, ArcDocumentoEditArchivoForm):
