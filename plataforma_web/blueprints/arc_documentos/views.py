@@ -92,7 +92,7 @@ def datatable_json():
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
                 },
                 "anio": resultado.anio,
-                "tipo": resultado.tipo,
+                "tipo": resultado.arc_documento_tipo.nombre,
                 "fojas": resultado.fojas,
                 "actor": resultado.actor,
                 "demandado": resultado.demandado,
@@ -216,7 +216,7 @@ def new():
                 juicio=safe_string(form.juicio.data, save_enie=True),
                 tipo_juzgado=safe_string(form.tipo_juzgado.data),
                 arc_juzgado_origen=form.juzgado_origen.data,
-                tipo=safe_string(form.tipo.data),
+                arc_documento_tipo_id=int(form.tipo.data),
                 fojas=int(form.fojas.data),
                 notas=safe_message(form.notas.data, default_output_str=None),
                 ubicacion=ubicacion,
@@ -289,7 +289,7 @@ def edit(arc_documento_id):
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
             documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
             documento.arc_juzgado_origen = form.juzgado_origen.data
-            documento.tipo = safe_string(form.tipo.data)
+            documento.arc_documento_tipo_id = int(form.tipo.data)
             documento.fojas = fojas
             documento.notas = safe_message(form.notas.data, default_output_str=None)
             documento.ubicacion = ubicacion
