@@ -365,7 +365,7 @@ def new(documento_id):
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.juzgado_origen.data = documento.arc_juzgado_origen.nombre if documento.arc_juzgado_origen is not None else ""
-    form.tipo.data = documento.tipo
+    form.tipo.data = documento.arc_documento_tipo.nombre
     form.fojas_actuales.data = documento.fojas
     form.ubicacion.data = documento.ubicacion
     return render_template("arc_solicitudes/new.jinja2", documento_id=documento.id, form=form)
@@ -645,12 +645,12 @@ def print_list():
     """Pagina de impresión de listado de Solicitudes Activas por ROL"""
 
     # Preparar la consulta
-    solicitudes = ArcSolicitud.query.join(ArcDocumento).filter(ArcSolicitud.esta_archivado==False).filter(ArcSolicitud.estatus=="A").order_by(ArcDocumento.anio)
+    solicitudes = ArcSolicitud.query.join(ArcDocumento).filter(ArcSolicitud.esta_archivado == False).filter(ArcSolicitud.estatus == "A").order_by(ArcDocumento.anio)
 
     # Asignación por Roles
     current_user_roles = current_user.get_roles()
     if ROL_ARCHIVISTA in current_user_roles:
-        solicitudes = solicitudes.filter(ArcSolicitud.usuario_asignado==current_user)
+        solicitudes = solicitudes.filter(ArcSolicitud.usuario_asignado == current_user)
 
     # Listar todas las solicitudes
     solicitudes = solicitudes.all()

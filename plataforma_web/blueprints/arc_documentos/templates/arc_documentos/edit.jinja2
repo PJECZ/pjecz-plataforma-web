@@ -73,6 +73,32 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            $('#tipo').addClass('js-data-example-ajax form-control');
+
+            // --- Carga de la opción elegida --- //
+            const newTipoOption = new Option('{{documento.arc_documento_tipo.nombre}}', '{{documento.arc_documento_tipo.id}}', false, false);
+            $('#tipo').append(newTipoOption).trigger('change');
+
+            $('#tipo').select2({
+                // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/arc_documentos_tipos/tipos_documentos_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'nombre': params.term.toUpperCase() };
+                    }
+                },
+                placeholder: "Tipo de Documento",
+                minimumInputLength: 1,
+                allowClear: true
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
             $('#juzgado_id').addClass('js-data-example-ajax form-control');
 
             // --- Carga de la opción elegida --- //

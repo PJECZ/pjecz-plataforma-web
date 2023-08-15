@@ -120,7 +120,6 @@ def list_active():
             filtros=json.dumps({"estatus": "A"}),
             titulo="Expedientes",
             estatus="A",
-            tipos=ArcDocumento.TIPOS,
             ubicaciones=ArcDocumento.UBICACIONES,
         )
 
@@ -129,7 +128,6 @@ def list_active():
         filtros=json.dumps({"estatus": "A", "juzgado_id": current_user.autoridad.id}),
         titulo=f"Expedientes del {current_user.autoridad.descripcion_corta}",
         estatus="A",
-        tipos=ArcDocumento.TIPOS,
         ubicaciones=ArcDocumento.UBICACIONES,
     )
 
@@ -318,7 +316,7 @@ def edit(arc_documento_id):
     form.juzgado_origen.data = documento.arc_juzgado_origen
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
-    form.tipo.data = documento.tipo
+    form.tipo.data = documento.arc_documento_tipo
     form.fojas.data = documento.fojas
     form.notas.data = documento.notas
     if isinstance(form, ArcDocumentoEditArchivoForm):
