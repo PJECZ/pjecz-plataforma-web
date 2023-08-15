@@ -17,6 +17,9 @@ class ArcDocumentoTipo(db.Model, UniversalMixin):
     # Columnas
     nombre = db.Column(db.String(32), unique=True, nullable=False)
 
+    # Hijos
+    arc_documentos_tipos = db.relationship("ArcDocumento", back_populates="arc_documento_tipo", lazy="noload")
+
     def __repr__(self):
         """Representación"""
         return f"<Tipo de Documento> {self.id}"

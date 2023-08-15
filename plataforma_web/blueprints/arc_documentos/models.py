@@ -50,6 +50,8 @@ class ArcDocumento(db.Model, UniversalMixin):
     autoridad = db.relationship("Autoridad", back_populates="arc_documentos")
     arc_juzgado_origen_id = db.Column(db.Integer, db.ForeignKey("arc_juzgados_extintos.id"), index=True, nullable=True)
     arc_juzgado_origen = db.relationship("ArcJuzgadoExtinto", back_populates="arc_documentos")
+    arc_documento_tipo_id = db.Column(db.Integer, db.ForeignKey("arc_documentos_tipos.id"), index=True, nullable=True)
+    arc_documento_tipo = db.relationship("ArcDocumentoTipo", back_populates="arc_documentos_tipos")
 
     # Columnas
     actor = db.Column(db.String(256), nullable=False)
