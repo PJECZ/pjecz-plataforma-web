@@ -44,12 +44,7 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select class="form-select" id="tipoSelect" name="tipoSelect" aria-label="tIPO" onchange="buscar(); return false;" style="flex: inherit;">
-                                <option selected value=""></option>
-                                {% for tipo in tipos %}
-                                    <option value="{{tipo}}">{{tipo}}</option>
-                                {% endfor %}
-                            </select>
+                            <select id="tipoSelect" class="form-control js-select2-filter" onchange="buscar(); return false;" style="text-transform: uppercase;"></select>
                             <label for="tipoSelect">Tipo</label>
                         </div>
                     </div>
@@ -230,6 +225,9 @@
             document.getElementById('juzgadoInput').textContent = '';
             document.getElementById('juzgadoInput').options[0] = null;
 
+            document.getElementById('tipoSelect').textContent = '';
+            document.getElementById('tipoSelect').options[0] = null;
+
             $('#arc_documentos_datatable').DataTable().destroy();
             $('#arc_documentos_datatable').DataTable(configDataTable);
         };
@@ -252,6 +250,27 @@
                 },
                 minimumInputLength: 3,
                 cache: false
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('#tipoSelect').addClass('js-example-placeholder-single');
+            $("#tipoSelect").select2({
+                // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/arc_documentos_tipos/tipos_documentos_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'nombre': params.term.toUpperCase() };
+                    }
+                },
+                placeholder: "",
+                minimumInputLength: 1,
+                allowClear: true
             });
         });
     </script>

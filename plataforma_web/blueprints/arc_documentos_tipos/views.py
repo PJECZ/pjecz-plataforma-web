@@ -175,7 +175,7 @@ def recover(arc_documento_tipo_id):
     return redirect(url_for("arc_documentos_tipos.detail", arc_documento_tipo_id=arc_documento_tipo.id))
 
 
-@arc_documentos_tipos.route("/arc_documentos_tipos/tipos_json", methods=["POST"])
+@arc_documentos_tipos.route("/arc_documentos_tipos/tipos_documentos_json", methods=["POST"])
 def query_tipos_documentos_json():
     """Proporcionar el JSON de los tipos de documentos con un Select2"""
     consulta = ArcDocumentoTipo.query.filter_by(estatus="A")
