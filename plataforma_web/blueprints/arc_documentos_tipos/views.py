@@ -173,3 +173,16 @@ def recover(arc_documento_tipo_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("arc_documentos_tipos.detail", arc_documento_tipo_id=arc_documento_tipo.id))
+
+
+@arc_documentos_tipos.route("/arc_documentos_tipos/tipos_json", methods=["POST"])
+def query_tipos_documentos_json():
+    """Proporcionar el JSON de los tipos de documentos con un Select2"""
+    consulta = ArcDocumentoTipo.query.filter_by(estatus="A")
+    if "nombre" in request.form:
+        nombre = safe_string(request.form["nombre"])
+        consulta = consulta.filter(ArcDocumentoTipo.nombre.contains(nombre))
+    results = []
+    for tipo in consulta.order_by(ArcDocumentoTipo.nombre).limit(15).all():
+        results.append({"id": tipo.id, "text": tipo.nombre})
+    return {"results": results, "pagination": {"more": False}}

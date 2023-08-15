@@ -28,7 +28,7 @@ class ArcDocumentoNewArchivoForm(FlaskForm):
     demandado = StringField("Demandado(s)", validators=[Optional(), Length(max=256)])
     juicio = StringField("Juicio", validators=[Optional(), Length(max=128)])
     juzgado_origen = QuerySelectField("Instancia de Origen", query_factory=juzgados_extintos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
-    tipo = SelectField("Tipo de Documento", choices=ArcDocumento.TIPOS, validators=[DataRequired()])
+    tipo = SelectField("Tipo de Documento", coerce=int, validate_choice=False, validators=[DataRequired()])
     ubicacion = SelectField("Ubicación", choices=ArcDocumento.UBICACIONES, validators=[DataRequired()])
     tipo_juzgado = SelectField("Tipo de Instancia", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])
     # Campos opcionales para la bitácora o historial

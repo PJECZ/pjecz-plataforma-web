@@ -115,6 +115,27 @@
         });
     </script>
     <script>
+        $(document).ready(function(){
+            $('#tipo').addClass('js-example-placeholder-single');
+            $("#tipo").select2({
+                // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/arc_documentos_tipos/tipos_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'nombre': params.term.toUpperCase() };
+                    }
+                },
+                placeholder: "",
+                minimumInputLength: 1,
+                allowClear: true
+            });
+        });
+    </script>
+    <script>
     {% if not mostrar_secciones["juzgado_nombre"] %}
         $(document).ready(function(){
             $("#juzgadoInput_buscar").prop("selectedIndex", -1); // Poner en blanco el select
