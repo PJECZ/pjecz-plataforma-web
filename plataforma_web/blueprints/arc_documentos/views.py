@@ -65,7 +65,7 @@ def datatable_json():
         if request.form["expediente"].isnumeric():
             consulta = consulta.filter(ArcDocumento.expediente.contains(request.form["expediente"]))
         else:
-            consulta = consulta.filter(ArcDocumento.expediente.contains(safe_expediente(request.form["expediente"])))
+            consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
     if "partes" in request.form:
         consulta = consulta.filter(or_(ArcDocumento.actor.contains(safe_string(request.form["partes"], save_enie=True)), ArcDocumento.demandado.contains(safe_string(request.form["partes"], save_enie=True))))
     if "tipo" in request.form:
