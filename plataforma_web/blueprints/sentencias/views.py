@@ -278,7 +278,7 @@ def datatable_json():
                 "materia_tipo_juicio_descripcion": sentencia.materia_tipo_juicio.descripcion,
                 "es_perspectiva_genero": "Sí" if sentencia.es_perspectiva_genero else "",
                 "archivo": {
-                    "descargar_url": f"/sentencias/descargar?url={quote(sentencia.url)}",
+                    "descargar_url": sentencia.descargar_url,
                 },
             }
         )
@@ -337,7 +337,7 @@ def datatable_json_admin():
                 "materia_tipo_juicio_descripcion": sentencia.materia_tipo_juicio.descripcion,
                 "es_perspectiva_genero": "Sí" if sentencia.es_perspectiva_genero else "",
                 "archivo": {
-                    "descargar_url": f"/sentencias/descargar?url={quote(sentencia.url)}",
+                    "descargar_url": url_for("sentencias.download", url=quote(sentencia.url)),
                 },
             }
         )

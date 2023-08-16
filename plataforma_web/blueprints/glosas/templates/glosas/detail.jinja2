@@ -33,7 +33,7 @@
         {{ detail.label_value('Fecha', moment(glosa.fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Tipo de juicio', glosa.tipo_juicio) }}
         {{ detail.label_value('Expediente', glosa.expediente) }}
-        {{ detail.label_value_new_tab('Enlace público para descargar PDF', glosa.archivo, glosa.descargar_url) }}
+        {{ detail.label_value_new_tab('Enlace público para descargar PDF', glosa.descargar_url, glosa.descargar_url) }}
         {% if current_user.can_admin('GLOSAS') %}
             {{ detail.label_value_new_tab('Descargar como administrador PDF', glosa.archivo, url_for('glosas.download', url=glosa.url)) }}
         {% endif %}
