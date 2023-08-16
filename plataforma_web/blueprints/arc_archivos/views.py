@@ -56,6 +56,7 @@ def list_active():
             estados_remesas=ArcRemesa.ESTADOS,
             tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
             rol_archivista=ROL_ARCHIVISTA,
+            mostrar_btn_local_global=mostrar_btn_local,
         )
     if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
         return render_template(
@@ -184,7 +185,7 @@ def list_all():
     current_user_roles = current_user.get_roles()
 
     # Si no tiene el rol de JEFE DE REMESA ADMINISTRADOR es redireccionado al listado normal
-    if ROL_JEFE_REMESA_ADMINISTRADOR not in current_user_roles or current_user.can_admin(MODULO):
+    if ROL_JEFE_REMESA_ADMINISTRADOR not in current_user_roles or not current_user.can_admin(MODULO):
         redirect(url_for("arc_archivos.list_active"))
 
     # Extraemos los distritos
