@@ -15,19 +15,35 @@
         {% if mostrar_btn_local_global == 'LOCAL' %}
             <div class="btn-group me-2">
                 <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:map-marker"></span> Locales</button>
-                <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_all')}}"><span class="iconify" data-icon="mdi:earth"></span> Todos</a>
+                {% if mostrando_historial %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_all', historial=1)}}"><span class="iconify" data-icon="mdi:earth"></span> Todos</a>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_all', historial=0)}}"><span class="iconify" data-icon="mdi:earth"></span> Todos</a>
+                {% endif %}
             </div>
         {% elif mostrar_btn_local_global == 'GLOBAL' %}
             <div class="btn-group me-2">
-                <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:map-marker"></span> Locales</a>
+                {% if mostrando_historial %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_history')}}"><span class="iconify" data-icon="mdi:map-marker"></span> Locales</a>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:map-marker"></span> Locales</a>
+                {% endif %}
                 <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:earth"></span> Todos</button>
             </div>
         {% endif %}
         {% if mostrando_historial %}
-            <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
+            {% if mostrar_btn_local_global == 'LOCAL' %}
+                <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
+            {% elif mostrar_btn_local_global == 'GLOBAL' %}
+                <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_all', historial=0)}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
+            {% endif %}
             <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:history"></span> Historial</button>
         {% else %}
-            {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
+            {% if mostrar_btn_local_global == 'LOCAL' %}
+                {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
+            {% elif mostrar_btn_local_global == 'GLOBAL' %}
+                {{ topbar.button('Historial', url_for('arc_archivos.list_all', historial=1), 'mdi:history') }}
+            {% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
