@@ -98,7 +98,10 @@ def datatable_json():
         consulta = consulta.filter_by(esta_archivado=True)
     if "expediente" in request.form:
         consulta = consulta.join(ArcDocumento)
-        consulta = consulta.filter(ArcDocumento.expediente.contains(request.form["expediente"]))
+        if request.form["expediente"].isnumeric():
+            consulta = consulta.filter(ArcDocumento.expediente.contains(request.form["expediente"]))
+        else:
+            consulta = consulta.filter(ArcDocumento.expediente == safe_expediente(request.form["expediente"]))
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     if "orden_acendente" in request.form:
         registros = consulta.order_by(ArcSolicitud.id.desc()).offset(start).limit(rows_per_page).all()
