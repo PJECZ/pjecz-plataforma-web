@@ -12,16 +12,65 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if mostrar_btn_local_global == 'LOCAL' %}
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:map-marker"></span> Locales</button>
+                {% if mostrando_historial %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_all', historial=1)}}"><span class="iconify" data-icon="mdi:earth"></span> Todos</a>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_all', historial=0)}}"><span class="iconify" data-icon="mdi:earth"></span> Todos</a>
+                {% endif %}
+            </div>
+        {% elif mostrar_btn_local_global == 'GLOBAL' %}
+            <div class="btn-group me-2">
+                {% if mostrando_historial %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_history')}}"><span class="iconify" data-icon="mdi:map-marker"></span> Locales</a>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:map-marker"></span> Locales</a>
+                {% endif %}
+                <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:earth"></span> Todos</button>
+            </div>
+        {% endif %}
         {% if mostrando_historial %}
-            <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
+            {% if mostrar_btn_local_global == 'LOCAL' %}
+                <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
+            {% elif mostrar_btn_local_global == 'GLOBAL' %}
+                <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_all', historial=0)}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
+            {% endif %}
             <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:history"></span> Historial</button>
         {% else %}
-            {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
+            {% if mostrar_btn_local_global == 'LOCAL' %}
+                {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
+            {% elif mostrar_btn_local_global == 'GLOBAL' %}
+                {{ topbar.button('Historial', url_for('arc_archivos.list_all', historial=1), 'mdi:history') }}
+            {% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
+    <!-- Card de Distritos -->
+    {% if mostrar_btn_local_global == 'GLOBAL' %}
+        {% call list.card() %}
+            <!-- Formulario de Distritos -->
+            <div class="row">
+                <div class="col">
+                    <form class="row g-1" id="buscadorDistritosForm" onsubmit="seleccionar_distrito(); return false;" autocomplete="off">
+                        <div class="form-floating">
+                            <select class="form-select" id="distritoSelect" name="distritoSelect" aria-label="Distrito" onchange="seleccionar_distrito(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
+                                {% for distrito in distritos %}
+                                    <option value="{{distrito.id}}">{{distrito.nombre_corto}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="distritoSelect">Distritos</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endcall %}
+    {% endif %}
+    <!-- Card Solicitudes -->
     {% call topbar.page_buttons('Solicitudes') %}
     {% endcall %}
     {% call list.card() %}
@@ -441,4 +490,20 @@
             });
         });
     </script>
+    {% if mostrar_btn_local_global == 'GLOBAL' %}
+    <script>
+        function seleccionar_distrito() {
+            distrito = document.getElementById('distritoSelect').value;
+            if (distrito === "")    {
+                delete filtros_solicitudes.configDataTable.ajax.data['distrito_id'];
+                delete filtros_remesas.configDataTable.ajax.data['distrito_id'];
+            } else {
+                filtros_solicitudes.configDataTable.ajax.data['distrito_id'] = distrito;
+                filtros_remesas.configDataTable.ajax.data['distrito_id'] = distrito;
+            }
+            filtros_solicitudes.buscar();
+            filtros_remesas.buscar();
+        }
+    </script>
+    {% endif %}
 {% endblock %}
