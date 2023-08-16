@@ -31,8 +31,10 @@ class ListaDeAcuerdo(db.Model, UniversalMixin):
 
     @property
     def descargar_url(self):
-        """URL para descargar el archivo desde Google Cloud Storage"""
-        return f"/listas_de_acuerdos/descargar?url={quote(self.url)}"
+        """URL para descargar el archivo desde el sitio web"""
+        if self.id:
+            return f"https://www.pjecz.gob.mx/consultas/listas-de-acuerdos/descargar/?id={self.id}"
+        return ""
 
     def __repr__(self):
         """Representación"""

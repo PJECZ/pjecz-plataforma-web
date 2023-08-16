@@ -349,6 +349,7 @@ def datatable_json_admin():
 
 
 @edictos.route("/edictos/descargar", methods=["GET"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def download():
     """Descargar archivo desde Google Cloud Storage"""
     url = request.args.get("url")

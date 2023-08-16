@@ -30,8 +30,10 @@ class Edicto(db.Model, UniversalMixin):
 
     @property
     def descargar_url(self):
-        """URL para descargar el archivo desde Google Cloud Storage"""
-        return f"/edictos/descargar?url={quote(self.url)}"
+        """URL para descargar el archivo desde el sitio web"""
+        if self.id:
+            return f"https://www.pjecz.gob.mx/consultas/edictos/descargar/?id={self.id}"
+        return ""
 
     def __repr__(self):
         """Representación"""

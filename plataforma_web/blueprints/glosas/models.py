@@ -47,8 +47,10 @@ class Glosa(db.Model, UniversalMixin):
 
     @property
     def descargar_url(self):
-        """URL para descargar el archivo desde Google Cloud Storage"""
-        return f"/glosas/descargar?url={quote(self.url)}"
+        """URL para descargar el archivo desde el sitio web"""
+        if self.id:
+            return f"https://www.pjecz.gob.mx/consultas/glosas/descargar/?id={self.id}"
+        return ""
 
     def __repr__(self):
         """Representación"""
