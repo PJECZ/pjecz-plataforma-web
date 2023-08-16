@@ -695,3 +695,9 @@ def recover(lista_de_acuerdo_id):
             else:
                 flash("No tiene permiso para recuperar o sólo puede recuperar de hoy.", "warning")
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))
+
+
+@listas_de_acuerdos.route("/listas_de_acuerdos/descargar_reporte")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def download_csv():
+    """Descargar archivo CSV con enlaces públicos"""

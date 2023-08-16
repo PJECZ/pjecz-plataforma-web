@@ -54,3 +54,11 @@ class ListaDeAcuerdoSearchAdminForm(FlaskForm):
     fecha_desde = DateField("Fecha desde", validators=[DataRequired()])
     fecha_hasta = DateField("Fecha hasta", validators=[DataRequired()])
     buscar = SubmitField("Buscar")
+
+
+class ListaDeAcuerdoDownloadCSVForm(FlaskForm):
+    """Formulario para buscar rapidamente en el listado"""
+
+    fecha_desde = DateField("Fecha desde", validators=[DataRequired()])
+    fecha_hasta = DateField("Fecha hasta", validators=[DataRequired()])
+    buscar = SubmitField("Buscar")
