@@ -281,7 +281,7 @@ def datatable_json():
                 "expediente": edicto.expediente,
                 "numero_publicacion": edicto.numero_publicacion,
                 "archivo": {
-                    "descargar_url": f"/edictos/descargar?url={quote(edicto.url)}",
+                    "descargar_url": edicto.descargar_url,
                 },
             }
         )
@@ -340,7 +340,7 @@ def datatable_json_admin():
                 "expediente": edicto.expediente,
                 "numero_publicacion": edicto.numero_publicacion,
                 "archivo": {
-                    "descargar_url": f"/edictos/descargar?url={quote(edicto.url)}",
+                    "descargar_url": url_for("edictos.download", url=quote(edicto.url)),
                 },
             }
         )
@@ -349,6 +349,7 @@ def datatable_json_admin():
 
 
 @edictos.route("/edictos/descargar", methods=["GET"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def download():
     """Descargar archivo desde Google Cloud Storage"""
     url = request.args.get("url")

@@ -33,7 +33,10 @@
         {{ detail.label_value('Fecha', moment(edicto.fecha, local=True).format("DD MMM YYYY")) }}
         {{ detail.label_value('Expediente', edicto.expediente) }}
         {{ detail.label_value('No. publicación', edicto.numero_publicacion) }}
-        {{ detail.label_value_new_tab('Archivo PDF', edicto.archivo, edicto.descargar_url) }}
+        {{ detail.label_value_new_tab('Enlace público para descargar PDF', edicto.descargar_url, edicto.descargar_url) }}
+        {% if current_user.can_admin('EDICTOS') %}
+            {{ detail.label_value_new_tab('Descargar como administrador PDF', edicto.archivo, url_for('edictos.download', url=edicto.url)) }}
+        {% endif %}
         {{ detail.label_value_new_tab('Acuse', 'De clic aqui', url_for('edictos.checkout', id_hashed=edicto.encode_id())) }}
         {{ detail.label_value('Creado', moment(edicto.creado).format('llll')) }}
     {% endcall %}

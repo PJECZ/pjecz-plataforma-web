@@ -272,7 +272,7 @@ def datatable_json():
                 "expediente": glosa.expediente,
                 "tipo_juicio": glosa.tipo_juicio,
                 "archivo": {
-                    "descargar_url": f"/glosas/descargar?url={quote(glosa.url)}",
+                    "descargar_url": glosa.descargar_url,
                 },
             }
         )
@@ -327,7 +327,7 @@ def datatable_json_admin():
                 "expediente": glosa.expediente,
                 "tipo_juicio": glosa.tipo_juicio,
                 "archivo": {
-                    "descargar_url": f"/glosas/descargar?url={quote(glosa.url)}",
+                    "descargar_url": url_for("glosas.download", url=quote(glosa.url)),
                 },
             }
         )
@@ -336,6 +336,7 @@ def datatable_json_admin():
 
 
 @glosas.route("/glosas/descargar", methods=["GET"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def download():
     """Descargar archivo desde Google Cloud Storage"""
     url = request.args.get("url")

@@ -246,7 +246,7 @@ def datatable_json():
                     "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
                 },
                 "archivo": {
-                    "descargar_url": f"/listas_de_acuerdos/descargar?url={quote(lista_de_acuerdo.url)}",
+                    "descargar_url": lista_de_acuerdo.descargar_url,
                 },
             }
         )
@@ -288,7 +288,7 @@ def datatable_json_admin():
                     "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
                 },
                 "archivo": {
-                    "descargar_url": f"/listas_de_acuerdos/descargar?url={quote(lista_de_acuerdo.url)}",
+                    "descargar_url": url_for("listas_de_acuerdos.download", url=quote(lista_de_acuerdo.url)),
                 },
             }
         )
@@ -297,6 +297,7 @@ def datatable_json_admin():
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/descargar", methods=["GET"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def download():
     """Descargar archivo desde Google Cloud Storage"""
     url = request.args.get("url")
