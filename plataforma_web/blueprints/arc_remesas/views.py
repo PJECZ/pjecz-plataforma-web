@@ -18,6 +18,7 @@ from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDoc
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.autoridades.models import Autoridad
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.roles.models import Rol
@@ -66,28 +67,16 @@ def datatable_json():
     else:
         consulta = consulta.filter_by(estatus="A")
     if "remesa_id" in request.form:
-        try:
-            id = int(request.form["remesa_id"])
-            consulta = consulta.filter_by(id=id)
-        except:
-            pass
-        # consulta = consulta.filter_by(id=int(request.form["remesa_id"]))
+        id = int(request.form["remesa_id"])
+        consulta = consulta.filter_by(id=id)
     if "juzgado_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     if "asignado_id" in request.form:
-        try:
-            usuario_asignado_id = int(request.form["asignado_id"])
-            consulta = consulta.filter_by(usuario_asignado_id=usuario_asignado_id)
-        except:
-            pass
-        # consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
+        usuario_asignado_id = int(request.form["asignado_id"])
+        consulta = consulta.filter_by(usuario_asignado_id=usuario_asignado_id)
     if "anio" in request.form:
-        try:
-            anio = int(request.form["anio"])
-            consulta = consulta.filter_by(anio=anio)
-        except:
-            pass
-        # consulta = consulta.filter_by(anio=int(request.form["anio"]))
+        anio = int(request.form["anio"])
+        consulta = consulta.filter_by(anio=anio)
     if "tipo_documento" in request.form:
         consulta = consulta.filter_by(tipo_documentos=request.form["tipo_documento"])
     if "num_oficio" in request.form:
@@ -95,12 +84,8 @@ def datatable_json():
     if "estado" in request.form:
         consulta = consulta.filter_by(estado=request.form["estado"])
     if "esta_archivado" in request.form:
-        try:
-            esta_archivado = bool(request.form["esta_archivado"])
-            consulta = consulta.filter_by(esta_archivado=esta_archivado)
-        except:
-            pass
-        # consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
+        esta_archivado = bool(request.form["esta_archivado"])
+        consulta = consulta.filter_by(esta_archivado=esta_archivado)
     if "omitir_cancelados" in request.form:
         consulta = consulta.filter(ArcRemesa.estado != "CANCELADO")
     if "omitir_pendientes" in request.form:
@@ -112,6 +97,10 @@ def datatable_json():
     if "documento_id" in request.form:
         consulta = consulta.join(ArcRemesaDocumento)
         consulta = consulta.filter(ArcRemesaDocumento.arc_documento_id == int(request.form["documento_id"]))
+    if "distrito_id" in request.form:
+        distrito_id = int(request.form["distrito_id"])
+        consulta = consulta.join(Autoridad)
+        consulta = consulta.filter(Autoridad.distrito_id == distrito_id)
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     if "orden_acendente" in request.form:
         registros = consulta.order_by(ArcRemesa.id.desc()).offset(start).limit(rows_per_page).all()

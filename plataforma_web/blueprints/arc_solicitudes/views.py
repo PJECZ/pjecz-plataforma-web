@@ -19,6 +19,7 @@ from plataforma_web.blueprints.arc_documentos_bitacoras.models import ArcDocumen
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.autoridades.models import Autoridad
 
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.roles.models import Rol
@@ -50,52 +51,36 @@ def datatable_json():
     # Consultar
     consulta = ArcSolicitud.query
     if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
+        consulta = consulta.filter(ArcSolicitud.estatus == request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus="A")
+        consulta = consulta.filter(ArcSolicitud.estatus == "A")
     if "solicitud_id" in request.form:
-        try:
-            id = int(request.form["solicitud_id"])
-            consulta = consulta.filter_by(id=id)
-        except ValueError:
-            pass
-        # consulta = consulta.filter_by(id=int(request.form["solicitud_id"]))
+        id = int(request.form["solicitud_id"])
+        consulta = consulta.filter(ArcSolicitud.id == id)
     if "estado" in request.form:
-        consulta = consulta.filter_by(estado=request.form["estado"])
+        consulta = consulta.filter(ArcSolicitud.estado == request.form["estado"])
+    if "distrito_id" in request.form:
+        distrito_id = int(request.form["distrito_id"])
+        consulta = consulta.join(Autoridad)
+        consulta = consulta.filter(Autoridad.distrito_id == distrito_id)
     if "juzgado_id" in request.form:
-        try:
-            autoridad_id = int(request.form["juzgado_id"])
-            consulta = consulta.filter_by(autoridad_id=autoridad_id)
-        except ValueError:
-            pass
-        # consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
+        autoridad_id = int(request.form["juzgado_id"])
+        consulta = consulta.filter(ArcSolicitud.autoridad_id == autoridad_id)
     if "asignado_id" in request.form:
-        try:
-            usuario_asignado_id = int(request.form["asignado_id"])
-            consulta = consulta.filter_by(usuario_asignado_id=usuario_asignado_id)
-        except ValueError:
-            pass
-        # consulta = consulta.filter_by(usuario_asignado_id=int(request.form["asignado_id"]))
+        usuario_asignado_id = int(request.form["asignado_id"])
+        consulta = consulta.filter(ArcSolicitud.usuario_asignado_id == usuario_asignado_id)
     if "arc_documento_id" in request.form:
-        try:
-            arc_documento_id = int(request.form["arc_documento_id"])
-            consulta = consulta.filter_by(arc_documento_id=arc_documento_id)
-        except ValueError:
-            pass
-        # consulta = consulta.filter_by(arc_documento_id=int(request.form["arc_documento_id"]))
+        arc_documento_id = int(request.form["arc_documento_id"])
+        consulta = consulta.filter(ArcSolicitud.arc_documento_id == arc_documento_id)
     if "esta_archivado" in request.form:
-        try:
-            esta_archivado = bool(request.form["esta_archivado"])
-            consulta = consulta.filter_by(esta_archivado=esta_archivado)
-        except ValueError:
-            pass
-        # consulta = consulta.filter_by(esta_archivado=bool(request.form["esta_archivado"]))
+        esta_archivado = bool(request.form["esta_archivado"])
+        consulta = consulta.filter(ArcSolicitud.esta_archivado == esta_archivado)
     if "omitir_cancelados" in request.form:
         consulta = consulta.filter(ArcSolicitud.estado != "CANCELADO")
     if "omitir_archivados" in request.form:
         consulta = consulta.filter(ArcSolicitud.esta_archivado != True)
     if "mostrar_archivados" in request.form:
-        consulta = consulta.filter_by(esta_archivado=True)
+        consulta = consulta.filter(ArcSolicitud.esta_archivado == True)
     if "expediente" in request.form:
         consulta = consulta.join(ArcDocumento)
         consulta = consulta.filter(ArcDocumento.expediente.contains(request.form["expediente"]))
