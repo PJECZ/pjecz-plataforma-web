@@ -21,7 +21,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.distritos.models import Distrito
-from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoMateriaNewForm, ListaDeAcuerdoSearchForm, ListaDeAcuerdoSearchAdminForm
+from plataforma_web.blueprints.listas_de_acuerdos.forms import ListaDeAcuerdoNewForm, ListaDeAcuerdoMateriaNewForm, ListaDeAcuerdoSearchForm, ListaDeAcuerdoSearchAdminForm, ListaDeAcuerdoDownloadCSVForm
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.listas_de_acuerdos_acuerdos.models import ListaDeAcuerdoAcuerdo
 from plataforma_web.blueprints.materias.models import Materia
@@ -139,6 +139,7 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
         titulo=f"Listas de Acuerdos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="A",
+        form=ListaDeAcuerdoDownloadCSVForm(),
     )
 
 
@@ -697,7 +698,20 @@ def recover(lista_de_acuerdo_id):
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))
 
 
-@listas_de_acuerdos.route("/listas_de_acuerdos/descargar_reporte")
+@listas_de_acuerdos.route("/listas_de_acuerdos/descargar_reporte", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def download_csv():
     """Descargar archivo CSV con enlaces públicos"""
+    form = ListaDeAcuerdoDownloadCSVForm()
+    if form.validate():
+        fecha_desde = form.fecha_desde.data
+        fecha_hasta = form.fecha_hasta.data
+        autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
+        return render_template(
+            "listas_de_acuerdos/download_csv.jinja2",
+            autoridad=autoridad,
+            fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta,
+        )
+    flash("Error: datos incorrectos para hacer la descarga.", "warning")
+    return redirect(url_for("listas_de_acuerdos.list_active"))

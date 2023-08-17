@@ -18,7 +18,11 @@
 
 {# un campo del formulario #}
 {%- macro field(f, css_class='form-control') -%}
-    {{ f(class=css_class, **kwargs) }}
+    {% if f.type == 'DateField' %}
+        {{ f(class=css_class, type='date', **kwargs) }}
+    {% else %}
+        {{ f(class=css_class, **kwargs) }}
+    {% endif %}
 {%- endmacro -%}
 
 {# un grupo de un formulario, con errores si los hay #}
@@ -29,13 +33,22 @@
     {% if f.type == 'HiddenField' %}
         {{ field(f, **kwargs) }}
         {{ caller () }}
+    {% elif f.type == 'DateField' %}
+        <div class="col-auto">
+            {{ field_label(f) }}
+        </div>
+        <div class="col-auto">
+            {{ field(f, **kwargs) }}
+            {{ field_errors(f) }}
+            {{ caller () }}
+        </div>
     {% elif f.type == 'SubmitField' %}
-        <div class="col d-grid gap-2">
+        <div class="col-auto d-grid gap-2">
             {{ field(f, class="btn btn-primary text-white", **kwargs) }}
             {{ caller () }}
         </div>
     {% else %}
-        <div class="col {{css_class}}">
+        <div class="col-auto {{css_class}}">
             {{ field(f, **kwargs) }}
             {{ field_errors(f) }}
             {{ caller () }}
@@ -46,7 +59,7 @@
 {# un formulario inline, que contiene un token CSRF y campos ocultos #}
 {%- macro form_tag(endpoint, fid='', css_class='', method='post') -%}
     <form action="{{ url_for(endpoint, **kwargs) }}" method="{{ method }}" id="{{ fid }}" class="{{ css_class }}" role="form">
-        <div class="row">
+        <div class="row align-items-center">
             {{ form.hidden_tag() }}
             {{ caller () }}
         </div>

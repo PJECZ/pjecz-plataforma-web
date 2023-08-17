@@ -43,13 +43,16 @@
             </thead>
         </table>
     {% endcall %}
-    {# call list.card(title='Descargar archivo CSV con enlaces públicos') %}
-        {% call f.form_tag('listas_de_acuerdos.download_csv', fid='listas_de_acuerdos_report_form') %}
-            {% call f.form_group(form.fecha_desde, css_class='col-sm-3', placeholder='Desde') %}{% endcall %}
-            {% call f.form_group(form.fecha_hasta, css_class='col-sm-3', placeholder='Hasta') %}{% endcall %}
-            {% call f.form_group(form.descargar) %}{% endcall %}
+    {% if form %}
+        {% call list.card(title='Archivo CSV con enlaces públicos') %}
+            {% call f.form_tag('listas_de_acuerdos.download_csv', fid='listas_de_acuerdos_report_form') %}
+                {% call f.form_group(form.autoridad_id, value=autoridad.id, type='hidden') %}{% endcall %}
+                {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
+                {% call f.form_group(form.fecha_hasta, placeholder='Hasta') %}{% endcall %}
+                {% call f.form_group(form.descargar) %}{% endcall %}
+            {% endcall %}
         {% endcall %}
-    {% endcall #}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
