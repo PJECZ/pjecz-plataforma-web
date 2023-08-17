@@ -23,6 +23,7 @@ class ArcRemesa(db.Model, UniversalMixin):
 
     TIPOS_DOCUMENTOS = OrderedDict(  # varchar(16)
         [
+            ("NO DEFINIDO", "No definido"),
             ("CUADERNILLO", "Cuadernillo"),
             ("ENCOMIENDA", "Encomienda"),
             ("EXHORTO", "Exhorto"),

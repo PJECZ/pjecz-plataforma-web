@@ -327,7 +327,7 @@ def new():
                 autoridad=current_user.autoridad,
                 esta_archivado=False,
                 anio=int(form.anio.data),
-                tipo_documentos=form.tipo_documentos.data,
+                arc_documento_tipo_id=form.tipo_documentos.data,
                 num_oficio=safe_string(form.num_oficio.data),
                 estado="PENDIENTE",
                 num_documentos=0,
