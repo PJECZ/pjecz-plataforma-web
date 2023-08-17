@@ -47,13 +47,12 @@ def list_active():
     if current_user.can_admin(MODULO):
         return render_template(
             "arc_archivos/list_jefe_remesa.jinja2",
-            filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True}),
-            filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True}),
+            filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True}),
+            filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global=mostrar_btn_local,
         )
@@ -66,9 +65,8 @@ def list_active():
             titulo="Archivo - Bandeja de Entrada 📥",
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         )
-    if ROL_JEFE_REMESA in current_user_roles:
+    if ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         return render_template(
             "arc_archivos/list_jefe_remesa.jinja2",
             filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "distrito_id": current_user.autoridad.distrito_id}),
@@ -77,7 +75,6 @@ def list_active():
             titulo="Archivo - Bandeja de Entrada 📥",
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global=mostrar_btn_local,
         )
@@ -90,18 +87,17 @@ def list_active():
             titulo="Archivo - Bandeja de Entrada 📥",
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
             rol_archivista=ROL_ARCHIVISTA,
         )
     # Por defecto
     return render_template(
         "arc_archivos/list.jinja2",
-        filtros=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
+        filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
+        filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "juzgado_id": current_user.autoridad.id}),
         estatus="A",
         titulo="Archivo - Bandeja de Entrada 📥",
         estados_solicitudes=ArcSolicitud.ESTADOS,
         estados_remesas=ArcRemesa.ESTADOS,
-        tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
     )
 
 
@@ -119,14 +115,13 @@ def list_history():
     if current_user.can_admin(MODULO):
         return render_template(
             "arc_archivos/list_jefe_remesa.jinja2",
-            filtros_solicitudes=json.dumps({"estatus": "A", "mostrar_archivados": True, "orden_acendente": True}),
-            filtros_remesas=json.dumps({"estatus": "A", "mostrar_archivados": True, "orden_acendente": True}),
+            filtros_solicitudes=json.dumps({"estatus": "A", "mostrar_archivados": True, "omitir_cancelados": False, "orden_acendente": True}),
+            filtros_remesas=json.dumps({"estatus": "A", "mostrar_archivados": True, "omitir_cancelados": False, "orden_acendente": True}),
             estatus="A",
             titulo="Archivo - Historial 🗃️",
             mostrando_historial=True,
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
             mostrar_btn_local_global=mostrar_btn_local,
         )
     if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
@@ -139,9 +134,8 @@ def list_history():
             mostrando_historial=True,
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         )
-    if ROL_JEFE_REMESA in current_user_roles:
+    if ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         return render_template(
             "arc_archivos/list_jefe_remesa.jinja2",
             filtros_solicitudes=json.dumps({"estatus": "A", "mostrar_archivados": True, "omitir_cancelados": True, "orden_acendente": True, "distrito_id": current_user.autoridad.distrito_id}),
@@ -151,7 +145,6 @@ def list_history():
             mostrando_historial=True,
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global=mostrar_btn_local,
         )
@@ -165,7 +158,6 @@ def list_history():
             mostrando_historial=True,
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
             rol_archivista=ROL_ARCHIVISTA,
         )
     # Por defecto
@@ -178,7 +170,6 @@ def list_history():
         mostrando_historial=True,
         estados_solicitudes=ArcSolicitud.ESTADOS,
         estados_remesas=ArcRemesa.ESTADOS,
-        tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
     )
 
 
@@ -206,20 +197,18 @@ def list_all(historial):
             mostrando_historial=True,
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
             mostrar_btn_local_global="GLOBAL",
             distritos=distritos,
         )
 
     return render_template(
         "arc_archivos/list_jefe_remesa.jinja2",
-        filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True}),
-        filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "omitir_pendientes": True}),
+        filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True}),
+        filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_pendientes": True}),
         estatus="A",
         titulo="Archivo - Bandeja de Entrada 📥",
         estados_solicitudes=ArcSolicitud.ESTADOS,
         estados_remesas=ArcRemesa.ESTADOS,
-        tipos_documentos_remesas=ArcRemesa.TIPOS_DOCUMENTOS,
         rol_archivista=ROL_ARCHIVISTA,
         mostrar_btn_local_global="GLOBAL",
         distritos=distritos,

@@ -77,8 +77,8 @@ def datatable_json():
     if "anio" in request.form:
         anio = int(request.form["anio"])
         consulta = consulta.filter_by(anio=anio)
-    if "tipo_documento" in request.form:
-        consulta = consulta.filter_by(tipo_documentos=request.form["tipo_documento"])
+    if "arc_documento_tipo_id" in request.form:
+        consulta = consulta.filter_by(arc_documento_tipo_id=request.form["arc_documento_tipo_id"])
     if "num_oficio" in request.form:
         consulta = consulta.filter_by(num_oficio=request.form["num_oficio"])
     if "estado" in request.form:
@@ -125,7 +125,7 @@ def datatable_json():
                 "anio": resultado.anio,
                 "num_oficio": resultado.num_oficio,
                 "num_docs": resultado.num_documentos,
-                "tipo_documentos": resultado.tipo_documentos,
+                "tipo_documentos": resultado.arc_documento_tipo.nombre,
                 "estado": resultado.estado,
                 "asignado": {
                     "nombre": "SIN ASIGNAR" if resultado.usuario_asignado is None else resultado.usuario_asignado.nombre,
