@@ -27,7 +27,13 @@ from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
 from plataforma_web.blueprints.arc_solicitudes.forms import ArcSolicitudNewForm, ArcSolicitudAsignationForm, ArcSolicitudFoundForm
 
-from plataforma_web.blueprints.arc_archivos.views import ROL_JEFE_REMESA, ROL_ARCHIVISTA, ROL_SOLICITANTE, ROL_RECEPCIONISTA
+from plataforma_web.blueprints.arc_archivos.views import (
+    ROL_JEFE_REMESA_ADMINISTRADOR,
+    ROL_JEFE_REMESA,
+    ROL_ARCHIVISTA,
+    ROL_SOLICITANTE,
+    ROL_RECEPCIONISTA,
+)
 
 
 MODULO = "ARC SOLICITUDES"
@@ -169,7 +175,7 @@ def detail(solicitud_id):
     rol_activo = None
     if ROL_SOLICITANTE in current_user_roles:
         rol_activo = ROL_SOLICITANTE
-    elif ROL_JEFE_REMESA in current_user_roles:
+    elif ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         rol_activo = ROL_JEFE_REMESA
     elif ROL_ARCHIVISTA in current_user_roles:
         rol_activo = ROL_ARCHIVISTA
@@ -206,7 +212,7 @@ def detail(solicitud_id):
 
     # Mostrar vista con formulario de asignación
     if solicitud.estado == "SOLICITADO" or solicitud.estado == "ASIGNADO":
-        if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles:
+        if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
             mostrar_secciones["archivista"] = True
             form = ArcSolicitudAsignationForm()
             archivistas = Usuario.query.join(UsuarioRol).join(Rol)
@@ -245,7 +251,7 @@ def detail(solicitud_id):
         )
     if solicitud.estado == "ENCONTRADO":
         mostrar_secciones["archivista"] = True
-        if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles:
+        if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
             mostrar_secciones["enviar"] = True
             return render_template(
                 "arc_solicitudes/detail.jinja2",
@@ -368,8 +374,8 @@ def assign(solicitud_id):
     if form.validate_on_submit():
         if solicitud.estado != "SOLICITADO" and solicitud.estado != "ASIGNADO":
             flash("No puede asignar a alguien estando la solicitud en un estado diferente a SOLICITADO o ASIGNADO.", "warning")
-        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles():
-            flash(f"Solo puede asignar el ROL de {ROL_JEFE_REMESA}.", "warning")
+        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles() and ROL_JEFE_REMESA_ADMINISTRADOR not in current_user.get_roles():
+            flash(f"Solo puede asignar el ROL de {ROL_JEFE_REMESA} o {ROL_JEFE_REMESA_ADMINISTRADOR}.", "warning")
         else:
             observaciones = ""
             if form.asignado.data is None or form.asignado.data == "":
@@ -568,8 +574,8 @@ def send(solicitud_id):
     solicitud = ArcSolicitud.query.get_or_404(solicitud_id)
     if solicitud.estado != "ENCONTRADO":
         flash("No puede enviar si la solicitud no está en estado ENCONTRADO.", "warning")
-    elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles():
-        flash(f"Solo puede enviar el ROL de {ROL_JEFE_REMESA}.", "warning")
+    elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles() and ROL_JEFE_REMESA_ADMINISTRADOR not in current_user.get_roles():
+        flash(f"Solo puede enviar el ROL de {ROL_JEFE_REMESA} o {ROL_JEFE_REMESA_ADMINISTRADOR}.", "warning")
     else:
         solicitud.estado = "ENVIANDO"
         solicitud.save()

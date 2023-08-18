@@ -36,6 +36,7 @@ from plataforma_web.blueprints.arc_remesas.forms import (
 
 from plataforma_web.blueprints.arc_archivos.views import (
     ROL_JEFE_REMESA,
+    ROL_JEFE_REMESA_ADMINISTRADOR,
     ROL_ARCHIVISTA,
     ROL_SOLICITANTE,
     ROL_RECEPCIONISTA,
@@ -77,8 +78,8 @@ def datatable_json():
     if "anio" in request.form:
         anio = int(request.form["anio"])
         consulta = consulta.filter_by(anio=anio)
-    if "tipo_documento" in request.form:
-        consulta = consulta.filter_by(tipo_documentos=request.form["tipo_documento"])
+    if "arc_documento_tipo_id" in request.form:
+        consulta = consulta.filter_by(arc_documento_tipo_id=request.form["arc_documento_tipo_id"])
     if "num_oficio" in request.form:
         consulta = consulta.filter_by(num_oficio=request.form["num_oficio"])
     if "estado" in request.form:
@@ -125,7 +126,7 @@ def datatable_json():
                 "anio": resultado.anio,
                 "num_oficio": resultado.num_oficio,
                 "num_docs": resultado.num_documentos,
-                "tipo_documentos": resultado.tipo_documentos,
+                "tipo_documentos": resultado.arc_documento_tipo.nombre,
                 "estado": resultado.estado,
                 "asignado": {
                     "nombre": "SIN ASIGNAR" if resultado.usuario_asignado is None else resultado.usuario_asignado.nombre,
@@ -155,7 +156,7 @@ def detail(remesa_id):
     rol_activo = None
     if ROL_SOLICITANTE in current_user_roles:
         rol_activo = ROL_SOLICITANTE
-    elif ROL_JEFE_REMESA in current_user_roles:
+    elif ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         rol_activo = ROL_JEFE_REMESA
     elif ROL_ARCHIVISTA in current_user_roles:
         rol_activo = ROL_ARCHIVISTA
@@ -233,7 +234,7 @@ def detail(remesa_id):
                 )
 
     if remesa.estado == "ENVIADO":
-        if ROL_JEFE_REMESA in current_user_roles:
+        if ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
             mostrar_secciones["asignar"] = True
             mostrar_secciones["rechazar"] = True
             form = ArcRemesaAsignationForm()
@@ -254,7 +255,7 @@ def detail(remesa_id):
 
     if remesa.estado == "ASIGNADO":
         mostrar_secciones["asignado"] = True
-        if ROL_JEFE_REMESA in current_user_roles:
+        if ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
             mostrar_secciones["asignar"] = True
             archivistas = Usuario.query.join(UsuarioRol).join(Rol)
             archivistas = archivistas.filter(Rol.nombre == ROL_ARCHIVISTA)
@@ -327,7 +328,7 @@ def new():
                 autoridad=current_user.autoridad,
                 esta_archivado=False,
                 anio=int(form.anio.data),
-                tipo_documentos=form.tipo_documentos.data,
+                arc_documento_tipo_id=form.tipo_documentos.data,
                 num_oficio=safe_string(form.num_oficio.data),
                 estado="PENDIENTE",
                 num_documentos=0,
@@ -475,7 +476,7 @@ def edit(remesa_id):
     # Datos pre-cargados
     form.creado_readonly.data = remesa.creado.strftime("%Y/%m/%d - %H:%M %p")
     form.juzgado_readonly.data = remesa.autoridad.clave + " : " + remesa.autoridad.descripcion_corta
-    form.tipo_documentos_readonly.data = remesa.tipo_documentos
+    form.tipo_documentos_readonly.data = remesa.arc_documento_tipo.nombre
     form.anio.data = remesa.anio
     form.num_oficio.data = remesa.num_oficio
     form.observaciones.data = remesa.observaciones
@@ -579,8 +580,8 @@ def add_document(documento_id):
             flash("La remesa NO tiene un estado de PENDIENTE.", "warning")
         elif remesa.esta_archivado:
             flash("La remesa se encuentra ARCHIVADA, ya no puede ser modificada.", "warning")
-        elif remesa.tipo_documentos != documento.tipo:
-            flash(f"La remesa solo puede contener documentos del tipo {remesa.tipo_documentos}.", "warning")
+        elif remesa.arc_documento_tipo != documento.arc_documento_tipo:
+            flash(f"La remesa {remesa.id} solo puede contener documentos del tipo {remesa.arc_documento_tipo.nombre}.", "warning")
         elif remesa.estatus != "A":
             flash("La remesa está eliminada.", "warning")
         else:
@@ -616,8 +617,8 @@ def asign(remesa_id):
     if form.validate_on_submit():
         if remesa.estado != "ENVIADO" and remesa.estado != "ASIGNADO":
             flash("No puede asignar a alguien estando la Remesa en un estado diferente a ENVIADO o ASIGNADO.", "warning")
-        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles():
-            flash(f"Solo puede asignar el ROL de {ROL_JEFE_REMESA}.", "warning")
+        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles() and ROL_JEFE_REMESA_ADMINISTRADOR not in current_user.get_roles():
+            flash(f"Solo puede asignar el ROL de {ROL_JEFE_REMESA} o {ROL_JEFE_REMESA_ADMINISTRADOR}.", "warning")
         else:
             if form.asignado.data is None or form.asignado.data == "":
                 remesa.estado = "ENVIADO"
@@ -659,8 +660,8 @@ def refuse(remesa_id):
     if form.validate_on_submit():
         if remesa.estado != "ENVIADO":
             flash("No puede rechazar la Remesa en un estado diferente a ENVIADO.", "warning")
-        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles():
-            flash(f"Solo puede rechazar el ROL de {ROL_JEFE_REMESA}.", "warning")
+        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles() and ROL_JEFE_REMESA_ADMINISTRADOR not in current_user.get_roles():
+            flash(f"Solo puede rechazar el ROL de {ROL_JEFE_REMESA} o {ROL_JEFE_REMESA_ADMINISTRADOR}.", "warning")
         else:
             # Cambiar de ubicación los documentos anexos
             documentos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).all()
