@@ -34,9 +34,9 @@
                 <select class="form-control" id="remesas" name="remesas" required>
                     {% for remesa in remesas %}
                         {% if remesa.num_oficio %}
-                            <option value="{{remesa.id}}">{{ remesa.id }}: {{ remesa.anio }} - {{ remesa.tipo_documentos }} : {{remesa.num_oficio}}</option>
+                            <option value="{{remesa.id}}">{{ remesa.id }}: {{ remesa.anio }} - {{ remesa.arc_documento_tipo.nombre }} : {{remesa.num_oficio}}</option>
                         {% else %}
-                            <option value="{{remesa.id}}">{{ remesa.id }}: {{ remesa.anio }} - {{ remesa.tipo_documentos }}</option>
+                            <option value="{{remesa.id}}">{{ remesa.id }}: {{ remesa.anio }} - {{ remesa.arc_documento_tipo.nombre }}</option>
                         {% endif %}
                     {% endfor %}
                 </select>

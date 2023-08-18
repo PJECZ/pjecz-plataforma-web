@@ -475,7 +475,7 @@ def edit(remesa_id):
     # Datos pre-cargados
     form.creado_readonly.data = remesa.creado.strftime("%Y/%m/%d - %H:%M %p")
     form.juzgado_readonly.data = remesa.autoridad.clave + " : " + remesa.autoridad.descripcion_corta
-    form.tipo_documentos_readonly.data = remesa.tipo_documentos
+    form.tipo_documentos_readonly.data = remesa.arc_documento_tipo.nombre
     form.anio.data = remesa.anio
     form.num_oficio.data = remesa.num_oficio
     form.observaciones.data = remesa.observaciones
@@ -579,8 +579,8 @@ def add_document(documento_id):
             flash("La remesa NO tiene un estado de PENDIENTE.", "warning")
         elif remesa.esta_archivado:
             flash("La remesa se encuentra ARCHIVADA, ya no puede ser modificada.", "warning")
-        elif remesa.tipo_documentos != documento.tipo:
-            flash(f"La remesa solo puede contener documentos del tipo {remesa.tipo_documentos}.", "warning")
+        elif remesa.arc_documento_tipo != documento.arc_documento_tipo:
+            flash(f"La remesa {remesa.id} solo puede contener documentos del tipo {remesa.arc_documento_tipo.nombre}.", "warning")
         elif remesa.estatus != "A":
             flash("La remesa está eliminada.", "warning")
         else:
