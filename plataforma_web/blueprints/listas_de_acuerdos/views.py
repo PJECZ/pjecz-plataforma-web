@@ -704,14 +704,24 @@ def download_csv():
     """Descargar archivo CSV con enlaces públicos"""
     form = ListaDeAcuerdoDownloadCSVForm()
     if form.validate():
+        # Tomar valores del formulario
         fecha_desde = form.fecha_desde.data
         fecha_hasta = form.fecha_hasta.data
         autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
+        # Entregar pagina
         return render_template(
             "listas_de_acuerdos/download_csv.jinja2",
             autoridad=autoridad,
             fecha_desde=fecha_desde,
             fecha_hasta=fecha_hasta,
+            filtros=json.dumps(
+                {
+                    "autoridad_id": autoridad.id,
+                    "estatus": "A",
+                    "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                    "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                }
+            ),
         )
     flash("Error: datos incorrectos para hacer la descarga.", "warning")
     return redirect(url_for("listas_de_acuerdos.list_active"))
