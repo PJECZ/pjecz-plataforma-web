@@ -36,6 +36,7 @@ from plataforma_web.blueprints.arc_remesas.forms import (
 
 from plataforma_web.blueprints.arc_archivos.views import (
     ROL_JEFE_REMESA,
+    ROL_JEFE_REMESA_ADMINISTRADOR,
     ROL_ARCHIVISTA,
     ROL_SOLICITANTE,
     ROL_RECEPCIONISTA,
@@ -155,7 +156,7 @@ def detail(remesa_id):
     rol_activo = None
     if ROL_SOLICITANTE in current_user_roles:
         rol_activo = ROL_SOLICITANTE
-    elif ROL_JEFE_REMESA in current_user_roles:
+    elif ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         rol_activo = ROL_JEFE_REMESA
     elif ROL_ARCHIVISTA in current_user_roles:
         rol_activo = ROL_ARCHIVISTA
@@ -233,7 +234,7 @@ def detail(remesa_id):
                 )
 
     if remesa.estado == "ENVIADO":
-        if ROL_JEFE_REMESA in current_user_roles:
+        if ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
             mostrar_secciones["asignar"] = True
             mostrar_secciones["rechazar"] = True
             form = ArcRemesaAsignationForm()
@@ -254,7 +255,7 @@ def detail(remesa_id):
 
     if remesa.estado == "ASIGNADO":
         mostrar_secciones["asignado"] = True
-        if ROL_JEFE_REMESA in current_user_roles:
+        if ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
             mostrar_secciones["asignar"] = True
             archivistas = Usuario.query.join(UsuarioRol).join(Rol)
             archivistas = archivistas.filter(Rol.nombre == ROL_ARCHIVISTA)
@@ -616,8 +617,8 @@ def asign(remesa_id):
     if form.validate_on_submit():
         if remesa.estado != "ENVIADO" and remesa.estado != "ASIGNADO":
             flash("No puede asignar a alguien estando la Remesa en un estado diferente a ENVIADO o ASIGNADO.", "warning")
-        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles():
-            flash(f"Solo puede asignar el ROL de {ROL_JEFE_REMESA}.", "warning")
+        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles() and ROL_JEFE_REMESA_ADMINISTRADOR not in current_user.get_roles():
+            flash(f"Solo puede asignar el ROL de {ROL_JEFE_REMESA} o {ROL_JEFE_REMESA_ADMINISTRADOR}.", "warning")
         else:
             if form.asignado.data is None or form.asignado.data == "":
                 remesa.estado = "ENVIADO"
@@ -659,8 +660,8 @@ def refuse(remesa_id):
     if form.validate_on_submit():
         if remesa.estado != "ENVIADO":
             flash("No puede rechazar la Remesa en un estado diferente a ENVIADO.", "warning")
-        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles():
-            flash(f"Solo puede rechazar el ROL de {ROL_JEFE_REMESA}.", "warning")
+        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles() and ROL_JEFE_REMESA_ADMINISTRADOR not in current_user.get_roles():
+            flash(f"Solo puede rechazar el ROL de {ROL_JEFE_REMESA} o {ROL_JEFE_REMESA_ADMINISTRADOR}.", "warning")
         else:
             # Cambiar de ubicación los documentos anexos
             documentos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).all()

@@ -21,19 +21,6 @@ class ArcRemesa(db.Model, UniversalMixin):
         ]
     )
 
-    TIPOS_DOCUMENTOS = OrderedDict(  # varchar(16)
-        [
-            ("NO DEFINIDO", "No definido"),
-            ("CUADERNILLO", "Cuadernillo"),
-            ("ENCOMIENDA", "Encomienda"),
-            ("EXHORTO", "Exhorto"),
-            ("EXPEDIENTE", "Expediente"),
-            ("EXPEDIENTILLO", "Expedientillo"),
-            ("FOLIO", "Folio"),
-            ("LIBRO", "Libro"),
-        ]
-    )
-
     RAZONES = OrderedDict(  # varchar(32)
         [
             ("SIN ORDEN CRONOLÓGICO", "Sin orden cronológico."),
@@ -61,13 +48,6 @@ class ArcRemesa(db.Model, UniversalMixin):
     rechazo = db.Column(db.String(256))
     observaciones = db.Column(db.String(256))
     tiempo_enviado = db.Column(db.DateTime)
-    tipo_documentos = db.Column(  # FIXME: ELIMINAR (CAMPO OBSOLETO)
-        db.Enum(*TIPOS_DOCUMENTOS, name="tipos", native_enum=False),
-        index=True,
-        nullable=False,
-        default="NO DEFINIDO",
-        server_default="NO DEFINIDO",
-    )
     num_documentos = db.Column(db.Integer, nullable=False)
     num_anomalias = db.Column(db.Integer, nullable=False)
     razon = db.Column(db.Enum(*RAZONES, name="razones", native_enum=False))
