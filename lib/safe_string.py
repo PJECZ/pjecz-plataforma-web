@@ -18,6 +18,26 @@ URL_REGEXP = r"^(https?:\/\/)[0-9a-z-_]*(\.[0-9a-z-_]+)*(\.[a-z]+)+(\/[0-9a-z%-_
 DIRECCION_IP_REGEXP = r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
 
 
+def expediente_anio(input_str: str) -> int:
+    """Extraer el anio AAAA del expediente NN/AAAA-XX como un entero"""
+    # Validar que comience con un numero/anio
+    inicio_str = re.match(r"^\d+\/[12]\d\d\d", input_str)
+    if inicio_str is None:
+        return 0
+    # Entregar el anio como entero
+    return int(inicio_str.group(0).split("/")[1])
+
+
+def expediente_num(input_str: str) -> int:
+    """Extraer el numero NN del expediente NN/AAAA-XX como un entero"""
+    # Validar que comience con un numero/anio
+    inicio_str = re.match(r"^\d+\/[12]\d\d\d", input_str)
+    if inicio_str is None:
+        return 0
+    # Entregar el numero como entero
+    return int(inicio_str.group(0).split("/")[0])
+
+
 def safe_clave(input_str, max_len=16):
     """Safe clave"""
     if not isinstance(input_str, str):
