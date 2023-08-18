@@ -167,13 +167,8 @@
                     </div>
                     <div class="col-3">
                         <div class="form-floating">
-                            <select class="form-select" id="tipoDocumentoSelect_remesa" name="tipoDocumentoSelect_remesa" onchange="filtros_remesas.buscar(); return false;" style="flex: inherit;">
-                                <option selected value=""></option>
-                                {% for tipo_documento in tipos_documentos_remesas %}
-                                    <option value="{{tipo_documento}}">{{tipo_documento}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="tipoDocumentoSelect_remesa">Tipo de Documentos</label>
+                            <select id="tipoDocumentoInput_remesa" class="form-control js-select2-filter" onchange="filtros_remesas.buscar(); return false;" style="text-transform: uppercase"></select>
+                            <label for="tipoDocumentoInput_remesa">Tipo de Documento</label>
                         </div>
                     </div>
                     <div class="col-3">
@@ -400,7 +395,7 @@
         // Añadimos los difrentes inputs utilizados
         filtros_remesas.add_input('idInput_remesa', 'remesa_id');
         filtros_remesas.add_input('anioInput_remesa', 'anio');
-        filtros_remesas.add_input('tipoDocumentoSelect_remesa', 'tipo_documento');
+        filtros_remesas.add_input('tipoDocumentoInput_remesa', 'arc_documento_tipo_id');
         filtros_remesas.add_input('numOficioInput_remesa', 'num_oficio');
         filtros_remesas.add_input('juzgadoInput_remesa', 'juzgado_id');
         filtros_remesas.add_input('asignadoInput_remesa', 'asignado_id');
@@ -487,6 +482,26 @@
                 },
                 minimumInputLength: 3,
                 cache: false
+            });
+            // ---
+            $(document).ready(function(){
+                $('#tipoDocumentoInput_remesa').addClass('js-example-placeholder-single');
+                $("#tipoDocumentoInput_remesa").select2({
+                    // --- Carga de emails por Ajax --- //
+                    ajax: {
+                        url: '/arc_documentos_tipos/tipos_documentos_json',
+                        headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                        dataType: 'json',
+                        delay: 250,
+                        type: "POST",
+                        data: function (params) {
+                            return { 'nombre': params.term.toUpperCase() };
+                        }
+                    },
+                    placeholder: "",
+                    minimumInputLength: 1,
+                    allowClear: true
+                });
             });
         });
     </script>

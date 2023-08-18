@@ -4,11 +4,9 @@ Archivo - Remesas, formularios
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from datetime import date
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms import IntegerField, StringField, SubmitField, TextAreaField, SelectField, BooleanField
 from wtforms.validators import DataRequired, Optional, Length, NumberRange
 
-from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
 from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDocumento
 
 
@@ -17,7 +15,7 @@ class ArcRemesaNewForm(FlaskForm):
 
     num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1900, date.today().year)])
-    tipo_documentos = SelectField("Tipo de Documentos", choices=ArcRemesa.TIPOS_DOCUMENTOS, validators=[DataRequired()])
+    tipo_documentos = SelectField("Tipo de Documentos", coerce=int, validate_choice=False, validators=[DataRequired()])
     crear = SubmitField("Crear")
 
 

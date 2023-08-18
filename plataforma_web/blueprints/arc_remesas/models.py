@@ -21,18 +21,6 @@ class ArcRemesa(db.Model, UniversalMixin):
         ]
     )
 
-    TIPOS_DOCUMENTOS = OrderedDict(  # varchar(16)
-        [
-            ("CUADERNILLO", "Cuadernillo"),
-            ("ENCOMIENDA", "Encomienda"),
-            ("EXHORTO", "Exhorto"),
-            ("EXPEDIENTE", "Expediente"),
-            ("EXPEDIENTILLO", "Expedientillo"),
-            ("FOLIO", "Folio"),
-            ("LIBRO", "Libro"),
-        ]
-    )
-
     RAZONES = OrderedDict(  # varchar(32)
         [
             ("SIN ORDEN CRONOLÓGICO", "Sin orden cronológico."),
@@ -50,6 +38,8 @@ class ArcRemesa(db.Model, UniversalMixin):
     autoridad = db.relationship("Autoridad", back_populates="arc_remesas")
     usuario_asignado_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True)
     usuario_asignado = db.relationship("Usuario", back_populates="arc_remesas")
+    arc_documento_tipo_id = db.Column(db.Integer, db.ForeignKey("arc_documentos_tipos.id"), index=True, nullable=False)
+    arc_documento_tipo = db.relationship("ArcDocumentoTipo", back_populates="arc_remesas")
 
     # Columnas
     anio = db.Column(db.Integer, nullable=False)
@@ -58,11 +48,6 @@ class ArcRemesa(db.Model, UniversalMixin):
     rechazo = db.Column(db.String(256))
     observaciones = db.Column(db.String(256))
     tiempo_enviado = db.Column(db.DateTime)
-    tipo_documentos = db.Column(
-        db.Enum(*TIPOS_DOCUMENTOS, name="tipos", native_enum=False),
-        index=True,
-        nullable=False,
-    )
     num_documentos = db.Column(db.Integer, nullable=False)
     num_anomalias = db.Column(db.Integer, nullable=False)
     razon = db.Column(db.Enum(*RAZONES, name="razones", native_enum=False))

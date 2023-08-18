@@ -19,6 +19,7 @@ class ArcDocumentoTipo(db.Model, UniversalMixin):
 
     # Hijos
     arc_documentos_tipos = db.relationship("ArcDocumento", back_populates="arc_documento_tipo", lazy="noload")
+    arc_remesas = db.relationship("ArcRemesa", back_populates="arc_documento_tipo", lazy="noload")
 
     def __repr__(self):
         """Representación"""
