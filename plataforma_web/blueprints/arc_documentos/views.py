@@ -31,6 +31,7 @@ from plataforma_web.blueprints.arc_documentos.forms import (
 )
 
 from plataforma_web.blueprints.arc_archivos.views import (
+    ROL_JEFE_REMESA_ADMINISTRADOR,
     ROL_JEFE_REMESA,
     ROL_ARCHIVISTA,
     ROL_SOLICITANTE,
@@ -74,6 +75,10 @@ def datatable_json():
         consulta = consulta.filter_by(ubicacion=request.form["ubicacion"])
     if "juzgado_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
+    if "distrito_id" in request.form:
+        distrito_id = int(request.form["distrito_id"])
+        consulta = consulta.join(Autoridad)
+        consulta = consulta.filter(Autoridad.distrito_id == distrito_id)
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -114,10 +119,19 @@ def list_active():
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
 
-    if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_ARCHIVISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
+    if current_user.can_admin(MODULO) or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         return render_template(
             "arc_documentos/list_admin.jinja2",
             filtros=json.dumps({"estatus": "A"}),
+            titulo="Expedientes",
+            estatus="A",
+            ubicaciones=ArcDocumento.UBICACIONES,
+        )
+
+    if ROL_JEFE_REMESA in current_user_roles or ROL_ARCHIVISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
+        return render_template(
+            "arc_documentos/list_admin.jinja2",
+            filtros=json.dumps({"estatus": "A", "distrito_id": current_user.autoridad.distrito_id}),
             titulo="Expedientes",
             estatus="A",
             ubicaciones=ArcDocumento.UBICACIONES,
@@ -144,7 +158,7 @@ def detail(documento_id):
     if current_user.can_edit(MODULO):
         mostrar_secciones["boton_editar"] = True
 
-    if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_SOLICITANTE in current_user_roles:
+    if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles or ROL_SOLICITANTE in current_user_roles:
         mostrar_secciones["boton_editar"] = True
         if current_user.can_insert(MODULO) and documento.ubicacion == "ARCHIVO":
             documento_en_proceso = ArcSolicitud.query.filter_by(arc_documento=documento).filter_by(esta_archivado=False).filter_by(estatus="A").first()
@@ -179,7 +193,7 @@ def new():
     """Nuevo Documento"""
     mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
-    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         form = ArcDocumentoNewArchivoForm()
         mostrar_secciones["select_juzgado"] = True
     else:
@@ -251,7 +265,7 @@ def edit(arc_documento_id):
     """Editar Documento"""
     documento = ArcDocumento.query.get_or_404(arc_documento_id)
     current_user_roles = current_user.get_roles()
-    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         form = ArcDocumentoEditArchivoForm()
     else:
         form = ArcDocumentoEditSolicitanteForm()
@@ -334,7 +348,7 @@ def search():
     num_expediente = ""
     mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
-    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
+    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         form = ArcDocumentoNewArchivoForm()
         mostrar_secciones["select_juzgado"] = True
     else:
@@ -405,7 +419,7 @@ def search():
                         form.demandado.data = respuesta_api["demandado"]
                         form.tipo.data = "EXPEDIENTE"
                         encontrado_paij = True
-                        if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
+                        if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
                             form.juzgado_id.data = autoridad_id
                             mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                     else:
@@ -472,7 +486,7 @@ def search():
     if ROL_SOLICITANTE in current_user_roles:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = "JUZGADO"
-    elif ROL_JEFE_REMESA in current_user_roles:
+    elif ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         mostrar_secciones["select_juzgado"] = True
     elif ROL_LEVANTAMENTISTA in current_user_roles:
         form.ubicacion.data = "ARCHIVO"
