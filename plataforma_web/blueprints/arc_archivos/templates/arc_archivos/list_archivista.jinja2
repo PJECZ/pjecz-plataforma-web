@@ -71,8 +71,9 @@
                 <tr>
                     <th>ID</th>
                     <th>Creado</th>
+                    <th>Tipo</th>
                     <th>Instancia</th>
-                    <th>Expediente</th>
+                    <th><span title="Número de Documento">No. Doc</span></th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -166,6 +167,7 @@
         configDataTable_solicitudes['columns'] = [
             { data: 'solicitud' },
             { data: 'tiempo' },
+            { data: 'tipo' },
             { data: 'juzgado' },
             { data: 'documento' },
             { data: 'estado' }
@@ -182,25 +184,25 @@
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return dataTable_funcs_solicitudes.texto_tiempo(data, moment, "YYYY-MM-DD HH:mm:ss");
+                    return dataTable_funcs_solicitudes.texto_tiempo(data, moment, "YYYY-MM-DD HH:mm");
                 }
             },
             {
-                targets: 2, // juzgado
+                targets: 3, // juzgado
                 data: null,
                 render: function(data, type, row, meta) {
                     return dataTable_funcs_solicitudes.texto_con_tooltip(data.clave, data.nombre);
                 }
             },
             {
-                targets: 3, // documento
+                targets: 4, // documento
                 data: null,
                 render: function(data, type, row, meta) {
                     return dataTable_funcs_solicitudes.texto_con_url(data.expediente, data.url);
                 }
             },
             {
-                targets: 4, // estado
+                targets: 5, // estado
                 data: null,
                 render: function(data, type, row, meta) {
                     let bgcolor = "bg-dark";
@@ -265,7 +267,7 @@
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return dataTable_funcs_remesas.texto_tiempo(data, moment, "YYYY-MM-DD HH:mm:ss");
+                    return dataTable_funcs_remesas.texto_tiempo(data, moment, "YYYY-MM-DD HH:mm");
                 }
             },
             {
