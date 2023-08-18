@@ -12,7 +12,7 @@ from werkzeug.datastructures import CombinedMultiDict
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.exceptions import MyAnyError
 from lib.google_cloud_storage import get_blob_name_from_url, get_media_type_from_filename, get_file_from_gcs
-from lib.safe_string import safe_expediente, safe_message, safe_sentencia, safe_string
+from lib.safe_string import expediente_anio, expediente_num, safe_expediente, safe_message, safe_sentencia, safe_string
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.time_to_text import dia_mes_ano
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -495,6 +495,8 @@ def new():
                 sentencia=sentencia_input,
                 sentencia_fecha=sentencia_fecha,
                 expediente=expediente,
+                expediente_anio=expediente_anio(expediente),
+                expediente_num=expediente_num(expediente),
                 fecha=fecha,
                 descripcion=descripcion,
                 es_perspectiva_genero=es_perspectiva_genero,
@@ -644,6 +646,8 @@ def new_for_autoridad(autoridad_id):
                 sentencia=sentencia_input,
                 sentencia_fecha=sentencia_fecha,
                 expediente=expediente,
+                expediente_anio=expediente_anio(expediente),
+                expediente_num=expediente_num(expediente),
                 fecha=fecha,
                 descripcion=descripcion,
                 es_perspectiva_genero=es_perspectiva_genero,
@@ -732,6 +736,8 @@ def edit(sentencia_id):
         # Validar expediente
         try:
             sentencia.expediente = safe_expediente(form.expediente.data)
+            sentencia.expediente_anio = expediente_anio(sentencia.expediente)
+            sentencia.expediente_num = expediente_num(sentencia.expediente)
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
             es_valido = False
