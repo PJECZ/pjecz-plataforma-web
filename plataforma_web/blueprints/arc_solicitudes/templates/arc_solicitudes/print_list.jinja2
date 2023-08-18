@@ -72,6 +72,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Instancia</th>
+                    <th>Tipo</th>
                     <th>Documento</th>
                     <th>Estado</th>
                     <th>Observaciones</th>
@@ -82,6 +83,7 @@
                 <tr>
                     <td>{{ solicitud.id }}</td>
                     <td>{{ solicitud.autoridad.clave }}</td>
+                    <td>{{ solicitud.arc_documento.arc_documento_tipo.nombre }}</td>
                     <td>{{ solicitud.arc_documento.expediente }}</td>
                     <td>{{ solicitud.estado }}</td>
                     <td>{{ solicitud.observaciones }}</td>
