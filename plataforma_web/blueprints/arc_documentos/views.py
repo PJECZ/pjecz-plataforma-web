@@ -212,12 +212,18 @@ def new():
             juzgado_id = current_user.autoridad.id
             ubicacion = "JUZGADO"
         anio = int(form.anio.data)
-        if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).first():
+        juzgado = Autoridad.query.filter_by(id=juzgado_id).first()
+        if not juzgado:
+            flash(f"La instancia seleccionada NO existe", "warning")
+        elif ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).first():
             flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
         elif anio < 1900 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
         elif num_expediente is None:
             flash("El número de expediente no es válido. El formato esperado es (número/año) (999/2023)", "warning")
+        # Sólo aceptar juzgados de tu distrito
+        elif ROL_JEFE_REMESA_ADMINISTRADOR not in current_user_roles and juzgado.distrito_id != current_user.autoridad.distrito_id:
+            flash(f"No puede utilizar la instancia '{juzgado.descripcion_corta}' del distrito '{juzgado.distrito.nombre_corto}' fuera de su distrito '{current_user.autoridad.distrito.nombre_corto}'", "warning")
         else:
             documento = ArcDocumento(
                 autoridad_id=juzgado_id,
@@ -286,12 +292,18 @@ def edit(arc_documento_id):
             ubicacion = documento.ubicacion
         anio = int(form.anio.data)
         motivo = safe_message(form.observaciones.data, max_len=256)
-        if ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).filter(ArcDocumento.id != arc_documento_id).first():
+        juzgado = Autoridad.query.filter_by(id=juzgado_id).first()
+        if not juzgado:
+            flash(f"La instancia seleccionada NO existe", "warning")
+        elif ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).filter(ArcDocumento.id != arc_documento_id).first():
             flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
         elif anio < 1900 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
         elif num_expediente is None:
             flash("El número de expediente no es válido", "warning")
+        # Sólo aceptar juzgados de tu distrito
+        elif ROL_JEFE_REMESA_ADMINISTRADOR not in current_user_roles and juzgado.distrito_id != current_user.autoridad.distrito_id:
+            flash(f"No puede utilizar la instancia '{juzgado.descripcion_corta}' del distrito '{juzgado.distrito.nombre_corto}' fuera de su distrito '{current_user.autoridad.distrito.nombre_corto}'", "warning")
         else:
             documento.autoridad_id = juzgado_id
             documento.expediente = safe_expediente(num_expediente)
