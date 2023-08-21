@@ -53,8 +53,8 @@ def datatable_json():
                 "descripcion_corta": resultado.descripcion_corta,
                 "descripcion": resultado.descripcion,
                 "distrito": {
-                    "nombre": "X",
-                    "url": url_for("distritos.detail", distrito_id=1) if current_user.can_view("DISTRITOS") else "",
+                    "nombre": resultado.distrito.nombre_corto,
+                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id) if current_user.can_view("DISTRITOS") else "",
                 },
             }
         )
@@ -105,6 +105,7 @@ def new():
         else:
             arc_juzgado_extinto = ArcJuzgadoExtinto(
                 clave=clave,
+                distrito=form.distrito.data,
                 descripcion_corta=safe_string(form.descripcion_corta.data),
                 descripcion=safe_string(form.descripcion.data),
             )
@@ -134,6 +135,7 @@ def edit(arc_juzgado_extinto_id):
             flash(f"La clave '{clave}' ya se encuentra en uso. Utilice una diferente.", "warning")
         else:
             arc_juzgado_extinto.clave = clave
+            arc_juzgado_extinto.distrito = form.distrito.data
             arc_juzgado_extinto.descripcion_corta = safe_string(form.descripcion_corta.data)
             arc_juzgado_extinto.descripcion = safe_string(form.descripcion.data)
             arc_juzgado_extinto.save()
@@ -148,6 +150,7 @@ def edit(arc_juzgado_extinto_id):
             return redirect(bitacora.url)
     # Cargar valores guardados
     form.clave.data = arc_juzgado_extinto.clave
+    form.distrito.data = arc_juzgado_extinto.distrito
     form.descripcion_corta.data = arc_juzgado_extinto.descripcion_corta
     form.descripcion.data = arc_juzgado_extinto.descripcion
     return render_template("arc_juzgados_extintos/edit.jinja2", form=form, arc_juzgado_extinto=arc_juzgado_extinto)

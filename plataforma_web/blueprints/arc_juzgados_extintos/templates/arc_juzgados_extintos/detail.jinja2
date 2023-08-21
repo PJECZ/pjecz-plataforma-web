@@ -19,6 +19,11 @@
 {% block content %}
     {% call detail.card(estatus=arc_juzgado_extinto.estatus) %}
         {{ detail.label_value_big('Clave', arc_juzgado_extinto.clave) }}
+        {% if current_user.can_view('DISTRITOS') %}
+            {{ detail.label_value('Distrito', arc_juzgado_extinto.distrito.nombre_corto, url_for('distritos.detail', distrito_id=arc_juzgado_extinto.distrito_id)) }}
+        {% else %}
+            {{ detail.label_value('Distrito', arc_juzgado_extinto.distrito.nombre_corto) }}
+        {% endif %}
         {{ detail.label_value('Descripción Corta', arc_juzgado_extinto.descripcion_corta) }}
         {{ detail.label_value('Descripción Completa', arc_juzgado_extinto.descripcion) }}
     {% endcall %}
