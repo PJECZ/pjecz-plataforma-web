@@ -1,0 +1,73 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Areas-Autoridades{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('CID AREAS AUTORIDADES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_areas_autoridades.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_areas_autoridades.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="cid_areas_autoridades_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Area</th>
+                    <th>Autoridad</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/cid_areas_autoridades/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'cid_area' },
+            { data: 'autoridad' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // area
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.clave;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                }
+            },
+            {
+                targets: 2, // autoridad
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.clave;
+                    } else {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                }
+            }
+        ];
+        $('#cid_areas_autoridades_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}
