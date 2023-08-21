@@ -1,0 +1,33 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Juzgado Extinto{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Detalle Juzgado Extinto: ' + arc_juzgado_extinto.clave) %}
+        {{ topbar.button_previous('Juzgados Extintos', url_for('arc_juzgados_extintos.list_active')) }}
+        {% if current_user.can_edit('ARC JUZGADOS EXTINTOS') %}
+            {{ topbar.button_edit('Editar', url_for('arc_juzgados_extintos.edit', arc_juzgado_extinto_id=arc_juzgado_extinto.id)) }}
+            {% if arc_juzgado_extinto.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('arc_juzgados_extintos.delete', arc_juzgado_extinto_id=arc_juzgado_extinto.id)) }}{% endif %}
+            {% if arc_juzgado_extinto.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('arc_juzgados_extintos.recover', arc_juzgado_extinto_id=arc_juzgado_extinto.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=arc_juzgado_extinto.estatus) %}
+        {{ detail.label_value_big('Clave', arc_juzgado_extinto.clave) }}
+        {{ detail.label_value('Descripción Corta', arc_juzgado_extinto.descripcion_corta) }}
+        {{ detail.label_value('Descripción Completa', arc_juzgado_extinto.descripcion) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('ARC JUZGADOS EXTINTOS') %}
+        {% if arc_juzgado_extinto.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + arc_juzgado_extinto.clave + '?') }}{% endif %}
+        {% if arc_juzgado_extinto.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + arc_juzgado_extinto.clave + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
