@@ -14,6 +14,10 @@ class ArcJuzgadoExtinto(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
+    # Clave foránea
+    distrito_id = db.Column(db.Integer, db.ForeignKey("distritos.id"), index=True, nullable=False)
+    distrito = db.relationship("Distrito", back_populates="arc_juzgados_extintos")
+
     # Columnas
     clave = db.Column(db.String(16), nullable=False, unique=True)
     descripcion_corta = db.Column(db.String(64), nullable=False)

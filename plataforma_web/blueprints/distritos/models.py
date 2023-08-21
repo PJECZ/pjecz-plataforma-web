@@ -23,6 +23,7 @@ class Distrito(db.Model, UniversalMixin):
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
+    arc_juzgados_extintos = db.relationship("ArcJuzgadoExtinto", back_populates="distrito")
     autoridades = db.relationship("Autoridad", back_populates="distrito")
     centros_trabajos = db.relationship("CentroTrabajo", back_populates="distrito", lazy="noload")
     domicilios = db.relationship("Domicilio", back_populates="distrito", lazy="noload")

@@ -1,0 +1,74 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Juzgados Extintos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('ARC JUZGADOS EXTINTOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('arc_juzgados_extintos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('arc_juzgados_extintos.list_active')) }}{% endif %}
+        {% endif %}
+        {{ topbar.button_previous('Expedientes', url_for('arc_documentos.list_active')) }}
+        {% if current_user.can_insert('ARC JUZGADOS EXTINTOS') %}
+            {{ topbar.button_new('Nuevo Juzgado Extinto', url_for('arc_juzgados_extintos.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="arc_juzgados_extintos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Clave</th>
+                    <th>Descripción Corta</th>
+                    <th>Distrito</th>
+                    <th>Descripción Completa</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    <script>
+        const dataTable_funcs = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable = dataTable_funcs.config;
+        configDataTable['ajax']['url'] = '/arc_juzgados_extintos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'descripcion_corta' },
+            { data: 'distrito' },
+            { data: 'descripcion' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs.texto_con_url(data.clave, data.url);
+                }
+            },
+            {
+                targets: 2, // distrito
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs.texto_con_url(data.nombre, data.url);
+                }
+            },
+            {
+                targets: 3, // descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_funcs.texto_cortado(data);
+                }
+            },
+        ];
+        $('#arc_juzgados_extintos_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}

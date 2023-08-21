@@ -17,6 +17,9 @@
             {# {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('arc_documentos.list_inactive')) }}{% endif %} #}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('arc_documentos.list_active')) }}{% endif %}
         {% endif %}
+        {% if current_user.can_view('ARC JUZGADOS EXTINTOS') %}
+            {{ topbar.button('Juzgados Extintos', url_for('arc_juzgados_extintos.list_active'), 'mdi:map-marker-off') }}
+        {% endif %}
         {% if current_user.can_view('ARC DOCUMENTOS TIPOS') %}
             {{ topbar.button('Tipos de Documentos', url_for('arc_documentos_tipos.list_active'), 'mdi:file-code') }}
         {% endif %}
