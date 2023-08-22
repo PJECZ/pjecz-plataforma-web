@@ -4,7 +4,7 @@
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}
-    Listas de Acuerdos de {{ autoridad.clave }}
+    Reporte de listas de Acuerdos de {{ autoridad.clave }}
     del {{ fecha_desde }} al {{ fecha_hasta }}
 {% endblock %}
 
@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Descargar reporte de listas de acuerdos') %}
+    {% call topbar.page_buttons('Reporte de listas de acuerdos') %}
         {{ topbar.button_previous('Listas de Acuerdos de ' + autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
         {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
         {{ topbar.button_districts('Distritos', url_for('listas_de_acuerdos.list_distritos')) }}
@@ -28,7 +28,7 @@
         {{ detail.label_value('Desde', fecha_desde) }}
         {{ detail.label_value('Hasta', fecha_hasta) }}
     {% endcall %}
-    {% call list.card(title='Listas de acuerdos (máximo 500 registros)') %}
+    {% call list.card(title='De clic en un botón para descargar el reporte con enlaces públicos (máximo 500 registros)') %}
         <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>

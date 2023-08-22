@@ -56,10 +56,10 @@ class ListaDeAcuerdoSearchAdminForm(FlaskForm):
     buscar = SubmitField("Buscar")
 
 
-class ListaDeAcuerdoDownloadCSVForm(FlaskForm):
-    """Formulario para descargar CSV con enlaces publicos"""
+class ListaDeAcuerdoReportForm(FlaskForm):
+    """Formulario para elaborar reporte de listas de acuerdos"""
 
     autoridad_id = IntegerField("Autoridad ID", validators=[DataRequired()])
     fecha_desde = DateField("Desde", validators=[DataRequired()])
     fecha_hasta = DateField("Hasta", validators=[DataRequired()])
-    descargar = SubmitField("Descargar")
+    elaborar = SubmitField("Elaborar")
