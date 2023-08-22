@@ -3,7 +3,7 @@ Listas de Acuerdos, formularios
 """
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import DateField, SelectField, StringField, SubmitField
+from wtforms import DateField, IntegerField, SelectField, StringField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length
 
@@ -54,3 +54,12 @@ class ListaDeAcuerdoSearchAdminForm(FlaskForm):
     fecha_desde = DateField("Fecha desde", validators=[DataRequired()])
     fecha_hasta = DateField("Fecha hasta", validators=[DataRequired()])
     buscar = SubmitField("Buscar")
+
+
+class ListaDeAcuerdoReportForm(FlaskForm):
+    """Formulario para elaborar reporte de listas de acuerdos"""
+
+    autoridad_id = IntegerField("Autoridad ID", validators=[DataRequired()])
+    fecha_desde = DateField("Desde", validators=[DataRequired()])
+    fecha_hasta = DateField("Hasta", validators=[DataRequired()])
+    elaborar = SubmitField("Elaborar")

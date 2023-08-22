@@ -3,6 +3,7 @@ Usuarios
 
 - alimentar-notarias: Insertar notarias a partir de un archivo CSV
 - estandarizar: Estandarizar nombres, apellidos y puestos en mayusculas
+- mostrar_api_key: Mostrar API Key
 - nueva_api_key: Nueva API Key
 - nueva_contrasena: Nueva contraseña
 - sincronizar: Sincronizar con la API de RRHH Personal
@@ -55,7 +56,6 @@ def alimentar_notarias(entrada_csv):
     with open(ruta, encoding="UTF8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-
             # Validar autoridad
             if "autoridad_id" in row:
                 autoridad_id = row["autoridad_id"]
@@ -133,6 +133,17 @@ def estandarizar():
 
 @click.command()
 @click.argument("email", type=str)
+def mostrar_api_key(email):
+    """Mostrar API Key"""
+    usuario = Usuario.find_by_identity(email)
+    if usuario is None:
+        click.echo(f"No existe el e-mail {email} en usuarios")
+        return
+    click.echo(f"API key para {usuario.email} es {usuario.api_key} que expira el {usuario.api_key_expiracion.strftime('%Y-%m-%d')}")
+
+
+@click.command()
+@click.argument("email", type=str)
 @click.option("--dias", default=90, help="Cantidad de días para expirar la API Key")
 def nueva_api_key(email, dias):
     """Nueva API key"""
@@ -175,6 +186,7 @@ def sincronizar():
 
 cli.add_command(alimentar_notarias)
 cli.add_command(estandarizar)
+cli.add_command(mostrar_api_key)
 cli.add_command(nueva_api_key)
 cli.add_command(nueva_contrasena)
 cli.add_command(sincronizar)
