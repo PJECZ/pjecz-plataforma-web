@@ -1,0 +1,85 @@
+"""
+CID Areas, vistas
+"""
+import json
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
+from lib.datatables import get_datatable_parameters, output_datatable_json
+from lib.safe_string import safe_string, safe_message
+
+from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.permisos.models import Permiso
+from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.cid_areas.models import CIDArea
+
+MODULO = "CID AREAS"
+
+cid_areas = Blueprint("cid_areas", __name__, template_folder="templates")
+
+
+@cid_areas.before_request
+@login_required
+@permission_required(MODULO, Permiso.VER)
+def before_request():
+    """Permiso por defecto"""
+
+
+@cid_areas.route("/cid_areas/datatable_json", methods=["GET", "POST"])
+def datatable_json():
+    """DataTable JSON para listado de areas"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = CIDArea.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    registros = consulta.order_by(CIDArea.nombre).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "clave": resultado.clave,
+                    "url": url_for("cid_areas.detail", cid_area_id=resultado.id),
+                },
+                "nombre": resultado.nombre,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@cid_areas.route("/cid_areas")
+def list_active():
+    """Listado de Areas activas"""
+    return render_template(
+        "cid_areas/list.jinja2",
+        filtros=json.dumps({"estatus": "A"}),
+        titulo="Areas",
+        estatus="A",
+    )
+
+
+@cid_areas.route("/cid_areas/inactivas")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def list_inactive():
+    """Listado de Areas inactivas"""
+    return render_template(
+        "cid_areas/list.jinja2",
+        filtros=json.dumps({"estatus": "B"}),
+        titulo="Areas inactivos",
+        estatus="B",
+    )
+
+
+@cid_areas.route("/cid_areas/<int:cid_area_id>")
+def detail(cid_area_id):
+    """Detalle de un Area"""
+    cid_area = CIDArea.query.get_or_404(cid_area_id)
+    return render_template("cid_areas/detail.jinja2", cid_area=cid_area)

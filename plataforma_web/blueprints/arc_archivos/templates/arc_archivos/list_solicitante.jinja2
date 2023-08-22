@@ -86,6 +86,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Creado</th>
+                    <th>Tipo</th>
                     <th>Documento</th>
                     <th>Estado</th>
                 </tr>
@@ -174,6 +175,7 @@
         configDataTable_solicitudes['columns'] = [
             { data: 'solicitud' },
             { data: 'tiempo' },
+            { data: 'tipo' },
             { data: 'documento' },
             { data: 'estado' }
         ];
@@ -189,18 +191,18 @@
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm");
                 }
             },
             {
-                targets: 2, // documento
+                targets: 3, // documento
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.expediente + '</a>';
                 }
             },
             {
-                targets: 3, // estado
+                targets: 4, // estado
                 data: null,
                 render: function(data, type, row, meta) {
                     switch (data)    {
@@ -264,7 +266,7 @@
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
+                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm");
                 }
             },
             {

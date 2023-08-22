@@ -117,6 +117,7 @@ def datatable_json():
                     "expediente": resultado.arc_documento.expediente,
                     "url": url_for("arc_documentos.detail", documento_id=resultado.arc_documento.id),
                 },
+                "tipo": resultado.arc_documento.arc_documento_tipo.nombre,
                 "tiempo": resultado.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "estado": resultado.estado,
                 "tiempo_recepcion": "" if resultado.tiempo_recepcion is None else resultado.tiempo_recepcion.strftime("%Y-%m-%d %H:%M:%S"),

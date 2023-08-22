@@ -10,7 +10,7 @@ from pathlib import Path
 import csv
 import click
 
-from lib.safe_string import expediente_anio, expediente_num
+from lib.safe_string import extract_expediente_anio, extract_expediente_num
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -162,25 +162,25 @@ def respaldar(autoridad_id, autoridad_clave, desde, output):
 def actualizar_expedientes_anios_nums():
     """Actualizar el anio y el numero de los expedientes"""
     click.echo("Actualizar el anio y el numero de los expedientes")
-    sesion_sqlalchemy = db.session
+    database = db.session
     contador = 0
     sentencias = Sentencia.query.filter_by(estatus="A")
     for sentencia in sentencias:
         if sentencia.expediente_anio is None or sentencia.expediente_num is None:
-            anio = expediente_anio(sentencia.expediente)
+            anio = extract_expediente_anio(sentencia.expediente)
             if anio != 0:
                 sentencia.expediente_anio = anio
-            num = expediente_num(sentencia.expediente)
+            num = extract_expediente_num(sentencia.expediente)
             if num != 0:
                 sentencia.expediente_num = num
             if anio != 0 and num != 0:
-                sesion_sqlalchemy.add(sentencia)
+                database.add(sentencia)
             contador += 1
             if contador % 100 == 0:
-                sesion_sqlalchemy.commit()
+                database.commit()
                 click.echo(f"  Van {contador}...")
     if contador > 0 and contador % 100 != 0:
-        sesion_sqlalchemy.commit()
+        database.commit()
     click.echo(f"Actualizados {contador} sentencias")
 
 

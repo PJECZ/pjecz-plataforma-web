@@ -111,6 +111,7 @@ def list_active():
         )
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
+    # Mostrar solo los procedimientos del area en la que estoy
     # Mostrar solo los procedimientos autorizados
     return render_template(
         "cid_procedimientos/list.jinja2",
