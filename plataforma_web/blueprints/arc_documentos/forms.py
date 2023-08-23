@@ -21,7 +21,7 @@ def juzgados_extintos_opciones():
 class ArcDocumentoNewArchivoForm(FlaskForm):
     """Formulario nuevo Documento"""
 
-    num_expediente = StringField("Núm. Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Núm. Expediente (999/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1900, date.today().year)])
     juzgado_id = SelectField("Instancia", coerce=int, validate_choice=False, validators=[DataRequired()])
     actor = StringField("Actor(es)", validators=[DataRequired(), Length(max=256)])
@@ -40,7 +40,7 @@ class ArcDocumentoNewArchivoForm(FlaskForm):
 class ArcDocumentoNewSolicitanteForm(FlaskForm):
     """Formulario nuevo Documento"""
 
-    num_expediente = StringField("Núm. Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Núm. Expediente (999/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1900, date.today().year)])
     juzgado_readonly = StringField("Instancia")
     actor = StringField("Actor(es)", validators=[DataRequired(), Length(max=256)])
@@ -59,7 +59,7 @@ class ArcDocumentoNewSolicitanteForm(FlaskForm):
 class ArcDocumentoEditArchivoForm(FlaskForm):
     """Formulario modificar Documento"""
 
-    num_expediente = StringField("Núm. Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Núm. Expediente (999/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1900, date.today().year)])
     juzgado_id = SelectField("Instancia", coerce=int, validate_choice=False, validators=[DataRequired()])
     actor = StringField("Actor(es)", validators=[DataRequired(), Length(max=256)])
@@ -79,7 +79,7 @@ class ArcDocumentoEditArchivoForm(FlaskForm):
 class ArcDocumentoEditSolicitanteForm(FlaskForm):
     """Formulario modificar Documento"""
 
-    num_expediente = StringField("Núm. Expediente", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
+    expediente = StringField("Núm. Expediente (999/año)", validators=[DataRequired(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1900, date.today().year)])
     juzgado_readonly = StringField("Instancia")
     actor = StringField("Actor(es)", validators=[DataRequired(), Length(max=256)])

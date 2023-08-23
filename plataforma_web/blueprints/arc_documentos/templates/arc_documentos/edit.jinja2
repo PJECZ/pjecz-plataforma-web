@@ -41,7 +41,7 @@
     {% call f.card() %}
         {% set form_kwargs = {'arc_documento_id': documento.id} %}
         {% call f.form_tag('arc_documentos.edit', fid='documento_form', **form_kwargs) %}
-            {% call f.form_group(form.num_expediente) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.anio) %}{% endcall %}
             {% if form.juzgado_readonly %}
                 {% call f.form_group(form.juzgado_readonly, readonly=true) %}{% endcall %}
