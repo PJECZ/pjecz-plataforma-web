@@ -62,7 +62,6 @@
         {% endif %}
         {{ detail.label_value('Descripción', autoridad.descripcion) }}
         {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
-        {{ detail.label_value('Sede', autoridad.sede) }}
         {{ detail.label_value('Órgano Jurisdiccional', autoridad.organo_jurisdiccional) }}
         {{ detail.label_value_boolean('Es Archivo Solicitante', autoridad.es_archivo_solicitante) }}
         {{ detail.label_value_boolean('Es CEMASC', autoridad.es_cemasc) }}
@@ -79,6 +78,7 @@
         {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias) }}
         {{ detail.label_value('Límite días para listas de acuerdos', autoridad.limite_dias_listas_de_acuerdos) }}
         {{ detail.label_value('DataWareHouse ID', autoridad.datawarehouse_id) }}
+        {{ detail.label_value('Sede (clave distrito geográfico para A.J.)', autoridad.sede) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
     {# Usuarios de la autoridad #}

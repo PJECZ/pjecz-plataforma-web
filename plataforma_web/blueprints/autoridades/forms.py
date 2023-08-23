@@ -38,6 +38,7 @@ class AutoridadNewForm(FlaskForm):
     organo_jurisdiccional = SelectField("Órgano Jurisdiccional", choices=Autoridad.ORGANOS_JURISDICCIONALES, validators=[DataRequired()])
     materia = QuerySelectField("Materia (si es de Primera Instancia)", query_factory=materias_opciones, get_label="nombre", validators=[DataRequired()])
     audiencia_categoria = SelectField("Categoría de audiencias", choices=Autoridad.AUDIENCIAS_CATEGORIAS, validators=[DataRequired()])
+    sede = SelectField("Sede (clave distrito geográfico para A.J.)", choices=Autoridad.SEDES, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 
@@ -64,6 +65,7 @@ class AutoridadEditForm(FlaskForm):
     directorio_sentencias = StringField("Directorio para sentencias", validators=[Optional(), Length(max=256)])
     limite_dias_listas_de_acuerdos = IntegerField("Límite días para listas de acuerdos", validators=[NumberRange(0, 30)])
     datawarehouse_id = IntegerField("DataWareHouse ID", validators=[Optional()])
+    sede = SelectField("Sede (clave distrito geográfico para A.J.)", choices=Autoridad.SEDES, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 
