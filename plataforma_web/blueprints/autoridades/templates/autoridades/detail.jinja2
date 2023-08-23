@@ -78,6 +78,7 @@
         {{ detail.label_value('Directorio para sentencias', autoridad.directorio_sentencias) }}
         {{ detail.label_value('Límite días para listas de acuerdos', autoridad.limite_dias_listas_de_acuerdos) }}
         {{ detail.label_value('DataWareHouse ID', autoridad.datawarehouse_id) }}
+        {{ detail.label_value('Sede (clave distrito geográfico para A.J.)', autoridad.sede) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
     {# Usuarios de la autoridad #}
