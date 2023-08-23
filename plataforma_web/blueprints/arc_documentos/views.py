@@ -80,8 +80,7 @@ def datatable_json():
         consulta = consulta.join(Autoridad)
         consulta = consulta.filter(Autoridad.distrito_id == distrito_id)
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
-    # TODO: Ordenar en lugar de .expediente por .expediente_numero
-    registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente_numero).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
