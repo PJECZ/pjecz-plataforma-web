@@ -24,7 +24,7 @@ from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.sentencias.forms import SentenciaNewForm, SentenciaEditForm, SentenciaSearchForm, SentenciaSearchAdminForm
+from plataforma_web.blueprints.sentencias.forms import SentenciaNewForm, SentenciaEditForm, SentenciaSearchForm, SentenciaSearchAdminForm, SentenciaReportForm
 from plataforma_web.blueprints.sentencias.models import Sentencia
 
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
@@ -126,16 +126,20 @@ def list_autoridades(distrito_id):
 def list_autoridad_sentencias(autoridad_id):
     """Listado de Sentencias activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
+    form = None
+    plantilla = "sentencias/list.jinja2"
     if current_user.can_admin("SENTENCIAS"):
         plantilla = "sentencias/list_admin.jinja2"
-    else:
-        plantilla = "sentencias/list.jinja2"
+        form = SentenciaReportForm()
+        form.fecha_desde.data = datetime.date.today().replace(day=1)  # Por defecto fecha_desde es el primer dia del mes actual
+        form.fecha_hasta.data = datetime.date.today()  # Por defecto fecha_hasta es hoy
     return render_template(
         plantilla,
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
         titulo=f"V.P. de Sentencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="A",
+        form=form,
     )
 
 
@@ -867,3 +871,32 @@ def recover(sentencia_id):
         else:
             flash("No tiene permiso para recuperar.", "warning")
     return redirect(url_for("sentencias.detail", sentencia_id=sentencia_id))
+
+
+@sentencias.route("/sentencias/reporte", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def report():
+    """Elaborar reporte de sentencias"""
+    form = SentenciaReportForm()
+    if form.validate():
+        # Tomar valores del formulario
+        fecha_desde = form.fecha_desde.data
+        fecha_hasta = form.fecha_hasta.data
+        autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
+        # Entregar pagina
+        return render_template(
+            "sentencias/report.jinja2",
+            autoridad=autoridad,
+            fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta,
+            filtros=json.dumps(
+                {
+                    "autoridad_id": autoridad.id,
+                    "estatus": "A",
+                    "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                    "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                }
+            ),
+        )
+    flash("Error: datos incorrectos para hacer la descarga.", "warning")
+    return redirect(url_for("sentencias.list_active"))
