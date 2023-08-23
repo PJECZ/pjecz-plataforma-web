@@ -129,17 +129,20 @@ def list_autoridades(distrito_id):
 def list_autoridad_listas_de_acuerdos(autoridad_id):
     """Listado de Listas de Acuerdos activas de una autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
+    form = None
+    plantilla = "listas_de_acuerdos/list.jinja2"
     if current_user.can_admin("LISTAS DE ACUERDOS"):
         plantilla = "listas_de_acuerdos/list_admin.jinja2"
-    else:
-        plantilla = "listas_de_acuerdos/list.jinja2"
+        form = ListaDeAcuerdoReportForm()
+        form.fecha_desde.data = datetime.date.today().replace(day=1)  # Por defecto fecha_desde es el primer dia del mes actual
+        form.fecha_hasta.data = datetime.date.today()  # Por defecto fecha_hasta es hoy
     return render_template(
         plantilla,
         autoridad=autoridad,
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
         titulo=f"Listas de Acuerdos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="A",
-        form=ListaDeAcuerdoReportForm(),
+        form=form,
     )
 
 
@@ -698,7 +701,7 @@ def recover(lista_de_acuerdo_id):
     return redirect(url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo_id))
 
 
-@listas_de_acuerdos.route("/listas_de_acuerdos/descargar_reporte", methods=["GET", "POST"])
+@listas_de_acuerdos.route("/listas_de_acuerdos/reporte", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def report():
     """Elaborar reporte de listas de acuerdos"""

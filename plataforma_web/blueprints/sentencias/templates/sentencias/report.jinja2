@@ -4,7 +4,7 @@
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}
-    Reporte de Listas de Acuerdos de {{ autoridad.clave }}
+    Reporte de V.P. de Sentencias de {{ autoridad.clave }}
     del {{ fecha_desde }} al {{ fecha_hasta }}
 {% endblock %}
 
@@ -14,10 +14,10 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Reporte de Listas de Acuerdos') %}
-        {{ topbar.button_previous('Listas de Acuerdos de ' + autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
-        {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
-        {{ topbar.button_districts('Distritos', url_for('listas_de_acuerdos.list_distritos')) }}
+    {% call topbar.page_buttons('Reporte de V.P. de Sentencias') %}
+        {{ topbar.button_previous('V.P. de Sentencias de ' + autoridad.clave, url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
+        {{ topbar.button_previous('V.P. de Sentencias', url_for('sentencias.list_active')) }}
+        {{ topbar.button_districts('Distritos', url_for('sentencias.list_distritos')) }}
     {% endcall %}
 {% endblock %}
 
@@ -29,11 +29,15 @@
         {{ detail.label_value('Hasta', fecha_hasta) }}
     {% endcall %}
     {% call list.card(title='De clic en un botón para descargar el reporte con enlaces públicos (máximo 500 registros)') %}
-        <table id="listas_de_acuerdos_datatable" class="table display nowrap" style="width:100%">
+        <table id="sentencias_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <th>Descripción</th>
+                    <th>Sentencia</th>
+                    <th>Expediente</th>
+                    <th>Materia</th>
+                    <th>Tipo de Juicio</th>
+                    <th>P. Género</th>
                     <th>Enlace público</th>
                 </tr>
             </thead>
@@ -50,7 +54,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.1/js/buttons.print.min.js"></script>
     <!-- Datatable listas de acuerdos -->
     <script>
-        $('#listas_de_acuerdos_datatable').DataTable({
+        $('#sentencias_datatable').DataTable({
             dom: 'Bfrtip',
             buttons: [
                 { extend: 'copy', text: 'Copiar' },
@@ -64,7 +68,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/listas_de_acuerdos/datatable_json",
+                url: "/sentencias/datatable_json",
                 type: "POST",
                 headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
@@ -74,6 +78,10 @@
             columns: [
                 { data: "fecha" },
                 { data: "detalle" },
+                { data: "expediente" },
+                { data: "materia_nombre" },
+                { data: "materia_tipo_juicio_descripcion" },
+                { data: "es_perspectiva_genero" },
                 { data: "archivo" }
             ],
             ordering: false,
@@ -82,18 +90,25 @@
                     targets: 0,
                     type: "date",
                     render: function (data, type, row) {
-                        return moment(data).format("YYYY-MM-DD");
+                        return moment(data).format("DD MMM YYYY");
                     }
                 },
                 {
                     targets: 1,
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                        return '<a href="' + data.url + '">' + data.sentencia + '</a>';
                     }
                 },
                 {
-                    targets: 2,
+                    targets: 4,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.length > 20 ? data.substr(0, 40) + '…' : data;
+                    }
+                },
+                {
+                    targets: 6,
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.descargar_url + '" target="_blank">' + data.descargar_url + '</a>';
