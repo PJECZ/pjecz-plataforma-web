@@ -7,11 +7,10 @@ from datetime import date, datetime, timedelta
 import pytz
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_clave, safe_string, safe_message
-
-from sqlalchemy import or_
 
 from plataforma_web.blueprints.audiencias.models import Audiencia
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -103,6 +102,7 @@ def datatable_json():
                     "nombre": resultado.materia.nombre,
                     "url": url_for("materias.detail", materia_id=resultado.materia_id) if current_user.can_view("MATERIAS") else "",
                 },
+                "sede": resultado.sede,
             }
         )
     # Entregar JSON
@@ -347,9 +347,10 @@ def new():
                 directorio_edictos = directorio
             autoridad = Autoridad(
                 distrito=distrito,
-                descripcion=descripcion,
+                descripcion=safe_string(descripcion, save_enie=True),
                 descripcion_corta=safe_string(form.descripcion_corta.data, save_enie=True),
                 clave=clave,
+                sede=safe_string(form.sede.data),
                 es_archivo_solicitante=form.es_archivo_solicitante.data,
                 es_cemasc=form.es_cemasc.data,
                 es_defensoria=form.es_defensoria.data,
@@ -401,6 +402,7 @@ def edit(autoridad_id):
             autoridad.descripcion = safe_string(form.descripcion.data, save_enie=True)
             autoridad.descripcion_corta = safe_string(form.descripcion_corta.data, save_enie=True)
             autoridad.clave = clave
+            autoridad.sede = safe_string(form.sede.data)
             autoridad.es_archivo_solicitante = form.es_archivo_solicitante.data
             autoridad.es_cemasc = form.es_cemasc.data
             autoridad.es_defensoria = form.es_defensoria.data
