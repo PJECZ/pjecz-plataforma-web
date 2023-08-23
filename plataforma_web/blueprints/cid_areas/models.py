@@ -20,6 +20,7 @@ class CIDArea(db.Model, UniversalMixin):
 
     # Hijos
     cid_areas_autoridades = db.relationship("CIDAreaAutoridad", back_populates="cid_area")
+    cid_procedimientos = db.relationship('CIDProcedimiento', back_populates='cid_area')
 
     def __repr__(self):
         """Representación"""
