@@ -28,6 +28,19 @@ class Autoridad(db.Model, UniversalMixin):
             ("SALAS", "Salas"),
         ]
     )
+    SEDES = OrderedDict(
+        [
+            ("ND", "ND"),
+            ("DACN", "DACN"),
+            ("DMNC", "DMNC"),
+            ("DPRR", "DPRR"),
+            ("DRGR", "DRGR"),
+            ("DSBN", "DSBN"),
+            ("DSLT", "DSLT"),
+            ("DSPD", "DSPD"),
+            ("DTRC", "DTRC"),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "autoridades"
@@ -52,22 +65,15 @@ class Autoridad(db.Model, UniversalMixin):
     es_notaria = db.Column(db.Boolean, nullable=False, default=False)
     es_revisor_escrituras = db.Column(db.Boolean, nullable=False, default=False)
     es_organo_especializado = db.Column(db.Boolean, nullable=False, default=False)
-    organo_jurisdiccional = db.Column(
-        db.Enum(*ORGANOS_JURISDICCIONALES, name="tipos_organos_jurisdiccionales", native_enum=False),
-        index=True,
-        nullable=False,
-    )
+    organo_jurisdiccional = db.Column(db.Enum(*ORGANOS_JURISDICCIONALES, name="tipos_organos_jurisdiccionales", native_enum=False), index=True, nullable=False)
     directorio_edictos = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_glosas = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_listas_de_acuerdos = db.Column(db.String(256), nullable=False, default="", server_default="")
     directorio_sentencias = db.Column(db.String(256), nullable=False, default="", server_default="")
-    audiencia_categoria = db.Column(
-        db.Enum(*AUDIENCIAS_CATEGORIAS, name="tipos_audiencias_categorias", native_enum=False),
-        index=True,
-        nullable=False,
-    )
+    audiencia_categoria = db.Column(db.Enum(*AUDIENCIAS_CATEGORIAS, name="tipos_audiencias_categorias", native_enum=False), index=True, nullable=False)
     limite_dias_listas_de_acuerdos = db.Column(db.Integer(), nullable=False, default=0)
     datawarehouse_id = db.Column(db.Integer(), nullable=True)  # Columna para comunicación con SAJI
+    sede = db.Column(db.Enum(*SEDES, name="tipos_sedes", native_enum=False), index=True, nullable=False)  # Clave del distrito judicial geografico
 
     # Hijos
     arc_documentos = db.relationship("ArcDocumento", back_populates="autoridad", lazy="noload")
