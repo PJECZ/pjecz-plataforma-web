@@ -279,6 +279,7 @@ def new():
             firma="",
             archivo="",
             url="",
+            cid_area_id=1,
         )
         cid_procedimiento.save()
         bitacora = Bitacora(
