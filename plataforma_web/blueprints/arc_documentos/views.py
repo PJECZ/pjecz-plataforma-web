@@ -383,7 +383,7 @@ def search():
             return redirect(url_for("arc_documentos.new"))
         # Determinamos el id del juzgado en base a su autoridad asignada o juzgado seleccionado
         autoridad_id = current_user.autoridad.id
-        if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles:
+        if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
             if "juzgadoInput_buscar" not in request.form:
                 flash("Necesita indicar un Juzgado en el formulario de búsqueda ", "warning")
                 autoridad_id = 0
@@ -483,12 +483,12 @@ def search():
                                 form.observaciones.data = ""
                             else:
                                 form.observaciones.data = respuesta_api["observaciones"]
-                            if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO):
+                            if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
                                 form.juzgado_id.data = autoridad_id
                                 mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                         else:
                             flash("Registro NO encontrado en SIBED", "warning")
-                            if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO):
+                            if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
                                 mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                     else:
                         flash("Respuesta no esperada del API por parte de PEGASO", "danger")
