@@ -12,7 +12,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import or_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_expediente, safe_message, safe_string
+from lib.safe_string import safe_expediente, safe_message, safe_string, extract_expediente_num, extract_expediente_anio
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.arc_documentos.models import ArcDocumento
@@ -80,6 +80,7 @@ def datatable_json():
         consulta = consulta.join(Autoridad)
         consulta = consulta.filter(Autoridad.distrito_id == distrito_id)
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
+    # TODO: Ordenar en lugar de .expediente por .expediente_numero
     registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -201,10 +202,14 @@ def new():
     # Recepción del Formulario
     if form.validate_on_submit():
         # Validar que la clave no se repita
+        expediente_numero = 0
+        expediente_anio = 0
         try:
-            num_expediente = safe_expediente(form.num_expediente.data)
+            expediente = safe_expediente(form.expediente.data)
+            expediente_numero = extract_expediente_num(expediente)
+            expediente_anio = extract_expediente_anio(expediente)
         except ValueError:
-            num_expediente = None
+            expediente = None
         if isinstance(form, ArcDocumentoNewArchivoForm):
             juzgado_id = int(form.juzgado_id.data)
             ubicacion = safe_string(form.ubicacion.data)
@@ -215,11 +220,13 @@ def new():
         juzgado = Autoridad.query.filter_by(id=juzgado_id).first()
         if not juzgado:
             flash(f"La instancia seleccionada NO existe", "warning")
-        elif ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).first():
-            flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
+        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo_id=int(form.tipo.data)).first():
+            flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO. Debe de ser único.", "warning")
         elif anio < 1900 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
-        elif num_expediente is None:
+        elif anio != expediente_anio:
+            flash("El año ingresado y el año indicado en el número de expediente no coinciden.", "warning")
+        elif expediente is None:
             flash("El número de expediente no es válido. El formato esperado es (número/año) (999/2023)", "warning")
         # Sólo aceptar juzgados de tu distrito
         elif ROL_JEFE_REMESA_ADMINISTRADOR not in current_user_roles and juzgado.distrito_id != current_user.autoridad.distrito_id:
@@ -227,8 +234,9 @@ def new():
         else:
             documento = ArcDocumento(
                 autoridad_id=juzgado_id,
-                expediente=num_expediente,
+                expediente=expediente,
                 anio=anio,
+                expediente_numero=int(expediente_numero),
                 actor=safe_string(form.actor.data, save_enie=True),
                 demandado=safe_string(form.demandado.data, save_enie=True),
                 juicio=safe_string(form.juicio.data, save_enie=True),
@@ -280,10 +288,14 @@ def edit(arc_documento_id):
     if form.validate_on_submit():
         # Validar que la clave no se repita
         fojas = int(form.fojas.data)
+        expediente_numero = 0
+        expediente_anio = 0
         try:
-            num_expediente = safe_expediente(form.num_expediente.data)
+            expediente = safe_expediente(form.expediente.data)
+            expediente_numero = extract_expediente_num(expediente)
+            expediente_anio = extract_expediente_anio(expediente)
         except ValueError:
-            num_expediente = None
+            expediente = None
         if isinstance(form, ArcDocumentoEditArchivoForm):
             juzgado_id = int(form.juzgado_id.data)
             ubicacion = safe_string(form.ubicacion.data)
@@ -295,19 +307,23 @@ def edit(arc_documento_id):
         juzgado = Autoridad.query.filter_by(id=juzgado_id).first()
         if not juzgado:
             flash(f"La instancia seleccionada NO existe", "warning")
-        elif ArcDocumento.query.filter_by(expediente=num_expediente).filter_by(autoridad_id=juzgado_id).filter(ArcDocumento.id != arc_documento_id).first():
-            flash("El número de expediente ya está en uso para este juzgado. Debe de ser único.", "warning")
+        # Verificar que solo haya un expediente por Juzgado y por mismo Tipo.
+        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo_id=int(form.tipo.data)).filter(ArcDocumento.id != arc_documento_id).first():
+            flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO. Debe de ser único.", "warning")
+        elif anio != expediente_anio:
+            flash("El año ingresado y el año indicado en el número de expediente no coinciden.", "warning")
         elif anio < 1900 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
-        elif num_expediente is None:
-            flash("El número de expediente no es válido", "warning")
+        elif expediente is None:
+            flash("El número de expediente no es válido. Utilice el formato '999/2023-XX'", "warning")
         # Sólo aceptar juzgados de tu distrito
         elif ROL_JEFE_REMESA_ADMINISTRADOR not in current_user_roles and juzgado.distrito_id != current_user.autoridad.distrito_id:
             flash(f"No puede utilizar la instancia '{juzgado.descripcion_corta}' del distrito '{juzgado.distrito.nombre_corto}' fuera de su distrito '{current_user.autoridad.distrito.nombre_corto}'", "warning")
         else:
             documento.autoridad_id = juzgado_id
-            documento.expediente = safe_expediente(num_expediente)
+            documento.expediente = safe_expediente(expediente)
             documento.anio = int(anio)
+            documento.expediente_numero = int(expediente_numero)
             documento.actor = safe_string(form.actor.data, save_enie=True)
             documento.demandado = safe_string(form.demandado.data, save_enie=True)
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
@@ -335,7 +351,7 @@ def edit(arc_documento_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.num_expediente.data = documento.expediente
+    form.expediente.data = documento.expediente
     form.anio.data = documento.anio
     form.actor.data = documento.actor
     form.demandado.data = documento.demandado

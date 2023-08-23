@@ -44,7 +44,7 @@
     {# Formulario para alta de documento #}
     {% call f.card() %}
         {% call f.form_tag('arc_documentos.new', fid='documento_form') %}
-            {% call f.form_group(form.num_expediente) %}{% endcall %}
+            {% call f.form_group(form.expediente) %}{% endcall %}
             {% call f.form_group(form.anio) %}{% endcall %}
             {% if form.juzgado_readonly %}
                 {% call f.form_group(form.juzgado_readonly, readonly=true) %}{% endcall %}
