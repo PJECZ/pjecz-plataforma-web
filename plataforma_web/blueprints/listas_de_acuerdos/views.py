@@ -244,7 +244,7 @@ def datatable_json():
     for lista_de_acuerdo in registros:
         data.append(
             {
-                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d 00:00:00"),
+                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
                 "detalle": {
                     "descripcion": lista_de_acuerdo.descripcion,
                     "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
@@ -286,7 +286,7 @@ def datatable_json_admin():
             {
                 "creado": lista_de_acuerdo.creado.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": lista_de_acuerdo.autoridad.clave,
-                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d 00:00:00"),
+                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
                 "detalle": {
                     "descripcion": lista_de_acuerdo.descripcion,
                     "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),

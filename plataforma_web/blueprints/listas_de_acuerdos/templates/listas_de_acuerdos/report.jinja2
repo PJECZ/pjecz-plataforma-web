@@ -79,21 +79,14 @@
             ordering: false,
             columnDefs: [
                 {
-                    targets: 0,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment(data).format("YYYY-MM-DD");
-                    }
-                },
-                {
-                    targets: 1,
+                    targets: 1, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
                 },
                 {
-                    targets: 2,
+                    targets: 2, // archivo
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.descargar_url + '" target="_blank">' + data.descargar_url + '</a>';

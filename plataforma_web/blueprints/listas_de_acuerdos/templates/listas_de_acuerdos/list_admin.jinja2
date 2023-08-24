@@ -81,28 +81,14 @@
             order: [[ 0, "desc" ]],
             columnDefs: [
                 {
-                    targets: 0,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment.utc(data).local().format("YYYY-MM-DD HH:mm:ss");
-                    }
-                },
-                {
-                    targets: 2,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment(data).format("DD MMM YYYY");
-                    }
-                },
-                {
-                    targets: 3,
+                    targets: 3, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
                 },
                 {
-                    targets: 4,
+                    targets: 4, // archivo
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
