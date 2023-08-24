@@ -215,6 +215,7 @@ def new(cid_procedimiento_id):
             cid_formato = CIDFormato(
                 procedimiento=cid_procedimiento,
                 descripcion=descripcion,
+                cid_area_id=1,
             )
             cid_formato.save()
             # Subir el archivo a la nube
