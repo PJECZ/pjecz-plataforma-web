@@ -264,10 +264,10 @@ def datatable_json():
         # Por defecto el semaforo es verde (0)
         semaforo = 0
         # Si creado_local es mayor a tiempo_limite_bueno, entonces el semaforo es amarillo (1)
-        if creado_local > tiempo_limite_bueno.astimezone(local_tz):
+        if creado_local > local_tz.localize(tiempo_limite_bueno):
             semaforo = 1
         # Si creado_local es mayor a tiempo_limite_critico, entonces el semaforo es rojo (2)
-        if creado_local > tiempo_limite_critico.astimezone(local_tz):
+        if creado_local > local_tz.localize(tiempo_limite_critico):
             semaforo = 2
         data.append(
             {
@@ -332,10 +332,10 @@ def datatable_json_admin():
         # Por defecto el semaforo es verde (0)
         semaforo = 0
         # Si creado_local es mayor a tiempo_limite_bueno, entonces el semaforo es amarillo (1)
-        if creado_local > tiempo_limite_bueno.astimezone(local_tz):
+        if creado_local > local_tz.localize(tiempo_limite_bueno):
             semaforo = 1
         # Si creado_local es mayor a tiempo_limite_critico, entonces el semaforo es rojo (2)
-        if creado_local > tiempo_limite_critico.astimezone(local_tz):
+        if creado_local > local_tz.localize(tiempo_limite_critico):
             semaforo = 2
         data.append(
             {
