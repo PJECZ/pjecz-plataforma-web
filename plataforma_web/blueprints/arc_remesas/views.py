@@ -102,6 +102,9 @@ def datatable_json():
         distrito_id = int(request.form["distrito_id"])
         consulta = consulta.join(Autoridad)
         consulta = consulta.filter(Autoridad.distrito_id == distrito_id)
+    if "sede" in request.form:
+        consulta = consulta.join(Autoridad)
+        consulta = consulta.filter(Autoridad.sede == request.form["sede"])
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     if "orden_acendente" in request.form:
         registros = consulta.order_by(ArcRemesa.id.desc()).offset(start).limit(rows_per_page).all()

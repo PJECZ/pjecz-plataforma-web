@@ -49,21 +49,21 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Card de Distritos -->
+    <!-- Card de Sedes -->
     {% if mostrar_btn_local_global == 'GLOBAL' %}
         {% call list.card() %}
-            <!-- Formulario de Distritos -->
+            <!-- Formulario de Sedes -->
             <div class="row">
                 <div class="col">
-                    <form class="row g-1" id="buscadorDistritosForm" onsubmit="seleccionar_distrito(); return false;" autocomplete="off">
+                    <form class="row g-1" id="buscadorSedeForm" onsubmit="seleccionar_sede(); return false;" autocomplete="off">
                         <div class="form-floating">
-                            <select class="form-select" id="distritoSelect" name="distritoSelect" aria-label="Distrito" onchange="seleccionar_distrito(); return false;" style="flex: inherit;">
+                            <select class="form-select" id="sedeSelect" name="sedeSelect" aria-label="sede" onchange="seleccionar_sede(); return false;" style="flex: inherit;">
                                 <option selected value=""></option>
-                                {% for distrito in distritos %}
-                                    <option value="{{distrito.id}}">{{distrito.nombre_corto}}</option>
+                                {% for sede in sedes %}
+                                    <option value="{{sede.id}}">{{sede.nombre}}</option>
                                 {% endfor %}
                             </select>
-                            <label for="distritoSelect">Distritos</label>
+                            <label for="sedeSelect">Distritos (Sedes)</label>
                         </div>
                     </form>
                 </div>
@@ -509,14 +509,14 @@
     </script>
     {% if mostrar_btn_local_global == 'GLOBAL' %}
     <script>
-        function seleccionar_distrito() {
-            distrito = document.getElementById('distritoSelect').value;
-            if (distrito === "")    {
-                delete filtros_solicitudes.configDataTable.ajax.data['distrito_id'];
-                delete filtros_remesas.configDataTable.ajax.data['distrito_id'];
+        function seleccionar_sede() {
+            sede = document.getElementById('sedeSelect').value;
+            if (sede === "")    {
+                delete filtros_solicitudes.configDataTable.ajax.data['sede'];
+                delete filtros_remesas.configDataTable.ajax.data['sede'];
             } else {
-                filtros_solicitudes.configDataTable.ajax.data['distrito_id'] = distrito;
-                filtros_remesas.configDataTable.ajax.data['distrito_id'] = distrito;
+                filtros_solicitudes.configDataTable.ajax.data['sede'] = sede;
+                filtros_remesas.configDataTable.ajax.data['sede'] = sede;
             }
             filtros_solicitudes.buscar();
             filtros_remesas.buscar();
