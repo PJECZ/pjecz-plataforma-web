@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import or_, not_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_message, safe_string, safe_expediente, extract_expediente_anio
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
@@ -315,6 +315,40 @@ def detail(remesa_id):
     )
 
 
+def validar_rango_anios(rango_anios: str):
+    """Valida y extrae el rango de años"""
+
+    anio_menor = 1900
+    anio_mayor = date.today().year
+
+    # Validar si es un solo número de año
+    try:
+        valor_int = int(rango_anios)
+    except:
+        valor_int = 0
+    if valor_int != 0:
+        if int(rango_anios) >= anio_menor and int(rango_anios) <= anio_mayor:
+            return int(rango_anios), int(rango_anios), str(f"{rango_anios}-{rango_anios}")
+    else:
+        # Validar el texto de rango de años
+        if "-" in rango_anios:
+            elementos = rango_anios.split("-")
+            if len(elementos) > 1:
+                try:
+                    elem_01 = int(elementos[0])
+                    elem_02 = int(elementos[1])
+                except:
+                    elem_01 = 0
+                if elem_01 != 0:
+                    if elem_01 > elem_02:
+                        elem_tmp = elem_01
+                        elem_01 = elem_02
+                        elem_02 = elem_tmp
+                    if elem_01 >= anio_menor and elem_02 <= anio_mayor:
+                        return elem_01, elem_02, str(f"{elem_01}-{elem_02}")
+    return 0, 0, ""
+
+
 @arc_remesas.route("/arc_remesas/nueva", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
@@ -322,17 +356,29 @@ def new():
 
     form = ArcRemesaNewForm()
     if form.validate_on_submit():
-        if form.anio.data < 1900 or form.anio.data > date.today().year:
-            flash(f"El año se encuentra fuera de un rango permitido 1900-{date.today().year}.", "warning")
+        # validar rango de años
+        _, _, anios_str = validar_rango_anios(form.anio.data)
+        try:
+            num_oficio = safe_expediente(form.num_oficio.data)
+        except:
+            num_oficio = ""
+        if num_oficio != "":
+            num_oficio_anio = extract_expediente_anio(num_oficio)
+        if anios_str == "":
+            flash(f"El campo de años tiene un valor inválido, utilice el formato: '1900-{date.today().year}'.", "warning")
+        elif num_oficio == "":
+            flash(f"El formato del número de oficio es inválido. Pruebe el formato: 'número/año'. Año entre los valores: '1900-{date.today().year}'", "warning")
+        elif num_oficio_anio < 1900 or num_oficio_anio > date.today().year:
+            flash(f"El año en el número de oficio es inválido utilice un rango de: '1900-{date.today().year}'.", "warning")
         elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
             flash(f"Solo se pueden crear nuevas remesas por el Administrador o {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}.", "warning")
         else:
             remesa = ArcRemesa(
                 autoridad=current_user.autoridad,
                 esta_archivado=False,
-                anio=int(form.anio.data),
+                anio=anios_str,
                 arc_documento_tipo_id=form.tipo_documentos.data,
-                num_oficio=safe_string(form.num_oficio.data),
+                num_oficio=num_oficio,
                 estado="PENDIENTE",
                 num_documentos=0,
                 num_anomalias=0,
@@ -460,21 +506,36 @@ def edit(remesa_id):
 
     form = ArcRemesaEditForm()
     if form.validate_on_submit():
-        remesa.anio = form.anio.data
-        remesa.num_oficio = safe_string(form.num_oficio.data)
-        remesa.observaciones = safe_message(form.observaciones.data, default_output_str=None)
-        remesa.save()
+        # validar rango de años
+        _, _, anios_str = validar_rango_anios(form.anio.data)
+        try:
+            num_oficio = safe_expediente(form.num_oficio.data)
+        except:
+            num_oficio = ""
+        if num_oficio != "":
+            num_oficio_anio = extract_expediente_anio(num_oficio)
+        if anios_str == "":
+            flash(f"El campo de años tiene un valor inválido, utilice el formato: '1900-{date.today().year}'.", "warning")
+        elif num_oficio == "":
+            flash(f"El formato del número de oficio es inválido. Pruebe el formato: 'número/año'. Año entre los valores: '1900-{date.today().year}'", "warning")
+        elif num_oficio_anio < 1900 or num_oficio_anio > date.today().year:
+            flash(f"El año en el número de oficio es inválido utilice un rango de: '1900-{date.today().year}'.", "warning")
+        else:
+            remesa.anio = anios_str
+            remesa.num_oficio = num_oficio
+            remesa.observaciones = safe_message(form.observaciones.data, default_output_str=None)
+            remesa.save()
 
-        # Agregamos a la bitácora la acción realizada
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Remesa editada {remesa.id}"),
-            url=url_for("arc_remesas.detail", remesa_id=remesa_id),
-        )
-        bitacora.save()
-        flash("La Remesa se ACTUALIZÓ correctamente.", "success")
-        return redirect(bitacora.url)
+            # Agregamos a la bitácora la acción realizada
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Remesa editada {remesa.id}"),
+                url=url_for("arc_remesas.detail", remesa_id=remesa_id),
+            )
+            bitacora.save()
+            flash("La Remesa se ACTUALIZÓ correctamente.", "success")
+            return redirect(bitacora.url)
 
     # Datos pre-cargados
     form.creado_readonly.data = remesa.creado.strftime("%Y/%m/%d - %H:%M %p")
