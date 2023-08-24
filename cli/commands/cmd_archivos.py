@@ -2,6 +2,7 @@
 Archivos
 
 - actualizar_expedientes_anios_nums: Descompone el num-expedientes en número y año, y lo guarda individualmente como números.
+- pasar_al_historial: Pasa al historial las solicitudes entregadas y las remesas procesadas después de varios días.
 """
 import click
 
@@ -49,4 +50,15 @@ def actualizar_expedientes_anios_nums():
     click.echo(f"Actualizados {contador} documentos")
 
 
+@click.command()
+def pasar_al_historial():
+    """Pasar al historial las solicitudes y remesas con mucha antigüedad habiendo sido procesadas correctamente"""
+
+    app.task_queue.enqueue(
+        "plataforma_web.blueprints.arc_archivos.tasks.pasar_al_historial_solicitudes_remesas",
+    )
+    click.echo("Pasar al historial las solicitudes y remesas atendidas.")
+
+
 cli.add_command(actualizar_expedientes_anios_nums)
+cli.add_command(pasar_al_historial)
