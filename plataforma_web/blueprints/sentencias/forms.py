@@ -3,7 +3,7 @@ Sentencias, formularios
 """
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import BooleanField, DateField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import BooleanField, DateField, IntegerField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
 
 from lib.safe_string import EXPEDIENTE_REGEXP, SENTENCIA_REGEXP
@@ -46,15 +46,9 @@ class SentenciaSearchForm(FlaskForm):
     distrito = StringField("Distrito")  # Read only
     autoridad = StringField("Autoridad")  # Read only
     sentencia = StringField("Sentencia", validators=[Optional(), Length(max=16), Regexp(SENTENCIA_REGEXP)])
-    # sentencia_fecha
     expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     fecha_desde = DateField("Fecha de publicación desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha de publicación hasta", validators=[Optional()])
-    # materia
-    # materia_tipo_juicio
-    # descripcion
-    # es_perspectiva_genero
-    # tipo_juicio
     buscar = SubmitField("Buscar")
 
 
@@ -64,13 +58,16 @@ class SentenciaSearchAdminForm(FlaskForm):
     distrito = SelectField("Distrito", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     autoridad = SelectField("Autoridad", choices=None, validate_choice=False)  # Las opciones se agregan con JS
     sentencia = StringField("Sentencia", validators=[Optional(), Length(max=16), Regexp(SENTENCIA_REGEXP)])
-    # sentencia_fecha
     expediente = StringField("Expediente", validators=[Optional(), Length(max=16), Regexp(EXPEDIENTE_REGEXP)])
     fecha_desde = DateField("Fecha de publicación desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha de publicación hasta", validators=[Optional()])
-    # materia
-    # materia_tipo_juicio
-    # descripcion
-    # es_perspectiva_genero
-    # tipo_juicio
     buscar = SubmitField("Buscar")
+
+
+class SentenciaReportForm(FlaskForm):
+    """Formulario para elaborar reporte de listas de acuerdos"""
+
+    autoridad_id = IntegerField("Autoridad ID", validators=[DataRequired()])
+    fecha_desde = DateField("Desde", validators=[DataRequired()])
+    fecha_hasta = DateField("Hasta", validators=[DataRequired()])
+    elaborar = SubmitField("Elaborar")

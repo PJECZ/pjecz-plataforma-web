@@ -44,7 +44,7 @@
         </table>
     {% endcall %}
     {% if form %}
-        {% call list.card(title='Reporte de listas de acuerdos') %}
+        {% call list.card(title='Reporte de Listas de Acuerdos') %}
             {% call f.form_tag('listas_de_acuerdos.report', fid='listas_de_acuerdos_report_form') %}
                 {% call f.form_group(form.autoridad_id, type='hidden', value=autoridad.id) %}{% endcall %}
                 {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
