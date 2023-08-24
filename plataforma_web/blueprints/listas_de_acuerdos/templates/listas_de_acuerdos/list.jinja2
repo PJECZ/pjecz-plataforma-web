@@ -30,6 +30,7 @@
                     <th>Fecha</th>
                     <th>Descripción</th>
                     <th>Descargar</th>
+                    <th>Creado</th>
                 </tr>
             </thead>
         </table>
@@ -56,28 +57,30 @@
             columns: [
                 { data: "fecha" },
                 { data: "detalle" },
-                { data: "archivo" }
+                { data: "archivo" },
+                { data: "creado" }
             ],
+            ordering: false,
             columnDefs: [
                 {
-                    targets: 0,
-                    type: "date",
-                    render: function (data, type, row) {
-                        return moment(data).format("DD MMM YYYY");
-                    }
-                },
-                {
-                    targets: 1,
+                    targets: 1, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.descripcion + '</a>';
                     }
                 },
                 {
-                    targets: 2,
+                    targets: 2, // archivo
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
+                    }
+                },
+                {
+                    targets: 3, // creado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.tiempo;
                     }
                 }
             ],
