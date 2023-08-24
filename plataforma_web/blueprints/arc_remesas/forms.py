@@ -13,8 +13,8 @@ from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDoc
 class ArcRemesaNewForm(FlaskForm):
     """Formulario nueva Remesa"""
 
-    num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
-    anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1900, date.today().year)])
+    num_oficio = StringField("Núm. Oficio: (núm/año)", validators=[DataRequired(), Length(max=16)])
+    anio = IntegerField("Años: (Años de inicio - Año final)", validators=[DataRequired(), NumberRange(1900, date.today().year)])
     tipo_documentos = SelectField("Tipo de Documentos", coerce=int, validate_choice=False, validators=[DataRequired()])
     crear = SubmitField("Crear")
 
@@ -27,8 +27,8 @@ class ArcRemesaEditForm(FlaskForm):
     juzgado_readonly = StringField("Instancia")
     tipo_documentos_readonly = StringField("Tipo de Documentos")
     # campos actualizables
-    anio = IntegerField("Año", validators=[DataRequired(), NumberRange(1900, date.today().year)])
-    num_oficio = StringField("Núm. Oficio", validators=[Optional(), Length(max=16)])
+    anio = IntegerField("Años: (Años de inicio - Año final)", validators=[DataRequired(), NumberRange(1900, date.today().year)])
+    num_oficio = StringField("Núm. Oficio: (núm/año)", validators=[DataRequired(), Length(max=16)])
     observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
 
