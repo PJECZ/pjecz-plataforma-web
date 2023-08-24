@@ -57,7 +57,7 @@ def datatable_json():
         consulta = consulta.filter(ArcRemesaDocumento.arc_remesa_id == request.form["remesa_id"])
 
     # Ordena los registros resultantes por fecha y número de expediente
-    registros = consulta.order_by(ArcDocumento.anio.desc()).order_by(ArcDocumento.expediente_numero.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente_numero).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -363,7 +363,7 @@ def print_list(remesa_id):
     # Extremos el listado de documentos anexos de la remesa
     documentos_anexos = ArcRemesaDocumento.query.filter_by(arc_remesa_id=remesa_id).filter_by(estatus="A")
     documentos_anexos = documentos_anexos.join(ArcDocumento)
-    documentos_anexos = documentos_anexos.order_by(ArcDocumento.anio.desc()).order_by(ArcDocumento.expediente_numero.desc()).all()
+    documentos_anexos = documentos_anexos.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente_numero).all()
 
     # Resultado final de éxito
     return render_template("arc_remesas_documentos/print_list.jinja2", remesa=remesa, documentos_anexos=documentos_anexos)
