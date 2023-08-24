@@ -56,8 +56,10 @@
             columns: [
                 { data: "fecha" },
                 { data: "detalle" },
-                { data: "archivo" }
+                { data: "archivo" },
+                { data: "creado" }
             ],
+            ordering: false,
             columnDefs: [
                 {
                     targets: 1, // detalle
@@ -71,6 +73,13 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
+                    }
+                },
+                {
+                    targets: 3, // creado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.tiempo;
                     }
                 }
             ],

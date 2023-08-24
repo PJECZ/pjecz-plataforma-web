@@ -78,8 +78,21 @@
                 { data: "detalle" },
                 { data: "archivo" }
             ],
-            order: [[ 0, "desc" ]],
+            ordering: false,
             columnDefs: [
+                {
+                    targets: 0, // creado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        bandera = 'flag-checkered'; color = 'green';
+                        if (data.semaforo == 1) {
+                            bandera = 'flag-outline'; color = 'orange';
+                        } else if (data.semaforo > 1) {
+                            bandera = 'flag'; color = 'red';
+                        }
+                        return data.tiempo + ' <span style="color: ' + color +  ';" class="iconify" data-icon="mdi:' + bandera + '"></span>';
+                    }
+                },
                 {
                     targets: 3, // detalle
                     data: null,

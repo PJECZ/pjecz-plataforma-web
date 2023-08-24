@@ -35,6 +35,8 @@
                     <th>Fecha</th>
                     <th>Descripción</th>
                     <th>Enlace público</th>
+                    <th>Creado</th>
+                    <th>En tiempo</th>
                 </tr>
             </thead>
         </table>
@@ -74,7 +76,9 @@
             columns: [
                 { data: "fecha" },
                 { data: "detalle" },
-                { data: "archivo" }
+                { data: "archivo" },
+                { data: "creado" },
+                { data: "creado" }
             ],
             ordering: false,
             columnDefs: [
@@ -90,6 +94,27 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.descargar_url + '" target="_blank">' + data.descargar_url + '</a>';
+                    }
+                },
+                {
+                    targets: 3, // creado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.tiempo;
+                    }
+                },
+                {
+                    targets: 4, // creado "en tiempo"
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.semaforo < 1) {
+                            texto = 'Verde'; bandera = 'flag-checkered'; color = 'green';
+                        } else if (data.semaforo == 1) {
+                            texto = 'Amarillo'; bandera = 'flag-outline'; color = 'orange';
+                        } else if (data.semaforo > 1) {
+                            texto = 'Rojo'; bandera = 'flag'; color = 'red';
+                        }
+                        return texto + ' <span style="color: ' + color +  ';" class="iconify" data-icon="mdi:' + bandera + '"></span>';
                     }
                 }
             ],
