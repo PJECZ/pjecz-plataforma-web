@@ -3,6 +3,7 @@ Listas de Acuerdos, vistas
 """
 import datetime
 import json
+import pytz
 from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -279,12 +280,14 @@ def datatable_json_admin():
         consulta = consulta.filter(ListaDeAcuerdo.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
+    local_tz = pytz.timezone(HUSO_HORARIO)  # Zona horaria local
     # Elaborar datos para DataTable
     data = []
     for lista_de_acuerdo in registros:
+        creado_local = lista_de_acuerdo.creado.astimezone(local_tz)  # La columna creado esta en UTC, convertir a local
         data.append(
             {
-                "creado": lista_de_acuerdo.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "creado": creado_local.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": lista_de_acuerdo.autoridad.clave,
                 "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
                 "detalle": {
