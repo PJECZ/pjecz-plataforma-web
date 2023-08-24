@@ -244,34 +244,30 @@ def datatable_json():
     total = consulta.count()
     # Zona horaria local
     local_tz = pytz.timezone(HUSO_HORARIO)
+    # Medianoche en HH:MM:SS
+    medianoche = datetime.time.min
     # Elaborar datos para DataTable
     data = []
     for lista_de_acuerdo in registros:
         # La columna creado esta en UTC, convertir a local
         creado_local = lista_de_acuerdo.creado.astimezone(local_tz)
         # Determinar el tiempo bueno
-        tiempo_limite_bueno = datetime.datetime(
-            year=lista_de_acuerdo.fecha.year,
-            month=lista_de_acuerdo.fecha.month,
-            day=lista_de_acuerdo.fecha.day,
-            hour=HORAS_BUENO,
-            tzinfo=local_tz,
-        )
+        tiempo_limite_bueno = datetime.datetime.combine(
+            lista_de_acuerdo.fecha,
+            medianoche,
+        ) + datetime.timedelta(hours=HORAS_BUENO)
         # Determinar el fiempo critico
-        tiempo_limite_critico = datetime.datetime(
-            year=lista_de_acuerdo.fecha.year,
-            month=lista_de_acuerdo.fecha.month,
-            day=lista_de_acuerdo.fecha.day,
-            hour=HORAS_CRITICO,
-            tzinfo=local_tz,
-        )
+        tiempo_limite_critico = datetime.datetime.combine(
+            lista_de_acuerdo.fecha,
+            medianoche,
+        ) + datetime.timedelta(hours=HORAS_CRITICO)
         # Por defecto el semaforo es verde (0)
         semaforo = 0
         # Si creado_local es mayor a tiempo_limite_bueno, entonces el semaforo es amarillo (1)
-        if creado_local > tiempo_limite_bueno:
+        if creado_local > tiempo_limite_bueno.astimezone(local_tz):
             semaforo = 1
         # Si creado_local es mayor a tiempo_limite_critico, entonces el semaforo es rojo (2)
-        if creado_local > tiempo_limite_critico:
+        if creado_local > tiempo_limite_critico.astimezone(local_tz):
             semaforo = 2
         data.append(
             {
@@ -316,34 +312,30 @@ def datatable_json_admin():
     total = consulta.count()
     # Zona horaria local
     local_tz = pytz.timezone(HUSO_HORARIO)
+    # Medianoche en HH:MM:SS
+    medianoche = datetime.time.min
     # Elaborar datos para DataTable
     data = []
     for lista_de_acuerdo in registros:
         # La columna creado esta en UTC, convertir a local
         creado_local = lista_de_acuerdo.creado.astimezone(local_tz)
         # Determinar el tiempo bueno
-        tiempo_limite_bueno = datetime.datetime(
-            year=lista_de_acuerdo.fecha.year,
-            month=lista_de_acuerdo.fecha.month,
-            day=lista_de_acuerdo.fecha.day,
-            hour=HORAS_BUENO,
-            tzinfo=local_tz,
-        )
+        tiempo_limite_bueno = datetime.datetime.combine(
+            lista_de_acuerdo.fecha,
+            medianoche,
+        ) + datetime.timedelta(hours=HORAS_BUENO)
         # Determinar el fiempo critico
-        tiempo_limite_critico = datetime.datetime(
-            year=lista_de_acuerdo.fecha.year,
-            month=lista_de_acuerdo.fecha.month,
-            day=lista_de_acuerdo.fecha.day,
-            hour=HORAS_CRITICO,
-            tzinfo=local_tz,
-        )
+        tiempo_limite_critico = datetime.datetime.combine(
+            lista_de_acuerdo.fecha,
+            medianoche,
+        ) + datetime.timedelta(hours=HORAS_CRITICO)
         # Por defecto el semaforo es verde (0)
         semaforo = 0
         # Si creado_local es mayor a tiempo_limite_bueno, entonces el semaforo es amarillo (1)
-        if creado_local > tiempo_limite_bueno:
+        if creado_local > tiempo_limite_bueno.astimezone(local_tz):
             semaforo = 1
         # Si creado_local es mayor a tiempo_limite_critico, entonces el semaforo es rojo (2)
-        if creado_local > tiempo_limite_critico:
+        if creado_local > tiempo_limite_critico.astimezone(local_tz):
             semaforo = 2
         data.append(
             {
