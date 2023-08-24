@@ -17,6 +17,8 @@ class CIDFormato(db.Model, UniversalMixin):
     # Clave foránea
     procedimiento_id = db.Column(db.Integer, db.ForeignKey("cid_procedimientos.id"), index=True, nullable=False)
     procedimiento = db.relationship("CIDProcedimiento", back_populates="formatos")
+    cid_area_id = db.Column(db.Integer, db.ForeignKey("cid_areas.id"), index=True, nullable=False)
+    cid_area = db.relationship("CIDArea", back_populates="cid_formatos")
 
     # Columnas
     descripcion = db.Column(db.String(256), nullable=False)
