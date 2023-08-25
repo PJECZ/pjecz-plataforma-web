@@ -354,6 +354,7 @@ def new():
                 es_archivo_solicitante=form.es_archivo_solicitante.data,
                 es_cemasc=form.es_cemasc.data,
                 es_defensoria=form.es_defensoria.data,
+                es_extinto=False,
                 es_jurisdiccional=es_jurisdiccional,
                 es_notaria=es_notaria,
                 es_organo_especializado=form.es_organo_especializado.data,
@@ -406,6 +407,7 @@ def edit(autoridad_id):
             autoridad.es_archivo_solicitante = form.es_archivo_solicitante.data
             autoridad.es_cemasc = form.es_cemasc.data
             autoridad.es_defensoria = form.es_defensoria.data
+            autoridad.es_extinto = form.es_extinto.data
             autoridad.es_jurisdiccional = form.es_jurisdiccional.data
             autoridad.es_notaria = form.es_notaria.data
             autoridad.es_organo_especializado = form.es_organo_especializado.data
@@ -437,6 +439,7 @@ def edit(autoridad_id):
     form.es_archivo_solicitante.data = autoridad.es_archivo_solicitante
     form.es_cemasc.data = autoridad.es_cemasc
     form.es_defensoria.data = autoridad.es_defensoria
+    form.es_extinto.data = autoridad.es_extinto
     form.es_jurisdiccional.data = autoridad.es_jurisdiccional
     form.es_notaria.data = autoridad.es_notaria
     form.es_organo_especializado.data = autoridad.es_organo_especializado
@@ -454,7 +457,7 @@ def edit(autoridad_id):
 
 
 @autoridades.route("/autoridades/eliminar/<int:autoridad_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(autoridad_id):
     """Eliminar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -473,7 +476,7 @@ def delete(autoridad_id):
 
 
 @autoridades.route("/autoridades/recuperar/<int:autoridad_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(autoridad_id):
     """Recuperar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -508,19 +511,24 @@ def query_juzgados_json():
     """Proporcionar el JSON de autoridades para elegir Juzgados con un Select2"""
     consulta = Autoridad.query.filter(Autoridad.estatus == "A")
     if "es_archivo_solicitante" in request.form:
-        # Verificar si esta seleccionado es_jurisdiccional
-        consulta = consulta.filter_by(es_archivo_solicitante=True)
+        consulta = consulta.filter_by(es_archivo_solicitante=request.form["es_archivo_solicitante"] == "true")
+    if "es_extinto" in request.form:
+        consulta = consulta.filter_by(es_extinto=request.form["es_extinto"] == "true")
     if "es_jurisdiccional" in request.form:
-        # Verificar si esta seleccionado es_jurisdiccional
-        consulta = consulta.filter_by(es_jurisdiccional=True)
-        # Consultar si el organo jurisdiccional es el correcto
+        consulta = consulta.filter_by(es_jurisdiccional=request.form["es_jurisdiccional"] == "true")
+        # Solo Juzgados de Primera Instancia
         consulta = consulta.filter(Autoridad.organo_jurisdiccional.between("JUZGADO DE PRIMERA INSTANCIA", "JUZGADO DE PRIMERA INSTANCIA ORAL"))
     if "clave" in request.form:
         texto = safe_string(request.form["clave"]).upper()
         consulta = consulta.filter(Autoridad.clave.contains(texto))
     results = []
     for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
-        results.append({"id": autoridad.id, "text": autoridad.clave + "  : " + autoridad.descripcion_corta})
+        results.append(
+            {
+                "id": autoridad.id,
+                "text": autoridad.clave + "  : " + autoridad.descripcion_corta,
+            }
+        )
     return {"results": results, "pagination": {"more": False}}
 
 
@@ -532,5 +540,11 @@ def query_es_revisor_escrituras_json():
         consulta = consulta.filter(Autoridad.descripcion.contains(request.form["searchString"]))
     results = []
     for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
-        results.append({"id": autoridad.id, "text": autoridad.distrito.nombre_corto + "  :  " + autoridad.descripcion, "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion})
+        results.append(
+            {
+                "id": autoridad.id,
+                "text": autoridad.distrito.nombre_corto + "  :  " + autoridad.descripcion,
+                "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion,
+            }
+        )
     return {"results": results, "pagination": {"more": False}}

@@ -61,6 +61,7 @@ class Autoridad(db.Model, UniversalMixin):
     es_archivo_solicitante = db.Column(db.Boolean, nullable=False, default=False)
     es_cemasc = db.Column(db.Boolean, nullable=False, default=False)
     es_defensoria = db.Column(db.Boolean, nullable=False, default=False)
+    es_extinto = db.Column(db.Boolean, nullable=False, default=False)
     es_jurisdiccional = db.Column(db.Boolean, nullable=False, default=False)
     es_notaria = db.Column(db.Boolean, nullable=False, default=False)
     es_revisor_escrituras = db.Column(db.Boolean, nullable=False, default=False)
