@@ -6,6 +6,12 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('AUTORIDADES') %}
+            {{ topbar.button('Autoridades', url_for('autoridades.list_active'), 'mdi:gamepad') }}
+        {% endif %}
+        {% if current_user.can_view('CID AREAS') %}
+            {{ topbar.button('Areas', url_for('cid_areas.list_active'), 'mdi:account-key') }}
+        {% endif %}
         {% if current_user.can_edit('CID AREAS AUTORIDADES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_areas_autoridades.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_areas_autoridades.list_active')) }}{% endif %}

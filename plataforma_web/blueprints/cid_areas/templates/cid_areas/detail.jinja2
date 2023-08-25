@@ -21,12 +21,63 @@
         {{ detail.label_value_big('Clave', cid_area.clave) }}
         {{ detail.label_value('Nombre', cid_area.nombre) }}
     {% endcall %}
+    {# Autoridad con areas #}
+    {% if current_user.can_view('AUTORIDADES') %}
+        {% call detail.card('Autoridades') %}
+            <table id="autoridades_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Clave</th>
+                        <th>Descripción corta</th>
+                        <th>Órgano Jurisdiccional</th>
+                        <th>Materia</th>
+                        <th>Sede</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('CID AREAS') %}
+    {% if current_user.can_edit('AUTORIDADES') %}
         {% if cid_area.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_area.nombre + '?') }}{% endif %}
         {% if cid_area.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_area.nombre + '?') }}{% endif %}
     {% endif %}
-    {{ detail.moment_js(moment) }}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('AUTORIDADES') %}
+        <script>
+            // DataTable Autoridades
+            configDataTable['ajax']['url'] = '/autoridades/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'cid_area_id': {{ cid_area.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "descripcion_corta" },
+                { data: "organo_jurisdiccional" },
+                { data: "materia" },
+                { data: "sede" }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                },
+                {
+                    targets: 3, // materia
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.nombre;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                        }
+                    }
+                }
+            ];
+            $('#autoridades_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
 {% endblock %}

@@ -109,6 +109,23 @@
             </table>
         {% endcall %}
     {% endif %}
+    {# Areas de la autoridad #}
+    {% if current_user.can_view('CID AREAS AUTORIDADES') %}
+        {% call detail.card('Areas') %}
+            <table id="cid_areas_autoridades_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+            </table>
+            {% if current_user.can_insert('CID AREAS AUTORIDADES') %}
+                <a href="{{ url_for('cid_areas_autoridades.new_with_autoridad', autoridad_id=autoridad.id) }}" class="btn btn-primary">Agregar</a>
+            {% endif %}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -186,6 +203,46 @@
                 }
             ];
             $('#autoridades_funcionarios_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
+    {% if current_user.can_view('CID AREAS AUTORIDADES') %}
+        <script>
+            configDataTable['ajax']['url'] = '/cid_areas_autoridades/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'autoridad_id': {{ autoridad.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: 'cid_area' },
+                { data: 'descripcion' },
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // area
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.clave;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                    }
+                },
+                {
+                    targets: [2], // descripcion
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data;
+                    }
+                   
+                },
+            ];
+            $('#cid_areas_autoridades_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
     {{ detail.moment_js(moment) }}
