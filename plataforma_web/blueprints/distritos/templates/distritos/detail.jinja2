@@ -36,6 +36,7 @@
                         <th>Órgano Jurisdiccional</th>
                         <th>Materia</th>
                         <th>Sede</th>
+                        <th>Extinto</th>
                     </tr>
                 </thead>
             </table>
@@ -50,22 +51,6 @@
                         <th>Descripción corta</th>
                         <th>Edificio</th>
                         <th>Tipo</th>
-                    </tr>
-                </thead>
-            </table>
-        {% endcall %}
-    {% endif %}
-    {% if current_user.can_view('REPSVM AGRESORES') %}
-        {% call detail.card('REPSVM Agresores') %}
-            <table id="repsvm_agresores_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Consecutivo</th>
-                        <th>Número de causa</th>
-                        <th>Pena impuesta</th>
-                        <th>V.P. Sentencia</th>
-                        <th>Es público</th>
                     </tr>
                 </thead>
             </table>
@@ -89,7 +74,8 @@
                 { data: "descripcion_corta" },
                 { data: "organo_jurisdiccional" },
                 { data: "materia" },
-                { data: "sede" }
+                { data: "sede" },
+                { data: "es_extinto" }
             ];
             configDataTable['columnDefs'] = [
                 {
@@ -111,6 +97,11 @@
                     }
                 }
             ];
+            configDataTable['rowCallback'] = function (row, data) {
+                if (data.es_extinto == 'EXTINTO') {
+                    $(row).css("background-color", "#c0c0c0");
+                }
+            };
             $('#autoridades_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
@@ -158,114 +149,6 @@
                 }
             ];
             $('#oficinas_datatable').DataTable(configDataTable);
-
-        </script>
-    {% endif %}
-    {% if current_user.can_view('REPSVM AGRESORES') %}
-        <script>
-            // DataTable REPSVM Agresores
-            configDataTable['ajax']['url'] = '/repsvm_agresores/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'distrito_id': {{ distrito.id}} };
-            configDataTable['columns'] = [
-                { data: "detalle" },
-                { data: "change_consecutivo" },
-                { data: "numero_causa" },
-                { data: "pena_impuesta" },
-                { data: "sentencia_url" },
-                { data: "toggle_es_publico" },
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.nombre.length > 24) {
-                            texto = '<span title="' + data.nombre + '">' + data.nombre.substr(0, 24) + '…' + '</span>';
-                        } else {
-                            texto = data.nombre;
-                        }
-                        return '<a href="' + data.url + '">' + texto + '</a>';
-                    }
-                },
-                {
-                    targets: 1, // Consecutivo va a cambiar cuando se presiona el boton es_publico
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        myId = 'consecutivo' + data.id;
-                        return '<span id="' + myId + '">' + data.consecutivo + '</span>';
-                    }
-                },
-                {
-                    targets: [2, 3], // Numero de Causa y Pena
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.length > 24) {
-                            return '<span title="' + data + '">' + data.substr(0, 48) + '…' + '</span>';
-                        }
-                        return data;
-                    }
-                },
-                {
-                    targets: 4, // Sentencia URL
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data != '') {
-                            return '<a href="' + data + '" target="_blank"><span class="iconify fs-4" data-icon="mdi:file-download"></span></a>';
-                        }
-                        return '';
-                    }
-                },
-                {
-                    targets: 5, // Boton es_publico
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        myId = 'esPublico' + data.id;
-                        myOnClick = "toggleEsPublico('#" + myId + "', '" + data.url + "')";
-                        if (data.es_publico) {
-                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:eye"></span></button>';
-                        } else {
-                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:eye-off"></span></button>';
-                        }
-                    }
-                },
-            ];
-            $('#repsvm_agresores_datatable').DataTable(configDataTable);
-            // Preparar headers para POST
-            const myHeaders = new Headers();
-            myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
-            const myInit = {
-                method: 'POST',
-                headers: myHeaders,
-                mode: 'cors',
-                cache: 'default'
-            };
-            // Boton es_publico
-            function toggleEsPublico(id, url) {
-                $(id).prop("disabled", true); // Deshabilitar boton para evitar multiples clicks
-                fetch(url, myInit)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            if (data.es_publico) {
-                                $(id).removeClass('btn-light');
-                                $(id).addClass('btn-outline-primary'); // Color azul
-                                $(id).html('<span class="iconify" data-icon="mdi:eye"></span>'); // Icono ojo
-                            } else {
-                                $(id).removeClass('btn-outline-primary');
-                                $(id).addClass('btn-light'); // Color gris
-                                $(id).html('<span class="iconify" data-icon="mdi:eye-off"></span>'); // Icono ojo tacahado
-                            }
-                            $("#consecutivo" + data.id).html(data.consecutivo); // Actualizar consecutivo
-                            console.log(data.message);
-                        } else {
-                            console.log(data.message);
-                        }
-                        $(id).prop("disabled", false); // Habilitar boton
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    });
-            }
         </script>
     {% endif %}
     {{ detail.moment_js(moment) }}
