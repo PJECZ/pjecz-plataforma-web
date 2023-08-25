@@ -72,6 +72,8 @@ def datatable_json():
             consulta = consulta.filter_by(es_cemasc=True)
         elif request.form["caracteristicas"] == "DEFENSORIA":
             consulta = consulta.filter_by(es_defensoria=True)
+        elif request.form["caracteristicas"] == "EXTINTO":
+            consulta = consulta.filter_by(es_extinto=True)
         elif request.form["caracteristicas"] == "JURISDICCIONAL":
             consulta = consulta.filter_by(es_jurisdiccional=True)
         elif request.form["caracteristicas"] == "NOTARIA":
@@ -102,6 +104,7 @@ def datatable_json():
                     "url": url_for("materias.detail", materia_id=resultado.materia_id) if current_user.can_view("MATERIAS") else "",
                 },
                 "sede": resultado.sede,
+                "es_extinto": "EXTINTO" if resultado.es_extinto else "",
             }
         )
     # Entregar JSON

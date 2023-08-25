@@ -27,6 +27,7 @@
                         <th>Órgano Jurisdiccional</th>
                         <th>Distrito</th>
                         <th>Sede</th>
+                        <th>Extinto</th>
                     </tr>
                 </thead>
             </table>
@@ -60,7 +61,8 @@
                 { data: "descripcion_corta" },
                 { data: "organo_jurisdiccional" },
                 { data: "distrito" },
-                { data: "sede" }
+                { data: "sede" },
+                { data: "es_extinto" }
             ];
             configDataTable['columnDefs'] = [
                 {
@@ -81,6 +83,11 @@
                     }
                 }
             ];
+            configDataTable['rowCallback'] = function (row, data) {
+                if (data.es_extinto == 'EXTINTO') {
+                    $(row).css("background-color", "#c0c0c0");
+                }
+            };
             $('#autoridades_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
