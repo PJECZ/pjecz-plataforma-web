@@ -4,10 +4,9 @@ Autoridades, vistas
 import json
 from datetime import date, datetime, timedelta
 
-import pytz
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import or_
+import pytz
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_clave, safe_string, safe_message
@@ -117,7 +116,7 @@ def list_active():
         filtros=json.dumps({"estatus": "A"}),
         titulo="Autoridades",
         estatus="A",
-        distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").all(),
+        distritos=Distrito.query.filter_by(estatus="A").order_by(Distrito.clave).all(),
     )
 
 
@@ -130,6 +129,7 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="Autoridades inactivos",
         estatus="B",
+        distritos=Distrito.query.filter_by(estatus="A").order_by(Distrito.clave).all(),
     )
 
 
@@ -433,6 +433,7 @@ def edit(autoridad_id):
     form.descripcion.data = autoridad.descripcion
     form.descripcion_corta.data = autoridad.descripcion_corta
     form.clave.data = autoridad.clave
+    form.sede.data = autoridad.sede
     form.es_archivo_solicitante.data = autoridad.es_archivo_solicitante
     form.es_cemasc.data = autoridad.es_cemasc
     form.es_defensoria.data = autoridad.es_defensoria
