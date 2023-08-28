@@ -10,6 +10,8 @@
         {{ topbar.button_previous('Autoridades', url_for('autoridades.list_active')) }}
         {% if current_user.can_edit('AUTORIDADES') %}
             {{ topbar.button_edit('Editar', url_for('autoridades.edit', autoridad_id=autoridad.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('AUTORIDADES') %}
             {% if autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('autoridades.delete', autoridad_id=autoridad.id)) }}{% endif %}
             {% if autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('autoridades.recover', autoridad_id=autoridad.id)) }}{% endif %}
         {% endif %}
@@ -66,6 +68,7 @@
         {{ detail.label_value_boolean('Es Archivo Solicitante', autoridad.es_archivo_solicitante) }}
         {{ detail.label_value_boolean('Es CEMASC', autoridad.es_cemasc) }}
         {{ detail.label_value_boolean('Es Defensoría', autoridad.es_defensoria) }}
+        {{ detail.label_value_boolean('Es Extinto', autoridad.es_extinto) }}
         {{ detail.label_value_boolean('Es Jurisdiccional', autoridad.es_jurisdiccional) }}
         {{ detail.label_value_boolean('Es Notaría', autoridad.es_notaria) }}
         {{ detail.label_value_boolean('Es Órgano Especializado', autoridad.es_organo_especializado) }}

@@ -79,6 +79,9 @@ def datatable_json():
         distrito_id = int(request.form["distrito_id"])
         consulta = consulta.join(Autoridad)
         consulta = consulta.filter(Autoridad.distrito_id == distrito_id)
+    if "sede" in request.form:
+        consulta = consulta.join(Autoridad)
+        consulta = consulta.filter(Autoridad.sede == request.form["sede"])
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente_numero).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -131,7 +134,7 @@ def list_active():
     if ROL_JEFE_REMESA in current_user_roles or ROL_ARCHIVISTA in current_user_roles or ROL_LEVANTAMENTISTA in current_user_roles:
         return render_template(
             "arc_documentos/list_admin.jinja2",
-            filtros=json.dumps({"estatus": "A", "distrito_id": current_user.autoridad.distrito_id}),
+            filtros=json.dumps({"estatus": "A", "sede": current_user.autoridad.sede}),
             titulo="Expedientes",
             estatus="A",
             ubicaciones=ArcDocumento.UBICACIONES,

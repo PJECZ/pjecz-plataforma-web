@@ -358,6 +358,7 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.aprobo_puesto = safe_string(form.aprobo_puesto.data)
         cid_procedimiento.aprobo_email = safe_email(aprobo_email)
         cid_procedimiento.control_cambios = control_cambios
+        cid_procedimiento.cid_area_id=1
         cid_procedimiento.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -675,6 +676,7 @@ def accept_reject(cid_procedimiento_id):
                 firma="",
                 archivo="",
                 url="",
+                cid_area_id=1,
             ).save()
             # Actualizar el anterior
             if original.seguimiento == "ELABORADO":
@@ -695,6 +697,7 @@ def accept_reject(cid_procedimiento_id):
                         descripcion=cid_formato.descripcion,
                         archivo=cid_formato.archivo,
                         url=cid_formato.url,
+                        cid_area_id=1,
                     ).save()
             # Bitacora
             bitacora = Bitacora(

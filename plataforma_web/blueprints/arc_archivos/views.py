@@ -69,8 +69,8 @@ def list_active():
     if ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         return render_template(
             "arc_archivos/list_jefe_remesa.jinja2",
-            filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "distrito_id": current_user.autoridad.distrito_id}),
-            filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "omitir_pendientes": True, "distrito_id": current_user.autoridad.distrito_id}),
+            filtros_solicitudes=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "sede": current_user.autoridad.sede}),
+            filtros_remesas=json.dumps({"estatus": "A", "omitir_archivados": True, "omitir_cancelados": True, "omitir_pendientes": True, "sede": current_user.autoridad.sede}),
             estatus="A",
             titulo="Archivo - Bandeja de Entrada 📥",
             estados_solicitudes=ArcSolicitud.ESTADOS,
@@ -186,6 +186,17 @@ def list_all(historial):
 
     # Extraemos los distritos
     distritos = Distrito.query.filter_by(estatus="A").filter_by(es_distrito=True).all()
+    sedes = [
+        {"id": "ND", "nombre": "NO DEFINIDO"},
+        {"id": "DACN", "nombre": "ACUÑA"},
+        {"id": "DMNC", "nombre": "MONCLOVA"},
+        {"id": "DPRR", "nombre": "PARRAS"},
+        {"id": "DRGR", "nombre": "REGION CARBONIFERA"},
+        {"id": "DSBN", "nombre": "SABINAS"},
+        {"id": "DSLT", "nombre": "SALTILLO"},
+        {"id": "DSPD", "nombre": "SAN PEDRO"},
+        {"id": "DTRC", "nombre": "TORREÓN"},
+    ]
 
     if historial == 1:
         return render_template(
@@ -198,7 +209,7 @@ def list_all(historial):
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
             mostrar_btn_local_global="GLOBAL",
-            distritos=distritos,
+            sedes=sedes,
         )
 
     return render_template(
@@ -211,5 +222,5 @@ def list_all(historial):
         estados_remesas=ArcRemesa.ESTADOS,
         rol_archivista=ROL_ARCHIVISTA,
         mostrar_btn_local_global="GLOBAL",
-        distritos=distritos,
+        sedes=sedes,
     )

@@ -3,6 +3,7 @@ Sentencias, vistas
 """
 import datetime
 import json
+import pytz
 from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -29,6 +30,7 @@ from plataforma_web.blueprints.sentencias.models import Sentencia
 
 sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
+HUSO_HORARIO = "America/Mexico_City"
 MODULO = "SENTENCIAS"
 LIMITE_DIAS = 10950  # 30 años
 LIMITE_ADMINISTRADORES_DIAS = 10950  # 30 años
@@ -272,7 +274,7 @@ def datatable_json():
     for sentencia in registros:
         data.append(
             {
-                "fecha": sentencia.fecha.strftime("%Y-%m-%d 00:00:00"),
+                "fecha": sentencia.fecha.strftime("%Y-%m-%d"),
                 "detalle": {
                     "sentencia": sentencia.sentencia,
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
@@ -324,14 +326,16 @@ def datatable_json_admin():
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
+    local_tz = pytz.timezone(HUSO_HORARIO)  # Zona horaria local
     # Elaborar datos para DataTable
     data = []
     for sentencia in registros:
+        creado_local = sentencia.creado.astimezone(local_tz)  # La columna creado esta en UTC, convertir a local
         data.append(
             {
-                "creado": sentencia.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "creado": creado_local.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": sentencia.autoridad.clave,
-                "fecha": sentencia.fecha.strftime("%Y-%m-%d 00:00:00"),
+                "fecha": sentencia.fecha.strftime("%Y-%m-%d"),
                 "detalle": {
                     "sentencia": sentencia.sentencia,
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),

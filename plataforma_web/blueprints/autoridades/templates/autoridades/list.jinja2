@@ -49,6 +49,7 @@
                                 <option value="" selected></option>
                                 <option value="CEMASC">CEMASC</option>
                                 <option value="DEFENSORIA">Defensoría</option>
+                                <option value="EXTINTO">Extinto</option>
                                 <option value="JURISDICCIONAL">Jurisdiccional</option>
                                 <option value="NOTARIA">Notaría</option>
                                 <option value="ORGANO_ESPECIALIZADO">Órgano Especializado</option>
@@ -74,6 +75,7 @@
                     <th>Distrito</th>
                     <th>Materia</th>
                     <th>Sede</th>
+                    <th>Extinto</th>
                 </tr>
             </thead>
         </table>
@@ -97,7 +99,8 @@
             { data: "organo_jurisdiccional" },
             { data: "distrito" },
             { data: "materia" },
-            { data: "sede" }
+            { data: "sede" },
+            { data: "es_extinto" }
         ];
         configDataTable['columnDefs'] = [
             {
@@ -122,6 +125,11 @@
                 }
             }
         ];
+        configDataTable['rowCallback'] = function (row, data) {
+            if (data.es_extinto == 'EXTINTO') {
+                $(row).css("background-color", "#c0c0c0");
+            }
+        };
         // Declaración de los Filtros utilizados
         // Creación del Objeto manejador de Filtros
         const filtros_autoridades = new Filtros('#autoridades_datatable', configDataTable);

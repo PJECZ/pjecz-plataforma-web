@@ -3,6 +3,7 @@ Listas de Acuerdos, vistas
 """
 import datetime
 import json
+import pytz
 from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -35,6 +36,8 @@ MODULO = "LISTAS DE ACUERDOS"
 LIMITE_DIAS = 30  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
 LIMITE_ADMINISTRADORES_DIAS = 730  # Administradores pueden manipular dos anios
 ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("JUZGADO DE PRIMERA INSTANCIA ORAL", "PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
+HORAS_BUENO = 14
+HORAS_CRITICO = 16
 
 
 @listas_de_acuerdos.before_request
@@ -239,12 +242,40 @@ def datatable_json():
         consulta = consulta.filter(ListaDeAcuerdo.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
+    # Zona horaria local
+    local_tz = pytz.timezone(HUSO_HORARIO)
+    # Medianoche en HH:MM:SS
+    medianoche = datetime.time.min
     # Elaborar datos para DataTable
     data = []
     for lista_de_acuerdo in registros:
+        # La columna creado esta en UTC, convertir a local
+        creado_local = lista_de_acuerdo.creado.astimezone(local_tz)
+        # Determinar el tiempo bueno
+        tiempo_limite_bueno = datetime.datetime.combine(
+            lista_de_acuerdo.fecha,
+            medianoche,
+        ) + datetime.timedelta(hours=HORAS_BUENO)
+        # Determinar el fiempo critico
+        tiempo_limite_critico = datetime.datetime.combine(
+            lista_de_acuerdo.fecha,
+            medianoche,
+        ) + datetime.timedelta(hours=HORAS_CRITICO)
+        # Por defecto el semaforo es verde (0)
+        semaforo = 0
+        # Si creado_local es mayor a tiempo_limite_bueno, entonces el semaforo es amarillo (1)
+        if creado_local > local_tz.localize(tiempo_limite_bueno):
+            semaforo = 1
+        # Si creado_local es mayor a tiempo_limite_critico, entonces el semaforo es rojo (2)
+        if creado_local > local_tz.localize(tiempo_limite_critico):
+            semaforo = 2
         data.append(
             {
-                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d 00:00:00"),
+                "creado": {
+                    "tiempo": creado_local.strftime("%Y-%m-%d %H:%M"),
+                    "semaforo": semaforo,
+                },
+                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
                 "detalle": {
                     "descripcion": lista_de_acuerdo.descripcion,
                     "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
@@ -279,14 +310,41 @@ def datatable_json_admin():
         consulta = consulta.filter(ListaDeAcuerdo.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
+    # Zona horaria local
+    local_tz = pytz.timezone(HUSO_HORARIO)
+    # Medianoche en HH:MM:SS
+    medianoche = datetime.time.min
     # Elaborar datos para DataTable
     data = []
     for lista_de_acuerdo in registros:
+        # La columna creado esta en UTC, convertir a local
+        creado_local = lista_de_acuerdo.creado.astimezone(local_tz)
+        # Determinar el tiempo bueno
+        tiempo_limite_bueno = datetime.datetime.combine(
+            lista_de_acuerdo.fecha,
+            medianoche,
+        ) + datetime.timedelta(hours=HORAS_BUENO)
+        # Determinar el fiempo critico
+        tiempo_limite_critico = datetime.datetime.combine(
+            lista_de_acuerdo.fecha,
+            medianoche,
+        ) + datetime.timedelta(hours=HORAS_CRITICO)
+        # Por defecto el semaforo es verde (0)
+        semaforo = 0
+        # Si creado_local es mayor a tiempo_limite_bueno, entonces el semaforo es amarillo (1)
+        if creado_local > local_tz.localize(tiempo_limite_bueno):
+            semaforo = 1
+        # Si creado_local es mayor a tiempo_limite_critico, entonces el semaforo es rojo (2)
+        if creado_local > local_tz.localize(tiempo_limite_critico):
+            semaforo = 2
         data.append(
             {
-                "creado": lista_de_acuerdo.creado.strftime("%Y-%m-%d %H:%M:%S"),
+                "creado": {
+                    "tiempo": creado_local.strftime("%Y-%m-%d %H:%M"),
+                    "semaforo": semaforo,
+                },
                 "autoridad": lista_de_acuerdo.autoridad.clave,
-                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d 00:00:00"),
+                "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
                 "detalle": {
                     "descripcion": lista_de_acuerdo.descripcion,
                     "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
