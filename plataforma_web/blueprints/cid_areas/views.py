@@ -13,6 +13,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.cid_areas.models import CIDArea
+from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
 from plataforma_web.blueprints.cid_areas.forms import CIDAreaForm
 
 MODULO = "CID AREAS"
@@ -38,8 +39,6 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "autoridad_id" in request.form:
-        consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
     registros = consulta.order_by(CIDArea.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -84,8 +83,11 @@ def list_inactive():
 @cid_areas.route("/cid_areas/<int:cid_area_id>")
 def detail(cid_area_id):
     """Detalle de un Area"""
-    cid_area = CIDArea.query.get_or_404(cid_area_id)
-    return render_template("cid_areas/detail.jinja2", cid_area=cid_area)
+    cid_area_autoridad = CIDAreaAutoridad.query.join(CIDArea).filter(CIDArea.id==cid_area_id).first()
+    if not cid_area_autoridad:
+        cid_area= CIDArea.query.get_or_404(cid_area_id)
+        return render_template("cid_areas/detail_not_autoridad.jinja2", cid_area=cid_area)
+    return render_template("cid_areas/detail.jinja2", cid_area_autoridad=cid_area_autoridad, filtros=json.dumps({"estatus":"A", "area_id":cid_area_autoridad.cid_area.id}))
 
 
 @cid_areas.route("/cid_areas/nuevo", methods=["GET", "POST"])

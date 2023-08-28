@@ -42,6 +42,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
+    if "area_id" in request.form:
+        consulta = consulta.filter_by(cid_area_id=request.form["area_id"])
     registros = consulta.order_by(CIDAreaAutoridad.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -54,11 +56,11 @@ def datatable_json():
                     "url": url_for("cid_areas_autoridades.detail", cid_area_autoridad_id=resultado.id),
                 },
                 "cid_area": {
-                    "clave": resultado.cid_area.clave,
+                    "nombre": resultado.cid_area.nombre,
                     "url": url_for("cid_areas.detail", cid_area_id=resultado.cid_area_id) if current_user.can_view("CID AREAS") else "",
                 },
                 "autoridad": {
-                    "clave": resultado.autoridad.clave,
+                    "descripcion_corta": resultado.autoridad.descripcion_corta,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
                 },
                 "descripcion": resultado.descripcion,

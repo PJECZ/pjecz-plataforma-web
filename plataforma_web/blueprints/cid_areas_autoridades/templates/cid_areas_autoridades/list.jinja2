@@ -56,9 +56,9 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
-                        return data.clave;
+                        return data.nombre;
                     } else {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                 }
             },
@@ -67,9 +67,9 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
-                        return data.clave;
+                        return data.descripcion_corta;
                     } else {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        return '<a href="' + data.url + '">' + data.descripcion_corta + '</a>';
                     }
                 }
             }

@@ -114,7 +114,7 @@
     {% endif %}
     {# Areas de la autoridad #}
     {% if current_user.can_view('CID AREAS AUTORIDADES') %}
-        {% call detail.card('Areas') %}
+        {% call detail.card('Areas-Autoridades') %}
             <table id="cid_areas_autoridades_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -230,9 +230,9 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url == '') {
-                            return data.clave;
+                            return data.nombre;
                         } else {
-                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
                         }
                     }
                 },

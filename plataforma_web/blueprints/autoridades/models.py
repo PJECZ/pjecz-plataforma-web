@@ -53,6 +53,8 @@ class Autoridad(db.Model, UniversalMixin):
     distrito = db.relationship("Distrito", back_populates="autoridades")
     materia_id = db.Column(db.Integer, db.ForeignKey("materias.id"), index=True, nullable=False)
     materia = db.relationship("Materia", back_populates="autoridades")
+    # cid_area_id = db.Column(db.Integer, db.ForeignKey("cid_area.id"), index=True, nullable=False)
+    # cid_area = db.relationship("CIDArea", back_populates="autoridades")
 
     # Columnas
     clave = db.Column(db.String(16), nullable=False, unique=True)

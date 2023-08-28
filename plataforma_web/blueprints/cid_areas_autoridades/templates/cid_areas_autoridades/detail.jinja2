@@ -20,8 +20,8 @@
     {% call detail.card(estatus=cid_area_autoridad.estatus) %}        
         {{ detail.label_value_big('ID', cid_area_autoridad.id) }}
         {{ detail.label_value('Descripción', cid_area_autoridad.descripcion) }}
-        {{ detail.label_value('Area', cid_area_autoridad.cid_area.clave, url_for('cid_areas.detail', cid_area_id=cid_area_autoridad.cid_area_id)) }}
-        {{ detail.label_value('Autoridad', cid_area_autoridad.autoridad.clave, url_for('autoridades.detail', autoridad_id=cid_area_autoridad.autoridad_id)) }}
+        {{ detail.label_value('Area', cid_area_autoridad.cid_area.nombre, url_for('cid_areas.detail', cid_area_id=cid_area_autoridad.cid_area_id)) }}
+        {{ detail.label_value('Autoridad', cid_area_autoridad.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=cid_area_autoridad.autoridad_id)) }}
     {% endcall %}
 {% endblock %}
 
