@@ -33,7 +33,7 @@ listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="
 
 HUSO_HORARIO = "America/Mexico_City"
 MODULO = "LISTAS DE ACUERDOS"
-LIMITE_DIAS = 30  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
+LIMITE_DIAS = 365  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
 LIMITE_ADMINISTRADORES_DIAS = 730  # Administradores pueden manipular dos anios
 ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("JUZGADO DE PRIMERA INSTANCIA ORAL", "PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
 HORAS_BUENO = 14
@@ -308,7 +308,7 @@ def datatable_json_admin():
         consulta = consulta.filter(ListaDeAcuerdo.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(ListaDeAcuerdo.fecha <= request.form["fecha_hasta"])
-    registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(ListaDeAcuerdo.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Zona horaria local
     local_tz = pytz.timezone(HUSO_HORARIO)
@@ -331,24 +331,27 @@ def datatable_json_admin():
         ) + datetime.timedelta(hours=HORAS_CRITICO)
         # Por defecto el semaforo es verde (0)
         semaforo = 0
-        # Si creado_local es mayor a tiempo_limite_bueno, entonces el semaforo es amarillo (1)
-        if creado_local > local_tz.localize(tiempo_limite_bueno):
-            semaforo = 1
-        # Si creado_local es mayor a tiempo_limite_critico, entonces el semaforo es rojo (2)
-        if creado_local > local_tz.localize(tiempo_limite_critico):
-            semaforo = 2
+        # Si la autoridad tiene limite_dias_listas_de_acuerdos igual a cero
+        if lista_de_acuerdo.autoridad.limite_dias_listas_de_acuerdos == 0:
+            # Si creado_local es mayor a tiempo_limite_bueno, entonces el semaforo es amarillo (1)
+            if creado_local > local_tz.localize(tiempo_limite_bueno):
+                semaforo = 1
+            # Si creado_local es mayor a tiempo_limite_critico, entonces el semaforo es rojo (2)
+            if creado_local > local_tz.localize(tiempo_limite_critico):
+                semaforo = 2
         data.append(
             {
+                "detalle": {
+                    "id": lista_de_acuerdo.id,
+                    "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
+                },
                 "creado": {
                     "tiempo": creado_local.strftime("%Y-%m-%d %H:%M"),
                     "semaforo": semaforo,
                 },
                 "autoridad": lista_de_acuerdo.autoridad.clave,
                 "fecha": lista_de_acuerdo.fecha.strftime("%Y-%m-%d"),
-                "detalle": {
-                    "descripcion": lista_de_acuerdo.descripcion,
-                    "url": url_for("listas_de_acuerdos.detail", lista_de_acuerdo_id=lista_de_acuerdo.id),
-                },
+                "descripcion": lista_de_acuerdo.descripcion,
                 "archivo": {
                     "descargar_url": url_for("listas_de_acuerdos.download", url=quote(lista_de_acuerdo.url)),
                 },
