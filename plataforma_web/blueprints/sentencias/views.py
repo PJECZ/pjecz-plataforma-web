@@ -324,7 +324,7 @@ def datatable_json_admin():
         consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
-    registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(Sentencia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     local_tz = pytz.timezone(HUSO_HORARIO)  # Zona horaria local
     # Elaborar datos para DataTable
@@ -335,7 +335,7 @@ def datatable_json_admin():
             {
                 "detalle": {
                     "id": sentencia.id,
-                    "url": url_for("listas_de_acuerdos.detail", sentencia_id=sentencia.id),
+                    "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
                 },
                 "creado": creado_local.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": sentencia.autoridad.clave,
