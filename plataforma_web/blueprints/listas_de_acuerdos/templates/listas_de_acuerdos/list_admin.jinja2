@@ -34,6 +34,7 @@
         <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Creado</th>
                     <th>Autoridad</th>
                     <th>Fecha</th>
@@ -72,16 +73,24 @@
                 data: {{ filtros }}
             },
             columns: [
+                { data: "detalle" },
                 { data: "creado" },
                 { data: "autoridad" },
                 { data: "fecha" },
-                { data: "detalle" },
+                { data: "descripcion" },
                 { data: "archivo" }
             ],
             ordering: false,
             columnDefs: [
                 {
-                    targets: 0, // creado
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // creado
                     data: null,
                     render: function(data, type, row, meta) {
                         bandera = 'flag-checkered'; color = 'green';
@@ -94,14 +103,7 @@
                     }
                 },
                 {
-                    targets: 3, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                    }
-                },
-                {
-                    targets: 4, // archivo
+                    targets: 5, // archivo
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
