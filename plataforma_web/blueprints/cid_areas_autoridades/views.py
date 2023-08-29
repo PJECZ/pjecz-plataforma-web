@@ -8,13 +8,10 @@ from flask_login import current_user, login_required
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message
 
-from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.cid_areas_autoridades.forms import CIDAreaAutoridadWithAutoridadForm
 from plataforma_web.blueprints.autoridades.models import Autoridad
-from plataforma_web.blueprints.cid_areas.models import CIDArea
 from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
 
 MODULO = "CID AREAS AUTORIDADES"
@@ -42,8 +39,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "autoridad_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
-    if "area_id" in request.form:
-        consulta = consulta.filter_by(cid_area_id=request.form["area_id"])
+    if "cid_area_id" in request.form:
+        consulta = consulta.filter_by(cid_area_id=request.form["cid_area_id"])
     registros = consulta.order_by(CIDAreaAutoridad.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -98,6 +95,7 @@ def detail(cid_area_autoridad_id):
     """Detalle de un Area-Autoridad"""
     cid_area_autoridad = CIDAreaAutoridad.query.get_or_404(cid_area_autoridad_id)
     return render_template("cid_areas_autoridades/detail.jinja2", cid_area_autoridad=cid_area_autoridad)
+
 
 @cid_areas_autoridades.route("/cid_areas_autoridades/agregar_area_autoridad/<int:autoridad_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)

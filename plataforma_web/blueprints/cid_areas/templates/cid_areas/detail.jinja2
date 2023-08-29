@@ -6,25 +6,25 @@
 {% block title %}Area{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(cid_area_autoridad.clave) %}
+    {% call topbar.page_buttons(cid_area.nombre) %}
         {{ topbar.button_previous('Areas', url_for('cid_areas.list_active')) }}
         {% if current_user.can_edit('CID AREAS') %}
-            {{ topbar.button_edit('Editar', url_for('cid_areas.edit', cid_area_id=cid_area_autoridad.cid_area.id)) }}
-            {% if cid_area_autoridad.cid_area.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_areas.delete', cid_area_id=cid_area_autoridad.cid_area.id)) }}{% endif %}
-            {% if cid_area_autoridad.cid_area.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_areas.recover', cid_area_id=cid_area_autoridad.cid_area.id)) }}{% endif %}
-        {% endif %} 
+            {{ topbar.button_edit('Editar', url_for('cid_areas.edit', cid_area_id=cid_area.id)) }}
+            {% if cid_area.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_areas.delete', cid_area_id=cid_area.id)) }}{% endif %}
+            {% if cid_area.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_areas.recover', cid_area_id=cid_area.id)) }}{% endif %}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=cid_area_autoridad.estatus) %}
-        {{ detail.label_value_big('Clave', cid_area_autoridad.cid_area.clave) }}
-        {{ detail.label_value('Nombre', cid_area_autoridad.cid_area.nombre) }}
+    {% call detail.card(estatus=cid_area.estatus) %}
+        {{ detail.label_value_big('Clave', cid_area.clave) }}
+        {{ detail.label_value('Nombre', cid_area.nombre) }}
     {% endcall %}
-    {# Autoridades #}
+    {# Areas - Autoridades #}
     {% if current_user.can_view('CID AREAS AUTORIDADES') %}
-        {% call detail.card('Areas-Autoridades') %}
-            <table id="cid_areas_autoridades_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        {% call detail.card(title='Areas - Autoridades') %}
+            <table id="cid_areas_autoridades_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -38,14 +38,14 @@
 
 {% block custom_javascript %}
     {% if current_user.can_edit('CID AREAS') %}
-        {% if cid_area_autoridad.cid_area.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_area_autoridad.cid_area.nombre + '?') }}{% endif %}
-        {% if cid_area_autoridad.cid_area.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_area_autoridad.cid_area.nombre + '?') }}{% endif %}
+        {% if cid_area.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_area.nombre + '?') }}{% endif %}
+        {% if cid_area.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_area.nombre + '?') }}{% endif %}
     {% endif %}
-       {{ detail.config_datatable() }}
+    {{ detail.config_datatable() }}
     {% if current_user.can_view('CID AREAS AUTORIDADES') %}
         <script>
             configDataTable['ajax']['url'] = '/cid_areas_autoridades/datatable_json';
-            configDataTable['ajax']['data'] = {{ filtros }};
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'cid_area_id': {{ cid_area.id}} };
             configDataTable['columns'] = [
                 { data: 'detalle' },
                 { data: 'autoridad' }
@@ -73,4 +73,5 @@
             $('#cid_areas_autoridades_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}

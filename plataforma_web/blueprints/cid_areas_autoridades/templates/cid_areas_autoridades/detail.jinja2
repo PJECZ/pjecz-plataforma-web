@@ -9,7 +9,6 @@
     {% call topbar.page_buttons(cid_area_autoridad.descripcion) %}
         {{ topbar.button_previous('Areas-Autoridades', url_for('cid_areas_autoridades.list_active')) }}
         {% if current_user.can_edit('CID AREAS AUTORIDADES') %}
-            {# {{ topbar.button_edit('Editar', url_for('cid_areas_autoridades.edit', cid_area_autoridad_id=cid_area_autoridad.id)) }} #}
             {% if cid_area_autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_areas_autoridades.delete', cid_area_autoridad_id=cid_area_autoridad.id)) }}{% endif %}
             {% if cid_area_autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_areas_autoridades.recover', cid_area_autoridad_id=cid_area_autoridad.id)) }}{% endif %}
         {% endif %}
