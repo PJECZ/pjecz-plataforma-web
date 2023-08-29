@@ -65,7 +65,7 @@ class AutoridadEditForm(FlaskForm):
     directorio_glosas = StringField("Directorio para glosas", validators=[Optional(), Length(max=256)])
     directorio_listas_de_acuerdos = StringField("Directorio para listas de acuerdos", validators=[Optional(), Length(max=256)])
     directorio_sentencias = StringField("Directorio para sentencias", validators=[Optional(), Length(max=256)])
-    limite_dias_listas_de_acuerdos = IntegerField("Límite días para listas de acuerdos", validators=[NumberRange(0, 30)])
+    limite_dias_listas_de_acuerdos = IntegerField("Límite días para listas de acuerdos", validators=[NumberRange(0, 365)])
     datawarehouse_id = IntegerField("DataWareHouse ID", validators=[Optional()])
     sede = SelectField("Sede (clave distrito geográfico para A.J.)", choices=Autoridad.SEDES, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
