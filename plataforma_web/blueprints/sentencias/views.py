@@ -333,13 +333,14 @@ def datatable_json_admin():
         creado_local = sentencia.creado.astimezone(local_tz)  # La columna creado esta en UTC, convertir a local
         data.append(
             {
+                "detalle": {
+                    "id": sentencia.id,
+                    "url": url_for("listas_de_acuerdos.detail", sentencia_id=sentencia.id),
+                },
                 "creado": creado_local.strftime("%Y-%m-%d %H:%M:%S"),
                 "autoridad": sentencia.autoridad.clave,
                 "fecha": sentencia.fecha.strftime("%Y-%m-%d"),
-                "detalle": {
-                    "sentencia": sentencia.sentencia,
-                    "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
-                },
+                "sentencia": sentencia.sentencia,
                 "expediente": sentencia.expediente,
                 "materia_nombre": sentencia.materia_tipo_juicio.materia.nombre,
                 "materia_tipo_juicio_descripcion": sentencia.materia_tipo_juicio.descripcion,

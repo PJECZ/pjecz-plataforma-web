@@ -34,15 +34,16 @@
         <table id="sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Creados</th>
-                    <th>Autoridades</th>
-                    <th>Fechas</th>
-                    <th>Sentencias</th>
-                    <th>Expedientes</th>
-                    <th>Materias</th>
-                    <th>Tipos de Juicios</th>
+                    <th>ID</th>
+                    <th>Creado</th>
+                    <th>Autoridad</th>
+                    <th>Fecha</th>
+                    <th>Sentencia</th>
+                    <th>Expediente</th>
+                    <th>Materia</th>
+                    <th>Tipo de Juicio</th>
                     <th>P. Género</th>
-                    <th>Archivos</th>
+                    <th>Archivo</th>
                 </tr>
             </thead>
         </table>
@@ -76,10 +77,11 @@
                 data: {{ filtros }}
             },
             columns: [
+                { data: "detalle" },
                 { data: "creado" },
                 { data: "autoridad" },
                 { data: "fecha" },
-                { data: "detalle" },
+                { data: "sentencia" },
                 { data: "expediente" },
                 { data: "materia_nombre" },
                 { data: "materia_tipo_juicio_descripcion" },
@@ -89,21 +91,21 @@
             order: [[ 0, "desc" ]],
             columnDefs: [
                 {
-                    targets: 3, // detalle
+                    targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.sentencia + '</a>';
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
                     }
                 },
                 {
-                    targets: 6, // materia_tipo_juicio_descripcion
+                    targets: 7, // materia_tipo_juicio_descripcion
                     data: null,
                     render: function(data, type, row, meta) {
                         return data.length > 20 ? data.substr(0, 40) + '…' : data;
                     }
                 },
                 {
-                    targets: 8, // archivo
+                    targets: 9, // archivo
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
