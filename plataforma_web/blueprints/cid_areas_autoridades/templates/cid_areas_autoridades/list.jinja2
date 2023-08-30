@@ -2,7 +2,7 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Areas-Autoridades{% endblock %}
+{% block title %}SICGD Areas-Autoridades{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
@@ -25,8 +25,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Area</th>
-                    <th>Autoridad</th>
+                    <th>Descripción</th>
                 </tr>
             </thead>
         </table>
@@ -40,8 +39,7 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: 'detalle' },
-            { data: 'cid_area' },
-            { data: 'autoridad' }
+            { data: 'descripcion' }
         ];
         configDataTable['columnDefs'] = [
             {
@@ -49,28 +47,6 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.id + '</a>';
-                }
-            },
-            {
-                targets: 1, // cid_area
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.url == '') {
-                        return data.nombre;
-                    } else {
-                        return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                    }
-                }
-            },
-            {
-                targets: 2, // autoridad
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.url == '') {
-                        return data.clave;
-                    } else {
-                        return '<a href="' + data.url + '">' + data.clave + '</a>';
-                    }
                 }
             }
         ];

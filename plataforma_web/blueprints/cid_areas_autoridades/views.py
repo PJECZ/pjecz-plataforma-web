@@ -60,8 +60,9 @@ def datatable_json():
                     "clave": resultado.autoridad.clave,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
                 },
+                "autoridad_descripcion_corta": resultado.autoridad.descripcion_corta,
+                "distrito_nombre_corto": resultado.autoridad.distrito.nombre_corto,
                 "descripcion": resultado.descripcion,
-                "descripcion_corta": resultado.autoridad.descripcion_corta,
             }
         )
     # Entregar JSON
@@ -74,7 +75,7 @@ def list_active():
     return render_template(
         "cid_areas_autoridades/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Areas-Autoridades",
+        titulo="SICGD Areas-Autoridades",
         estatus="A",
     )
 
@@ -86,7 +87,7 @@ def list_inactive():
     return render_template(
         "cid_areas_autoridades/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="Areas-Autoridades inactivos",
+        titulo="SICGD Areas-Autoridades inactivas",
         estatus="B",
     )
 

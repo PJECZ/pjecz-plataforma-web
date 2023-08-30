@@ -62,7 +62,7 @@ def list_active():
     return render_template(
         "cid_areas/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Areas",
+        titulo="SICGD Áreas",
         estatus="A",
     )
 
@@ -74,7 +74,7 @@ def list_inactive():
     return render_template(
         "cid_areas/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="Areas inactivos",
+        titulo="SICGD Áreas inactivas",
         estatus="B",
     )
 

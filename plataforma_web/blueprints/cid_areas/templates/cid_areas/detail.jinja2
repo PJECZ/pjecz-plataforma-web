@@ -3,10 +3,10 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Area{% endblock %}
+{% block title %}SICGD Área{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons(cid_area.nombre) %}
+    {% call topbar.page_buttons('SICGD Área ' + cid_area.nombre) %}
         {{ topbar.button_previous('Areas', url_for('cid_areas.list_active')) }}
         {% if current_user.can_edit('CID AREAS') %}
             {{ topbar.button_edit('Editar', url_for('cid_areas.edit', cid_area_id=cid_area.id)) }}
@@ -23,13 +23,14 @@
     {% endcall %}
     {# Areas - Autoridades #}
     {% if current_user.can_view('CID AREAS AUTORIDADES') %}
-        {% call detail.card(title='Areas - Autoridades') %}
+        {% call detail.card(title='Autoridades') %}
             <table id="cid_areas_autoridades_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Autoridad</th>
-                        <th>Descripción corta</th>
+                        <th>Autoridad clave</th>
+                        <th>Distrito</th>
+                        <th>Autoridad descripcion corta</th>
                     </tr>
                 </thead>
             </table>
@@ -50,7 +51,8 @@
             configDataTable['columns'] = [
                 { data: 'detalle' },
                 { data: 'autoridad' },
-                { data: 'descripcion_corta' }
+                { data: 'distrito_nombre_corto' },
+                { data: 'autoridad_descripcion_corta' }
             ];
             configDataTable['columnDefs'] = [
                 {
