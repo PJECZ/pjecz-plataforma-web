@@ -10,9 +10,9 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_areas.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_areas.list_active')) }}{% endif %}
         {% endif %}
-        {# if current_user.can_insert('CID AREAS') #}
-            {# topbar.button_new('Nuevo Area', url_for('cid_areas.new')) #}
-        {# endif #}
+        {% if current_user.can_insert('CID AREAS') %}
+            {{ topbar.button_new('Nueva Area', url_for('cid_areas.new')) }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
