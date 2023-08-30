@@ -408,7 +408,6 @@ def search():
             else:
                 autoridad_id = int(request.form["juzgadoInput_buscar"])
                 mostrar_secciones["juzgado_id"] = autoridad_id
-
         if autoridad_id > 0:
             autoridad = Autoridad.query.get_or_404(autoridad_id)
             juzgado_id = autoridad.datawarehouse_id
@@ -443,7 +442,7 @@ def search():
                 if "success" in respuesta_api:
                     if respuesta_api["success"] is True:
                         flash("Registro encontrado en Expediente Virtual", "success")
-                        form.num_expediente.data = num_expediente
+                        form.expediente.data = num_expediente
                         form.juicio.data = respuesta_api["sintesis"]
                         form.actor.data = respuesta_api["actorPromovente"]
                         form.demandado.data = respuesta_api["demandado"]
@@ -483,7 +482,7 @@ def search():
                     if "success" in respuesta_api:
                         if respuesta_api["success"]:
                             flash("Registro encontrado en SIBED", "success")
-                            form.num_expediente.data = num_expediente
+                            form.expediente.data = num_expediente
                             form.anio.data = anio
                             form.juicio.data = respuesta_api["juicio"]
                             form.actor.data = respuesta_api["actor"]
@@ -510,6 +509,8 @@ def search():
                                 mostrar_secciones["juzgado_nombre"] = autoridad.nombre
                     else:
                         flash("Respuesta no esperada del API por parte de PEGASO", "danger")
+            else:
+                flash("Este juzgado no tiene acceso al Buscador. Asigne un valor datawarehouse_id", "warning")
         else:
             flash("No tiene una autoridad asignada compatible con el campo datawarehouse_id", "warning")
     # Bloquear campos según el ROL
