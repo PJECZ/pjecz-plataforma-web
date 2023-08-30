@@ -84,28 +84,28 @@
         {{ detail.label_value('Sede (clave distrito geográfico para A.J.)', autoridad.sede) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
-    {# Usuarios de la autoridad #}
+    {# Usuarios en la autoridad #}
     {% if current_user.can_view('USUARIOS') %}
         {% call detail.card('Usuarios') %}
             <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>e-mail</th>
-                        <th>Nombres</th>
-                        <th>Puestos</th>
+                        <th>Correo electrónico</th>
+                        <th>Usuario</th>
+                        <th>Puesto</th>
                     </tr>
                 </thead>
             </table>
         {% endcall %}
     {% endif %}
-    {# Areas - Autoridades #}
+    {# Areas en la autoridad #}
     {% if current_user.can_view('CID AREAS AUTORIDADES') %}
-        {% call detail.card('Areas-Autoridades') %}
+        {% call detail.card('SICGD Áreas') %}
             <table id="cid_areas_autoridades_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nombre</th>
+                        <th>Área</th>
                         <th>Descripción</th>
                     </tr>
                 </thead>
@@ -115,15 +115,15 @@
             {% endif %}
         {% endcall %}
     {% endif %}
-    {# Funcionarios de la autoridad #}
+    {# Funcionarios en la autoridad #}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
         {% call detail.card('Funcionarios') %}
             <table id="autoridades_funcionarios_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Funcionario CURP</th>
-                        <th>Funcionario nombre</th>
+                        <th>CURP</th>
+                        <th>Funcionario</th>
                     </tr>
                 </thead>
             </table>
@@ -199,7 +199,7 @@
                     render: function(data, type, row, meta) {
                         return data;
                     }
-                   
+
                 },
             ];
             $('#cid_areas_autoridades_datatable').DataTable(configDataTable);

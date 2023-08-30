@@ -18,5 +18,5 @@ class CIDAreaAutoridadWithAutoridadForm(FlaskForm):
     """Formulario CIDAreaAutoridad con Autoridad"""
 
     autoridad = StringField("Autoridad")  # Solo lectura
-    cid_area = QuerySelectField(query_factory=cid_area_opciones, get_label="nombre", validators=[DataRequired()])
+    cid_area = QuerySelectField("Área", query_factory=cid_area_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
