@@ -498,9 +498,9 @@ def search():
                             else:
                                 form.fojas.data = respuesta_api["fojas"]
                             if respuesta_api["observaciones"] is None:
-                                form.observaciones.data = ""
+                                form.notas.data = ""
                             else:
-                                form.observaciones.data = respuesta_api["observaciones"]
+                                form.notas.data = respuesta_api["observaciones"]
                             if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
                                 form.juzgado_id.data = autoridad_id
                                 mostrar_secciones["juzgado_nombre"] = autoridad.nombre
