@@ -6,7 +6,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_message
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -57,10 +57,11 @@ def datatable_json():
                     "url": url_for("cid_areas.detail", cid_area_id=resultado.cid_area_id) if current_user.can_view("CID AREAS") else "",
                 },
                 "autoridad": {
-                    "descripcion_corta": resultado.autoridad.descripcion_corta,
+                    "clave": resultado.autoridad.clave,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id) if current_user.can_view("AUTORIDADES") else "",
                 },
                 "descripcion": resultado.descripcion,
+                "descripcion_corta": resultado.autoridad.descripcion_corta,
             }
         )
     # Entregar JSON

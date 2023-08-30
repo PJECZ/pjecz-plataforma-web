@@ -98,11 +98,7 @@ def new():
         if CIDArea.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
             es_valido = False
-        # Validar que el nombre no se repita
-        nombre = safe_string(form.nombre.data, save_enie=True)
-        if CIDArea.query.filter_by(nombre=nombre).first():
-            flash("EL nombre ya está en uso. Debe de ser único.", "warning")
-            es_valido = False
+        nombre = safe_string(form.nombre.data)
         # Si es válido, guardar
         if es_valido is True:
             cid_area = CIDArea(
@@ -137,13 +133,7 @@ def edit(cid_area_id):
             if cid_area_existente and cid_area_existente.id != cid_area.id:
                 es_valido = False
                 flash("La clave ya está en uso. Debe de ser única.", "warning")
-        # Si cambia el nombre verificar que no este en uso
-        nombre = safe_string(form.nombre.data, save_enie=True)
-        if cid_area.nombre != nombre:
-            cid_area_existente = CIDArea.query.filter_by(nombre=nombre).first()
-            if cid_area_existente and cid_area_existente.id != cid_area.id:
-                es_valido = False
-                flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        nombre = safe_string(form.nombre.data)
         # Si es válido, actualizar
         if es_valido:
             cid_area.clave = clave

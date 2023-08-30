@@ -84,6 +84,20 @@
         {{ detail.label_value('Sede (clave distrito geográfico para A.J.)', autoridad.sede) }}
         {{ detail.label_value('Creado', moment(autoridad.creado).format('llll')) }}
     {% endcall %}
+    {# Usuarios de la autoridad #}
+    {% if current_user.can_view('USUARIOS') %}
+        {% call detail.card('Usuarios') %}
+            <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>e-mail</th>
+                        <th>Nombres</th>
+                        <th>Puestos</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
     {# Areas - Autoridades #}
     {% if current_user.can_view('CID AREAS AUTORIDADES') %}
         {% call detail.card('Areas-Autoridades') %}
@@ -99,20 +113,6 @@
             {% if current_user.can_insert('CID AREAS AUTORIDADES') %}
                 <a href="{{ url_for('cid_areas_autoridades.new_with_autoridad', autoridad_id=autoridad.id) }}" class="btn btn-primary">Agregar</a>
             {% endif %}
-        {% endcall %}
-    {% endif %}
-    {# Usuarios de la autoridad #}
-    {% if current_user.can_view('USUARIOS') %}
-        {% call detail.card('Usuarios') %}
-            <table id="usuarios_datatable" class="table display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>e-mail</th>
-                        <th>Nombres</th>
-                        <th>Puestos</th>
-                    </tr>
-                </thead>
-            </table>
         {% endcall %}
     {% endif %}
     {# Funcionarios de la autoridad #}
@@ -137,6 +137,34 @@
         {% if autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + autoridad.descripcion + '?') }}{% endif %}
     {% endif %}
     {{ detail.config_datatable() }}
+    {% if current_user.can_view('USUARIOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/usuarios/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'autoridad_id': {{ autoridad.id}} };
+            configDataTable['columns'] = [
+                { data: "detalle" },
+                { data: "nombre" },
+                { data: "puesto" }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
+                    }
+                },
+                {
+                    targets: [1, 2], // nombre, puesto
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
+                    }
+                }
+            ];
+            $('#usuarios_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
     {% if current_user.can_view('CID AREAS AUTORIDADES') %}
         <script>
             configDataTable['ajax']['url'] = '/cid_areas_autoridades/datatable_json';
@@ -175,34 +203,6 @@
                 },
             ];
             $('#cid_areas_autoridades_datatable').DataTable(configDataTable);
-        </script>
-    {% endif %}
-    {% if current_user.can_view('USUARIOS') %}
-        <script>
-            configDataTable['ajax']['url'] = '/usuarios/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'autoridad_id': {{ autoridad.id}} };
-            configDataTable['columns'] = [
-                { data: "detalle" },
-                { data: "nombre" },
-                { data: "puesto" }
-            ];
-            configDataTable['columnDefs'] = [
-                {
-                    targets: 0, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.email + '</a>';
-                    }
-                },
-                {
-                    targets: [1, 2], // nombre, puesto
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
-                    }
-                }
-            ];
-            $('#usuarios_datatable').DataTable(configDataTable);
         </script>
     {% endif %}
     {% if current_user.can_view('AUTORIDADES FUNCIONARIOS') %}
