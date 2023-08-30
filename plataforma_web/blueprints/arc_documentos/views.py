@@ -443,6 +443,7 @@ def search():
                     if respuesta_api["success"] is True:
                         flash("Registro encontrado en Expediente Virtual", "success")
                         form.expediente.data = num_expediente
+                        form.anio.data = extract_expediente_anio(num_expediente)
                         form.juicio.data = respuesta_api["sintesis"]
                         form.actor.data = respuesta_api["actorPromovente"]
                         form.demandado.data = respuesta_api["demandado"]
@@ -483,7 +484,7 @@ def search():
                         if respuesta_api["success"]:
                             flash("Registro encontrado en SIBED", "success")
                             form.expediente.data = num_expediente
-                            form.anio.data = anio
+                            form.anio.data = extract_expediente_anio(num_expediente)
                             form.juicio.data = respuesta_api["juicio"]
                             form.actor.data = respuesta_api["actor"]
                             form.demandado.data = respuesta_api["demandado"]
