@@ -1,0 +1,81 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}SICGD Área{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('SICGD Área ' + cid_area.nombre) %}
+        {{ topbar.button_previous('Areas', url_for('cid_areas.list_active')) }}
+        {% if current_user.can_edit('CID AREAS') %}
+            {{ topbar.button_edit('Editar', url_for('cid_areas.edit', cid_area_id=cid_area.id)) }}
+            {% if cid_area.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_areas.delete', cid_area_id=cid_area.id)) }}{% endif %}
+            {% if cid_area.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_areas.recover', cid_area_id=cid_area.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=cid_area.estatus) %}
+        {{ detail.label_value_big('Clave', cid_area.clave) }}
+        {{ detail.label_value('Nombre', cid_area.nombre) }}
+    {% endcall %}
+    {# Areas - Autoridades #}
+    {% if current_user.can_view('CID AREAS AUTORIDADES') %}
+        {% call detail.card(title='Autoridades') %}
+            <table id="cid_areas_autoridades_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Autoridad clave</th>
+                        <th>Distrito</th>
+                        <th>Autoridad descripcion corta</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('CID AREAS') %}
+        {% if cid_area.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_area.nombre + '?') }}{% endif %}
+        {% if cid_area.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_area.nombre + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('CID AREAS AUTORIDADES') %}
+        <script>
+            configDataTable['ajax']['url'] = '/cid_areas_autoridades/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'cid_area_id': {{ cid_area.id}} };
+            configDataTable['columns'] = [
+                { data: 'detalle' },
+                { data: 'autoridad' },
+                { data: 'distrito_nombre_corto' },
+                { data: 'autoridad_descripcion_corta' }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // autoridad
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.clave;
+                        } else {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                    }
+                }
+            ];
+            $('#cid_areas_autoridades_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

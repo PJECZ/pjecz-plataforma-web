@@ -1,0 +1,33 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}SICGD Área-Autoridad{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('SICGD Área-Autoridad ' + cid_area_autoridad.id | string) %}
+        {{ topbar.button_previous('Areas-Autoridades', url_for('cid_areas_autoridades.list_active')) }}
+        {% if current_user.can_edit('CID AREAS AUTORIDADES') %}
+            {% if cid_area_autoridad.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_areas_autoridades.delete', cid_area_autoridad_id=cid_area_autoridad.id)) }}{% endif %}
+            {% if cid_area_autoridad.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_areas_autoridades.recover', cid_area_autoridad_id=cid_area_autoridad.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=cid_area_autoridad.estatus) %}
+        {{ detail.label_value_big('ID', cid_area_autoridad.id) }}
+        {{ detail.label_value('Descripción', cid_area_autoridad.descripcion) }}
+        {{ detail.label_value('Área', cid_area_autoridad.cid_area.nombre, url_for('cid_areas.detail', cid_area_id=cid_area_autoridad.cid_area_id)) }}
+        {{ detail.label_value('Autoridad', cid_area_autoridad.autoridad.descripcion_corta, url_for('autoridades.detail', autoridad_id=cid_area_autoridad.autoridad_id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('CID AREAS AUTORIDADES') %}
+        {% if cid_area_autoridad.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cid_area_autoridad.descripcion + '?') }}{% endif %}
+        {% if cid_area_autoridad.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cid_area_autoridad.descripcion + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
