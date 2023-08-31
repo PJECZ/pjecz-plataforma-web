@@ -3,10 +3,7 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}
-    Reporte de V.P. de Sentencias de {{ autoridad.clave }}
-    del {{ fecha_desde }} al {{ fecha_hasta }}
-{% endblock %}
+{% block title %}Reporte de V.P. de Sentencias de {{ autoridad.clave }} del {{ fecha_desde }} al {{ fecha_hasta }}{% endblock %}
 
 {% block custom_head %}
     <!-- Datatables buttons -->

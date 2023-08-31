@@ -1,4 +1,5 @@
 {% extends 'layouts/app.jinja2' %}
+{% import 'macros/form_inline.jinja2' as f with context %}
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
@@ -23,6 +24,7 @@
 {% endblock %}
 
 {% block content %}
+    {# Datatable #}
     {% call list.card() %}
         <table id="listas_de_acuerdos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
@@ -35,6 +37,17 @@
             </thead>
         </table>
     {% endcall %}
+    {# Reporte #}
+    {% if form %}
+        {% call list.card(title='Reporte de Listas de Acuerdos') %}
+            {% call f.form_tag('listas_de_acuerdos.report', fid='listas_de_acuerdos_report_form') %}
+                {% call f.form_group(form.autoridad_id, type='hidden') %}{% endcall %}
+                {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
+                {% call f.form_group(form.fecha_hasta, placeholder='Hasta') %}{% endcall %}
+                {% call f.form_group(form.elaborar) %}{% endcall %}
+            {% endcall %}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}

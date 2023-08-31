@@ -1,0 +1,37 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Reporte de Tipos de Juicios de {{ autoridad.clave }} del {{ fecha_desde }} al {{ fecha_hasta }}{% endblock %}
+
+{% block custom_head %}
+    <!-- Datatables buttons -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Reporte de Tipos de Juicios') %}
+        {{ topbar.button_previous('V.P. de Sentencias de ' + autoridad.clave, url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
+        {{ topbar.button_previous('V.P. de Sentencias', url_for('sentencias.list_active')) }}
+        {{ topbar.button_districts('Distritos', url_for('sentencias.list_distritos')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(title='Parámetros recibidos') %}
+        {{ detail.label_value_big('Distrito', autoridad.distrito.nombre) }}
+        {{ detail.label_value_big('Autoridad', autoridad.descripcion) }}
+        {{ detail.label_value('Desde', fecha_desde) }}
+        {{ detail.label_value('Hasta', fecha_hasta) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Datatables buttons -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.1/js/buttons.print.min.js"></script>
+{% endblock %}
