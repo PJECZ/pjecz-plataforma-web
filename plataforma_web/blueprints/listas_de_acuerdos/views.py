@@ -39,6 +39,9 @@ ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("JUZGADO DE PRIMERA INSTAN
 HORAS_BUENO = 14
 HORAS_CRITICO = 16
 
+# Roles que deben estar en la base de datos
+ROL_REPORTES_TODOS = ["ADMINISTRADOR", "ESTADISTICA", "VISITADURIA JUDICIAL"]
+
 
 @listas_de_acuerdos.before_request
 @login_required
@@ -66,16 +69,22 @@ def list_active():
             filtros=json.dumps({"estatus": "A"}),
             titulo="Todas las Listas de Acuerdo",
             estatus="A",
+            form=None,
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
         autoridad = current_user.autoridad
+        form = ListaDeAcuerdoReportForm()
+        form.autoridad_id.data = autoridad.id  # Oculto la autoridad del usuario
+        form.fecha_desde.data = datetime.date.today().replace(day=1)  # Por defecto fecha_desde es el primer dia del mes actual
+        form.fecha_hasta.data = datetime.date.today()  # Por defecto fecha_hasta es hoy
         return render_template(
             "listas_de_acuerdos/list.jinja2",
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
             titulo=f"Listas de Acuerdos de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="A",
+            form=form,
         )
     # Ninguno de los anteriores
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
@@ -93,6 +102,7 @@ def list_inactive():
             filtros=json.dumps({"estatus": "B"}),
             titulo="Todas las Listas de Acuerdos inactivas",
             estatus="B",
+            form=None,
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
@@ -103,6 +113,7 @@ def list_inactive():
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
             titulo=f"Listas de Acuerdos inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="B",
+            form=None,
         )
     # Ninguno de los anteriores
     return redirect(url_for("listas_de_acuerdos.list_distritos"))
@@ -134,9 +145,10 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = None
     plantilla = "listas_de_acuerdos/list.jinja2"
-    if current_user.can_admin("LISTAS DE ACUERDOS"):
+    if current_user.can_admin("LISTAS DE ACUERDOS") or current_user.get_roles() in ROL_REPORTES_TODOS:
         plantilla = "listas_de_acuerdos/list_admin.jinja2"
         form = ListaDeAcuerdoReportForm()
+        form.autoridad_id.data = autoridad.id  # Oculto la autoridad que esta viendo
         form.fecha_desde.data = datetime.date.today().replace(day=1)  # Por defecto fecha_desde es el primer dia del mes actual
         form.fecha_hasta.data = datetime.date.today()  # Por defecto fecha_hasta es hoy
     return render_template(
@@ -164,6 +176,7 @@ def list_autoridad_listas_de_acuerdos_inactive(autoridad_id):
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
         titulo=f"Listas de Acuerdos inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="B",
+        form=None,
     )
 
 
@@ -763,16 +776,23 @@ def recover(lista_de_acuerdo_id):
 
 
 @listas_de_acuerdos.route("/listas_de_acuerdos/reporte", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
 def report():
     """Elaborar reporte de listas de acuerdos"""
+    # Preparar el formulario
     form = ListaDeAcuerdoReportForm()
+    # Si viene el formulario
     if form.validate():
-        # Tomar valores del formulario
+        # Tomar los valores del formulario
+        autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
         fecha_desde = form.fecha_desde.data
         fecha_hasta = form.fecha_hasta.data
-        autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
-        # Entregar pagina
+        # Si no es administrador, ni tiene un rol para elaborar reportes de todos
+        if not current_user.can_admin("LISTAS DE ACUERDOS") and not current_user.get_roles() in ROL_REPORTES_TODOS:
+            # Si la autoridad del usuario no es la del formulario, se niega el acceso
+            if current_user.autoridad_id != autoridad.id:
+                flash("No tiene permiso para acceder a este reporte.", "warning")
+                return redirect(url_for("listas_de_acuerdos.list_active"))
+        # Entregar el reporte
         return render_template(
             "listas_de_acuerdos/report.jinja2",
             autoridad=autoridad,
@@ -787,5 +807,6 @@ def report():
                 }
             ),
         )
+    # No viene el formulario, por lo tanto se advierte del error
     flash("Error: datos incorrectos para hacer la descarga.", "warning")
     return redirect(url_for("listas_de_acuerdos.list_active"))
