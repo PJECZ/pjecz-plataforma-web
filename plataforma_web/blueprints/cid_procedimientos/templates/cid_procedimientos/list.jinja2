@@ -29,34 +29,22 @@
 {% block content %}
     {% call list.card() %}
         <form class="input-group mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
-           <div class="col-4" style="padding:2px;">
+           <div class="col-3" style="padding:2px;">
                 <div class="form-floating">
                     <input id="codigoInput" type="text" class="form-control" placeholder="código" aria-label="codigo" aria-describedby="button-buscar" style="text-transform: uppercase">
                     <label for="codigoInput">Código</label>
                 </div>
             </div>
-            <div class="col-4" style="padding:2px;">
+            <div class="col-3" style="padding:2px;">
                 <div class="form-floating">
                     <input id="seguimientoInput" type="text" class="form-control" placeholder="seguimiento" aria-label="seguimiento" aria-describedby="button-buscar" style="text-transform: uppercase">
                     <label for="seguimientoInput">Seguimiento</label>
                 </div>
             </div>
-            <div class="col-4" style="padding:2px;">
+            <div class="col-6" style="padding:2px;">
                 <div class="form-floating">
                     <input id="tituloInput" type="text" class="form-control" placeholder="titulo" aria-label="titulo" aria-describedby="button-buscar" style="text-transform: uppercase">
                     <label for="tituloInput">Procedimiento</label>
-                </div>
-            </div>
-            <div class="col-6" style="margin-top: 5px; padding:2px;">
-                <div class="form-floating">
-                    <input id="fechaDesde" type="date" class="form-control" placeholder="Fecha desde" aria-label="fechaDesde" aria-describedby="button-buscar">
-                    <label for="fechaDesde">Desde</label>
-                </div>
-            </div>
-            <div class="col-6" style="margin-top: 5px; padding:1px;">
-                <div class="form-floating">
-                    <input id="fechaHasta" type="date" class="form-control" placeholder="Fecha hasta" aria-label="fechaHasta" aria-describedby="button-buscar">
-                    <label for="fechaHasta">Hasta</label>
                 </div>
             </div>
             <div class="col text-end" style="margin-top: 5px; padding:1px;">
@@ -144,8 +132,6 @@
         let codigo = document.getElementById('codigoInput').value.toUpperCase();
         let seguimiento = document.getElementById('seguimientoInput').value.toUpperCase();
         let titulo = document.getElementById('tituloInput').value.toUpperCase();
-        let fechaDesde = document.getElementById('fechaDesde').value;
-        let fechaHasta = document.getElementById('fechaHasta').value;
 
 
         if(codigo != '')
@@ -154,11 +140,6 @@
             configDataTable['ajax']['data']['seguimiento_filtro'] = seguimiento;
         if(titulo != '')
             configDataTable['ajax']['data']['titulo_procedimiento'] = titulo;
-        if(fechaDesde != '')
-            configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
-        if(fechaHasta != '')
-            configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
-
         // Datatable
         $('#cid_procedimientos_datatable').DataTable(configDataTable);
 
@@ -170,14 +151,10 @@
             let codigo = document.getElementById('codigoInput').value.toUpperCase();
             let seguimiento = document.getElementById('seguimientoInput').value.toUpperCase();
             let titulo = document.getElementById('tituloInput').value.toUpperCase();
-            let fechaDesde = document.getElementById('fechaDesde').value;
-            let fechaHasta = document.getElementById('fechaHasta').value;
 
             if(configDataTable['ajax']['data']['codigo'] === undefined && codigo === '' &&
                configDataTable['ajax']['data']['seguimiento_filtro'] === undefined && seguimiento === '' &&
-               configDataTable['ajax']['data']['titulo_procedimiento'] === undefined && titulo === '' &&
-               configDataTable['ajax']['data']['fecha_desde'] === undefined && fechaDesde === '' &&
-               configDataTable['ajax']['data']['fecha_hasta'] === undefined && fechaHasta === ''
+               configDataTable['ajax']['data']['titulo_procedimiento'] === undefined && titulo === ''
             )return false;
 
             $('#cid_procedimientos_datatable').DataTable().destroy();
@@ -194,14 +171,6 @@
                 delete configDataTable['ajax']['data']['titulo_procedimiento'];
             else
                 configDataTable['ajax']['data']['titulo_procedimiento'] = titulo;
-            if(fechaDesde == '')
-                delete configDataTable['ajax']['data']['fecha_desde'];
-            else
-                configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
-            if(fechaHasta == '')
-                delete configDataTable['ajax']['data']['fecha_hasta'];
-            else
-                configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
 
             $('#cid_procedimientos_datatable').DataTable(configDataTable);
 
@@ -211,16 +180,12 @@
         function limpiar(){
             if( configDataTable['ajax']['data']['codigo'] === undefined &&
                 configDataTable['ajax']['data']['seguimiento_filtro'] === undefined &&
-                configDataTable['ajax']['data']['titulo_procedimiento'] === undefined &&
-                configDataTable['ajax']['data']['fecha_desde'] === undefined &&
-                configDataTable['ajax']['data']['fecha_hasta'] === undefined
+                configDataTable['ajax']['data']['titulo_procedimiento'] === undefined
             )return false;
 
             delete configDataTable['ajax']['data']['codigo'];
             delete configDataTable['ajax']['data']['seguimiento_filtro'];
             delete configDataTable['ajax']['data']['titulo_procedimiento'];
-            delete configDataTable['ajax']['data']['fecha_desde'];
-            delete configDataTable['ajax']['data']['fecha_hasta'];
 
             $('#cid_procedimientos_datatable').DataTable().destroy();
             $('#cid_procedimientos_datatable').DataTable(configDataTable);

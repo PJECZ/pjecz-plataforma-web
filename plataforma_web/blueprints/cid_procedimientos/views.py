@@ -491,12 +491,12 @@ def search():
                 if cid_procedimiento is not None:
                     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
         # Si se busca con los demas parametros
-        if form_search.fecha_desde.data:
-            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
-            titulos.append("fecha desde " + busqueda["fecha_desde"])
-        if form_search.fecha_hasta.data:
-            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
-            titulos.append("fecha hasta " + busqueda["fecha_hasta"])
+        # if form_search.fecha_desde.data:
+        #     busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
+        #     titulos.append("fecha desde " + busqueda["fecha_desde"])
+        # if form_search.fecha_hasta.data:
+        #     busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
+        #     titulos.append("fecha hasta " + busqueda["fecha_hasta"])
         if form_search.titulo_procedimiento.data:
             titulo_procedimiento = safe_string(form_search.titulo_procedimiento.data)
             if titulo_procedimiento != "":
