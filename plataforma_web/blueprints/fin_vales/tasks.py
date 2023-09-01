@@ -24,6 +24,8 @@ FIN_VALES_EFIRMA_QR_URL = os.getenv("FIN_VALES_EFIRMA_QR_URL")
 FIN_VALES_EFIRMA_APP_ID = os.getenv("FIN_VALES_EFIRMA_APP_ID")
 FIN_VALES_EFIRMA_APP_PASS = os.getenv("FIN_VALES_EFIRMA_APP_PASS")
 
+TIMEOUT = 24  # Segundos de espera para la respuesta del motor de firma
+
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
@@ -110,18 +112,46 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
         response = requests.post(
             FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL,
             data=data,
+            timeout=TIMEOUT,
             verify=False,
         )
-    except Exception as error:
-        mensaje = f"Error al solicitar el vale: {error}"
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        mensaje = "Error de conexion al solicitar el vale. " + str(error)
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    except requests.exceptions.HTTPError as error:
+        mensaje = "Error porque la respuesta no tiene el estado 200 al solicitar el vale. " + str(error)
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    except requests.exceptions.RequestException as error:
+        mensaje = f"Error desconocido al solicitar el vale: {error}"
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
-    # Si el motor de firma no entrega el estado 200, se registra el error
-    if response.status_code != 200:
-        mensaje = f"Error al solicitar el vale porque la respuesta no es 200: {response.text}"
+    # Tomar el texto de la respuesta
+    texto = response.text
+
+    # Si la contraseña es incorrecta, se registra el error
+    if texto == "Contraseña incorrecta":
+        mensaje = "Error porque la contraseña es incorrecta al solicitar el vale."
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Convertir el texto a un diccionario
+    # texto = response.text.replace('"{', "{").replace('}"', "}")
+    try:
+        datos = json.loads(texto)
+    except json.JSONDecodeError:
+        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON: {response.text}"
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -134,24 +164,13 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
     #   "cadenaOriginal": "",
     #   "fecha": "27/06/2022 13:47:11",
     #   "selloDigital": "",
-    #   "url": "https://servidor/eFirmaServicios/verificaFirmaCadena.do?verificar=ZhSsI%2FYUG9soc%2FkTfsWVvoUpylEwvoq%2F",
+    #   "url": "https://servidor/eFirmaServicios/verificaFirmaCadena.do?verificar=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     #   "ip": "172.1.1.1",
     #   "huella": "Primer mensaje de prueba"
 
-    # Convertir la respuesta del motor de firma a un diccionario
-    texto = response.text.replace('"{', "{").replace('}"', "}")
-    try:
-        datos = json.loads(texto)
-    except json.JSONDecodeError:
-        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON: {response.text}"
-        fin_vale.solicito_efirma_error = mensaje
-        fin_vale.save()
-        bitacora.error(mensaje)
-        return set_task_error(mensaje)
-
-    # Validar que se haya firmado correctamente
+    # Si el motor de firma entrega "success" en false, se registra el error
     if datos["success"] is False:
-        mensaje = f"Error al solicitar el vale porque no se firmó correctamente: {response.text}"
+        mensaje = "Error al solicitar el vale con este mensaje: " + str(datos["mensaje"])
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -235,16 +254,52 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str, motivo: str):
         "folios": fin_vale.solicito_efirma_folio,
     }
 
-    # Enviar la solicitud al motor de firma
+    # Enviar la cancelacion al motor de firma
     try:
         response = requests.post(
             FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL,
             data=data,
+            timeout=TIMEOUT,
             verify=False,
         )
-    except Exception as error:
-        mensaje = f"Error al cancelar el vale solicitado: {error}"
-        fin_vale.solicito_cancelo_error = mensaje
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        mensaje = "Error de conexion al cancelar el vale. " + str(error)
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    except requests.exceptions.HTTPError as error:
+        mensaje = "Error porque la respuesta no tiene el estado 200 al cancelar el vale. " + str(error)
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    except requests.exceptions.RequestException as error:
+        mensaje = f"Error desconocido al cancelar el vale: {error}"
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Tomar el texto de la respuesta
+    texto = response.text
+
+    # Si la contraseña es incorrecta, se registra el error
+    if texto == "Contraseña incorrecta":
+        mensaje = "Error porque la contraseña es incorrecta al solicitar el vale."
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Convertir el texto a un diccionario
+    # texto = response.text.replace('"{', "{").replace('}"', "}")
+    try:
+        _ = json.loads(texto)
+    except json.JSONDecodeError:
+        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON: {response.text}"
+        fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -340,24 +395,52 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
         "verificarUrl": True,
     }
 
-    # Enviar la solicitud al motor de firma
+    # Enviar la autorizacion al motor de firma
     try:
         response = requests.post(
             FIN_VALES_EFIRMA_SER_FIRMA_CADENA_URL,
             data=data,
+            timeout=TIMEOUT,
             verify=False,
         )
-    except Exception as error:
-        mensaje = f"Error al solicitar el vale: {error}"
-        fin_vale.autorizo_efirma_error = mensaje
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        mensaje = "Error de conexion al autorizar el vale. " + str(error)
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    except requests.exceptions.HTTPError as error:
+        mensaje = "Error porque la respuesta no tiene el estado 200 al autorizar el vale. " + str(error)
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    except requests.exceptions.RequestException as error:
+        mensaje = f"Error desconocido al autorizar el vale: {error}"
+        fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
 
-    # Si el motor de firma no entrega el estado 200, se registra el error
-    if response.status_code != 200:
-        mensaje = f"Error al autorizar el vale porque la respuesta no es 200: {response.text}"
-        fin_vale.autorizo_efirma_mensaje = mensaje
+    # Tomar el texto de la respuesta
+    texto = response.text
+
+    # Si la contraseña es incorrecta, se registra el error
+    if texto == "Contraseña incorrecta":
+        mensaje = "Error porque la contraseña es incorrecta al autorizar el vale."
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Convertir el texto a un diccionario
+    # texto = response.text.replace('"{', "{").replace('}"', "}")
+    try:
+        datos = json.loads(texto)
+    except json.JSONDecodeError:
+        mensaje = f"Error al autorizar el vale porque la respuesta no es JSON: {response.text}"
+        fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -373,21 +456,10 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
     #   "ip": "172.1.1.1",
     #   "huella": "Primer mensaje de prueba"
 
-    # Convertir la respuesta del motor de firma a un diccionario
-    texto = response.text.replace('"{', "{").replace('}"', "}")
-    try:
-        datos = json.loads(texto)
-    except json.JSONDecodeError:
-        mensaje = f"Error al autorizar el vale porque la respuesta no es JSON: {response.text}"
-        fin_vale.autorizo_efirma_error = mensaje
-        fin_vale.save()
-        bitacora.error(mensaje)
-        return set_task_error(mensaje)
-
-    # Validar que se haya firmado correctamente
+    # Si el motor de firma entrega "success" en false, se registra el error
     if datos["success"] is False:
-        mensaje = f"Error al autorizar el vale porque no se firmó correctamente: {response.text}"
-        fin_vale.autorizo_efirma_error = mensaje
+        mensaje = "Error al solicitar el vale con este mensaje: " + str(datos["mensaje"])
+        fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
@@ -472,16 +544,52 @@ def cancelar_autorizar(fin_vale_id: int, contrasena: str, motivo: str):
         "folios": fin_vale.autorizo_efirma_folio,
     }
 
-    # Enviar la solicitud al motor de firma
+    # Enviar la cancelacion al motor de firma
     try:
         response = requests.post(
             FIN_VALES_EFIRMA_CAN_FIRMA_CADENA_URL,
             data=data,
+            timeout=TIMEOUT,
             verify=False,
         )
-    except Exception as error:
-        mensaje = f"Error al cancelar el vale autorizado: {error}"
-        fin_vale.autorizo_cancelo_error = mensaje
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError as error:
+        mensaje = "Error de conexion al cancelar el vale. " + str(error)
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    except requests.exceptions.HTTPError as error:
+        mensaje = "Error porque la respuesta no tiene el estado 200 al cancelar el vale. " + str(error)
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+    except requests.exceptions.RequestException as error:
+        mensaje = f"Error desconocido al cancelar el vale: {error}"
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Tomar el texto de la respuesta
+    texto = response.text
+
+    # Si la contraseña es incorrecta, se registra el error
+    if texto == "Contraseña incorrecta":
+        mensaje = "Error porque la contraseña es incorrecta al solicitar el vale."
+        fin_vale.solicito_efirma_error = mensaje
+        fin_vale.save()
+        bitacora.error(mensaje)
+        return set_task_error(mensaje)
+
+    # Convertir el texto a un diccionario
+    # texto = response.text.replace('"{', "{").replace('}"', "}")
+    try:
+        _ = json.loads(texto)
+    except json.JSONDecodeError:
+        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON: {response.text}"
+        fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)

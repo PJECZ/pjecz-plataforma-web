@@ -1,6 +1,7 @@
 """
 Materias Tipos de Juicios, vistas
 """
+import datetime
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -9,6 +10,7 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.materias_tipos_juicios.forms import MateriaTipoJuicioForm
@@ -175,3 +177,44 @@ def recover(materia_tipo_juicio_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("materias_tipos_juicios.detail", materia_tipo_juicio_id=materia_tipo_juicio.id))
+
+
+@materias_tipos_juicios.route("/materias/tipos_juicios/reporte", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def report_autoridad(autoridad_id):
+    """Reporte de Tipos de Juicios por Autoridad"""
+
+    # La fecha de hoy
+    hoy = datetime.date.today()
+
+    # La fecha del primer día del mes actual
+    fecha_dia_uno_mes_actual = datetime.date(hoy.year, hoy.month, 1)
+
+    # Tomar valores que vienen en la URL
+    autoridad_id = request.args.get("autoridad_id", None)
+    fecha_desde = request.args.get("fecha_desde", fecha_dia_uno_mes_actual)
+    fecha_hasta = request.args.get("fecha_hasta", hoy)
+
+    # Si no viene la autoridad, mostrar error y redireccionar al listado de tipos de juicios
+    if not autoridad_id:
+        flash("Error: falta el ID de la autoridad.", "warning")
+        return redirect(url_for("materias_tipos_juicios.list_active"))
+
+    # Consultar la autoridad
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+
+    # Entregar pagina
+    return render_template(
+        "materias_tipos_juicios/report.jinja2",
+        autoridad=autoridad,
+        fecha_desde=fecha_desde,
+        fecha_hasta=fecha_hasta,
+        filtros=json.dumps(
+            {
+                "autoridad_id": autoridad.id,
+                "estatus": "A",
+                "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+            }
+        ),
+    )

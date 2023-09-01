@@ -35,6 +35,9 @@ MODULO = "SENTENCIAS"
 LIMITE_DIAS = 10950  # 30 años
 LIMITE_ADMINISTRADORES_DIAS = 10950  # 30 años
 
+# Roles que deben estar en la base de datos
+ROL_REPORTES_TODOS = ["ADMINISTRADOR", "ESTADISTICA", "VISITADURIA JUDICIAL"]
+
 
 @sentencias.before_request
 @login_required
