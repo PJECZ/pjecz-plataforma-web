@@ -1,0 +1,221 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Todos los Procedimientos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('CID PROCEDIMIENTOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_procedimientos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_procedimientos.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('CID PROCEDIMIENTOS') %}
+            {{ topbar.button_new('Nuevo Procedimiento', url_for('cid_procedimientos.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <form class="input-group mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
+           <div class="col-4" style="padding:2px;">
+                <div class="form-floating">
+                    <input id="codigoInput" type="text" class="form-control" placeholder="código" aria-label="codigo" aria-describedby="button-buscar" style="text-transform: uppercase">
+                    <label for="codigoInput">Código</label>
+                </div>
+            </div>
+            <div class="col-4" style="padding:2px;">
+                <div class="form-floating">
+                    <input id="seguimientoInput" type="text" class="form-control" placeholder="seguimiento" aria-label="seguimiento" aria-describedby="button-buscar" style="text-transform: uppercase">
+                    <label for="seguimientoInput">Seguimiento</label>
+                </div>
+            </div>
+            <div class="col-4" style="padding:2px;">
+                <div class="form-floating">
+                    <input id="tituloInput" type="text" class="form-control" placeholder="titulo" aria-label="titulo" aria-describedby="button-buscar" style="text-transform: uppercase">
+                    <label for="tituloInput">Procedimiento</label>
+                </div>
+            </div>
+            <div class="col-6" style="margin-top: 5px; padding:2px;">
+                <div class="form-floating">
+                    <input id="fechaDesde" type="date" class="form-control" placeholder="Fecha desde" aria-label="fechaDesde" aria-describedby="button-buscar">
+                    <label for="fechaDesde">Desde</label>
+                </div>
+            </div>
+            <div class="col-6" style="margin-top: 5px; padding:1px;">
+                <div class="form-floating">
+                    <input id="fechaHasta" type="date" class="form-control" placeholder="Fecha hasta" aria-label="fechaHasta" aria-describedby="button-buscar">
+                    <label for="fechaHasta">Hasta</label>
+                </div>
+            </div>
+            <div class="col text-end" style="margin-top: 5px; padding:1px;">
+                <button class="btn btn-primary btn-lg" type="submit" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span>Buscar</button>
+                <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+            </div>
+        </form>
+        <table id="cid_procedimientos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Procedimiento</th>
+                    <th>Código</th>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Seguimiento</th>
+                    <th>Clasificación</th>
+                    <th>Área</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'titulo_procedimiento' },
+            { data: 'codigo' },
+            { data: 'fecha' },
+            { data: 'usuario' },
+            { data: 'seguimiento' },
+            { data: 'autoridad' },
+            { data: 'cid_area' },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                }
+            },
+            {
+                targets: 1, // titulo_procedimiento
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 64)
+                        return '<span title="' + data + '">' + data.substr(0, 64) + '…' + '</span>';
+                    return data;
+                }
+            },
+            {
+                targets: 4, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.nombre.length > 16) {
+                        interior = '<span title="' + data.nombre + '">' + data.nombre.substring(0, 16) + '…' + '</span>';
+                    } else {
+                        interior = data.nombre;
+                    }
+                    if (data.url == '') {
+                        return interior;
+                    }
+                    return '<a href="' + data.url + '">' + interior + '</a>';
+                }
+            },
+            {
+                targets: 7, // cid_area
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url == '') {
+                        return data.clave;
+                    }
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            },
+        ];
+
+        // Búsqueda
+        let codigo = document.getElementById('codigoInput').value.toUpperCase();
+        let seguimiento = document.getElementById('seguimientoInput').value.toUpperCase();
+        let titulo = document.getElementById('tituloInput').value.toUpperCase();
+        let fechaDesde = document.getElementById('fechaDesde').value;
+        let fechaHasta = document.getElementById('fechaHasta').value;
+
+
+        if(codigo != '')
+            configDataTable['ajax']['data']['codigo'] = codigo;
+        if(seguimiento != '')
+            configDataTable['ajax']['data']['seguimiento_filtro'] = seguimiento;
+        if(titulo != '')
+            configDataTable['ajax']['data']['titulo_procedimiento'] = titulo;
+        if(fechaDesde != '')
+            configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
+        if(fechaHasta != '')
+            configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
+
+        // Datatable
+        $('#cid_procedimientos_datatable').DataTable(configDataTable);
+
+    </script>
+    <!-- Función de buscador -->
+    <script type="text/javascript">
+        function buscar(){
+
+            let codigo = document.getElementById('codigoInput').value.toUpperCase();
+            let seguimiento = document.getElementById('seguimientoInput').value.toUpperCase();
+            let titulo = document.getElementById('tituloInput').value.toUpperCase();
+            let fechaDesde = document.getElementById('fechaDesde').value;
+            let fechaHasta = document.getElementById('fechaHasta').value;
+
+            if(configDataTable['ajax']['data']['codigo'] === undefined && codigo === '' &&
+               configDataTable['ajax']['data']['seguimiento_filtro'] === undefined && seguimiento === '' &&
+               configDataTable['ajax']['data']['titulo_procedimiento'] === undefined && titulo === '' &&
+               configDataTable['ajax']['data']['fecha_desde'] === undefined && fechaDesde === '' &&
+               configDataTable['ajax']['data']['fecha_hasta'] === undefined && fechaHasta === ''
+            )return false;
+
+            $('#cid_procedimientos_datatable').DataTable().destroy();
+
+            if(codigo == '')
+                delete configDataTable['ajax']['data']['codigo'];
+            else
+                configDataTable['ajax']['data']['codigo'] = codigo;
+            if(seguimiento == '')
+                delete configDataTable['ajax']['data']['seguimiento_filtro'];
+            else
+                configDataTable['ajax']['data']['seguimiento_filtro'] = seguimiento;
+            if(titulo == '')
+                delete configDataTable['ajax']['data']['titulo_procedimiento'];
+            else
+                configDataTable['ajax']['data']['titulo_procedimiento'] = titulo;
+            if(fechaDesde == '')
+                delete configDataTable['ajax']['data']['fecha_desde'];
+            else
+                configDataTable['ajax']['data']['fecha_desde'] = fechaDesde;
+            if(fechaHasta == '')
+                delete configDataTable['ajax']['data']['fecha_hasta'];
+            else
+                configDataTable['ajax']['data']['fecha_hasta'] = fechaHasta;
+
+            $('#cid_procedimientos_datatable').DataTable(configDataTable);
+
+        }
+
+
+        function limpiar(){
+            if( configDataTable['ajax']['data']['codigo'] === undefined &&
+                configDataTable['ajax']['data']['seguimiento_filtro'] === undefined &&
+                configDataTable['ajax']['data']['titulo_procedimiento'] === undefined &&
+                configDataTable['ajax']['data']['fecha_desde'] === undefined &&
+                configDataTable['ajax']['data']['fecha_hasta'] === undefined
+            )return false;
+
+            delete configDataTable['ajax']['data']['codigo'];
+            delete configDataTable['ajax']['data']['seguimiento_filtro'];
+            delete configDataTable['ajax']['data']['titulo_procedimiento'];
+            delete configDataTable['ajax']['data']['fecha_desde'];
+            delete configDataTable['ajax']['data']['fecha_hasta'];
+
+            $('#cid_procedimientos_datatable').DataTable().destroy();
+            $('#cid_procedimientos_datatable').DataTable(configDataTable);
+
+
+        }
+    </script>
+{% endblock %}

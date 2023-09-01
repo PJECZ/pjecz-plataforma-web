@@ -106,13 +106,14 @@ def list_active():
     # Si es administrador, mostrar todos los procedimientos
     if current_user.can_admin(MODULO):
         return render_template(
-            "cid_procedimientos/list.jinja2",
+            "cid_procedimientos/list_admin.jinja2",
             titulo="Todos los Procedimientos",
             filtros=json.dumps({"estatus": "A"}),
             estatus="A",
             show_button_list_owned=True,
             show_button_list_all=True,
         )
+
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
     # Mostrar solo los procedimientos del area en la que estoy
@@ -362,7 +363,7 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.aprobo_puesto = safe_string(form.aprobo_puesto.data)
         cid_procedimiento.aprobo_email = safe_email(aprobo_email)
         cid_procedimiento.control_cambios = control_cambios
-        cid_procedimiento.cid_area_id=1
+        cid_procedimiento.cid_area_id = 1
         cid_procedimiento.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
