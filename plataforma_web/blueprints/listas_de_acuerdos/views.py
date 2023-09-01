@@ -145,7 +145,7 @@ def list_autoridad_listas_de_acuerdos(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = None
     plantilla = "listas_de_acuerdos/list.jinja2"
-    if current_user.can_admin("LISTAS DE ACUERDOS") or current_user.get_roles() in ROL_REPORTES_TODOS:
+    if current_user.can_admin("LISTAS DE ACUERDOS") or set(current_user.get_roles()).intersection(set(ROL_REPORTES_TODOS)):
         plantilla = "listas_de_acuerdos/list_admin.jinja2"
         form = ListaDeAcuerdoReportForm()
         form.autoridad_id.data = autoridad.id  # Oculto la autoridad que esta viendo
@@ -787,7 +787,7 @@ def report():
         fecha_desde = form.fecha_desde.data
         fecha_hasta = form.fecha_hasta.data
         # Si no es administrador, ni tiene un rol para elaborar reportes de todos
-        if not current_user.can_admin("LISTAS DE ACUERDOS") and not current_user.get_roles() in ROL_REPORTES_TODOS:
+        if not current_user.can_admin("LISTAS DE ACUERDOS") and not set(current_user.get_roles()).intersection(set(ROL_REPORTES_TODOS)):
             # Si la autoridad del usuario no es la del formulario, se niega el acceso
             if current_user.autoridad_id != autoridad.id:
                 flash("No tiene permiso para acceder a este reporte.", "warning")
