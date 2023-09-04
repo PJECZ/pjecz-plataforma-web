@@ -31,19 +31,13 @@
                 <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:earth"></span> Todos</button>
             </div>
         {% endif %}
-        {% if mostrando_historial %}
-            {% if mostrar_btn_local_global == 'LOCAL' %}
+        {% if mostrar_btn_historial == "IR_AL_HISTORIAL" %}
+            {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
+        {% elif mostrar_btn_historial == "IR_A_ACTIVOS" %}
+            <div class="btn-group me-2">
                 <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_active')}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
-            {% elif mostrar_btn_local_global == 'GLOBAL' %}
-                <a class="btn btn-sm btn-outline-success" href="{{url_for('arc_archivos.list_all', historial=0)}}"><span class="iconify" data-icon="mdi:inbox-full"></span> Activos</a>
-            {% endif %}
-            <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:history"></span> Historial</button>
-        {% else %}
-            {% if mostrar_btn_local_global == 'LOCAL' %}
-                {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
-            {% elif mostrar_btn_local_global == 'GLOBAL' %}
-                {{ topbar.button('Historial', url_for('arc_archivos.list_all', historial=1), 'mdi:history') }}
-            {% endif %}
+                <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:history"></span> Historial</button>
+            </div>
         {% endif %}
     {% endcall %}
 {% endblock %}
