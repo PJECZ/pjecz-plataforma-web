@@ -45,6 +45,9 @@
                 {{ topbar.button('Historial', url_for('arc_archivos.list_all', historial=1), 'mdi:history') }}
             {% endif %}
         {% endif %}
+        {% if mostrar_btn_historial %}
+            {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
