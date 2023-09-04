@@ -51,7 +51,7 @@ def list_active():
             estados_remesas=ArcRemesa.ESTADOS,
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global="LOCAL",
-            mostrar_btn_historial=True,
+            mostrar_btn_historial="IR_AL_HISTORIAL",
         )
     if ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         return render_template(
@@ -64,7 +64,7 @@ def list_active():
             estados_remesas=ArcRemesa.ESTADOS,
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global="LOCAL",
-            mostrar_btn_historial=True,
+            mostrar_btn_historial="IR_AL_HISTORIAL",
         )
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(
@@ -76,7 +76,7 @@ def list_active():
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
             rol_archivista=ROL_ARCHIVISTA,
-            mostrar_btn_historial=True,
+            mostrar_btn_historial="IR_AL_HISTORIAL",
         )
     if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
         return render_template(
@@ -118,10 +118,6 @@ def list_history():
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
 
-    mostrar_btn_local = None
-    if ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles or current_user.can_admin(MODULO):
-        mostrar_btn_local = "LOCAL"
-
     if current_user.can_admin(MODULO):
         return render_template(
             "arc_archivos/list_jefe_remesa.jinja2",
@@ -132,7 +128,8 @@ def list_history():
             mostrando_historial=True,
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
-            mostrar_btn_local_global=mostrar_btn_local,
+            mostrar_btn_local_global="LOCAL",
+            mostrar_btn_historial="IR_A_ACTIVOS",
         )
     if ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
         return render_template(
@@ -156,7 +153,8 @@ def list_history():
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
             rol_archivista=ROL_ARCHIVISTA,
-            mostrar_btn_local_global=mostrar_btn_local,
+            mostrar_btn_local_global="LOCAL",
+            mostrar_btn_historial="IR_A_ACTIVOS",
         )
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(
@@ -169,7 +167,7 @@ def list_history():
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
             rol_archivista=ROL_ARCHIVISTA,
-            mostrar_btn_local_global=mostrar_btn_local,
+            mostrar_btn_historial="IR_A_ACTIVOS",
         )
     if ROL_ARCHIVISTA in current_user_roles:
         return render_template(
@@ -208,7 +206,6 @@ def list_all(historial):
         redirect(url_for("arc_archivos.list_active"))
 
     # Extraemos los distritos
-    distritos = Distrito.query.filter_by(estatus="A").filter_by(es_distrito=True).all()
     sedes = [
         {"id": "ND", "nombre": "NO DEFINIDO"},
         {"id": "DACN", "nombre": "ACUÑA"},
@@ -232,6 +229,7 @@ def list_all(historial):
             estados_solicitudes=ArcSolicitud.ESTADOS,
             estados_remesas=ArcRemesa.ESTADOS,
             mostrar_btn_local_global="GLOBAL",
+            mostrar_btn_historial="IR_A_ACTIVOS",
             sedes=sedes,
         )
 
@@ -245,5 +243,6 @@ def list_all(historial):
         estados_remesas=ArcRemesa.ESTADOS,
         rol_archivista=ROL_ARCHIVISTA,
         mostrar_btn_local_global="GLOBAL",
+        mostrar_btn_historial="IR_AL_HISTORIAL",
         sedes=sedes,
     )
