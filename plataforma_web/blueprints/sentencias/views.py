@@ -3,11 +3,12 @@ Sentencias, vistas
 """
 import datetime
 import json
-import pytz
 from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from pytz import timezone
+from sqlalchemy.sql.functions import count
 from werkzeug.datastructures import CombinedMultiDict
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
@@ -65,16 +66,22 @@ def list_active():
             filtros=json.dumps({"estatus": "A"}),
             titulo="Todas las V.P. de Sentencias",
             estatus="A",
+            form=None,
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
         autoridad = current_user.autoridad
+        form = SentenciaReportForm()
+        form.autoridad_id.data = autoridad.id  # Oculto la autoridad del usuario
+        form.fecha_desde.data = datetime.date.today().replace(day=1)  # Por defecto fecha_desde es el primer dia del mes actual
+        form.fecha_hasta.data = datetime.date.today()  # Por defecto fecha_hasta es hoy
         return render_template(
             "sentencias/list.jinja2",
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
             titulo=f"V.P. de Sentencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="A",
+            form=form,
         )
     # Ninguno de los anteriores
     return redirect(url_for("sentencias.list_distritos"))
@@ -92,6 +99,7 @@ def list_inactive():
             filtros=json.dumps({"estatus": "B"}),
             titulo="Todas las V.P. de Sentencias inactivas",
             estatus="B",
+            form=None,
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
@@ -102,6 +110,7 @@ def list_inactive():
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
             titulo=f"V.P. de Sentencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="B",
+            form=None,
         )
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("sentencias.list_distritos"))
@@ -133,9 +142,10 @@ def list_autoridad_sentencias(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = None
     plantilla = "sentencias/list.jinja2"
-    if current_user.can_admin("SENTENCIAS"):
+    if current_user.can_admin("SENTENCIAS") or set(current_user.get_roles()).intersection(set(ROL_REPORTES_TODOS)):
         plantilla = "sentencias/list_admin.jinja2"
         form = SentenciaReportForm()
+        form.autoridad_id.data = autoridad.id  # Oculto la autoridad que esta viendo
         form.fecha_desde.data = datetime.date.today().replace(day=1)  # Por defecto fecha_desde es el primer dia del mes actual
         form.fecha_hasta.data = datetime.date.today()  # Por defecto fecha_hasta es hoy
     return render_template(
@@ -163,6 +173,7 @@ def list_autoridad_sentencias_inactive(autoridad_id):
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
         titulo=f"V.P. de Sentencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="B",
+        form=None,
     )
 
 
@@ -329,7 +340,8 @@ def datatable_json_admin():
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(Sentencia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-    local_tz = pytz.timezone(HUSO_HORARIO)  # Zona horaria local
+    # Zona horaria local
+    local_tz = timezone(HUSO_HORARIO)
     # Elaborar datos para DataTable
     data = []
     for sentencia in registros:
@@ -351,6 +363,47 @@ def datatable_json_admin():
                 "archivo": {
                     "descargar_url": url_for("sentencias.download", url=quote(sentencia.url)),
                 },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@sentencias.route("/sentencias/datatable_tipos_de_juicios_json", methods=["GET", "POST"])
+def datatable_tipos_de_juicios_json():
+    """Datatable JSON con los tipos de juicios y sus cantidades"""
+    # Tomar parámetros de Datatables
+    draw, _, _ = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        MateriaTipoJuicio.descripcion.label("tipo_de_juicio"),
+        count("*").label("cantidad"),
+    )
+    # Juntar las tablas sentencias y materias_tipos_juicios
+    consulta = consulta.select_from(Sentencia).join(MateriaTipoJuicio)
+    # Debe venir la autoridad_id
+    autoridad = Autoridad.query.get_or_404(request.form["autoridad_id"])
+    consulta = consulta.filter(Sentencia.autoridad == autoridad)
+    # Debe venir la fecha_desde
+    consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
+    # Debe venir la fecha_hasta
+    consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
+    # Agrupar
+    consulta = consulta.group_by(MateriaTipoJuicio.descripcion)
+    # Ordenar
+    consulta = consulta.order_by(MateriaTipoJuicio.descripcion)
+    # Consultar
+    resultados = consulta.all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in resultados:
+        data.append(
+            {
+                "tipo_de_juicio": resultado.tipo_de_juicio,
+                "cantidad": resultado.cantidad,
             }
         )
     # Entregar JSON
@@ -882,16 +935,44 @@ def recover(sentencia_id):
 
 
 @sentencias.route("/sentencias/reporte", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
 def report():
     """Elaborar reporte de sentencias"""
+    # Preparar el formulario
     form = SentenciaReportForm()
+    # Si viene el formulario
     if form.validate():
         # Tomar valores del formulario
+        autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
         fecha_desde = form.fecha_desde.data
         fecha_hasta = form.fecha_hasta.data
-        autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
-        # Entregar pagina
+        por_tipos_de_juicios = bool(form.por_tipos_de_juicios.data)
+        # Si la fecha_desde es posterior a la fecha_hasta, se intercambian
+        if fecha_desde > fecha_hasta:
+            fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
+        # Si no es administrador, ni tiene un rol para elaborar reportes de todos
+        if not current_user.can_admin("SENTENCIAS") and not set(current_user.get_roles()).intersection(set(ROL_REPORTES_TODOS)):
+            # Si la autoridad del usuario no es la del formulario, se niega el acceso
+            if current_user.autoridad_id != autoridad.id:
+                flash("No tiene permiso para acceder a este reporte.", "warning")
+                return redirect(url_for("listas_de_acuerdos.list_active"))
+        # Si es por tipos de juicios
+        if por_tipos_de_juicios:
+            # Entregar pagina con los tipos de juicios y sus cantidades
+            return render_template(
+                "sentencias/report_tipos_de_juicios.jinja2",
+                autoridad=autoridad,
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros=json.dumps(
+                    {
+                        "autoridad_id": autoridad.id,
+                        "estatus": "A",
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
+        # De lo contrario, entregar pagina con el reporte de sentencias y enlaces publicos
         return render_template(
             "sentencias/report.jinja2",
             autoridad=autoridad,
@@ -906,5 +987,6 @@ def report():
                 }
             ),
         )
-    flash("Error: datos incorrectos para hacer la descarga.", "warning")
+    # No viene el formulario, por lo tanto se advierte del error
+    flash("Error: datos incorrectos para hacer el reporte de sentencias.", "warning")
     return redirect(url_for("sentencias.list_active"))

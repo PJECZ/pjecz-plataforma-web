@@ -16,6 +16,11 @@
     {% endif %}
 {%- endmacro -%}
 
+{# un campo de opción múltiple #}
+{%- macro checkbox_field(f) -%}
+    {{ f(type='checkbox', **kwargs) }} {{ f.label }}
+{%- endmacro -%}
+
 {# un campo del formulario #}
 {%- macro field(f, css_class='form-control') -%}
     {% if f.type == 'DateField' %}
@@ -33,6 +38,11 @@
     {% if f.type == 'HiddenField' %}
         {{ field(f, **kwargs) }}
         {{ caller () }}
+    {% elif f.type == 'BooleanField' %}
+        <div class="col-auto">
+            {{ checkbox_field(f, **kwargs) }}
+            {{ caller () }}
+        </div>
     {% elif f.type == 'DateField' %}
         <div class="col-auto">
             {{ field_label(f) }}

@@ -3,10 +3,7 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}
-    Reporte de Listas de Acuerdos de {{ autoridad.clave }}
-    del {{ fecha_desde }} al {{ fecha_hasta }}
-{% endblock %}
+{% block title %}Cantidades por tipos de juicios de {{ autoridad.clave }} del {{ fecha_desde }} al {{ fecha_hasta }}{% endblock %}
 
 {% block custom_head %}
     <!-- Datatables buttons -->
@@ -14,12 +11,12 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Reporte de Listas de Acuerdos') %}
-        {% if current_user.can_admin('LISTAS DE ACUERDOS') %}
-            {{ topbar.button_previous('Listas de Acuerdos de ' + autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
+    {% call topbar.page_buttons('Cantidades por tipos de juicios de V.P. de Sentencias') %}
+        {% if current_user.can_admin('SENTENCIAS') %}
+            {{ topbar.button_previous('V.P. de Sentencias de ' + autoridad.clave, url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
         {% endif %}
-        {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
-        {{ topbar.button_districts('Distritos', url_for('listas_de_acuerdos.list_distritos')) }}
+        {{ topbar.button_previous('V.P. de Sentencias', url_for('sentencias.list_active')) }}
+        {{ topbar.button_districts('Distritos', url_for('sentencias.list_distritos')) }}
     {% endcall %}
 {% endblock %}
 
@@ -31,14 +28,11 @@
         {{ detail.label_value('Hasta', fecha_hasta) }}
     {% endcall %}
     {% call list.card(title='De clic en un botón para descargar el reporte con enlaces públicos (máximo 500 registros)') %}
-        <table id="listas_de_acuerdos_datatable" class="table display nowrap" style="width:100%">
+        <table id="sentencias_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Fecha</th>
-                    <th>Descripción</th>
-                    <th>Enlace público</th>
-                    <th>Creado</th>
-                    <th>En tiempo</th>
+                    <th>Tipo de Juicio</th>
+                    <th>Cantidad</th>
                 </tr>
             </thead>
         </table>
@@ -54,7 +48,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.1/js/buttons.print.min.js"></script>
     <!-- Datatable -->
     <script>
-        $('#listas_de_acuerdos_datatable').DataTable({
+        $('#sentencias_datatable').DataTable({
             dom: 'Bfrtip',
             buttons: [
                 { extend: 'copy', text: 'Copiar' },
@@ -68,7 +62,7 @@
             responsive: true,
             scrollX: true,
             ajax: {
-                url: "/listas_de_acuerdos/datatable_json",
+                url: "/sentencias/datatable_tipos_de_juicios_json",
                 type: "POST",
                 headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                 dataType: "json",
@@ -76,50 +70,10 @@
                 data: {{ filtros }}
             },
             columns: [
-                { data: "fecha" },
-                { data: "detalle" },
-                { data: "archivo" },
-                { data: "creado" },
-                { data: "creado" }
+                { data: "tipo_de_juicio" },
+                { data: "cantidad" }
             ],
             ordering: false,
-            columnDefs: [
-                {
-                    targets: 1, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                    }
-                },
-                {
-                    targets: 2, // archivo
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.descargar_url + '" target="_blank">' + data.descargar_url + '</a>';
-                    }
-                },
-                {
-                    targets: 3, // creado
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return data.tiempo;
-                    }
-                },
-                {
-                    targets: 4, // creado "en tiempo"
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.semaforo < 1) {
-                            texto = 'Verde'; bandera = 'flag-checkered'; color = 'green';
-                        } else if (data.semaforo == 1) {
-                            texto = 'Amarillo'; bandera = 'flag-outline'; color = 'orange';
-                        } else if (data.semaforo > 1) {
-                            texto = 'Rojo'; bandera = 'flag'; color = 'red';
-                        }
-                        return texto + ' <span style="color: ' + color +  ';" class="iconify" data-icon="mdi:' + bandera + '"></span>';
-                    }
-                }
-            ],
             language: {
                 lengthMenu: "Mostrar _MENU_",
                 search: "Filtrar:",
