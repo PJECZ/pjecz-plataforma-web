@@ -70,4 +70,5 @@ class SentenciaReportForm(FlaskForm):
     autoridad_id = IntegerField("Autoridad ID", validators=[DataRequired()])
     fecha_desde = DateField("Desde", validators=[DataRequired()])
     fecha_hasta = DateField("Hasta", validators=[DataRequired()])
+    por_tipos_de_juicios = BooleanField("Por tipos de juicios", validators=[Optional()])
     elaborar = SubmitField("Elaborar")
