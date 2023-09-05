@@ -30,6 +30,7 @@
 {% endblock %}
 
 {% block content %}
+    {# Datatable #}
     {% call list.card() %}
         <table id="sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
@@ -48,6 +49,7 @@
             </thead>
         </table>
     {% endcall %}
+    {# Reporte #}
     {% if form %}
         {% call list.card(title='Reporte de V.P. de Sentencias') %}
             {% call f.form_tag('sentencias.report', fid='sentencias_report_form') %}
@@ -88,7 +90,7 @@
                 { data: "es_perspectiva_genero" },
                 { data: "archivo" }
             ],
-            order: [[ 0, "desc" ]],
+            ordering: false,
             columnDefs: [
                 {
                     targets: 0, // detalle

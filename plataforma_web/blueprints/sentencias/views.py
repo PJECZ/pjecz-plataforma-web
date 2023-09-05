@@ -3,11 +3,11 @@ Sentencias, vistas
 """
 import datetime
 import json
-import pytz
 from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from pytz import timezone
 from werkzeug.datastructures import CombinedMultiDict
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
@@ -65,16 +65,22 @@ def list_active():
             filtros=json.dumps({"estatus": "A"}),
             titulo="Todas las V.P. de Sentencias",
             estatus="A",
+            form=None,
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
         autoridad = current_user.autoridad
+        form = SentenciaReportForm()
+        form.autoridad_id.data = autoridad.id  # Oculto la autoridad del usuario
+        form.fecha_desde.data = datetime.date.today().replace(day=1)  # Por defecto fecha_desde es el primer dia del mes actual
+        form.fecha_hasta.data = datetime.date.today()  # Por defecto fecha_hasta es hoy
         return render_template(
             "sentencias/list.jinja2",
             autoridad=autoridad,
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "A"}),
             titulo=f"V.P. de Sentencias de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="A",
+            form=form,
         )
     # Ninguno de los anteriores
     return redirect(url_for("sentencias.list_distritos"))
@@ -92,6 +98,7 @@ def list_inactive():
             filtros=json.dumps({"estatus": "B"}),
             titulo="Todas las V.P. de Sentencias inactivas",
             estatus="B",
+            form=None,
         )
     # Si es jurisdiccional ve lo de su autoridad
     if current_user.autoridad.es_jurisdiccional:
@@ -102,6 +109,7 @@ def list_inactive():
             filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
             titulo=f"V.P. de Sentencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
             estatus="B",
+            form=None,
         )
     # No es jurisdiccional, se redirige al listado de distritos
     return redirect(url_for("sentencias.list_distritos"))
@@ -133,9 +141,10 @@ def list_autoridad_sentencias(autoridad_id):
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = None
     plantilla = "sentencias/list.jinja2"
-    if current_user.can_admin("SENTENCIAS"):
+    if current_user.can_admin("SENTENCIAS") or set(current_user.get_roles()).intersection(set(ROL_REPORTES_TODOS)):
         plantilla = "sentencias/list_admin.jinja2"
         form = SentenciaReportForm()
+        form.autoridad_id.data = autoridad.id  # Oculto la autoridad que esta viendo
         form.fecha_desde.data = datetime.date.today().replace(day=1)  # Por defecto fecha_desde es el primer dia del mes actual
         form.fecha_hasta.data = datetime.date.today()  # Por defecto fecha_hasta es hoy
     return render_template(
@@ -163,6 +172,7 @@ def list_autoridad_sentencias_inactive(autoridad_id):
         filtros=json.dumps({"autoridad_id": autoridad.id, "estatus": "B"}),
         titulo=f"V.P. de Sentencias inactivas de {autoridad.distrito.nombre_corto}, {autoridad.descripcion_corta}",
         estatus="B",
+        form=None,
     )
 
 
@@ -329,7 +339,8 @@ def datatable_json_admin():
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(Sentencia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
-    local_tz = pytz.timezone(HUSO_HORARIO)  # Zona horaria local
+    # Zona horaria local
+    local_tz = timezone(HUSO_HORARIO)
     # Elaborar datos para DataTable
     data = []
     for sentencia in registros:
@@ -882,15 +893,22 @@ def recover(sentencia_id):
 
 
 @sentencias.route("/sentencias/reporte", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
 def report():
     """Elaborar reporte de sentencias"""
+    # Preparar el formulario
     form = SentenciaReportForm()
+    # Si viene el formulario
     if form.validate():
         # Tomar valores del formulario
+        autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
         fecha_desde = form.fecha_desde.data
         fecha_hasta = form.fecha_hasta.data
-        autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
+        # Si no es administrador, ni tiene un rol para elaborar reportes de todos
+        if not current_user.can_admin("SENTENCIAS") and not set(current_user.get_roles()).intersection(set(ROL_REPORTES_TODOS)):
+            # Si la autoridad del usuario no es la del formulario, se niega el acceso
+            if current_user.autoridad_id != autoridad.id:
+                flash("No tiene permiso para acceder a este reporte.", "warning")
+                return redirect(url_for("listas_de_acuerdos.list_active"))
         # Entregar pagina
         return render_template(
             "sentencias/report.jinja2",
@@ -906,5 +924,6 @@ def report():
                 }
             ),
         )
+    # No viene el formulario, por lo tanto se advierte del error
     flash("Error: datos incorrectos para hacer la descarga.", "warning")
     return redirect(url_for("sentencias.list_active"))

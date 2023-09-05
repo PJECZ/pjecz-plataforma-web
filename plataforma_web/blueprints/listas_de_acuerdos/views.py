@@ -3,7 +3,6 @@ Listas de Acuerdos, vistas
 """
 import datetime
 import json
-import pytz
 from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -256,7 +255,7 @@ def datatable_json():
     registros = consulta.order_by(ListaDeAcuerdo.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Zona horaria local
-    local_tz = pytz.timezone(HUSO_HORARIO)
+    local_tz = timezone(HUSO_HORARIO)
     # Medianoche en HH:MM:SS
     medianoche = datetime.time.min
     # Elaborar datos para DataTable
@@ -324,7 +323,7 @@ def datatable_json_admin():
     registros = consulta.order_by(ListaDeAcuerdo.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Zona horaria local
-    local_tz = pytz.timezone(HUSO_HORARIO)
+    local_tz = timezone(HUSO_HORARIO)
     # Medianoche en HH:MM:SS
     medianoche = datetime.time.min
     # Elaborar datos para DataTable
