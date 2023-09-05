@@ -5,7 +5,7 @@ import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-
+from sqlalchemy import asc
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_email, safe_string, safe_message
 
@@ -13,6 +13,8 @@ from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
+from plataforma_web.blueprints.cid_areas.models import CIDArea
+from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -67,7 +69,12 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.codigo.contains(safe_string(request.form["codigo"])))
     if "elaboro_nombre" in request.form:
         consulta = consulta.filter(CIDProcedimiento.elaboro_nombre.contains(safe_string(request.form["elaboro_nombre"])))
-    registros = consulta.order_by(CIDProcedimiento.id.desc()).offset(start).limit(rows_per_page).all()
+    if "cid_areas[]" in request.form:
+        areas_id = request.form["cid_areas[]"]
+        area_list = areas_id.split(",")
+        for area_id in area_list:
+            consulta = consulta.filter(CIDProcedimiento.cid_area_id == area_id)
+    registros = consulta.order_by(asc(CIDProcedimiento.titulo_procedimiento)).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -102,44 +109,61 @@ def datatable_json():
 
 @cid_procedimientos.route("/cid_procedimientos")
 def list_active():
-    """Listado por defecto de Procedimientos"""
-    # Si es administrador, mostrar todos los procedimientos
+    """Listado de Todos los Procedimientos"""
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    # Si es administrador, coordinador, mostrar todos los procedimientos
     if current_user.can_admin(MODULO):
         return render_template(
             "cid_procedimientos/list_admin.jinja2",
-            titulo="Todos los Procedimientos",
-            filtros=json.dumps({"estatus": "A"}),
+            titulo="Todos los procedimientos autorizados",
+            filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
             estatus="A",
             show_button_list_owned=True,
             show_button_list_all=True,
+            show_button_list_all_autorized=True,
+            show_button_my_autorized=True,
         )
-
-    # Consultar los roles del usuario
-    current_user_roles = current_user.get_roles()
-    # Mostrar solo los procedimientos del area en la que estoy
-    # Mostrar solo los procedimientos autorizados
-    return render_template(
-        "cid_procedimientos/list.jinja2",
-        titulo="Procedimientos autorizados",
-        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
-        estatus="A",
-        show_button_list_owned=ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
-        show_button_list_all=ROL_COORDINADOR in current_user_roles,
-    )
+    if current_user.can_edit(MODULO):
+        return render_template(
+            "cid_procedimientos/list.jinja2",
+            titulo="Todos los procedimientos autorizados",
+            filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
+            estatus="A",
+            show_button_list_owned=ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
+            show_button_list_all=ROL_COORDINADOR in current_user_roles,
+        )
 
 
 @cid_procedimientos.route("/cid_procedimientos/autorizados")
 def list_authorized():
     """Listado de Procedimientos autorizados"""
     current_user_roles = current_user.get_roles()
-    return render_template(
-        "cid_procedimientos/list.jinja2",
-        titulo="Procedimientos autorizados",
-        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
-        estatus="A",
-        show_button_list_owned=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
-        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
-    )
+    cid_areas = CIDArea.query.join(CIDAreaAutoridad).filter(CIDAreaAutoridad.autoridad_id == current_user.autoridad.id).all()
+    areas = []
+    if cid_areas:
+        for area in cid_areas:
+            areas.append(area.id)
+            print(area)
+    if current_user.can_admin(MODULO):
+        return render_template(
+            "cid_procedimientos/list_admin.jinja2",
+            titulo="Procedimientos autorizados por mi área",
+            filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "cid_areas": areas}),
+            estatus="A",
+            show_button_list_owned=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
+            show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
+        )
+    # Si es usuario normal, mostrar procedimientos autorizados en list.jinja2
+    if current_user.can_edit(MODULO):
+        return render_template(
+            "cid_procedimientos/list.jinja2",
+            titulo="Procedimientos autorizados por mi área",
+            filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "cid_areas": areas}),
+            estatus="A",
+            show_button_list_owned=ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
+            show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
+        )
 
 
 @cid_procedimientos.route("/cid_procedimientos/propios")
@@ -154,7 +178,7 @@ def list_owned():
             titulo="Procedimientos propios",
             filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
             estatus="A",
-            show_button_list_owned=True,
+            show_button_list_owned=False,
             show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
         )
     # Si no, redirigir a la lista general
@@ -174,7 +198,9 @@ def list_all():
             filtros=json.dumps({"estatus": "A"}),
             estatus="A",
             show_button_list_owned=True,
-            show_button_list_all=True,
+            show_button_list_all=False,
+            show_button_list_all_autorized=True,
+            show_button_my_autorized=True,
         )
     # Si no, redirigir a la lista general
     return redirect(url_for("cid_procedimientos.list_active"))
@@ -191,6 +217,8 @@ def list_inactive():
         estatus="B",
         show_button_list_owned=True,
         show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
+        show_button_list_all_autorized=True,
+        show_button_my_autorized=True,
     )
 
 

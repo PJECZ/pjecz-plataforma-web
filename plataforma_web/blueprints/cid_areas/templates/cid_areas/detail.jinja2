@@ -38,7 +38,7 @@
     {% endif %}
     {# Procedimientos #}
     {% if current_user.can_view('CID PROCEDIMIENTOS') %}
-        {% call detail.card(title='Procedimientos') %}
+        {% call detail.card('Procedimientos') %}
             <table id="cid_procedimientos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -94,11 +94,11 @@
             ];
             $('#cid_areas_autoridades_datatable').DataTable(configDataTable);
         </script>
-    {% endif %}
-    {% if current_user.can_view('CID PROCEDIMIENTOS') %}
+     {% endif %}
+     {% if current_user.can_view('CID PROCEDIMIENTOS') %}
         <script>
             configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'cid_area_id': {{ cid_area.id}} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'cid_areas': [{{ cid_area.id}}] };
             configDataTable['columns'] = [
                 { data: 'detalle' },
                 { data: 'titulo_procedimiento' },
@@ -106,7 +106,7 @@
                 { data: 'fecha' },
                 { data: 'usuario' },
                 { data: 'seguimiento' },
-                { data: 'cid_area' },
+                { data: 'cid_area' }
             ];
             configDataTable['columnDefs'] = [
                 {
@@ -124,7 +124,7 @@
                             return '<span title="' + data + '">' + data.substr(0, 64) + '…' + '</span>';
                         return data;
                     }
-                },
+                }, 
                 {
                     targets: 4, // usuario
                     data: null,
@@ -141,7 +141,7 @@
                     }
                 },
                 {
-                    targets: 7, // cid_area
+                    targets: 6, // cid_area
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url == '') {
@@ -149,11 +149,10 @@
                         }
                         return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
-                },
+                }
             ];
-            // Datatable
             $('#cid_procedimientos_datatable').DataTable(configDataTable);
         </script>
-    {% endif %}
+     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}
