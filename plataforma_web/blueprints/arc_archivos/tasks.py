@@ -66,21 +66,21 @@ def pasar_al_historial_solicitudes_remesas():
 
     set_task_progress(50)
 
-    # Selección de remesas con más de tantos días de antigüedad y en estado de ARCHIVADO
-    remesas = ArcRemesa.query.filter_by(estado="ARCHIVADO").filter_by(esta_archivado=False).filter(ArcRemesa.modificado <= fecha_limite).all()
-    contador = 0
-    for remesa in remesas:
-        remesa.esta_archivado = True
-        remesa.save()
-        contador += 1
-        # Añadir acción a la bitácora de remesas
-        ArcRemesaBitacora(
-            arc_remesa=remesa,
-            usuario=usuario,
-            accion="PASADA AL HISTORIAL",
-            observaciones="Tarea programada",
-        ).save()
-    bitacora.info("Se han pasado al historial %d remesas con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
+    # # Selección de remesas con más de tantos días de antigüedad y en estado de ARCHIVADO
+    # remesas = ArcRemesa.query.filter_by(estado="ARCHIVADO").filter_by(esta_archivado=False).filter(ArcRemesa.modificado <= fecha_limite).all()
+    # contador = 0
+    # for remesa in remesas:
+    #     remesa.esta_archivado = True
+    #     remesa.save()
+    #     contador += 1
+    #     # Añadir acción a la bitácora de remesas
+    #     ArcRemesaBitacora(
+    #         arc_remesa=remesa,
+    #         usuario=usuario,
+    #         accion="PASADA AL HISTORIAL",
+    #         observaciones="Tarea programada",
+    #     ).save()
+    # bitacora.info("Se han pasado al historial %d remesas con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
 
     # Terminar tarea
     set_task_progress(100)
