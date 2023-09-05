@@ -903,6 +903,9 @@ def report():
         autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
         fecha_desde = form.fecha_desde.data
         fecha_hasta = form.fecha_hasta.data
+        # Si la fecha_desde es posterior a la fecha_hasta, se intercambian
+        if fecha_desde > fecha_hasta:
+            fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
         # Si no es administrador, ni tiene un rol para elaborar reportes de todos
         if not current_user.can_admin("SENTENCIAS") and not set(current_user.get_roles()).intersection(set(ROL_REPORTES_TODOS)):
             # Si la autoridad del usuario no es la del formulario, se niega el acceso

@@ -15,7 +15,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Reporte de Listas de Acuerdos') %}
-        {{ topbar.button_previous('Listas de Acuerdos de ' + autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
+        {% if current_user.can_admin('LISTAS DE ACUERDOS') %}
+            {{ topbar.button_previous('Listas de Acuerdos de ' + autoridad.clave, url_for('listas_de_acuerdos.list_autoridad_listas_de_acuerdos', autoridad_id=autoridad.id)) }}
+        {% endif %}
         {{ topbar.button_previous('Listas de Acuerdos', url_for('listas_de_acuerdos.list_active')) }}
         {{ topbar.button_districts('Distritos', url_for('listas_de_acuerdos.list_distritos')) }}
     {% endcall %}
