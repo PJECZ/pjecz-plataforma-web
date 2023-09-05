@@ -8,6 +8,7 @@ from urllib.parse import quote
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from pytz import timezone
+from sqlalchemy.sql.functions import count
 from werkzeug.datastructures import CombinedMultiDict
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
@@ -362,6 +363,47 @@ def datatable_json_admin():
                 "archivo": {
                     "descargar_url": url_for("sentencias.download", url=quote(sentencia.url)),
                 },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@sentencias.route("/sentencias/datatable_tipos_de_juicios_json", methods=["GET", "POST"])
+def datatable_tipos_de_juicios_json():
+    """Datatable JSON con los tipos de juicios y sus cantidades"""
+    # Tomar parámetros de Datatables
+    draw, _, _ = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        MateriaTipoJuicio.descripcion.label("tipo_de_juicio"),
+        count("*").label("cantidad"),
+    )
+    # Juntar las tablas sentencias y materias_tipos_juicios
+    consulta = consulta.select_from(Sentencia).join(MateriaTipoJuicio)
+    # Debe venir la autoridad_id
+    autoridad = Autoridad.query.get_or_404(request.form["autoridad_id"])
+    consulta = consulta.filter(Sentencia.autoridad == autoridad)
+    # Debe venir la fecha_desde
+    consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
+    # Debe venir la fecha_hasta
+    consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
+    # Agrupar
+    consulta = consulta.group_by(MateriaTipoJuicio.descripcion)
+    # Ordenar
+    consulta = consulta.order_by(MateriaTipoJuicio.descripcion)
+    # Consultar
+    resultados = consulta.all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in resultados:
+        data.append(
+            {
+                "tipo_de_juicio": resultado.tipo_de_juicio,
+                "cantidad": resultado.cantidad,
             }
         )
     # Entregar JSON
@@ -903,6 +945,7 @@ def report():
         autoridad = Autoridad.query.get_or_404(int(form.autoridad_id.data))
         fecha_desde = form.fecha_desde.data
         fecha_hasta = form.fecha_hasta.data
+        por_tipos_de_juicios = bool(form.por_tipos_de_juicios.data)
         # Si la fecha_desde es posterior a la fecha_hasta, se intercambian
         if fecha_desde > fecha_hasta:
             fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
@@ -912,7 +955,24 @@ def report():
             if current_user.autoridad_id != autoridad.id:
                 flash("No tiene permiso para acceder a este reporte.", "warning")
                 return redirect(url_for("listas_de_acuerdos.list_active"))
-        # Entregar pagina
+        # Si es por tipos de juicios
+        if por_tipos_de_juicios:
+            # Entregar pagina con los tipos de juicios y sus cantidades
+            return render_template(
+                "sentencias/report_tipos_de_juicios.jinja2",
+                autoridad=autoridad,
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros=json.dumps(
+                    {
+                        "autoridad_id": autoridad.id,
+                        "estatus": "A",
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
+        # De lo contrario, entregar pagina con el reporte de sentencias y enlaces publicos
         return render_template(
             "sentencias/report.jinja2",
             autoridad=autoridad,
@@ -928,5 +988,5 @@ def report():
             ),
         )
     # No viene el formulario, por lo tanto se advierte del error
-    flash("Error: datos incorrectos para hacer la descarga.", "warning")
+    flash("Error: datos incorrectos para hacer el reporte de sentencias.", "warning")
     return redirect(url_for("sentencias.list_active"))

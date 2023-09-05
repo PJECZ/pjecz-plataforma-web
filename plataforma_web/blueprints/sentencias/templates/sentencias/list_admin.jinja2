@@ -56,6 +56,7 @@
                 {% call f.form_group(form.autoridad_id, type='hidden', value=autoridad.id) %}{% endcall %}
                 {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
                 {% call f.form_group(form.fecha_hasta, placeholder='Hasta') %}{% endcall %}
+                {% call f.form_group(form.por_tipos_de_juicios) %}{% endcall %}
                 {% call f.form_group(form.elaborar) %}{% endcall %}
             {% endcall %}
         {% endcall %}

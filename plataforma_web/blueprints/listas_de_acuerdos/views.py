@@ -810,5 +810,5 @@ def report():
             ),
         )
     # No viene el formulario, por lo tanto se advierte del error
-    flash("Error: datos incorrectos para hacer la descarga.", "warning")
+    flash("Error: datos incorrectos para hacer el reporte.", "warning")
     return redirect(url_for("listas_de_acuerdos.list_active"))
