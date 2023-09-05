@@ -1,4 +1,5 @@
 {% extends 'layouts/app.jinja2' %}
+{% import 'macros/form_inline.jinja2' as f with context %}
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
@@ -17,15 +18,13 @@
             {% elif current_user.can_insert('SENTENCIAS') and current_user.autoridad_id == autoridad.id %}
                 {{ topbar.button_upload('Subir', url_for('sentencias.new')) }}
             {% endif %}
-            {# if current_user.can_admin('SENTENCIAS') and current_user.can_insert('TAREAS') #}
-                {# topbar.button_refresh('Refrescar', url_for('sentencias.refresh', autoridad_id=autoridad.id)) #}
-            {# endif #}
         {% endif %}
         {{ topbar.button_search('Buscar', url_for('sentencias.search')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
+    {# Datatable #}
     {% call list.card() %}
         <table id="sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
@@ -41,6 +40,17 @@
             </thead>
         </table>
     {% endcall %}
+    {# Reporte #}
+    {% if form %}
+        {% call list.card(title='Reporte de Listas de Acuerdos') %}
+            {% call f.form_tag('sentencias.report', fid='sentencias_report_form') %}
+                {% call f.form_group(form.autoridad_id, type='hidden') %}{% endcall %}
+                {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
+                {% call f.form_group(form.fecha_hasta, placeholder='Hasta') %}{% endcall %}
+                {% call f.form_group(form.elaborar) %}{% endcall %}
+            {% endcall %}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -48,7 +58,6 @@
         $('#sentencias_datatable').DataTable({
             processing: true,
             serverSide: true,
-            ordering: false,
             searching: false,
             responsive: true,
             scrollX: true,
@@ -69,6 +78,7 @@
                 { data: "es_perspectiva_genero" },
                 { data: "archivo" }
             ],
+            ordering: false,
             columnDefs: [
                 {
                     targets: 1, // detalle
