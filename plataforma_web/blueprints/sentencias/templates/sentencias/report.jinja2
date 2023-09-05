@@ -12,7 +12,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Reporte de V.P. de Sentencias') %}
-        {{ topbar.button_previous('V.P. de Sentencias de ' + autoridad.clave, url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
+        {% if current_user.can_admin('SENTENCIAS') %}
+            {{ topbar.button_previous('V.P. de Sentencias de ' + autoridad.clave, url_for('sentencias.list_autoridad_sentencias', autoridad_id=autoridad.id)) }}
+        {% endif %}
         {{ topbar.button_previous('V.P. de Sentencias', url_for('sentencias.list_active')) }}
         {{ topbar.button_districts('Distritos', url_for('sentencias.list_distritos')) }}
     {% endcall %}
