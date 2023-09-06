@@ -5,7 +5,8 @@ import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import asc
+from sqlalchemy import or_
+
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_email, safe_string, safe_message
 
@@ -69,12 +70,13 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.codigo.contains(safe_string(request.form["codigo"])))
     if "elaboro_nombre" in request.form:
         consulta = consulta.filter(CIDProcedimiento.elaboro_nombre.contains(safe_string(request.form["elaboro_nombre"])))
+    # Si viene el filtro con un listado de ids de areas, filtrar por ellas
     if "cid_areas[]" in request.form:
-        areas_id = request.form["cid_areas[]"]
-        area_list = areas_id.split(",")
-        for area_id in area_list:
-            consulta = consulta.filter(CIDProcedimiento.cid_area_id == area_id)
-    registros = consulta.order_by(asc(CIDProcedimiento.titulo_procedimiento)).offset(start).limit(rows_per_page).all()
+        # Se convierte el parametro (numeros separados por comas) a una lista
+        listado_areas_ids = request.form["cid_areas[]"].split(",")
+        # Se filtra con un SQL IN (n1, n2, n3, ...)
+        consulta = consulta.filter(CIDProcedimiento.cid_area_id.in_(listado_areas_ids))
+    registros = consulta.order_by(CIDProcedimiento.titulo_procedimiento).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -112,6 +114,7 @@ def list_active():
     """Listado de Todos los Procedimientos"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
+    # TODO: Decidir si queremos que los administradores vean todos o los de su area
     # Si es administrador, coordinador, mostrar todos los procedimientos
     if current_user.can_admin(MODULO):
         return render_template(
@@ -124,6 +127,7 @@ def list_active():
             show_button_list_all_autorized=True,
             show_button_my_autorized=True,
         )
+    # De lo contrario, mostrar solo los autorizados
     if current_user.can_edit(MODULO):
         return render_template(
             "cid_procedimientos/list.jinja2",
@@ -132,6 +136,8 @@ def list_active():
             estatus="A",
             show_button_list_owned=ROL_COORDINADOR in current_user_roles or ROL_DIRECTOR_JEFE in current_user_roles or ROL_DUENO_PROCESO in current_user_roles,
             show_button_list_all=ROL_COORDINADOR in current_user_roles,
+            show_button_list_all_autorized=True,
+            show_button_my_autorized=True,
         )
 
 

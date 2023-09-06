@@ -26,6 +26,7 @@
 
 {% block content %}
     {% call list.card() %}
+        <!-- Buscador de procedimientos -->
         <form class="input-group mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
            <div class="col-3" style="padding:2px;">
                 <div class="form-floating">
@@ -50,6 +51,7 @@
                 <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
             </div>
         </form>
+        <!-- Datatable de procedimientos -->
         <table id="cid_procedimientos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -70,6 +72,8 @@
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
+
+        // Datatable
         configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
@@ -126,18 +130,17 @@
             },
         ];
 
-        // Búsqueda
+        // Tomar valores del formulario del buscador y pasarlos al Datatable
         let codigo = document.getElementById('codigoInput').value.toUpperCase();
         let seguimiento = document.getElementById('seguimientoInput').value.toUpperCase();
         let titulo = document.getElementById('tituloInput').value.toUpperCase();
-
-
-        if(codigo != '')
+        if (codigo != '')
             configDataTable['ajax']['data']['codigo'] = codigo;
-        if(seguimiento != '')
+        if (seguimiento != '')
             configDataTable['ajax']['data']['seguimiento_filtro'] = seguimiento;
-        if(titulo != '')
+        if (titulo != '')
             configDataTable['ajax']['data']['titulo_procedimiento'] = titulo;
+
         // Datatable
         $('#cid_procedimientos_datatable').DataTable(configDataTable);
 
@@ -146,48 +149,55 @@
     <script type="text/javascript">
         function buscar(){
 
+            // Tomar valores del formulario
             let codigo = document.getElementById('codigoInput').value.toUpperCase();
             let seguimiento = document.getElementById('seguimientoInput').value.toUpperCase();
             let titulo = document.getElementById('tituloInput').value.toUpperCase();
 
-            if(configDataTable['ajax']['data']['codigo'] === undefined && codigo === '' &&
-               configDataTable['ajax']['data']['seguimiento_filtro'] === undefined && seguimiento === '' &&
-               configDataTable['ajax']['data']['titulo_procedimiento'] === undefined && titulo === ''
-            )return false;
+            // Si no hay valores se termina
+            if (configDataTable['ajax']['data']['codigo'] === undefined && codigo === '' &&
+                configDataTable['ajax']['data']['seguimiento_filtro'] === undefined && seguimiento === '' &&
+                configDataTable['ajax']['data']['titulo_procedimiento'] === undefined && titulo === ''
+            ) return false;
 
+            // Destruir el datatable
             $('#cid_procedimientos_datatable').DataTable().destroy();
 
-            if(codigo == '')
+            // Si no hay valor en cada campo se borra del datatable, de lo contrario se pasa
+            if (codigo == '')
                 delete configDataTable['ajax']['data']['codigo'];
             else
                 configDataTable['ajax']['data']['codigo'] = codigo;
-            if(seguimiento == '')
+            if (seguimiento == '')
                 delete configDataTable['ajax']['data']['seguimiento_filtro'];
             else
                 configDataTable['ajax']['data']['seguimiento_filtro'] = seguimiento;
-            if(titulo == '')
+            if (titulo == '')
                 delete configDataTable['ajax']['data']['titulo_procedimiento'];
             else
                 configDataTable['ajax']['data']['titulo_procedimiento'] = titulo;
 
+            // Configurar el Datatable
             $('#cid_procedimientos_datatable').DataTable(configDataTable);
 
         }
 
-
         function limpiar(){
-            if( configDataTable['ajax']['data']['codigo'] === undefined &&
+
+            // Si no hay valores se termina
+            if (configDataTable['ajax']['data']['codigo'] === undefined &&
                 configDataTable['ajax']['data']['seguimiento_filtro'] === undefined &&
                 configDataTable['ajax']['data']['titulo_procedimiento'] === undefined
-            )return false;
+            ) return false;
 
+            // Borrar del Datatable cada campo
             delete configDataTable['ajax']['data']['codigo'];
             delete configDataTable['ajax']['data']['seguimiento_filtro'];
             delete configDataTable['ajax']['data']['titulo_procedimiento'];
 
+            // Destruir y configurar el Datatable
             $('#cid_procedimientos_datatable').DataTable().destroy();
             $('#cid_procedimientos_datatable').DataTable(configDataTable);
-
 
         }
     </script>
