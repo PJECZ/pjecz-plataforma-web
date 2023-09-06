@@ -83,7 +83,7 @@
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
-        configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json';
+        configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json_admin';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: 'detalle' },
