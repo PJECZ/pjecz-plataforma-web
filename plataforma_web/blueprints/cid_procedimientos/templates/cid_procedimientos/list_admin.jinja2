@@ -2,7 +2,8 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Procedimientos{% endblock %}
+{% block title %}Todos los Procedimientos{% endblock %}
+
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
@@ -14,7 +15,7 @@
         {% if show_button_list_all %}
             {{ topbar.button('Todos', url_for('cid_procedimientos.list_all'), 'mdi:table') }}
         {% endif %}
-        {% if current_user.can_view('CID PROCEDIMIENTOS') %}
+        {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_procedimientos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_procedimientos.list_active')) }}{% endif %}
         {% endif %}
@@ -27,22 +28,34 @@
 {% block content %}
     {% call list.card() %}
         <form class="input-group mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
-           <div class="col-3" style="padding:2px;">
+           <div class="col-4" style="padding:2px;">
                 <div class="form-floating">
                     <input id="codigoInput" type="text" class="form-control" placeholder="código" aria-label="codigo" aria-describedby="button-buscar" style="text-transform: uppercase">
                     <label for="codigoInput">Código</label>
                 </div>
             </div>
-            <div class="col-3" style="padding:2px;">
+            <div class="col-4" style="padding:2px;">
                 <div class="form-floating">
                     <input id="seguimientoInput" type="text" class="form-control" placeholder="seguimiento" aria-label="seguimiento" aria-describedby="button-buscar" style="text-transform: uppercase">
                     <label for="seguimientoInput">Seguimiento</label>
                 </div>
             </div>
-            <div class="col-6" style="padding:2px;">
+            <div class="col-4" style="padding:2px;">
                 <div class="form-floating">
                     <input id="tituloInput" type="text" class="form-control" placeholder="titulo" aria-label="titulo" aria-describedby="button-buscar" style="text-transform: uppercase">
                     <label for="tituloInput">Procedimiento</label>
+                </div>
+            </div>
+            <div class="col-6" style="margin-top: 5px; padding:2px;">
+                <div class="form-floating">
+                    <input id="fechaDesde" type="date" class="form-control" placeholder="Fecha desde" aria-label="fechaDesde" aria-describedby="button-buscar">
+                    <label for="fechaDesde">Desde</label>
+                </div>
+            </div>
+            <div class="col-6" style="margin-top: 5px; padding:1px;">
+                <div class="form-floating">
+                    <input id="fechaHasta" type="date" class="form-control" placeholder="Fecha hasta" aria-label="fechaHasta" aria-describedby="button-buscar">
+                    <label for="fechaHasta">Hasta</label>
                 </div>
             </div>
             <div class="col text-end" style="margin-top: 5px; padding:1px;">

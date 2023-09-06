@@ -36,6 +36,24 @@
             </table>
         {% endcall %}
     {% endif %}
+    {# Procedimientos #}
+    {% if current_user.can_view('CID PROCEDIMIENTOS') %}
+        {% call detail.card('Procedimientos') %}
+            <table id="cid_procedimientos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Procedimiento</th>
+                        <th>Código</th>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Seguimiento</th>
+                        <th>Área</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -76,6 +94,65 @@
             ];
             $('#cid_areas_autoridades_datatable').DataTable(configDataTable);
         </script>
-    {% endif %}
+     {% endif %}
+     {% if current_user.can_view('CID PROCEDIMIENTOS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'cid_areas': [{{ cid_area.id}}] };
+            configDataTable['columns'] = [
+                { data: 'detalle' },
+                { data: 'titulo_procedimiento' },
+                { data: 'codigo' },
+                { data: 'fecha' },
+                { data: 'usuario' },
+                { data: 'seguimiento' },
+                { data: 'cid_area' }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.id + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // titulo_procedimiento
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.length > 64)
+                            return '<span title="' + data + '">' + data.substr(0, 64) + '…' + '</span>';
+                        return data;
+                    }
+                }, 
+                {
+                    targets: 4, // usuario
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.nombre.length > 16) {
+                            interior = '<span title="' + data.nombre + '">' + data.nombre.substring(0, 16) + '…' + '</span>';
+                        } else {
+                            interior = data.nombre;
+                        }
+                        if (data.url == '') {
+                            return interior;
+                        }
+                        return '<a href="' + data.url + '">' + interior + '</a>';
+                    }
+                },
+                {
+                    targets: 6, // cid_area
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url == '') {
+                            return data.clave;
+                        }
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                }
+            ];
+            $('#cid_procedimientos_datatable').DataTable(configDataTable);
+        </script>
+     {% endif %}
     {{ detail.moment_js(moment) }}
 {% endblock %}
