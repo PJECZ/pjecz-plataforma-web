@@ -7,13 +7,13 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if show_button_my_autorized %}
-            {{ topbar.button('De mis áreas', url_for('cid_procedimientos.list_active'), 'mdi:table-star') }}
-        {% endif %}
-        {% if show_button_list_owned %}
-            {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
+            {{ topbar.button('Autorizados de mis áreas', url_for('cid_procedimientos.list_active'), 'mdi:table-star') }}
         {% endif %}
         {% if show_button_list_all_autorized %}
             {{ topbar.button('Todos los autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
+        {% endif %}
+        {% if show_button_list_owned %}
+            {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
         {% endif %}
         {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_procedimientos.list_all_inactive')) }}{% endif %}
