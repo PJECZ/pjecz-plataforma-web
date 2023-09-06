@@ -2,22 +2,22 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Todos los Procedimientos{% endblock %}
-
+{% block title %}{{ titulo }}{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {{ topbar.button('Autorizados de mi área', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
-        {{ topbar.button('Todos los Autorizados', url_for('cid_procedimientos.list_active'), 'mdi:table-star') }}
+        {% if show_button_my_autorized %}
+            {{ topbar.button('De mis áreas', url_for('cid_procedimientos.list_active'), 'mdi:table-star') }}
+        {% endif %}
         {% if show_button_list_owned %}
             {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
         {% endif %}
-        {% if show_button_list_all %}
-            {{ topbar.button('Todos', url_for('cid_procedimientos.list_all'), 'mdi:table') }}
+        {% if show_button_list_all_autorized %}
+            {{ topbar.button('Todos los autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
         {% endif %}
         {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
-            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_procedimientos.list_inactive')) }}{% endif %}
-            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_procedimientos.list_active')) }}{% endif %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_procedimientos.list_all_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_procedimientos.list_all_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('CID PROCEDIMIENTOS') %}
             {{ topbar.button_new('Nuevo Procedimiento', url_for('cid_procedimientos.new')) }}
