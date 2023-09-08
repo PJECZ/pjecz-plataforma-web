@@ -24,24 +24,26 @@
 
 {% block content %}
     {% call list.card() %}
-     <form class="input-group mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
-            <div class="col-6" style="padding:2px;">
+        <!-- Buscador de formatos -->
+        <form class="input-group mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
+            <div class="col-5 p-2">
                 <div class="form-floating">
                     <input id="tituloInput" type="text" class="form-control" placeholder="titulo" aria-label="titulo" aria-describedby="button-buscar" style="text-transform: uppercase">
                     <label for="tituloInput">Procedimiento</label>
                 </div>
             </div>
-            <div class="col-6" style="padding:2px;">
+            <div class="col-5 p-2">
                 <div class="form-floating">
                     <input id="descripcionInput" type="text" class="form-control" placeholder="descripcion" aria-label="descripcion" aria-describedby="button-buscar" style="text-transform: uppercase">
                     <label for="descripcionInput">Descripción</label>
                 </div>
             </div>
-            <div class="col-12 text-end" style="margin-top: 5px; padding:1px;">
+            <div class="col-2 p-2 text-end">
                 <button class="btn btn-primary btn-lg" type="submit" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span>Buscar</button>
                 <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
             </div>
         </form>
+        <!-- Datatable de formatos -->
         <table id="cid_formatos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -60,6 +62,8 @@
 {% block custom_javascript %}
     {{ list.config_datatable() }}
     <script>
+
+        // Datatable
         configDataTable['ajax']['url'] = '/cid_formatos/datatable_json_admin';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
@@ -128,55 +132,63 @@
             },
         ];
 
-        // Búsqueda
+        // Tomar valores del formulario del buscador y pasarlos al Datatable
         let titulo = document.getElementById('tituloInput').value.toUpperCase();
         let descripcion = document.getElementById('descripcionInput').value.toUpperCase();
-
         if(titulo != '')
             configDataTable['ajax']['data']['cid_procedimiento'] = titulo;
         if(descripcion != '')
             configDataTable['ajax']['data']['descripcion'] = descripcion;
 
+        // Datatable
         $('#cid_formatos_datatable').DataTable(configDataTable);
+
     </script>
      <!-- Función de buscador -->
     <script type="text/javascript">
         function buscar(){
+
+            // Tomar valores del formulario
             let titulo = document.getElementById('tituloInput').value.toUpperCase();
             let descripcion = document.getElementById('descripcionInput').value.toUpperCase();
 
-            if(configDataTable['ajax']['data']['cid_procedimiento'] === undefined && titulo === '' &&
-               configDataTable['ajax']['data']['descripcion'] === undefined && descripcion === ''
-            )return false;
+            // Si no hay valores se termina
+            if (configDataTable['ajax']['data']['cid_procedimiento'] === undefined && titulo === '' &&
+                configDataTable['ajax']['data']['descripcion'] === undefined && descripcion === ''
+            ) return false;
 
-            console.log(titulo, descripcion);
-
+            // Destruir el datatable
             $('#cid_formatos_datatable').DataTable().destroy();
 
-            if(titulo == '')
+            // Si no hay valor en cada campo se borra del datatable, de lo contrario se pasa
+            if (titulo == '')
                 delete configDataTable['ajax']['data']['cid_procedimiento'];
             else
                 configDataTable['ajax']['data']['cid_procedimiento'] = titulo;
-            if(descripcion == '')
+            if (descripcion == '')
                 delete configDataTable['ajax']['data']['descripcion'];
             else
                 configDataTable['ajax']['data']['descripcion'] = descripcion;
 
+            // Configurar el Datatable
             $('#cid_formatos_datatable').DataTable(configDataTable);
 
         }
 
         function limpiar(){
-            if( configDataTable['ajax']['data']['cid_procedimiento'] === undefined &&
-                configDataTable['ajax']['data']['descripcion'] === undefined
-            )return false;
 
+            // Si no hay valores se termina
+            if (configDataTable['ajax']['data']['cid_procedimiento'] === undefined &&
+                configDataTable['ajax']['data']['descripcion'] === undefined
+            ) return false;
+
+            // Borrar del Datatable cada campo
             delete configDataTable['ajax']['data']['cid_procedimiento'];
             delete configDataTable['ajax']['data']['descripcion'];
 
+            // Destruir y configurar el Datatable
             $('#cid_formatos_datatable').DataTable().destroy();
             $('#cid_formatos_datatable').DataTable(configDataTable);
-
 
         }
     </script>
