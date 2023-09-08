@@ -97,7 +97,7 @@
      {% endif %}
      {% if current_user.can_view('CID PROCEDIMIENTOS') %}
         <script>
-            configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json';
+            configDataTable['ajax']['url'] = '/cid_procedimientos/datatable_json_admin';
             configDataTable['ajax']['data'] = { 'estatus': "A", 'cid_areas': [{{ cid_area.id}}] };
             configDataTable['columns'] = [
                 { data: 'detalle' },

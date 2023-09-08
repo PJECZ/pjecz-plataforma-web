@@ -109,6 +109,72 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
+# Datatable admin
+@cid_procedimientos.route("/cid_procedimientos/datatable_json_admin", methods=["GET", "POST"])
+def datatable_json_admin():
+    """DataTable JSON para listado de Cid Procedimientos"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # Consultar
+    consulta = CIDProcedimiento.query
+    if "estatus" in request.form:
+        consulta = consulta.filter_by(estatus=request.form["estatus"])
+    else:
+        consulta = consulta.filter_by(estatus="A")
+    if "usuario_id" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+    if "seguimiento" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
+    if "seguimiento_filtro" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.creado <= request.form["fecha_hasta"])
+    if "titulo_procedimiento" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
+    if "codigo" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.codigo.contains(safe_string(request.form["codigo"])))
+    if "elaboro_nombre" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.elaboro_nombre.contains(safe_string(request.form["elaboro_nombre"])))
+    if "cid_areas[]" in request.form:
+        areas_id = request.form["cid_areas[]"]
+        area_list = areas_id.split(",")
+        for area_id in area_list:
+            consulta = consulta.filter(CIDProcedimiento.cid_area_id == area_id)
+    registros = consulta.order_by(CIDProcedimiento.id.desc()).offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for resultado in registros:
+        data.append(
+            {
+                "detalle": {
+                    "id": resultado.id,
+                    "url": url_for("cid_procedimientos.detail", cid_procedimiento_id=resultado.id),
+                },
+                "titulo_procedimiento": resultado.titulo_procedimiento,
+                "codigo": resultado.codigo,
+                "revision": resultado.revision,
+                "elaboro_nombre": resultado.elaboro_email,
+                "fecha": resultado.fecha.strftime("%Y-%m-%d"),
+                "seguimiento": resultado.seguimiento,
+                "seguimiento_posterior": resultado.seguimiento_posterior,
+                "usuario": {
+                    "nombre": resultado.usuario.nombre,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id) if current_user.can_view("USUARIOS") else "",
+                },
+                "autoridad": resultado.autoridad.clave,
+                "cid_area": {
+                    "clave": resultado.cid_area.clave,
+                    "url": url_for("cid_areas.detail", cid_area_id=resultado.cid_area_id) if current_user.can_view("CID AREAS") else "",
+                },
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
 @cid_procedimientos.route("/cid_procedimientos")
 def list_active():
     """Listado de procedimientos autorizados de mis áreas"""
@@ -534,13 +600,6 @@ def search():
                 cid_procedimiento = CIDProcedimiento.query.get(cid_procedimiento_id)
                 if cid_procedimiento is not None:
                     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
-        # Si se busca con los demas parametros
-        # if form_search.fecha_desde.data:
-        #     busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
-        #     titulos.append("fecha desde " + busqueda["fecha_desde"])
-        # if form_search.fecha_hasta.data:
-        #     busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
-        #     titulos.append("fecha hasta " + busqueda["fecha_hasta"])
         if form_search.titulo_procedimiento.data:
             titulo_procedimiento = safe_string(form_search.titulo_procedimiento.data)
             if titulo_procedimiento != "":
