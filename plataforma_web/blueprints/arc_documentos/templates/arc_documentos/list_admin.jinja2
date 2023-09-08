@@ -32,26 +32,26 @@
         <!-- Formulario de filtros -->
         <div class="row">
             <div class="col">
-                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_documentos.buscar(); return false;">
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="expedienteInput" type="text" class="form-control" aria-label="Núm. Expediente" aria-describedby="button-buscar" onchange="buscar(); return false;">
+                            <input id="expedienteInput" type="text" class="form-control" aria-label="Núm. Expediente" aria-describedby="button-buscar" onchange="filtros_documentos.buscar(); return false;">
                             <label for="expedienteInput">Núm. Expediente</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select id="juzgadoInput" class="form-control js-select2-filter" onchange="buscar(); return false;" style="text-transform: uppercase"></select>
+                            <select id="juzgadoInput" class="form-control js-select2-filter" onchange="filtros_documentos.buscar(); return false;" style="text-transform: uppercase"></select>
                             <label for="juzgadoInput">Instancia</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <select id="tipoSelect" class="form-control js-select2-filter" onchange="buscar(); return false;" style="text-transform: uppercase;"></select>
+                            <select id="tipoSelect" class="form-control js-select2-filter" onchange="filtros_documentos.buscar(); return false;" style="text-transform: uppercase;"></select>
                             <label for="tipoSelect">Tipo</label>
                         </div>
                     </div>
-                    <div class="col-7">
+                    <div class="col-4">
                         <div class="form-floating">
                             <input id="partesInput" type="text" class="form-control" aria-label="text" aria-describedby="button-buscar" style="text-transform: uppercase">
                             <label for="partesInput">Partes</label>
@@ -59,7 +59,13 @@
                     </div>
                     <div class="col-3">
                         <div class="form-floating">
-                            <select class="form-select" id="ubicacionSelect" name="ubicacionSelect" aria-label="Todas" onchange="buscar(); return false;" style="flex: inherit;">
+                            <select id="juzgadoExtintoInput" class="form-control js-select2-filter" onchange="filtros_documentos.buscar(); return false;" style="text-transform: uppercase"></select>
+                            <label for="juzgadoExtintoInput">J. Extintos</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <select class="form-select" id="ubicacionSelect" name="ubicacionSelect" aria-label="Todas" onchange="filtros_documentos.buscar(); return false;" style="flex: inherit;">
                                 <option selected value=""></option>
                                 {% for ubicacion in ubicaciones %}
                                     <option value="{{ubicacion}}">{{ubicacion}}</option>
@@ -69,8 +75,8 @@
                         </div>
                     </div>
                     <div class="col-2 text-end">
-                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
-                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_documentos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_documentos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
                 </form>
             </div>
@@ -91,18 +97,23 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    <!-- Importación de los fitlros para dataTable -->
+    <script src="/static/js/datatables_filtros.js"></script>
     <script>
-        configDataTable['ajax']['url'] = '/arc_documentos/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
-        configDataTable['columns'] = [
+        const dataTable_funcs_documentos = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_documentos = dataTable_funcs_documentos.config;
+        configDataTable_documentos['ajax']['url'] = '/arc_documentos/datatable_json';
+        configDataTable_documentos['ajax']['data'] = {{ filtros }};
+        configDataTable_documentos['columns'] = [
             { data: 'expediente' },
             { data: 'juzgado' },
             { data: 'tipo' },
             { data: 'partes' },
             { data: 'ubicacion' }
         ];
-        configDataTable['columnDefs'] = [
+        configDataTable_documentos['columnDefs'] = [
             {
                 targets: 0, // expediente
                 data: null,
@@ -148,92 +159,18 @@
             }
         ];
 
-        // Búsqueda
-        let expediente = document.getElementById('expedienteInput').value;
-        let juzgado_id = document.getElementById('juzgadoInput').value;
-        let tipo = document.getElementById('tipoSelect').value;
-        let partes = document.getElementById('partesInput').value.toUpperCase();
-        let ubicacion = document.getElementById('ubicacionSelect').value;
-
-        if(expediente != '')
-            configDataTable['ajax']['data']['expediente'] = expediente;
-        if(juzgado_id != '')
-            configDataTable['ajax']['data']['juzgado_id'] = juzgado_id;
-        if(tipo != '')
-            configDataTable['ajax']['data']['tipo'] = tipo;
-        if(partes != '')
-            configDataTable['ajax']['data']['partes'] = partes;
-        if(ubicacion != '')
-            configDataTable['ajax']['data']['ubicacion'] = ubicacion;
-        
-        // Datatable
-        $('#arc_documentos_datatable').DataTable(configDataTable);
-    </script>
-    <!-- Función de buscador -->
-    <script type="text/javascript">
-        function buscar() {
-            let expediente = document.getElementById('expedienteInput').value;
-            let juzgado_id = document.getElementById('juzgadoInput').value;
-            let tipo = document.getElementById('tipoSelect').value;
-            let partes = document.getElementById('partesInput').value.toUpperCase();
-            let ubicacion = document.getElementById('ubicacionSelect').value;
-
-            if( configDataTable['ajax']['data']['expediente'] === undefined && expediente === '' &&
-                configDataTable['ajax']['data']['juzgado_id'] === undefined && juzgado_id === '' &&
-                configDataTable['ajax']['data']['tipo'] === undefined && tipo === '' &&
-                configDataTable['ajax']['data']['partes'] === undefined && partes === '' &&
-                configDataTable['ajax']['data']['ubicacion'] === undefined && ubicacion === ''
-            ) return false;
-
-            $('#arc_documentos_datatable').DataTable().destroy();
-
-            if(expediente == '')
-                delete configDataTable['ajax']['data']['expediente'];
-            else
-                configDataTable['ajax']['data']['expediente'] = expediente;
-            if(juzgado_id == '')
-                delete configDataTable['ajax']['data']['juzgado_id'];
-            else
-                configDataTable['ajax']['data']['juzgado_id'] = juzgado_id;
-            if(tipo == '')
-                delete configDataTable['ajax']['data']['tipo'];
-            else
-                configDataTable['ajax']['data']['tipo'] = tipo;
-            if(partes == '')
-                delete configDataTable['ajax']['data']['partes'];
-            else
-                configDataTable['ajax']['data']['partes'] = partes;
-            if(ubicacion == '')
-                delete configDataTable['ajax']['data']['ubicacion'];
-            else
-                configDataTable['ajax']['data']['ubicacion'] = ubicacion;
-
-            $('#arc_documentos_datatable').DataTable(configDataTable);
-        };
-
-        function limpiar()  {
-            if( configDataTable['ajax']['data']['expediente'] === undefined &&
-                configDataTable['ajax']['data']['juzgado_id'] === undefined &&
-                configDataTable['ajax']['data']['tipo'] === undefined &&
-                configDataTable['ajax']['data']['partes'] === undefined &&
-                configDataTable['ajax']['data']['ubicacion'] === undefined
-            ) return false;
-            
-            delete configDataTable['ajax']['data']['expediente'];
-            delete configDataTable['ajax']['data']['juzgado_id'];
-            delete configDataTable['ajax']['data']['tipo'];
-            delete configDataTable['ajax']['data']['partes'];
-            delete configDataTable['ajax']['data']['ubicacion'];
-
-            document.getElementById('juzgadoInput').textContent = '';
-            document.getElementById('juzgadoInput').options[0] = null;
-
-            document.getElementById('tipoSelect').textContent = '';
-            document.getElementById('tipoSelect').options[0] = null;
-
-            $('#arc_documentos_datatable').DataTable().destroy();
-            $('#arc_documentos_datatable').DataTable(configDataTable);
-        };
+        // Declaración de los Filtros utilizados
+        // Creación del Objeto manejador de Filtros
+        const filtros_documentos = new Filtros('#arc_documentos_datatable', configDataTable_documentos);
+        // Añadimos los difrentes inputs utilizados
+        filtros_documentos.add_input('expedienteInput', 'expediente');
+        filtros_documentos.add_input('juzgadoInput', 'juzgado_id');
+        filtros_documentos.add_input('tipoSelect', 'tipo');
+        filtros_documentos.add_input('partesInput', 'partes');
+        filtros_documentos.add_input('juzgadoExtintoInput', 'juzgado_extinto_id');
+        filtros_documentos.add_input('ubicacionSelect', 'ubicacion');
+        // Precarga de los valores de los inputs mantenidos después de la carga de la página.
+        filtros_documentos.precarga();
     </script>
     <!-- Select2 bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -274,6 +211,25 @@
                 placeholder: "",
                 minimumInputLength: 1,
                 allowClear: true
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('#juzgadoExtintoInput').select2({
+                // --- Carga de juzgados por Ajax --- //
+                ajax: {
+                    url: '/arc_juzgados_extintos/juzgados_extintos_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'clave': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 3,
+                cache: false
             });
         });
     </script>
