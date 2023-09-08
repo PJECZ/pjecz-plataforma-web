@@ -17,7 +17,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 
 load_dotenv()  # Take environment variables from .env
 
-DIAS_ANTIGUEDAD = 5
+DIAS_ANTIGUEDAD = 0
 USUARIO_DEFECTO = "archivo@pjecz.gob.mx"
 
 bitacora = logging.getLogger(__name__)
