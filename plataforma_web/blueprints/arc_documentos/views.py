@@ -233,8 +233,8 @@ def new():
         elif expediente is None:
             flash("El número de expediente no es válido. El formato esperado es (número/año) (999/2023)", "warning")
         # Sólo aceptar juzgados de tu distrito
-        elif ROL_JEFE_REMESA_ADMINISTRADOR not in current_user_roles and juzgado.distrito_id != current_user.autoridad.distrito_id:
-            flash(f"No puede utilizar la instancia '{juzgado.descripcion_corta}' del distrito '{juzgado.distrito.nombre_corto}' fuera de su distrito '{current_user.autoridad.distrito.nombre_corto}'", "warning")
+        elif ROL_JEFE_REMESA_ADMINISTRADOR not in current_user_roles and juzgado.sede != current_user.autoridad.sede:
+            flash(f"No puede utilizar la instancia '{juzgado.descripcion_corta} - {juzgado.sede}' que se encuentra fuera de su SEDE '{current_user.autoridad.sede}'", "warning")
         else:
             documento = ArcDocumento(
                 autoridad_id=juzgado_id,
