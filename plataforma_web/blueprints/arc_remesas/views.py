@@ -26,13 +26,7 @@ from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 
 from plataforma_web.blueprints.arc_remesas_bitacoras.models import ArcRemesaBitacora
 
-from plataforma_web.blueprints.arc_remesas.forms import (
-    ArcRemesaNewForm,
-    ArcRemesaEditForm,
-    ArcRemesaAddDocumentForm,
-    ArcRemesaRefuseForm,
-    ArcRemesaAsignationForm,
-)
+from plataforma_web.blueprints.arc_remesas.forms import ArcRemesaNewForm, ArcRemesaEditForm, ArcRemesaAddDocumentForm, ArcRemesaRefuseForm, ArcRemesaAsignationForm, ArcRemesaAnomaliaForm
 
 from plataforma_web.blueprints.arc_archivos.views import (
     ROL_JEFE_REMESA,
@@ -523,7 +517,7 @@ def edit(remesa_id):
         else:
             remesa.anio = anios_str
             remesa.num_oficio = num_oficio
-            remesa.observaciones = safe_message(form.observaciones.data, default_output_str=None)
+            remesa.observaciones_solicitante = safe_message(form.observaciones_solicitante.data, default_output_str=None)
             remesa.save()
 
             # Agregamos a la bitácora la acción realizada
@@ -543,7 +537,7 @@ def edit(remesa_id):
     form.tipo_documentos_readonly.data = remesa.arc_documento_tipo.nombre
     form.anio.data = remesa.anio
     form.num_oficio.data = remesa.num_oficio
-    form.observaciones.data = remesa.observaciones
+    form.observaciones_solicitante.data = remesa.observaciones_solicitante
 
     # Entregar template
     return render_template("arc_remesas/edit.jinja2", remesa_id=remesa_id, form=form)
@@ -733,7 +727,8 @@ def refuse(remesa_id):
                 documento.arc_documento.ubicacion = "JUZGADO"
                 documento.save()
 
-            remesa.rechazo = safe_message(form.observaciones.data)
+            remesa.anomalia_general = safe_string(form.anomalia_general.data)
+            remesa.observaciones_archivista = safe_message(form.observaciones_archivista.data, default_output_str=None)
             remesa.estado = "RECHAZADO"
             remesa.save()
             # Guardado de acción en bitacora de la remesa
@@ -741,7 +736,7 @@ def refuse(remesa_id):
                 arc_remesa=remesa,
                 usuario=current_user,
                 accion="RECHAZADA",
-                observaciones=remesa.rechazo,
+                observaciones=remesa.anomalia_general,
             ).save()
             # Guardado de registro en bitacora del sistema
             bitacora = Bitacora(
@@ -756,6 +751,58 @@ def refuse(remesa_id):
 
     # Template con formulario de rechazo
     return render_template("arc_remesas/refuse.jinja2", remesa=remesa, form=form)
+
+
+@arc_remesas.route("/arc_remesas/anomalia_general/<int:remesa_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def anomalia(remesa_id):
+    """Anomalía General de la Remesa"""
+    remesa = ArcRemesa.query.get_or_404(remesa_id)
+    form = ArcRemesaAnomaliaForm()
+    if form.validate_on_submit():
+        if remesa.estado != "ASIGNADO":
+            flash("No puede añadir o editar una anomalía si la remesa no tiene un estado de ASIGNADO.", "warning")
+        elif not current_user.can_admin(MODULO) and ROL_JEFE_REMESA not in current_user.get_roles() and ROL_JEFE_REMESA_ADMINISTRADOR not in current_user.get_roles() and ROL_ARCHIVISTA not in current_user.get_roles():
+            flash("Su ROL no puede añadir o editar anomalías generales en la remesa.", "warning")
+        else:
+            if form.eliminar.data:
+                remesa.anomalia_general = None
+                remesa.observaciones_archivista = None
+                remesa.save()
+                # Guardado de acción en bitacora de la remesa
+                ArcRemesaBitacora(
+                    arc_remesa=remesa,
+                    usuario=current_user,
+                    accion="ANOMALIA GENERAL",
+                    observaciones="ANOMALIA ELIMINADA",
+                ).save()
+            else:
+                remesa.anomalia_general = safe_string(form.anomalia_general.data)
+                remesa.observaciones_archivista = safe_message(form.observaciones_archivista.data, default_output_str=None)
+                remesa.save()
+                # Guardado de acción en bitacora de la remesa
+                ArcRemesaBitacora(
+                    arc_remesa=remesa,
+                    usuario=current_user,
+                    accion="ANOMALIA GENERAL",
+                    observaciones=remesa.anomalia_general,
+                ).save()
+            # Guardado de registro en bitacora del sistema
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Se ha editado la anomalía general de la Remesa {remesa.id}"),
+                url=url_for("arc_remesas.detail", remesa_id=remesa.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+    # Precarga de datos
+    form.anomalia_general.data = remesa.anomalia_general
+    form.observaciones_archivista.data = remesa.observaciones_archivista
+
+    # Template con formulario de rechazo
+    return render_template("arc_remesas/anomalia.jinja2", remesa=remesa, form=form)
 
 
 @arc_remesas.route("/arc_remesas/pasar_historial/<int:remesa_id>", methods=["GET", "POST"])
@@ -808,7 +855,7 @@ def complete(remesa_id):
         flash("Solo el rol de ARCHIVISTA puede ARCHIVAR una Remesa.", "warning")
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
-    # Validamos si todos sus anexos fuera de la REMESA
+    # Validamos si todos sus anexos están fuera de la REMESA
     documentos_anexos_count = ArcRemesaDocumento.query.join(ArcDocumento)
     documentos_anexos_count = documentos_anexos_count.filter(ArcRemesaDocumento.arc_remesa_id == remesa_id)
     documentos_anexos_count = documentos_anexos_count.filter(ArcDocumento.ubicacion == "REMESA")
@@ -818,7 +865,7 @@ def complete(remesa_id):
         return redirect(url_for("arc_remesas.detail", remesa_id=remesa_id))
 
     # Guardar cambios a la Remesa
-    if remesa.num_anomalias > 0:
+    if remesa.num_anomalias > 0 or remesa.anomalia_general:
         remesa.estado = "ARCHIVADO CON ANOMALIA"
         remesa.save()
         # Guardado de acción en bitacora de la remesa
@@ -842,7 +889,7 @@ def complete(remesa_id):
     Bitacora(
         modulo=Modulo.query.filter_by(nombre=MODULO).first(),
         usuario=current_user,
-        descripcion=safe_message(f"Nueva Remesa creada {remesa.id}"),
+        descripcion=safe_message(f"Remesa Archivada: {remesa.id}"),
         url=url_for("arc_archivos.list_active"),
     ).save()
 

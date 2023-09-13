@@ -18,6 +18,7 @@ class ArcRemesaBitacora(db.Model, UniversalMixin):
             ("RECHAZADA", "Rechazada"),
             ("ARCHIVADA", "Archivada"),
             ("ARCHIVADA CON ANOMALIA", "Archivado con Anomalía"),  # El ARCHIVISTA termina de procesar la remesa pero almenos un documento presentó anomalía
+            ("ANOMALIA GENERAL", "Anomalía General"),
             ("PASADA AL HISTORIAL", "Pasada al Historial"),
         ]
     )
