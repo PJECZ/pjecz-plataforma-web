@@ -155,3 +155,8 @@ body {
   color: white;
   background-color: var(--bs-teal);
 }
+
+.bg-orange {
+  color: white;
+  background-color: var(--bs-orange);
+}

@@ -39,6 +39,7 @@
                 <div class="col-md-auto">
                     <input class="btn btn-success" id="guardar" name="guardar" type="submit" value="Guardar">
                     <input class="btn btn-danger" id="eliminar" name="eliminar" type="submit" value="Eliminar">
+                    <a href="{{url_for('arc_remesas.detail', remesa_id=remesa.id)}}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </div>
         {% endcall %}
