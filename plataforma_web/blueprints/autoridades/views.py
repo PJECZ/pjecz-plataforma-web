@@ -538,11 +538,11 @@ def query_juzgados_json():
 @autoridades.route("/autoridades/es_revisor_escrituras_json", methods=["POST"])
 def query_es_revisor_escrituras_json():
     """Proporcionar el JSON de autoridades para elegir un juzgado si esta seleccionado la opción es_revisor_escrituras con un Select2"""
-    consulta = Autoridad.query.filter(Autoridad.estatus == "A").filter_by(es_revisor_escrituras=True)
-    if "searchString" in request.form:
-        consulta = consulta.filter(Autoridad.descripcion.contains(request.form["searchString"]))
+    consulta = Autoridad.query.filter(Autoridad.estatus == "A")
+    if "es_revisor_escrituras" in request.form:
+        consulta = consulta.filter_by(es_revisor_escrituras=request.form["es_revisor_escrituras"] == "true")
     results = []
-    for autoridad in consulta.order_by(Autoridad.id).limit(15).all():
+    for autoridad in consulta.order_by(Autoridad.id).limit(20).all():
         results.append(
             {
                 "id": autoridad.id,

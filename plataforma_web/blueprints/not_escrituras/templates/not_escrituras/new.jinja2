@@ -61,7 +61,7 @@
                     delay: 250,
                     type: "POST",
                     data: function (params) {
-                        return { 'searchString': params.term };
+                        return { 'es_revisor_escrituras': params.term.toUpperCase(), "es_revisor_escrituras": true };
                     }
                 },
                 placeholder: "Juzgados",
