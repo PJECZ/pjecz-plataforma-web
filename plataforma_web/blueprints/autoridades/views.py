@@ -535,14 +535,21 @@ def query_juzgados_json():
     return {"results": results, "pagination": {"more": False}}
 
 
+# Definición de una ruta en la aplicación web para manejar solicitudes POST a "/autoridades/es_revisor_escrituras_json"
 @autoridades.route("/autoridades/es_revisor_escrituras_json", methods=["POST"])
 def query_es_revisor_escrituras_json():
     """Proporcionar el JSON de autoridades para elegir un juzgado si esta seleccionado la opción es_revisor_escrituras con un Select2"""
+    # Crear una consulta inicial a la base de datos para obtener autoridades con estatus "A"
     consulta = Autoridad.query.filter(Autoridad.estatus == "A")
+    # Verificar si el campo "es_revisor_escrituras" está presente en los datos enviados con la solicitud POST
     if "es_revisor_escrituras" in request.form:
+        # Si está presente, refinar la consulta para incluir solo autoridades que sean revisores de escrituras (si el valor es "true")
         consulta = consulta.filter_by(es_revisor_escrituras=request.form["es_revisor_escrituras"] == "true")
+    # Inicializar una lista vacía para almacenar los resultados
     results = []
+    # Realizar la consulta a la base de datos, ordenar por "id" y limitar a 20 resultados
     for autoridad in consulta.order_by(Autoridad.id).limit(20).all():
+        # Para cada autoridad en los resultados, crear un diccionario con información relevante
         results.append(
             {
                 "id": autoridad.id,
@@ -550,4 +557,5 @@ def query_es_revisor_escrituras_json():
                 "nombre": autoridad.distrito.nombre + " : " + autoridad.descripcion,
             }
         )
+        # Devolver un diccionario JSON con los resultados y una indicación de que no hay más páginas disponibles
     return {"results": results, "pagination": {"more": False}}
