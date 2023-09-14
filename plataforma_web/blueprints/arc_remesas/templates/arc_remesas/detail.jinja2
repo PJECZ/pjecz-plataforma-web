@@ -7,30 +7,6 @@
 
 {% block title %}Detalle de Remesa{% endblock %}
 
-{% block custom_head %}
-    <style>
-    .bg-pink {
-        color: white;
-        background-color: #d63384;
-    }
-    .bg-purple {
-        color: white;
-        background-color: #6f42c1;
-    }
-    .bg-brown {
-        color: white;
-        background-color: #653208;
-    }
-    .bg-teal {
-        color: white;
-        background-color: var(--bs-teal);
-    }
-    table.hover tbody tr:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-    }
-    </style>
-{% endblock %}
-
 {% block topbar_actions %}
     {% call topbar.page_buttons('Remesa - ' + remesa.id | string ) %}
         {% if remesa.esta_archivado %}
@@ -76,11 +52,29 @@
         {% endif %}
     {% endcall %}
     {# Detalles Observaciones #}
-    {% if remesa.observaciones %}
+    {% if remesa.observaciones_solicitante %}
         <div class="card mb-3">
-            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones </div>
+            <div class="card-header bg-warning text-dark" style="font-weight: bold;">Observaciones del Solicitante </div>
             <div class="card-body" style="background-color: #fff3cd;">
-                <div class="col-md-9 text-start">{{ remesa.observaciones }}</div>
+                <div class="col-md-9 text-start">{{ remesa.observaciones_solicitante }}</div>
+            </div>
+        </div>
+    {% endif %}
+    {# Sección Rechazo #}
+    {% if mostrar_secciones['rechazo'] %}
+        <div class="card mb-3 border-danger">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Rechazo</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <h5 class="col-md-9 text-start">{{ remesa.anomalia_general }}</h5>
+                <textarea class="form-control bg-transparent border-danger" style="height: 100px" disabled>{{ remesa.observaciones_archivista }}</textarea>
+            </div>
+        </div>
+    {% elif remesa.anomalia_general %}
+        <div class="card mb-3 border-danger">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Anomalía General</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <h5 class="col-md-9 text-start">{{ remesa.anomalia_general }}</h5>
+                <textarea class="form-control bg-transparent border-danger" style="height: 100px" disabled>{{ remesa.observaciones_archivista }}</textarea>
             </div>
         </div>
     {% endif %}
@@ -172,15 +166,6 @@
             <div class="card-header bg-danger text-light" style="font-weight: bold;">Rechazar</div>
             <div class="card-body" style="background-color: #e7d1d1;">
                 <a href="{{url_for('arc_remesas.refuse', remesa_id=remesa.id)}}" class="btn btn-danger">Rechazar</a>
-            </div>
-        </div>
-    {% endif %}
-    {# Sección Rechazo #}
-    {% if mostrar_secciones['rechazo'] %}
-        <div class="card mb-3 border-danger">
-            <div class="card-header bg-danger text-light" style="font-weight: bold;">Rechazo</div>
-            <div class="card-body" style="background-color: #e7d1d1;">
-                <textarea class="form-control bg-transparent border-danger" style="height: 100px" disabled>{{ remesa.rechazo }}</textarea>
             </div>
         </div>
     {% endif %}
@@ -437,6 +422,7 @@
                         case "RECHAZADA":               bg_class="bg-danger";               break;
                         case "ARCHIVADA":               bg_class="bg-success";              break;
                         case "ARCHIVADA CON ANOMALIA":  bg_class="bg-teal";                 break;
+                        case "ANOMALIA GENERAL":        bg_class="bg-orange";               break;
                         case "PASADA AL HISTORIAL":     bg_class="bg-brown";                break;
                     }
                     return '<span class="badge rounded-pill ' + bg_class + '">' + data + '</span>';
