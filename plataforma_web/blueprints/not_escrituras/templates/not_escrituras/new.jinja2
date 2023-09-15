@@ -50,6 +50,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
+            // Agregar clases CSS y establecer propiedades para el elemento con ID "autoridad"
             $('#autoridad').addClass('js-autoridad-data-ajax js-states form-control');
             $("#autoridad").prop("selectedIndex", -1); // Poner en blanco el select
             $(".js-autoridad-data-ajax").select2({
@@ -60,8 +61,10 @@
                     dataType: 'json',
                     delay: 250,
                     type: "POST",
+                    // Función para proporcionar datos adicionales en la solicitud
                     data: function (params) {
-                        return { 'searchString': params.term };
+                        // Retorna un objeto con los datos a enviar en la solicitud
+                        return { 'searchString': params.term.toUpperCase()};
                     }
                 },
                 placeholder: "Juzgados",
