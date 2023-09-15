@@ -27,6 +27,13 @@ class ArcRemesa(db.Model, UniversalMixin):
         ]
     )
 
+    ANOMALIAS = OrderedDict(  # varchar(32)
+        [
+            ("DOCUMENTOS DESORDENADOS", "Expediente desordenados"),
+            ("EXPEDIENTE FISICO NO AGREGADO", "Expediente físico no agregado a la remesa"),
+        ]
+    )
+
     # Nombre de la tabla
     __tablename__ = "arc_remesas"
 
@@ -45,12 +52,14 @@ class ArcRemesa(db.Model, UniversalMixin):
     anio = db.Column(db.String(16), nullable=False)
     esta_archivado = db.Column(db.Boolean, nullable=False, default=False)
     num_oficio = db.Column(db.String(16))
-    rechazo = db.Column(db.String(256))
-    observaciones = db.Column(db.String(256))
+    # rechazo = db.Column(db.String(256))
+    observaciones_solicitante = db.Column(db.String(256))
+    observaciones_archivista = db.Column(db.String(256))
+    anomalia_general = db.Column(db.Enum(*ANOMALIAS, name="anamolia", native_enum=False))
     tiempo_enviado = db.Column(db.DateTime)
     num_documentos = db.Column(db.Integer, nullable=False)
     num_anomalias = db.Column(db.Integer, nullable=False)
-    razon = db.Column(db.Enum(*RAZONES, name="razones", native_enum=False))
+    # razon = db.Column(db.Enum(*RAZONES, name="razones", native_enum=False))
     estado = db.Column(
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         nullable=False,

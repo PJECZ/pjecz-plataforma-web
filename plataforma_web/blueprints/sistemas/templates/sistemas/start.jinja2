@@ -2,7 +2,7 @@
 {% import 'macros/start.jinja2' as start %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Plataforma Web{% endblock %}
 
 {% block custom_head %}
     <style>
@@ -12,16 +12,16 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page('Inicio') }}
+    {{ topbar.page('Plataforma Web') }}
 {% endblock %}
 
 {% block content %}
+    {# Soporte Técnico #}
     {% if mostrar_portal_soporte %}
-        {# Plataforma Web #}
         {% call start.card('Soporte Técnico') %}
             <div class="container">
                 <div class="row" >
-                    {# Si tiene privilegios para crear tickets col-md-12 offset-md-3 #}
+                    {# ¿Necesitas soporte técnico? #}
                     <div class="col-md-6 col-sm-12 mb-2">
                         <div class="text-center">
                             <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-soportes-tickets-2.png" class="img-fluid mb-2">
@@ -32,7 +32,7 @@
                             </p>
                         </div>
                     </div>
-                    {# Directorio #}
+                    {# ¿Buscas un teléfono? #}
                     <div class="col-md-6 col-sm-12 mb-2">
                         <div class="text-center">
                             <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-directorio.png" class="img-fluid mb-2">
@@ -57,43 +57,44 @@
                 </div>
         {% endcall %}
     {% endif %}
+    {# Portal de Notarías #}
     {% if mostrar_portal_notarias %}
         {% call start.card("Portal de Notarías") %}
             <div class="container">
                 <div class="row" >
-                        {# Edictos #}
-                        <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
-                            <div class="text-center">
-                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/portal_notaria.png" class="img-fluid mb-2" style="padding: 50px 0px 40px;">
-                                <h5>¿Necesitas publicar un edicto?</h5>
-                                <p>
-                                    <a href="{{ url_for('edictos.new') }}"class="btn btn-success btn-tickets ml-auto">Subir un nuevo edicto</a>
-                                    <a href="{{ url_for('edictos.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis edictos</a>
-                                </p>
+                    {# ¿Necesitas publicar un edicto? #}
+                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/portal_notaria.png" class="img-fluid mb-2" style="padding: 50px 0px 40px;">
+                            <h5>¿Necesitas publicar un edicto?</h5>
+                            <p>
+                                <a href="{{ url_for('edictos.new') }}"class="btn btn-success btn-tickets ml-auto">Subir un nuevo edicto</a>
+                                <a href="{{ url_for('edictos.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis edictos</a>
+                            </p>
+                        </div>
+                    </div>
+                    {# ¿Necesitas revisar una escritura? #}
+                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/escrituras.png" class="img-fluid mb-2" style="padding: 20px 0px 20px;">
+                            <h5>¿Necesitas revisar una escritura?</h5>
+                            <div>
+                                <a href="{{ url_for('not_escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Nueva escritura</a>
+                                <a href="{{ url_for('not_escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis escrituras</a>
                             </div>
                         </div>
-                        {# Escrituras #}
-                        <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
-                            <div class="text-center">
-                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/escrituras.png" class="img-fluid mb-2" style="padding: 20px 0px 20px;">
-                                <h5>¿Necesitas revisar una escritura?</h5>
-                                <div>
-                                    <a href="{{ url_for('not_escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Nueva escritura</a>
-                                    <a href="{{ url_for('not_escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis escrituras</a>
-                                </div>
-                            </div>
+                    </div>
+                    {# ¿Necesitas conversar? #}
+                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                        <div class="text-center">
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/mensajes.png" class="img-fluid mb-2">
+                            <h5>¿Necesitas conversar?</h5>
+                            <p>
+                                <a href="#"class="btn btn-success btn-tickets ml-auto">Nueva conversación</a>
+                                <a href="#" class="btn btn-primary btn-tickets ml-auto">Mis conversaciones</a>
+                            </p>
                         </div>
-                        {# Mensajes #}
-                        <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
-                            <div class="text-center">
-                                <img src="https://storage.googleapis.com/pjecz-informatica/static/images/mensajes.png" class="img-fluid mb-2">
-                                <h5>¿Necesitas conversar?</h5>
-                                <p>
-                                    <a href="#"class="btn btn-success btn-tickets ml-auto">Nueva conversación</a>
-                                    <a href="#" class="btn btn-primary btn-tickets ml-auto">Mis conversaciones</a>
-                                </p>
-                            </div>
-                        </div>
+                    </div>
                 </div>
             </div>
         {% endcall %}
@@ -133,12 +134,6 @@
         </div>
         {% endif %}
     </div>
-    {# Versiones #}
-    {% call start.card('Versiones') %}
-        <div id="versiones_container">
-            <span id="versiones_spinner" class="spinner-border" role="status"></span>
-        </div>
-    {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
@@ -175,9 +170,4 @@
             });
         </script>
     {% endif %}
-    <!-- Versiones -->
-    <script type="text/javascript">
-        const versiones_json = "{{ url_for('static', filename='json/versions.json') }}";
-    </script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/versions.js') }}"></script>
 {% endblock %}

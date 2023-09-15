@@ -3,11 +3,11 @@ Archivo - Remesas, formularios
 """
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from datetime import date
-from wtforms import IntegerField, StringField, SubmitField, TextAreaField, SelectField, BooleanField
-from wtforms.validators import DataRequired, Optional, Length, NumberRange
+from wtforms import IntegerField, StringField, SubmitField, TextAreaField, SelectField
+from wtforms.validators import DataRequired, Optional, Length
 
 from plataforma_web.blueprints.arc_remesas_documentos.models import ArcRemesaDocumento
+from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
 
 
 class ArcRemesaNewForm(FlaskForm):
@@ -29,7 +29,7 @@ class ArcRemesaEditForm(FlaskForm):
     # campos actualizables
     anio = StringField("Años: (Años de inicio - Año final)", validators=[DataRequired()])
     num_oficio = StringField("Núm. Oficio: (núm/año)", validators=[DataRequired(), Length(max=16)])
-    observaciones = TextAreaField("Observaciones", validators=[Optional(), Length(max=256)])
+    observaciones_solicitante = TextAreaField("Observaciones del Solicitante", validators=[Optional(), Length(max=256)])
     guardar = SubmitField("Guardar")
 
 
@@ -53,5 +53,15 @@ class ArcRemesaAsignationForm(FlaskForm):
 class ArcRemesaRefuseForm(FlaskForm):
     """Formulario Rechazo"""
 
-    observaciones = TextAreaField("Observaciones", validators=[DataRequired(), Length(max=256)])
+    anomalia_general = SelectField("Anomalía General", choices=ArcRemesa.ANOMALIAS, validators=[DataRequired()])
+    observaciones_archivista = TextAreaField("Observaciones por parte de Archivo", validators=[Optional(), Length(max=256)])
     rechazar = SubmitField("Rechazar")
+
+
+class ArcRemesaAnomaliaForm(FlaskForm):
+    """Formulario Rechazo"""
+
+    anomalia_general = SelectField("Anomalía General", choices=ArcRemesa.ANOMALIAS, validators=[DataRequired()])
+    observaciones_archivista = TextAreaField("Observaciones por parte de Archivo", validators=[Optional(), Length(max=256)])
+    guardar = SubmitField("Guardar")
+    eliminar = SubmitField("Eliminar")

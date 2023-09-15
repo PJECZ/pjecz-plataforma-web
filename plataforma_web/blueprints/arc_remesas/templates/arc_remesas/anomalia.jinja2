@@ -3,11 +3,10 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Rechazar Remesa{% endblock %}
+{% block title %}Anomalía General en la Remesa{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Rechazar Remesa - ' + remesa.id | string ) %}
-        {{ topbar.button_previous('Bandeja de Entrada', url_for('arc_archivos.list_active')) }}
+    {% call topbar.page_buttons('Anomalía General en la Remesa - ' + remesa.id | string ) %}
         {{ topbar.button_previous('Remesa', url_for('arc_remesas.detail', remesa_id=remesa.id)) }}
     {% endcall %}
 {% endblock %}
@@ -33,10 +32,16 @@
     <!-- Formulario para seleccionar Remesa -->
     {% call f.card() %}
         {% set form_kwargs = {'remesa_id': remesa.id} %}
-        {% call f.form_tag('arc_remesas.refuse', fid='remesa_form', **form_kwargs) %}
+        {% call f.form_tag('arc_remesas.anomalia', fid='remesa_form', **form_kwargs) %}
             {% call f.form_group(form.anomalia_general) %}{% endcall %}
             {% call f.form_group(form.observaciones_archivista) %}{% endcall %}
-            {% call f.form_group(form.rechazar) %}{% endcall %}
+            <div class="row">
+                <div class="col-md-auto">
+                    <input class="btn btn-success" id="guardar" name="guardar" type="submit" value="Guardar">
+                    <input class="btn btn-danger" id="eliminar" name="eliminar" type="submit" value="Eliminar">
+                    <a href="{{url_for('arc_remesas.detail', remesa_id=remesa.id)}}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </div>
         {% endcall %}
     {% endcall %}
 {% endblock %}
