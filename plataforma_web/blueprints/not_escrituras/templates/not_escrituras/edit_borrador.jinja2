@@ -65,25 +65,29 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function(){
-            //-- Al id del input le agregamos la clase para que sea slect2
+            //-- Al id del input le agregamos la clase para que sea select2
             $('#autoridad').addClass('js-juzgado-data-ajax js-states form-control');
+            // Itera a través de las opciones en el elemento con ID "autoridad"
             $('#autoridad option').each(function() {
+                // Compara el texto de la opción con un valor específico y establece la selección
                 if($(this).text() == '{{not_escritura.autoridad_id}}') {
                     $("#autoridad").val( $(this).val() );
                 }
             });
-            // Traemos los datos por ajax
+            // Traemos los datos por ajax basados en el valor del estado
             if ('{{not_escritura.estado}}' == 'TRABAJANDO'){
+                // Inicializa el elemento select con la clase "js-juzgado-data-ajax" como un select2
                 $(".js-juzgado-data-ajax").select2({
-                    // --- Carga de emails por Ajax --- //
+                    // --- Carga de datos por Ajax --- //
                     ajax: {
                         url: '/autoridades/es_revisor_escrituras_json',
                         headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                         dataType: 'json',
                         delay: 250,
                         type: "POST",
+                        // Función para proporcionar datos adicionales en la solicitud
                         data: function (params) {
-                            return { 'searchString': params.term };
+                            return { 'searchString': params.term.toUpperCase()};
                         }
                     },
                     placeholder: "Juzgados",
@@ -91,6 +95,7 @@
                     allowClear: true
                 });
             }else{
+                // Establece el valor del elemento select con el texto de la autoridad seleccionada
                 $('#autoridad').val('{{not_escritura.autoridad.descripcion}}');
             }
             // Usa Ajax para traer hasta 10 autoridades, se debe agregar el valor actual
