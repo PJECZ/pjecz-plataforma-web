@@ -87,7 +87,7 @@
                         type: "POST",
                         // Función para proporcionar datos adicionales en la solicitud
                         data: function (params) {
-                            return { 'es_revisor_escrituras': params.term.toUpperCase(), "es_revisor_escrituras": true };
+                            return { 'searchString': params.term.toUpperCase()};
                         }
                     },
                     placeholder: "Juzgados",

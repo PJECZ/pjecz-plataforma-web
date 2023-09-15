@@ -64,7 +64,7 @@
                     // Función para proporcionar datos adicionales en la solicitud
                     data: function (params) {
                         // Retorna un objeto con los datos a enviar en la solicitud
-                        return { 'es_revisor_escrituras': params.term.toUpperCase(), "es_revisor_escrituras": true };
+                        return { 'searchString': params.term.toUpperCase()};
                     }
                 },
                 placeholder: "Juzgados",
