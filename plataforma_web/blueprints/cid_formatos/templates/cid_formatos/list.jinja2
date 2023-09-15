@@ -51,6 +51,7 @@
                     <th>Procedimiento</th>
                     <th>Descripcion</th>
                     <th>Descargar</th>
+                    <th>Clasificación</th>
                     <th>Área</th>
                 </tr>
             </thead>
@@ -70,6 +71,7 @@
             { data: 'cid_procedimiento' },
             { data: 'descripcion' },
             { data: 'descargar' },
+            { data: 'autoridad' },
             { data: 'cid_area' },
         ];
         configDataTable['columnDefs'] = [
@@ -119,7 +121,7 @@
                 }
             },
             {
-                targets: 4, // cid_area
+                targets: 5, // cid_area
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
