@@ -85,6 +85,7 @@ class Autoridad(db.Model, UniversalMixin):
     cid_areas_autoridades = db.relationship("CIDAreaAutoridad", back_populates="autoridad", lazy="noload")
     cid_procedimientos = db.relationship("CIDProcedimiento", back_populates="autoridad", lazy="noload")
     edictos = db.relationship("Edicto", back_populates="autoridad", lazy="noload")
+    est_informes = db.relationship("EstInforme", back_populates="autoridad", lazy="noload")
     glosas = db.relationship("Glosa", back_populates="autoridad", lazy="noload")
     listas_de_acuerdos = db.relationship("ListaDeAcuerdo", back_populates="autoridad", lazy="noload")
     not_conversaciones = db.relationship("NotConversacion", back_populates="autoridad", lazy="noload")
