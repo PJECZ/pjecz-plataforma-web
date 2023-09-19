@@ -71,6 +71,7 @@ def alimentar_domicilios():
                 completo=completo,
                 numeracion_telefonica=numeracion_telefonica,
                 estatus=row["estatus"],
+                distrito_id=19,  # NO DEFINIDO
             ).save()
             contador += 1
             if contador % 100 == 0:
