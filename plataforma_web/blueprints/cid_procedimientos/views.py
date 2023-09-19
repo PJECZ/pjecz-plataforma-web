@@ -752,6 +752,10 @@ def accept_reject(cid_procedimiento_id):
             if nuevo_usuario is None:
                 flash("No se definio el usuario.", "danger")
                 return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+            # Validar que NO haya sido YA aceptado
+            if original.seguimiento_posterior in ["EN REVISION", "EN AUTORIZACION"]:
+                flash("Este procedimiento ya fue aceptado.", "warning")
+                return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
             # Crear un nuevo registro
             nuevo = CIDProcedimiento(
                 autoridad=original.autoridad,
