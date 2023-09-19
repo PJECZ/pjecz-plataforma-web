@@ -12,22 +12,24 @@
             {{ topbar.button_print('Imprimir', url_for('fin_vales.detail_print', fin_vale_id=fin_vale.id)) }}
         {% endif %}
         {% if current_user.can_edit('FIN VALES') %}
-            {{ topbar.button_edit('Editar', url_for('fin_vales.edit', fin_vale_id=fin_vale.id)) }}
-            {% if fin_vale.estado == 'CREADO' %}
+            {% if fin_vale.estatus == 'A' %}
+                {{ topbar.button_edit('Editar', url_for('fin_vales.edit', fin_vale_id=fin_vale.id)) }}
+            {% endif %}
+            {% if fin_vale.estado == 'CREADO' and fin_vale.estatus == 'A' %}
                 {{ topbar.button('Solicitar', url_for('fin_vales.step_2_request', fin_vale_id=fin_vale.id), 'mdi:check') }}
             {% endif %}
-            {% if fin_vale.estado == 'SOLICITADO' %}
+            {% if fin_vale.estado == 'SOLICITADO' and fin_vale.estatus == 'A' %}
                 {{ topbar.button('Cancelar solicitado', url_for('fin_vales.cancel_2_request', fin_vale_id=fin_vale.id), 'mdi:close') }}
                 {{ topbar.button('Autorizar', url_for('fin_vales.step_3_authorize', fin_vale_id=fin_vale.id), 'mdi:check-all') }}
             {% endif %}
-            {% if fin_vale.estado == 'AUTORIZADO' %}
+            {% if fin_vale.estado == 'AUTORIZADO' and fin_vale.estatus == 'A' %}
                 {{ topbar.button('Cancelar autorizado', url_for('fin_vales.cancel_3_authorize', fin_vale_id=fin_vale.id), 'mdi:close') }}
                 {{ topbar.button('Entregar', url_for('fin_vales.step_4_deliver', fin_vale_id=fin_vale.id), 'mdi:basket') }}
             {% endif %}
-            {% if fin_vale.estado == 'ENTREGADO' %}
+            {% if fin_vale.estado == 'ENTREGADO' and fin_vale.estatus == 'A' %}
                 {{ topbar.button('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id), 'mdi:cube-scan') }}
             {% endif %}
-            {% if fin_vale.estado == 'POR REVISAR' %}
+            {% if fin_vale.estado == 'POR REVISAR' and fin_vale.estatus == 'A' %}
                 {{ topbar.button('Capturar', url_for('fin_vales.step_5_attachments', fin_vale_id=fin_vale.id), 'mdi:cube-scan') }}
                 {{ topbar.button('Archivar', url_for('fin_vales.step_6_archive', fin_vale_id=fin_vale.id), 'mdi:archive') }}
             {% endif %}
@@ -52,6 +54,9 @@
             {{ detail.label_value('Tipo', fin_vale.tipo) }}
             {{ detail.label_value('Monto', '$ ' + fin_vale.monto | string) }}
             {{ detail.label_value_big('Justificacion', fin_vale.justificacion) }}
+            {{ detail.label_value('Sello digital', efirma_sello_digital) }}
+            {{ detail.label_value('URL', efirma_url, efirma_url) }}
+            {{ detail.label_value('QR', efirma_qr_url) }}
         {% endcall %}
     {% endif %}
     {% if fin_vale.solicito_efirma_error != None and fin_vale.solicito_efirma_error != '' %}

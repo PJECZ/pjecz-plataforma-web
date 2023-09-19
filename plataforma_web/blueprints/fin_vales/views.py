@@ -37,6 +37,9 @@ ROL_SOLICITANTES = "FINANCIEROS SOLICITANTES"
 ROL_AUTORIZANTES = "FINANCIEROS AUTORIZANTES"
 ROL_ASISTENTES = "FINANCIEROS ASISTENTES"
 
+ROLES_PUEDEN_VER = (ROL_SOLICITANTES, ROL_AUTORIZANTES, ROL_ASISTENTES)
+ROLES_PUEDEN_IMPRIMIR = (ROL_AUTORIZANTES, ROL_ASISTENTES)
+
 
 @fin_vales.before_request
 @login_required
@@ -228,23 +231,98 @@ def list_inactive():
 @fin_vales.route("/fin_vales/<int:fin_vale_id>")
 def detail(fin_vale_id):
     """Detalle de un Vale"""
+
+    # Consultar el vale
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    current_user_roles = current_user.get_roles()
-    if not (current_user.can_admin(MODULO) or ROL_ASISTENTES in current_user_roles or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
-        flash("No tiene permiso para ver el detalle de este Vale", "warning")
-        return redirect(url_for("fin_vales.list_active"))
-    return render_template("fin_vales/detail.jinja2", fin_vale=fin_vale)
+
+    # Determinar el sello digital y la URL de la firma electronica
+    efirma_sello_digital = None
+    efirma_url = None
+    efirma_qr_url = None
+    # Si el estado es SOLICITADO
+    if fin_vale.estado == "SOLICITADO":
+        efirma_sello_digital = fin_vale.solicito_efirma_sello_digital
+        efirma_url = fin_vale.solicito_efirma_url
+        efirma_qr_url = fin_vale.solicito_efirma_qr_url
+    # Si el estado es AUTORIZADO
+    if fin_vale.estado == "AUTORIZADO":
+        efirma_sello_digital = fin_vale.autorizo_efirma_sello_digital
+        efirma_url = fin_vale.autorizo_efirma_url
+        efirma_qr_url = fin_vale.autorizo_efirma_qr_url
+
+    # Validar que pueda verlo
+    puede_verlo = False
+    # Si es administrador, puede verlo
+    if current_user.can_admin(MODULO):
+        puede_verlo = True
+    # Si tiene uno de los roles que pueden verlo y esta activo, puede verlo
+    if set(current_user.get_roles()).intersection(ROLES_PUEDEN_VER) and fin_vale.estatus == "A":
+        puede_verlo = True
+    # Si es el usuario que lo creo y esta activo, puede verlo
+    if fin_vale.usuario_id == current_user.id and fin_vale.estatus == "A":
+        puede_verlo = True
+    # Si puede verlo
+    if puede_verlo:
+        return render_template(
+            "fin_vales/detail.jinja2",
+            fin_vale=fin_vale,
+            efirma_sello_digital=efirma_sello_digital,
+            efirma_url=efirma_url,
+            efirma_qr_url=efirma_qr_url,
+        )
+
+    # No puede verlo
+    flash("No tiene permiso para ver el detalle de este Vale", "warning")
+    return redirect(url_for("fin_vales.list_active"))
 
 
 @fin_vales.route("/fin_vales/<int:fin_vale_id>/imprimir")
 def detail_print(fin_vale_id):
     """Impresion de un Vale"""
+
+    # Consultar el vale
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
-    current_user_roles = current_user.get_roles()
-    if not (current_user.can_admin(MODULO) or ROL_ASISTENTES in current_user_roles or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
-        flash("No tiene permiso para imprimir este Vale", "warning")
-        return redirect(url_for("fin_vales.list_active"))
-    return render_template("fin_vales/print.jinja2", fin_vale=fin_vale)
+
+    # Determinar el sello digital y la URL de la firma electronica
+    efirma_sello_digital = None
+    efirma_url = None
+    efirma_qr_url = None
+    # Si el estado es SOLICITADO
+    if fin_vale.estado == "SOLICITADO":
+        efirma_sello_digital = fin_vale.solicito_efirma_sello_digital
+        efirma_url = fin_vale.solicito_efirma_url
+        efirma_qr_url = fin_vale.solicito_efirma_qr_url
+    # Si el estado es AUTORIZADO
+    if fin_vale.estado == "AUTORIZADO":
+        efirma_sello_digital = fin_vale.autorizo_efirma_sello_digital
+        efirma_url = fin_vale.autorizo_efirma_url
+        efirma_qr_url = fin_vale.autorizo_efirma_qr_url
+
+    # Validar que pueda verlo
+    puede_imprimirlo = False
+    # Si es administrador, puede imprimirlo
+    if current_user.can_admin(MODULO):
+        puede_imprimirlo = True
+    # Si tiene uno de los roles que pueden imprimir y esta activo, puede imprimirlo
+    if set(current_user.get_roles()).intersection(ROLES_PUEDEN_IMPRIMIR) and fin_vale.estatus == "A":
+        puede_imprimirlo = True
+    # Si es el usuario que lo creo y esta activo, puede imprimirlo
+    if fin_vale.usuario_id == current_user.id and fin_vale.estatus == "A":
+        puede_imprimirlo = True
+
+    # Si puede imprimirlo
+    if puede_imprimirlo:
+        return render_template(
+            "fin_vales/print.jinja2",
+            fin_vale=fin_vale,
+            efirma_sello_digital=efirma_sello_digital,
+            efirma_url=efirma_url,
+            efirma_qr_url=efirma_qr_url,
+        )
+
+    # No puede imprimirlo
+    flash("No tiene permiso para imprimir este Vale", "warning")
+    return redirect(url_for("fin_vales.list_active"))
 
 
 @fin_vales.route("/fin_vales/<int:fin_vale_id>/editar", methods=["GET", "POST"])
@@ -255,16 +333,19 @@ def edit(fin_vale_id):
     # Consultar
     fin_vale = FinVale.query.get_or_404(fin_vale_id)
 
-    # Validar permisos
-    current_user_roles = current_user.get_roles()
-    if not (current_user.can_admin(MODULO) or ROL_ASISTENTES in current_user_roles or ROL_SOLICITANTES in current_user_roles or ROL_AUTORIZANTES in current_user_roles or current_user.id == fin_vale.usuario_id):
-        flash("No tiene permiso para ver el detalle de este Vale", "warning")
+    # Validar que el estatus sea A
+    if fin_vale.estatus != "A":
+        flash("No puede editar este vale porque esta eliminado", "warning")
+        return redirect(url_for("fin_vales.list_active"))
+
+    # Validar que el usuario sea quien creo este vale
+    if fin_vale.usuario_id != current_user.id:
+        flash("No puede editar este vale porque usted no lo creo", "warning")
         return redirect(url_for("fin_vales.list_active"))
 
     # Si viene el formulario
     form = FinValeEditForm()
     if form.validate_on_submit():
-
         # Inicializar variables
         es_valido = True
         usuario = None
