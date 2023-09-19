@@ -55,6 +55,7 @@ def alimentar_autoridades():
                 directorio_sentencias=row["directorio_sentencias"],
                 audiencia_categoria=row["audiencia_categoria"],
                 estatus=row["estatus"],
+                sede="ND",
             ).save()
             contador += 1
             if contador % 100 == 0:
