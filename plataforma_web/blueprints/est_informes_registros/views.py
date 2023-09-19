@@ -59,7 +59,10 @@ def datatable_json():
                     "url": url_for("est_informes_registros.detail", est_informe_registro_id=resultado.id),
                 },
                 "autoridad_clave": resultado.est_informe.autoridad.clave,
-                "est_informe_fecha": resultado.est_informe.fecha,
+                "est_informe": {
+                    "fecha": resultado.est_informe.fecha.strftime("%Y-%m-%d"),
+                    "url": url_for("est_informes.detail", est_informe_id=resultado.est_informe.id),
+                },
                 "est_variable_clave": resultado.est_variable.clave,
                 "est_variable_descripcion": resultado.est_variable.descripcion,
                 "cantidad": resultado.cantidad if resultado.cantidad is not None else "ND",
