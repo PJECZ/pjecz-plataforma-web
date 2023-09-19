@@ -101,6 +101,11 @@ body {
   text-align: center;
   text-transform: uppercase;
 }
+#seccionEFirma {
+  text-align: left;
+  font-family: "Courier New", Courier, monospace;
+  margin-top: 1.5cm;
+}
 
 /* Footer at bottom of page */
 #footer {

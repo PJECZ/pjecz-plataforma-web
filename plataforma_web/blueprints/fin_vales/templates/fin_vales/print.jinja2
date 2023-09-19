@@ -18,12 +18,22 @@
         </p>
     </div>
     <div id="seccionFirma">
-        <p style="margin-bottom: 2cm;">A T E N T A M E N T E</p>
-        <p>
+        <p style="margin-bottom: 1cm;">A T E N T A M E N T E</p>
+        <p style="margin-bottom: 1cm;">
             {{ fin_vale.solicito_puesto }}<br>
             {{ fin_vale.solicito_nombre }}
         </p>
     </div>
+    {% if efirma_sello_digital %}
+    <div id="seccionEFirma">
+        <p>
+            <strong>Sello digital:</strong> <span style="font-family: monospace;">{{ efirma_sello_digital }}</span>
+        </p>
+        <p style="text-align: center;">
+            <img src="{{ efirma_qr_url }}" alt="QR">
+        </p>
+    </div>
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
