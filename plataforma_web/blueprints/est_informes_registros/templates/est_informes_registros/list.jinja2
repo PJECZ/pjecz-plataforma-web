@@ -6,6 +6,15 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('ESTADISTICAS INFORMES') %}
+            {{ topbar.button('Informes', url_for('est_informes.list_active'), 'mdi:file-table') }}
+        {% endif %}
+        {% if current_user.can_view('ESTADISTICAS INFORMES REGISTROS') %}
+            {{ topbar.button('Registros', url_for('est_informes_registros.list_active'), 'mdi:numeric') }}
+        {% endif %}
+        {% if current_user.can_view('ESTADISTICAS VARIABLES') %}
+            {{ topbar.button('Variables', url_for('est_variables.list_active'), 'mdi:connection') }}
+        {% endif %}
         {% if current_user.can_edit('ESTADISTICAS INFORMES REGISTROS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('est_informes_registros.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('est_informes_registros.list_active')) }}{% endif %}
@@ -18,7 +27,12 @@
         <table id="est_informes_registros_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Nombres</th>
+                    <th>ID</th>
+                    <th>Autoridad</th>
+                    <th>Informe Fecha</th>
+                    <th>Clave</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
                 </tr>
             </thead>
         </table>
