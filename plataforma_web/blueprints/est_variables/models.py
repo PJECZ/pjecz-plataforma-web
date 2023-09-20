@@ -19,7 +19,7 @@ class EstVariable(db.Model, UniversalMixin):
     descripcion = db.Column(db.String(256), nullable=False)
 
     # Hijos
-    # est_informes_registros = db.relationship('EstInformeRegistro', back_populates='est_variable', lazy='noload')
+    est_informes_registros = db.relationship("EstInformeRegistro", back_populates="est_variable")
 
     def __repr__(self):
         """Representación"""
