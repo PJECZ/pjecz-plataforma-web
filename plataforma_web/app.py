@@ -32,8 +32,9 @@ from plataforma_web.blueprints.domicilios.views import domicilios
 from plataforma_web.blueprints.edictos.views import edictos
 from plataforma_web.blueprints.entradas_salidas.views import entradas_salidas
 from plataforma_web.blueprints.epocas.views import epocas
-from plataforma_web.blueprints.est_acuerdos.views import est_acuerdos
 from plataforma_web.blueprints.est_variables.views import est_variables
+from plataforma_web.blueprints.est_informes.views import est_informes
+from plataforma_web.blueprints.est_informes_registros.views import est_informes_registros
 from plataforma_web.blueprints.fin_vales.views import fin_vales
 from plataforma_web.blueprints.fin_vales_adjuntos.views import fin_vales_adjuntos
 from plataforma_web.blueprints.funcionarios.views import funcionarios
@@ -123,7 +124,8 @@ def create_app():
     app.register_blueprint(edictos)
     app.register_blueprint(entradas_salidas)
     app.register_blueprint(epocas)
-    app.register_blueprint(est_acuerdos)
+    app.register_blueprint(est_informes)
+    app.register_blueprint(est_informes_registros)
     app.register_blueprint(est_variables)
     app.register_blueprint(fin_vales)
     app.register_blueprint(fin_vales_adjuntos)

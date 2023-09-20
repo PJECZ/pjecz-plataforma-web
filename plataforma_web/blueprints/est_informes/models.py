@@ -36,8 +36,8 @@ class EstInforme(db.Model, UniversalMixin):
         db.Enum(*ESTADOS, name="estados", native_enum=False),
         index=True,
         nullable=False,
-        default="CREADO",
-        server_default="CREADO",
+        default="BORRADOR",
+        server_default="BORRADOR",
     )
 
     # Columnas (paso 2) estado ENTREGADO
@@ -58,21 +58,21 @@ class EstInforme(db.Model, UniversalMixin):
     entrego_cancelo_error = db.Column(db.String(512))
 
     # Columnas (paso 3) estado RECIBIDO
-    recibido_nombre = db.Column(db.String(256))
-    recibido_puesto = db.Column(db.String(256))
-    recibido_email = db.Column(db.String(256))
-    recibido_efirma_tiempo = db.Column(db.DateTime)
-    recibido_efirma_folio = db.Column(db.Integer)
-    recibido_efirma_sello_digital = db.Column(db.String(512))
-    recibido_efirma_url = db.Column(db.String(256))
-    recibido_efirma_qr_url = db.Column(db.String(256))
-    recibido_efirma_mensaje = db.Column(db.String(512))
-    recibido_efirma_error = db.Column(db.String(512))
+    recibio_nombre = db.Column(db.String(256))
+    recibio_puesto = db.Column(db.String(256))
+    recibio_email = db.Column(db.String(256))
+    recibio_efirma_tiempo = db.Column(db.DateTime)
+    recibio_efirma_folio = db.Column(db.Integer)
+    recibio_efirma_sello_digital = db.Column(db.String(512))
+    recibio_efirma_url = db.Column(db.String(256))
+    recibio_efirma_qr_url = db.Column(db.String(256))
+    recibio_efirma_mensaje = db.Column(db.String(512))
+    recibio_efirma_error = db.Column(db.String(512))
 
     # Columnas (cancelo recibidor) estado CANCELADO POR RECIBIDOR
-    recibido_cancelo_tiempo = db.Column(db.DateTime)
-    recibido_cancelo_motivo = db.Column(db.String(256))
-    recibido_cancelo_error = db.Column(db.String(512))
+    recibio_cancelo_tiempo = db.Column(db.DateTime)
+    recibio_cancelo_motivo = db.Column(db.String(256))
+    recibio_cancelo_error = db.Column(db.String(512))
 
     # Hijos
     est_informes_registros = db.relationship("EstInformeRegistro", back_populates="est_informe")

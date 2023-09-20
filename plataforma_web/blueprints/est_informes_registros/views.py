@@ -13,8 +13,8 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.est_informes.models import EstInforme
-from plataforma_web.blueprints.est_variables.models import EstVariable
 from plataforma_web.blueprints.est_informes_registros.models import EstInformeRegistro
+from plataforma_web.blueprints.est_variables.models import EstVariable
 
 MODULO = "ESTADISTICAS INFORMES REGISTROS"
 
