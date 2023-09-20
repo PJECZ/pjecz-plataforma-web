@@ -27,8 +27,8 @@ class EstInforme(db.Model, UniversalMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
-    autoridades_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
-    autoridades = db.relationship("Autoridad", back_populates="est_informes")
+    autoridad_id = db.Column(db.Integer, db.ForeignKey("autoridades.id"), index=True, nullable=False)
+    autoridad = db.relationship("Autoridad", back_populates="est_informes")
 
     # Columnas (paso 1) estado BORRADOR
     fecha = db.Column(db.Date, index=True, nullable=False)
