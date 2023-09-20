@@ -1,0 +1,35 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Informe{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Informe') %}
+        {{ topbar.button_previous('Informes', url_for('est_informes.list_active')) }}
+        {# if current_user.can_edit('ESTADISTICAS INFORMES') %}
+            {{ topbar.button_edit('Editar', url_for('est_informes.edit', est_informe_id=est_informe.id)) }}
+            {% if est_informe.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('est_informes.delete', est_informe_id=est_informe.id)) }}{% endif %}
+            {% if est_informe.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('est_informes.recover', est_informe_id=est_informe.id)) }}{% endif %}
+        {% endif #}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=est_informe.estatus) %}
+        {{ detail.label_value_big('Informe ID', est_informe.id) }}
+        {{ detail.label_value('Fecha', moment(est_informe.fecha, local=True).format('DD MMM YYYY')) }}
+        {{ detail.label_value('Distrito', est_informe.autoridad.distrito.nombre) }}
+        {{ detail.label_value('Autoridad', est_informe.autoridad.descripcion) }}
+        {{ detail.label_value('Estado', est_informe.estado) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {# if current_user.can_edit('ESTADISTICAS INFORMES') %}
+        {% if est_informe.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + est_informe.fecha + '?') }}{% endif %}
+        {% if est_informe.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + est_informe.fecha + '?') }}{% endif %}
+    {% endif #}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
