@@ -26,6 +26,7 @@ from plataforma_web.blueprints.arc_solicitudes.models import ArcSolicitud
 from plataforma_web.blueprints.arc_documentos.forms import (
     ArcDocumentoNewArchivoForm,
     ArcDocumentoNewSolicitanteForm,
+    ArcDocumentoNewNoUbicacionForm,
     ArcDocumentoEditArchivoForm,
     ArcDocumentoEditSolicitanteForm,
     ArcDocumentoEditNoUbicacionForm,
@@ -199,7 +200,10 @@ def new():
     """Nuevo Documento"""
     mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
-    if ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
+    if ROL_ARCHIVISTA in current_user_roles and ROL_LEVANTAMENTISTA in current_user_roles:
+        form = ArcDocumentoNewNoUbicacionForm()
+        mostrar_secciones["select_juzgado"] = True
+    elif ROL_JEFE_REMESA in current_user_roles or current_user.can_admin(MODULO) or ROL_LEVANTAMENTISTA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         form = ArcDocumentoNewArchivoForm()
         mostrar_secciones["select_juzgado"] = True
     else:
@@ -218,6 +222,9 @@ def new():
         if isinstance(form, ArcDocumentoNewArchivoForm):
             juzgado_id = int(form.juzgado_id.data)
             ubicacion = safe_string(form.ubicacion.data)
+        elif isinstance(form, ArcDocumentoNewNoUbicacionForm):
+            juzgado_id = int(form.juzgado_id.data)
+            ubicacion = "ARCHIVO"
         else:
             juzgado_id = current_user.autoridad.id
             ubicacion = "JUZGADO"
@@ -272,6 +279,8 @@ def new():
     # Bloquear campos según el ROL
     if isinstance(form, ArcDocumentoNewArchivoForm):
         form.ubicacion.data = "ARCHIVO"
+    elif isinstance(form, ArcDocumentoNewNoUbicacionForm):
+        form.ubicacion_readonly.data = "ARCHIVO"
     else:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = "JUZGADO"
