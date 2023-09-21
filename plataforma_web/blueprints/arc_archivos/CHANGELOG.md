@@ -4,10 +4,11 @@
 
 **Closed issues**:
 
-- Nueva columna en listado de expedientes: [\#783](https://github.com/PJECZ/pjecz-plataforma-web/issues/783)
-- Nueva columna en listado de documentos anexos de remesas: [\#781](https://github.com/PJECZ/pjecz-plataforma-web/issues/781)
-- Cambios en listado de documentos anexos remesas: [\#782](https://github.com/PJECZ/pjecz-plataforma-web/issues/782)
-- Bandera de alerta de retraso en Remesas: [\#785](https://github.com/PJECZ/pjecz-plataforma-web/issues/785)
+- En listado de documentos anexos dentro de Remesas cambiar el nombre de la columna 'Expediente' por 'Documento' y añadir la columna de 'Tipo de Documento'. [\#783](https://github.com/PJECZ/pjecz-plataforma-web/issues/783)
+- En listado de documentos anexos dentro de Remesas las columnas 'Observaciones Solicitante' y 'Observaciones Archivista' hacerlas más pequeñas y dejar un emoji que al acercarse complete los nombres. Además añadir una tercera columna 'Notas' que serían las notas de alta del documento, también con un emoji. [\#781](https://github.com/PJECZ/pjecz-plataforma-web/issues/781)
+- En el módulo de Expedientes añadir la columna "Tipo de Juicio" y su respectivo filtro. [\#782](https://github.com/PJECZ/pjecz-plataforma-web/issues/782)
+- Que el campo de fechas de remesas se haga automáticamente dependiendo de los documentos anexados. En el detalle de remesa mostrar el listado de años con el número de documentos por año.
+  [\#785](https://github.com/PJECZ/pjecz-plataforma-web/issues/785)
 
 ## 2023.09.15
 
