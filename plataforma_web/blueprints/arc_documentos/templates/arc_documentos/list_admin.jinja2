@@ -33,19 +33,25 @@
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_documentos.buscar(); return false;">
-                    <div class="col-4">
+                    <div class="col-2">
                         <div class="form-floating">
-                            <input id="expedienteInput" type="text" class="form-control" aria-label="Núm. Expediente" aria-describedby="button-buscar" onchange="filtros_documentos.buscar(); return false;">
+                            <input id="expedienteInput" type="text" class="form-control" aria-label="Núm. Expediente" onchange="filtros_documentos.buscar(); return false;">
                             <label for="expedienteInput">Núm. Expediente</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
+                            <input id="juicioInput" type="text" class="form-control" aria-label="Tipo de Juicio" onchange="filtros_documentos.buscar(); return false;">
+                            <label for="juicioInput">Tipo de Juicio</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
                             <select id="juzgadoInput" class="form-control js-select2-filter" onchange="filtros_documentos.buscar(); return false;" style="text-transform: uppercase"></select>
                             <label for="juzgadoInput">Instancia</label>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-3">
                         <div class="form-floating">
                             <select id="tipoSelect" class="form-control js-select2-filter" onchange="filtros_documentos.buscar(); return false;" style="text-transform: uppercase;"></select>
                             <label for="tipoSelect">Tipo</label>
@@ -53,7 +59,7 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="partesInput" type="text" class="form-control" aria-label="text" aria-describedby="button-buscar" style="text-transform: uppercase">
+                            <input id="partesInput" type="text" class="form-control" aria-label="text" style="text-transform: uppercase">
                             <label for="partesInput">Partes</label>
                         </div>
                     </div>
@@ -173,6 +179,7 @@
         const filtros_documentos = new Filtros('#arc_documentos_datatable', configDataTable_documentos);
         // Añadimos los difrentes inputs utilizados
         filtros_documentos.add_input('expedienteInput', 'expediente');
+        filtros_documentos.add_input('juicioInput', 'juicio');
         filtros_documentos.add_input('juzgadoInput', 'juzgado_id');
         filtros_documentos.add_input('tipoSelect', 'tipo');
         filtros_documentos.add_input('partesInput', 'partes');

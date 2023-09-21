@@ -69,6 +69,9 @@ def datatable_json():
             consulta = consulta.filter(ArcDocumento.expediente.contains(request.form["expediente"]))
         else:
             consulta = consulta.filter_by(expediente=safe_expediente(request.form["expediente"]))
+    if "juicio" in request.form:
+        juicio = safe_string(request.form["juicio"], save_enie=True)
+        consulta = consulta.filter(ArcDocumento.juicio.contains(juicio))
     if "partes" in request.form:
         consulta = consulta.filter(or_(ArcDocumento.actor.contains(safe_string(request.form["partes"], save_enie=True)), ArcDocumento.demandado.contains(safe_string(request.form["partes"], save_enie=True))))
     if "tipo" in request.form:
