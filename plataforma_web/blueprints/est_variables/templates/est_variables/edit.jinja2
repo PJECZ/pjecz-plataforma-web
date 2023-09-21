@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Variable{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar ' + est_variable.clave) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'est_variable_id': est_variable.id} %}
+        {% call f.form_tag('est_variables.edit', fid='est_variable_form', **form_kwargs) %}
+            {% call f.form_group(form.clave) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
