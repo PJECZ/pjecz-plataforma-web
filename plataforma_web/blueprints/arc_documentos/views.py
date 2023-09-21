@@ -107,6 +107,7 @@ def datatable_json():
                 "tipo": resultado.arc_documento_tipo.nombre,
                 "fojas": resultado.fojas,
                 "actor": resultado.actor,
+                "juicio": resultado.juicio,
                 "demandado": resultado.demandado,
                 "ubicacion": resultado.ubicacion,
                 "partes": {
