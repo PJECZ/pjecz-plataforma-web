@@ -83,6 +83,7 @@ def datatable_json():
                     "nuevas": resultado.fojas,
                     "anteriores": resultado.arc_documento.fojas,
                 },
+                "notas": resultado.arc_documento.notas if resultado.arc_documento.notas is not None else "",
                 "actor": resultado.arc_documento.actor,
                 "demandado": resultado.arc_documento.demandado,
                 "partes": {
