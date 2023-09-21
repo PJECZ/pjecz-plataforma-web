@@ -336,7 +336,10 @@
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return dataTable_funcs_remesas.texto_tiempo(data, moment, "YYYY-MM-DD HH:mm");
+                    if( data.alerta ) {
+                        return data.tiempo + ' <span style="color: red;" class="iconify" data-icon="mdi:flag"></span>';
+                    }
+                    return dataTable_funcs_remesas.texto_tiempo(data.tiempo, moment, "YYYY-MM-DD HH:mm");
                 }
             },
             {

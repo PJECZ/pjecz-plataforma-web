@@ -2,7 +2,7 @@
 Archivo - Remesas, vistas
 """
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_, not_
@@ -36,7 +36,7 @@ from plataforma_web.blueprints.arc_archivos.views import (
     ROL_RECEPCIONISTA,
 )
 
-
+DIAS_RETRASO = 10
 MODULO = "ARC REMESAS"
 
 
@@ -108,6 +108,7 @@ def datatable_json():
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
+        # Validar si hay alerta de retraso
         data.append(
             {
                 "remesa": {
@@ -119,7 +120,10 @@ def datatable_json():
                     "nombre": resultado.autoridad.descripcion_corta,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
                 },
-                "tiempo": resultado.modificado.strftime("%Y-%m-%d %H:%M:%S"),
+                "tiempo": {
+                    "tiempo": resultado.modificado.strftime("%Y-%m-%d %H:%M"),
+                    "alerta": _retraso(resultado.tiempo_enviado, resultado.estado),
+                },
                 "anio": resultado.anio,
                 "num_oficio": resultado.num_oficio,
                 "num_docs": resultado.num_documentos,
@@ -133,6 +137,17 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+def _retraso(tiempo: datetime, estado: str) -> bool:
+    """Validad si una Remesa se encuentra retrasada"""
+    if estado != "ASIGNADO":
+        return False
+
+    if datetime.today() - timedelta(days=DIAS_RETRASO) > tiempo:
+        return True
+
+    return False
 
 
 @arc_remesas.route("/arc_remesas/<int:remesa_id>")

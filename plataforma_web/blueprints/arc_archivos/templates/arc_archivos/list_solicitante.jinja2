@@ -266,7 +266,7 @@
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return moment.utc(data).local().format("YYYY-MM-DD HH:mm");
+                    return data.tiempo;
                 }
             },
             {
