@@ -108,9 +108,11 @@
                 <tr>
                     <th>ID</th>
                     <th>Documento</th>
+                    <th>Tipo</th>
                     <th>Juicio</th>
                     <th>Instancia de Origen</th>
                     <th>Partes</th>
+                    <th>Notas</th>
                     <th>Fojas Nuevas</th>
                     <th>Ubicación</th>
                     <th>Anomalía</th>
@@ -209,9 +211,11 @@
         configDataTable['columns'] = [
             { data: 'id' },
             { data: 'expediente' },
+            { data: 'tipo' },
             { data: 'juicio' },
             { data: 'juzgado_origen' },
             { data: 'partes' },
+            { data: 'notas' },
             { data: 'fojas' },
             { data: 'ubicacion' },
             { data: 'anomalia' },
@@ -234,14 +238,23 @@
                 }
             },
             {
-                targets: 3, // Juzgado Origen
+                targets: 3, // Juicio
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 16 )
+                        return '<span title="' + data + '">' + data.substr(0,16) + '…' + '</span>';
+                    return data
+                }
+            },
+            {
+                targets: 4, // Juzgado Origen
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<span title="' + data.nombre + '">' + data.clave + '</span>';
                 }
             },
             {
-                targets: 4, // partes
+                targets: 5, // partes
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.actor.length > 24)
@@ -256,14 +269,23 @@
                 }
             },
             {
-                targets: 5, // Fojas
+                targets: [6, 10, 11], // Notas, Observaciones Solicitante y Archivista
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data)
+                        return '<span title="' + data + '" class="badge rounded-pill bg-dark"><span class="iconify" data-icon="mdi:note-text"></span></span>';
+                    return "";
+                }
+            },
+            {
+                targets: 7, // Fojas
                 data: null,
                 render: function(data, type, row, meta) {
                     return data.nuevas ;
                 }
             },
             {
-                targets: 6, // ubicación
+                targets: 8, // ubicación
                 data: null,
                 render: function(data, type, row, meta) {
                     switch (data)    {
@@ -276,32 +298,12 @@
                 }
             },
             {
-                targets: 7, // Anomalía
+                targets: 9, // Anomalía
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data)
                         return '<span title="' + data + '" class="badge rounded-pill bg-danger"><span class="iconify" data-icon="mdi:check-decagram"></span></span>';
                     return "";
-                }
-            },
-            {
-                targets: 8, // Observaciones Solicitante
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.length > 16)
-                        return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
-                    else
-                        return data;
-                }
-            },
-            {
-                targets: 9, // Observaciones Archivo
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.length > 16)
-                        return '<span title="' + data + '">' + data.substr(0, 16) + '…' + '</span>';
-                    else
-                        return data;
                 }
             }
         ];
