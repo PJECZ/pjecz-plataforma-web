@@ -19,9 +19,9 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('est_variables.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('est_variables.list_active')) }}{% endif %}
         {% endif %}
-        {# if current_user.can_insert('ESTADISTICAS VARIABLES') #}
-            {# topbar.button_new('Nueva Variable', url_for('est_variables.new')) #}
-        {# endif #}
+        {% if current_user.can_insert('ESTADISTICAS VARIABLES') %}
+            {{ topbar.button_new('Nueva Variable', url_for('est_variables.new')) }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
