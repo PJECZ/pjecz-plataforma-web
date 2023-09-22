@@ -85,32 +85,46 @@ body {
 /* Content */
 #seccionLugarFecha {
   text-align: right;
-  margin-bottom: 1.5cm;
+  margin-bottom: 1cm;
 }
 #seccionDestinatario {
   font-weight: bold;
-  margin-bottom: 1.5cm;
   text-transform: uppercase;
+  margin-bottom: 1cm;
 }
 #seccionContenido {
-  margin-bottom: 1.5cm;
   text-indent: 2.5cm;
+  margin-bottom: 1cm;
 }
 #seccionFirma {
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;
+  margin-bottom: 1cm;
 }
 #seccionEFirma {
   text-align: left;
+}
+#seccionEFirma table th {
+  padding-right: 12px;
+  padding-bottom: 6px;
+}
+#seccionEFirma table td {
+  padding-right: 12px;
+  padding-bottom: 6px;
+}
+.imagenQR {
+  width: 5cm;
+  height: 5cm;
+}
+.textoSelloDigital {
   font-family: "Courier New", Courier, monospace;
-  margin-top: 1.5cm;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 /* Footer at bottom of page */
 #footer {
-  position: fixed;
-  bottom: 0;
   width: 100%;
-  height: 200px;
+  height: 300px;
 }

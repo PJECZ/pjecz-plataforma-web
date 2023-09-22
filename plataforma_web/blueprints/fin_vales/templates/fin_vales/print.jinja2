@@ -26,12 +26,18 @@
     </div>
     {% if efirma_sello_digital %}
     <div id="seccionEFirma">
-        <p>
-            <strong>Sello digital:</strong> <span style="font-family: monospace;">{{ efirma_sello_digital }}</span>
-        </p>
-        <p style="text-align: center;">
-            <img src="{{ efirma_qr_url }}" alt="QR">
-        </p>
+        <p><strong>Este documento tiene Firma Electrónica.</strong> Para validarlo:</p>
+        <table>
+            <thead>
+                <th>1. Con su teléfono celular lea este QR y cargue la página</th>
+                <th>2. Revise que el <strong>Sello Digital</strong> sea igual a éste</th>
+            </thead>
+            <tr>
+                <td style="text-align: center;"><img class="imagenQR" src="{{ efirma_qr_url }}" alt="QR"></td>
+                <td class="textoSelloDigital"> {{ efirma_sello_digital }}</td>
+            </tr>
+        </table>
+        <p><strong>3. Compare que la información sea la misma.</strong> En caso contrario, debe rechazarlo.</p>
     </div>
     {% endif %}
 {% endblock %}

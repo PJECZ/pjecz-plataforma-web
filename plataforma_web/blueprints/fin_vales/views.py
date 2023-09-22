@@ -312,6 +312,10 @@ def detail_print(fin_vale_id):
 
     # Si puede imprimirlo
     if puede_imprimirlo:
+        # Cortar las lineas del sello digital insertando saltos de linea cada 40 caracteres
+        if efirma_sello_digital is not None:
+            efirma_sello_digital = "<br>".join([efirma_sello_digital[i : i + 40] for i in range(0, len(efirma_sello_digital), 40)])
+        # Mostrar la plantilla para imprimir
         return render_template(
             "fin_vales/print.jinja2",
             fin_vale=fin_vale,
