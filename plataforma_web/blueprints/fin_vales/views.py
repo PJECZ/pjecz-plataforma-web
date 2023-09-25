@@ -287,16 +287,26 @@ def detail_print(fin_vale_id):
     efirma_sello_digital = None
     efirma_url = None
     efirma_qr_url = None
-    # Si el estado es SOLICITADO
+    efirma_motivo = None
+    # Si el estado es...
     if fin_vale.estado == "SOLICITADO":
         efirma_sello_digital = fin_vale.solicito_efirma_sello_digital
         efirma_url = fin_vale.solicito_efirma_url
         efirma_qr_url = fin_vale.solicito_efirma_qr_url
-    # Si el estado es AUTORIZADO
-    if fin_vale.estado == "AUTORIZADO":
+    elif fin_vale.estado == "CANCELADO POR SOLICITANTE":
+        efirma_sello_digital = fin_vale.solicito_efirma_sello_digital
+        efirma_url = fin_vale.solicito_efirma_url
+        efirma_qr_url = fin_vale.solicito_efirma_qr_url
+        efirma_motivo = fin_vale.solicito_cancelo_motivo
+    elif fin_vale.estado == "AUTORIZADO":
         efirma_sello_digital = fin_vale.autorizo_efirma_sello_digital
         efirma_url = fin_vale.autorizo_efirma_url
         efirma_qr_url = fin_vale.autorizo_efirma_qr_url
+    elif fin_vale.estado == "CANCELADO POR AUTORIZANTE":
+        efirma_sello_digital = fin_vale.autorizo_efirma_sello_digital
+        efirma_url = fin_vale.autorizo_efirma_url
+        efirma_qr_url = fin_vale.autorizo_efirma_qr_url
+        efirma_motivo = fin_vale.autorizo_cancelo_motivo
 
     # Validar que pueda verlo
     puede_imprimirlo = False
@@ -322,6 +332,7 @@ def detail_print(fin_vale_id):
             efirma_sello_digital=efirma_sello_digital,
             efirma_url=efirma_url,
             efirma_qr_url=efirma_qr_url,
+            efirma_motivo=efirma_motivo,
         )
 
     # No puede imprimirlo

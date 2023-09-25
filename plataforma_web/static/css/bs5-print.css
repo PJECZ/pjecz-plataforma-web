@@ -103,15 +103,17 @@ body {
   margin-bottom: 1cm;
 }
 #seccionEFirma {
-  text-align: left;
+  text-align: center;
+}
+#seccionEFirma table {
+  border: 2px solid #000;
+  margin: auto;
 }
 #seccionEFirma table th {
-  padding-right: 12px;
-  padding-bottom: 6px;
+  padding: 6px 12px;
 }
 #seccionEFirma table td {
-  padding-right: 12px;
-  padding-bottom: 6px;
+  padding: 6px 12px;
 }
 .imagenQR {
   width: 5cm;

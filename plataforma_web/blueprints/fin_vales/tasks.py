@@ -5,7 +5,6 @@ from datetime import datetime
 import json
 import logging
 import os
-import urllib
 
 from dotenv import load_dotenv
 import requests
@@ -117,19 +116,19 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
         )
         response.raise_for_status()
     except requests.exceptions.ConnectionError as error:
-        mensaje = "Error de conexion al solicitar el vale. " + str(error)
+        mensaje = "Error de conexion al solicitar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     except requests.exceptions.HTTPError as error:
-        mensaje = "Error porque la respuesta no tiene el estado 200 al solicitar el vale. " + str(error)
+        mensaje = "Error porque la respuesta no tiene el estado 200 al solicitar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     except requests.exceptions.RequestException as error:
-        mensaje = f"Error desconocido al solicitar el vale: {error}"
+        mensaje = "Error desconocido al solicitar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -147,11 +146,11 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
         return set_task_error(mensaje)
 
     # Convertir el texto a un diccionario
-    # texto = response.text.replace('"{', "{").replace('}"', "}")
+    texto = response.text.replace('"{', "{").replace('}"', "}")
     try:
         datos = json.loads(texto)
     except json.JSONDecodeError:
-        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON: {response.text}"
+        mensaje = "Error al solicitar el vale porque la respuesta no es JSON."
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -177,7 +176,6 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
         return set_task_error(mensaje)
 
     # Actualizar el vale, ahora su estado es SOLICITADO
-    url_quote = urllib.parse.quote(datos["url"])
     fin_vale.solicito_nombre = solicita.nombre
     fin_vale.solicito_puesto = solicita.puesto
     fin_vale.solicito_email = solicita.email
@@ -185,7 +183,7 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
     fin_vale.solicito_efirma_folio = datos["folio"]
     fin_vale.solicito_efirma_sello_digital = datos["selloDigital"]
     fin_vale.solicito_efirma_url = datos["url"]
-    fin_vale.solicito_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={url_quote}"
+    fin_vale.solicito_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={datos['url']}"
     fin_vale.solicito_efirma_mensaje = datos["mensaje"]
     fin_vale.solicito_efirma_error = ""
     fin_vale.estado = "SOLICITADO"
@@ -264,19 +262,19 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str, motivo: str):
         )
         response.raise_for_status()
     except requests.exceptions.ConnectionError as error:
-        mensaje = "Error de conexion al cancelar el vale. " + str(error)
+        mensaje = "Error de conexion al cancelar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     except requests.exceptions.HTTPError as error:
-        mensaje = "Error porque la respuesta no tiene el estado 200 al cancelar el vale. " + str(error)
+        mensaje = "Error porque la respuesta no tiene el estado 200 al cancelar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     except requests.exceptions.RequestException as error:
-        mensaje = f"Error desconocido al cancelar el vale: {error}"
+        mensaje = "Error desconocido al cancelar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -294,11 +292,11 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str, motivo: str):
         return set_task_error(mensaje)
 
     # Convertir el texto a un diccionario
-    # texto = response.text.replace('"{', "{").replace('}"', "}")
+    texto = response.text.replace('"{', "{").replace('}"', "}")
     try:
         _ = json.loads(texto)
     except json.JSONDecodeError:
-        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON: {response.text}"
+        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON."
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -405,19 +403,19 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
         )
         response.raise_for_status()
     except requests.exceptions.ConnectionError as error:
-        mensaje = "Error de conexion al autorizar el vale. " + str(error)
+        mensaje = "Error de conexion al autorizar el vale." + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     except requests.exceptions.HTTPError as error:
-        mensaje = "Error porque la respuesta no tiene el estado 200 al autorizar el vale. " + str(error)
+        mensaje = "Error porque la respuesta no tiene el estado 200 al autorizar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     except requests.exceptions.RequestException as error:
-        mensaje = f"Error desconocido al autorizar el vale: {error}"
+        mensaje = "Error desconocido al autorizar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -435,11 +433,11 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
         return set_task_error(mensaje)
 
     # Convertir el texto a un diccionario
-    # texto = response.text.replace('"{', "{").replace('}"', "}")
+    texto = response.text.replace('"{', "{").replace('}"', "}")
     try:
         datos = json.loads(texto)
     except json.JSONDecodeError:
-        mensaje = f"Error al autorizar el vale porque la respuesta no es JSON: {response.text}"
+        mensaje = "Error al autorizar el vale porque la respuesta no es JSON."
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -465,7 +463,6 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
         return set_task_error(mensaje)
 
     # Actualizar el vale, ahora su estado es AUTORIZADO
-    url_quote = urllib.parse.quote(datos["url"])
     fin_vale.autorizo_nombre = autoriza.nombre
     fin_vale.autorizo_puesto = autoriza.puesto
     fin_vale.autorizo_email = autoriza.email
@@ -473,7 +470,7 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
     fin_vale.autorizo_efirma_folio = datos["folio"]
     fin_vale.autorizo_efirma_sello_digital = datos["selloDigital"]
     fin_vale.autorizo_efirma_url = datos["url"]
-    fin_vale.autorizo_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={url_quote}"
+    fin_vale.autorizo_efirma_qr_url = f"{FIN_VALES_EFIRMA_QR_URL}?size=300&qrtext={datos['url']}"
     fin_vale.autorizo_efirma_mensaje = datos["mensaje"]
     fin_vale.autorizo_efirma_error = ""
     fin_vale.estado = "AUTORIZADO"
@@ -554,19 +551,19 @@ def cancelar_autorizar(fin_vale_id: int, contrasena: str, motivo: str):
         )
         response.raise_for_status()
     except requests.exceptions.ConnectionError as error:
-        mensaje = "Error de conexion al cancelar el vale. " + str(error)
+        mensaje = "Error de conexion al cancelar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     except requests.exceptions.HTTPError as error:
-        mensaje = "Error porque la respuesta no tiene el estado 200 al cancelar el vale. " + str(error)
+        mensaje = "Error porque la respuesta no tiene el estado 200 al cancelar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
         return set_task_error(mensaje)
     except requests.exceptions.RequestException as error:
-        mensaje = f"Error desconocido al cancelar el vale: {error}"
+        mensaje = "Error desconocido al cancelar el vale. " + safe_string(str(error))
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
@@ -584,11 +581,11 @@ def cancelar_autorizar(fin_vale_id: int, contrasena: str, motivo: str):
         return set_task_error(mensaje)
 
     # Convertir el texto a un diccionario
-    # texto = response.text.replace('"{', "{").replace('}"', "}")
+    texto = response.text.replace('"{', "{").replace('}"', "}")
     try:
         _ = json.loads(texto)
     except json.JSONDecodeError:
-        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON: {response.text}"
+        mensaje = "Error al solicitar el vale porque la respuesta no es JSON."
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
