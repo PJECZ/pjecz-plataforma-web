@@ -2,6 +2,7 @@
 Estadisticas Variables
 
 - alimentar: Alimentar desde un archivo CSV
+- reiniciar: Eliminar todas las variables, informes y registros
 - respaldar: Respaldar a un archivo CSV
 """
 from pathlib import Path
@@ -14,6 +15,8 @@ from lib.safe_string import safe_string, safe_clave
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
+from plataforma_web.blueprints.est_informes.models import EstInforme
+from plataforma_web.blueprints.est_informes_registros.models import EstInformeRegistro
 from plataforma_web.blueprints.est_variables.models import EstVariable
 
 app = create_app()
@@ -55,6 +58,44 @@ def alimentar(entrada_csv):
 
 
 @click.command()
+def reiniciar():
+    """Eliminar todas las variables, informes y registros"""
+
+    # Definir la base de datos
+    database = db.session
+
+    # Eliminar todos los est_informes_registros
+    click.echo("Eliminando todos los registros de informes...")
+    EstInformeRegistro.query.delete()
+    database.commit()
+
+    # Eliminar todos los est_informes
+    click.echo("Eliminando todos los informes...")
+    EstInforme.query.delete()
+    database.commit()
+
+    # Eliminar todas las est_variables
+    click.echo("Eliminando todos los variables...")
+    EstVariable.query.delete()
+    database.commit()
+
+    # Poner la secuencia de est_informes_registros_id a cero
+    click.echo("Poniendo la secuencia de est_informes_registros_id a cero...")
+    database.execute("ALTER SEQUENCE est_informes_registros_id_seq RESTART WITH 1;")
+    database.commit()
+
+    # Poner la secuencia de est_informes_id a cero
+    click.echo("Poniendo la secuencia de est_informes_id a cero...")
+    database.execute("ALTER SEQUENCE est_informes_id_seq RESTART WITH 1;")
+    database.commit()
+
+    # Poner la secuencia de est_variables_id a cero
+    click.echo("Poniendo la secuencia de est_variables_id a cero...")
+    database.execute("ALTER SEQUENCE est_informes_id_seq RESTART WITH 1;")
+    database.commit()
+
+
+@click.command()
 @click.option("--output", default="est_variables.csv", type=str, help="Archivo CSV a escribir")
 def respaldar(output):
     """Respaldar a un archivo CSV"""
@@ -83,4 +124,5 @@ def respaldar(output):
 
 
 cli.add_command(alimentar)
+cli.add_command(reiniciar)
 cli.add_command(respaldar)
