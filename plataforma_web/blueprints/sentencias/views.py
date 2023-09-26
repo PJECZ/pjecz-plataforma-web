@@ -307,7 +307,6 @@ def datatable_json():
 
 
 @sentencias.route("/sentencias/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para sentencias admin"""
     # Tomar parámetros de Datatables
