@@ -92,7 +92,7 @@ def datatable_json():
         consulta = consulta.filter(Autoridad.sede == request.form["sede"])
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
     # Encaso de recibir el filtro de cualquiera de estos campos, el orden del listado será por número de Expediente
-    set_campos = ("expediente", "juicio", "partes", "tipo", "ubicacion", "juzgado_extinto_id", "distrito_id", "sede")
+    set_campos = {"expediente", "juicio", "partes", "tipo", "ubicacion", "juzgado_extinto_id", "distrito_id", "sede"}
     intersection_set = set_campos.intersection(request.form)
     if intersection_set:
         registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente_numero).offset(start).limit(rows_per_page).all()
