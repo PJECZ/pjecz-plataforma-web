@@ -1,8 +1,10 @@
 """
 Ubicación Expedientes
 
+- actualizar: Actualizar ubicaciones de expedientes con la informacion de arc_documentos
 - alimentar: Alimentar desde un archivo CSV con el nombre de la clave de la autoridad
 - respaldar: Respaldar a un archivo CSV
+- reiniciar: Elimina todas las ubicaciones de expedientes de una autoridad
 """
 import re
 from datetime import date
@@ -10,9 +12,12 @@ from pathlib import Path
 import csv
 import click
 
+from lib.safe_string import safe_clave
+
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 
+from plataforma_web.blueprints.arc_documentos.models import ArcDocumento
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.ubicaciones_expedientes.models import UbicacionExpediente
 
@@ -23,6 +28,95 @@ db.app = app
 @click.group()
 def cli():
     """Ubicación Expedientes"""
+
+
+@click.command()
+@click.argument("autoridad_clave", type=str)
+def actualizar(autoridad_clave):
+    """Actualizar ubicaciones de expedientes con la informacion de arc_documentos"""
+
+    # Validar autoridad
+    autoridad_clave = safe_clave(autoridad_clave)
+    if autoridad_clave == "":
+        click.echo("No es correcta la clave de la autoridad")
+        return
+    autoridad = Autoridad.query.filter(Autoridad.clave == autoridad_clave).first()
+    if autoridad is None:
+        click.echo(f"No existe la clave {autoridad_clave} en autoridades")
+        return
+    if autoridad.estatus != "A":
+        click.echo(f"La autoridad {autoridad_clave} no está activa")
+        return
+    if not autoridad.es_jurisdiccional:
+        click.echo(f"La autoridad {autoridad_clave} no es jurisdiccional")
+        return
+    if autoridad.es_extinto:
+        click.echo(f"La autoridad {autoridad_clave} es extinta")
+        return
+    if autoridad.es_notaria:
+        click.echo(f"La autoridad {autoridad_clave} es una notaría")
+        return
+
+    # Consultar arc_documentos de la autoridad y activos
+    arc_documentos = ArcDocumento.query.filter_by(autoridad=autoridad).filter_by(estatus="A")
+    if arc_documentos.count() == 0:
+        click.echo(f"No hay arc_documentos para la autoridad {autoridad_clave}")
+        return
+
+    # Definir la base de datos para hacer operaciones por lotes
+    database = db.session
+
+    # Inicializar contadores
+    contador_agregados = 0
+    contador_actualizados = 0
+    contador_duplicados_eliminados = 0
+
+    # Bucle por cada arc_documento
+    for arc_documento in arc_documentos.all():
+        # Consultar en ubicaciones de expedientes, con la autoridad dada dicho expediente
+        ubicaciones_expedientes = UbicacionExpediente.query
+        ubicaciones_expedientes = ubicaciones_expedientes.filter_by(autoridad=autoridad)
+        ubicaciones_expedientes = ubicaciones_expedientes.filter_by(expediente=arc_documento.expediente)
+        ubicaciones_expedientes = ubicaciones_expedientes.filter_by(estatus="A")
+        ubicaciones_expedientes = ubicaciones_expedientes.all()
+        # Separar el primer resultado, porque puede haber mas de uno
+        ubicacion_expediente = None
+        if len(ubicaciones_expedientes) > 0:
+            ubicacion_expediente = ubicaciones_expedientes[0]
+            # Si hay mas de un resultado, dar de baja los demas
+            if len(ubicaciones_expedientes) > 1:
+                for ubicacion_expediente in ubicaciones_expedientes[1:]:
+                    ubicacion_expediente.estatus = "B"
+                    database.commit()
+                    contador_duplicados_eliminados += 1
+        # Si no existe, crearlo
+        if ubicacion_expediente is None:
+            datos = {
+                "autoridad": autoridad,
+                "expediente": arc_documento.expediente,
+                "ubicacion": arc_documento.ubicacion,
+            }
+            database.add(UbicacionExpediente(**datos))
+            contador_agregados += 1
+            # Cargar por lotes de 100
+            if contador_agregados % 100 == 0:
+                database.commit()
+                click.echo(f"  Van {contador_agregados} agregados...")
+        # Si existe, actualizarlo en caso de ubicacion sea diferente
+        elif ubicacion_expediente.ubicacion != arc_documento.ubicacion:
+            ubicacion_expediente.ubicacion = arc_documento.ubicacion
+            database.commit()
+            contador_actualizados += 1
+
+    # Cargar el ultimo lote
+    if contador_agregados % 100 != 0:
+        database.commit()
+
+    # Mostrar contadores
+    click.echo(f"Actualizar ubicaciones de expedientes para {autoridad_clave} ha terminado")
+    click.echo(f"  {contador_agregados} agregados")
+    click.echo(f"  {contador_actualizados} actualizados")
+    click.echo(f"  {contador_duplicados_eliminados} duplicados eliminados")
 
 
 @click.command()
@@ -136,5 +230,51 @@ def respaldar(autoridad_id, autoridad_clave, output):
     click.echo(f"Respaldados {contador} en {ruta.name}")
 
 
+@click.command()
+@click.argument("autoridad_clave", type=str)
+def reiniciar(autoridad_clave):
+    """Elimina todas las ubicaciones de expedientes de una autoridad"""
+
+    # Validar autoridad
+    autoridad_clave = safe_clave(autoridad_clave)
+    if autoridad_clave == "":
+        click.echo("No es correcta la clave de la autoridad")
+        return
+    autoridad = Autoridad.query.filter(Autoridad.clave == autoridad_clave).first()
+    if autoridad is None:
+        click.echo(f"No existe la clave {autoridad_clave} en autoridades")
+        return
+    if autoridad.estatus != "A":
+        click.echo(f"La autoridad {autoridad_clave} no está activa")
+        return
+    if not autoridad.es_jurisdiccional:
+        click.echo(f"La autoridad {autoridad_clave} no es jurisdiccional")
+        return
+    if autoridad.es_extinto:
+        click.echo(f"La autoridad {autoridad_clave} es extinta")
+        return
+    if autoridad.es_notaria:
+        click.echo(f"La autoridad {autoridad_clave} es una notaría")
+        return
+
+    # Definir la base de datos
+    database = db.session
+
+    # Consultar la cantidad de ubicaciones de expedientes de la autoridad
+    ubicaciones_expedientes = database.query(UbicacionExpediente).filter_by(autoridad=autoridad)
+
+    # Si no hay ubicaciones de expedientes, terminar
+    if ubicaciones_expedientes.count() == 0:
+        click.echo(f"No hay ubicaciones de expedientes para la autoridad {autoridad_clave}")
+        return
+
+    # Eliminar todas las ubicaciones de expedientes de la autoridad
+    click.echo(f"Eliminando todas las ubicaciones de expedientes de {autoridad_clave}...")
+    ubicaciones_expedientes.delete()
+    database.commit()
+
+
+cli.add_command(actualizar)
 cli.add_command(alimentar)
 cli.add_command(respaldar)
+cli.add_command(reiniciar)
