@@ -44,8 +44,8 @@ def refrescar(autoridad_clave):
     if autoridad is None:
         click.echo(f"No existe la clave {autoridad_clave} en autoridades")
         return
-    if not autoridad.distrito.es_distrito_judicial:
-        click.echo(f"La autoridad {autoridad_clave} no está en un distrito judicial")
+    if autoridad.estatus != "A":
+        click.echo(f"La autoridad {autoridad_clave} no está activa")
         return
     if not autoridad.es_jurisdiccional:
         click.echo(f"La autoridad {autoridad_clave} no es jurisdiccional")
