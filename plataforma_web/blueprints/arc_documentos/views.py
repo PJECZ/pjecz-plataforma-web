@@ -243,14 +243,10 @@ def new():
         except err:
             anio = 0
         juzgado = Autoridad.query.filter_by(id=juzgado_id).first()
-        try:
-            tipo_documento_id = int(form.tipo.data)
-            tipo_documento = ArcDocumentoTipo.query.get_or_404(tipo_documento_id)
-        except err:
-            tipo_documento = None
-        if not juzgado:
+        tipo_documento = ArcDocumentoTipo.query.get(form.tipo.data)
+        if juzgado is None:
             flash("La instancia seleccionada NO existe", "warning")
-        elif not tipo_documento:
+        elif tipo_documento is None:
             flash("Este tipo de documento no sé conoce")
         elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgado_origen=form.juzgado_origen.data).first():
             flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO y misma INSTANCIA DE ORIGEN. Debe de ser único.", "warning")
@@ -347,13 +343,11 @@ def edit(arc_documento_id):
             anio = 0
         motivo = safe_message(form.observaciones.data, max_len=256)
         juzgado = Autoridad.query.filter_by(id=juzgado_id).first()
-        try:
-            tipo_documento_id = int(form.tipo.data)
-            tipo_documento = ArcDocumentoTipo.query.get_or_404(tipo_documento_id)
-        except err:
-            tipo_documento = None
-        if not juzgado:
-            flash(f"La instancia seleccionada NO existe", "warning")
+        tipo_documento = ArcDocumentoTipo.query.get(form.tipo.data)
+        if juzgado is None:
+            flash("La instancia seleccionada NO existe", "warning")
+        elif tipo_documento is None:
+            flash("Este tipo de documento no sé conoce")
         # Verificar que solo haya un expediente por Juzgado y por mismo Tipo.
         elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgado_origen=form.juzgado_origen.data).filter(ArcDocumento.id != arc_documento_id).first():
             flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO y misma INSTANCIA DE ORIGEN. Debe de ser único.", "warning")
