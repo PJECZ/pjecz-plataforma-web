@@ -10,6 +10,8 @@
 - En listado de remesas para el rol de archivistas alertar de remesas con más de 10 días a partir de que fueron asignadas. [\#785](https://github.com/PJECZ/pjecz-plataforma-web/issues/785)
 - Nuevo campo 'Anomalía General' en Remesa. [\#743](https://github.com/PJECZ/pjecz-plataforma-web/issues/743)
 - Incluir mensaje de confirmación al presionar el botón de "Enviar" en detalle de Remesa. El mensaje sería: _"Una vez enviada la remesa no se podrán hacer cambios. Esta acción se realiza un día antes de entregar la remesa en el archivo."_. [\#784](https://github.com/PJECZ/pjecz-plataforma-web/issues/784)
+- Una vista especial para juzgados dónde el orden de los expedientes sea por ID descendiente, para poder notar los últimos expedientes cargados. [\#798](https://github.com/PJECZ/pjecz-plataforma-web/issues/798)
+- Al dar de alta algún nuevo documento, ahora se tomen en consideración para hacer la validación de único: número de expediente, tipo de documento, juzgado emisor y ahora también juzgador de origen. [\#801](https://github.com/PJECZ/pjecz-plataforma-web/issues/801)
 
 **Fixed bugs**:
 
