@@ -290,7 +290,6 @@ def datatable_json():
 
 
 @edictos.route("/edictos/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para listado de edictos administradores"""
     # Tomar parámetros de Datatables

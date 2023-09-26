@@ -281,7 +281,6 @@ def datatable_json():
 
 
 @glosas.route("/glosas/datatable_json_admin", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json_admin():
     """DataTable JSON para listado de glosas admin"""
     # Tomar parámetros de Datatables
