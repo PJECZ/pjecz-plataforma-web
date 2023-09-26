@@ -121,7 +121,7 @@
     {% endcall %}
     {# Detalle Enviar #}
     {% call detail.card() %}
-        <a href="{{url_for('arc_remesas.send', remesa_id=remesa.id)}}" type="button" class="btn bg-pink">Enviar <span class="iconify" data-icon="mdi:send"></span></a>
+        <a class="btn bg-pink" href="javascript:void(0)" onclick="showModalEnviar('{{url_for("arc_remesas.send", remesa_id=remesa.id)}}', 'Una vez enviada la remesa no se podrán hacer cambios. Esta acción se realiza un día antes de entregar la remesa en el archivo.');">Enviar <span class="iconify" data-icon="mdi:send"></span></a>
     {% endcall %}
     {# Listado de la Bitacora de la Remesa #}
     {% call detail.card('Bitacora Remesa') %}
@@ -145,6 +145,7 @@
     {% if current_user.can_edit('ARC SOLICITUDES') %}
         {{ modals.custom_javascript_delete('Cancelar', '¿Desea Cancelar la Remesa ' + remesa.id | string + '?') }}
     {% endif %}
+    {{ modals.custom_javascript('Envíar', '¿Desea Envíar la Remesa?', "Enviar") }}
     <!-- Mostar estilo de cuando la remesa está en el historial -->
     {% if remesa.esta_archivado %}
         <script>
