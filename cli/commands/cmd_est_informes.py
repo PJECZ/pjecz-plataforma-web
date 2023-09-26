@@ -2,7 +2,7 @@
 Estadisticas Informes
 
 - crear-aleatorios: Crear informes aleatorios
-- reiniciar: Eliminar todos los informes y poner secuencia a cero
+- reiniciar: Eliminar todos los informes y registros
 """
 from datetime import datetime, timedelta
 import random
@@ -98,7 +98,7 @@ def crear_aleatorios(fecha):
 
 @click.command()
 def reiniciar():
-    """Eliminar todos los informes y poner secuencia a cero"""
+    """Eliminar todos los informes y registros"""
 
     # Definir la base de datos
     database = db.session
