@@ -22,6 +22,7 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.arc_solicitudes.models import ArcSolicitud
+from plataforma_web.blueprints.arc_documentos_tipos.models import ArcDocumentoTipo
 
 from plataforma_web.blueprints.arc_documentos.forms import (
     ArcDocumentoNewArchivoForm,
@@ -90,7 +91,12 @@ def datatable_json():
         consulta = consulta.join(Autoridad)
         consulta = consulta.filter(Autoridad.sede == request.form["sede"])
     # Ordena los registros resultantes por id descendientes para ver los más recientemente capturados
-    registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente_numero).offset(start).limit(rows_per_page).all()
+    set_campos = {"expediente", "juicio", "partes", "tipo", "ubicacion", "juzgado_extinto_id", "distrito_id", "sede"}
+    intersection_set = set_campos.intersection(request.form)
+    if intersection_set:
+        registros = consulta.order_by(ArcDocumento.anio).order_by(ArcDocumento.expediente_numero).offset(start).limit(rows_per_page).all()
+    else:
+        registros = consulta.order_by(ArcDocumento.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -232,12 +238,18 @@ def new():
         else:
             juzgado_id = current_user.autoridad.id
             ubicacion = "JUZGADO"
-        anio = int(form.anio.data)
+        try:
+            anio = int(form.anio.data)
+        except err:
+            anio = 0
         juzgado = Autoridad.query.filter_by(id=juzgado_id).first()
-        if not juzgado:
-            flash(f"La instancia seleccionada NO existe", "warning")
-        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo_id=int(form.tipo.data)).first():
-            flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO. Debe de ser único.", "warning")
+        tipo_documento = ArcDocumentoTipo.query.get(form.tipo.data)
+        if juzgado is None:
+            flash("La instancia seleccionada NO existe", "warning")
+        elif tipo_documento is None:
+            flash("Este tipo de documento no sé conoce")
+        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgado_origen=form.juzgado_origen.data).first():
+            flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO y misma INSTANCIA DE ORIGEN. Debe de ser único.", "warning")
         elif anio < 1900 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
         elif anio != expediente_anio:
@@ -325,14 +337,20 @@ def edit(arc_documento_id):
         else:
             juzgado_id = current_user.autoridad.id
             ubicacion = documento.ubicacion
-        anio = int(form.anio.data)
+        try:
+            anio = int(form.anio.data)
+        except err:
+            anio = 0
         motivo = safe_message(form.observaciones.data, max_len=256)
         juzgado = Autoridad.query.filter_by(id=juzgado_id).first()
-        if not juzgado:
-            flash(f"La instancia seleccionada NO existe", "warning")
+        tipo_documento = ArcDocumentoTipo.query.get(form.tipo.data)
+        if juzgado is None:
+            flash("La instancia seleccionada NO existe", "warning")
+        elif tipo_documento is None:
+            flash("Este tipo de documento no sé conoce")
         # Verificar que solo haya un expediente por Juzgado y por mismo Tipo.
-        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo_id=int(form.tipo.data)).filter(ArcDocumento.id != arc_documento_id).first():
-            flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO. Debe de ser único.", "warning")
+        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgado_origen=form.juzgado_origen.data).filter(ArcDocumento.id != arc_documento_id).first():
+            flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO y misma INSTANCIA DE ORIGEN. Debe de ser único.", "warning")
         elif anio != expediente_anio:
             flash("El año ingresado y el año indicado en el número de expediente no coinciden.", "warning")
         elif anio < 1900 or anio > date.today().year:
