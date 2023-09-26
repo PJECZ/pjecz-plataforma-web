@@ -136,32 +136,6 @@ def list_inactive():
     )
 
 
-@autoridades.route("/autoridades/buscar", methods=["GET", "POST"])
-def search():
-    """Buscar Autoridad"""
-    form_search = AutoridadSearchForm()
-    if form_search.validate_on_submit():
-        busqueda = {"estatus": "A"}
-        titulos = []
-        if form_search.descripcion.data:
-            descripcion = safe_string(form_search.descripcion.data, save_enie=True)
-            if descripcion != "":
-                busqueda["descripcion"] = descripcion
-                titulos.append("descripción " + descripcion)
-        if form_search.clave.data:
-            clave = safe_string(form_search.clave.data)
-            if clave != "":
-                busqueda["clave"] = clave
-                titulos.append("clave " + clave)
-        return render_template(
-            "autoridades/list.jinja2",
-            filtros=json.dumps(busqueda),
-            titulo="Autoridad con " + ", ".join(titulos),
-            estatus="A",
-        )
-    return render_template("autoridades/search.jinja2", form=form_search)
-
-
 @autoridades.route("/autoridades/<int:autoridad_id>")
 def detail(autoridad_id):
     """Detalle de un Autoridad"""

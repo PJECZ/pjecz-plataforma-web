@@ -143,7 +143,7 @@ def edit(materia_id):
 
 
 @materias.route("/materias/eliminar/<int:materia_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(materia_id):
     """Eliminar Materia"""
     materia = Materia.query.get_or_404(materia_id)
@@ -161,7 +161,7 @@ def delete(materia_id):
 
 
 @materias.route("/materias/recuperar/<int:materia_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(materia_id):
     """Recuperar Materia"""
     materia = Materia.query.get_or_404(materia_id)

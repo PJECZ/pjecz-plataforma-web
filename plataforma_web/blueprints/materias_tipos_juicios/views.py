@@ -40,8 +40,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "materia" in request.form:
-        consulta = consulta.filter_by(materia_id=request.form["materia"])
+    if "materia_id" in request.form:
+        consulta = consulta.filter_by(materia_id=request.form["materia_id"])
     registros = consulta.order_by(MateriaTipoJuicio.descripcion).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
