@@ -180,7 +180,7 @@ def edit(distrito_id):
 
 
 @distritos.route("/distritos/eliminar/<int:distrito_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(distrito_id):
     """Eliminar Distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
@@ -199,7 +199,7 @@ def delete(distrito_id):
 
 
 @distritos.route("/distritos/recuperar/<int:distrito_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(distrito_id):
     """Recuperar Distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)

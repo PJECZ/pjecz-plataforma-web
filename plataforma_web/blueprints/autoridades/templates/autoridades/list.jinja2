@@ -9,14 +9,16 @@
         {% if current_user.can_view('DISTRITOS') %}
             {{ topbar.button_districts('Distritos', url_for('distritos.list_active')) }}
         {% endif %}
-        {% if current_user.can_edit('AUTORIDADES') %}
+        {% if current_user.can_view('MATERIAS') %}
+            {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:tag') }}
+        {% endif %}
+        {% if current_user.can_admin('AUTORIDADES') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('autoridades.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('autoridades.list_active')) }}{% endif %}
         {% endif %}
         {% if current_user.can_insert('AUTORIDADES') %}
             {{ topbar.button_new('Nueva Autoridad', url_for('autoridades.new')) }}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('autoridades.search')) }}
     {% endcall %}
 {% endblock %}
 

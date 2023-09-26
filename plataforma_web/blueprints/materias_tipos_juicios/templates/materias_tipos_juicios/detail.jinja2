@@ -19,6 +19,11 @@
 {% block content %}
     {% call detail.card(estatus=materia_tipo_juicio.estatus) %}
         {{ detail.label_value_big('Descripción', materia_tipo_juicio.descripcion) }}
+        {% if current_user.can_view('MATERIAS') %}
+            {{ detail.label_value('Materia', materia_tipo_juicio.materia.nombre, url_for('materias.detail', materia_id=materia_tipo_juicio.materia_id)) }}
+        {% else %}
+            {{ detail.label_value('Materia', materia_tipo_juicio.materia.nombre) }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
