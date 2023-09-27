@@ -15,8 +15,6 @@ google-cloud-logging
 google-cloud-storage
 hashids
 Jinja2
-mkdocs
-mkdocs-material
 pandas
 passlib
 pdfkit
