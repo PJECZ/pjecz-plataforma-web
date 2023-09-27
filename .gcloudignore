@@ -16,6 +16,7 @@ __pycache__/
 /.git
 /.vscode
 /cli
+/docs
 /instance/settings.py
 /pyproject.toml
 /seed
