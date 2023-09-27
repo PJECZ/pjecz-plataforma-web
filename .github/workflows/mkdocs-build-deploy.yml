@@ -1,0 +1,27 @@
+name: Build and Deploy MkDocs Site
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mkdocs-build-and-deploy:
+    if: github.repository == 'PJECZ/pjecz-plataforma-web'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-material
+
+      - name: Build and deploy mkdocs site to gh-pages branch
+        run: mkdocs gh-deploy --force --clean --verbose
