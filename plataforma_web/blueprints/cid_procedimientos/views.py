@@ -543,7 +543,6 @@ def edit_admin(cid_procedimiento_id):
         return redirect(url_for("cid_procedimientos.edit", cid_procedimiento_id=cid_procedimiento_id))
     # Consultar el Procedimiento
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-    print(cid_procedimiento)
     # Si viene el formulario
     form = CIDProcedimientoEditAdminForm()
     if form.validate_on_submit():
