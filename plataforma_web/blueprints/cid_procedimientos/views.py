@@ -550,6 +550,7 @@ def edit_admin(cid_procedimiento_id):
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         cid_procedimiento.autoridad = autoridad
         cid_procedimiento.save()
+        # Registrar en la bitácora
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
@@ -563,8 +564,6 @@ def edit_admin(cid_procedimiento_id):
     distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # Combo distritos-autoridades
     autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()  # Combo distritos-autoridades
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
-    form.codigo.data = cid_procedimiento.codigo
-    form.revision.data = cid_procedimiento.revision
     return render_template(
         "cid_procedimientos/edit_admin.jinja2",
         form=form,
