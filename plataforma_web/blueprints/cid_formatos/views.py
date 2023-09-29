@@ -10,12 +10,14 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 
+from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.cid_areas.models import CIDArea
 from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
-from plataforma_web.blueprints.cid_formatos.forms import CIDFormatoForm
+from plataforma_web.blueprints.cid_formatos.forms import CIDFormatoForm, CIDFormatoEdit, CIDFormatoEditAdmin
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
+from plataforma_web.blueprints.distritos.models import Distrito
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -291,7 +293,11 @@ def list_all_inactive():
 def detail(cid_formato_id):
     """Detalle de un CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
-    return render_template("cid_formatos/detail.jinja2", cid_formato=cid_formato)
+    return render_template(
+        "cid_formatos/detail.jinja2",
+        cid_formato=cid_formato,
+        show_button_edit_admin=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
+    )
 
 
 @cid_formatos.route("/cid_formatos/nuevo/<int:cid_procedimiento_id>", methods=["GET", "POST"])
@@ -363,7 +369,7 @@ def new(cid_procedimiento_id):
 def edit(cid_formato_id):
     """Editar CID Formato"""
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
-    form = CIDFormatoForm()
+    form = CIDFormatoEdit()
     if form.validate_on_submit():
         cid_formato.descripcion = safe_string(form.descripcion.data)
         cid_formato.save()
@@ -379,6 +385,47 @@ def edit(cid_formato_id):
     form.procedimiento_titulo.data = cid_formato.procedimiento.titulo_procedimiento  # Read only
     form.descripcion.data = cid_formato.descripcion
     return render_template("cid_formatos/edit.jinja2", form=form, cid_formato=cid_formato)
+
+
+# Cambiar la Autoridad al formato
+@cid_formatos.route("/cid_formatos/modificar/<int:cid_formato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit_admin(cid_formato_id):
+    """Modificar autoridad formatos"""
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
+    # Si NO es administrador o coordinador, redirigir a la edicion normal
+    if not (current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles):
+        return redirect(url_for("cid_formatos.edit", cid_formato_id=cid_formato_id))
+    # Consultar el Formato
+    cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
+    # Si viene el formulario
+    form = CIDFormatoEditAdmin()
+    if form.validate_on_submit():
+        autoridad = Autoridad.query.get_or_404(form.autoridad.data)
+        cid_formato.procedimiento.autoridad = autoridad
+        cid_formato.save()
+        # Registrar en la bitácora
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Modificada la Autoridad del Formato {cid_formato.id}"),
+            url=url_for("cid_formatos.detail", cid_formato_id=cid_formato.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    # Mostrar el formulario
+    distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # Combo distritos-autoridades
+    autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()  # Combo distritos-autoridades
+    form.procedimiento_titulo.data = cid_formato.procedimiento.titulo_procedimiento
+    return render_template(
+        "cid_formatos/edit_admin.jinja2",
+        form=form,
+        cid_formato=cid_formato,
+        distritos=distritos,
+        autoridades=autoridades,
+    )
 
 
 @cid_formatos.route("/cid_formatos/eliminar/<int:cid_formato_id>")
