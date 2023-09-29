@@ -531,10 +531,11 @@ def edit(cid_procedimiento_id):
     )
 
 
-@cid_procedimientos.route("/cid_procedimientos/clasificar/<int:cid_procedimiento_id>", methods=["GET", "POST"])
+# Cambiar la Autoridad al procedimiento
+@cid_procedimientos.route("/cid_procedimientos/modificar/<int:cid_procedimiento_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit_admin(cid_procedimiento_id):
-    """Clasificar Procedimiento"""
+    """Modificar Autoridad Procedimiento"""
     # Consultar los roles del usuario
     current_user_roles = current_user.get_roles()
     # Si NO es administrador o coordinador, redirigir a la edicion normal
@@ -548,10 +549,11 @@ def edit_admin(cid_procedimiento_id):
         autoridad = Autoridad.query.get_or_404(form.autoridad.data)
         cid_procedimiento.autoridad = autoridad
         cid_procedimiento.save()
+        # Registrar en la bitácora
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Clasificado el Procedimiento {cid_procedimiento.id} con autoridad {autoridad.clave}"),
+            descripcion=safe_message(f"Modificada la Autoridad del Procedimiento {cid_procedimiento.id}"),
             url=url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id),
         )
         bitacora.save()
@@ -561,8 +563,6 @@ def edit_admin(cid_procedimiento_id):
     distritos = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre).all()  # Combo distritos-autoridades
     autoridades = Autoridad.query.filter_by(estatus="A").order_by(Autoridad.clave).all()  # Combo distritos-autoridades
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
-    form.codigo.data = cid_procedimiento.codigo
-    form.revision.data = cid_procedimiento.revision
     return render_template(
         "cid_procedimientos/edit_admin.jinja2",
         form=form,
@@ -918,7 +918,7 @@ def query_usuarios_json():
 @cid_procedimientos.route("/cid_procedimientos/revisores_autorizadores_json", methods=["POST"])
 def query_revisores_autorizadores_json():
     """Proporcionar el JSON de revisores para elegir con un Select2"""
-    usuarios = Usuario.query.join(UsuarioRol, Rol).filter(Rol.nombre == ROL_DIRECTOR_JEFE)
+    usuarios = Usuario.query.join(UsuarioRol, Rol).filter(or_(Rol.nombre == ROL_DIRECTOR_JEFE, Rol.nombre == ROL_COORDINADOR))
     if "searchString" in request.form:
         usuarios = usuarios.filter(Usuario.email.contains(safe_email(request.form["searchString"], search_fragment=True)))
     usuarios = usuarios.filter(Usuario.estatus == "A")
