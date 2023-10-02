@@ -55,9 +55,19 @@ def pasar_al_historial():
     """Pasar al historial las solicitudes y remesas con mucha antigüedad habiendo sido procesadas correctamente"""
 
     app.task_queue.enqueue(
-        "plataforma_web.blueprints.arc_archivos.tasks.pasar_al_historial_solicitudes_remesas",
+        "plataforma_web.blueprints.arc_archivos.tasks.pasar_al_historial_solicitudes_completadas",
     )
-    click.echo("Pasar al historial las solicitudes y remesas atendidas.")
+    click.echo("Pasar al historial las solicitudes atendidas.")
+
+    app.task_queue.enqueue(
+        "plataforma_web.blueprints.arc_archivos.tasks.pasar_al_historial_solicitudes_canceladas",
+    )
+    click.echo("Pasar al historial las solicitudes canceladas.")
+
+    app.task_queue.enqueue(
+        "plataforma_web.blueprints.arc_archivos.tasks.pasar_al_historial_remesas_canceladas",
+    )
+    click.echo("Pasar al historial las remesas canceladas.")
 
 
 cli.add_command(actualizar_expedientes_anios_nums)
