@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Modificar formato{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Modificar Autoridad de - ' + cid_formato.descripcion ) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'cid_formato_id': cid_formato.id} %}
+        {% call f.form_tag('cid_formatos.edit_admin', fid='cid_formato_form', **form_kwargs) %}
+            {% call f.form_group(form.procedimiento_titulo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.distrito) %}{% endcall %}
+            {% call f.form_group(form.autoridad) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ f.js_select_distrito_autoridad(distritos, autoridades, mi_distrito=cid_formato.procedimiento.autoridad.distrito_id, mi_autoridad=cid_formato.procedimiento.autoridad_id) }}
+{% endblock %}
