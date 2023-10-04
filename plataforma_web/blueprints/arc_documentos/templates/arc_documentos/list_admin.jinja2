@@ -103,6 +103,11 @@
     {% endcall %}
 {% endblock %}
 
+{# se manda llamar el botón de la ayuda  #}
+{% block content_help %}
+    <a href="https://www.pjecz.gob.mx/pjecz-plataforma-web/arc_documentos/" class="d-block mt-3 btn-flotante-help" role="button" target="_blank"> <span class="iconify" data-icon="mdi:help"></span></a>
+{% endblock %}
+
 {% block custom_javascript %}
     <!-- Importación de la configuración para DataTables -->
     <script src="/static/js/datatables_config.js"></script>
