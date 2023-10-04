@@ -434,7 +434,8 @@
                 render: function(data, type, row, meta) {
                     bg_class = "";
                     switch (data)    {
-                        case "CREADA":                  bg_class="bg-warning text-dark";    break;
+                        case "CREADA":                  bg_class="bg-info";                 break;
+                        case "MODIFICADA":              bg_class="bg-warning text-dark";    break;
                         case "CANCELADA":               bg_class="bg-secondary";            break;
                         case "ENVIADA":                 bg_class="bg-pink";                 break;
                         case "ASIGNADA":                bg_class="bg-primary";              break;

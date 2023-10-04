@@ -391,16 +391,13 @@ def new():
     form = ArcRemesaNewForm()
     if form.validate_on_submit():
         # validar rango de años
-        _, _, anios_str = validar_rango_anios(form.anio.data)
         try:
             num_oficio = safe_expediente(form.num_oficio.data)
         except:
             num_oficio = ""
         if num_oficio != "":
             num_oficio_anio = extract_expediente_anio(num_oficio)
-        if anios_str == "":
-            flash(f"El campo de años tiene un valor inválido, utilice el formato: '1900-{date.today().year}'.", "warning")
-        elif num_oficio == "":
+        if num_oficio == "":
             flash(f"El formato del número de oficio es inválido. Pruebe el formato: 'número/año'. Año entre los valores: '1900-{date.today().year}'", "warning")
         elif num_oficio_anio < 1900 or num_oficio_anio > date.today().year:
             flash(f"El año en el número de oficio es inválido utilice un rango de: '1900-{date.today().year}'.", "warning")
@@ -410,7 +407,6 @@ def new():
             remesa = ArcRemesa(
                 autoridad=current_user.autoridad,
                 esta_archivado=False,
-                anio=anios_str,
                 arc_documento_tipo_id=form.tipo_documentos.data,
                 num_oficio=num_oficio,
                 estado="PENDIENTE",
@@ -541,24 +537,23 @@ def edit(remesa_id):
     form = ArcRemesaEditForm()
     if form.validate_on_submit():
         # validar rango de años
-        _, _, anios_str = validar_rango_anios(form.anio.data)
         try:
             num_oficio = safe_expediente(form.num_oficio.data)
         except:
             num_oficio = ""
         if num_oficio != "":
             num_oficio_anio = extract_expediente_anio(num_oficio)
-        if anios_str == "":
-            flash(f"El campo de años tiene un valor inválido, utilice el formato: '1900-{date.today().year}'.", "warning")
-        elif num_oficio == "":
+        if num_oficio == "":
             flash(f"El formato del número de oficio es inválido. Pruebe el formato: 'número/año'. Año entre los valores: '1900-{date.today().year}'", "warning")
         elif num_oficio_anio < 1900 or num_oficio_anio > date.today().year:
             flash(f"El año en el número de oficio es inválido utilice un rango de: '1900-{date.today().year}'.", "warning")
         else:
-            remesa.anio = anios_str
             remesa.num_oficio = num_oficio
             remesa.observaciones_solicitante = safe_message(form.observaciones_solicitante.data, default_output_str=None)
             remesa.save()
+
+            # Guardado de acción en bitacora de la remesa
+            remesa_bitacora = ArcRemesaBitacora(arc_remesa=remesa, usuario=current_user, accion="MODIFICADA", observaciones=safe_message(form.motivo.data, default_output_str=None)).save()
 
             # Agregamos a la bitácora la acción realizada
             bitacora = Bitacora(
@@ -575,7 +570,6 @@ def edit(remesa_id):
     form.creado_readonly.data = remesa.creado.strftime("%Y/%m/%d - %H:%M %p")
     form.juzgado_readonly.data = remesa.autoridad.clave + " : " + remesa.autoridad.descripcion_corta
     form.tipo_documentos_readonly.data = remesa.arc_documento_tipo.nombre
-    form.anio.data = remesa.anio
     form.num_oficio.data = remesa.num_oficio
     form.observaciones_solicitante.data = remesa.observaciones_solicitante
 
