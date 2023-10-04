@@ -19,7 +19,6 @@
     {% call f.card() %}
         {% call f.form_tag('arc_remesas.new', fid='remesa_form') %}
             {% call f.form_group(form.num_oficio) %}{% endcall %}
-            {% call f.form_group(form.anio) %}{% endcall %}
             {% call f.form_group(form.tipo_documentos) %}{% endcall %}
             {% call f.form_group(form.crear) %}{% endcall %}
         {% endcall %}

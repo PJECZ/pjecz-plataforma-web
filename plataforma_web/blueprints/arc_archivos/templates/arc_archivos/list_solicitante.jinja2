@@ -151,7 +151,6 @@
                 <tr>
                     <th>ID</th>
                     <th>Última Actualización</th>
-                    <th>Años</th>
                     <th>Tipo Documentos</th>
                     <th>Núm. Oficio</th>
                     <th>Núm. Docs.</th>
@@ -248,7 +247,6 @@
         configDataTable_remesas['columns'] = [
             { data: 'remesa' },
             { data: 'tiempo' },
-            { data: 'anio' },
             { data: 'tipo_documentos' },
             { data: 'num_oficio' },
             { data: 'num_docs' },
@@ -270,7 +268,7 @@
                 }
             },
             {
-                targets: 6, // estado
+                targets: 5, // estado
                 data: null,
                 render: function(data, type, row, meta) {
                     let bgcolor = "";

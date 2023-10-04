@@ -16,7 +16,6 @@
         {% call f.form_tag('arc_remesas.edit', fid='remesa_form', **form_kwargs) %}
             {% call f.form_group(form.creado_readonly, readonly=true) %}{% endcall %}
             {% call f.form_group(form.juzgado_readonly, readonly=true) %}{% endcall %}
-            {% call f.form_group(form.anio) %}{% endcall %}
             {% call f.form_group(form.tipo_documentos_readonly, readonly=true) %}{% endcall %}
             {% call f.form_group(form.num_oficio) %}{% endcall %}
             {% call f.form_group(form.observaciones_solicitante) %}{% endcall %}

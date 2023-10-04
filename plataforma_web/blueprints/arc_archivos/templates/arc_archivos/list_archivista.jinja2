@@ -142,7 +142,6 @@
                     <th>ID</th>
                     <th>Última Actualización</th>
                     <th>Instancia</th>
-                    <th>Años</th>
                     <th>Núm. Oficio</th>
                     <th>Tipo de Documentos</th>
                     <th>Núm. Docs.</th>
@@ -249,7 +248,6 @@
             { data: 'remesa' },
             { data: 'tiempo' },
             { data: 'juzgado' },
-            { data: 'anio' },
             { data: 'num_oficio' },
             { data: 'tipo_documentos' },
             { data: 'num_docs' },
@@ -281,7 +279,7 @@
                 }
             },
             {
-                targets: 7, // estado
+                targets: 6, // estado
                 data: null,
                 render: function(data, type, row, meta) {
                     let bgcolor = "";
