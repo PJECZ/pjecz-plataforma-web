@@ -3,9 +3,10 @@ Archivo - Remesas, vistas
 """
 import json
 from datetime import date, datetime, timedelta
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
 from flask_login import current_user, login_required
-from sqlalchemy import or_, not_
+from sqlalchemy import or_
+from sqlalchemy.sql.functions import count
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_message, safe_string, safe_expediente, extract_expediente_anio
@@ -154,6 +155,24 @@ def _retraso(tiempo: datetime, estado: str) -> bool:
 def detail(remesa_id):
     """Detalle de una Remesa"""
     remesa = ArcRemesa.query.get_or_404(remesa_id)
+    # exp_por_anos = ArcDocumento.query.join(ArcRemesaDocumento).func().filter(ArcRemesaDocumento.arc_remesa_id == remesa_id).order_by(ArcDocumento.anio).group_by(ArcDocumento.anio).all()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        ArcDocumento.anio.label("anios"),
+        count("*").label("cantidad"),
+    )
+    # Juntar las tablas
+    consulta = consulta.select_from(ArcDocumento).join(ArcRemesaDocumento)
+    consulta = consulta.filter(ArcRemesaDocumento.arc_remesa_id == remesa_id)
+    # Agrupar
+    consulta = consulta.group_by(ArcDocumento.anio)
+    # Ordenar
+    consulta = consulta.order_by(ArcDocumento.anio)
+    # Consultar
+    anios = consulta.all()
+
     current_user_roles = current_user.get_roles()
     mostrar_secciones = {
         "boton_cancelar": False,
@@ -222,6 +241,7 @@ def detail(remesa_id):
             return render_template(
                 "arc_remesas/detail_solicitante.jinja2",
                 remesa=remesa,
+                anios=anios,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
                 filtros_documentos=json.dumps({"remesa_id": remesa.id}),
@@ -239,6 +259,7 @@ def detail(remesa_id):
                 return render_template(
                     "arc_remesas/detail_solicitante.jinja2",
                     remesa=remesa,
+                    anios=anios,
                     mostrar_secciones=mostrar_secciones,
                     estado_text=estado_text,
                     filtros_documentos=json.dumps({"remesa_id": remesa.id}),
@@ -257,6 +278,7 @@ def detail(remesa_id):
             return render_template(
                 "arc_remesas/detail.jinja2",
                 remesa=remesa,
+                anios=anios,
                 form=form,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
@@ -278,6 +300,7 @@ def detail(remesa_id):
             return render_template(
                 "arc_remesas/detail.jinja2",
                 remesa=remesa,
+                anios=anios,
                 form=form,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
@@ -296,6 +319,7 @@ def detail(remesa_id):
             return render_template(
                 "arc_remesas/detail_archivista.jinja2",
                 remesa=remesa,
+                anios=anios,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
                 filtros_documentos=json.dumps({"remesa_id": remesa.id}),
@@ -317,6 +341,7 @@ def detail(remesa_id):
     return render_template(
         "arc_remesas/detail.jinja2",
         remesa=remesa,
+        anios=anios,
         mostrar_secciones=mostrar_secciones,
         estado_text=estado_text,
         filtros_documentos=json.dumps({"remesa_id": remesa.id}),
@@ -366,16 +391,13 @@ def new():
     form = ArcRemesaNewForm()
     if form.validate_on_submit():
         # validar rango de años
-        _, _, anios_str = validar_rango_anios(form.anio.data)
         try:
             num_oficio = safe_expediente(form.num_oficio.data)
         except:
             num_oficio = ""
         if num_oficio != "":
             num_oficio_anio = extract_expediente_anio(num_oficio)
-        if anios_str == "":
-            flash(f"El campo de años tiene un valor inválido, utilice el formato: '1900-{date.today().year}'.", "warning")
-        elif num_oficio == "":
+        if num_oficio == "":
             flash(f"El formato del número de oficio es inválido. Pruebe el formato: 'número/año'. Año entre los valores: '1900-{date.today().year}'", "warning")
         elif num_oficio_anio < 1900 or num_oficio_anio > date.today().year:
             flash(f"El año en el número de oficio es inválido utilice un rango de: '1900-{date.today().year}'.", "warning")
@@ -385,7 +407,6 @@ def new():
             remesa = ArcRemesa(
                 autoridad=current_user.autoridad,
                 esta_archivado=False,
-                anio=anios_str,
                 arc_documento_tipo_id=form.tipo_documentos.data,
                 num_oficio=num_oficio,
                 estado="PENDIENTE",
@@ -516,24 +537,23 @@ def edit(remesa_id):
     form = ArcRemesaEditForm()
     if form.validate_on_submit():
         # validar rango de años
-        _, _, anios_str = validar_rango_anios(form.anio.data)
         try:
             num_oficio = safe_expediente(form.num_oficio.data)
         except:
             num_oficio = ""
         if num_oficio != "":
             num_oficio_anio = extract_expediente_anio(num_oficio)
-        if anios_str == "":
-            flash(f"El campo de años tiene un valor inválido, utilice el formato: '1900-{date.today().year}'.", "warning")
-        elif num_oficio == "":
+        if num_oficio == "":
             flash(f"El formato del número de oficio es inválido. Pruebe el formato: 'número/año'. Año entre los valores: '1900-{date.today().year}'", "warning")
         elif num_oficio_anio < 1900 or num_oficio_anio > date.today().year:
             flash(f"El año en el número de oficio es inválido utilice un rango de: '1900-{date.today().year}'.", "warning")
         else:
-            remesa.anio = anios_str
             remesa.num_oficio = num_oficio
             remesa.observaciones_solicitante = safe_message(form.observaciones_solicitante.data, default_output_str=None)
             remesa.save()
+
+            # Guardado de acción en bitacora de la remesa
+            remesa_bitacora = ArcRemesaBitacora(arc_remesa=remesa, usuario=current_user, accion="MODIFICADA", observaciones=safe_message(form.motivo.data, default_output_str=None)).save()
 
             # Agregamos a la bitácora la acción realizada
             bitacora = Bitacora(
@@ -550,7 +570,6 @@ def edit(remesa_id):
     form.creado_readonly.data = remesa.creado.strftime("%Y/%m/%d - %H:%M %p")
     form.juzgado_readonly.data = remesa.autoridad.clave + " : " + remesa.autoridad.descripcion_corta
     form.tipo_documentos_readonly.data = remesa.arc_documento_tipo.nombre
-    form.anio.data = remesa.anio
     form.num_oficio.data = remesa.num_oficio
     form.observaciones_solicitante.data = remesa.observaciones_solicitante
 

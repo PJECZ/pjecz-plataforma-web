@@ -39,7 +39,15 @@
             {% endif %}
             </div>
         </div>
-        {{ detail.label_value('Años', remesa.anio) }}
+        <div class="row">
+                <div class="col-md-3 text-end">Documentos por Años</div>
+        </div>
+        <div class="row">
+            {% for anio in anios %}
+                <div class="col-md-3 text-end">{{ anio[0] }}:</div>
+                <div class="col-md-9"><strong>{{ anio[1] }}</strong></div>
+            {% endfor %}
+        </div>
         {{ detail.label_value('Núm. Oficio', remesa.num_oficio) }}
         {{ detail.label_value('Tipo de Documentos', remesa.arc_documento_tipo.nombre) }}
         {% if remesa.num_anomalias > 0 %}
@@ -426,7 +434,8 @@
                 render: function(data, type, row, meta) {
                     bg_class = "";
                     switch (data)    {
-                        case "CREADA":                  bg_class="bg-warning text-dark";    break;
+                        case "CREADA":                  bg_class="bg-info";                 break;
+                        case "MODIFICADA":              bg_class="bg-warning text-dark";    break;
                         case "CANCELADA":               bg_class="bg-secondary";            break;
                         case "ENVIADA":                 bg_class="bg-pink";                 break;
                         case "ASIGNADA":                bg_class="bg-primary";              break;

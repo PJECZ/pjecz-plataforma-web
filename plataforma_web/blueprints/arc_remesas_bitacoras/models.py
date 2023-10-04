@@ -12,6 +12,7 @@ class ArcRemesaBitacora(db.Model, UniversalMixin):
     ACCIONES = OrderedDict(  # varchar(24)
         [
             ("CREADA", "Creada"),
+            ("MODIFICADA", "Modificada"),
             ("CANCELADA", "Cancelada"),
             ("ENVIADA", "Enviada"),
             ("ASIGNADA", "Asignar"),
