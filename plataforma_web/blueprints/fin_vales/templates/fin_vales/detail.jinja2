@@ -2,8 +2,17 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/quill.jinja2' as quill %}
+
 
 {% block title %}Vale{% endblock %}
+
+{% block custom_head %}
+    <!-- CSS para estilo Boton ayuda -->
+    {{ quill.head() }}
+    <!-- font awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons("Vale " + fin_vale.id | string + " " + fin_vale.estado) %}
@@ -156,6 +165,11 @@
             {% endif %}
         {% endcall %}
     {% endif %}
+{% endblock %}
+
+{# se manda llamar el botón de la ayuda  #}
+{% block content_help %}
+    <a href="https://www.pjecz.gob.mx/pjecz-plataforma-web/fin_vales/" class="d-block mt-3 btn-flotante bg-info" role="button" target="_blank"><i class="fas fa-question"></i></a>
 {% endblock %}
 
 {% block custom_javascript %}

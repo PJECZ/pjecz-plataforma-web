@@ -1,8 +1,16 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/quill.jinja2' as quill %}
 
 {% block title %}Crear Vale{% endblock %}
+
+{% block custom_head %}
+    <!-- CSS para estilo Boton ayuda -->
+    {{ quill.head() }}
+    <!-- font awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endblock %}
 
 {% block topbar_actions %}
     {{ topbar.page('Crear Vale') }}
@@ -20,6 +28,11 @@
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{# se manda llamar el botón de la ayuda  #}
+{% block content_help %}
+    <a href="https://www.pjecz.gob.mx/pjecz-plataforma-web/fin_vales/" class="d-block mt-3 btn-flotante bg-info" role="button" target="_blank"><i class="fas fa-question"></i></a>
 {% endblock %}
 
 {% block custom_javascript %}
