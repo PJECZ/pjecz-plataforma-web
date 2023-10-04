@@ -49,7 +49,7 @@ class ArcRemesa(db.Model, UniversalMixin):
     arc_documento_tipo = db.relationship("ArcDocumentoTipo", back_populates="arc_remesas")
 
     # Columnas
-    anio = db.Column(db.String(16), nullable=False)
+    anio = db.Column(db.String(16))
     esta_archivado = db.Column(db.Boolean, nullable=False, default=False)
     num_oficio = db.Column(db.String(16))
     # rechazo = db.Column(db.String(256))

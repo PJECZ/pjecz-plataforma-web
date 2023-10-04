@@ -14,7 +14,7 @@ class ArcRemesaNewForm(FlaskForm):
     """Formulario nueva Remesa"""
 
     num_oficio = StringField("Núm. Oficio: (núm/año)", validators=[DataRequired(), Length(max=16)])
-    anio = StringField("Años: (Años de inicio - Año final)", validators=[DataRequired()])
+    # anio = StringField("Años: (Años de inicio - Año final)", validators=[DataRequired()])
     tipo_documentos = SelectField("Tipo de Documentos", coerce=int, validate_choice=False, validators=[DataRequired()])
     crear = SubmitField("Crear")
 
@@ -27,9 +27,10 @@ class ArcRemesaEditForm(FlaskForm):
     juzgado_readonly = StringField("Instancia")
     tipo_documentos_readonly = StringField("Tipo de Documentos")
     # campos actualizables
-    anio = StringField("Años: (Años de inicio - Año final)", validators=[DataRequired()])
+    # anio = StringField("Años: (Años de inicio - Año final)", validators=[DataRequired()])
     num_oficio = StringField("Núm. Oficio: (núm/año)", validators=[DataRequired(), Length(max=16)])
     observaciones_solicitante = TextAreaField("Observaciones del Solicitante", validators=[Optional(), Length(max=256)])
+    motivo = TextAreaField("Motivo", validators=[DataRequired(), Length(max=256)])
     guardar = SubmitField("Guardar")
 
 
