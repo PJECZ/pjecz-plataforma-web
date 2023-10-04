@@ -163,7 +163,7 @@ def detail(remesa_id):
         ArcDocumento.anio.label("anios"),
         count("*").label("cantidad"),
     )
-    # Juntar las tablas sentencias y materias_tipos_juicios
+    # Juntar las tablas
     consulta = consulta.select_from(ArcDocumento).join(ArcRemesaDocumento)
     consulta = consulta.filter(ArcRemesaDocumento.arc_remesa_id == remesa_id)
     # Agrupar
@@ -171,7 +171,7 @@ def detail(remesa_id):
     # Ordenar
     consulta = consulta.order_by(ArcDocumento.anio)
     # Consultar
-    exp_por_anos = consulta.all()
+    anios = consulta.all()
 
     current_user_roles = current_user.get_roles()
     mostrar_secciones = {
@@ -241,7 +241,7 @@ def detail(remesa_id):
             return render_template(
                 "arc_remesas/detail_solicitante.jinja2",
                 remesa=remesa,
-                exp_por_anos=exp_por_anos,
+                anios=anios,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
                 filtros_documentos=json.dumps({"remesa_id": remesa.id}),
@@ -259,7 +259,7 @@ def detail(remesa_id):
                 return render_template(
                     "arc_remesas/detail_solicitante.jinja2",
                     remesa=remesa,
-                    exp_por_anos=exp_por_anos,
+                    anios=anios,
                     mostrar_secciones=mostrar_secciones,
                     estado_text=estado_text,
                     filtros_documentos=json.dumps({"remesa_id": remesa.id}),
@@ -278,7 +278,7 @@ def detail(remesa_id):
             return render_template(
                 "arc_remesas/detail.jinja2",
                 remesa=remesa,
-                exp_por_anos=exp_por_anos,
+                anios=anios,
                 form=form,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
@@ -300,7 +300,7 @@ def detail(remesa_id):
             return render_template(
                 "arc_remesas/detail.jinja2",
                 remesa=remesa,
-                exp_por_anos=exp_por_anos,
+                anios=anios,
                 form=form,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
@@ -319,7 +319,7 @@ def detail(remesa_id):
             return render_template(
                 "arc_remesas/detail_archivista.jinja2",
                 remesa=remesa,
-                exp_por_anos=exp_por_anos,
+                anios=anios,
                 mostrar_secciones=mostrar_secciones,
                 estado_text=estado_text,
                 filtros_documentos=json.dumps({"remesa_id": remesa.id}),
@@ -341,7 +341,7 @@ def detail(remesa_id):
     return render_template(
         "arc_remesas/detail.jinja2",
         remesa=remesa,
-        exp_por_anos=exp_por_anos,
+        anios=anios,
         mostrar_secciones=mostrar_secciones,
         estado_text=estado_text,
         filtros_documentos=json.dumps({"remesa_id": remesa.id}),

@@ -43,7 +43,7 @@
                 <div class="col-md-3 text-end">Documentos por Años</div>
         </div>
         <div class="row">
-            {% for anio in exp_por_anos %}
+            {% for anio in anios %}
                 <div class="col-md-3 text-end">{{ anio[0] }}:</div>
                 <div class="col-md-9"><strong>{{ anio[1] }}</strong></div>
             {% endfor %}
