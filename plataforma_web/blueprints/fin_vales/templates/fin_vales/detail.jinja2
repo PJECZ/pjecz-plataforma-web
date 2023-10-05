@@ -1,8 +1,8 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/help.jinja2' as help %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
-
 
 {% block title %}Vale{% endblock %}
 
@@ -159,9 +159,8 @@
     {% endif %}
 {% endblock %}
 
-{# se manda llamar el botón de la ayuda  #}
 {% block content_help %}
-    <a href="https://www.pjecz.gob.mx/pjecz-plataforma-web/arc_documentos/" class="d-block mt-3 btn-flotante-help" role="button" target="_blank"> <span class="iconify" data-icon="mdi:help"></span></a>
+    {{ help.help_button('https://www.pjecz.gob.mx/pjecz-plataforma-web/fin_vales/') }}
 {% endblock %}
 
 {% block custom_javascript %}

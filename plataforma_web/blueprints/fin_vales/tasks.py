@@ -296,7 +296,7 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str, motivo: str):
     try:
         _ = json.loads(texto)
     except json.JSONDecodeError:
-        mensaje = f"Error al solicitar el vale porque la respuesta no es JSON."
+        mensaje = "Error al solicitar el vale porque la respuesta no es JSON."
         fin_vale.solicito_efirma_error = mensaje
         fin_vale.save()
         bitacora.error(mensaje)
