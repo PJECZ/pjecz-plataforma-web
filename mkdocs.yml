@@ -2,6 +2,10 @@ site_name: Documentación de Plataforma Web
 theme:
   name: material
   language: es
+  logo: https://plataforma-web.justiciadigital.gob.mx/static/images/logo.png
+
+extra:
+  homepage: https://plataforma-web.justiciadigital.gob.mx/
 
 markdown_extensions:
   - admonition
