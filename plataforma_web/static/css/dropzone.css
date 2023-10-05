@@ -1,40 +1,41 @@
 /* Drop Zone */
 
 .dropzone-wrapper {
-    border: 2px dashed #91b0b3;
-    color: #92b0b3;
-    position: relative;
-    height: 120px;
+  border: 2px dashed #91b0b3;
+  color: #92b0b3;
+  position: relative;
+  height: 120px;
 }
 
 .dropzone-desc {
-    position: absolute;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-    text-align: center;
-    width: 100%;
-    top: 35%;
-    font-size: 16px;
+  position: absolute;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+  width: 100%;
+  top: 35%;
+  font-size: 16px;
 }
 
 .dropzone,
 .dropzone:focus {
-    position: absolute;
-    outline: none !important;
-    width: 100%;
-    height: 120px;
-    cursor: pointer;
-    opacity: 0;
+  position: absolute;
+  outline: none !important;
+  width: 100%;
+  height: 120px;
+  cursor: pointer;
+  opacity: 0;
 }
 
 .dropzone-wrapper:hover,
 .dropzone-wrapper.dragover {
-    background: #ecf0f5;
+  background: #ecf0f5;
 }
 
-.dropdown-item.active, .dropdown-item:active {
-    color: #fff;
-    text-decoration: none;
-    background-color: #343a40;
+.dropdown-item.active,
+.dropdown-item:active {
+  color: #fff;
+  text-decoration: none;
+  background-color: #343a40;
 }

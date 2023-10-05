@@ -9,28 +9,29 @@ body {
 }
 
 body {
-    height: 100%;
-    margin: 0;
-    align-items: center;
-    background-color: #004360;
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  height: 100%;
+  margin: 0;
+  align-items: center;
+  background-color: #004360;
 }
 
 main {
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 
 .bg {
-    background-image: url('https://storage.googleapis.com/pjecz-informatica/static/images/palacio-de-justicia-fondo-1.jpg');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 100%;
-    position: relative;
+  background-image: url("https://storage.googleapis.com/pjecz-informatica/static/images/palacio-de-justicia-fondo-1.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+  position: relative;
 }
 
 .form-signin {
