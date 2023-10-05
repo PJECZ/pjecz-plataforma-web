@@ -252,15 +252,19 @@ def detail(fin_vale_id):
 
     # Validar que pueda verlo
     puede_verlo = False
+
     # Si es administrador, puede verlo
     if current_user.can_admin(MODULO):
         puede_verlo = True
+
     # Si tiene uno de los roles que pueden verlo y esta activo, puede verlo
     if set(current_user.get_roles()).intersection(ROLES_PUEDEN_VER) and fin_vale.estatus == "A":
         puede_verlo = True
+
     # Si es el usuario que lo creo y esta activo, puede verlo
     if fin_vale.usuario_id == current_user.id and fin_vale.estatus == "A":
         puede_verlo = True
+
     # Si puede verlo
     if puede_verlo:
         return render_template(
@@ -288,6 +292,7 @@ def detail_print(fin_vale_id):
     efirma_url = None
     efirma_qr_url = None
     efirma_motivo = None
+
     # Si el estado es...
     if fin_vale.estado == "SOLICITADO":
         efirma_sello_digital = fin_vale.solicito_efirma_sello_digital
@@ -310,12 +315,15 @@ def detail_print(fin_vale_id):
 
     # Validar que pueda verlo
     puede_imprimirlo = False
+
     # Si es administrador, puede imprimirlo
     if current_user.can_admin(MODULO):
         puede_imprimirlo = True
+
     # Si tiene uno de los roles que pueden imprimir y esta activo, puede imprimirlo
     if set(current_user.get_roles()).intersection(ROLES_PUEDEN_IMPRIMIR) and fin_vale.estatus == "A":
         puede_imprimirlo = True
+
     # Si es el usuario que lo creo y esta activo, puede imprimirlo
     if fin_vale.usuario_id == current_user.id and fin_vale.estatus == "A":
         puede_imprimirlo = True

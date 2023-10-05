@@ -1,6 +1,7 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/help.jinja2' as help %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Archivar el Vale{% endblock %}
@@ -54,6 +55,10 @@
             {% call f.form_group(form.archivar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block content_help %}
+    {{ help.help_button('https://www.pjecz.gob.mx/pjecz-plataforma-web/fin_vales/') }}
 {% endblock %}
 
 {% block custom_javascript %}
