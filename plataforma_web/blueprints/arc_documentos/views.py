@@ -249,7 +249,7 @@ def new():
             flash("La instancia seleccionada NO existe", "warning")
         elif tipo_documento is None:
             flash("Este tipo de documento no sé conoce")
-        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgado_origen=form.juzgado_origen.data).first():
+        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgado_origen=form.juzgado_origen.data).filter_by(estatus="A").first():
             flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO y misma INSTANCIA DE ORIGEN. Debe de ser único.", "warning")
         elif anio < 1900 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
@@ -350,7 +350,15 @@ def edit(arc_documento_id):
         elif tipo_documento is None:
             flash("Este tipo de documento no sé conoce")
         # Verificar que solo haya un expediente por Juzgado y por mismo Tipo.
-        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgado_origen=form.juzgado_origen.data).filter(ArcDocumento.id != arc_documento_id).first():
+        elif (
+            ArcDocumento.query.filter_by(expediente=expediente)
+            .filter_by(autoridad_id=juzgado_id)
+            .filter_by(arc_documento_tipo=tipo_documento)
+            .filter_by(arc_juzgado_origen=form.juzgado_origen.data)
+            .filter(ArcDocumento.id != arc_documento_id)
+            .filter_by(estatus="A")
+            .first()
+        ):
             flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO y misma INSTANCIA DE ORIGEN. Debe de ser único.", "warning")
         elif anio != expediente_anio:
             flash("El año ingresado y el año indicado en el número de expediente no coinciden.", "warning")
