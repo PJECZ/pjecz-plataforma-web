@@ -11,10 +11,8 @@ class UbicacionExpediente(db.Model, UniversalMixin):
 
     UBICACIONES = OrderedDict(
         [
-            ("NO DEFINIDO", "No Definido"),
             ("ARCHIVO", "Archivo"),
             ("JUZGADO", "Juzgado"),
-            ("REMESA", "Remesa"),
         ]
     )
 
