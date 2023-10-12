@@ -12,6 +12,15 @@
         {% if show_button_edit_admin %}
             {{ topbar.button_edit('Editar Autoridad', url_for('cid_procedimientos.edit_admin', cid_procedimiento_id=cid_procedimiento.id)) }}
         {% endif %}
+        {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
+            <!-- Muestra el botón de NUEVA REVISION solo si no se ha seleccionado una revisión -->
+            {% if cid_procedimiento.id %}
+                <button id="hacerCopia" class="btn btn-sm btn-outline-primary" onclick="hacerCopia({{ cid_procedimiento.revision }})"><span class="iconify" data-icon="mdi:content-copy"></span>Nueva revisión</button>
+            {% else %}
+                <!-- Manejar el caso en el que cid_procedimiento.id no está disponible -->
+                <div class="alert alert-warning" role="alert"><p>Copiar no disponible en este momento.</p></div>
+            {% endif %}
+        {% endif %}
         {% if current_user.can_edit('CID PROCEDIMIENTOS') %}
             {% if not cid_procedimiento.firma %}
                 {{ topbar.button_edit('Editar', url_for('cid_procedimientos.edit', cid_procedimiento_id=cid_procedimiento.id)) }}
@@ -87,16 +96,16 @@
         {% endcall %}
         {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id, estatus=cid_procedimiento.estatus) %}
             <table id="control_dataTable1_detail" class="table table-striped responsive" width="100%">
-                    <thead>
-                        <th>No. Revisión</th>
-                        <th>Cambios y/o Actualizaciónes</th>
-                        <th>Solicitud de cambio No.</th>
-                        <th>Fecha</th>
-                    </thead>
-                    <tbody>
+                <thead>
+                    <th>No. Revisión</th>
+                    <th>Cambios y/o Actualizaciónes</th>
+                    <th>Solicitud de cambio No.</th>
+                    <th>Fecha</th>
+                </thead>
+                <tbody>
 
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
         {% endcall %}
         {% call accordion.item('autorizaciones', 'Autorizaciones', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
@@ -175,5 +184,42 @@
                 data:Arrayfinal
             });
         });
+    </script>
+    <script>
+        function hacerCopia(revision) {
+            // Obtener el ID del procedimiento
+            var procedimientoId = {{ cid_procedimiento.id }};
+            console.log("procedimientoId: " + procedimientoId); // Imprimir el valor real
+
+            // Obtener el valor del token CSRF
+            var csrfToken = '{{ csrf_token() }}';
+            
+            // Obtener la URL con url_for
+            var copiarProcedimientoUrl = '{{ url_for("cid_procedimientos.copiar_procedimiento", cid_procedimiento_id=cid_procedimiento.id) }}';
+
+
+            // Hacer la solicitud AJAX al servidor
+            $.ajax({
+                type: 'POST',
+                url: copiarProcedimientoUrl,  // ruta correcta en tu aplicación
+                data: { cid_procedimiento_id: procedimientoId },
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+                success: function (response) {
+                    // Actualizar la interfaz de usuario con el valor de la nueva revisión
+                    alert('Revisión actual: ' + revision + ', Nueva revisión: ' + response.revision);
+                    
+                    // Puedes redirigir a la nueva página si es necesario
+                    window.location.href = response.redirect_url;
+
+                    // Evitar la recarga de la página
+                    return false;
+                },
+                error: function (error) {
+                    console.error('Error al hacer la copia:', error);
+                }
+            });
+        }
     </script>
 {% endblock %}

@@ -3,7 +3,7 @@ CID Procedimientos, vistas
 """
 import json
 from delta import html
-from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
+from flask import abort, Blueprint, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
@@ -901,6 +901,53 @@ def help_quill(seccion: str):
     data = json.load(archivo_ayuda)
     archivo_ayuda.close()
     return render_template("quill_help.jinja2", titulo=data["titulo"], descripcion=data["descripcion"], secciones=data["secciones"], seccion_id=seccion)
+
+
+@cid_procedimientos.route("/cid_procedimientos/copiar/<int:cid_procedimiento_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def copiar_procedimiento(cid_procedimiento_id):
+    """Copiar CID Procedimiento"""
+    original_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    # Crear una copia del procedimiento
+    nueva_copia = CIDProcedimiento(
+        autoridad=original_procedimiento.autoridad,
+        usuario=current_user,
+        titulo_procedimiento=safe_string(original_procedimiento.titulo_procedimiento),
+        codigo=original_procedimiento.codigo,
+        revision=original_procedimiento.revision + 1,  # Incremento de revision
+        fecha=original_procedimiento.fecha,
+        objetivo=original_procedimiento.objetivo,
+        alcance=original_procedimiento.alcance,
+        documentos=original_procedimiento.documentos,
+        definiciones=original_procedimiento.definiciones,
+        responsabilidades=original_procedimiento.responsabilidades,
+        desarrollo=original_procedimiento.desarrollo,
+        registros=original_procedimiento.registros,
+        elaboro_nombre=original_procedimiento.elaboro_nombre,
+        elaboro_puesto=original_procedimiento.elaboro_puesto,
+        elaboro_email=original_procedimiento.elaboro_email,
+        reviso_nombre=original_procedimiento.reviso_nombre,
+        reviso_puesto=original_procedimiento.reviso_puesto,
+        reviso_email=original_procedimiento.reviso_email,
+        aprobo_nombre=original_procedimiento.aprobo_nombre,
+        aprobo_puesto=original_procedimiento.aprobo_puesto,
+        aprobo_email=original_procedimiento.aprobo_email,
+        control_cambios=original_procedimiento.control_cambios,
+        seguimiento="EN ELABORACION",
+        seguimiento_posterior="EN ELABORACION",
+        cadena=original_procedimiento.cadena + 1,
+        anterior_id=original_procedimiento.id,
+        firma="",
+        archivo="",
+        url="",
+        cid_area_id=1,
+    )
+
+    # Guardar la nueva copia en la base de datos
+    nueva_copia.save()
+
+    flash("Copia del procedimiento creado exitosamente", "success")
+    return jsonify({"revision": nueva_copia.revision, "redirect_url": url_for("cid_procedimientos.detail", cid_procedimiento_id=nueva_copia.id)})
 
 
 @cid_procedimientos.route("/cid_procedimientos/usuarios_json", methods=["POST"])
