@@ -31,8 +31,8 @@ glosas = Blueprint("glosas", __name__, template_folder="templates")
 
 MODULO = "GLOSAS"
 ORGANOS_JURISDICCIONALES = ["PLENO O SALA DEL TSJ", "TRIBUNAL DE CONCILIACION Y ARBITRAJE"]
-LIMITE_DIAS = 365
-LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
+LIMITE_DIAS = 365  # Un anio
+LIMITE_ADMINISTRADORES_DIAS = 3650  # Administradores pueden manipular diez anios
 
 
 @glosas.route("/glosas/acuses/<id_hashed>")

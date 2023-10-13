@@ -32,8 +32,8 @@ listas_de_acuerdos = Blueprint("listas_de_acuerdos", __name__, template_folder="
 
 HUSO_HORARIO = "America/Mexico_City"
 MODULO = "LISTAS DE ACUERDOS"
-LIMITE_DIAS = 365  # Es el máximo, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
-LIMITE_ADMINISTRADORES_DIAS = 730  # Administradores pueden manipular dos anios
+LIMITE_DIAS = 365  # Un anio, aunque autoridad.limite_dias_listas_de_acuerdos sea mayor, gana el menor
+LIMITE_ADMINISTRADORES_DIAS = 3650  # Administradores pueden manipular diez anios
 ORGANOS_JURISDICCIONALES_QUE_PUEDEN_ELEGIR_MATERIA = ("JUZGADO DE PRIMERA INSTANCIA ORAL", "PLENO O SALA DEL TSJ", "TRIBUNAL DISTRITAL")
 HORAS_BUENO = 14
 HORAS_CRITICO = 16
