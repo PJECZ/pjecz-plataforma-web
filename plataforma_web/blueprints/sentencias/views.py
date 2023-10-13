@@ -33,8 +33,8 @@ sentencias = Blueprint("sentencias", __name__, template_folder="templates")
 
 HUSO_HORARIO = "America/Mexico_City"
 MODULO = "SENTENCIAS"
-LIMITE_DIAS = 10950  # 30 años
-LIMITE_ADMINISTRADORES_DIAS = 10950  # 30 años
+LIMITE_DIAS = 365  # Un anio
+LIMITE_ADMINISTRADORES_DIAS = 3650  # Administradores pueden manipular diez anios
 
 # Roles que deben estar en la base de datos
 ROL_REPORTES_TODOS = ["ADMINISTRADOR", "ESTADISTICA", "VISITADURIA JUDICIAL"]
