@@ -89,12 +89,16 @@ def actualizar(autoridad_clave):
                     ubicacion_expediente.estatus = "B"
                     database.commit()
                     contador_duplicados_eliminados += 1
+        # Si la ubicacion en Archivo es REMESA, entonces en UdE sera ARCHIVO
+        la_ubicacion = arc_documento.ubicacion
+        if la_ubicacion == "REMESA":
+            la_ubicacion = "ARCHIVO"
         # Si no existe, crearlo
         if ubicacion_expediente is None:
             datos = {
                 "autoridad": autoridad,
                 "expediente": arc_documento.expediente,
-                "ubicacion": arc_documento.ubicacion,
+                "ubicacion": la_ubicacion,
             }
             database.add(UbicacionExpediente(**datos))
             contador_agregados += 1
@@ -103,8 +107,8 @@ def actualizar(autoridad_clave):
                 database.commit()
                 click.echo(f"  Van {contador_agregados} agregados...")
         # Si existe, actualizarlo en caso de ubicacion sea diferente
-        elif ubicacion_expediente.ubicacion != arc_documento.ubicacion:
-            ubicacion_expediente.ubicacion = arc_documento.ubicacion
+        elif ubicacion_expediente.ubicacion != la_ubicacion:
+            ubicacion_expediente.ubicacion = la_ubicacion
             database.commit()
             contador_actualizados += 1
 

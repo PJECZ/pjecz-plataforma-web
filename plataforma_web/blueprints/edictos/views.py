@@ -30,8 +30,8 @@ from plataforma_web.blueprints.permisos.models import Permiso
 edictos = Blueprint("edictos", __name__, template_folder="templates")
 
 MODULO = "EDICTOS"
-LIMITE_DIAS = 365
-LIMITE_ADMINISTRADORES_DIAS = 365  # Administradores pueden manipular un anio
+LIMITE_DIAS = 365  # Un anio
+LIMITE_ADMINISTRADORES_DIAS = 3650  # Administradores pueden manipular diez anios
 
 
 @edictos.route("/edictos/acuses/<id_hashed>")
