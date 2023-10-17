@@ -63,6 +63,6 @@ class ArcRemesaAnomaliaForm(FlaskForm):
     """Formulario Rechazo"""
 
     anomalia_general = SelectField("Anomalía General", choices=ArcRemesa.ANOMALIAS, validators=[DataRequired()])
-    observaciones_archivista = TextAreaField("Observaciones por parte de Archivo", validators=[Optional(), Length(max=256)])
+    observaciones_archivista = TextAreaField("Observaciones por parte de Archivo", validators=[Optional(), Length(max=1024)])
     guardar = SubmitField("Guardar")
     eliminar = SubmitField("Eliminar")
