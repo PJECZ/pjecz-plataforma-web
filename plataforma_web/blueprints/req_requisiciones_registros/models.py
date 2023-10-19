@@ -22,9 +22,7 @@ class ReqRequisicionRegistro(db.Model, UniversalMixin):
     req_requisicion = db.relationship("ReqRequisicion" , back_populates="req_requisiciones_registros")
 
     # Columnas
-    cantidad = db.Column(db.Integer, nullable=False)
-    descripcion = db.Column(db.String(256), nullable=False)
-    unidad_medida = db.Column(db.String(50), nullable=False)
+    cantidad = db.Column(db.Integer, nullable=False)    
 
     def __repr__(self):
         """ Representación """

@@ -14,14 +14,13 @@ class ReqResguardo(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Columnas
-    archivo = db.Column(db.String(256), nullable=False)
-
     # Llave foranea
     req_requisicion_id = db.Column(db.Integer, db.ForeignKey("req_requisiciones.id"), index=True, nullable=False)
     req_requisicion = db.relationship("ReqRequisicion", back_populates="req_resguardos")
-    
 
+    # Columnas
+    archivo = db.Column(db.String(256), nullable=False)
+    
     def __repr__(self):
         """ Representación """
         return f"<ReqResguardo {self.id}>"
