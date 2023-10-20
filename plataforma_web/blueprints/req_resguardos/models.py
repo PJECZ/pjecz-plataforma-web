@@ -6,10 +6,10 @@ from lib.universal_mixin import UniversalMixin
 
 
 class ReqResguardo(db.Model, UniversalMixin):
-    """ ReqResguardo """
+    """ReqResguardo"""
 
     # Nombre de la tabla
-    __tablename__ = 'req_resguardos'
+    __tablename__ = "req_resguardos"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -20,9 +20,7 @@ class ReqResguardo(db.Model, UniversalMixin):
 
     # Columnas
     archivo = db.Column(db.String(256), nullable=False)
-    
+
     def __repr__(self):
-        """ Representación """
+        """Representación"""
         return f"<ReqResguardo {self.id}>"
-
-

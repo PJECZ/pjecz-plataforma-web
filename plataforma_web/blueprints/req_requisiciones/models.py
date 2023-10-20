@@ -7,18 +7,18 @@ from lib.universal_mixin import UniversalMixin
 
 
 class ReqRequisicion(db.Model, UniversalMixin):
-    """ ReqRequision """
+    """ReqRequision"""
 
     ESTADOS = OrderedDict(
         [
-            ("SOLICITADO", "Solicitado"), 
+            ("SOLICITADO", "Solicitado"),
             ("AUTORIZADO", "Autorizado"),
             ("REVISADO", "Revisado"),
         ]
     )
 
     # Nombre de la tabla
-    __tablename__ = 'req_requisiciones'
+    __tablename__ = "req_requisiciones"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -28,8 +28,8 @@ class ReqRequisicion(db.Model, UniversalMixin):
     usuario = db.relationship("Usuario", back_populates="req_requisiciones")
 
     # Columnas
-    fecha = db.Column(db.DateTime , nullable=False)
-    consecutivo = db.Column(db.String(30) , nullable=False)
+    fecha = db.Column(db.DateTime, nullable=False)
+    consecutivo = db.Column(db.String(30), nullable=False)
     autoridad_id = db.Column(db.Integer, nullable=False)
     observaciones = db.Column(db.Text())
     solicita_id = db.Column(db.Integer, nullable=False)
@@ -44,7 +44,7 @@ class ReqRequisicion(db.Model, UniversalMixin):
         server_default="SOLICITADO",
     )
 
-    estado = db.Column(db.String(30) , nullable=False)
+    estado = db.Column(db.String(30), nullable=False)
 
     # Columnas estado SOLICITADO
     solicito_nombre = db.Column(db.String(256))
@@ -61,7 +61,7 @@ class ReqRequisicion(db.Model, UniversalMixin):
     # Columnas estado CANCELADO POR SOLICITANTE
     solicito_cancelo_tiempo = db.Column(db.DateTime)
     solicito_cancelo_motivo = db.Column(db.String(256))
-    solicito_cancelo_error = db.Column(db.String(512)) 
+    solicito_cancelo_error = db.Column(db.String(512))
 
     # Columnas estado AUTORIZADO
     autorizo_nombre = db.Column(db.String(256))
@@ -97,5 +97,5 @@ class ReqRequisicion(db.Model, UniversalMixin):
     req_requisiciones_registros = db.relationship("ReqRequisicionRegistro", back_populates="req_requisicion")
 
     def __repr__(self):
-        """ Representación """
-        return '<ReqRequision>'
+        """Representación"""
+        return "<ReqRequision>"
