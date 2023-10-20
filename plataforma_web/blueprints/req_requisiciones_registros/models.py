@@ -14,10 +14,9 @@ class ReqRequisicionRegistro(db.Model, UniversalMixin):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
-    # Clave foránea
+    # Claves foráneas
     req_catalogo_id = db.Column(db.Integer, db.ForeignKey("req_catalogos.id"), index=True, nullable=False)
     req_catalogo = db.relationship("ReqCatalogo", back_populates="req_requisiciones_registros")
-
     req_requisicion_id = db.Column(db.Integer, db.ForeignKey("req_requisiciones.id"), index=True, nullable=False)
     req_requisicion = db.relationship("ReqRequisicion", back_populates="req_requisiciones_registros")
 

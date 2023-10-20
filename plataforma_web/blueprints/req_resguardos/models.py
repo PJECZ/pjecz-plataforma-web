@@ -20,6 +20,7 @@ class ReqResguardo(db.Model, UniversalMixin):
 
     # Columnas
     archivo = db.Column(db.String(256), nullable=False)
+    url = db.Column(db.String(512), nullable=False)
 
     def __repr__(self):
         """Representación"""

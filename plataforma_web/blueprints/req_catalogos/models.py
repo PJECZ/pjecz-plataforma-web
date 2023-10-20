@@ -24,4 +24,4 @@ class ReqCatalogo(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<ReqCatalogo {self.id}>"
+        return f"<ReqCatalogo {self.clave}>"
