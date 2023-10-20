@@ -2,8 +2,6 @@
 
 ## Bienvenido a la documentación de Plataforma Web
 
-![Logo PJECZ](https://storage.googleapis.com/pjecz-informatica/static/images/logo-pjecz-horizontal-marino.png){ width="480" }
-
 Este es el manual y la referencia de uso de la [Plataforma Web](https://plataforma-web.justiciadigital.gob.mx/) que es el sistema web para la administración de la información interna y de los documentos que son publicados en el [sitio web](https://www.pjecz.gob.mx) del Poder Judicial del Estado de Coahuila de Zaragoza.
 
 ## Cómo solicitar acceso a Plataforma Web
@@ -26,6 +24,8 @@ Una baja de Plataforma Web puede ocurrir cuando se da de baja del personal o cua
 
 Su llave de entrada es su cuenta de _correo electrónico_ con la que está registrado.
 
+![iniciar sesion](img/inicio/iniciar_sesion.png)
+
 Para entrar a Plataforma Web:
 
 1. Abra su navegador de internet, de preferencia Google Chrome
@@ -36,9 +36,9 @@ Para entrar a Plataforma Web:
 
 ## Usuarios personales y cuentas institucionales
 
-Una cuenta personal es...
+Una cuenta personal es de uso personal para realizar actividades que competen al puesto o cargo que se ejerce.
 
-En cambio, una cuenta institucional es...
+En cambio, una cuenta institucional es de uso grupal, para un órgano jurisdiccional y utilizado por varias personas para efectuar acciones relacionadas con dicho órgano.
 
 Plataforma Web lleva registro de todas las operaciones que se realizan dentro del sistema. Por lo que es importante que sepa que si alguien más utiliza su cuenta, se verá reflejado en el registro de operaciones.
 
@@ -68,11 +68,16 @@ Si su cuenta es **@pjecz.gob.mx** debe solicitar un cambio de contraseña a la *
 
 ## Cerrar la sesión
 
-Para cerrar la sesión
+1. Vaya al **final del menú principal** donde se encuentra la dirección de su _correo electrónico_, presione sobre él.
+2. Un menú secundario se desplegará. Presione sobre la opción **Salir**. ![menu_secundario](img/inicio/cerrar_sesion_menu_secundario.png)
+3. Presione sobre el botón **Cerrar cuenta de Google** o **Cerrar cuenta de Microsoft**. ![cerrar_sesion](img/inicio/cerrar_sesion_google.png)
+4. Cerrar el navegador.
 
 ## Favoritos :material-star:
 
 Si tiene muchos módulos en su menú principal puede cambiar su configuración personal para que aparezcan al principio del menú principal.
+
+![Favoritos](img/inicio/favoritos.png)
 
 1. De clic en **Favoritos**.
 2. Aparece un listados con todos sus módulos. Presionando sobre el botón _switch_ puede activar que aparezca al principio.

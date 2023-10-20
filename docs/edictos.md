@@ -1,4 +1,4 @@
-# Edictos
+# Edictos :material-file-check:
 
 ## Objetivo
 
