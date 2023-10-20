@@ -4,48 +4,80 @@
 
 ![Logo PJECZ](https://storage.googleapis.com/pjecz-informatica/static/images/logo-pjecz-horizontal-marino.png){ width="480" }
 
-Esta es la documentación oficial del sistema [Plataforma Web](https://plataforma-web.justiciadigital.gob.mx/) utilizado por el Poder Judicial del Estado de Coahuila de Zaragoza (PJECZ)
+Este es el manual y la referencia de uso de la [Plataforma Web](https://plataforma-web.justiciadigital.gob.mx/) que es el sistema web para la administración de la información interna y de los documentos que son publicados en el [sitio web](https://www.pjecz.gob.mx) del Poder Judicial del Estado de Coahuila de Zaragoza.
 
-## Introducción
+## Cómo solicitar acceso a Plataforma Web
 
-Plataforma Web es un sistema que está diseñado para administrar tareas internas hechas por el personal perteneciente al PJECZ, juzgados y algunos terceros.
+Solicite a un compañero de su área que le levante un ticket de Soporte Técnico a la Dirección de Informática; donde debe de escribir la siguiente información:
 
-Contiene una variedad de secciones o pequeños programas especializados en tareas que llamamos **módulos**.
+- Nombre completo
+- CURP
+- Teléfono celular
+- Correo electrónico en **@pjecz.gob.mx** o **coahuila.gob.mx**
+- Área u oficina a la que pertenece
+- Puesto
+- Si los conoce, describa sus funciones o los roles que necesita usar en Plataforma Web
 
-Y está ayuda pretende guiarlo por las tareas que podría realizar. Intentamos darle un orden parecido al que tiene el sistema. Cada módulo es un tema diferente y dentro de él encontrará las instrucciones para realizar sus diferentes tareas.
+En un plazo de 5 días hábiles se le resolverá el ticket de soporte informándole si su acceso ha sido autorizado o no.
 
-## Usuarios
+Una baja de Plataforma Web puede ocurrir cuando se da de baja del personal o cuando se suspende o se elimina la cuenta de correo electrónico.
 
-Su llave de entrada será su **usuario**, que es la dirección de _correo electrónico_ con la que fue registrado en el sistema. Generalmente compuesta por su nombre y con terminación **@pjecz.gob.mx** o **coahuila.gob.mx**.
+## Cómo accesar a Plataforma Web
 
-!!! warning "Advertencia"
+Su llave de entrada es su cuenta de _correo electrónico_ con la que está registrado.
 
-    Se recomienda el uso de una cuenta personal para registrar a su nombre todos los movimientos que hace dentro del sistema. Si alguien más desea utilizar el sistema no olvide cerrar la sección y que esa persona utilize su usuario de acceso.
+Para entrar a Plataforma Web:
 
-## Roles
+1. Abra su navegador de internet, de preferencia Google Chrome
+2. Debe de tener iniciada su sesión de correo electrónico **@pjecz.gob.mx** o **coahuila.gob.mx**
+3. Si su cuenta es **@pjecz.gob.mx** de clic en el botón **Google**
+4. Si su cuenta es **@coahuila.gob.mx** de clic en el botón **Microsoft**
+5. Se crea un _token temporal de acceso_. De clic en el botón **Ingresar**
 
-Un rol, es un conjunto de permisos que tienen ligados a un usuario, es decir, con ellos podrá ver y acceder a ciertos módulos y realizar ciertas tareas dentro de él.
+## Usuarios personales y cuentas institucionales
 
-## Primera vista
+Una cuenta personal es...
 
-La pantalla de inicio varia según el rol del usuario que accede. Pero los cuadro de dialogo lo invitarán a realizar las tareas más comunes para su rol.
+En cambio, una cuenta institucional es...
 
-Del lado izquierdo en fondo azul se encuentra la barra lateral de módulos, donde se en listan de forma ordenada alfabéticamente los módulos a los cuales tienen acceso.
+Plataforma Web lleva registro de todas las operaciones que se realizan dentro del sistema. Por lo que es importante que sepa que si alguien más utiliza su cuenta, se verá reflejado en el registro de operaciones.
 
-Los más básicos serían **:material-view-dashboard: Inicio**, **:material-star: Favoritos**, **:material-tools: Tickets** y, al final se verá su nombre de usuario (email), el cual despliega un menú secundario para consultar su perfil y cerrar la sección.
+## Menú de navegación
 
-### Inicio :material-view-dashboard:
+Para utilizar un módulo de click en su opción en el menú de navegación.
 
-Es la página de bienvenida al sistema después de haberse identificado en la pantalla de acceso. Si mantiene la sección abierta, está será como su nombre lo dice la página de inicio. Contiene unas imágenes y botones grandes con las tareas más utilizadas basadas en su rol.
+## Módulos habilitados y privilegios
 
-### Favoritos :material-star:
+Cada cuenta tiene un conjunto de permisos, es decir, con ellos podrá ver los módulos permitidos y realizar operaciones dentro de él.
 
-Si tiene muchos módulos en su listado y accede regularmente a unos pocos. Puede hacer que aparezcan al principio de la lista.
+## Solicitar cambios en sus privilegios
 
-Aquí listamos todos los módulos a los que tiene acceso y presionando sobre su botón puede activar que ese módulo en particular aparezca al principio de la lista. Haciéndolo más accesible.
+Para solicitar un cambio en sus privilegios, levante un ticket de Soporte Técnico a la Dirección de Informática; donde debe de escribir la siguiente información:
 
-### Tickets :material-tools:
+- Nombre completo
+- Correo electrónico en **@pjecz.gob.mx** o **coahuila.gob.mx**
+- Área u oficina a la que pertenece
+- Puesto
+- Si los conoce, describa sus funciones o los roles que necesita usar en Plataforma Web
 
-Quizás necesite ayuda alguna vez, para eso tenemos el módulo de [Tickets](https://plataforma-web.justiciadigital.gob.mx/soportes_tickets) donde puede reportar problemas técnicos a nuestro departamento de sistemas.
+## Si no recuerdo mi contraseña
 
-Para más detalle de su uso consulte su apartado [Tickets - Ayuda](#)
+Si su cuenta es **@coahuila.gob.mx** debe solicitar una nueva contraseña a la **Secretaría de Finanzas** en su **Dirección de Informática**.
+
+Si su cuenta es **@pjecz.gob.mx** debe solicitar un cambio de contraseña a la **Dirección de Informática**. Levante un ticket de soporte técnico.
+
+## Cerrar la sesión
+
+Para cerrar la sesión
+
+## Favoritos :material-star:
+
+Si tiene muchos módulos en su menú principal puede cambiar su configuración personal para que aparezcan al principio del menú principal.
+
+1. De clic en **Favoritos**.
+2. Aparece un listados con todos sus módulos. Presionando sobre el botón _switch_ puede activar que aparezca al principio.
+3. Puede quitar módulos de sus favoritos apagando su _switch_ respectivo.
+
+## Tickets de soporte técnico :material-tools:
+
+Para solicitar ayuda sobre soporte técnico, use el módulo de [Tickets](https://plataforma-web.justiciadigital.gob.mx/soportes_tickets) para reportar problemas técnicos.
