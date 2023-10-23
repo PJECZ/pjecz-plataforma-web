@@ -139,7 +139,12 @@
                 targets: 1, // juzgado
                 data: null,
                 render: function(data, type, row, meta) {
-                    texto = '<span title="' + data.nombre_actual + '"><a href="' + data.url_actual + '">' + data.clave_actual + '</span></a>';
+                    if (data.url_actual == "") {
+                        texto = data.clave_actual;
+                    } else {
+                        texto =  '<a href="' + data.url_actual + '">' + data.clave_actual + '</a>';
+                    }
+                    texto = '<span title="' + data.nombre_actual + '">' + texto + '</span>';
                     if (data.clave_origen != ""){
                         texto += '<br /><strong>Origen:</strong> ';
                         texto += '<span title="' + data.nombre_origen + '">' + data.clave_origen + '</span>';
