@@ -6,6 +6,7 @@ import locale
 import logging
 
 from dotenv import load_dotenv
+from sqlalchemy import or_
 
 from lib.tasks import set_task_progress, set_task_error
 from plataforma_web.app import create_app
@@ -102,6 +103,44 @@ def pasar_al_historial_solicitudes_canceladas():
             observaciones="Tarea programada",
         ).save()
     bitacora.info("Se han pasado al historial %d solicitudes canceladas con más de %d días.", contador, DIAS_ANTIGUEDAD_CANCELADAS)
+
+    # Terminar tarea
+    set_task_progress(100)
+    mensaje_final = "Terminado satisfactoriamente"
+    bitacora.info(mensaje_final)
+    return mensaje_final
+
+
+def pasar_al_historial_remesas_archivadas():
+    """Pasar al historial las remesas con determinados días de antigüedad teniendo el estado de archivadas o archivadas con anomalía"""
+
+    # Fecha
+    fecha_limite = date.today() - timedelta(days=DIAS_ANTIGUEDAD)
+
+    # Ubicar al usuario responsable para dicha operación
+    usuario = Usuario.query.filter_by(email=USUARIO_DEFECTO).filter_by(estatus="A").first()
+    if not usuario:
+        mensaje_final = f"ERROR: usuario por defecto no localizado '{USUARIO_DEFECTO}'"
+        bitacora.error(mensaje_final)
+        return mensaje_final
+
+    set_task_progress(1)
+
+    # Selección de solicitudes con más de tantos días de antigüedad y en estado de recibidos
+    remesas = ArcRemesa.query.filter(or_(ArcRemesa.estado == "ARCHIVADO", ArcRemesa.estado == "ARCHIVADO CON ANOMALIA")).filter_by(esta_archivado=False).filter(ArcRemesa.modificado <= fecha_limite).all()
+    contador = 0
+    for remesa in remesas:
+        remesa.esta_archivado = True
+        remesa.save()
+        contador += 1
+        # Añadir acción a la bitácora de Solicitudes
+        ArcRemesaBitacora(
+            arc_remesa=remesa,
+            usuario=usuario,
+            accion="PASADA AL HISTORIAL",
+            observaciones="Tarea programada",
+        ).save()
+    bitacora.info("Se han pasado al historial %d remesas con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
 
     # Terminar tarea
     set_task_progress(100)
