@@ -64,13 +64,15 @@ def pasar_al_historial_solicitudes_completadas():
             accion="PASADA AL HISTORIAL",
             observaciones="Tarea programada",
         ).save()
-    bitacora.info("Se han pasado al historial %d solicitudes con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
+    if contador <= 0:
+        bitacora.info("Solicitudes ENTREGADAS pasadas al historial - No hubo cambios")
+    else:
+        bitacora.info("Se han pasado al historial %d solicitudes con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
 
     # Terminar tarea
     set_task_progress(100)
-    mensaje_final = "Terminado satisfactoriamente"
-    bitacora.info(mensaje_final)
-    return mensaje_final
+
+    return "Terminado satisfactoriamente"
 
 
 def pasar_al_historial_solicitudes_canceladas():
@@ -102,13 +104,15 @@ def pasar_al_historial_solicitudes_canceladas():
             accion="PASADA AL HISTORIAL",
             observaciones="Tarea programada",
         ).save()
-    bitacora.info("Se han pasado al historial %d solicitudes canceladas con más de %d días.", contador, DIAS_ANTIGUEDAD_CANCELADAS)
+    if contador <= 0:
+        bitacora.info("Solicitudes CANCELADAS pasadas al historial - No hubo cambios")
+    else:
+        bitacora.info("Se han pasado al historial %d solicitudes canceladas con más de %d días.", contador, DIAS_ANTIGUEDAD_CANCELADAS)
 
     # Terminar tarea
     set_task_progress(100)
-    mensaje_final = "Terminado satisfactoriamente"
-    bitacora.info(mensaje_final)
-    return mensaje_final
+
+    return "Terminado satisfactoriamente"
 
 
 def pasar_al_historial_remesas_archivadas():
@@ -140,13 +144,15 @@ def pasar_al_historial_remesas_archivadas():
             accion="PASADA AL HISTORIAL",
             observaciones="Tarea programada",
         ).save()
-    bitacora.info("Se han pasado al historial %d remesas con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
+    if contador <= 0:
+        bitacora.info("Remesas ARCHIVADAS pasadas al historial - No hubo cambios")
+    else:
+        bitacora.info("Se han pasado al historial %d remesas con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
 
     # Terminar tarea
     set_task_progress(100)
-    mensaje_final = "Terminado satisfactoriamente"
-    bitacora.info(mensaje_final)
-    return mensaje_final
+
+    return "Terminado satisfactoriamente"
 
 
 def pasar_al_historial_remesas_canceladas():
@@ -178,10 +184,12 @@ def pasar_al_historial_remesas_canceladas():
             accion="PASADA AL HISTORIAL",
             observaciones="Tarea programada",
         ).save()
-    bitacora.info("Se han pasado al historial %d remesas canceladas con más de %d días.", contador, DIAS_ANTIGUEDAD_CANCELADAS)
+    if contador <= 0:
+        bitacora.info("Remesas CANCELADAS pasadas al historial - No hubo cambios")
+    else:
+        bitacora.info("Se han pasado al historial %d remesas canceladas con más de %d días.", contador, DIAS_ANTIGUEDAD_CANCELADAS)
 
     # Terminar tarea
     set_task_progress(100)
-    mensaje_final = "Terminado satisfactoriamente"
-    bitacora.info(mensaje_final)
-    return mensaje_final
+
+    return "Terminado satisfactoriamente"
