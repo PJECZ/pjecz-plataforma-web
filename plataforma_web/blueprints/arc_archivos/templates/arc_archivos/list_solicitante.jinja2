@@ -59,7 +59,7 @@
                     <div class="col-4">
                         <div class="form-floating">
                             <input id="documentoInput_solicitud" type="text" class="form-control" aria-label="Documento" onchange="filtros_solicitudes.buscar(); return false;">
-                            <label for="documentoInput_solicitud">Documento</label>
+                            <label for="documentoInput_solicitud">No. Doc</label>
                         </div>
                     </div>
                     <div class="col-4">
@@ -87,7 +87,7 @@
                     <th>ID</th>
                     <th>Creado</th>
                     <th>Tipo</th>
-                    <th>Documento</th>
+                    <th>No. Doc</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -103,19 +103,13 @@
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_remesas.buscar(); return false;" autocomplete="off">
-                    <div class="col-4">
+                    <div class="col-6">
                         <div class="form-floating">
                             <input id="idInput_remesa" type="text" class="form-control" onchange="filtros_remesas.buscar(); return false;">
                             <label for="idInput_remesa">ID</label>
                         </div>
                     </div>
-                    <div class="col-4">
-                        <div class="form-floating">
-                            <input id="anioInput_remesa" type="text" class="form-control" onchange="filtros_remesas.buscar(); return false;">
-                            <label for="anioInput_remesa">Año</label>
-                        </div>
-                    </div>
-                    <div class="col-4">
+                    <div class="col-6">
                         <div class="form-floating">
                             <select id="tipoDocumentoInput_remesa" class="form-control js-select2-filter" onchange="filtros_remesas.buscar(); return false;" style="text-transform: uppercase"></select>
                             <label for="tipoDocumentoInput_remesa">Tipo de Documento</label>
