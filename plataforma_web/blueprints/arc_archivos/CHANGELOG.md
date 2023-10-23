@@ -1,5 +1,12 @@
 # Changelog - Archivo
 
+## 2023-Octubre
+
+**Mejoras**:
+
+- Quitar filtro **Año** en listado de remesas. [\#851](https://github.com/PJECZ/pjecz-plataforma-web/issues/851)
+- Corrección de nombre de filtro en listado de solicitudes, campo **Expediente** por **No. Doc**.
+
 ## 2023-Septiembre
 
 **Closed issues**:
