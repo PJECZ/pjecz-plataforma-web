@@ -113,6 +113,13 @@ def datatable_json():
                     "nombre": resultado.autoridad.descripcion_corta,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
                 },
+                "juzgado_y_origen": {
+                    "clave_actual": resultado.autoridad.clave,
+                    "nombre_actual": resultado.autoridad.descripcion_corta,
+                    "url_actual": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
+                    "clave_origen": resultado.arc_juzgado_origen.clave if resultado.arc_juzgado_origen_id != None else "",
+                    "nombre_origen": resultado.arc_juzgado_origen.descripcion_corta if resultado.arc_juzgado_origen_id != None else "",
+                },
                 "anio": resultado.anio,
                 "tipo": resultado.arc_documento_tipo.nombre,
                 "fojas": resultado.fojas,

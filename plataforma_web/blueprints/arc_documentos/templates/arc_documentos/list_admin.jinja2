@@ -121,7 +121,7 @@
         configDataTable_documentos['ajax']['data'] = {{ filtros }};
         configDataTable_documentos['columns'] = [
             { data: 'expediente' },
-            { data: 'juzgado' },
+            { data: 'juzgado_y_origen' },
             { data: 'tipo' },
             { data: 'juicio' },
             { data: 'partes' },
@@ -139,7 +139,12 @@
                 targets: 1, // juzgado
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<span title="' + data.nombre + '"><a href="' + data.url + '">' + data.clave + '</span></a>';
+                    texto = '<span title="' + data.nombre_actual + '"><a href="' + data.url_actual + '">' + data.clave_actual + '</span></a>';
+                    if (data.clave_origen != ""){
+                        texto += '<br /><strong>Origen:</strong> ';
+                        texto += '<span title="' + data.nombre_origen + '">' + data.clave_origen + '</span>';
+                    }
+                    return texto;
                 }
             },
             {
