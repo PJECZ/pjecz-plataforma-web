@@ -6,6 +6,7 @@
 
 - Quitar filtro **Año** en listado de remesas. [\#851](https://github.com/PJECZ/pjecz-plataforma-web/issues/851)
 - Corrección de nombre de filtro en listado de solicitudes, campo **Expediente** por **No. Doc**.
+- Añadir columna juzgado origen al listado de expedientes. [\#853](https://github.com/PJECZ/pjecz-plataforma-web/issues/853)
 
 ## 2023-Septiembre
 
