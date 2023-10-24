@@ -52,6 +52,7 @@ def list_active():
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global="LOCAL",
             mostrar_btn_historial="IR_AL_HISTORIAL",
+            mostrar_btn_estadisticas=True,
         )
     if ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         return render_template(
@@ -65,6 +66,7 @@ def list_active():
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global="LOCAL",
             mostrar_btn_historial="IR_AL_HISTORIAL",
+            mostrar_btn_estadisticas=True,
         )
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(

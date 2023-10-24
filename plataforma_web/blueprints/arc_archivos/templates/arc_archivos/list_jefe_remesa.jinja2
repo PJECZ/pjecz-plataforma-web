@@ -31,6 +31,9 @@
                 <button type="button" class="btn btn-sm btn-secondary active" disabled><span class="iconify" data-icon="mdi:earth"></span> Todos</button>
             </div>
         {% endif %}
+        {% if mostrar_btn_estadisticas %}
+            {{ topbar.button('Estadisticas', '#', 'mdi:chart-bar') }}
+        {% endif %}
         {% if mostrar_btn_historial == "IR_AL_HISTORIAL" %}
             {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}
         {% elif mostrar_btn_historial == "IR_A_ACTIVOS" %}
