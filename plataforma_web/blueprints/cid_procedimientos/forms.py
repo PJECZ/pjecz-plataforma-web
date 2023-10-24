@@ -2,7 +2,7 @@
 CID Procedimientos, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import DateField, IntegerField, StringField, SubmitField, SelectField
+from wtforms import DateField, HiddenField, IntegerField, StringField, SubmitField, SelectField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length, Optional
 
@@ -93,3 +93,14 @@ class CIDProcedimientoSearchForm(FlaskForm):
     fecha_desde = DateField("Fecha desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")
+
+
+class CIDProcedimientosNewReviw(FlaskForm):
+    """Formulario nueva revision"""
+
+    id = HiddenField("ID")
+    titulo_procedimiento = StringField("Título Procedimiento", validators=[Optional()])
+    codigo = StringField("Código")  # Solo lectura
+    revision = IntegerField("Nueva Revisión")  # Solo lectura
+    fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
+    guardar = SubmitField("Guardar")

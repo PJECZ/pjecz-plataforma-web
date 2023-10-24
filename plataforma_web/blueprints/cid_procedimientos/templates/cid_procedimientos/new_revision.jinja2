@@ -1,0 +1,73 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nueva Revisión{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nueva Revisión') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
+        {% call f.form_tag('cid_procedimientos.copiar_procedimiento_con_revision', fid='cid_procedimiento_form', **form_kwargs) %}
+            {% call f.form_group(form.id) %}{% endcall %}
+            {% call f.form_group(form.titulo_procedimiento) %}{% endcall %}
+            {% call f.form_group(form.codigo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.revision, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+        <!-- Agrega esto en algún lugar de tu new_revision.jinja2 para verificar el id -->
+        <p>El ID del procedimiento es: {{ cid_procedimiento.id }}</p>
+    {% endcall %}
+{% endblock %}
+{% block custom_javascript %}
+    <script>
+        $(document).ready(function() {
+            function hacerCopia() {
+                // Obtener el ID del procedimiento
+                var procedimientoId = {{ cid_procedimiento.id }};
+                if (procedimientoId === undefined) {
+                    console.error('ID del procedimiento no definido');
+                    return;
+                }
+                console.log("procedimientoId: " + procedimientoId); // Imprimir el valor real
+                
+                // Obtener el valor del token CSRF
+                var csrfToken = '{{ csrf_token() }}';
+
+                // Obtener la URL con url_for
+                var copiarProcedimientoUrl = '{{ url_for("cid_procedimientos.copiar_procedimiento_con_revision", cid_procedimiento_id=cid_procedimiento.id) }}';
+
+                // Hacer la solicitud AJAX al servidor
+                $.ajax({
+                    type: 'POST',
+                    url: copiarProcedimientoUrl,  // ruta correcta en tu aplicación
+                    data: { cid_procedimiento_id: procedimientoId },
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    },
+                    success: function (response) {
+                        // Actualizar la interfaz de usuario con el valor de la nueva revisión
+                        alert('Esta es una nueva revision!');
+
+                        // Puedes redirigir a la nueva página si es necesario
+                        window.location.href = response.redirect_url;
+                        // Evitar la recarga de la página
+                        return false;
+                    },
+                    error: function (error) {
+                        console.error('Error al hacer la copia:', error);
+                    }
+                });
+            }
+
+            $('#cid_procedimiento_review_form').submit(function(e) {
+                e.preventDefault();  // Evita la acción de envío normal del formulario
+                hacerCopia();  // Llama a tu función
+            });
+        });
+    </script>
+{% endblock %}

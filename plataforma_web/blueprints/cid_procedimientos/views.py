@@ -2,6 +2,7 @@
 CID Procedimientos, vistas
 """
 import json
+from datetime import datetime
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import current_user, login_required
@@ -12,7 +13,7 @@ from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm
+from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm, CIDProcedimientosNewReviw
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_areas.models import CIDArea
 from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
@@ -903,51 +904,82 @@ def help_quill(seccion: str):
     return render_template("quill_help.jinja2", titulo=data["titulo"], descripcion=data["descripcion"], secciones=data["secciones"], seccion_id=seccion)
 
 
-@cid_procedimientos.route("/cid_procedimientos/copiar/<int:cid_procedimiento_id>", methods=["GET", "POST"])
+@cid_procedimientos.route("/cid_procedimientos/copiar_revision/<int:cid_procedimiento_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def copiar_procedimiento(cid_procedimiento_id):
-    """Copiar CID Procedimiento"""
-    original_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-    # Crear una copia del procedimiento
-    nueva_copia = CIDProcedimiento(
-        autoridad=original_procedimiento.autoridad,
-        usuario=current_user,
-        titulo_procedimiento=safe_string(original_procedimiento.titulo_procedimiento),
-        codigo=original_procedimiento.codigo,
-        revision=original_procedimiento.revision + 1,  # Incremento de revision
-        fecha=original_procedimiento.fecha,
-        objetivo=original_procedimiento.objetivo,
-        alcance=original_procedimiento.alcance,
-        documentos=original_procedimiento.documentos,
-        definiciones=original_procedimiento.definiciones,
-        responsabilidades=original_procedimiento.responsabilidades,
-        desarrollo=original_procedimiento.desarrollo,
-        registros=original_procedimiento.registros,
-        elaboro_nombre=original_procedimiento.elaboro_nombre,
-        elaboro_puesto=original_procedimiento.elaboro_puesto,
-        elaboro_email=original_procedimiento.elaboro_email,
-        reviso_nombre=original_procedimiento.reviso_nombre,
-        reviso_puesto=original_procedimiento.reviso_puesto,
-        reviso_email=original_procedimiento.reviso_email,
-        aprobo_nombre=original_procedimiento.aprobo_nombre,
-        aprobo_puesto=original_procedimiento.aprobo_puesto,
-        aprobo_email=original_procedimiento.aprobo_email,
-        control_cambios=original_procedimiento.control_cambios,
-        seguimiento="EN ELABORACION",
-        seguimiento_posterior="EN ELABORACION",
-        cadena=original_procedimiento.cadena + 1,
-        anterior_id=original_procedimiento.id,
-        firma="",
-        archivo="",
-        url="",
-        cid_area_id=1,
-    )
+def copiar_procedimiento_con_revision(cid_procedimiento_id):
+    """Copiar CID Procedimiento con nueva revisión"""
+    print("Entré a la función copiar_procedimiento_con_revision")  # Mensaje de depuración
+    cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
 
-    # Guardar la nueva copia en la base de datos
-    nueva_copia.save()
+    # Obtener la última revisión
+    ultima_revision = CIDProcedimiento.query.filter_by(id=cid_procedimiento.id).order_by(CIDProcedimiento.revision.desc()).first()
 
-    flash("Copia del procedimiento creado exitosamente", "success")
-    return jsonify({"revision": nueva_copia.revision, "redirect_url": url_for("cid_procedimientos.detail", cid_procedimiento_id=nueva_copia.id)})
+    form = CIDProcedimientosNewReviw()
+
+    if form.validate_on_submit():
+        # Acceder a los datos del formulario
+        cid_procedimiento.titulo_prcedimiento = safe_string(form.titulo_procedimiento.data)
+        cid_procedimiento.codigo = form.codigo.data
+        cid_procedimiento.revision = form.revision.data
+        cid_procedimiento.fecha = form.fecha.data if form.fecha.data else datetime.utcnow()
+
+        nueva_copia = CIDProcedimiento(
+            autoridad=cid_procedimiento.autoridad,
+            usuario=current_user,
+            titulo_procedimiento=safe_string(form.titulo_procedimiento.data),
+            codigo=form.codigo.data,
+            revision=form.revision.data,
+            fecha=form.fecha.data if form.fecha.data else datetime.utcnow(),
+            objetivo=cid_procedimiento.objetivo,
+            alcance=cid_procedimiento.alcance,
+            documentos=cid_procedimiento.documentos,
+            definiciones=cid_procedimiento.definiciones,
+            responsabilidades=cid_procedimiento.responsabilidades,
+            desarrollo=cid_procedimiento.desarrollo,
+            registros=cid_procedimiento.registros,
+            elaboro_nombre=cid_procedimiento.elaboro_nombre,
+            elaboro_puesto=cid_procedimiento.elaboro_puesto,
+            elaboro_email=cid_procedimiento.elaboro_email,
+            reviso_nombre=cid_procedimiento.reviso_nombre,
+            reviso_puesto=cid_procedimiento.reviso_puesto,
+            reviso_email=cid_procedimiento.reviso_email,
+            aprobo_nombre=cid_procedimiento.aprobo_nombre,
+            aprobo_puesto=cid_procedimiento.aprobo_puesto,
+            aprobo_email=cid_procedimiento.aprobo_email,
+            control_cambios=cid_procedimiento.control_cambios,
+            seguimiento="EN ELABORACION",
+            seguimiento_posterior="EN ELABORACION",
+            cadena=cid_procedimiento.cadena + 1,
+            anterior_id=cid_procedimiento.id,
+            firma="",
+            archivo="",
+            url="",
+            cid_area_id=1,
+        )
+
+        # Guardar la nueva copia en la base de datos
+        nueva_copia.save()
+
+        # Bitácora y redirección a la vista de detalle
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva revisión del procedimiento {cid_procedimiento.titulo_procedimiento}."),
+            url=url_for("cid_procedimientos.detail", cid_procedimiento_id=nueva_copia.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+
+    form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
+    form.codigo.data = cid_procedimiento.codigo
+    # Incrementar la revisión
+    if ultima_revision:
+        form.revision.data = ultima_revision.revision + 1
+    else:
+        form.revision.data = 1  # Si no hay revisiones anteriores, inicia desde 1
+    form.fecha.data = datetime.utcnow()
+    return render_template("cid_procedimientos/new_revision.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 
 @cid_procedimientos.route("/cid_procedimientos/usuarios_json", methods=["POST"])
