@@ -19,6 +19,8 @@ class ArcSolicitudBitacora(db.Model, UniversalMixin):
             ("ENVIADA", "Enviada"),
             ("ENTREGADA", "Entregada"),
             ("PASADA AL HISTORIAL", "Pasa al historial"),
+            ("ELIMINADA", "Eliminada"),
+            ("RECUPERADA", "Recuperada"),
         ]
     )
 
