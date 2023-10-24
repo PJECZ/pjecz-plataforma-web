@@ -32,7 +32,7 @@
             </div>
         {% endif %}
         {% if current_user.can_view("ARC ESTADISTICAS") %}
-            {{ topbar.button('Estadisticas', '#', 'mdi:chart-bar') }}
+            {{ topbar.button('Estadisticas', url_for('arc_estadisticas.indice'), 'mdi:chart-bar') }}
         {% endif %}
         {% if mostrar_btn_historial == "IR_AL_HISTORIAL" %}
             {{ topbar.button('Historial', url_for('arc_archivos.list_history'), 'mdi:history') }}

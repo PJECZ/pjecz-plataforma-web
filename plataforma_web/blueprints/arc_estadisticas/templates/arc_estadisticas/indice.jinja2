@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Archivo Estadísticas{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons() %}
+        {{ topbar.button_previous('Archivo', url_for('arc_archivos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+
+{% endblock %}
