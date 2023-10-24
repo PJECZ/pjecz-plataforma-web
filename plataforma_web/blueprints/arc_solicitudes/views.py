@@ -3,7 +3,7 @@ Archivo Documentos Solicitudes, vistas
 """
 import json
 from datetime import datetime
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
@@ -197,101 +197,87 @@ def detail(solicitud_id):
             if "COLOR" in estados[rol_activo][solicitud.estado]:
                 estado_text["class"] = estados[rol_activo][solicitud.estado]["COLOR"]
 
-    # Lógica para mostrar secciones
-    if solicitud.estado == "SOLICITADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
-        mostrar_secciones["boton_cancelar_solicitud"] = True
-    if solicitud.estado == "CANCELADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
-        mostrar_secciones["boton_pasar_historial"] = True
-    if solicitud.estado == "ASIGNADO" and (current_user.can_admin(MODULO) or ROL_ARCHIVISTA in current_user_roles):
-        mostrar_secciones["formulario_encontrado"] = True
-        mostrar_secciones["archivista"] = True
-    if solicitud.estado == "NO ENCONTRADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
-        mostrar_secciones["boton_pasar_historial"] = True
-        mostrar_secciones["archivista"] = True
-    if solicitud.estado == "ENTREGADO" and (current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles):
-        mostrar_secciones["boton_pasar_historial"] = True
-        mostrar_secciones["archivista"] = True
-    if solicitud.esta_archivado:
-        mostrar_secciones["boton_pasar_historial"] = False
-
     # Mostrar vista con formulario de asignación
-    if solicitud.estado == "SOLICITADO" or solicitud.estado == "ASIGNADO":
-        if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
+    form = None
+    archivistas = None
+    if solicitud.estado == "SOLICITADO":
+        form = ArcSolicitudAsignationForm()
+        if current_user.can_admin(MODULO) or {ROL_JEFE_REMESA, ROL_JEFE_REMESA_ADMINISTRADOR}.intersection(current_user_roles):
             mostrar_secciones["archivista"] = True
-            form = ArcSolicitudAsignationForm()
+            mostrar_secciones["boton_cancelar_solicitud"] = True
             archivistas = Usuario.query.join(UsuarioRol).join(Rol)
             archivistas = archivistas.filter(Rol.nombre == ROL_ARCHIVISTA)
             archivistas = archivistas.filter(UsuarioRol.estatus == "A").filter(Usuario.estatus == "A").filter(Rol.estatus == "A")
             archivistas = archivistas.all()
-            return render_template(
-                "arc_solicitudes/detail.jinja2",
-                solicitud=solicitud,
-                form=form,
-                archivistas=archivistas,
-                mostrar_secciones=mostrar_secciones,
-                estado_text=estado_text,
-                filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
-            )
+        elif ROL_SOLICITANTE in current_user_roles:
+            mostrar_secciones["boton_cancelar_solicitud"] = True
+        else:
+            abort(403)
+
+    if solicitud.estado == "CANCELADO":
+        if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles:
+            mostrar_secciones["boton_pasar_historial"] = True
+
     if solicitud.estado == "ASIGNADO":
-        if current_user.can_admin(MODULO) or ROL_ARCHIVISTA in current_user_roles:
-            form = ArcSolicitudFoundForm()
+        form = ArcSolicitudFoundForm()
+        mostrar_secciones["archivista"] = True
+        if current_user.can_admin(MODULO):
             form.fojas.data = solicitud.arc_documento.fojas
-            return render_template(
-                "arc_solicitudes/detail.jinja2",
-                solicitud=solicitud,
-                form=form,
-                mostrar_secciones=mostrar_secciones,
-                estado_text=estado_text,
-                filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
-            )
+            mostrar_secciones["formulario_encontrado"] = True
+            mostrar_secciones["boton_cancelar_solicitud"] = True
+        elif ROL_ARCHIVISTA in current_user_roles:
+            form.fojas.data = solicitud.arc_documento.fojas
+            mostrar_secciones["formulario_encontrado"] = True
+        elif {ROL_JEFE_REMESA, ROL_JEFE_REMESA_ADMINISTRADOR}.intersection(current_user_roles):
+            mostrar_secciones["boton_cancelar_solicitud"] = True
+            form = ArcSolicitudAsignationForm()
+            mostrar_secciones["archivista"] = True
+            archivistas = Usuario.query.join(UsuarioRol).join(Rol)
+            archivistas = archivistas.filter(Rol.nombre == ROL_ARCHIVISTA)
+            archivistas = archivistas.filter(UsuarioRol.estatus == "A").filter(Usuario.estatus == "A").filter(Rol.estatus == "A")
+            archivistas = archivistas.all()
+
     if solicitud.estado == "NO ENCONTRADO":
         mostrar_secciones["archivista"] = True
-        return render_template(
-            "arc_solicitudes/detail.jinja2",
-            solicitud=solicitud,
-            mostrar_secciones=mostrar_secciones,
-            estado_text=estado_text,
-            filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
-        )
+        if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles:
+            mostrar_secciones["boton_pasar_historial"] = True
+
     if solicitud.estado == "ENCONTRADO":
         mostrar_secciones["archivista"] = True
-        if current_user.can_admin(MODULO) or ROL_JEFE_REMESA in current_user_roles or ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
+        if current_user.can_admin(MODULO) or {ROL_JEFE_REMESA, ROL_JEFE_REMESA_ADMINISTRADOR}.intersection(current_user_roles):
+            mostrar_secciones["boton_cancelar_solicitud"] = True
             mostrar_secciones["enviar"] = True
-            return render_template(
-                "arc_solicitudes/detail.jinja2",
-                solicitud=solicitud,
-                mostrar_secciones=mostrar_secciones,
-                estado_text=estado_text,
-                filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
-            )
+
     if solicitud.estado == "ENVIANDO":
         mostrar_secciones["archivista"] = True
-        if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles or ROL_RECEPCIONISTA in current_user_roles:
+        if current_user.can_admin(MODULO):
+            mostrar_secciones["boton_cancelar_solicitud"] = True
             mostrar_secciones["recibir"] = True
-            return render_template(
-                "arc_solicitudes/detail.jinja2",
-                solicitud=solicitud,
-                mostrar_secciones=mostrar_secciones,
-                estado_text=estado_text,
-                filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
-            )
+        elif {ROL_JEFE_REMESA, ROL_JEFE_REMESA_ADMINISTRADOR}.intersection(current_user_roles):
+            mostrar_secciones["boton_cancelar_solicitud"] = True
+        elif ROL_SOLICITANTE in current_user_roles:
+            mostrar_secciones["recibir"] = True
+
     if solicitud.estado == "ENTREGADO":
+        mostrar_secciones["archivista"] = True
         mostrar_secciones["entregado"] = True
         usuario_receptor = Usuario.query.get_or_404(solicitud.usuario_receptor_id)
-        return render_template(
-            "arc_solicitudes/detail.jinja2",
-            solicitud=solicitud,
-            mostrar_secciones=mostrar_secciones,
-            estado_text=estado_text,
-            usuario_receptor=usuario_receptor,
-            filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
-        )
+        if current_user.can_admin(MODULO) or ROL_SOLICITANTE in current_user_roles:
+            mostrar_secciones["boton_pasar_historial"] = True
+    else:
+        usuario_receptor = None
+
+    if solicitud.esta_archivado:
+        mostrar_secciones["boton_pasar_historial"] = False
 
     # Por defecto mostramos solo los detalles de la solicitud
     return render_template(
         "arc_solicitudes/detail.jinja2",
         solicitud=solicitud,
+        form=form,
+        archivistas=archivistas,
         mostrar_secciones=mostrar_secciones,
+        usuario_receptor=usuario_receptor,
         estado_text=estado_text,
         filtros_bitacora=json.dumps({"solicitud_id": solicitud.id, "estatus": "A"}),
     )
@@ -416,10 +402,10 @@ def assign(solicitud_id):
 def cancel(solicitud_id):
     """Cancelar una Solicitud"""
     solicitud = ArcSolicitud.query.get_or_404(solicitud_id)
-    if solicitud.estado != "SOLICITADO":
-        flash("No puede cancelar una solicitud en un estado diferente a SOLICITADO.", "warning")
-    elif not current_user.can_admin(MODULO) and ROL_SOLICITANTE not in current_user.get_roles() and ROL_RECEPCIONISTA not in current_user.get_roles():
-        flash(f"Solo puede cancelar el ROL de {ROL_SOLICITANTE} o {ROL_RECEPCIONISTA}..", "warning")
+    if solicitud.estado not in ("SOLICITADO", "ASIGNADO", "ENVIANDO"):
+        flash("No puede cancelar una solicitud en un estado diferente a SOLICITADO, ASIGNADO o ENVIANDO.", "warning")
+    elif not current_user.can_admin(MODULO) and not {ROL_SOLICITANTE, ROL_JEFE_REMESA, ROL_JEFE_REMESA_ADMINISTRADOR}.intersection(current_user.get_roles()):
+        flash(f"Solo puede cancelar el ROL de {ROL_SOLICITANTE} o {ROL_JEFE_REMESA}.", "warning")
     else:
         solicitud.estado = "CANCELADO"
         solicitud.save()
