@@ -37,7 +37,7 @@
             {{ topbar.button_previous('Solicitudes', url_for('arc_archivos.list_active')) }}
         {% endif %}
         {% if mostrar_secciones["boton_cancelar_solicitud"] %}
-            {{ topbar.button_delete('Cancelar', url_for('arc_solicitudes.cancel', solicitud_id=solicitud.id)) }}
+            {{ topbar.button_modal('Cancelar', "showModalCancelar('" + url_for('arc_solicitudes.cancel', solicitud_id=solicitud.id) + "')", "mdi:alert-octagon-outline") }}
         {% endif %}
         {% if mostrar_secciones["boton_pasar_historial"] %}
             {{ topbar.button('Pasar al Historial', url_for('arc_solicitudes.history', solicitud_id=solicitud.id), "mdi:history") }}
@@ -277,6 +277,6 @@
         {% if solicitud.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Desea Recuperar la Solicitud ' + solicitud.id | string + '?') }}{% endif %}
     {% endif %}
     {% if current_user.can_edit('ARC ARCHIVOS') %}
-        {{ modals.custom_javascript_delete('Aceptar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?') }}
+        {{ modals.custom_javascript('Cancelar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?', "Cancelar") }}
     {% endif %}
 {% endblock %}
