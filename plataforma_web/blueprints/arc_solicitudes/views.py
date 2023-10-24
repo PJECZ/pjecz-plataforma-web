@@ -36,7 +36,7 @@ from plataforma_web.blueprints.arc_archivos.views import (
 )
 
 
-MODULO = "ARC SOLICITUDES"
+MODULO = "ARC ARCHIVOS"
 
 
 arc_solicitudes = Blueprint("arc_solicitudes", __name__, template_folder="templates")
@@ -655,3 +655,51 @@ def print_list():
 
     # Resultado para impresión
     return render_template("arc_solicitudes/print_list.jinja2", solicitudes=solicitudes)
+
+
+@arc_solicitudes.route("/arc_solicitudes/eliminar/<int:solicitud_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def delete(solicitud_id):
+    """Eliminar Solicitud"""
+    solicitud = ArcSolicitud.query.get_or_404(solicitud_id)
+    if solicitud.estatus == "A":
+        solicitud.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado solicitud {solicitud.id}"),
+            url=url_for("arc_solicitudes.detail", solicitud_id=solicitud.id),
+        )
+        bitacora.save()
+        # Añadir acción a la bitácora de Solicitudes
+        ArcSolicitudBitacora(
+            arc_solicitud=solicitud,
+            usuario=current_user,
+            accion="ELIMINADA",
+        ).save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("arc_solicitudes.detail", solicitud_id=solicitud_id))
+
+
+@arc_solicitudes.route("/arc_solicitudes/recuperar/<int:solicitud_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def recover(solicitud_id):
+    """Recuperar Solicitud"""
+    solicitud = ArcSolicitud.query.get_or_404(solicitud_id)
+    if solicitud.estatus == "B":
+        solicitud.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado solicitud {solicitud.id}"),
+            url=url_for("arc_solicitudes.detail", solicitud_id=solicitud.id),
+        )
+        bitacora.save()
+        # Añadir acción a la bitácora de Solicitudes
+        ArcSolicitudBitacora(
+            arc_solicitud=solicitud,
+            usuario=current_user,
+            accion="RECUPERADA",
+        ).save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("arc_solicitudes.detail", solicitud_id=solicitud_id))

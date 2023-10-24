@@ -27,6 +27,10 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Solicitud - ' + solicitud.id | string ) %}
+        {% if current_user.can_admin("ARC ARCHIVOS") %}
+            {% if solicitud.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('arc_solicitudes.delete', solicitud_id=solicitud.id)) }}{% endif %}
+            {% if solicitud.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('arc_solicitudes.recover', solicitud_id=solicitud.id)) }}{% endif %}
+        {% endif %}
         {% if solicitud.esta_archivado %}
             {{ topbar.button_previous('Solicitudes', url_for('arc_archivos.list_history')) }}
         {% else %}
@@ -43,7 +47,7 @@
 
 {% block content %}
     {# Detalle #}
-    {% call detail.card('Detalles de la Solicitud') %}
+    {% call detail.card('Detalles de la Solicitud', estatus=solicitud.estatus) %}
         {{ detail.label_value('Tiempo de Solicitud', moment(solicitud.creado).format('llll')) }}
         {{ detail.label_value('Instancia', solicitud.autoridad.clave + ' : ' + solicitud.autoridad.descripcion_corta) }}
         <div class="row">
@@ -198,9 +202,6 @@
 
 {% block custom_javascript %}
     {{ detail.moment_js(moment) }}
-    {% if current_user.can_edit('ARC SOLICITUDES') %}
-        {{ modals.custom_javascript_delete('Aceptar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?') }}
-    {% endif %}
     <!-- Mostar historial -->
     {% if solicitud.esta_archivado %}
         <script>
@@ -243,13 +244,16 @@
                 render: function(data, type, row, meta) {
                     switch (data)    {
                         case "SOLICITADA":          bgclass = "bg-warning text-dark";     break;
-                        case "CANCELADA":           bgclass = "bg-secondary";     break;
+                        case "CANCELADA":           bgclass = "bg-secondary";   break;
                         case "ASIGNADA":            bgclass = "bg-primary";     break;
-                        case "ENCONTRADA":          bgclass = "bg-purple";     break;
-                        case "NO ENCONTRADA":       bgclass = "bg-danger";     break;
-                        case "ENVIADA":             bgclass = "bg-pink";     break;
+                        case "ENCONTRADA":          bgclass = "bg-purple";      break;
+                        case "NO ENCONTRADA":       bgclass = "bg-danger";      break;
+                        case "ENVIADA":             bgclass = "bg-pink";        break;
                         case "ENTREGADA":           bgclass = "bg-success";     break;
-                        case "PASADA AL HISTORIAL": bgclass = "bg-brown";     break;
+                        case "PASADA AL HISTORIAL": bgclass = "bg-brown";       break;
+                        case "ELIMINADA":           bgclass = "bg-danger";      break;
+                        case "RECUPERADA":          bgclass = "bg-info";        break;
+                        default:                    bgclass = "bg-scondary";    break;
                     }
                     return '<span class="badge rounded-pill ' + bgclass + '">' + data + '</span>';
                 }
@@ -268,4 +272,11 @@
         // Datatable
         $('#arc_solicitud_bitacora_datatable').DataTable(configDataTable);
     </script>
+    {% if current_user.can_admin("ARC ARCHIVOS") %}
+        {% if solicitud.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Desea Eliminar la Solicitud ' + solicitud.id | string + '?') }}{% endif %}
+        {% if solicitud.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Desea Recuperar la Solicitud ' + solicitud.id | string + '?') }}{% endif %}
+    {% endif %}
+    {% if current_user.can_edit('ARC ARCHIVOS') %}
+        {{ modals.custom_javascript_delete('Aceptar', '¿Desea Cancelar la Solicitud ' + solicitud.id | string + '?') }}
+    {% endif %}
 {% endblock %}
