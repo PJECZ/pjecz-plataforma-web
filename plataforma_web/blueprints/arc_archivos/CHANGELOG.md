@@ -7,6 +7,9 @@
 - Quitar filtro **Año** en listado de remesas. [\#851](https://github.com/PJECZ/pjecz-plataforma-web/issues/851)
 - Corrección de nombre de filtro en listado de solicitudes, campo **Expediente** por **No. Doc**.
 - Añadir columna juzgado origen al listado de expedientes. [\#853](https://github.com/PJECZ/pjecz-plataforma-web/issues/853)
+- Pasar al historial automáticamente Remesas en estado de **Archivada** y **Archivada con Anomalía**. [\#854](https://github.com/PJECZ/pjecz-plataforma-web/issues/854)
+- Cancelación de solicitudes por parte del Jefe de Remesa. [\#852](https://github.com/PJECZ/pjecz-plataforma-web/issues/852)
+- Eliminar y recuperar solicitudes por parte del Administrador. [\#855](https://github.com/PJECZ/pjecz-plataforma-web/issues/855)
 
 ## 2023-Septiembre
 
