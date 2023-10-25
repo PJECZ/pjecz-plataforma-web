@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Nueva Revisión{% endblock %}
@@ -17,56 +18,34 @@
             {% call f.form_group(form.codigo, readonly=true) %}{% endcall %}
             {% call f.form_group(form.revision, readonly=true) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
-            {% call f.form_group(form.guardar) %}{% endcall %}
+            <button type="button" id="guardar" class="btn btn-primary">Guardar</button>
+            {# Modal #}
+            <div class="modal fade" id="nueva_revision_modal" tabindex="-1" aria-labelledby="nueva_revisionModal" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="nueva_revision_title">Nueva Revisión</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div id="nueva_revision_body" class="modal-body">
+                        <p>¿Estás seguro que deseas crear una nueva revisión?</p>
+                        <p>Revisión actual:   {{cid_procedimiento.revision}} , Nueva revisión:  {{cid_procedimiento.revision + 1}}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="nueva_revision_confirm" class="btn btn-primary">Confirmar</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
         {% endcall %}
-        <!-- Agrega esto en algún lugar de tu new_revision.jinja2 para verificar el id -->
-        <p>El ID del procedimiento es: {{ cid_procedimiento.id }}</p>
     {% endcall %}
 {% endblock %}
 {% block custom_javascript %}
     <script>
         $(document).ready(function() {
-            function hacerCopia() {
-                // Obtener el ID del procedimiento
-                var procedimientoId = {{ cid_procedimiento.id }};
-                if (procedimientoId === undefined) {
-                    console.error('ID del procedimiento no definido');
-                    return;
-                }
-                console.log("procedimientoId: " + procedimientoId); // Imprimir el valor real
-                
-                // Obtener el valor del token CSRF
-                var csrfToken = '{{ csrf_token() }}';
-
-                // Obtener la URL con url_for
-                var copiarProcedimientoUrl = '{{ url_for("cid_procedimientos.copiar_procedimiento_con_revision", cid_procedimiento_id=cid_procedimiento.id) }}';
-
-                // Hacer la solicitud AJAX al servidor
-                $.ajax({
-                    type: 'POST',
-                    url: copiarProcedimientoUrl,  // ruta correcta en tu aplicación
-                    data: { cid_procedimiento_id: procedimientoId },
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                    },
-                    success: function (response) {
-                        // Actualizar la interfaz de usuario con el valor de la nueva revisión
-                        alert('Esta es una nueva revision!');
-
-                        // Puedes redirigir a la nueva página si es necesario
-                        window.location.href = response.redirect_url;
-                        // Evitar la recarga de la página
-                        return false;
-                    },
-                    error: function (error) {
-                        console.error('Error al hacer la copia:', error);
-                    }
-                });
-            }
-
-            $('#cid_procedimiento_review_form').submit(function(e) {
-                e.preventDefault();  // Evita la acción de envío normal del formulario
-                hacerCopia();  // Llama a tu función
+            $("#guardar").click(function(){
+                $("#nueva_revision_modal").modal('show');
             });
         });
     </script>

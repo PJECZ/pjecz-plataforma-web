@@ -13,7 +13,7 @@ from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm, CIDProcedimientosNewReviw
+from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm, CIDProcedimientosNewReview
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_areas.models import CIDArea
 from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
@@ -908,14 +908,13 @@ def help_quill(seccion: str):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def copiar_procedimiento_con_revision(cid_procedimiento_id):
     """Copiar CID Procedimiento con nueva revisión"""
-    print("Entré a la función copiar_procedimiento_con_revision")  # Mensaje de depuración
+    # Obtener el CID Procedimiento correspondiente o devolver error 404 si no existe
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
-
     # Obtener la última revisión
     ultima_revision = CIDProcedimiento.query.filter_by(id=cid_procedimiento.id).order_by(CIDProcedimiento.revision.desc()).first()
-
-    form = CIDProcedimientosNewReviw()
-
+    # Crear un formulario para la nueva revisión
+    form = CIDProcedimientosNewReview()
+    # Si el formulario ha sido enviado y es válido
     if form.validate_on_submit():
         # Acceder a los datos del formulario
         cid_procedimiento.titulo_prcedimiento = safe_string(form.titulo_procedimiento.data)
@@ -923,6 +922,7 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
         cid_procedimiento.revision = form.revision.data
         cid_procedimiento.fecha = form.fecha.data if form.fecha.data else datetime.utcnow()
 
+        # Crear una nueva copia del procedimiento con los datos actualizados
         nueva_copia = CIDProcedimiento(
             autoridad=cid_procedimiento.autoridad,
             usuario=current_user,
@@ -959,7 +959,6 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
 
         # Guardar la nueva copia en la base de datos
         nueva_copia.save()
-
         # Bitácora y redirección a la vista de detalle
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -969,8 +968,9 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-
+        # Redireccionar al detalle del nuevo id
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=nueva_copia.id))
+    # Llenar el formulario con los datos del procedimiento original
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo
     # Incrementar la revisión
@@ -979,6 +979,7 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
     else:
         form.revision.data = 1  # Si no hay revisiones anteriores, inicia desde 1
     form.fecha.data = datetime.utcnow()
+    # Renderizar la plantilla con el formulario y la información del procedimiento
     return render_template("cid_procedimientos/new_revision.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 

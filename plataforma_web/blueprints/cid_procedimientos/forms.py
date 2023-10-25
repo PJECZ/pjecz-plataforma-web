@@ -95,7 +95,7 @@ class CIDProcedimientoSearchForm(FlaskForm):
     buscar = SubmitField("Buscar")
 
 
-class CIDProcedimientosNewReviw(FlaskForm):
+class CIDProcedimientosNewReview(FlaskForm):
     """Formulario nueva revision"""
 
     id = HiddenField("ID")

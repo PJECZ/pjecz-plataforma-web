@@ -14,7 +14,7 @@
         {% endif %}
         {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
             <!-- Muestra el botón de NUEVA REVISION solo si no se ha seleccionado una revisión -->
-            {% if cid_procedimiento.seguimiento != "EN ELABORACION" %}
+            {% if cid_procedimiento.seguimiento == "AUTORIZADO" %}
                 <button id="hacerCopia" class="btn btn-sm btn-outline-primary" onclick="mostrarFormularioRevision()"><span class="iconify" data-icon="mdi:content-copy"></span>Nueva revisión</button>
             {% endif %}
         {% endif %}
