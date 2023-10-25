@@ -27,13 +27,61 @@
     {% endcall %}
 
     {% call list.card(title='Por Distrito') %}
+        <!-- Datatable Distritos -->
+        <table id="distritos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Distrito</th>
+                    <th>Solicitudes</th>
+                    <th>Remesas</th>
+                </tr>
+            </thead>
+        </table>
     {% endcall %}
 
     {% call list.card(title='Por Instancia') %}
+        <!-- Datatable Juzgados -->
+        <table id="juzgados_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Distrito</th>
+                    <th>Solicitudes</th>
+                    <th>Remesas</th>
+                </tr>
+            </thead>
+        </table>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    {# Distritos Data Table #}
     <script>
+        const dataTable_funcs_distritos = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_distritos = dataTable_funcs_distritos.config;
+        configDataTable_distritos['ajax']['url'] = '/arc_estadisticas/datatable_json_solicitudes_remesas_por_distrito';
+        configDataTable_distritos['ajax']['data'] = {{ filtros_por_distritos }};
+        configDataTable_distritos['columns'] = [
+            { data: 'nombre_corto' },
+            { data: 'solicitudes' },
+            { data: 'remesas' },
+        ];
+        // Datatable
+        $('#distritos_datatable').DataTable(configDataTable_distritos);
+    </script>
+    {# Juzgados Data Table #}
+    <script>
+        const dataTable_funcs_juzgados = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_juzgados = dataTable_funcs_distritos.config;
+        configDataTable_juzgados['ajax']['url'] = '/arc_estadisticas/datatable_json_solicitudes_remesas_por_juzgado';
+        configDataTable_juzgados['ajax']['data'] = {{ filtros_por_juzgados }};
+        configDataTable_juzgados['columns'] = [
+            { data: 'clave' },
+            { data: 'solicitudes' },
+            { data: 'remesas' },
+        ];
+        // Datatable
+        $('#juzgados_datatable').DataTable(configDataTable_juzgados);
     </script>
 {% endblock %}
