@@ -3,8 +3,10 @@ ARC Estadísticas, vistas
 """
 import json
 from datetime import date, timedelta
-from flask import Blueprint, render_template, request, url_for, flash, redirect
+from flask import current_app, Blueprint, render_template, request, url_for, flash, redirect
 from flask_login import current_user, login_required
+from sqlalchemy import func
+from sqlalchemy.sql.functions import count
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 
@@ -118,27 +120,33 @@ def datatable_json_solicitudes_remesas_juzgado():
     """DataTable JSON para listado de solicitudes y remesas por Juzgado"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
     # Consultar
-    consulta = Autoridad.query
-    consulta = consulta.filter_by(es_archivo_solicitante=True)
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    # if "fecha_desde" in request.form:
-    #     consulta = consulta.filter(ListaDeAcuerdo.fecha >= request.form["fecha_desde"])
-    # if "fecha_hasta" in request.form:
-    #     consulta = consulta.filter(ListaDeAcuerdo.fecha <= request.form["fecha_hasta"])
-    registros = consulta.order_by(Autoridad.clave).offset(start).limit(rows_per_page).all()
+    # Dos columnas en la consulta
+    consulta = database.query(
+        Autoridad.clave.label("juzgados"),
+        count("*").label("solicitudes"),
+    )
+    # Juntar las tablas sentencias y materias_tipos_juicios
+    consulta = consulta.select_from(Autoridad).join(ArcSolicitud)
+    consulta = consulta.filter(Autoridad.es_archivo_solicitante == True)
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(ArcSolicitud.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(ArcSolicitud.creado <= request.form["fecha_hasta"])
+    consulta = consulta.filter(Autoridad.estatus == "A").filter(ArcSolicitud.estatus == "A").filter(ArcSolicitud.estado != "CANCELADO")
+    consulta = consulta.group_by(Autoridad.clave)
+    consulta = consulta.order_by(Autoridad.clave)
+    resultado = consulta.offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
-    for juzgado in registros:
+    for registro in resultado:
         data.append(
             {
-                "clave": juzgado.clave,
-                "nombre_corto": juzgado.descripcion_corta,
-                "solicitudes": 5,
+                "clave": registro.juzgados,
+                "solicitudes": registro.solicitudes,
                 "remesas": 3,
             }
         )
