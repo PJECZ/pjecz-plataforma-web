@@ -22,6 +22,8 @@
     {% endcall %}
 
     {% call detail.card(title='Totales') %}
+        {{ detail.label_value('Solicitudes:', solicitudes) }}
+        {{ detail.label_value('Remesas:', remesas) }}
     {% endcall %}
 
     {% call list.card(title='Por Distrito') %}
@@ -32,22 +34,6 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
     <script>
-        configDataTable['ajax']['url'] = '/blueprint/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
-        configDataTable['columns'] = [
-            { data: 'detalle' }
-        ];
-        configDataTable['columnDefs'] = [
-            {
-                targets: 0, // detalle
-                data: null,
-                render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                }
-            }
-        ];
-        $('#blueprint_datatable').DataTable(configDataTable);
     </script>
 {% endblock %}
