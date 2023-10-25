@@ -124,31 +124,65 @@ def datatable_json_solicitudes_remesas_juzgado():
     database = current_app.extensions["sqlalchemy"].db.session
     # Consultar
     # Dos columnas en la consulta
-    consulta = database.query(
+    consulta_solicitudes = database.query(
         Autoridad.clave.label("juzgados"),
         count("*").label("solicitudes"),
     )
     # Juntar las tablas sentencias y materias_tipos_juicios
-    consulta = consulta.select_from(Autoridad).join(ArcSolicitud)
-    consulta = consulta.filter(Autoridad.es_archivo_solicitante == True)
+    consulta_solicitudes = consulta_solicitudes.select_from(Autoridad).join(ArcSolicitud)
+    consulta_solicitudes = consulta_solicitudes.filter(Autoridad.es_archivo_solicitante == True)
     if "fecha_desde" in request.form:
-        consulta = consulta.filter(ArcSolicitud.creado >= request.form["fecha_desde"])
+        consulta_solicitudes = consulta_solicitudes.filter(ArcSolicitud.creado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
-        consulta = consulta.filter(ArcSolicitud.creado <= request.form["fecha_hasta"])
-    consulta = consulta.filter(Autoridad.estatus == "A").filter(ArcSolicitud.estatus == "A").filter(ArcSolicitud.estado != "CANCELADO")
-    consulta = consulta.group_by(Autoridad.clave)
-    consulta = consulta.order_by(Autoridad.clave)
-    resultado = consulta.offset(start).limit(rows_per_page).all()
-    total = consulta.count()
+        consulta_solicitudes = consulta_solicitudes.filter(ArcSolicitud.creado <= request.form["fecha_hasta"])
+    consulta_solicitudes = consulta_solicitudes.filter(Autoridad.estatus == "A").filter(ArcSolicitud.estatus == "A").filter(ArcSolicitud.estado != "CANCELADO")
+    consulta_solicitudes = consulta_solicitudes.group_by(Autoridad.clave)
+    consulta_solicitudes = consulta_solicitudes.order_by(Autoridad.clave)
+    resultado_solicitudes = consulta_solicitudes.all()
+    total = consulta_solicitudes.count()
+
     # Elaborar datos para DataTable
     data = []
-    for registro in resultado:
+    for registro in resultado_solicitudes:
         data.append(
             {
                 "clave": registro.juzgados,
                 "solicitudes": registro.solicitudes,
-                "remesas": 3,
+                "remesas": "-",
             }
         )
+    # Otra consulta
+    consulta_remesas = database.query(
+        Autoridad.clave.label("juzgados"),
+        count("*").label("remesas"),
+    )
+    # Juntar las tablas sentencias y materias_tipos_juicios
+    consulta_remesas = consulta_remesas.select_from(Autoridad).join(ArcRemesa)
+    consulta_remesas = consulta_remesas.filter(Autoridad.es_archivo_solicitante == True)
+    if "fecha_desde" in request.form:
+        consulta_remesas = consulta_remesas.filter(ArcRemesa.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta_remesas = consulta_remesas.filter(ArcRemesa.creado <= request.form["fecha_hasta"])
+    consulta_remesas = consulta_remesas.filter(Autoridad.estatus == "A").filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "PENDIENTE")
+    consulta_remesas = consulta_remesas.group_by(Autoridad.clave)
+    consulta_remesas = consulta_remesas.order_by(Autoridad.clave)
+    resultado_remesas = consulta_remesas.all()
+    # ---
+
+    # Elaborar datos para DataTable
+    for registro in resultado_remesas:
+        encontrado = False
+        for item in data:
+            if item["clave"] == registro.juzgados:
+                item["remesas"] = registro.remesas
+                encontrado = True
+        if not encontrado:
+            data.append(
+                {
+                    "clave": registro.juzgados,
+                    "solicitudes": "-",
+                    "remesas": registro.remesas,
+                }
+            )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
