@@ -102,6 +102,7 @@ def datatable_json_solicitudes_remesas_distrito():
         consulta_solicitudes = consulta_solicitudes.filter(ArcSolicitud.creado >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta_solicitudes = consulta_solicitudes.filter(ArcSolicitud.creado <= request.form["fecha_hasta"])
+    consulta_solicitudes = consulta_solicitudes.filter(Autoridad.estatus == "A").filter(ArcSolicitud.estatus == "A").filter(Distrito.estatus == "A").filter(ArcSolicitud.estado != "CANCELADO")
     consulta_solicitudes = consulta_solicitudes.group_by(Distrito.nombre_corto)
     consulta_solicitudes = consulta_solicitudes.order_by(Distrito.nombre_corto)
     resultado_solicitudes = consulta_solicitudes.all()
@@ -113,9 +114,40 @@ def datatable_json_solicitudes_remesas_distrito():
             {
                 "nombre_corto": registro.distritos,
                 "solicitudes": registro.solicitudes,
-                "remesas": 10,
+                "remesas": "-",
             }
         )
+    # Consulta para Remesa
+    consulta_remesas = database.query(
+        Distrito.nombre_corto.label("distritos"),
+        count("*").label("remesas"),
+    )
+    # Consultar
+    consulta_remesas = consulta_remesas.select_from(Autoridad).join(Distrito).join(ArcRemesa)
+    consulta_remesas = consulta_remesas.filter(Distrito.es_distrito == True).filter(Distrito.es_distrito_judicial == True).filter(Distrito.es_jurisdiccional == True)
+    if "fecha_desde" in request.form:
+        consulta_remesas = consulta_remesas.filter(ArcRemesa.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta_remesas = consulta_remesas.filter(ArcRemesa.creado <= request.form["fecha_hasta"])
+    consulta_remesas = consulta_remesas.filter(Autoridad.estatus == "A").filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "PENDIENTE")
+    consulta_remesas = consulta_remesas.group_by(Distrito.nombre_corto)
+    consulta_remesas = consulta_remesas.order_by(Distrito.nombre_corto)
+    resultado_remesas = consulta_remesas.all()
+    # Elaborar datos para DataTable
+    for registro in resultado_remesas:
+        encontrado = False
+        for item in data:
+            if item["nombre_corto"] == registro.distritos:
+                item["remesas"] = registro.remesas
+                encontrado = True
+        if not encontrado:
+            data.append(
+                {
+                    "nombre_corto": registro.distritos,
+                    "solicitudes": "-",
+                    "remesas": registro.remesas,
+                }
+            )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
 
@@ -127,8 +159,7 @@ def datatable_json_solicitudes_remesas_juzgado():
     draw, start, rows_per_page = get_datatable_parameters()
     # SQLAlchemy database session
     database = current_app.extensions["sqlalchemy"].db.session
-    # Consultar
-    # Dos columnas en la consulta
+    # Consulta para Solicitudes
     consulta_solicitudes = database.query(
         Autoridad.clave.label("juzgados"),
         count("*").label("solicitudes"),
@@ -156,12 +187,12 @@ def datatable_json_solicitudes_remesas_juzgado():
                 "remesas": "-",
             }
         )
-    # Otra consulta
+    # Consulta para Remesa
     consulta_remesas = database.query(
         Autoridad.clave.label("juzgados"),
         count("*").label("remesas"),
     )
-    # Juntar las tablas sentencias y materias_tipos_juicios
+    # Consultar
     consulta_remesas = consulta_remesas.select_from(Autoridad).join(ArcRemesa)
     consulta_remesas = consulta_remesas.filter(Autoridad.es_archivo_solicitante == True)
     if "fecha_desde" in request.form:
