@@ -87,27 +87,32 @@ def datatable_json_solicitudes_remesas_distrito():
     """DataTable JSON para listado de solicitudes y remesas por distrito"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
     # Consultar
-    consulta = Distrito.query
-    consulta = consulta.filter_by(es_distrito=True).filter_by(es_distrito_judicial=True).filter_by(es_jurisdiccional=True)
-    if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
-    else:
-        consulta = consulta.filter_by(estatus="A")
-    # if "fecha_desde" in request.form:
-    #     consulta = consulta.filter(ListaDeAcuerdo.fecha >= request.form["fecha_desde"])
-    # if "fecha_hasta" in request.form:
-    #     consulta = consulta.filter(ListaDeAcuerdo.fecha <= request.form["fecha_hasta"])
-    registros = consulta.order_by(Distrito.nombre_corto).offset(start).limit(rows_per_page).all()
-    total = consulta.count()
+    # Dos columnas en la consulta
+    consulta_solicitudes = database.query(
+        Distrito.nombre_corto.label("distritos"),
+        count("*").label("solicitudes"),
+    )
+    # Consultar
+    consulta_solicitudes = consulta_solicitudes.select_from(Autoridad).join(ArcSolicitud).join(Distrito)
+    consulta_solicitudes = consulta_solicitudes.filter(Distrito.es_distrito == True).filter(Distrito.es_distrito_judicial == True).filter(Distrito.es_jurisdiccional == True)
+    if "fecha_desde" in request.form:
+        consulta_solicitudes = consulta_solicitudes.filter(ArcSolicitud.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta_solicitudes = consulta_solicitudes.filter(ArcSolicitud.creado <= request.form["fecha_hasta"])
+    consulta_solicitudes = consulta_solicitudes.group_by(Distrito.nombre_corto)
+    consulta_solicitudes = consulta_solicitudes.order_by(Distrito.nombre_corto)
+    resultado_solicitudes = consulta_solicitudes.all()
+    total = consulta_solicitudes.count()
     # Elaborar datos para DataTable
     data = []
-    for distrito in registros:
+    for registro in resultado_solicitudes:
         data.append(
             {
-                "clave": distrito.clave,
-                "nombre_corto": distrito.nombre_corto,
-                "solicitudes": 25,
+                "nombre_corto": registro.distritos,
+                "solicitudes": registro.solicitudes,
                 "remesas": 10,
             }
         )
