@@ -65,6 +65,11 @@ def pasar_al_historial():
     click.echo("Pasar al historial las solicitudes canceladas.")
 
     app.task_queue.enqueue(
+        "plataforma_web.blueprints.arc_archivos.tasks.pasar_al_historial_remesas_archivadas",
+    )
+    click.echo("Pasar al historial las remesas archivadas.")
+
+    app.task_queue.enqueue(
         "plataforma_web.blueprints.arc_archivos.tasks.pasar_al_historial_remesas_canceladas",
     )
     click.echo("Pasar al historial las remesas canceladas.")
