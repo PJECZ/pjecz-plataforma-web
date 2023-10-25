@@ -115,7 +115,7 @@ def datatable_json_solicitudes_remesas_distrito():
 
 @arc_estadisticas.route("/arc_estadisticas/datatable_json_solicitudes_remesas_por_juzgado", methods=["GET", "POST"])
 def datatable_json_solicitudes_remesas_juzgado():
-    """DataTable JSON para listado de solicitudes y remesas por distrito"""
+    """DataTable JSON para listado de solicitudes y remesas por Juzgado"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
