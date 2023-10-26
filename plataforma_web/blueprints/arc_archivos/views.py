@@ -52,6 +52,7 @@ def list_active():
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global="LOCAL",
             mostrar_btn_historial="IR_AL_HISTORIAL",
+            mostrar_btn_estadistica=True,
         )
     if ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         return render_template(
@@ -65,6 +66,7 @@ def list_active():
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global="LOCAL",
             mostrar_btn_historial="IR_AL_HISTORIAL",
+            mostrar_btn_estadistica=True,
         )
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(
@@ -246,3 +248,9 @@ def list_all(historial):
         mostrar_btn_historial="IR_AL_HISTORIAL",
         sedes=sedes,
     )
+
+
+@arc_archivos.route("/arc_archivos/estadisticas")
+def stats():
+    """Detalle de la página index de estadísticas"""
+    return render_template("arc_archivos/stats.jinja2")

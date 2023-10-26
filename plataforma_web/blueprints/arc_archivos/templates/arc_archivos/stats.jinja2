@@ -1,0 +1,38 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Archivo Estadísticas{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Archivo Estadísticas') %}
+        {{ topbar.button_previous('Archivo', url_for('arc_archivos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(title="Solicitudes y Remesas") %}
+        <div class="row mb-3">
+            <div class="col-md-auto">
+                <a  class="btn btn-link" href="#">Solicitudes y Remesas</a>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-auto">
+                <a href="#" class="btn btn-link disabled">Archivistas - Totales</a>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-auto">
+                <a href="#" class="btn btn-link disabled">Archivistas - Promedios</a>
+            </div>
+        </div>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+
+{% endblock %}
