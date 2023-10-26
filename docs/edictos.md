@@ -52,6 +52,20 @@ En esta pantalla, encontrará un formulario de captura diseñado para cargar edi
 
 ![Formulario Subir edicto](img/edictos/subir.png)
 
+## Listado de un edicto
+
+En esta pantalla, podrá visualizar todos los edictos que han sido cargados.
+
+![Formulario Listado edictos](img/edictos/list.png)
+
+## Detalle de un edicto
+
+En esta seección, se presenta un desglose detallado de la información asociada a un edicto. Al hacer clic en el link del la descripción que se muestra en el listado, se desplegará una vista detallada que incluirá aspectos como la fecha de publicación, la descripción completa y cualquier otro dato relevante.
+
+Para realizar acciones adicionales, como la edición o eliminación del edicto, consulte las secciones correspondientes en este manual.
+
+![Formulario Detalle edictos](img/edictos/detalle.png)
+
 ## Cambiar la información de un edicto
 
 Si es necesario editar la información cargada en el formulario, simplemente haga clic en el botón [:material-pencil: Editar](#){ .md-button .md-button--primary }. Esto abrirá el siguiente formulario, donde podrá realizar los cambios necesarios en la información.
