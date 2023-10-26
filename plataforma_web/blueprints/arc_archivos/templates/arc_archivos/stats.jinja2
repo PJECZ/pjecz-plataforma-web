@@ -1,0 +1,38 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/form_inline.jinja2' as f with context %}
+
+{% block title %}Archivo Estadísticas{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Archivo Estadísticas') %}
+        {{ topbar.button_previous('Archivo', url_for('arc_archivos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(title="Solicitudes") %}
+        {% call f.form_tag('arc_archivos.stats_solicitudes', fid='stats_solicitudes_form') %}
+            {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta, placeholder='Hasta') %}{% endcall %}
+            {% call f.form_group(form.totales) %}{% endcall %}
+            {% call f.form_group(form.por_distritos) %}{% endcall %}
+            {% call f.form_group(form.por_instancias) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+    {% call detail.card(title="Remesas") %}
+        {% call f.form_tag('arc_archivos.stats_remesas', fid='stats_remesas_form') %}
+            {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta, placeholder='Hasta') %}{% endcall %}
+            {% call f.form_group(form.totales) %}{% endcall %}
+            {% call f.form_group(form.por_distritos) %}{% endcall %}
+            {% call f.form_group(form.por_instancias) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+
+{% endblock %}
