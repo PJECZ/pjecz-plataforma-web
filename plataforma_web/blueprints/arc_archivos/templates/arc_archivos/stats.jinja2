@@ -2,6 +2,7 @@
 {% import 'macros/detail.jinja2' as detail %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/form_inline.jinja2' as f with context %}
 
 {% block title %}Archivo Estadísticas{% endblock %}
 
@@ -12,24 +13,23 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(title="Solicitudes y Remesas") %}
-        <div class="row mb-3">
-            <div class="col-md-auto">
-                <a  class="btn btn-link" href="#">Solicitudes y Remesas</a>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-auto">
-                <a href="#" class="btn btn-link disabled">Archivistas - Totales</a>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-auto">
-                <a href="#" class="btn btn-link disabled">Archivistas - Promedios</a>
-            </div>
-        </div>
+    {% call detail.card(title="Solicitudes") %}
+        {% call f.form_tag('arc_archivos.stats_solicitudes', fid='stats_solicitudes_form') %}
+            {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta, placeholder='Hasta') %}{% endcall %}
+            {% call f.form_group(form.totales) %}{% endcall %}
+            {% call f.form_group(form.por_distritos) %}{% endcall %}
+            {% call f.form_group(form.por_instancias) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+    {% call detail.card(title="Remesas") %}
+        {% call f.form_tag('arc_archivos.stats_remesas', fid='stats_remesas_form') %}
+            {% call f.form_group(form.fecha_desde, placeholder='Desde') %}{% endcall %}
+            {% call f.form_group(form.fecha_hasta, placeholder='Hasta') %}{% endcall %}
+            {% call f.form_group(form.totales) %}{% endcall %}
+            {% call f.form_group(form.por_distritos) %}{% endcall %}
+            {% call f.form_group(form.por_instancias) %}{% endcall %}
+        {% endcall %}
     {% endcall %}
 {% endblock %}
 
