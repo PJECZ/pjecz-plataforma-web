@@ -103,4 +103,10 @@ class CIDProcedimientosNewReview(FlaskForm):
     codigo = StringField("Código")  # Solo lectura
     revision = IntegerField("Nueva Revisión")  # Solo lectura
     fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
+    reviso_nombre = StringField("Nombre revisor", validators=[Optional(), Length(max=256)])
+    reviso_puesto = StringField("Puesto revisor", validators=[Optional(), Length(max=256)])
+    reviso_email = SelectField(label="Correo revisor", coerce=str, validators=[Optional()], validate_choice=False)
+    aprobo_nombre = StringField("Nombre autorizador", validators=[Optional(), Length(max=256)])
+    aprobo_puesto = StringField("Puesto autorizador", validators=[Optional(), Length(max=256)])
+    aprobo_email = SelectField(label="Correo autorizador", coerce=str, validators=[Optional()], validate_choice=False)
     guardar = SubmitField("Guardar")

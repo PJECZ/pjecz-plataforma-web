@@ -12,11 +12,9 @@
         {% if show_button_edit_admin %}
             {{ topbar.button_edit('Editar Autoridad', url_for('cid_procedimientos.edit_admin', cid_procedimiento_id=cid_procedimiento.id)) }}
         {% endif %}
-        {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
+        {% if current_user.can_admin('CID PROCEDIMIENTOS') and cid_procedimiento.seguimiento != "EN ELABORACION" %}
             <!-- Muestra el botón de NUEVA REVISION solo si no se ha seleccionado una revisión -->
-            {% if cid_procedimiento.seguimiento == "AUTORIZADO" %}
-                <button id="hacerCopia" class="btn btn-sm btn-outline-primary" onclick="mostrarFormularioRevision()"><span class="iconify" data-icon="mdi:content-copy"></span>Nueva revisión</button>
-            {% endif %}
+            {{topbar.button('Nueva revisión', url_for('cid_procedimientos.copiar_procedimiento_con_revision', cid_procedimiento_id=cid_procedimiento.id),'mdi:content-copy')}}
         {% endif %}
         {% if current_user.can_edit('CID PROCEDIMIENTOS') %}
             {% if not cid_procedimiento.firma %}
@@ -181,15 +179,5 @@
                 data:Arrayfinal
             });
         });
-    </script>
-    <script>
-        // Nueva revisión
-        function mostrarFormularioRevision(){
-            // Obtener la URL para mostrar el formulario de revisón
-            var formularioRevisionUrl = '{{ url_for("cid_procedimientos.copiar_procedimiento_con_revision", cid_procedimiento_id=cid_procedimiento.id) }}';
-            console.log(formularioRevisionUrl)
-            // Redirigir a la nueva página
-            window.location.href = formularioRevisionUrl;
-        }
     </script>
 {% endblock %}

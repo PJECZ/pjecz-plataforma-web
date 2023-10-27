@@ -916,11 +916,31 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
     form = CIDProcedimientosNewReview()
     # Si el formulario ha sido enviado y es válido
     if form.validate_on_submit():
+        reviso = form.reviso_email.data
+        if reviso is None or reviso == "":
+            reviso_nombre = ""
+            reviso_email = ""
+        else:
+            reviso_nombre = form.reviso_nombre.data
+            reviso_email = reviso
+        aprobo = form.aprobo_email.data
+        if aprobo is None or aprobo == "":
+            aprobo_nombre = ""
+            aprobo_email = ""
+        else:
+            aprobo_nombre = form.aprobo_nombre.data
+            aprobo_email = aprobo
         # Acceder a los datos del formulario
         cid_procedimiento.titulo_prcedimiento = safe_string(form.titulo_procedimiento.data)
         cid_procedimiento.codigo = form.codigo.data
         cid_procedimiento.revision = form.revision.data
         cid_procedimiento.fecha = form.fecha.data if form.fecha.data else datetime.utcnow()
+        cid_procedimiento.reviso_nombre = safe_string(reviso_nombre, save_enie=True)
+        cid_procedimiento.reviso_puesto = safe_string(form.reviso_puesto.data)
+        cid_procedimiento.reviso_email = safe_email(reviso_email)
+        cid_procedimiento.aprobo_nombre = safe_string(aprobo_nombre, save_enie=True)
+        cid_procedimiento.aprobo_puesto = safe_string(form.aprobo_puesto.data)
+        cid_procedimiento.aprobo_email = safe_email(aprobo_email)
 
         # Crear una nueva copia del procedimiento con los datos actualizados
         nueva_copia = CIDProcedimiento(
@@ -979,6 +999,12 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
     else:
         form.revision.data = 1  # Si no hay revisiones anteriores, inicia desde 1
     form.fecha.data = datetime.utcnow()
+    form.reviso_nombre.data = cid_procedimiento.reviso_nombre
+    form.reviso_puesto.data = cid_procedimiento.reviso_puesto
+    form.reviso_email.data = cid_procedimiento.reviso_email
+    form.aprobo_nombre.data = cid_procedimiento.aprobo_nombre
+    form.aprobo_puesto.data = cid_procedimiento.aprobo_puesto
+    form.aprobo_email.data = cid_procedimiento.aprobo_email
     # Renderizar la plantilla con el formulario y la información del procedimiento
     return render_template("cid_procedimientos/new_revision.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
