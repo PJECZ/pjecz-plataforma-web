@@ -9,6 +9,9 @@
         {% if show_button_my_autorized %}
             {{ topbar.button('Autorizados de mis áreas', url_for('cid_procedimientos.list_active'), 'mdi:table-star') }}
         {% endif %}
+        {% if show_button_list_all %}
+            {{ topbar.button('Todos los procedimientos', url_for('cid_procedimientos.list_all'), 'mdi:table') }}
+        {% endif %}
         {% if show_button_list_all_autorized %}
             {{ topbar.button('Todos los autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
         {% endif %}
