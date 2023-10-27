@@ -35,3 +35,8 @@ h2 {
   background-color: #ffc107 !important;
   color: black !important;
 }
+
+.md-button--danger {
+  background-color: #dc3545 !important;
+  color: rgb(246, 246, 246) !important;
+}

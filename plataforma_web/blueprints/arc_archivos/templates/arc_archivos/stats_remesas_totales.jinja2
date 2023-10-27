@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Archivo Estadísticas - Remesas Totales{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Archivo Estadísticas - Remesas Totales') %}
+        {{ topbar.button_previous('Estadísticas', url_for('arc_archivos.stats')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {{ detail.label_value('Fecha inicio', fecha_desde) }}
+        {{ detail.label_value('Fecha final', fecha_hasta) }}
+        {{ detail.label_value('Remesas totales', remesas) }}
+    {% endcall %}
+{% endblock %}
+
