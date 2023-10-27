@@ -373,6 +373,18 @@ def stats_remesas():
                     }
                 ),
             )
+        elif "por_archivistas" in request.form:
+            return render_template(
+                "arc_archivos/stats_remesas_por_archivistas.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros_por_archivistas=json.dumps(
+                    {
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
     # Redirigimos a página índice de estadísticas
     return redirect(url_for("arc_archivos.stats"))
 
@@ -556,6 +568,43 @@ def datatable_json_solicitudes_por_archivistas():
             {
                 "archivistas": registro.archivistas,
                 "solicitudes": registro.solicitudes,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@arc_archivos.route("/arc_archivos/datatable_json_remesas_por_archivistas", methods=["GET", "POST"])
+def datatable_json_remesas_por_archivistas():
+    """DataTable JSON para listado de remesas y remesas por archivistas"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        Usuario.email.label("archivistas"),
+        count("*").label("remesas"),
+    )
+    # Consultar
+    consulta = consulta.select_from(Usuario).join(ArcRemesa, Usuario.id == ArcRemesa.usuario_asignado_id)
+    consulta = consulta.filter(Usuario.estatus == "A")
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(ArcRemesa.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(ArcRemesa.creado <= request.form["fecha_hasta"])
+    consulta = consulta.filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "PENDIENTE")
+    consulta = consulta.group_by(Usuario.email)
+    consulta = consulta.order_by(Usuario.email)
+    resultado = consulta.offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for registro in resultado:
+        data.append(
+            {
+                "archivistas": registro.archivistas,
+                "remesas": registro.remesas,
             }
         )
     # Entregar JSON
