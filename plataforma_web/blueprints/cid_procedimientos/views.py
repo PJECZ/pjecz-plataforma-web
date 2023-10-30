@@ -196,7 +196,7 @@ def list_active():
             filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "cid_areas": cid_areas_ids}),
             estatus="A",
             show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
-            show_button_list_all=True,
+            show_button_list_all=ROL_COORDINADOR in current_user_roles,
             show_button_list_all_autorized=True,
             show_button_my_autorized=True,
         )
@@ -226,7 +226,7 @@ def list_authorized():
             filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
             estatus="A",
             show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
-            show_button_list_all=True,
+            show_button_list_all=ROL_COORDINADOR in current_user_roles,
             show_button_list_all_autorized=True,
             show_button_my_autorized=True,
         )
@@ -277,13 +277,15 @@ def list_owned():
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_all_active():
     """Listado de procedimientos activos, solo para administrador"""
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
     return render_template(
         "cid_procedimientos/list_admin.jinja2",
         titulo="Todos los procedimientos activos",
         filtros=json.dumps({"estatus": "A"}),
         estatus="A",
         show_button_list_owned=True,
-        show_button_list_all=True,
+        show_button_list_all=ROL_COORDINADOR in current_user_roles,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
     )
@@ -293,13 +295,15 @@ def list_all_active():
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_all_inactive():
     """Listado de procedimientos eliminados, solo para administrador"""
+    # Consultar los roles del usuario
+    current_user_roles = set(current_user.get_roles())
     return render_template(
         "cid_procedimientos/list_admin.jinja2",
         titulo="Todos los procedimientos eliminados",
         filtros=json.dumps({"estatus": "A"}),
         estatus="B",
         show_button_list_owned=True,
-        show_button_list_all=True,
+        show_button_list_all=ROL_COORDINADOR in current_user_roles,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
     )
@@ -989,7 +993,7 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         # Redireccionar al detalle del nuevo id
-        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=nueva_copia.id))
+        return redirect(url_for("cid_procedimientos.edit", cid_procedimiento_id=nueva_copia.id))
     # Llenar el formulario con los datos del procedimiento original
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo

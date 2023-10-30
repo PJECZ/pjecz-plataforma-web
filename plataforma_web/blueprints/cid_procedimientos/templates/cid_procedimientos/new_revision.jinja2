@@ -23,21 +23,20 @@
 
     {% endcall %}
     <div class="alert alert-warning" role="alert">
-        <b>AVISO</b>: La revisión de un nuevo procedimiento genera una nueva cadena de mensajes
+        <b>AVISO</b>: La revisión de un nuevo procedimiento genera una nueva cadena de mensajes.
     </div>
     {% call f.card('Formulario para crear la revisión ' +  (cid_procedimiento.revision + 1) | string ) %}
         {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
         {% call f.form_tag('cid_procedimientos.copiar_procedimiento_con_revision', fid='cid_procedimiento_form', **form_kwargs) %}
-            {% call f.form_group(form.id) %}{% endcall %}
             {% call f.form_group(form.titulo_procedimiento) %}{% endcall %}
             {% call f.form_group(form.codigo, readonly=true) %}{% endcall %}
             {% call f.form_group(form.revision, readonly=true) %}{% endcall %}
             {% call f.form_group(form.fecha) %}{% endcall %}
             <div class="alert alert-info" role="alert">
-                Verifica que los usuarios que vayan a revisar y autorizar sean los correctos!
+                <b>IMPORTANTE:</b> Verifica que los usuarios y los correos electrónicos sean los correctos.
             </div>
             <div class="row">
-                <h4>Revisó</h4>
+                <h4>Revisor</h4>
                 <div class="row">
                     <div class="col">
                         {% call f.form_group(form.reviso_nombre) %}{% endcall %}
@@ -49,7 +48,7 @@
                         {% call f.form_group(form.reviso_email) %}{% endcall %}
                     </div>
                 </div>
-                <h4>Autorizó</h4>
+                <h4>Autorizador</h4>
                 <div class="row">
                     <div class="col">
                         {% call f.form_group(form.aprobo_nombre) %}{% endcall %}

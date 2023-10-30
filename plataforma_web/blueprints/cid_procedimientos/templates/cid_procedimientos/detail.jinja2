@@ -12,7 +12,7 @@
         {% if show_button_edit_admin %}
             {{ topbar.button_edit('Editar Autoridad', url_for('cid_procedimientos.edit_admin', cid_procedimiento_id=cid_procedimiento.id)) }}
         {% endif %}
-        {% if current_user.can_admin('CID PROCEDIMIENTOS') and cid_procedimiento.seguimiento != "EN ELABORACION" %}
+        {% if current_user.can_edit('CID PROCEDIMIENTOS') and cid_procedimiento.seguimiento == "AUTORIZADO" %}
             <!-- Muestra el botón de NUEVA REVISION solo si no se ha seleccionado una revisión -->
             {{topbar.button('Nueva revisión', url_for('cid_procedimientos.copiar_procedimiento_con_revision', cid_procedimiento_id=cid_procedimiento.id),'mdi:content-copy')}}
         {% endif %}
