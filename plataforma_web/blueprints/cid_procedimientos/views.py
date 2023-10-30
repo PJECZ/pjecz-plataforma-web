@@ -4,7 +4,7 @@ CID Procedimientos, vistas
 import json
 from datetime import datetime
 from delta import html
-from flask import abort, Blueprint, flash, redirect, render_template, request, url_for, jsonify
+from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
