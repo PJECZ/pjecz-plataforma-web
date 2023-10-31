@@ -3,10 +3,10 @@
 {% import 'macros/topbar.jinja2' as topbar %}
 {% import 'macros/detail.jinja2' as detail %}
 
-{% block title %}Archivo Estadísticas - Solicitudes por Instancias{% endblock %}
+{% block title %}Archivo Estadísticas - Solicitudes por Archivistas{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Archivo Estadísticas - Solicitudes por Instancias') %}
+    {% call topbar.page_buttons('Archivo Estadísticas - Solicitudes por Archivistas') %}
         {{ topbar.button_previous('Estadísticas', url_for('arc_archivos.stats')) }}
     {% endcall %}
 {% endblock %}
@@ -18,10 +18,10 @@
     {% endcall %}
     {# <!-- Datatable Instnaicas --> #}
     {% call list.card() %}
-        <table id="instancias_datatable" class="table display nowrap" style="width:100%">
+        <table id="archivistas_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Instancias</th>
+                    <th>Archivistas</th>
                     <th>Solicitudes</th>
                 </tr>
             </thead>
@@ -32,17 +32,17 @@
 {% block custom_javascript %}
     <!-- Importación de la configuración para DataTables -->
     <script src="/static/js/datatables_config.js"></script>
-    {# Instancias Data Table #}
+    {# archivistas Data Table #}
     <script>
-        const dataTable_funcs_instancias = new ConfigDataTable( "{{ csrf_token() }}" );
-        let configDataTable_instancias = dataTable_funcs_instancias.config;
-        configDataTable_instancias['ajax']['url'] = '/arc_archivos/datatable_json_solicitudes_por_instancias';
-        configDataTable_instancias['ajax']['data'] = {{ filtros_por_instancias }};
-        configDataTable_instancias['columns'] = [
-            { data: 'instancias' },
+        const dataTable_funcs_archivistas = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_archivistas = dataTable_funcs_archivistas.config;
+        configDataTable_archivistas['ajax']['url'] = '/arc_archivos/datatable_json_solicitudes_por_archivistas';
+        configDataTable_archivistas['ajax']['data'] = {{ filtros_por_archivistas }};
+        configDataTable_archivistas['columns'] = [
+            { data: 'archivistas' },
             { data: 'solicitudes' },
         ];
         // Datatable
-        $('#instancias_datatable').DataTable(configDataTable_instancias);
+        $('#archivistas_datatable').DataTable(configDataTable_archivistas);
     </script>
 {% endblock %}
