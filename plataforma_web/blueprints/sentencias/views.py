@@ -282,8 +282,8 @@ def datatable_json():
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
     # Filtro para materia tipo juicio
-    if "materia_tipo_juicio" in request.form:
-        materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio"])
+    if "materia_tipo_juicio_id" in request.form:
+        materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio_id"])
         if materia_tipo_juicio:
             consulta = consulta.filter_by(materia_tipo_juicio=materia_tipo_juicio)
     registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
@@ -343,8 +343,8 @@ def datatable_json_admin():
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
     # Filtro para materia tipo juicio
-    if "materia_tipo_juicio" in request.form:
-        materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio"])
+    if "materia_tipo_juicio_id" in request.form:
+        materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio_id"])
         if materia_tipo_juicio:
             consulta = consulta.filter_by(materia_tipo_juicio=materia_tipo_juicio)
     registros = consulta.order_by(Sentencia.id.desc()).offset(start).limit(rows_per_page).all()
