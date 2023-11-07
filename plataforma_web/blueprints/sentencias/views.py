@@ -281,6 +281,11 @@ def datatable_json():
         consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
+    # Filtro para materia tipo juicio
+    if "materia_tipo_juicio" in request.form:
+        materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio"])
+        if materia_tipo_juicio:
+            consulta = consulta.filter_by(materia_tipo_juicio=materia_tipo_juicio)
     registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -337,6 +342,11 @@ def datatable_json_admin():
         consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
+    # Filtro para materia tipo juicio
+    if "materia_tipo_juicio" in request.form:
+        materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio"])
+        if materia_tipo_juicio:
+            consulta = consulta.filter_by(materia_tipo_juicio=materia_tipo_juicio)
     registros = consulta.order_by(Sentencia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Zona horaria local
