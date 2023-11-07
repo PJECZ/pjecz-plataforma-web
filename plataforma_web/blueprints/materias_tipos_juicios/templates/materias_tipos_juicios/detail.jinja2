@@ -25,9 +25,9 @@
             {{ detail.label_value('Materia', materia_tipo_juicio.materia.nombre) }}
         {% endif %}
     {% endcall %}
-    {% if current_user.can_view('SENTENCIAS')  %}
-        {% call detail.card('Sentencias') %}
-            <table id="sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+    {% if current_user.can_view('SENTENCIAS') %}
+        {% call detail.card('V.P. Sentencias') %}
+            <table id="sentencias_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Fecha</th>
@@ -40,7 +40,6 @@
             </table>
         {% endcall %}
     {% endif %}
-
 {% endblock %}
 
 {% block custom_javascript %}
@@ -48,30 +47,19 @@
         {% if materia_tipo_juicio.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + materia_tipo_juicio.descripcion + '?') }}{% endif %}
         {% if materia_tipo_juicio.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + materia_tipo_juicio.descripcion + '?') }}{% endif %}
     {% endif %}
-    <script>
-        $('#sentencias_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/sentencias/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: { 'estatus': "A", 'materia_tipo_juicio': {{ materia_tipo_juicio.id}} }
-            },
-            columns: [
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('SENTENCIAS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/sentencias/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_tipo_juicio_id': {{ materia_tipo_juicio.id}} };
+            configDataTable['columns'] = [
                 { data: "fecha" },
                 { data: "detalle" },
                 { data: "expediente" },
                 { data: "es_perspectiva_genero" },
                 { data: "archivo" }
-            ],
-            ordering: false,
-            columnDefs: [
+            ];
+            configDataTable['columnDefs'] = [
                 {
                     targets: 1, // detalle
                     data: null,
@@ -86,21 +74,8 @@
                         return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
                     }
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
-                }
-            }
-        });
-    </script>
+            ];
+            $('#sentencias_datatable').DataTable(configDataTable);
+        </script>
+    {% endif %}
 {% endblock %}
