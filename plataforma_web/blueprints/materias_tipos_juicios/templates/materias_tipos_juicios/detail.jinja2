@@ -31,6 +31,7 @@
                 <thead>
                     <tr>
                         <th>Fecha</th>
+                        <th>Autoridad</th>
                         <th>Sentencia</th>
                         <th>Expediente</th>
                         <th>P. Género</th>
@@ -54,6 +55,7 @@
             configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_tipo_juicio_id': {{ materia_tipo_juicio.id}} };
             configDataTable['columns'] = [
                 { data: "fecha" },
+                { data: "autoridad" },
                 { data: "detalle" },
                 { data: "expediente" },
                 { data: "es_perspectiva_genero" },
@@ -61,17 +63,17 @@
             ];
             configDataTable['columnDefs'] = [
                 {
-                    targets: 1, // detalle
+                    targets: 2, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.sentencia + '</a>';
                     }
                 },
                 {
-                    targets: 4, // archivo
+                    targets: 5, // archivo
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
+                        return '<a href="' + data.descargar_url + '" target="_blank"><span class="iconify" data-icon="mdi:download"></span> PDF</a>';
                     }
                 }
             ];
