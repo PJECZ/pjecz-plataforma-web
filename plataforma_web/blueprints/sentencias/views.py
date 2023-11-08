@@ -294,6 +294,7 @@ def datatable_json():
         data.append(
             {
                 "fecha": sentencia.fecha.strftime("%Y-%m-%d"),
+                "autoridad": sentencia.autoridad.clave,
                 "detalle": {
                     "sentencia": sentencia.sentencia,
                     "url": url_for("sentencias.detail", sentencia_id=sentencia.id),
