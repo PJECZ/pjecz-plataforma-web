@@ -1,0 +1,54 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Acuses de Edictos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_admin('EDICTOS ACUSES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('edictos_acuses.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('edictos_acuses.list_active')) }}{% endif %}
+        {% endif %}
+        {# if current_user.can_insert('EDICTOS ACUSES') %}
+            {{ topbar.button_new('Nuevo Acuse', url_for('edictos_acuses.new')) }}
+        {% endif #}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="edictos_acuses_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fecha del acuse</th>
+                    <th>Descripción del edicto</th>
+                    <th>Expediente</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/edictos_acuses/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'edicto_descripcion' },
+            { data: 'edicto_expediente' },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.fecha + '</a>';
+                }
+            }
+        ];
+        $('#edictos_acuses_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}

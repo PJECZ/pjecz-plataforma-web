@@ -1,0 +1,38 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Acuse de Edicto{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Acuse de Edicto') %}
+        {{ topbar.button_previous('Acuses de Edictos', url_for('edictos_acuses.list_active')) }}
+        {% if current_user.can_admin('EDICTOS ACUSES') %}
+            {# topbar.button_edit('Editar', url_for('edictos_acuses.edit', edicto_acuse_id=edicto_acuse.id)) #}
+            {# if edicto_acuse.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('edictos_acuses.delete', edicto_acuse_id=edicto_acuse.id)) }}{% endif %}
+            {% if edicto_acuse.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('edictos_acuses.recover', edicto_acuse_id=edicto_acuse.id)) }}{% endif #}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=edicto_acuse.estatus) %}
+        {{ detail.label_value_big('Fecha del acuse', edicto_acuse.fecha) }}
+        {% if current_user.can_view('EDICTOS') %}
+            {{ detail.label_value('Descripción', edicto_acuse.columna_1, url_for('edictos.detail', edicto_id=edictos_acuses.edicto_id)) }}
+        {% else %}
+            {{ detail.label_value('Descripción', edicto_acuse.columna_1) }}
+        {% endif %}
+        {{ detail.label_value('No. de expediente', edicto_acuse.columna_2) }}
+        {{ detail.label_value('Creado', moment(lista_de_acuerdo.creado, local=True).format('DD MMM YYYY')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('EDICTOS ACUSES') %}
+        {% if edicto_acuse.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + edicto_acuse.fecha + '?') }}{% endif %}
+        {% if edicto_acuse.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + edicto_acuse.fecha + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
