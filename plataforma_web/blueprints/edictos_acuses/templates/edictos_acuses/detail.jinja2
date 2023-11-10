@@ -25,7 +25,7 @@
             {{ detail.label_value('Descripción', edicto_acuse.columna_1) }}
         {% endif %}
         {{ detail.label_value('No. de expediente', edicto_acuse.columna_2) }}
-        {{ detail.label_value('Creado', moment(lista_de_acuerdo.creado, local=True).format('DD MMM YYYY')) }}
+        {{ detail.label_value('Creado', moment(edicto_acuse.creado, local=True).format('DD MMM YYYY')) }}
     {% endcall %}
 {% endblock %}
 
