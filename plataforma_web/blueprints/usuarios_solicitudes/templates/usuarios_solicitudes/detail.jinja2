@@ -1,0 +1,36 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Usuario Solicitud ID {{ usuario_solicitud.id }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Usuario Solicitud ID ' + usuario_solicitud.id | string) %}
+        {{ topbar.button_previous('Usuarios Solicitudes', url_for('usuarios_solicitudes.list_active')) }}
+        {# if current_user.can_edit('USUARIOS SOLICITUDES') %}
+            {{ topbar.button_edit('Editar', url_for('usuarios_solicitudes.edit', usuario_solicitud_id=usuario_solicitud.id)) }}
+            {% if usuario_solicitud.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('usuarios_solicitudes.delete', usuario_solicitud_id=usuario_solicitud.id)) }}{% endif %}
+            {% if usuario_solicitud.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('usuarios_solicitudes.recover', usuario_solicitud_id=usuario_solicitud.id)) }}{% endif %}
+        {% endif #}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=usuario_solicitud.estatus) %}
+        {{ detail.label_value_big('ID', usuario_solicitud.id) }}
+        {{ detail.label_value('Usuario e-mail', usuario_solicitud.usuario.email) }}
+        {{ detail.label_value('Usuario nombre completo', usuario_solicitud.usuario.nombre) }}
+        {{ detail.label_value_big('Correo electronico personal', usuario_solicitud.personal_email) }}
+        {{ detail.label_value_big('Telefono celular', usuario_solicitud.telefono_celular) }}
+        {{ detail.label_value('Creado', moment(usuario_solicitud.creado, local=True).format('DD MMM YYYY')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_edit('USUARIOS SOLICITUDES') %}
+        {% if usuario_solicitud.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + usuario_solicitud.id + '?') }}{% endif %}
+        {% if usuario_solicitud.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + usuario_solicitud.id + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

@@ -2,16 +2,22 @@
 Archivo Documentos Solicitudes, vistas
 """
 import json
-from flask import Blueprint, render_template, redirect, url_for
+from datetime import date
+from flask import Blueprint, render_template, redirect, url_for, request, current_app
 from flask_login import current_user, login_required
+from sqlalchemy.sql.functions import count
+
+from lib.datatables import get_datatable_parameters, output_datatable_json
 
 from plataforma_web.blueprints.usuarios.decorators import permission_required
-
 from plataforma_web.blueprints.arc_solicitudes.models import ArcSolicitud
 from plataforma_web.blueprints.arc_remesas.models import ArcRemesa
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.distritos.models import Distrito
+from plataforma_web.blueprints.autoridades.models import Autoridad
+from plataforma_web.blueprints.usuarios.models import Usuario
 
+from plataforma_web.blueprints.arc_archivos.forms import ArcEstadisticasDateRangeForm
 
 MODULO = "ARC ARCHIVOS"
 
@@ -52,6 +58,7 @@ def list_active():
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global="LOCAL",
             mostrar_btn_historial="IR_AL_HISTORIAL",
+            mostrar_btn_estadistica=True,
         )
     if ROL_JEFE_REMESA_ADMINISTRADOR in current_user_roles:
         return render_template(
@@ -65,6 +72,7 @@ def list_active():
             rol_archivista=ROL_ARCHIVISTA,
             mostrar_btn_local_global="LOCAL",
             mostrar_btn_historial="IR_AL_HISTORIAL",
+            mostrar_btn_estadistica=True,
         )
     if ROL_JEFE_REMESA in current_user_roles:
         return render_template(
@@ -246,3 +254,358 @@ def list_all(historial):
         mostrar_btn_historial="IR_AL_HISTORIAL",
         sedes=sedes,
     )
+
+
+@arc_archivos.route("/arc_archivos/estadisticas")
+def stats():
+    """Detalle de la página index de estadísticas"""
+    form_rango_fechas = ArcEstadisticasDateRangeForm()
+    form_rango_fechas.fecha_desde.data = date.today().replace(day=1)
+    form_rango_fechas.fecha_hasta.data = date.today()
+    return render_template("arc_archivos/stats.jinja2", form=form_rango_fechas)
+
+
+@arc_archivos.route("/arc_archivos/estadisticas/solicitudes", methods=["GET", "POST"])
+def stats_solicitudes():
+    """Estadísticas de Solicitudes por Totales, Distritos e Instancias"""
+    form = ArcEstadisticasDateRangeForm()
+    # Validar formulario
+    if form.validate():
+        # Tomar los valores del formulario
+        fecha_desde = form.fecha_desde.data
+        fecha_hasta = form.fecha_hasta.data
+        # Si la fecha_desde es posterior a la fecha_hasta, se intercambian
+        if fecha_desde > fecha_hasta:
+            fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
+        # Case para botones de reportes
+        if "totales" in request.form:
+            # Cálculo de solicitudes totales
+            solicitudes = ArcSolicitud.query.filter(ArcSolicitud.creado >= fecha_desde).filter(ArcSolicitud.creado <= fecha_hasta).filter_by(estatus="A").filter(ArcSolicitud.estado != "CANCELADO").count()
+            return render_template(
+                "arc_archivos/stats_solicitudes_totales.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                solicitudes=solicitudes,
+            )
+        elif "por_distritos" in request.form:
+            return render_template(
+                "arc_archivos/stats_solicitudes_por_distritos.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros_por_distritos=json.dumps(
+                    {
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
+        elif "por_instancias" in request.form:
+            return render_template(
+                "arc_archivos/stats_solicitudes_por_instancias.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros_por_instancias=json.dumps(
+                    {
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
+        elif "por_archivistas" in request.form:
+            return render_template(
+                "arc_archivos/stats_solicitudes_por_archivistas.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros_por_archivistas=json.dumps(
+                    {
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
+    # Redirigimos a página índice de estadísticas
+    return redirect(url_for("arc_archivos.stats"))
+
+
+@arc_archivos.route("/arc_archivos/estadisticas/remesas", methods=["GET", "POST"])
+def stats_remesas():
+    """Estadísticas de Remesas por Totales, Distritos e Instancias"""
+    form = ArcEstadisticasDateRangeForm()
+    # Validar formulario
+    if form.validate():
+        # Tomar los valores del formulario
+        fecha_desde = form.fecha_desde.data
+        fecha_hasta = form.fecha_hasta.data
+        # Si la fecha_desde es posterior a la fecha_hasta, se intercambian
+        if fecha_desde > fecha_hasta:
+            fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
+        # Case para botones de reportes
+        if "totales" in request.form:
+            # Cálculo de solicitudes totales
+            remesas = ArcRemesa.query.filter(ArcRemesa.creado >= fecha_desde).filter(ArcRemesa.creado <= fecha_hasta).filter_by(estatus="A").filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "PENDIENTE").count()
+            return render_template(
+                "arc_archivos/stats_remesas_totales.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                remesas=remesas,
+            )
+        elif "por_distritos" in request.form:
+            return render_template(
+                "arc_archivos/stats_remesas_por_distritos.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros_por_distritos=json.dumps(
+                    {
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
+        elif "por_instancias" in request.form:
+            return render_template(
+                "arc_archivos/stats_remesas_por_instancias.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros_por_instancias=json.dumps(
+                    {
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
+        elif "por_archivistas" in request.form:
+            return render_template(
+                "arc_archivos/stats_remesas_por_archivistas.jinja2",
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta,
+                filtros_por_archivistas=json.dumps(
+                    {
+                        "fecha_desde": fecha_desde.strftime("%Y-%m-%d"),
+                        "fecha_hasta": fecha_hasta.strftime("%Y-%m-%d"),
+                    }
+                ),
+            )
+    # Redirigimos a página índice de estadísticas
+    return redirect(url_for("arc_archivos.stats"))
+
+
+@arc_archivos.route("/arc_archivos/datatable_json_solicitudes_por_distrito", methods=["GET", "POST"])
+def datatable_json_solicitudes_por_distrito():
+    """DataTable JSON para listado de solicitudes y remesas por distrito"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        Distrito.nombre_corto.label("distritos"),
+        count("*").label("solicitudes"),
+    )
+    # Consultar
+    consulta = consulta.select_from(Autoridad).join(ArcSolicitud).join(Distrito)
+    consulta = consulta.filter(Distrito.es_distrito == True).filter(Distrito.es_distrito_judicial == True).filter(Distrito.es_jurisdiccional == True)
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(ArcSolicitud.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(ArcSolicitud.creado <= request.form["fecha_hasta"])
+    consulta = consulta.filter(Autoridad.estatus == "A").filter(ArcSolicitud.estatus == "A").filter(Distrito.estatus == "A").filter(ArcSolicitud.estado != "CANCELADO")
+    consulta = consulta.group_by(Distrito.nombre_corto)
+    consulta = consulta.order_by(Distrito.nombre_corto)
+    resultado = consulta.offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for registro in resultado:
+        data.append(
+            {
+                "distritos": registro.distritos,
+                "solicitudes": registro.solicitudes,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@arc_archivos.route("/arc_archivos/datatable_json_remesas_por_distrito", methods=["GET", "POST"])
+def datatable_json_remesas_por_distrito():
+    """DataTable JSON para listado de remesas y remesas por distrito"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        Distrito.nombre_corto.label("distritos"),
+        count("*").label("remesas"),
+    )
+    # Consultar
+    consulta = consulta.select_from(Autoridad).join(ArcRemesa).join(Distrito)
+    consulta = consulta.filter(Distrito.es_distrito == True).filter(Distrito.es_distrito_judicial == True).filter(Distrito.es_jurisdiccional == True)
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(ArcRemesa.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(ArcRemesa.creado <= request.form["fecha_hasta"])
+    consulta = consulta.filter(Autoridad.estatus == "A").filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "PENDIENTE")
+    consulta = consulta.group_by(Distrito.nombre_corto)
+    consulta = consulta.order_by(Distrito.nombre_corto)
+    resultado = consulta.offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for registro in resultado:
+        data.append(
+            {
+                "distritos": registro.distritos,
+                "remesas": registro.remesas,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@arc_archivos.route("/arc_archivos/datatable_json_solicitudes_por_instancias", methods=["GET", "POST"])
+def datatable_json_solicitudes_por_instancias():
+    """DataTable JSON para listado de solicitudes y remesas por instancias"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        Autoridad.clave.label("juzgados"),
+        count("*").label("solicitudes"),
+    )
+    # Consultar
+    consulta = consulta.select_from(Autoridad).join(ArcSolicitud)
+    consulta = consulta.filter(Autoridad.es_archivo_solicitante == True).filter(Autoridad.estatus == "A")
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(ArcSolicitud.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(ArcSolicitud.creado <= request.form["fecha_hasta"])
+    consulta = consulta.filter(ArcSolicitud.estatus == "A").filter(ArcSolicitud.estado != "CANCELADO")
+    consulta = consulta.group_by(Autoridad.clave)
+    consulta = consulta.order_by(Autoridad.clave)
+    resultado = consulta.offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for registro in resultado:
+        data.append(
+            {
+                "instancias": registro.juzgados,
+                "solicitudes": registro.solicitudes,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@arc_archivos.route("/arc_archivos/datatable_json_remesas_por_instancias", methods=["GET", "POST"])
+def datatable_json_remesas_por_instancias():
+    """DataTable JSON para listado de remesas y remesas por instancias"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        Autoridad.clave.label("juzgados"),
+        count("*").label("remesas"),
+    )
+    # Consultar
+    consulta = consulta.select_from(Autoridad).join(ArcRemesa)
+    consulta = consulta.filter(Autoridad.es_archivo_solicitante == True).filter(Autoridad.estatus == "A")
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(ArcRemesa.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(ArcRemesa.creado <= request.form["fecha_hasta"])
+    consulta = consulta.filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "PENDIENTE")
+    consulta = consulta.group_by(Autoridad.clave)
+    consulta = consulta.order_by(Autoridad.clave)
+    resultado = consulta.offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for registro in resultado:
+        data.append(
+            {
+                "instancias": registro.juzgados,
+                "remesas": registro.remesas,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@arc_archivos.route("/arc_archivos/datatable_json_solicitudes_por_archivistas", methods=["GET", "POST"])
+def datatable_json_solicitudes_por_archivistas():
+    """DataTable JSON para listado de solicitudes y remesas por archivistas"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        Usuario.email.label("archivistas"),
+        count("*").label("solicitudes"),
+    )
+    # Consultar
+    consulta = consulta.select_from(Usuario).join(ArcSolicitud, Usuario.id == ArcSolicitud.usuario_asignado_id)
+    consulta = consulta.filter(Usuario.estatus == "A")
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(ArcSolicitud.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(ArcSolicitud.creado <= request.form["fecha_hasta"])
+    consulta = consulta.filter(ArcSolicitud.estatus == "A").filter(ArcSolicitud.estado != "CANCELADO")
+    consulta = consulta.group_by(Usuario.email)
+    consulta = consulta.order_by(Usuario.email)
+    resultado = consulta.offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for registro in resultado:
+        data.append(
+            {
+                "archivistas": registro.archivistas,
+                "solicitudes": registro.solicitudes,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
+
+
+@arc_archivos.route("/arc_archivos/datatable_json_remesas_por_archivistas", methods=["GET", "POST"])
+def datatable_json_remesas_por_archivistas():
+    """DataTable JSON para listado de remesas y remesas por archivistas"""
+    # Tomar parámetros de Datatables
+    draw, start, rows_per_page = get_datatable_parameters()
+    # SQLAlchemy database session
+    database = current_app.extensions["sqlalchemy"].db.session
+    # Dos columnas en la consulta
+    consulta = database.query(
+        Usuario.email.label("archivistas"),
+        count("*").label("remesas"),
+    )
+    # Consultar
+    consulta = consulta.select_from(Usuario).join(ArcRemesa, Usuario.id == ArcRemesa.usuario_asignado_id)
+    consulta = consulta.filter(Usuario.estatus == "A")
+    if "fecha_desde" in request.form:
+        consulta = consulta.filter(ArcRemesa.creado >= request.form["fecha_desde"])
+    if "fecha_hasta" in request.form:
+        consulta = consulta.filter(ArcRemesa.creado <= request.form["fecha_hasta"])
+    consulta = consulta.filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estatus == "A").filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "PENDIENTE")
+    consulta = consulta.group_by(Usuario.email)
+    consulta = consulta.order_by(Usuario.email)
+    resultado = consulta.offset(start).limit(rows_per_page).all()
+    total = consulta.count()
+    # Elaborar datos para DataTable
+    data = []
+    for registro in resultado:
+        data.append(
+            {
+                "archivistas": registro.archivistas,
+                "remesas": registro.remesas,
+            }
+        )
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
