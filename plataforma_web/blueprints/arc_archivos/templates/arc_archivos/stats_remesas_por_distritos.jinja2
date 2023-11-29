@@ -1,0 +1,48 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/detail.jinja2' as detail %}
+
+{% block title %}Archivo Estadísticas - Remesas por Distritos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Archivo Estadísticas - Remesas por Distritos') %}
+        {{ topbar.button_previous('Estadísticas', url_for('arc_archivos.stats')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {{ detail.label_value('Fecha inicio', fecha_desde) }}
+        {{ detail.label_value('Fecha final', fecha_hasta) }}
+    {% endcall %}
+    {# <!-- Datatable Distritos --> #}
+    {% call list.card() %}
+        <table id="distritos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Distritos</th>
+                    <th>Remesas</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <!-- Importación de la configuración para DataTables -->
+    <script src="/static/js/datatables_config.js"></script>
+    {# Distritos Data Table #}
+    <script>
+        const dataTable_funcs_distritos = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_distritos = dataTable_funcs_distritos.config;
+        configDataTable_distritos['ajax']['url'] = '/arc_archivos/datatable_json_remesas_por_distrito';
+        configDataTable_distritos['ajax']['data'] = {{ filtros_por_distritos }};
+        configDataTable_distritos['columns'] = [
+            { data: 'distritos' },
+            { data: 'remesas' },
+        ];
+        // Datatable
+        $('#distritos_datatable').DataTable(configDataTable_distritos);
+    </script>
+{% endblock %}

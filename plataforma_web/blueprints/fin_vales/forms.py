@@ -10,7 +10,6 @@ from plataforma_web.blueprints.fin_vales.models import FinVale
 MONTOS = [
     ("100.0", "$100.00"),
     ("200.0", "$200.00"),
-    ("500.0", "$500.00"),
 ]
 
 
