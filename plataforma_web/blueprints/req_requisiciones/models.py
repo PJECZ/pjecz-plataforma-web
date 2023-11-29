@@ -11,13 +11,13 @@ class ReqRequisicion(db.Model, UniversalMixin):
 
     ESTADOS = OrderedDict(
         [
-            ("CREADO", "Creado"),  # PASO 1 Un usuario lo ha creado, no debe permir crear un nuevo vale si tiene uno anterior por revisar
-            ("SOLICITADO", "Solicitado"),  # PASO 2 El superior lo autorizo con su firma
-            ("CANCELADO POR SOLICITANTE", "Cancelado por solicitante"),  # El superior ha cancelado la firma
-            ("AUTORIZADO", "Autorizado"),  # PASO 3 Recursos Materiales lo autorizo
-            ("CANCELADO POR AUTORIZANTE", "Cancelado por autorizante"),  # Quien autoriza ha cancelado la firma
-            ("REVISADO", "Revisado"),  # PASO 4 Recursos Materiales lo revisa
-            ("CANCELADO POR REVISANTE", "Cancelado por revisante"),  # Quien revisa ha cancelado la firma
+            ("CREADO", "Creado"),  # PASO 1
+            ("SOLICITADO", "Solicitado"),  # PASO 2
+            ("CANCELADO POR SOLICITANTE", "Cancelado por solicitante"),  #
+            ("AUTORIZADO", "Autorizado"),  # PASO 3
+            ("CANCELADO POR AUTORIZANTE", "Cancelado por autorizante"),  #
+            ("REVISADO", "Revisado"),  # PASO 4
+            ("CANCELADO POR REVISANTE", "Cancelado por revisante"),  #
         ]
     )
 
@@ -44,6 +44,11 @@ class ReqRequisicion(db.Model, UniversalMixin):
         default="CREADO",
         server_default="CREADO",
     )
+    glosa = db.Column(db.String(30))
+    programa = db.Column(db.String(60))
+    fuente = db.Column(db.String(50))
+    area = db.Column(db.String(100))
+    fecha_requerida = db.Column(db.Date)
 
     # Columnas estado SOLICITADO
     solicito_nombre = db.Column(db.String(256))
