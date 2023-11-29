@@ -40,6 +40,22 @@
     {% endif %}
 {%- endmacro -%}
 
+{# Detail Valor arriba, Label abajo #}
+{%- macro labeldown_valueup(label, value, link='') -%}
+    {% if value != None and value != '' %}
+        <div class="row">
+            <div class="col-md-12">
+                {% if link %}
+                <strong><a href="{{ link }}">{{ value }}</a></strong>
+                {% else %}
+                <strong >{{ value }}</strong>
+                {% endif %}
+                <label class='pb-3'  style='border-top:1px solid #ccc; width:100%; font-size:.9em'>{{ label }}</label>
+            </div>
+        </div>
+    {% endif %}
+{%- endmacro -%}
+
 {# Detail link to new tab #}
 {%- macro label_value_new_tab(label, value, link) -%}
     {% if value != None and value != '' %}

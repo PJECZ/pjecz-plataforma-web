@@ -1,0 +1,200 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('REQ REQUISICIONES') %}
+            {{ topbar.button_list_inactive('Inactivas', url_for('req_requisiciones.list_inactive')) }}
+            {{ topbar.button_list_active('Activas', url_for('req_requisiciones.list_active')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call f.form_tag('req_requisiciones.new', fid='new_form') %}
+       
+        {% call list.card() %}                 
+            <div class="container-fluid">
+                <div class="row d-flex justify-content-end">
+                    <div class="col-md-2">
+                        {% call f.form_group(form.fecha, readonly=true) %}{% endcall %}
+                    </div>
+                    <div class="col-md-2">
+                        {% call f.form_group(form.gasto) %}{% endcall %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-7">
+                        {% call f.form_group(form.area) %}{% endcall %}
+                    </div>
+                    <div class="col-md-5">
+                        {% call f.form_group(form.glosa) %}{% endcall %} 
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        {% call f.form_group(form.programa) %}{% endcall %}
+                    </div>
+                    <div class="col-md-6">
+                        {% call f.form_group(form.fuente) %}{% endcall %} 
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-9">
+                        {% call f.form_group(form.areaFinal) %}{% endcall %} 
+                    </div>
+                    <div class="col-md-3">
+                        {% call f.form_group(form.fechaRequerida) %}{% endcall %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        {% call f.form_group(form.observaciones) %}{% endcall %}
+                    </div>
+                </div>
+            </div>
+    
+        {% endcall %}
+
+        {% call list.card() %}
+                <div class="row">
+                    <div class="col-md-2">
+                        {% call f.form_group(form.codigoTmp) %}{% endcall %}
+                    </div>
+                    <div class="col-md-3">
+                        {% call f.form_group(form.descripcionTmp, readonly=true) %}{% endcall %}
+                    </div>
+                    <div class="col-md-1">
+                        {% call f.form_group(form.unidadTmp) %}{% endcall %}
+                    </div>
+                    <div class="col-md-1">
+                        {% call f.form_group(form.claveTmp) %}{% endcall %} 
+                    </div>
+                    <div class="col-md-1">
+                        {% call f.form_group(form.cantidadTmp) %}{% endcall %}
+                    </div>
+                    <div class="col-md-3">
+                        {% call f.form_group(form.detalleTmp) %}{% endcall %}
+                    </div>
+                    <div class="col-md-1 my-auto">
+                        <button type="button" class="btn btn-primary  " onclick="agregar()" >+</button>
+                    </div>
+                </div>
+
+        {% endcall %}
+
+        {% call list.card() %}
+            <div class="row">
+                <div class="col-md-12" id="divArticulos">
+
+                    <div class="row" style="border-bottom:1px solid #666">
+                        <div class="col-md-2"><label>No. código</label></div>
+                        <div class="col-md-3"><label>Descripción</label></div>
+                        <div class="col-md-1"><label>U. medida</label></div>
+                        <div class="col-md-1"><label>Clave</label></div>
+                        <div class="col-md-1"><label>Cantidad</label></div>
+                        <div class="col-md-4"><label>Detalle</label></div>
+                    </div>
+                    {% for campos in form.articulos %}
+                        <div class="row" style="border-bottom:0px solid #666; display:none" id="div{{loop.index - 1}}">
+                            <div class="col-md-2">{% call f.form_group(campos.form.codigo) %}{% endcall %}</div>
+                            <div class="col-md-3">{% call f.form_group(campos.form.descripcion) %}{% endcall %}</div>
+                            <div class="col-md-1">{% call f.form_group(campos.form.unidad) %}{% endcall %}</div>
+                            <div class="col-md-1">{% call f.form_group(campos.form.clave) %}{% endcall %}</div>
+                            <div class="col-md-1">{% call f.form_group(campos.form.cantidad) %}{% endcall %}</div>
+                            <div class="col-md-4">{% call f.form_group(campos.form.detalle) %}{% endcall %}</div>
+                        </div>
+                    {% endfor %}
+                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center mt-5">
+                    {% call f.form_group(form.guardar) %}{% endcall %}
+                </div>
+            </div>
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        var contador = 0 ;
+
+        function agregar(){
+            //alert(contador) ;
+            var codigo = document.getElementById('codigoTmp') ;
+            var descripcion = document.getElementById('descripcionTmp') ;
+            var unidad = document.getElementById('unidadTmp') ;
+            var cantidad = document.getElementById('cantidadTmp') ;
+            var clave = document.getElementById('claveTmp') ;
+            var detalle = document.getElementById('detalleTmp') ;
+            document.getElementById('articulos-'+ contador + '-codigo').value = codigo.value ;
+            document.getElementById('articulos-'+ contador + '-descripcion').value = descripcion.value ;
+            document.getElementById('articulos-'+ contador + '-unidad').value = unidad.value ;
+            document.getElementById('articulos-'+ contador + '-cantidad').value = cantidad.value ;
+            document.getElementById('articulos-'+ contador + '-clave').value = clave.value ;
+            document.getElementById('articulos-'+ contador + '-detalle').value = detalle.value ;
+
+            document.getElementById('div'+contador).style.display = "inline-flex" ;
+            
+            contador = contador + 1 ;
+
+            codigo.value='' ;
+            descripcion.value = '' ;
+            unidad.value = '' ;
+            cantidad.value = '' ;
+            clave.value = '' ;
+            detalle.value = '' ; 
+            
+        }
+
+        function buscarRegistro(){
+            $.ajax({
+                type:'GET',
+                data:{'req_catalogo_id': document.getElementById('codigoTmp').value },
+                url:'/req_requisiciones/buscarRegistros',
+                success:function(respuesta){
+                    document.getElementById('descripcionTmp').value = respuesta.descripcion ;
+                    document.getElementById('unidadTmp').value = respuesta.unidad_medida ;
+                }
+            })
+        }        
+    </script>
+{% endblock %}
+
+
+{# 
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/help.jinja2' as help %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nueva Requisición{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Crear requisición') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card(title='Requisición') %}
+        {% call f.form_tag('req_requisiciones.create', fid='create_form') %}
+            {% call f.form_group(form.usuario_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.usuario_puesto, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.usuario_email, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.tipo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.monto) %}{% endcall %}
+            {% call f.form_group(form.justificacion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+#}

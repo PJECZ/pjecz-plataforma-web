@@ -1,0 +1,54 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('REQ REQUISICIONES') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('req_requisiciones.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('req_requisiciones.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('REQ REQUISICIONES') %}
+          {{ topbar.button_new('Nueva Requisicion', url_for('req_requisiciones.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="req_requisiciones_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Consecutivo</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/req_requisiciones/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'fecha' },
+            { data: 'detalle' },
+            { data: 'observaciones'},
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 1, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.consecutivo + '</a>';
+                }
+            }
+        ];
+        $('#req_requisiciones_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}
