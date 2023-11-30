@@ -25,11 +25,59 @@
             {{ detail.label_value('Materia', materia_tipo_juicio.materia.nombre) }}
         {% endif %}
     {% endcall %}
+    {% if current_user.can_view('SENTENCIAS') %}
+        {% call detail.card('V.P. Sentencias') %}
+            <table id="sentencias_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Autoridad</th>
+                        <th>Sentencia</th>
+                        <th>Expediente</th>
+                        <th>P. Género</th>
+                        <th>Descargar</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_edit('MATERIAS TIPOS JUICIOS') %}
         {% if materia_tipo_juicio.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + materia_tipo_juicio.descripcion + '?') }}{% endif %}
         {% if materia_tipo_juicio.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + materia_tipo_juicio.descripcion + '?') }}{% endif %}
+    {% endif %}
+    {{ detail.config_datatable() }}
+    {% if current_user.can_view('SENTENCIAS') %}
+        <script>
+            configDataTable['ajax']['url'] = '/sentencias/datatable_json';
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'materia_tipo_juicio_id': {{ materia_tipo_juicio.id}} };
+            configDataTable['columns'] = [
+                { data: "fecha" },
+                { data: "autoridad" },
+                { data: "detalle" },
+                { data: "expediente" },
+                { data: "es_perspectiva_genero" },
+                { data: "archivo" }
+            ];
+            configDataTable['columnDefs'] = [
+                {
+                    targets: 2, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.sentencia + '</a>';
+                    }
+                },
+                {
+                    targets: 5, // archivo
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.descargar_url + '" target="_blank"><span class="iconify" data-icon="mdi:download"></span> PDF</a>';
+                    }
+                }
+            ];
+            $('#sentencias_datatable').DataTable(configDataTable);
+        </script>
     {% endif %}
 {% endblock %}

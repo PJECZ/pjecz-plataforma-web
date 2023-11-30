@@ -30,23 +30,25 @@
 {% block custom_javascript %}
     <script>
         $(document).ready(function(){
-
             // Si cambia el monto, se actualiza la justifiacion
             $('#monto').on('change', function() {
                 monto = $('#monto').val();
                 montoTexto = '';
                 if (monto == 100) {
                     montoTexto = '$100.00 (Cien pesos 00/100 M.N.)';
+                    $('#justificacion').val('Solicito un vale de gasolina de ' + montoTexto
+                        + ' para ' + $('#usuario_nombre').val()
+                        + ' con el objetivo de ir a DESTINO.');
                 } else if (monto == 200) {
                     montoTexto = '$200.00 (Doscientos pesos 00/100 M.N.)';
-                } else if (monto == 500) {
-                    montoTexto = '$500.00 (Quinientos pesos 00/100 M.N.)';
+                    $('#justificacion').val('Solicito un vale de gasolina de ' + montoTexto
+                        + ' para ' + $('#usuario_nombre').val()
+                        + ' con el objetivo de ir a DESTINO 1 y al DESTINO 2.');
                 } else {
                     montoTexto = '$0.00 (Cero pesos 00/100 M.N.)';
+                    $('#justificacion').val('EL VALE NO ES DE 100 O 200.');
                 }
-                $('#justificacion').val('Solicito un vale de gasolina de ' + montoTexto + ' para ' + $('#usuario_nombre').val() + ' con el objetivo de ir a DESTINO U OFICINA.');
             });
-
         });
     </script>
 {% endblock %}

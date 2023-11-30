@@ -526,7 +526,7 @@ def step_1_create():
     form.usuario_puesto.data = current_user.puesto
     form.usuario_email.data = current_user.email
     form.tipo.data = "GASOLINA"
-    form.justificacion.data = f"Solicito un vale de gasolina de $100.00 (cien pesos 00/100 m.n), para {current_user.nombre} con el objetivo de ir a DESTINO U OFICINA."
+    form.justificacion.data = f"Solicito un vale de gasolina de $100.00 (Cien pesos 00/100 m.n), para {current_user.nombre} con el objetivo de ir a DESTINO."
     form.monto.data = "100.0"
     return render_template("fin_vales/step_1_create.jinja2", form=form)
 

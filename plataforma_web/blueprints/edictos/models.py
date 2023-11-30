@@ -28,6 +28,12 @@ class Edicto(db.Model, UniversalMixin):
     archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
     url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
+    # Columnas nuevas
+    acuse_num = db.Column(db.Integer)
+
+    # Hijos
+    edictos_acuses = db.relationship("EdictoAcuse", back_populates="edicto")
+
     @property
     def descargar_url(self):
         """URL para descargar el archivo desde el sitio web"""
