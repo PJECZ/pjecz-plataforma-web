@@ -15,3 +15,4 @@ class ArcEstadisticasDateRangeForm(FlaskForm):
     por_distritos = SubmitField("Por Distritos")
     por_instancias = SubmitField("Por Instancias")
     por_archivistas = SubmitField("Por Archivistas")
+    por_estados = SubmitField("Por Estados")
