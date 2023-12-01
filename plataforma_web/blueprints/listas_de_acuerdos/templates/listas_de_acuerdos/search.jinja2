@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/help.jinja2' as help %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Buscar Listas de Acuerdos{% endblock %}
@@ -20,4 +21,8 @@
             {{ form.buscar() }}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block content_help %}
+    {{ help.help_button('https://www.pjecz.gob.mx/pjecz-plataforma-web/listas_de_acuerdos/#buscar-una-lista-de-acuerdos') }}
 {% endblock %}
