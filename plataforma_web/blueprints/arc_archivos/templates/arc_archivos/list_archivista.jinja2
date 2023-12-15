@@ -134,7 +134,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Última Actualización</th>
+                    <th>Fecha de envío</th>
                     <th>Instancia</th>
                     <th>Núm. Oficio</th>
                     <th>Tipo de Documentos</th>
@@ -259,6 +259,8 @@
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
+                    if( data.tiempo == "" )
+                        return "-";
                     if( data.alerta ) {
                         return data.tiempo + ' <span style="color: red;" class="iconify" data-icon="mdi:flag"></span>';
                     }

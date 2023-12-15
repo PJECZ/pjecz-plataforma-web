@@ -240,7 +240,7 @@
         configDataTable_remesas['ajax']['data'] = {{ filtros_remesas }};
         configDataTable_remesas['columns'] = [
             { data: 'remesa' },
-            { data: 'tiempo' },
+            { data: 'ultima_actualizacion' },
             { data: 'tipo_documentos' },
             { data: 'num_oficio' },
             { data: 'num_docs' },
@@ -258,7 +258,7 @@
                 targets: 1, // tiempo
                 data: null,
                 render: function(data, type, row, meta) {
-                    return data.tiempo;
+                    return data;
                 }
             },
             {
