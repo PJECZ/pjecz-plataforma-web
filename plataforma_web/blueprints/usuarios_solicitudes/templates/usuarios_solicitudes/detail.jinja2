@@ -3,7 +3,7 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Usuario Solicitud ID {{ usuario_solicitud.id }}{% endblock %}
+{% block title %}Usuario Solicitud ID{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Usuario Solicitud ID ' + usuario_solicitud.id | string) %}
@@ -18,18 +18,40 @@
 
 {% block content %}
     {% call detail.card(estatus=usuario_solicitud.estatus) %}
-        {{ detail.label_value_big('ID', usuario_solicitud.id) }}
-        {{ detail.label_value('Usuario', usuario_solicitud.usuario.email) }}
         {{ detail.label_value('Creado', usuario_solicitud.creado) }}
+        {{ detail.label_value('Usuario', usuario_solicitud.usuario.email, url_for('usuarios.detail', usuario_id=usuario_solicitud.usuario.id)) }}
         {{ detail.label_value('Usuario nombre completo', usuario_solicitud.usuario.nombre) }}
-        {{ detail.label_value_big('Correo electronico personal', usuario_solicitud.personal_email) }}
-        {{ detail.label_value_big('Teléfono celular', usuario_solicitud.telefono_celular) }}
+        <hr />
+        <div class="row">
+            <div class="col-md-3 text-end">Correo Electronico Personal</div>
+            <div class="col-md-3"><strong class="fs-6">{{ usuario_solicitud.email_personal }}</strong></div>
+            <div class="col-md-3">Token: <span class="fs-6 fw-bold font-monospace">{{ usuario_solicitud.token_email }}</span></div>
+            <div class="col-md-3">
+                {% if usuario_solicitud.validar_email %}
+                    <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:checkbox-marked-circle"></span> VALIDADO</span>
+                {% else %}
+                    <span class="badge rounded-pill bg-secondary"><span class="iconify" data-icon="mdi:alert"></span> PENDIENTE</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 text-end">Teléfono Celular</div>
+            <div class="col-md-3"><strong class="fs-6">{{ usuario_solicitud.telefono_celular }}</strong></div>
+            <div class="col-md-3">Token: <span class="fs-6 fw-bold font-monospace">{{ usuario_solicitud.token_telefono_celular }}</span></div>
+            <div class="col-md-3">
+                {% if usuario_solicitud.validar_telefono_celular %}
+                    <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:checkbox-marked-circle"></span> VALIDADO</span>
+                {% else %}
+                    <span class="badge rounded-pill bg-secondary"><span class="iconify" data-icon="mdi:alert"></span> PENDIENTE</span>
+                {% endif %}
+            </div>
+        </div>
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
-    {% if current_user.can_edit('USUARIOS SOLICITUDES') %}
+    {# {% if current_user.can_edit('USUARIOS SOLICITUDES') %}
         {% if usuario_solicitud.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + usuario_solicitud.id + '?') }}{% endif %}
         {% if usuario_solicitud.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + usuario_solicitud.id + '?') }}{% endif %}
-    {% endif %}
+    {% endif %} #}
 {% endblock %}

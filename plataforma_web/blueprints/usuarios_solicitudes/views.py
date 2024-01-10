@@ -2,17 +2,21 @@
 Usuarios Solicitudes, vistas
 """
 import json
+from random import randint
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_string, safe_message
+from lib.safe_string import safe_string, safe_message, safe_email
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicitud
+from plataforma_web.blueprints.usuarios.models import Usuario
+
+from plataforma_web.blueprints.usuarios_solicitudes.forms import UsuarioSolicitudNewForm
 
 MODULO = "USUARIOS SOLICITUDES"
 
@@ -91,3 +95,35 @@ def detail(usuario_solicitud_id):
     """Detalle de un Usuario Solicitud"""
     usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
     return render_template("usuarios_solicitudes/detail.jinja2", usuario_solicitud=usuario_solicitud)
+
+
+@usuarios_solicitudes.route("/usuarios_solicitudes/nuevo/<int:usuario_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.CREAR)
+def new(usuario_id):
+    """Nuevo usuario solicitud"""
+    usuario = Usuario.query.get_or_404(usuario_id)
+
+    form = UsuarioSolicitudNewForm()
+    if form.validate_on_submit():
+        usuario_solicitud = UsuarioSolicitud(
+            usuario=usuario,
+            email_personal=safe_email(form.email_personal.data),
+            telefono_celular=safe_string(form.telefono_celular.data),
+            token_email=randint(100000, 999999),
+            token_telefono_celular=randint(100000, 999999),
+        )
+        usuario_solicitud.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nueva usuario solicitud {usuario_id}"),
+            url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+
+    form.usuario_email.data = usuario.email
+    form.usuario_nombre.data = usuario.nombre
+
+    return render_template("usuarios_solicitudes/new.jinja2", form=form, usuario=usuario, usuario_id=usuario_id)
