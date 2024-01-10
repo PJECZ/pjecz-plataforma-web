@@ -55,7 +55,7 @@ def datatable_json():
                     "url": url_for("usuarios.detail", usuario_id=resultado.usuario_id) if current_user.can_view("USUARIOS") else "",
                 },
                 "usuario_nombre": resultado.usuario.nombre,
-                "personal_email": resultado.personal_email,
+                "email_personal": resultado.email_personal,
                 "telefono_celular": resultado.telefono_celular,
             }
         )

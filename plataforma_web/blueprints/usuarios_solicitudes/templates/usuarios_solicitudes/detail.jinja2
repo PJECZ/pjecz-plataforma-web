@@ -19,11 +19,11 @@
 {% block content %}
     {% call detail.card(estatus=usuario_solicitud.estatus) %}
         {{ detail.label_value_big('ID', usuario_solicitud.id) }}
-        {{ detail.label_value('Usuario e-mail', usuario_solicitud.usuario.email) }}
+        {{ detail.label_value('Usuario', usuario_solicitud.usuario.email) }}
+        {{ detail.label_value('Creado', usuario_solicitud.creado) }}
         {{ detail.label_value('Usuario nombre completo', usuario_solicitud.usuario.nombre) }}
         {{ detail.label_value_big('Correo electronico personal', usuario_solicitud.personal_email) }}
-        {{ detail.label_value_big('Telefono celular', usuario_solicitud.telefono_celular) }}
-        {{ detail.label_value('Creado', moment(usuario_solicitud.creado, local=True).format('DD MMM YYYY')) }}
+        {{ detail.label_value_big('Teléfono celular', usuario_solicitud.telefono_celular) }}
     {% endcall %}
 {% endblock %}
 
@@ -32,5 +32,4 @@
         {% if usuario_solicitud.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + usuario_solicitud.id + '?') }}{% endif %}
         {% if usuario_solicitud.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + usuario_solicitud.id + '?') }}{% endif %}
     {% endif %}
-    {{ detail.moment_js(moment) }}
 {% endblock %}

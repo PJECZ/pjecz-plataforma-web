@@ -11,7 +11,7 @@ class UsuarioSolicitud(db.Model, UniversalMixin):
     """UsuarioSolicitud"""
 
     # Nombre de la tabla
-    __tablename__ = "tabla"
+    __tablename__ = "usuarios_solicitudes"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -21,9 +21,13 @@ class UsuarioSolicitud(db.Model, UniversalMixin):
     usuario = db.relationship("Usuario", back_populates="usuarios_solicitudes")
 
     # Columnas
-    personal_email = db.Column(db.String(256), nullable=False)  # email personal en Google o Microsoft, diferente al de usuarios
-    telefono_celular = db.Column(db.String(256), nullable=False)
+    email_personal = db.Column(db.String(64), nullable=True)
+    telefono_celular = db.Column(db.String(16), nullable=True)
+    token_email = db.Column(db.String(6))
+    token_telefono_celular = db.Column(db.String(6))
+    validacion_email = db.Column(db.Boolean, default=False)
+    validacion_telefono_celular = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         """Representación"""
-        return "<Clase>"
+        return "<UsuariosSolicitud> {id}"
