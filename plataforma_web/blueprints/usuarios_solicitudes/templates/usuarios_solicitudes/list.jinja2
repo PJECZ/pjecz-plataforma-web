@@ -63,6 +63,18 @@
                     }
                 }
             },
+            {
+                targets: 3, // email personal
+                data: null,
+                render: function(data, type, row, meta) {
+                    if(data.valido == true)
+                    {
+                        return "<span class='iconify' data-icon='mdi:checkbox-marked-circle' style='color: #198754;'></span> " + data.email;
+                    } else {
+                        return data.email;
+                    }
+                }
+            }
         ];
         $('#usuarios_solicitudes_datatable').DataTable(configDataTable);
     </script>
