@@ -39,7 +39,7 @@
             <div class="col-md-5"><strong>{{ usuario_solicitud.telefono_celular }}</strong></div>
             <div class="col-md-2">Token: <span class="fs-6 fw-bold font-monospace">{{ usuario_solicitud.token_telefono_celular }}</span></div>
             <div class="col-md-2">
-                {% if usuario_solicitud.vvalidacion_telefono_celular %}
+                {% if usuario_solicitud.validacion_telefono_celular %}
                     <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:checkbox-marked-circle"></span> VALIDADO</span>
                 {% else %}
                     <span class="badge rounded-pill bg-secondary"><span class="iconify" data-icon="mdi:alert"></span> PENDIENTE</span>

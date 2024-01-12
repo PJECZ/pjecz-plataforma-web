@@ -32,5 +32,5 @@ class UsuarioSolicitudValidateTokenTelefonoCelularForm(FlaskForm):
     usuario_nombre = StringField("Usuario Nombre")  # Read only
     usuario_email = StringField("Usuario email")  # Read only
     telefono_celular = StringField("Teléfono Celular")  # Read only
-    token_telefono_celular = StringField("Token - Teléfono Cellular", validators=[DataRequired(), Length(max=6)])
+    token_telefono_celular = StringField("Token - Teléfono Celular", validators=[DataRequired(), Length(max=6)])
     validar = SubmitField("Validar")

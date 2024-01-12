@@ -16,7 +16,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicitud
 from plataforma_web.blueprints.usuarios.models import Usuario
 
-from plataforma_web.blueprints.usuarios_solicitudes.forms import UsuarioSolicitudNewForm, UsuarioSolicitudValidateTokenEmailForm
+from plataforma_web.blueprints.usuarios_solicitudes.forms import UsuarioSolicitudNewForm, UsuarioSolicitudValidateTokenEmailForm, UsuarioSolicitudValidateTokenTelefonoCelularForm
 
 MODULO = "USUARIOS SOLICITUDES"
 
@@ -63,7 +63,10 @@ def datatable_json():
                     "email": resultado.email_personal,
                     "valido": resultado.validacion_email,
                 },
-                "telefono_celular": resultado.telefono_celular,
+                "telefono_celular": {
+                    "telefono_celular": resultado.telefono_celular,
+                    "valido": resultado.validacion_telefono_celular,
+                },
             }
         )
     # Entregar JSON
@@ -182,3 +185,55 @@ def token_email(usuario_solicitud_id):
     form.email_personal.data = usuario_solicitud.email_personal
 
     return render_template("usuarios_solicitudes/token_email.jinja2", form=form, usuario_solicitud=usuario_solicitud)
+
+
+@usuarios_solicitudes.route("/usuarios_solicitudes/token_celular/<int:usuario_solicitud_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def token_celular(usuario_solicitud_id):
+    """Validar el Token Teléfono Celular"""
+    usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
+
+    if usuario_solicitud.usuario != current_user and not current_user.can_admin(MODULO):
+        flash("No puede acceder a la validación del celular personal de otro usuario", "warning")
+        return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+
+    if usuario_solicitud.validacion_telefono_celular is True:
+        flash("Validación de Teléfono Celular ya hecha correctamente", "warning")
+        return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+
+    form = UsuarioSolicitudValidateTokenTelefonoCelularForm()
+    if form.validate_on_submit():
+        if usuario_solicitud.usuario != current_user and not current_user.can_admin(MODULO):
+            flash("No puede acceder a la validación del teléfono celular personal de otro usuario", "warning")
+            return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+
+        if usuario_solicitud.validacion_telefono_celular is False:
+            if str(usuario_solicitud.token_telefono_celular) == safe_string(form.token_telefono_celular.data):
+                usuario_solicitud.validacion_telefono_celular = True
+                usuario_solicitud.save()
+                bitacora = Bitacora(
+                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                    usuario=current_user,
+                    descripcion=safe_message(f"Token Teléfono Celular - Válido para la solicitud {usuario_solicitud.id}"),
+                    url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
+                )
+                bitacora.save()
+                flash(bitacora.descripcion, "success")
+            else:
+                usuario_solicitud.validacion_telefono_celular = False
+                usuario_solicitud.save()
+                bitacora = Bitacora(
+                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                    usuario=current_user,
+                    descripcion=safe_message(f"Token Teléfono Celular - Erróneo para la solicitud {usuario_solicitud.id}"),
+                    url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
+                )
+                bitacora.save()
+                flash(bitacora.descripcion, "danger")
+            return redirect(bitacora.url)
+
+    form.usuario_email.data = usuario_solicitud.usuario.email
+    form.usuario_nombre.data = usuario_solicitud.usuario.nombre
+    form.telefono_celular.data = usuario_solicitud.telefono_celular
+
+    return render_template("usuarios_solicitudes/token_celular.jinja2", form=form, usuario_solicitud=usuario_solicitud)
