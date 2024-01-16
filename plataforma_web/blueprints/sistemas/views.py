@@ -209,11 +209,16 @@ def start():
 
     # Si el usuario está autenticado, mostrar la página de inicio
     if current_user.is_authenticated:
-        mostrar_portal_soporte = False
         mostrar_portal_notarias = False
+        mostrar_portal_soporte = False
+        mostrar_portal_solicitudes = False
 
         # Consultar los roles del usuario
         current_user_roles = current_user.get_roles()
+
+        # Si tiene el rol administrador mostrar el acceso a solicitudes para actualizar datos de usuarios
+        if ROL_ADMINISTRADOR in current_user_roles:
+            mostrar_portal_solicitudes = True
 
         # Si tiene el rol administrador o soporte-usuario mostrar los accesos a crear tickets y directorio
         if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_TECNICO in current_user_roles:
@@ -226,8 +231,9 @@ def start():
         # Entregar
         return render_template(
             "sistemas/start.jinja2",
-            mostrar_portal_soporte=mostrar_portal_soporte,
             mostrar_portal_notarias=mostrar_portal_notarias,
+            mostrar_portal_soporte=mostrar_portal_soporte,
+            mostrar_portal_solicitudes=mostrar_portal_solicitudes,
         )
 
     # No está autenticado, mostrar la página de inicio de sesión

@@ -16,12 +16,29 @@
 {% endblock %}
 
 {% block content %}
+    {# Usuarios Solicitudes #}
+    {% if mostrar_portal_solicitudes %}
+        {% call start.card('Solicitar actualización de datos personales') %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 mb-2">
+                        <p>
+                            Para descargar los recibos de nómina necesitamos contar con tu número de celular y correo electrónico personal.
+                            Además se aprovecharán esos medios para informarte sobre avisos importantes del Poder Judicial.
+                            Queremos asegurarte que tu información será tratada con la máxima confidencialidad y solo se utilizará con el propósito mencionado anteriormente.
+                            Agradecemos tu confianza y participación.
+                        </p>
+                        <a href="{{ url_for('usuarios_solicitudes.new', usuario_id=current_user.id) }}" class="btn btn-primary btn-tickets ml-auto">Solicitud para actualizar</a>
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endif %}
     {# Soporte Técnico #}
     {% if mostrar_portal_soporte %}
         {% call start.card('Soporte Técnico') %}
             <div class="container">
-                <div class="row" >
-                    {# ¿Necesitas soporte técnico? #}
+                <div class="row">
                     <div class="col-md-6 col-sm-12 mb-2">
                         <div class="text-center">
                             <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-soportes-tickets-2.png" class="img-fluid mb-2">
