@@ -103,11 +103,21 @@ def detail(usuario_solicitud_id):
     return render_template("usuarios_solicitudes/detail.jinja2", usuario_solicitud=usuario_solicitud)
 
 
-@usuarios_solicitudes.route("/usuarios_solicitudes/nuevo/<int:usuario_id>", methods=["GET", "POST"])
+@usuarios_solicitudes.route("/usuarios_solicitudes/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
-def new(usuario_id):
+def new():
     """Nuevo usuario solicitud"""
-    usuario = Usuario.query.get_or_404(usuario_id)
+    usuario = Usuario.query.get_or_404(current_user.id)
+
+    # Sí el usuario ya tiene una solicitud activa enviarle mensaje de notificación
+    if UsuarioSolicitud.query.filter_by(usuario=usuario).filter_by(estatus="A").first():
+        return render_template(
+            "usuarios_solicitudes/message.jinja2",
+            usuario=usuario,
+            mensaje="Ya tienes una solicitud en progreso, espera al menos 7 días para hacer una nueva solicitud.",
+            btn_texto="Regresar",
+            btn_enlace=url_for("sistemas.start"),
+        )
 
     form = UsuarioSolicitudNewForm()
     if form.validate_on_submit():
@@ -122,17 +132,23 @@ def new(usuario_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Nueva usuario solicitud {usuario_id}"),
+            descripcion=safe_message(f"Nueva usuario solicitud {usuario.id}"),
             url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
+        return render_template(
+            "usuarios_solicitudes/message.jinja2",
+            usuario=usuario,
+            mensaje="Solicitud enviada correctamente. Tus datos personales serán procesadas en poco tiempo, gracias por participar.",
+            btn_texto="Regresar",
+            btn_enlace=url_for("sistemas.start"),
+        )
 
     form.usuario_email.data = usuario.email
     form.usuario_nombre.data = usuario.nombre
 
-    return render_template("usuarios_solicitudes/new.jinja2", form=form, usuario=usuario, usuario_id=usuario_id)
+    return render_template("usuarios_solicitudes/new.jinja2", form=form, usuario=usuario)
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/token_email/<int:usuario_solicitud_id>", methods=["GET", "POST"])
