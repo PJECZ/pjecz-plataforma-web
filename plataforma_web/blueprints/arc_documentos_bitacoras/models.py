@@ -19,6 +19,8 @@ class ArcDocumentoBitacora(db.Model, UniversalMixin):
             ("ENTREGADO", "Entregado"),
             ("ARCHIVAR", "Archivar"),
             ("ANOMALIA", "Anomalía"),
+            ("ELIMINADO", "Eliminado"),
+            ("RECUPERADO", "Recuperado"),
         ]
     )
 
