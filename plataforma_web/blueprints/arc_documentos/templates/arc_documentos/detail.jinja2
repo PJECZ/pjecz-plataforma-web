@@ -16,6 +16,10 @@
     {% call topbar.page_buttons('Expediente - ' + documento.id | string ) %}
         {{ topbar.button_previous('Archivo', url_for('arc_archivos.list_active')) }}
         {{ topbar.button_previous('Expedientes', url_for('arc_documentos.list_active')) }}
+        {% if mostrar_secciones['boton_eliminar'] %}
+            {% if documento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('arc_documentos.delete', arc_documento_id=documento.id)) }}{% endif %}
+            {% if documento.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('arc_documentos.recover', arc_documento_id=documento.id)) }}{% endif %}
+        {% endif %}
         {% if mostrar_secciones['boton_editar'] %}
             {{ topbar.button_edit('Editar', url_for('arc_documentos.edit', arc_documento_id=documento.id)) }}
         {% endif %}
@@ -162,8 +166,8 @@
 {% block custom_javascript %}
     {{ detail.moment_js(moment) }}
     {% if current_user.can_edit('ARC DOCUMENTOS') %}
-        {% if documento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar?') }}{% endif %}
-        {% if documento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar?') }}{% endif %}
+            {% if documento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('arc_documentos.delete', arc_documento_id=documento.id)) }}{% endif %}
+            {% if documento.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('arc_documentos.recover', arc_documento_id=documento.id)) }}{% endif %}
     {% endif %}
     <!-- Importación de la configuración para DataTables -->
     <script src="/static/js/datatables_config.js"></script>
@@ -219,11 +223,13 @@
                     switch (data)    {
                         case "ALTA":            bgcolor = 'bg-info';        break;
                         case "EDICION DOC":     bgcolor = 'bg-warning text-dark';       break;
-                        case "CORRECCION FOJAS":  bgcolor = 'bg-warning text-dark';     break;
-                        case "NO ENCONTRADO":     bgcolor = 'bg-danger';    break;
+                        case "CORRECCION FOJAS":bgcolor = 'bg-warning text-dark';     break;
+                        case "NO ENCONTRADO":   bgcolor = 'bg-danger';    break;
                         case "ENVIADO":         bgcolor = 'bg-pink';        break;
                         case "ENTREGADO":       bgcolor = 'bg-success';     break;
                         case "ARCHIVAR":        bgcolor = 'bg-secondary';   break;
+                        case "ELIMINADO":       bgcolor = 'bg-danger';    break;
+                        case "RECUPERADO":      bgcolor = 'bg-info';    break;
                     }
                     return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
                 }
@@ -381,4 +387,9 @@
         const datatable_remesas = new Filtros('#arc_remesas_datatable', configDataTable_remesas);
         datatable_remesas.precarga();
     </script>
+    {# Modales Eliminar y Recuperar #}
+    {% if current_user.can_admin("ARC ARCHIVOS") %}
+        {% if documento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Desea Eliminar el Documento ' + documento.id | string + '?') }}{% endif %}
+        {% if documento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Desea Recuperar el Documento ' + documento.id | string + '?') }}{% endif %}
+    {% endif %}
 {% endblock %}
