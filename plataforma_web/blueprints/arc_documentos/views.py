@@ -180,6 +180,9 @@ def detail(documento_id):
     mostrar_secciones = {}
     current_user_roles = current_user.get_roles()
 
+    if current_user.can_admin(MODULO):
+        mostrar_secciones["boton_eliminar"] = True
+
     if current_user.can_edit(MODULO):
         mostrar_secciones["boton_editar"] = True
 
@@ -585,3 +588,51 @@ def search():
             form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
             form.ubicacion_readonly.data = "JUZGADO"
     return render_template("arc_documentos/new.jinja2", form=form, num_expediente=num_expediente, mostrar_secciones=mostrar_secciones)
+
+
+@arc_documentos.route("/arc_documentos/eliminar/<int:arc_documento_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def delete(arc_documento_id):
+    """Eliminar Expediente"""
+    arc_documento = ArcDocumento.query.get_or_404(arc_documento_id)
+    if arc_documento.estatus == "A":
+        arc_documento.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado Expediente {arc_documento.id}"),
+            url=url_for("arc_documentos.detail", documento_id=arc_documento.id),
+        )
+        bitacora.save()
+        # Añadir acción a la bitácora de Solicitudes
+        ArcDocumentoBitacora(
+            arc_documento=arc_documento,
+            usuario=current_user,
+            accion="ELIMINADO",
+        ).save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("arc_documentos.detail", documento_id=arc_documento.id))
+
+
+@arc_documentos.route("/arc_documentos/recuperar/<int:arc_documento_id>")
+@permission_required(MODULO, Permiso.MODIFICAR)
+def recover(arc_documento_id):
+    """Eliminar Expediente"""
+    arc_documento = ArcDocumento.query.get_or_404(arc_documento_id)
+    if arc_documento.estatus == "B":
+        arc_documento.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado el Expediente {arc_documento.id}"),
+            url=url_for("arc_documentos.detail", documento_id=arc_documento.id),
+        )
+        bitacora.save()
+        # Añadir acción a la bitácora de Solicitudes
+        ArcDocumentoBitacora(
+            arc_documento=arc_documento,
+            usuario=current_user,
+            accion="RECUPERADO",
+        ).save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("arc_documentos.detail", documento_id=arc_documento.id))
