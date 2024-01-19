@@ -73,6 +73,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
     tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
     usuarios_roles = db.relationship("UsuarioRol", back_populates="usuario")  # Sin lazy="noload" para que funcione el menu
+    usuarios_nominas = db.relationship("UsuarioNomina", back_populates="usuario", lazy="noload")
     usuarios_solicitudes = db.relationship("UsuarioSolicitud", back_populates="usuario", lazy="noload")
 
     # Propiedades
