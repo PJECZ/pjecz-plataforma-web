@@ -33,23 +33,29 @@
         configDataTable['ajax']['url'] = '/usuarios_nominas/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: 'fecha' },
+            { data: 'detalle' },
             { data: 'url_pdf' },
             { data: 'url_xml' }
         ];
         configDataTable['columnDefs'] = [
             {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.fecha + '<br/><strong>' + data.descripcion + '</strong>';
+                }
+            },{
                 targets: 1, // url_pdf
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data + '" target="_blank"><i class="fs-2 bi bi-filetype-pdf" style="color: red;"></i></a>';
+                    return '<a href="' + data + '" download><i class="fs-2 bi bi-filetype-pdf" style="color: red;"></i></a>';
                 }
             },
             {
                 targets: 2, // url_xml
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data + '" target="_blank"><i class="fs-2 bi bi-filetype-xml" style="color: teal;"></i></a>';
+                    return '<a href="' + data + '" download><i class="fs-2 bi bi-filetype-xml" style="color: teal;"></i></a>';
                 }
             }
         ];

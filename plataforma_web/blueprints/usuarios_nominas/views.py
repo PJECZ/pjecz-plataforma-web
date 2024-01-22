@@ -43,7 +43,10 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "fecha": resultado.fecha_quincena.strftime("%Y-%m-%d"),
+                "detalle": {
+                    "fecha": resultado.fecha_quincena.strftime("%Y-%m-%d"),
+                    "descripcion": resultado.descripcion,
+                },
                 "url_pdf": resultado.url_pdf,
                 "url_xml": resultado.url_xml,
             }
@@ -58,6 +61,6 @@ def list_active():
     return render_template(
         "usuarios_nominas/list.jinja2",
         filtros=json.dumps({"usuario_id": current_user.id, "estatus": "A"}),
-        titulo="Recibos de Nómina",
+        titulo=f"Recibos de Nómina para {current_user.nombre}",
         estatus="A",
     )
