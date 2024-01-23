@@ -87,6 +87,7 @@ from plataforma_web.blueprints.tesis_jurisprudencias_sentencias.views import tes
 from plataforma_web.blueprints.ubicaciones_expedientes.views import ubicaciones_expedientes
 from plataforma_web.blueprints.usuarios.views import usuarios
 from plataforma_web.blueprints.usuarios_roles.views import usuarios_roles
+from plataforma_web.blueprints.usuarios_nominas.views import usuarios_nominas
 from plataforma_web.blueprints.usuarios_solicitudes.views import usuarios_solicitudes
 
 from plataforma_web.blueprints.usuarios.models import Usuario
@@ -185,6 +186,7 @@ def create_app():
     app.register_blueprint(usuarios)
     app.register_blueprint(usuarios_roles)
     app.register_blueprint(ubicaciones_expedientes)
+    app.register_blueprint(usuarios_nominas)
     app.register_blueprint(usuarios_solicitudes)
     # Cargar las extensiones
     extensions(app)
