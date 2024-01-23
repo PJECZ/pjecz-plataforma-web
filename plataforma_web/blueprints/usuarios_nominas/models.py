@@ -22,9 +22,9 @@ class UsuarioNomina(db.Model, UniversalMixin):
     # Columnas
     fecha_quincena = db.Column(db.Date, nullable=False)
     descripcion = db.Column(db.String(64), nullable=False)
-    archivo_pdf = db.Column(db.String(256), nullable=False)
-    url_pdf = db.Column(db.String(64), nullable=False)
+    archivo_pdf = db.Column(db.String(64), nullable=False)
     archivo_xml = db.Column(db.String(64), nullable=False)
+    url_pdf = db.Column(db.String(256), nullable=False)
     url_xml = db.Column(db.String(256), nullable=False)
 
     def __repr__(self):

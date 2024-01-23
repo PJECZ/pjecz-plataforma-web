@@ -34,8 +34,8 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: 'detalle' },
-            { data: 'url_pdf' },
-            { data: 'url_xml' }
+            { data: 'pdf' },
+            { data: 'xml' }
         ];
         configDataTable['columnDefs'] = [
             {
@@ -45,17 +45,17 @@
                     return data.fecha + '<br/><strong>' + data.descripcion + '</strong>';
                 }
             },{
-                targets: 1, // url_pdf
+                targets: 1, // pdf
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data + '" download><i class="fs-2 bi bi-filetype-pdf" style="color: red;"></i></a>';
+                    return '<a href="' + data.url_pdf + '" download="' + data.archivo_pdf + '"><i class="fs-2 bi bi-filetype-pdf" style="color: red;"></i></a>';
                 }
             },
             {
-                targets: 2, // url_xml
+                targets: 2, // xml
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data + '" download><i class="fs-2 bi bi-filetype-xml" style="color: teal;"></i></a>';
+                    return '<a href="' + data.url_xml + '" download="' + data.archivo_xml + '"><i class="fs-2 bi bi-filetype-xml" style="color: teal;"></i></a>';
                 }
             }
         ];
