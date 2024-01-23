@@ -12,7 +12,7 @@ class UsuarioNomina(db.Model, UniversalMixin):
     TIPOS = OrderedDict(  # varchar(16)
         [
             ("NO DEFINIDO", "No Definido"),
-            ("QUINCENA", "Quincena"),
+            ("SALARIO", "Salario"),
             ("APOYO", "Apoyo"),
             ("AGUINALDO", "Aguinaldo"),
         ]
