@@ -19,12 +19,12 @@ class UsuarioNomina(db.Model, UniversalMixin):
     usuario = db.relationship("Usuario", back_populates="usuarios_nominas")
 
     # Columnas
-    fecha_quincena = db.Column(db.Date, nullable=False)
-    descripcion = db.Column(db.String(64), nullable=False)
-    archivo_pdf = db.Column(db.String(64), nullable=False)
-    archivo_xml = db.Column(db.String(64), nullable=False)
-    url_pdf = db.Column(db.String(256), nullable=False)
-    url_xml = db.Column(db.String(256), nullable=False)
+    fecha = db.Column(db.Date, nullable=False)
+    descripcion = db.Column(db.String(256), nullable=False)
+    archivo_pdf = db.Column(db.String(256), nullable=False, default="", server_default="")
+    archivo_xml = db.Column(db.String(256), nullable=False, default="", server_default="")
+    url_pdf = db.Column(db.String(512), nullable=False, default="", server_default="")
+    url_xml = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     def __repr__(self):
         """Representación"""

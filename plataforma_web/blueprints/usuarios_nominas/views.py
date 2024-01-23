@@ -44,7 +44,7 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "fecha": resultado.fecha_quincena.strftime("%Y-%m-%d"),
+                    "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                     "descripcion": resultado.descripcion,
                 },
                 "pdf": {
