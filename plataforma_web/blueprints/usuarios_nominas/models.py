@@ -1,7 +1,6 @@
 """
 Usuarios_Nominas, modelos
 """
-from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
