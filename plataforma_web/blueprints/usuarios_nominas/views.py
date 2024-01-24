@@ -44,11 +44,17 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "fecha": resultado.fecha_quincena.strftime("%Y-%m-%d"),
+                    "fecha": resultado.fecha.strftime("%Y-%m-%d"),
                     "descripcion": resultado.descripcion,
                 },
-                "url_pdf": resultado.url_pdf,
-                "url_xml": resultado.url_xml,
+                "pdf": {
+                    "archivo_pdf": resultado.archivo_pdf,
+                    "url_pdf": resultado.url_pdf,
+                },
+                "xml": {
+                    "archivo_xml": resultado.archivo_xml,
+                    "url_xml": resultado.url_xml,
+                },
             }
         )
     # Entregar JSON
