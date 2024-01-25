@@ -100,7 +100,7 @@ def download_pdf(usuario_nomina_id):
 
     # Seguridad de liga
     if usuario_nomina.usuario.curp != current_user.curp:
-        flash("Su usuario no tiene acceso a este link", "warning")
+        flash("Acceso no autorizado", "warning")
         return redirect(url_for("usuarios_nominas.list_active"))
 
     # Si no tiene URL, redirigir a la página de detalle
@@ -139,7 +139,7 @@ def download_xml(usuario_nomina_id):
 
     # Seguridad de liga
     if usuario_nomina.usuario.curp != current_user.curp:
-        flash("Su usuario no tiene acceso a este link", "warning")
+        flash("Acceso no autorizado", "warning")
         return redirect(url_for("usuarios_nominas.list_active"))
 
     # Si no tiene URL, redirigir a la página de detalle
