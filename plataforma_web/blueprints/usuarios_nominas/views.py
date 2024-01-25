@@ -68,6 +68,16 @@ def datatable_json():
 @usuarios_nominas.route("/usuarios_nominas")
 def list_active():
     """Listado de Usuarios Nóminas activos"""
+
+    if current_user.curp == "":
+        return render_template(
+            "usuarios_solicitudes/message.jinja2",
+            usuario=current_user,
+            mensaje="Detectamos que nos falta tu CURP dentro de tus datos personales de Plataforma-Web. Crea un ticket donde nos proporciones tu CURP y solicitando su actualización al equipo de informática para poder ingresar a ver tus recibos de nómina.",
+            btn_texto="Regresar",
+            btn_enlace=url_for("sistemas.start"),
+        )
+
     return render_template(
         "usuarios_nominas/list.jinja2",
         filtros=json.dumps({"usuario_id": current_user.id, "estatus": "A"}),
