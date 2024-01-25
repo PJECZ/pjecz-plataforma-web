@@ -69,6 +69,7 @@ def datatable_json():
 def list_active():
     """Listado de Usuarios Nóminas activos"""
 
+    # TODO: aplicar safe_curp cuando se haga el merch con la rama que contiene el método
     if current_user.curp == "":
         return render_template(
             "usuarios_solicitudes/message.jinja2",
