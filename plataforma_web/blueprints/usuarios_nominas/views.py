@@ -83,10 +83,15 @@ def download_pdf(usuario_nomina_id):
     # Consultar el Timbrado
     usuario_nomina = UsuarioNomina.query.get_or_404(usuario_nomina_id)
 
+    # Seguridad de liga
+    if usuario_nomina.usuario.curp != current_user.curp:
+        flash("Su usuario no tiene acceso a este link", "warning")
+        return redirect(url_for("usuarios_nominas.list_active"))
+
     # Si no tiene URL, redirigir a la página de detalle
     if usuario_nomina.url_pdf == "":
         flash("El usuario_nomina no tiene un archivo PDF", "warning")
-        return redirect(url_for("usuarios_nominas.detail", nomina_id=usuario_nomina.id))
+        return redirect(url_for("usuarios_nominas.list_active"))
 
     # Si no tiene nombre para el archivo en archivo_pdf, elaborar uno con el UUID
     descarga_nombre = usuario_nomina.archivo_pdf
@@ -117,10 +122,15 @@ def download_xml(usuario_nomina_id):
     # Consultar el Timbrado
     usuario_nomina = UsuarioNomina.query.get_or_404(usuario_nomina_id)
 
+    # Seguridad de liga
+    if usuario_nomina.usuario.curp != current_user.curp:
+        flash("Su usuario no tiene acceso a este link", "warning")
+        return redirect(url_for("usuarios_nominas.list_active"))
+
     # Si no tiene URL, redirigir a la página de detalle
     if usuario_nomina.url_xml == "":
         flash("El usuario_nomina no tiene un archivo XML", "warning")
-        return redirect(url_for("usuarios_nominas.detail", nomina_id=usuario_nomina.id))
+        return redirect(url_for("usuarios_nominas.list_active"))
 
     # Si no tiene nombre para el archivo en archivo_xml, elaborar uno con el UUID
     descarga_nombre = usuario_nomina.archivo_xml
