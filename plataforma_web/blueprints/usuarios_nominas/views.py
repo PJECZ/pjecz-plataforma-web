@@ -116,7 +116,7 @@ def download_pdf(usuario_nomina_id):
     # Obtener el contenido del archivo desde Google Storage
     try:
         descarga_contenido = get_file_from_gcs(
-            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO"],
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_PERSEO"],
             blob_name=get_blob_name_from_url(usuario_nomina.url_pdf),
         )
     except (MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError) as error:
@@ -155,7 +155,7 @@ def download_xml(usuario_nomina_id):
     # Obtener el contenido del archivo desde Google Storage
     try:
         descarga_contenido = get_file_from_gcs(
-            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO"],
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_PERSEO"],
             blob_name=get_blob_name_from_url(usuario_nomina.url_xml),
         )
     except (MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError) as error:
