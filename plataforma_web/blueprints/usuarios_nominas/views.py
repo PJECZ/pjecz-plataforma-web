@@ -73,9 +73,9 @@ def list_active():
         return render_template(
             "usuarios_solicitudes/message.jinja2",
             usuario=current_user,
-            mensaje="Detectamos que nos falta tu CURP dentro de tus datos personales de Plataforma-Web. Crea un ticket donde nos proporciones tu CURP y solicitando su actualización al equipo de informática para poder ingresar a ver tus recibos de nómina.",
-            btn_texto="Regresar",
-            btn_enlace=url_for("sistemas.start"),
+            mensaje="Detectamos que nos falta tu CURP dentro de tus datos personales de Plataforma-Web. Crea un ticket donde nos proporciones tu CURP y solicitando su actualización al equipo de informática (soporte técnico) para poder ingresar a ver tus recibos de nómina.",
+            btn_texto="Crear ticket",
+            btn_enlace=url_for("soportes_tickets.new"),
         )
 
     return render_template(
