@@ -8,8 +8,7 @@ from flask_login import current_user, login_required
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.exceptions import MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError
 from lib.google_cloud_storage import get_blob_name_from_url, get_file_from_gcs
-
-# from lib.safe_string import safe_curp
+from lib.safe_string import safe_curp
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -69,8 +68,13 @@ def datatable_json():
 def list_active():
     """Listado de Usuarios Nóminas activos"""
 
-    # TODO: aplicar safe_curp cuando se haga el merch con la rama que contiene el método
-    if current_user.curp == "":
+    curp = ""
+    try:
+        curp = safe_curp(current_user.curp)
+    except ValueError:
+        curp = ""
+
+    if curp == "":
         return render_template(
             "usuarios_solicitudes/message.jinja2",
             usuario=current_user,
