@@ -105,7 +105,7 @@ def actualizar():
                 timbre.delete()
                 contador_eliminaciones = contador_eliminaciones + 1
 
-        # Bucle para añadir nuevos o actualizarlos
+        # Bucle para añadir nuevos o actualizar timbres
         for item in items:
             # Verificar si timbrado_id es nuevo
             usuario_nomina = UsuarioNomina.query.filter_by(timbrado_id=item["id"]).filter_by(usuario=usuario).filter_by(estatus="A").first()
