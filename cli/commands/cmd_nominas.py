@@ -51,6 +51,7 @@ def actualizar():
     contador = 0
     contador_nuevos = 0
     contador_cambios = 0
+    contador_eliminaciones = 0
     for usuario in Usuario.query.filter(Usuario.curp != "").filter_by(estatus="A").order_by(Usuario.curp).all():
         curp = None
         try:
@@ -93,7 +94,18 @@ def actualizar():
             continue
         items = datos["items"]
 
-        # Bucle por los items
+        # Bucle para eliminar faltantes
+        for timbre in UsuarioNomina.query.filter_by(usuario=usuario).filter_by(estatus="A").all():
+            encontrado = False
+            for item in items:
+                if item["id"] == timbre.timbrado_id:
+                    encontrado = True
+                    break
+            if encontrado is False:
+                timbre.delete()
+                contador_eliminaciones = contador_eliminaciones + 1
+
+        # Bucle para añadir nuevos o actualizarlos
         for item in items:
             # Verificar si timbrado_id es nuevo
             usuario_nomina = UsuarioNomina.query.filter_by(timbrado_id=item["id"]).filter_by(usuario=usuario).filter_by(estatus="A").first()
@@ -145,6 +157,7 @@ def actualizar():
     # Mensaje de termino
     click.echo(f"Hubo {contador_nuevos} timbres nuevos copiados.")
     click.echo(f"Hubo {contador_cambios} timbres actualizados.")
+    click.echo(f"Hubo {contador_eliminaciones} timbres eliminados.")
 
 
 cli.add_command(actualizar)
