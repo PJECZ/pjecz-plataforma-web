@@ -96,7 +96,7 @@ def actualizar():
         # Bucle por los items
         for item in items:
             # Verificar si timbrado_id es nuevo
-            usuario_nomina = UsuarioNomina.query.filter_by(timbrado_id=item["id"]).filter_by(estatus="A").first()
+            usuario_nomina = UsuarioNomina.query.filter_by(timbrado_id=item["id"]).filter_by(usuario=usuario).filter_by(estatus="A").first()
 
             # Añadimos un nuevo timbre a nóminas
             if item["id"] != "" and usuario_nomina is None:
