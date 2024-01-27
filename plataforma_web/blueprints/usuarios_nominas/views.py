@@ -78,7 +78,7 @@ def list_active():
         return render_template(
             "usuarios_solicitudes/message.jinja2",
             usuario=current_user,
-            mensaje="Detectamos que nos falta tu CURP dentro de tus datos personales de Plataforma-Web. Crea un ticket donde nos proporciones tu CURP y solicitando su actualización al equipo de informática (soporte técnico) para poder ingresar a ver tus recibos de nómina.",
+            mensaje="Tenemos un problema con tu CURP en Plataforma Web. Puede ser que falte o que sea incorrecto. Por favor por medio de un ticket de soporte haznos llegar tu CURP correcto (18 caracteres).",
             btn_texto="Crear ticket",
             btn_enlace=url_for("soportes_tickets.new"),
         )
@@ -100,7 +100,7 @@ def download_pdf(usuario_nomina_id):
 
     # Seguridad de liga
     if usuario_nomina.usuario.curp != current_user.curp:
-        flash("Su usuario no tiene acceso a este link", "warning")
+        flash("Acceso no autorizado", "warning")
         return redirect(url_for("usuarios_nominas.list_active"))
 
     # Si no tiene URL, redirigir a la página de detalle
@@ -139,7 +139,7 @@ def download_xml(usuario_nomina_id):
 
     # Seguridad de liga
     if usuario_nomina.usuario.curp != current_user.curp:
-        flash("Su usuario no tiene acceso a este link", "warning")
+        flash("Acceso no autorizado", "warning")
         return redirect(url_for("usuarios_nominas.list_active"))
 
     # Si no tiene URL, redirigir a la página de detalle
