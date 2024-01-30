@@ -116,7 +116,7 @@ def actualizar():
                     usuario=usuario,
                     timbrado_id=item["id"],
                     fecha=datetime.strptime(item["nomina_fecha_pago"], "%Y-%m-%d").date(),
-                    descripcion=item["estado"],
+                    descripcion=item["nomina_tipo"],
                     archivo_pdf=item["archivo_pdf"],
                     archivo_xml=item["archivo_xml"],
                     url_pdf=item["url_pdf"],
