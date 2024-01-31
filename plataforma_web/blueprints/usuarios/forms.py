@@ -6,7 +6,7 @@ from wtforms import HiddenField, IntegerField, PasswordField, SelectField, Strin
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
-from lib.safe_string import CONTRASENA_REGEXP
+from lib.safe_string import CONTRASENA_REGEXP, CURP_REGEXP
 
 from plataforma_web.blueprints.oficinas.models import Oficina
 from plataforma_web.blueprints.usuarios.models import Usuario
@@ -24,9 +24,7 @@ class AccesoForm(FlaskForm):
 
     siguiente = HiddenField()
     identidad = StringField("Correo electrónico o usuario", validators=[Optional(), Length(8, 256)])
-    contrasena = PasswordField(
-        "Contraseña", validators=[Optional(), Length(8, 48), Regexp(CONTRASENA_REGEXP, 0, CONTRASENA_MENSAJE)]
-    )
+    contrasena = PasswordField("Contraseña", validators=[Optional(), Length(8, 48), Regexp(CONTRASENA_REGEXP, 0, CONTRASENA_MENSAJE)])
     email = StringField("Correo electrónico", validators=[Optional(), Email()])
     token = StringField("Token", validators=[Optional()])
     guardar = SubmitField("Guardar")
@@ -63,7 +61,7 @@ class UsuarioNewForm(FlaskForm):
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
-    curp = StringField("CURP", validators=[Optional(), Length(max=256)])
+    curp = StringField("CURP", validators=[Optional(), Regexp(CURP_REGEXP), Length(max=18)])
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
     workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
@@ -89,7 +87,7 @@ class UsuarioEditForm(FlaskForm):
     nombres = StringField("Nombres", validators=[Optional(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[Optional(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
-    curp = StringField("CURP", validators=[Optional(), Length(max=256)])
+    curp = StringField("CURP", validators=[Optional(), Regexp(CURP_REGEXP), Length(max=18)])
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail")  # Read only
     workspace = StringField("Workspace")  # Read only
@@ -106,7 +104,7 @@ class UsuarioEditAdminForm(FlaskForm):
     nombres = StringField("Nombres", validators=[DataRequired(), Length(max=256)])
     apellido_paterno = StringField("Apellido paterno", validators=[DataRequired(), Length(max=256)])
     apellido_materno = StringField("Apellido materno", validators=[Optional(), Length(max=256)])
-    curp = StringField("CURP", validators=[Optional(), Length(max=256)])
+    curp = StringField("CURP", validators=[Optional(), Regexp(CURP_REGEXP), Length(max=18)])
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
     workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
