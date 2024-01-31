@@ -151,6 +151,14 @@ def new():
             )
             bitacora.save()
             flash(bitacora.descripcion, "success")
+
+            # Lanzar tarea en el fondo para enviar email de validación
+            current_user.launch_task(
+                nombre="usuarios_solicitudes.tasks.enviar_email_validacion",
+                descripcion="Enviando email de validación de email personal.",
+                usuario_solicitud_id=usuario_solicitud.id,
+            )
+
             return render_template(
                 "usuarios_solicitudes/message.jinja2",
                 usuario=usuario,
