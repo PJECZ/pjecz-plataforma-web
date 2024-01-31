@@ -17,7 +17,7 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.firebase_auth import firebase_auth
 from lib.pwgen import generar_api_key, generar_contrasena
 from lib.safe_next_url import safe_next_url
-from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string
+from lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_curp, safe_email, safe_message, safe_string
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
@@ -315,7 +315,7 @@ def new():
                 nombres=safe_string(form.nombres.data, save_enie=True),
                 apellido_paterno=safe_string(form.apellido_paterno.data, save_enie=True),
                 apellido_materno=safe_string(form.apellido_materno.data, save_enie=True),
-                curp=safe_string(form.curp.data),
+                curp=safe_curp(form.curp.data, is_optional=True),
                 puesto=safe_string(form.puesto.data, save_enie=True),
                 email=email,
                 workspace=form.workspace.data,
@@ -350,7 +350,7 @@ def edit(usuario_id):
         usuario.nombres = safe_string(form.nombres.data, save_enie=True)
         usuario.apellido_paterno = safe_string(form.apellido_paterno.data, save_enie=True)
         usuario.apellido_materno = safe_string(form.apellido_materno.data, save_enie=True)
-        usuario.curp = safe_string(form.curp.data)
+        usuario.curp = safe_curp(form.curp.data, is_optional=True)
         usuario.puesto = safe_string(form.puesto.data, save_enie=True)
         usuario.oficina = form.oficina.data
         usuario.efirma_registro_id = form.efirma_registro_id.data
@@ -400,7 +400,7 @@ def edit_admin(usuario_id):
             usuario.nombres = safe_string(form.nombres.data, save_enie=True)
             usuario.apellido_paterno = safe_string(form.apellido_paterno.data, save_enie=True)
             usuario.apellido_materno = safe_string(form.apellido_materno.data, save_enie=True)
-            usuario.curp = safe_string(form.curp.data)
+            usuario.curp = safe_curp(form.curp.data, is_optional=True)
             usuario.puesto = safe_string(form.puesto.data, save_enie=True)
             usuario.email = email
             usuario.workspace = safe_string(form.workspace.data)
