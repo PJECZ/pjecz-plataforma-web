@@ -24,8 +24,9 @@
         <hr />
         <div class="row">
             <div class="col-md-3 text-end">Correo Electronico Personal</div>
-            <div class="col-md-5"><strong>{{ usuario_solicitud.email_personal }}</strong></div>
+            <div class="col-md-3"><strong>{{ usuario_solicitud.email_personal }}</strong></div>
             <div class="col-md-2">Token: <span class="fs-6 fw-bold font-monospace">{{ usuario_solicitud.token_email }}</span></div>
+            <div class="col-md-2">Intentos: <span class="fs-6 fw-bold font-monospace">{{ usuario_solicitud.intentos_email }}</span></div>
             <div class="col-md-2">
                 {% if usuario_solicitud.validacion_email %}
                     <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:checkbox-marked-circle"></span> VALIDADO</span>
@@ -36,8 +37,9 @@
         </div>
         <div class="row">
             <div class="col-md-3 text-end">Teléfono Celular</div>
-            <div class="col-md-5"><strong>{{ usuario_solicitud.telefono_celular }}</strong></div>
+            <div class="col-md-3"><strong>{{ usuario_solicitud.telefono_celular }}</strong></div>
             <div class="col-md-2">Token: <span class="fs-6 fw-bold font-monospace">{{ usuario_solicitud.token_telefono_celular }}</span></div>
+            <div class="col-md-2">Intentos: <span class="fs-6 fw-bold font-monospace">{{ usuario_solicitud.intentos_telefono_celular }}</span></div>
             <div class="col-md-2">
                 {% if usuario_solicitud.validacion_telefono_celular %}
                     <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:checkbox-marked-circle"></span> VALIDADO</span>
