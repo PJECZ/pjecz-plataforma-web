@@ -25,9 +25,9 @@
                         <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-usuarios-nominas-3.png" class="img-fluid mb-2">
                         <h4>Recibos de Nómina</h4>
                         <p>
-                            A partir de diciembre de 2023 tus recibos de nómina están disponibles para su descarga aquí en Plataforma Web.
-                            En caso de que no veas tus recibos, revisa que en <a href="/perfil">tu perfil</a> tu CURP se correcta.
-                            Levanta un ticket de soporte técnico si no es así.
+                            A partir de diciembre de 2023 tus recibos de nómina están disponibles para su descarga en esta plataforma.
+                            En caso de que no veas tus recibos, revisa en <a href="/perfil">tu perfil</a> que tu CURP sea correcta,
+                            y si no lo es, crea un <a href="/soportes_tickets/nuevo">ticket de soporte</a> con el CURP correcto.
                         </p>
                         <a href="{{ url_for('usuarios_nominas.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Recibos de Nómina</a>
                     </div>
@@ -35,8 +35,8 @@
                         <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-soportes-tickets-2.png" class="img-fluid mb-2">
                         <h4>Actualizar mis datos personales</h4>
                         <p>
-                            Necesitamos contar con tu número de celular y correo electrónico personal (no coahuila.gob.mx).
-                            Esto servirá para recibir notificaciones, validar tu acceso y para recibir vales de gasolina electrónicos.
+                            Proporciona tu número de celular y correo electrónico personales (no coahuila.gob.mx o pjecz.gob.mx).
+                            En un futuro, vas a recibir notificaciones, validar tu acceso y tramitar vales de gasolina por estos medios.
                         </p>
                         <a href="{{ url_for('usuarios_solicitudes.new') }}" class="btn btn-primary btn-tickets ml-auto">Actualizar mis datos personales</a>
                     </div>
