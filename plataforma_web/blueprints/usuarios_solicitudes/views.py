@@ -19,6 +19,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_solicitudes.forms import UsuarioSolicitudNewForm, UsuarioSolicitudValidateTokenEmailForm, UsuarioSolicitudValidateTokenTelefonoCelularForm
 
 MODULO = "USUARIOS SOLICITUDES"
+VALIDACION_MAX_INTENTOS = 5
 
 usuarios_solicitudes = Blueprint("usuarios_solicitudes", __name__, template_folder="templates")
 
@@ -186,59 +187,56 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def token_email(usuario_solicitud_id):
     """Validar el Token Email Personal"""
+
+    # Consultamos la solicitud usuario_solicitud recibida
     usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
 
-    if usuario_solicitud.usuario != current_user and not current_user.can_admin(MODULO):
+    # Si el usuario que consulta no es el usuario de la solicitud, te reenvía a inicio
+    if usuario_solicitud.usuario != current_user:
         flash("No puede acceder a la validación de email personal de otro usuario", "warning")
-        return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+        return redirect(url_for("sistemas.start"))
 
+    # Si la validación del token del email ya fue hecha, avisamos al usuario y lo redirigimos al inicio.
     if usuario_solicitud.validacion_email is True:
         flash("Validación de E-mail ya hecha correctamente", "warning")
-        return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+        return redirect(url_for("sistemas.start"))
 
+    # Si el número de intentos es igual o mayor a VALIDACION_MAX_INTENTOS, indicarlo y redirigirlo a la pantalla de inicio.
+    if usuario_solicitud.intentos_email >= VALIDACION_MAX_INTENTOS:
+        flash("Ha superado el número de intentos para validar su email personal", "warning")
+        return redirect(url_for("sistemas.start"))
+
+    # Procesamos el formulario de envío
     form = UsuarioSolicitudValidateTokenEmailForm()
     if form.validate_on_submit():
-        if usuario_solicitud.usuario != current_user and not current_user.can_admin(MODULO):
-            flash("No puede acceder a la validación de email personal de otro usuario", "warning")
-            return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+        usuario = Usuario.query.get_or_404(current_user.id)
 
-        usuario = Usuario.query.filter_by(id=usuario_solicitud.usuario_id).filter_by(estatus="A").first()
+        # Comprobamos que el token sea el mismo que se espera
+        if str(usuario_solicitud.token_email) == safe_string(form.token_email.data):
+            usuario_solicitud.validacion_email = True
+            usuario_solicitud.save()
+            usuario.email_personal = safe_email(usuario_solicitud.email_personal)
+            usuario.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"El usuario {current_user.email} a agregado con éxito su correo personal {usuario_solicitud.email_personal}"),
+                url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+        else:
+            usuario_solicitud.intentos_email = usuario_solicitud.intentos_email + 1
+            usuario_solicitud.save()
+            flash("ERROR: Token incorrecto.", "danger")
+        return redirect(url_for("sistemas.start"))
 
-        if usuario is None:
-            flash("Error no se pudo localizar al usuario", "danger")
-            return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
-
-        if usuario_solicitud.validacion_email is False:
-            if str(usuario_solicitud.token_email) == safe_string(form.token_email.data):
-                usuario_solicitud.validacion_email = True
-                usuario_solicitud.save()
-                usuario.email_personal = safe_email(usuario_solicitud.email_personal)
-                usuario.save()
-                bitacora = Bitacora(
-                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                    usuario=current_user,
-                    descripcion=safe_message(f"Token Email - Válido para la solicitud {usuario_solicitud.id}"),
-                    url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
-                )
-                bitacora.save()
-                flash(bitacora.descripcion, "success")
-            else:
-                usuario_solicitud.validacion_email = False
-                usuario_solicitud.save()
-                bitacora = Bitacora(
-                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                    usuario=current_user,
-                    descripcion=safe_message(f"Token Email - Erróneo para la solicitud {usuario_solicitud.id}"),
-                    url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
-                )
-                bitacora.save()
-                flash(bitacora.descripcion, "danger")
-            return redirect(bitacora.url)
-
-    form.usuario_email.data = usuario_solicitud.usuario.email
-    form.usuario_nombre.data = usuario_solicitud.usuario.nombre
+    # Cargamos campos de lectura para el formulario
+    form.usuario_email.data = usuario_solicitud.current_user.email
+    form.usuario_nombre.data = usuario_solicitud.current_user.nombre
     form.email_personal.data = usuario_solicitud.email_personal
 
+    # Mostramos el formulario
     return render_template("usuarios_solicitudes/token_email.jinja2", form=form, usuario_solicitud=usuario_solicitud)
 
 
@@ -246,49 +244,49 @@ def token_email(usuario_solicitud_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def token_celular(usuario_solicitud_id):
     """Validar el Token Teléfono Celular"""
+
+    # Consultamos la solicitud usuario_solicitud recibida
     usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
 
-    if usuario_solicitud.usuario != current_user and not current_user.can_admin(MODULO):
+    # Si el usuario que consulta no es el usuario de la solicitud, te reenvía a inicio
+    if usuario_solicitud.usuario != current_user:
         flash("No puede acceder a la validación del celular personal de otro usuario", "warning")
-        return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+        return redirect(url_for("sistemas.start"))
 
     if usuario_solicitud.validacion_telefono_celular is True:
         flash("Validación de Teléfono Celular ya hecha correctamente", "warning")
-        return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+        return redirect(url_for("sistemas.start"))
 
+    # Si el número de intentos es igual o mayor a VALIDACION_MAX_INTENTOS, indicarlo y redirigir a pantalla de inicio.
+    if usuario_solicitud.intentos_telefono_celular >= VALIDACION_MAX_INTENTOS:
+        flash("Ha superado el número de intentos para validar su teléfono celular", "warning")
+        return redirect(url_for("sistemas.start"))
+
+    # Procesamos el formulario de envío
     form = UsuarioSolicitudValidateTokenTelefonoCelularForm()
     if form.validate_on_submit():
-        if usuario_solicitud.usuario != current_user and not current_user.can_admin(MODULO):
-            flash("No puede acceder a la validación del teléfono celular personal de otro usuario", "warning")
-            return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+        # Comprobamos que el token sea el mismo que se espera
+        if str(usuario_solicitud.token_telefono_celular) == safe_string(form.token_telefono_celular.data):
+            usuario_solicitud.validacion_telefono_celular = True
+            usuario_solicitud.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"El usuario {current_user.email} a agregado con éxito su teléfono celular personal {usuario_solicitud.telefono_celular}"),
+                url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+        else:
+            usuario_solicitud.intentos_telefono_celular = usuario_solicitud.intentos_telefono_celular + 1
+            usuario_solicitud.save()
+            flash("ERROR: Token incorrecto.", "danger")
+        return redirect(url_for("sistemas.start"))
 
-        if usuario_solicitud.validacion_telefono_celular is False:
-            if str(usuario_solicitud.token_telefono_celular) == safe_string(form.token_telefono_celular.data):
-                usuario_solicitud.validacion_telefono_celular = True
-                usuario_solicitud.save()
-                bitacora = Bitacora(
-                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                    usuario=current_user,
-                    descripcion=safe_message(f"Token Teléfono Celular - Válido para la solicitud {usuario_solicitud.id}"),
-                    url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
-                )
-                bitacora.save()
-                flash(bitacora.descripcion, "success")
-            else:
-                usuario_solicitud.validacion_telefono_celular = False
-                usuario_solicitud.save()
-                bitacora = Bitacora(
-                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                    usuario=current_user,
-                    descripcion=safe_message(f"Token Teléfono Celular - Erróneo para la solicitud {usuario_solicitud.id}"),
-                    url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
-                )
-                bitacora.save()
-                flash(bitacora.descripcion, "danger")
-            return redirect(bitacora.url)
-
+    # Cargamos campos de lectura para el formulario
     form.usuario_email.data = usuario_solicitud.usuario.email
     form.usuario_nombre.data = usuario_solicitud.usuario.nombre
     form.telefono_celular.data = usuario_solicitud.telefono_celular
 
+    # Mostramos el formulario
     return render_template("usuarios_solicitudes/token_celular.jinja2", form=form, usuario_solicitud=usuario_solicitud)
