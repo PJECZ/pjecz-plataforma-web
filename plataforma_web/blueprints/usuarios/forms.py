@@ -107,6 +107,7 @@ class UsuarioEditAdminForm(FlaskForm):
     curp = StringField("CURP", validators=[Optional(), Regexp(CURP_REGEXP), Length(max=18)])
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
+    email_personal = StringField("e-mail personal", validators=[Optional(), Email()])
     workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
     efirma_registro_id = IntegerField("ID de registro en eFirma", validators=[Optional()])
     contrasena = PasswordField(

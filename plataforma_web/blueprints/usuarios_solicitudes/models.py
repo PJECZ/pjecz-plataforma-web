@@ -27,6 +27,8 @@ class UsuarioSolicitud(db.Model, UniversalMixin):
     token_telefono_celular = db.Column(db.String(6))
     validacion_email = db.Column(db.Boolean, default=False)
     validacion_telefono_celular = db.Column(db.Boolean, default=False)
+    intentos_email = db.Column(db.Integer)
+    intentos_telefono_celular = db.Column(db.Integer)
 
     def __repr__(self):
         """Representación"""

@@ -403,6 +403,7 @@ def edit_admin(usuario_id):
             usuario.curp = safe_curp(form.curp.data, is_optional=True)
             usuario.puesto = safe_string(form.puesto.data, save_enie=True)
             usuario.email = email
+            usuario.email_personal = safe_email(form.email_personal.data)
             usuario.workspace = safe_string(form.workspace.data)
             usuario.efirma_registro_id = form.efirma_registro_id.data
             usuario.oficina = form.oficina.data
@@ -426,6 +427,7 @@ def edit_admin(usuario_id):
     form.curp.data = usuario.curp
     form.puesto.data = usuario.puesto
     form.email.data = usuario.email
+    form.email_personal.data = usuario.email_personal
     form.workspace.data = usuario.workspace
     form.efirma_registro_id.data = usuario.efirma_registro_id
     form.oficina.data = usuario.oficina

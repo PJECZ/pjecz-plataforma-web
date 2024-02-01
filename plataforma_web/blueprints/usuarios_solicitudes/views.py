@@ -114,36 +114,59 @@ def new():
         return render_template(
             "usuarios_solicitudes/message.jinja2",
             usuario=usuario,
-            mensaje="Ya tienes una solicitud en progreso, espera al menos 7 días para hacer una nueva solicitud.",
+            mensaje="Ya tienes una solicitud en progreso, espera al menos 7 días para hacer una nueva solicitud.<br/>Revisa tu correo electrónico ingresado, te enviamos una validación.",
             btn_texto="Regresar",
             btn_enlace=url_for("sistemas.start"),
         )
 
     form = UsuarioSolicitudNewForm()
     if form.validate_on_submit():
-        usuario_solicitud = UsuarioSolicitud(
-            usuario=usuario,
-            email_personal=safe_email(form.email_personal.data),
-            telefono_celular=safe_string(form.telefono_celular.data),
-            token_email=randint(100000, 999999),
-            token_telefono_celular=randint(100000, 999999),
-        )
-        usuario_solicitud.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Nueva usuario solicitud {usuario.id}"),
-            url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return render_template(
-            "usuarios_solicitudes/message.jinja2",
-            usuario=usuario,
-            mensaje="Solicitud enviada correctamente. Tus datos personales serán procesadas en poco tiempo, gracias por participar.",
-            btn_texto="Regresar",
-            btn_enlace=url_for("sistemas.start"),
-        )
+        # validación de terminación de correo personal
+        correo_invalido = False
+        email_personal = None
+        try:
+            email_personal = safe_email(form.email_personal.data)
+        except ValueError:
+            correo_invalido = True
+        if "pjecz" in email_personal or "coahuila" in email_personal:
+            correo_invalido = True
+        if correo_invalido:
+            flash(f"El correo {email_personal} no es válido. No utilice correos con terminación @pjecz.gob.mx o @coahuila.gob.mx", "warning")
+        else:
+            usuario_solicitud = UsuarioSolicitud(
+                usuario=usuario,
+                email_personal=safe_email(form.email_personal.data),
+                telefono_celular=safe_string(form.telefono_celular.data),
+                token_email=randint(100000, 999999),
+                token_telefono_celular=randint(100000, 999999),
+                intentos_email=0,
+                intentos_telefono_celular=0,
+            )
+            usuario_solicitud.save()
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=current_user,
+                descripcion=safe_message(f"Nueva solicitud de actualización de datos con id: {usuario_solicitud.id}. completada correctamente."),
+                url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+
+            # Lanzar tarea en el fondo para enviar email de validación
+            current_user.launch_task(
+                nombre="usuarios_solicitudes.tasks.enviar_email_validacion",
+                descripcion="Enviando email de validación de email personal.",
+                usuario_solicitud_id=usuario_solicitud.id,
+            )
+
+            return render_template(
+                "usuarios_solicitudes/message.jinja2",
+                usuario=usuario,
+                cabecera=f"Bien hecho {usuario.nombre}",
+                mensaje="Solicitud enviada correctamente. Tus datos personales serán procesadas en poco tiempo, gracias por participar.",
+                btn_texto="Regresar",
+                btn_enlace=url_for("sistemas.start"),
+            )
 
     form.usuario_email.data = usuario.email
     form.usuario_nombre.data = usuario.nombre
@@ -171,10 +194,18 @@ def token_email(usuario_solicitud_id):
             flash("No puede acceder a la validación de email personal de otro usuario", "warning")
             return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
 
+        usuario = Usuario.query.filter_by(id=usuario_solicitud.usuario_id).filter_by(estatus="A").first()
+
+        if usuario is None:
+            flash("Error no se pudo localizar al usuario", "danger")
+            return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+
         if usuario_solicitud.validacion_email is False:
             if str(usuario_solicitud.token_email) == safe_string(form.token_email.data):
                 usuario_solicitud.validacion_email = True
                 usuario_solicitud.save()
+                usuario.email_personal = safe_email(usuario_solicitud.email_personal)
+                usuario.save()
                 bitacora = Bitacora(
                     modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                     usuario=current_user,
