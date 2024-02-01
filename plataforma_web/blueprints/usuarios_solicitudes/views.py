@@ -75,6 +75,7 @@ def datatable_json():
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active():
     """Listado de Usuarios Solicitudes activos"""
     return render_template(
@@ -86,7 +87,7 @@ def list_active():
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/inactivos")
-@permission_required(MODULO, Permiso.MODIFICAR)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_inactive():
     """Listado de Usuarios Solicitudes inactivos"""
     return render_template(
@@ -98,6 +99,7 @@ def list_inactive():
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/<int:usuario_solicitud_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
 def detail(usuario_solicitud_id):
     """Detalle de un Usuario Solicitud"""
     usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
