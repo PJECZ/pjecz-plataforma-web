@@ -194,10 +194,18 @@ def token_email(usuario_solicitud_id):
             flash("No puede acceder a la validación de email personal de otro usuario", "warning")
             return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
 
+        usuario = Usuario.query.filter_by(id=usuario_solicitud.usuario_id).filter_by(estatus="A").first()
+
+        if usuario is None:
+            flash("Error no se pudo localizar al usuario", "danger")
+            return redirect(url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id))
+
         if usuario_solicitud.validacion_email is False:
             if str(usuario_solicitud.token_email) == safe_string(form.token_email.data):
                 usuario_solicitud.validacion_email = True
                 usuario_solicitud.save()
+                usuario.email_personal = safe_email(usuario_solicitud.email_personal)
+                usuario.save()
                 bitacora = Bitacora(
                     modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                     usuario=current_user,

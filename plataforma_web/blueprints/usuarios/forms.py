@@ -24,9 +24,7 @@ class AccesoForm(FlaskForm):
 
     siguiente = HiddenField()
     identidad = StringField("Correo electrónico o usuario", validators=[Optional(), Length(8, 256)])
-    contrasena = PasswordField(
-        "Contraseña", validators=[Optional(), Length(8, 48), Regexp(CONTRASENA_REGEXP, 0, CONTRASENA_MENSAJE)]
-    )
+    contrasena = PasswordField("Contraseña", validators=[Optional(), Length(8, 48), Regexp(CONTRASENA_REGEXP, 0, CONTRASENA_MENSAJE)])
     email = StringField("Correo electrónico", validators=[Optional(), Email()])
     token = StringField("Token", validators=[Optional()])
     guardar = SubmitField("Guardar")
@@ -109,6 +107,7 @@ class UsuarioEditAdminForm(FlaskForm):
     curp = StringField("CURP", validators=[Optional(), Length(max=256)])
     puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
     email = StringField("e-mail", validators=[DataRequired(), Email()])
+    email_personal = StringField("e-mail personal", validators=[Optional(), Email()])
     workspace = SelectField("Workspace", choices=Usuario.WORKSPACES, validators=[DataRequired()])
     efirma_registro_id = IntegerField("ID de registro en eFirma", validators=[Optional()])
     contrasena = PasswordField(
