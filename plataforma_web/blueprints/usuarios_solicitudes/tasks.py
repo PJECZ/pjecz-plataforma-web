@@ -41,33 +41,47 @@ MAX_NUM_INTENTOS = 3
 def enviar_email_validacion(usuario_solicitud_id: int):
     """Enviar usuario solicitud para validación de email"""
 
-    # Consultar
+    # Validar que se tiene VALIDACION_EMAIL_PERSONAL_URL
+    url = None
+    if VALIDACION_EMAIL_PERSONAL_URL == "":
+        mensaje_error = "Falta declarar la variable: VALIDACION_EMAIL_PERSONAL_URL."
+        bitacora.error(mensaje_error)
+        return mensaje_error
+
+    # Validar que se tiene el remitente
+    from_email = None
+    if SENDGRID_FROM_EMAIL == "":
+        mensaje_error = "Falta declarar la variable: SENDGRID_FROM_EMAIL."
+        bitacora.error(mensaje_error)
+        return mensaje_error
+    from_email = Email(SENDGRID_FROM_EMAIL)
+
+    # Validar que se tiene SENDGRID_API_KEY y crear el cliente de SendGrid
+    sendgrid_client = None
+    if SENDGRID_API_KEY == "":
+        mensaje_error = "Falta declarar la variable: SENDGRID_API_KEY."
+        bitacora.error(mensaje_error)
+        return mensaje_error
+    sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+
+    # Consultar la solicitud
     usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
 
-    # Validar el número de intentos
-    if usuario_solicitud.intentos_email >= MAX_NUM_INTENTOS:
-        # Terminar tarea
-        set_task_progress(100)
-        mensaje_final = f"No se ha enviado el mensaje al correo {usuario_solicitud.email_personal} por exceso de intentos."
-        bitacora.info(mensaje_final)
-        return mensaje_final
+    # Definir el URL que ira en el mensaje para validar el email personal
+    url = f"{VALIDACION_EMAIL_PERSONAL_URL}/{usuario_solicitud.id}"
 
-    # Bandera para saber si se tienen todos los elementos necesarios
-    bandera = True
+    # Si intentos_email es mayor o igual a MAX_NUM_INTENTOS, se termina la tarea
+    if usuario_solicitud.intentos_email >= MAX_NUM_INTENTOS:
+        mensaje_error = f"No se envió el mensaje a {usuario_solicitud.email_personal} porque llegó al máximo de intentos."
+        set_task_error(mensaje_error)
+        bitacora.warning(mensaje_error)
+        return mensaje_error
 
     # Momento en que se elabora este mensaje
     momento = datetime.now()
     momento_str = momento.strftime("%d/%B/%Y %I:%M%p")
 
-    # URL
-    url = None
-    if VALIDACION_EMAIL_PERSONAL_URL != "":
-        url = f"{VALIDACION_EMAIL_PERSONAL_URL}/{usuario_solicitud.id}"
-    else:
-        bitacora.warning("Falta declarar la variable: VALIDACION_EMAIL_PERSONAL_URL.")
-        bandera = False
-
-    # Contenidos
+    # Elaborar el contenido del mensaje de correo electronico
     contenidos = [
         "<h1>Plataforma Web</h1>",
         "<h2>PODER JUDICIAL DEL ESTADO DE COAHUILA DE ZARAGOZA</h2>",
@@ -79,41 +93,28 @@ def enviar_email_validacion(usuario_solicitud_id: int):
     ]
     content = Content("text/html", "".join(contenidos))
 
-    # Remitente
-    from_email = None
-    if SENDGRID_FROM_EMAIL != "":
-        from_email = Email(SENDGRID_FROM_EMAIL)
-    else:
-        bitacora.warning("Falta declarar la variable: SENDGRID_FROM_EMAIL.")
-        bandera = False
-
-    # Destinatario
+    # Definir el destinatario
     to_email = To(usuario_solicitud.email_personal)
 
-    # Asunto
+    # Definir el asunto
     subject = "Validación de email personal para el sistema - Plataforma Web"
 
-    # SendGrid
-    sendgrid_client = None
-    if SENDGRID_API_KEY != "":
-        sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
-    else:
-        bitacora.warning("Falta declarar la variable: SENDGRID_API_KEY.")
-        bandera = False
-
     # Enviar mensaje
-    mensaje_final = ""
-    if bandera:
+    try:
         mail = Mail(from_email, to_email, subject, content)
         sendgrid_client.client.mail.send.post(request_body=mail.get())
-        usuario_solicitud.intentos_email = usuario_solicitud.intentos_email + 1
-        usuario_solicitud.save()
-        mensaje_final = f"Se ha enviado el mensaje número {usuario_solicitud.intentos_email} al correo {usuario_solicitud.email_personal}"
-        bitacora.info(mensaje_final)
-    else:
-        mensaje_final = f"Se omite el envió a {usuario_solicitud.email_personal} por que faltan elementos"
-        bitacora.warning(mensaje_final)
+    except Exception as e:
+        mensaje_error = f"No se envió el mensaje a {usuario_solicitud.email_personal} por error de SendGrid. {e}"
+        set_task_error(mensaje_error)
+        bitacora.error(mensaje_error)
+        return mensaje_error
+
+    # Incrementar el contador de intentos_email
+    usuario_solicitud.intentos_email = usuario_solicitud.intentos_email + 1
+    usuario_solicitud.save()
 
     # Terminar tarea
-    set_task_progress(100)
+    mensaje_final = f"Se ha enviado el mensaje número {usuario_solicitud.intentos_email} al correo {usuario_solicitud.email_personal}"
+    bitacora.info(mensaje_final)
+    set_task_progress(100, mensaje_final)
     return mensaje_final

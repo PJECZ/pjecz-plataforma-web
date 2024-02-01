@@ -107,35 +107,38 @@ def detail(usuario_solicitud_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo usuario solicitud"""
-    usuario = Usuario.query.get_or_404(current_user.id)
 
-    # Sí el usuario ya tiene una solicitud activa enviarle mensaje de notificación
-    if UsuarioSolicitud.query.filter_by(usuario=usuario).filter_by(estatus="A").first():
+    # Si el usuario ya tiene una solicitud activa, redirigir a la pagina message
+    if UsuarioSolicitud.query.filter_by(usuario_id=current_user.id).filter_by(estatus="A").first():
         return render_template(
             "usuarios_solicitudes/message.jinja2",
-            usuario=usuario,
-            mensaje="Ya tienes una solicitud en progreso, espera al menos 7 días para hacer una nueva solicitud.<br/>Revisa tu correo electrónico ingresado, te enviamos una validación.",
-            btn_texto="Regresar",
+            usuario=current_user,
+            mensaje="Ya tienes una solicitud en progreso.<br/>Revisa tu correo electrónico personal, te enviamos un mensaje con un token para validar.",
+            btn_texto="Ir al Inicio",
             btn_enlace=url_for("sistemas.start"),
         )
 
+    # Si viene el formulario
     form = UsuarioSolicitudNewForm()
     if form.validate_on_submit():
-        # validación de terminación de correo personal
-        correo_invalido = False
+        # Validar el correo electronico personal
+        es_valido = True
         email_personal = None
         try:
             email_personal = safe_email(form.email_personal.data)
         except ValueError:
-            correo_invalido = True
-        if "pjecz" in email_personal or "coahuila" in email_personal:
-            correo_invalido = True
-        if correo_invalido:
-            flash(f"El correo {email_personal} no es válido. No utilice correos con terminación @pjecz.gob.mx o @coahuila.gob.mx", "warning")
-        else:
+            flash(f"El correo {email_personal} no es válido.", "warning")
+            es_valido = False
+        if email_personal.endswith("@pjecz.gob.mx") or email_personal.endswith("@coahuila.gob.mx"):
+            flash("Su correo electrónico personal NO debe ser @pjecz.gob.mx o @coahuila.gob.mx", "warning")
+            es_valido = False
+
+        # Si es valido, guardar la solicitud y enviar el mensaje para validación
+        if es_valido:
+            # Guardar la solicitud, creando un token para el email personal y el telefono celular
             usuario_solicitud = UsuarioSolicitud(
-                usuario=usuario,
-                email_personal=safe_email(form.email_personal.data),
+                usuario=current_user,
+                email_personal=email_personal,
                 telefono_celular=safe_string(form.telefono_celular.data),
                 token_email=randint(100000, 999999),
                 token_telefono_celular=randint(100000, 999999),
@@ -143,10 +146,12 @@ def new():
                 intentos_telefono_celular=0,
             )
             usuario_solicitud.save()
+
+            # Agregar a la bitácora
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Nueva solicitud de actualización de datos con id: {usuario_solicitud.id}. completada correctamente."),
+                descripcion=safe_message(f"Nueva solicitud de actualización de datos de {usuario_solicitud.usuario.email}."),
                 url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
             )
             bitacora.save()
@@ -159,19 +164,22 @@ def new():
                 usuario_solicitud_id=usuario_solicitud.id,
             )
 
+            # Redirigir a la página de mensaje
             return render_template(
                 "usuarios_solicitudes/message.jinja2",
-                usuario=usuario,
-                cabecera=f"Bien hecho {usuario.nombre}",
-                mensaje="Solicitud enviada correctamente. Tus datos personales serán procesadas en poco tiempo, gracias por participar.",
+                usuario=current_user,
+                cabecera=f"Gracias {current_user.nombre}",
+                mensaje="En poco tiempo recibirás un mensaje en tu correo electrónico personal. Este contiene un token para validar y un enlace al que debes de ir para completar este proceso.",
                 btn_texto="Regresar",
                 btn_enlace=url_for("sistemas.start"),
             )
 
-    form.usuario_email.data = usuario.email
-    form.usuario_nombre.data = usuario.nombre
+    # Si no viene el formulario, poner los valores en los campos de solo lectura
+    form.usuario_email.data = current_user.email
+    form.usuario_nombre.data = current_user.nombre
 
-    return render_template("usuarios_solicitudes/new.jinja2", form=form, usuario=usuario)
+    # Mostrar el formulario
+    return render_template("usuarios_solicitudes/new.jinja2", form=form, usuario=current_user)
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/token_email/<int:usuario_solicitud_id>", methods=["GET", "POST"])
