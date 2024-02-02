@@ -44,7 +44,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "usuario_id" in request.form:
         consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
-    registros = consulta.order_by(UsuarioSolicitud.id).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(UsuarioSolicitud.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -234,8 +234,8 @@ def token_email(usuario_solicitud_id):
         return redirect(url_for("sistemas.start"))
 
     # Cargamos campos de lectura para el formulario
-    form.usuario_email.data = usuario_solicitud.current_user.email
-    form.usuario_nombre.data = usuario_solicitud.current_user.nombre
+    form.usuario_email.data = current_user.email
+    form.usuario_nombre.data = current_user.nombre
     form.email_personal.data = usuario_solicitud.email_personal
 
     # Mostramos el formulario
@@ -286,8 +286,8 @@ def token_celular(usuario_solicitud_id):
         return redirect(url_for("sistemas.start"))
 
     # Cargamos campos de lectura para el formulario
-    form.usuario_email.data = usuario_solicitud.usuario.email
-    form.usuario_nombre.data = usuario_solicitud.usuario.nombre
+    form.usuario_email.data = current_user.email
+    form.usuario_nombre.data = current_user.nombre
     form.telefono_celular.data = usuario_solicitud.telefono_celular
 
     # Mostramos el formulario
