@@ -234,8 +234,8 @@ def token_email(usuario_solicitud_id):
         return redirect(url_for("sistemas.start"))
 
     # Cargamos campos de lectura para el formulario
-    form.usuario_email.data = usuario_solicitud.usuario.email
-    form.usuario_nombre.data = usuario_solicitud.usuario.nombre
+    form.usuario_email.data = current_user.email
+    form.usuario_nombre.data = current_user.nombre
     form.email_personal.data = usuario_solicitud.email_personal
 
     # Mostramos el formulario
@@ -286,8 +286,8 @@ def token_celular(usuario_solicitud_id):
         return redirect(url_for("sistemas.start"))
 
     # Cargamos campos de lectura para el formulario
-    form.usuario_email.data = usuario_solicitud.usuario.email
-    form.usuario_nombre.data = usuario_solicitud.usuario.nombre
+    form.usuario_email.data = current_user.email
+    form.usuario_nombre.data = current_user.nombre
     form.telefono_celular.data = usuario_solicitud.telefono_celular
 
     # Mostramos el formulario
