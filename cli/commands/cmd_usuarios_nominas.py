@@ -53,18 +53,12 @@ def actualizar():
     contador_cambios = 0
     contador_eliminaciones = 0
     for usuario in Usuario.query.filter(Usuario.curp != "").filter_by(estatus="A").order_by(Usuario.curp).all():
-        curp = None
-        try:
-            curp = safe_curp(usuario.curp)
-        except ValueError:
-            click.echo(f"  AVISO: CURP inválida: {usuario.curp}")
-            continue
         # Consultar a la API
         try:
             respuesta = requests.get(
                 f"{PERSEO_API_URL}/v4/timbrados",
                 headers={"X-Api-Key": PERSEO_API_KEY},
-                params={"curp": safe_curp(curp)},
+                params={"curp": usuario.curp},
                 timeout=TIMEOUT,
             )
             respuesta.raise_for_status()
