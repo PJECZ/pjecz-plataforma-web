@@ -77,14 +77,14 @@ def actualizar():
             sys.exit(1)
         if datos["success"] is False:
             if "message" in datos:
-                click.echo(f"  AVISO: Fallo en usuario {usuario.curp}: {datos['message']}")
+                click.echo(f"\n  AVISO: Fallo en usuario {usuario.curp}: {datos['message']}")
             else:
-                click.echo(f"  AVISO: Fallo en usuario {usuario.curp}")
+                click.echo(f"\n  AVISO: Fallo en usuario {usuario.curp}")
             continue
 
         # Si no contiene resultados, saltar
         if len(datos["items"]) == 0:
-            click.echo(f"  AVISO: La persona con la CURP: {curp} no tiene timbrados.")
+            click.echo(f"\n  AVISO: La persona con la CURP: {usuario.curp} no tiene timbrados.")
             continue
         items = datos["items"]
 
@@ -98,6 +98,7 @@ def actualizar():
             if encontrado is False:
                 timbre.delete()
                 contador_eliminaciones = contador_eliminaciones + 1
+                click.echo("-", nl=False)
 
         # Bucle para añadir nuevos o actualizar timbres
         for item in items:
@@ -117,6 +118,7 @@ def actualizar():
                     url_xml=item["url_xml"],
                 ).save()
                 contador_nuevos = contador_nuevos + 1
+                click.echo(".", nl=False)
                 continue
 
             # Buscar actualizaciones
@@ -143,12 +145,14 @@ def actualizar():
                 usuario_nomina.url_xml = item["url_xml"]
                 usuario_nomina.save()
                 contador_cambios = contador_cambios + 1
+                click.echo("+", nl=False)
 
         contador += 1
         if contador % 100 == 0:
-            click.echo(f"  Van {contador}...")
+            click.echo(f"\n  Van {contador}...")
 
     # Mensaje de termino
+    click.echo("")
     click.echo(f"Hubo {contador_nuevos} timbres nuevos copiados.")
     click.echo(f"Hubo {contador_cambios} timbres actualizados.")
     click.echo(f"Hubo {contador_eliminaciones} timbres eliminados.")
