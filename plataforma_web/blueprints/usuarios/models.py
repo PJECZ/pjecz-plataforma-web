@@ -40,6 +40,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
 
     # Columnas
     email = db.Column(db.String(256), nullable=False, unique=True, index=True)
+    email_personal = db.Column(db.String(256))
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
     apellido_materno = db.Column(db.String(256), default="", server_default="")
@@ -73,6 +74,7 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
     soportes_tickets = db.relationship("SoporteTicket", back_populates="usuario", lazy="noload")
     tareas = db.relationship("Tarea", back_populates="usuario", lazy="noload")
     usuarios_roles = db.relationship("UsuarioRol", back_populates="usuario")  # Sin lazy="noload" para que funcione el menu
+    usuarios_nominas = db.relationship("UsuarioNomina", back_populates="usuario", lazy="noload")
     usuarios_solicitudes = db.relationship("UsuarioSolicitud", back_populates="usuario", lazy="noload")
 
     # Propiedades

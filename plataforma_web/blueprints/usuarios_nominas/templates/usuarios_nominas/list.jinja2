@@ -1,0 +1,64 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Usuarios Nóminas{% endblock %}
+
+{% block custom_head %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="usuarios_nominas" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Fecha - Quincena</th>
+                    <th>Descargar PDF</th>
+                    <th>Descargar XML</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/usuarios_nominas/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' },
+            { data: 'pdf' },
+            { data: 'xml' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.fecha + '<br/><strong>' + data.descripcion + '</strong>';
+                }
+            },{
+                targets: 1, // pdf
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url_pdf + '" download="' + data.archivo_pdf + '"><i class="fs-2 bi bi-filetype-pdf" style="color: red;"></i></a>';
+                }
+            },
+            {
+                targets: 2, // xml
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url_xml + '" download="' + data.archivo_xml + '"><i class="fs-2 bi bi-filetype-xml" style="color: teal;"></i></a>';
+                }
+            }
+        ];
+        $('#usuarios_nominas').DataTable(configDataTable);
+    </script>
+{% endblock %}
