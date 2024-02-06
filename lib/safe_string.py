@@ -186,3 +186,18 @@ def safe_mac_address(input_str):
     en_mayusculas = input_str.upper()
     m = re.sub(r"[^0-9A-F]+", "", en_mayusculas)
     return f"{m[0:2]}:{m[2:4]}:{m[4:6]}:{m[6:8]}:{m[8:10]}:{m[10:12]}"
+
+
+def safe_curp(input_str, is_optional=False, search_fragment=False) -> str:
+    """Safe CURP"""
+    if not isinstance(input_str, str):
+        return ""
+    stripped = input_str.strip()
+    if is_optional and stripped == "":
+        return ""
+    clean_string = re.sub(r"[^a-zA-Z0-9]+", " ", unidecode(stripped))
+    without_spaces = re.sub(r"\s+", "", clean_string)
+    final = without_spaces.upper()
+    if search_fragment is False and re.match(CURP_REGEXP, final) is None:
+        raise ValueError("CURP inválida")
+    return final

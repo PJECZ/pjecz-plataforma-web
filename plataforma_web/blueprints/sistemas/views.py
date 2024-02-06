@@ -26,7 +26,7 @@ TARJETAS_LIMITE_REGISTROS = 5
 # Roles que deben estar en la base de datos
 ROL_ADMINISTRADOR = "ADMINISTRADOR"
 ROL_NOTARIA = "NOTARIA"
-ROL_SOPORTE_TECNICO = "SOPORTE USUARIO"
+ROL_SOPORTE_USUARIO = "SOPORTE USUARIO"
 
 
 @sistemas.route("/inicio/audiencias_json")
@@ -209,14 +209,19 @@ def start():
 
     # Si el usuario está autenticado, mostrar la página de inicio
     if current_user.is_authenticated:
-        mostrar_portal_soporte = False
         mostrar_portal_notarias = False
+        mostrar_portal_soporte = False
+        mostrar_portal_recibos_nomina = False
 
         # Consultar los roles del usuario
         current_user_roles = current_user.get_roles()
 
+        # Si tiene el rol administrador mostrar el acceso a solicitudes para actualizar datos de usuarios
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_USUARIO in current_user_roles:
+            mostrar_portal_recibos_nomina = True
+
         # Si tiene el rol administrador o soporte-usuario mostrar los accesos a crear tickets y directorio
-        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_TECNICO in current_user_roles:
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_USUARIO in current_user_roles:
             mostrar_portal_soporte = True
 
         # Si tiene el rol administrador o notaria mostrar los accesos a edictos, escrituras y mensajes
@@ -226,8 +231,9 @@ def start():
         # Entregar
         return render_template(
             "sistemas/start.jinja2",
-            mostrar_portal_soporte=mostrar_portal_soporte,
             mostrar_portal_notarias=mostrar_portal_notarias,
+            mostrar_portal_soporte=mostrar_portal_soporte,
+            mostrar_portal_recibos_nomina=mostrar_portal_recibos_nomina,
         )
 
     # No está autenticado, mostrar la página de inicio de sesión
