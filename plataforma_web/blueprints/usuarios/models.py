@@ -1,6 +1,7 @@
 """
 Usuarios, modelos
 """
+
 from collections import OrderedDict
 from flask import current_app
 from flask_login import UserMixin
@@ -40,14 +41,14 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
 
     # Columnas
     email = db.Column(db.String(256), nullable=False, unique=True, index=True)
-    email_personal = db.Column(db.String(256))
+    email_personal = db.Column(db.String(256), nullable=False, default="", server_default="")
     nombres = db.Column(db.String(256), nullable=False)
     apellido_paterno = db.Column(db.String(256), nullable=False)
-    apellido_materno = db.Column(db.String(256), default="", server_default="")
-    curp = db.Column(db.String(18), default="", server_default="")
-    puesto = db.Column(db.String(256), default="", server_default="")
+    apellido_materno = db.Column(db.String(256), nullable=False, default="", server_default="")
+    curp = db.Column(db.String(18), nullable=False, default="", server_default="")
+    puesto = db.Column(db.String(256), nullable=False, default="", server_default="")
     telefono = db.Column(db.String(48), nullable=False, default="", server_default="")
-    telefono_celular = db.Column(db.String(256), default="", server_default="")
+    telefono_celular = db.Column(db.String(48), nullable=False, default="", server_default="")
     extension = db.Column(db.String(24), nullable=False, default="", server_default="")
     fotografia_url = db.Column(db.String(512), nullable=False, default="", server_default="")
     efirma_registro_id = db.Column(db.Integer, nullable=True)
