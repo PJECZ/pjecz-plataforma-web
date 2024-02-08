@@ -1,0 +1,47 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Usuario Documentos{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="usuarios_documentos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>CURP</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/usuarios_documentos/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'detalle' }
+            { data: 'curp' }
+            { data: 'estado' }
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            }
+        ];
+        $('#usuarios_documentos_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}

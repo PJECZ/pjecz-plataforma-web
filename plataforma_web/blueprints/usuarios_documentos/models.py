@@ -37,7 +37,7 @@ class UsuarioDocumento(db.Model, UniversalMixin):
 
     # Clave foránea
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
-    usuario = db.relationship("Usuario", back_populates="usuarios_solicitudes")
+    usuario = db.relationship("Usuario", back_populates="usuarios_documentos")
 
     # Columnas
     curp = db.Column(db.String(18), unique=True, nullable=False)
