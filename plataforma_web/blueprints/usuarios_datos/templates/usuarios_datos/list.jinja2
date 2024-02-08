@@ -2,7 +2,7 @@
 {% import 'macros/list.jinja2' as list %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Usuario Documentos{% endblock %}
+{% block title %}Usuario Datos{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
@@ -57,7 +57,7 @@
             </div>
         </div>
         <!-- Datatable -->
-        <table id="usuarios_documentos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+        <table id="usuarios_datos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Email</th>
@@ -76,29 +76,29 @@
     <!-- Importación de los fitlros para dataTable -->
     <script src="/static/js/datatables_filtros.js"></script>
     <script>
-        const dataTable_usuarios_documentos = new ConfigDataTable( "{{ csrf_token() }}" );
-        let configDataTable_usuarios_documentos = dataTable_usuarios_documentos.config;
-        configDataTable_usuarios_documentos['ajax']['url'] = '/usuarios_documentos/datatable_json';
-        configDataTable_usuarios_documentos['ajax']['data'] = {{ filtros }};
-        configDataTable_usuarios_documentos['columns'] = [
+        const dataTable_usuarios_datos = new ConfigDataTable( "{{ csrf_token() }}" );
+        let configDataTable_usuarios_datos = dataTable_usuarios_datos.config;
+        configDataTable_usuarios_datos['ajax']['url'] = '/usuarios_datos/datatable_json';
+        configDataTable_usuarios_datos['ajax']['data'] = {{ filtros }};
+        configDataTable_usuarios_datos['columns'] = [
             { data: 'detalle' },
             { data: 'nombre' },
             { data: 'curp' },
             { data: 'estado' }
         ];
-        configDataTable_usuarios_documentos['columnDefs'] = [
+        configDataTable_usuarios_datos['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return dataTable_usuarios_documentos.texto_con_url(data.email, data.url);
+                    return dataTable_usuarios_datos.texto_con_url(data.email, data.url);
                 }
             },
             {
                 targets: 1, // nombre
                 data: null,
                 render: function(data, type, row, meta) {
-                    return dataTable_usuarios_documentos.texto_con_url(data.nombre, data.url);
+                    return dataTable_usuarios_datos.texto_con_url(data.nombre, data.url);
                 }
             },
             {
@@ -120,7 +120,7 @@
 
         // Declaración de los Filtros utilizados
         // Creación del Objeto manejador de Filtros
-        const filtros_solicitudes = new Filtros('#usuarios_documentos_datatable', configDataTable_usuarios_documentos);
+        const filtros_solicitudes = new Filtros('#usuarios_datos_datatable', configDataTable_usuarios_datos);
         // Añadimos los difrentes inputs utilizados
         filtros_solicitudes.add_input('nombreInput', 'nombre');
         filtros_solicitudes.add_input('curpInput', 'curp');

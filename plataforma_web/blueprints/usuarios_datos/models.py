@@ -1,5 +1,5 @@
 """
-Usuarios Documentos, modelos
+Usuarios Datos, modelos
 
 Datos personales de los usuarios
 """
@@ -8,8 +8,8 @@ from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
-class UsuarioDocumento(db.Model, UniversalMixin):
-    """UsuarioDocumento"""
+class UsuarioDato(db.Model, UniversalMixin):
+    """UsuarioDato"""
 
     ESTADOS_CIVILES = OrderedDict(
         [
@@ -30,14 +30,14 @@ class UsuarioDocumento(db.Model, UniversalMixin):
     )
 
     # Nombre de la tabla
-    __tablename__ = "usuarios_documentos"
+    __tablename__ = "usuarios_datos"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
 
     # Clave foránea
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), index=True, nullable=False)
-    usuario = db.relationship("Usuario", back_populates="usuarios_documentos")
+    usuario = db.relationship("Usuario", back_populates="usuarios_datos")
 
     # Columnas
     curp = db.Column(db.String(18), unique=True, nullable=False)
@@ -81,4 +81,4 @@ class UsuarioDocumento(db.Model, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return "<UsuarioDocumento> {id}"
+        return "<UsuarioDato> {id}"

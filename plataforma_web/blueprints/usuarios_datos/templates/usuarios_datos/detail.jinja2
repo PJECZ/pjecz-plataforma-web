@@ -7,21 +7,21 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons("Documentos Personales") %}
-        {{ topbar.button_previous('Usuarios Documentos', url_for('usuarios_documentos.list_active')) }}
+        {{ topbar.button_previous('Usuarios Documentos', url_for('usuarios_datos.list_active')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=usuario_documento.estatus) %}
-        {{ detail.label_value('Nombre', usuario_documento.usuario.nombre) }}
-        {{ detail.label_value('email', usuario_documento.usuario.email) }}
-        {{ detail.label_value('CURP', usuario_documento.curp) }}
+    {% call detail.card(estatus=usuario_dato.estatus) %}
+        {{ detail.label_value('Nombre', usuario_dato.usuario.nombre) }}
+        {{ detail.label_value('email', usuario_dato.usuario.email) }}
+        {{ detail.label_value('CURP', usuario_dato.curp) }}
     {% endcall %}
     {# Campos a rellenar #}
     {% call detail.card("Datos") %}
         <div class="row mb-2">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-warning" href="/usuarios_documentos"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                <a class="btn btn-sm btn-warning" href="/usuarios_datos"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_1"></span>
@@ -32,14 +32,14 @@
         </div>
         <div class="row">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-warning" href="/usuarios_documentos"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                <a class="btn btn-sm btn-warning" href="/usuarios_datos"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_2"></span>
             </div>
             <div class="col-md-8 text-left">
                 <strong>Teléfono Personal</strong>
-                <p>{{ usuario_documento.telefono_personal }}</p>
+                <p>{{ usuario_dato.telefono_personal }}</p>
             </div>
         </div>
     {% endcall %}
@@ -48,8 +48,8 @@
 {% block custom_javascript %}
     <script>
         window.onload = function () {
-            render_estado(document.getElementById("estado_1"), "{{ usuario_documento.estado_identificacion }}");
-            render_estado(document.getElementById("estado_2"), "{{ usuario_documento.estado_telefono }}");
+            render_estado(document.getElementById("estado_1"), "{{ usuario_dato.estado_identificacion }}");
+            render_estado(document.getElementById("estado_2"), "{{ usuario_dato.estado_telefono }}");
         }
         function render_estado(elemento, estado) {
             switch( estado ) {
