@@ -18,6 +18,17 @@ from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicit
 
 MODULO = "USUARIOS DOCUMENTOS"
 
+CAMPOS = [
+    "IDENTIFICACION",
+    "CP FISCAL",
+    "DOMICILIO",
+    "ES MADRE",
+    "ESTUDIOS",
+    "ESTADO CIVIL",
+    "TELEFONO",
+    "EMAIL",
+]
+
 usuarios_documentos = Blueprint("usuarios_documentos", __name__, template_folder="templates")
 
 
@@ -48,7 +59,11 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "nombre": resultado.usuario.email,
+                    "email": resultado.usuario.email,
+                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario.id),
+                },
+                "nombre": {
+                    "nombre": resultado.usuario.nombre,
                     "url": url_for("usuarios_documentos.detail", usuario_documento_id=resultado.id),
                 },
                 "curp": resultado.curp,
@@ -68,6 +83,8 @@ def list_active():
         filtros=json.dumps({"estatus": "A"}),
         titulo="Usuarios Documentos",
         estatus="A",
+        estados=UsuarioDocumento.VALIDACIONES,
+        campos=CAMPOS,
     )
 
 
@@ -80,6 +97,8 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="Usuarios Documentos inactivos",
         estatus="B",
+        estados=UsuarioDocumento.VALIDACIONES,
+        campos=CAMPOS,
     )
 
 
@@ -101,11 +120,13 @@ def new():
         flash("CURP no válida, no puede ingresar a este módulo sin una CURP.", "warning")
         return redirect(url_for("sistemas.start"))
     # Buscar si el usuario ya tiene un registro previo
-    usuario_documento = UsuarioDocumento(curp=curp).first()
+    usuario_documento = UsuarioDocumento.query.filter_by(curp=curp).first()
     # Si no cuenta con un registro previo, crear uno nuevo vacío
     if usuario_documento is None:
-        usuario_documento.usuario_id = current_user.id
-        usuario_documento.curp = current_user.curp
+        usuario_documento = UsuarioDocumento(
+            usuario=current_user,
+            curp=current_user.curp,
+        ).save()
 
         # Copiar teléfono y email personales de la tabla de usuarios_solicitudes
         usuario_solicitud = UsuarioSolicitud.query.filter_by(usuario=current_user).first()
