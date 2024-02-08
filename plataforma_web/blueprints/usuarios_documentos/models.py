@@ -42,11 +42,12 @@ class UsuarioDocumento(db.Model, UniversalMixin):
     # Columnas
     curp = db.Column(db.String(18), unique=True, nullable=False)
     # Campos del formulario
-    url_identifiacion = db.Column(db.String(512))
+    url_identificacion = db.Column(db.String(512))
     url_cp_fiscal = db.Column(db.String(512))
     url_domicilio = db.Column(db.String(512))
     url_acta_nacimiento = db.Column(db.String(512))
     url_estudios = db.Column(db.String(512))
+    cp_fiscal = db.Column(db.Integer)
     domicilio_calle = db.Column(db.String(255))
     domicilio_colonia = db.Column(db.String(64))
     domicilio_numero = db.Column(db.String(16))
@@ -55,47 +56,19 @@ class UsuarioDocumento(db.Model, UniversalMixin):
     es_madre = db.Column(db.Boolean)
     estado_civil = db.Column(
         db.Enum(*ESTADOS_CIVILES, name="estado_civil", native_enum=False),
-        nullable=False,
     )
     telefono_personal = db.Column(db.String(16))
     email_personal = db.Column(db.String(64))
     # Estados de los campos
-    estado_identificacion = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_identificacion", native_enum=False),
-        nullable=False,
-    )
-    estado_cp_fiscal = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_cp_fiscal", native_enum=False),
-        nullable=False,
-    )
-    estado_domicilio = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_domicilio", native_enum=False),
-        nullable=False,
-    )
-    estado_acta_nacimiento = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_acta_nacimiento", native_enum=False),
-        nullable=False,
-    )
-    estado_estudios = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_estudios", native_enum=False),
-        nullable=False,
-    )
-    estado_estado_civil = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_estado_civil", native_enum=False),
-        nullable=False,
-    )
-    estado_telefono = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_telefono", native_enum=False),
-        nullable=False,
-    )
-    estado_email = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_email", native_enum=False),
-        nullable=False,
-    )
-    estado_general = db.Column(
-        db.Enum(*VALIDACIONES, name="estado_general", native_enum=False),
-        nullable=False,
-    )
+    estado_identificacion = db.Column(db.Enum(*VALIDACIONES, name="estado_identificacion", native_enum=False))
+    estado_cp_fiscal = db.Column(db.Enum(*VALIDACIONES, name="estado_cp_fiscal", native_enum=False))
+    estado_domicilio = db.Column(db.Enum(*VALIDACIONES, name="estado_domicilio", native_enum=False))
+    estado_acta_nacimiento = db.Column(db.Enum(*VALIDACIONES, name="estado_acta_nacimiento", native_enum=False))
+    estado_estudios = db.Column(db.Enum(*VALIDACIONES, name="estado_estudios", native_enum=False))
+    estado_estado_civil = db.Column(db.Enum(*VALIDACIONES, name="estado_estado_civil", native_enum=False))
+    estado_telefono = db.Column(db.Enum(*VALIDACIONES, name="estado_telefono", native_enum=False))
+    estado_email = db.Column(db.Enum(*VALIDACIONES, name="estado_email", native_enum=False))
+    estado_general = db.Column(db.Enum(*VALIDACIONES, name="estado_general", native_enum=False))
     # Mensajes de los campos en caso de no ser válidos
     mensaje_identificacion = db.Column(db.String(255))
     mensaje_cp_fiscal = db.Column(db.String(255))
