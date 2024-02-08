@@ -1,0 +1,66 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Documentos Personales{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons("Documentos Personales") %}
+        {{ topbar.button_previous('Usuarios Documentos', url_for('usuarios_documentos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=usuario_documento.estatus) %}
+        {{ detail.label_value('Nombre', usuario_documento.usuario.nombre) }}
+        {{ detail.label_value('email', usuario_documento.usuario.email) }}
+        {{ detail.label_value('CURP', usuario_documento.curp) }}
+    {% endcall %}
+    {# Campos a rellenar #}
+    {% call detail.card("Datos") %}
+        <div class="row mb-2">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-warning" href="/usuarios_documentos"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_1"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Identificación oficial</strong>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-warning" href="/usuarios_documentos"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_2"></span>
+            </div>
+            <div class="col-md-8 text-left">
+                <strong>Teléfono Personal</strong>
+                <p>{{ usuario_documento.telefono_personal }}</p>
+            </div>
+        </div>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        window.onload = function () {
+            render_estado(document.getElementById("estado_1"), "{{ usuario_documento.estado_identificacion }}");
+            render_estado(document.getElementById("estado_2"), "{{ usuario_documento.estado_telefono }}");
+        }
+        function render_estado(elemento, estado) {
+            switch( estado ) {
+                case "POR VALIDAR": bgcolor = "bg-warning text-dark"; break;
+                case "NO VALIDO":   bgcolor = "bg-danger";      break;
+                case "VALIDO":      bgcolor = "bg-success";     break;
+                default:            bgcolor = "bg-secondary";   
+                                    estado = "VACÍO";           break;
+            }
+            html = '<span class="badge rounded-pill ' + bgcolor + '">' + estado + '</span>';
+            elemento.innerHTML = html;
+        }
+    </script>
+{% endblock %}

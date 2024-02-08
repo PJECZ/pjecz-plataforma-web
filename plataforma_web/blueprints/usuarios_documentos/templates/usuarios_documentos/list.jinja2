@@ -110,7 +110,8 @@
                         case "POR VALIDAR": bgcolor = "bg-warning text-dark"; break;
                         case "NO VALIDO":   bgcolor = "bg-danger";      break;
                         case "VALIDO":      bgcolor = "bg-success";     break;
-                        default:            bgcolor = "bg-secondary";   break;
+                        default:            bgcolor = "bg-secondary";   
+                                            data = "VACÍO";             break;
                     }
                     return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
                 }
