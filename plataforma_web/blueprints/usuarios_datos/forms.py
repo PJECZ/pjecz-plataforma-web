@@ -9,7 +9,15 @@ from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 
 
 class UsuarioDatoEditEstadoCivilForm(FlaskForm):
-    """Formulario UsuarioDatoEditEstadoCivl"""
+    """Formulario UsuarioDatoEditEstadoCivil"""
 
     estado_civil = SelectField("Estado Civil", choices=UsuarioDato.ESTADOS_CIVILES, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
+
+
+class UsuarioDatoValidateForm(FlaskForm):
+    """Formulario para validar"""
+
+    mensaje = StringField("Mensaje", validators=[Optional()])
+    valido = SubmitField("Válido")
+    no_valido = SubmitField("No Válido")

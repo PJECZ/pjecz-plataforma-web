@@ -60,8 +60,8 @@
         <table id="usuarios_datos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Datos personales de</th>
                     <th>Email</th>
-                    <th>Nombre</th>
                     <th>CURP</th>
                     <th>Estado</th>
                 </tr>
@@ -81,24 +81,24 @@
         configDataTable_usuarios_datos['ajax']['url'] = '/usuarios_datos/datatable_json';
         configDataTable_usuarios_datos['ajax']['data'] = {{ filtros }};
         configDataTable_usuarios_datos['columns'] = [
-            { data: 'detalle' },
             { data: 'nombre' },
+            { data: 'detalle' },
             { data: 'curp' },
             { data: 'estado' }
         ];
         configDataTable_usuarios_datos['columnDefs'] = [
             {
-                targets: 0, // detalle
-                data: null,
-                render: function(data, type, row, meta) {
-                    return dataTable_usuarios_datos.texto_con_url(data.email, data.url);
-                }
-            },
-            {
-                targets: 1, // nombre
+                targets: 0, // nombre
                 data: null,
                 render: function(data, type, row, meta) {
                     return dataTable_usuarios_datos.texto_con_url(data.nombre, data.url);
+                }
+            },
+            {
+                targets: 1, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_usuarios_datos.texto_con_url(data.email, data.url);
                 }
             },
             {
@@ -111,7 +111,7 @@
                         case "NO VALIDO":   bgcolor = "bg-danger";      break;
                         case "VALIDO":      bgcolor = "bg-success";     break;
                         default:            bgcolor = "bg-secondary";   
-                                            data = "VACÍO";             break;
+                                            data = "INCOMPLETO";        break;
                     }
                     return '<span class="badge rounded-pill ' + bgcolor + '">' + data + '</span>';
                 }

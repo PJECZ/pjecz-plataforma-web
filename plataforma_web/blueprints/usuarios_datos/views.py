@@ -17,6 +17,7 @@ from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicitud
 from plataforma_web.blueprints.usuarios_datos.forms import (
     UsuarioDatoEditEstadoCivilForm,
+    UsuarioDatoValidateForm,
 )
 
 MODULO = "USUARIOS DATOS"
@@ -109,7 +110,11 @@ def list_inactive():
 def detail(usuario_dato_id):
     """Detalle de un Usuario Datos"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
-    return render_template("usuarios_datos/detail.jinja2", usuario_dato=usuario_dato)
+    if current_user == usuario_dato.usuario:
+        return render_template("usuarios_datos/detail.jinja2", usuario_dato=usuario_dato)
+    if current_user.can_admin(MODULO):
+        return render_template("usuarios_datos/detail_admin.jinja2", usuario_dato=usuario_dato)
+    return redirect(url_for("sistemas.start"))
 
 
 @usuarios_datos.route("/usuarios_datos/nuevo", methods=["GET", "POST"])
@@ -177,4 +182,24 @@ def edit_estado_civil(usuario_dato_id):
 def validate_estado_civil(usuario_dato_id):
     """Validación del estado civil"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
-    return render_template("usuarios_datos/validate_estado_civil.jinja2", usuario_dato=usuario_dato)
+    form = UsuarioDatoValidateForm()
+    if form.validate_on_submit():
+        if form.valido.data:
+            usuario_dato.estado_estado_civil = "VALIDO"
+            usuario_dato.mensaje_estado_civil = None
+            usuario_dato.save()
+            flash("Ha validado el estado civil correctamente", "success")
+        elif form.no_valido.data:
+            mensaje = safe_message(form.mensaje.data, default_output_str=None)
+            if mensaje is None:
+                flash("Si rechaza esta información, por favor añada un mensaje dando una explicación", "warning")
+                return render_template("usuarios_datos/validate_estado_civil.jinja2", form=form, usuario_dato=usuario_dato)
+            else:
+                usuario_dato.mensaje_estado_civil = mensaje
+                usuario_dato.estado_estado_civil = "NO VALIDO"
+                usuario_dato.save()
+                flash("Ha rechazado el estado civil", "success")
+
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+    # Renderiza la página de validación
+    return render_template("usuarios_datos/validate_estado_civil.jinja2", form=form, usuario_dato=usuario_dato)
