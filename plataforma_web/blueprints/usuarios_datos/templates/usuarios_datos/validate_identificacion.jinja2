@@ -9,17 +9,19 @@
 {% endblock %}
 
 {% block content %}
+    {# Preview #}
     {% call f.card('Datos a validar') %}
-        <div class="row">
+        {% if archivo %}
             {% if tipo_archivo == "PDF" %}
-                <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>
+            <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>
             {% elif tipo_archivo == "JPG" %}
                 <img src="{{ archivo }}" />
             {% else %}
                 <p class="lead">Tipo de Archivo no disponible para su visualización</p>
             {% endif %}
-        </div>
+        {% endif %}
     {% endcall %}
+
     {% call f.card("Respuesta") %}
         {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
         {% call f.form_tag('usuarios_datos.validate_identificacion', fid='usuario_dato_form', **form_kwargs) %}
