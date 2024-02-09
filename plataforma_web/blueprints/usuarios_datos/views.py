@@ -4,9 +4,11 @@ Usuarios Documentos, vistas
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from werkzeug.datastructures import CombinedMultiDict
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message, safe_curp
+from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -15,12 +17,15 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 
 from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicitud
+from plataforma_web.blueprints.usuarios_documentos.models import UsuarioDocumento
 from plataforma_web.blueprints.usuarios_datos.forms import (
+    UsuarioDatoEditIdentificacionForm,
     UsuarioDatoEditEstadoCivilForm,
     UsuarioDatoValidateForm,
 )
 
 MODULO = "USUARIOS DATOS"
+SUBDIRECTORIO = "usuario_documentos"
 
 CAMPOS = [
     "IDENTIFICACION",
@@ -158,6 +163,75 @@ def new():
         usuario_dato.save()
     # Redirigirlo al detalle
     return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+
+
+@usuarios_datos.route("/usuarios_datos/editar/identificacion/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit_identificacion(usuario_dato_id):
+    """Edición del estado civil"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_identificacion_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario
+    form = UsuarioDatoEditIdentificacionForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        es_valido = True
+        archivo = request.files["archivo"]
+        storage = GoogleCloudStorage(SUBDIRECTORIO)
+        try:
+            storage.set_content_type(archivo.filename)
+        except NotAllowedExtesionError:
+            flash("Tipo de archivo no permitido.", "warning")
+            es_valido = False
+        except UnknownExtesionError:
+            flash("Tipo de archivo desconocido.", "warning")
+            es_valido = False
+        # Validar el tipo de extension
+        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            es_valido = True
+        else:
+            flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+            es_valido = False
+        # Si es válido
+        if es_valido:
+            # Eliminar el archivo previo si lo hay
+            if usuario_documento:
+                usuario_documento.delete()
+            # Insertar el registro, para obtener el ID
+            usuario_documento = UsuarioDocumento(
+                descripcion="Identificación Oficial",
+            )
+            usuario_documento.save()
+            # Subir el archivo a la nube
+            try:
+                storage.set_filename(hashed_id=usuario_documento.encode_id(), description=usuario_documento.descripcion)
+                storage.upload(archivo.stream.read())
+                usuario_documento.url = storage.url
+                usuario_dato.estado_identificacion = "POR VALIDAR"
+                usuario_dato.adjunto_identificacion_id = usuario_documento.id
+                usuario_dato.save()
+            except NotConfiguredError:
+                flash("No se ha configurado el almacenamiento en la nube.", "warning")
+                es_valido = False
+            except Exception as err:
+                flash(f"{err}Error al subir el archivo.", "danger")
+                es_valido = False
+        if es_valido:
+            # Registrar la acción en la bitácora
+            flash("Ha modificado su identificación oficial correctamente, espere a que sea validada", "success")
+            return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+        else:
+            flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
+    # Precargar datos anteriores
+    tipo_archivo = None
+    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+        tipo_archivo = "JPG"
+    elif archivo_prev.endswith(".pdf"):
+        tipo_archivo = "PDF"
+    return render_template("usuarios_datos/edit_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])

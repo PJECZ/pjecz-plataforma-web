@@ -42,7 +42,7 @@ class UsuarioDato(db.Model, UniversalMixin):
     # Columnas
     curp = db.Column(db.String(18), unique=True, nullable=False)
     # Campos del formulario
-    url_identificacion = db.Column(db.String(512))
+    adjunto_identificacion_id = db.Column(db.Integer)
     url_cp_fiscal = db.Column(db.String(512))
     url_domicilio = db.Column(db.String(512))
     url_acta_nacimiento = db.Column(db.String(512))

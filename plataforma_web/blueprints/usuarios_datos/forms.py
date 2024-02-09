@@ -4,8 +4,16 @@ Usuarios Datos, formularios
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
+from flask_wtf.file import FileField, FileRequired
 
 from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
+
+
+class UsuarioDatoEditIdentificacionForm(FlaskForm):
+    """Formulario UsuarioDatoEditEstadoCivil"""
+
+    archivo = FileField("Archivo PDF o JPG", validators=[FileRequired()])
+    guardar = SubmitField("Guardar")
 
 
 class UsuarioDatoEditEstadoCivilForm(FlaskForm):
