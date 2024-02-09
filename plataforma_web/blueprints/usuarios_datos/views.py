@@ -251,6 +251,46 @@ def edit_estado_civil(usuario_dato_id):
     return render_template("usuarios_datos/edit_estado_civil.jinja2", form=form, usuario_dato=usuario_dato)
 
 
+@usuarios_datos.route("/usuarios_datos/validar/estado_identificacion/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def validate_identificacion(usuario_dato_id):
+    """Validación del estado civil"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_identificacion_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario de validación
+    form = UsuarioDatoValidateForm()
+    if form.validate_on_submit():
+        if form.valido.data:
+            usuario_dato.estado_identificacion = "VALIDO"
+            usuario_dato.mensaje_identificacion = None
+            usuario_dato.save()
+            flash("Ha validado el estado civil correctamente", "success")
+        elif form.no_valido.data:
+            mensaje = safe_message(form.mensaje.data, default_output_str=None)
+            if mensaje is None:
+                flash("Si rechaza esta información, por favor añada un mensaje dando una explicación", "warning")
+                return render_template("usuarios_datos/validate_identificacion.jinja2", form=form, usuario_dato=usuario_dato)
+            else:
+                usuario_dato.mensaje_identificacion = mensaje
+                usuario_dato.estado_identificacion = "NO VALIDO"
+                usuario_dato.save()
+                flash("Ha rechazado el estado civil", "success")
+
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+    # Precargar datos anteriores
+    tipo_archivo = None
+    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+        tipo_archivo = "JPG"
+    elif archivo_prev.endswith(".pdf"):
+        tipo_archivo = "PDF"
+    # Renderiza la página de validación
+    return render_template("usuarios_datos/validate_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
 @usuarios_datos.route("/usuarios_datos/validar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def validate_estado_civil(usuario_dato_id):
