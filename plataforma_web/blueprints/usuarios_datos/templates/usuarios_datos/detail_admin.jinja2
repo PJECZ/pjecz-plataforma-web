@@ -41,6 +41,7 @@
                 </p>
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-2">
                 <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
@@ -49,10 +50,13 @@
                 <span id="estado_2"></span>
             </div>
             <div class="col-md-8">
-                <strong>Código Postal Físcal</strong>
-                <p>{{ usuario_dato.cp_fiscal }}</p>
+                <strong>Acta de Nacimiento</strong>
+                <p>
+                    <i class="text-danger">{{ usuario_dato.mensaje_acta_nacimiento if usuario_dato.mensaje_acta_nacimiento else "" }}</i>
+                </p>
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-2">
                 <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
@@ -63,9 +67,12 @@
             <div class="col-md-8">
                 <strong>Domicilio</strong>
                 <p>{{ usuario_dato.domicilio_calle }}, {{ usuario_dato.domicilio_colonia }}. {{ usuario_dato.domicilio_numero_ext }}/{{ usuario_dato.domicilio_numero_int }}<br/>
-                {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}</p>
+                {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}<br />
+                    <i class="text-danger">{{ usuario_dato.mensaje_domicilio if usuario_dato.mensaje_domicilio else "" }}</i>
+                </p>
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-2">
                 <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
@@ -74,24 +81,28 @@
                 <span id="estado_4"></span>
             </div>
             <div class="col-md-8">
-                <strong>Eres Madre</strong>
-                <p>{{ usuario_dato.es_madre }}</p>
+                <strong>CURP</strong>
+                <p>{{ usuario_dato.curp }}<br />
+                    <i class="text-danger">{{ usuario_dato.mensaje_curp if usuario_dato.mensaje_curp else "" }}</i>
+                </p>
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-primary" href="{{ url_for('usuarios_datos.validate_estado_civil', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
+                <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_5"></span>
             </div>
             <div class="col-md-8">
-                <strong>Estado Civil</strong>
-                <p>{{ usuario_dato.estado_civil }}<br />
-                    <i class="text-danger">{{ usuario_dato.mensaje_estado_civil if usuario_dato.mensaje_estado_civil else ""}}</i>
+                <strong>Código Postal Físcal</strong>
+                <p>{{ usuario_dato.cp_fiscal }}<br />
+                    <i class="text-danger">{{ usuario_dato.mensaje_cp_fiscal if usuario_dato.mensaje_cp_fiscal else "" }}</i>
                 </p>
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-2">
                 <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
@@ -100,26 +111,90 @@
                 <span id="estado_6"></span>
             </div>
             <div class="col-md-8">
-                <strong>Estudios</strong>
-                <p>{{ usuario_dato.estudios_cedula }}</p>
+                <strong>Curriculum</strong>
+                <p>
+                    <i class="text-danger">{{ usuario_dato.mensaje_curriculum if usuario_dato.mensaje_curriculum else "" }}</i>
+                </p>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_7"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Estudios</strong>
+                <p>{{ usuario_dato.estudios_cedula }}<br />
+                    <i class="text-danger">{{ usuario_dato.mensaje_estudios if usuario_dato.mensaje_estudios else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_8"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Eres Madre</strong>
+                <p>{{ usuario_dato.es_madre }}<br />
+                    <i class="text-danger">{{ usuario_dato.mensaje_acta_nacimiento_hijo if usuario_dato.mensaje_acta_nacimiento_hijo else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-primary" href="{{ url_for('usuarios_datos.validate_estado_civil', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_9"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Estado Civil</strong>
+                <p>{{ usuario_dato.estado_civil }}<br />
+                    <i class="text-danger">{{ usuario_dato.mensaje_estado_civil if usuario_dato.mensaje_estado_civil else ""}}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_10"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Estado de Cuenta</strong>
+                <p>{{ usuario_dato.estado_cuenta }}<br />
+                    <i class="text-danger">{{ usuario_dato.mensaje_estado_cuenta if usuario_dato.mensaje_estado_cuenta else ""}}</i>
+                </p>
+            </div>
+        </div>
+        
         <div class="row">
             <div class="col-md-2">
             </div>
             <div class="col-md-2">
-                <span id="estado_7"></span>
+                <span id="estado_11"></span>
             </div>
             <div class="col-md-8 text-left">
                 <strong>Teléfono Personal</strong>
                 <p id="telefono_str">{{ usuario_dato.telefono_personal }}</p>
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-2">
             </div>
             <div class="col-md-2">
-                <span id="estado_8"></span>
+                <span id="estado_12"></span>
             </div>
             <div class="col-md-8 text-left">
                 <strong>Email Personal</strong>
@@ -134,13 +209,17 @@
         window.onload = function () {
             render_estado(document.getElementById("estado_general"), "{{ usuario_dato.estado_general }}");
             render_estado(document.getElementById("estado_1"), "{{ usuario_dato.estado_identificacion }}");
-            render_estado(document.getElementById("estado_2"), "{{ usuario_dato.estado_cp_fiscal }}");
-            render_estado(document.getElementById("estado_3"), "{{ usuario_dato.estado_cp_fiscal }}");
-            render_estado(document.getElementById("estado_4"), "{{ usuario_dato.estado_es_madre }}");
-            render_estado(document.getElementById("estado_5"), "{{ usuario_dato.estado_estado_civil }}");
-            render_estado(document.getElementById("estado_6"), "{{ usuario_dato.estado_estudios }}");
-            render_estado(document.getElementById("estado_7"), "{{ usuario_dato.estado_telefono }}");
-            render_estado(document.getElementById("estado_8"), "{{ usuario_dato.estado_email }}");
+            render_estado(document.getElementById("estado_2"), "{{ usuario_dato.estado_acta_nacimiento }}");
+            render_estado(document.getElementById("estado_3"), "{{ usuario_dato.estado_domicilio }}");
+            render_estado(document.getElementById("estado_4"), "{{ usuario_dato.estado_curp }}");
+            render_estado(document.getElementById("estado_5"), "{{ usuario_dato.estado_cp_fiscal }}");
+            render_estado(document.getElementById("estado_6"), "{{ usuario_dato.estado_curriculum }}");
+            render_estado(document.getElementById("estado_7"), "{{ usuario_dato.estado_estudios }}");
+            render_estado(document.getElementById("estado_8"), "{{ usuario_dato.estado_acta_nacimiento_hijo }}");
+            render_estado(document.getElementById("estado_9"), "{{ usuario_dato.estado_estado_civil }}");
+            render_estado(document.getElementById("estado_10"), "{{ usuario_dato.estado_estado_cuenta }}");
+            render_estado(document.getElementById("estado_11"), "{{ usuario_dato.estado_telefono }}");
+            render_estado(document.getElementById("estado_12"), "{{ usuario_dato.estado_email }}");
             render_telefono(document.getElementById("telefono_str"), "{{ usuario_dato.telefono_personal }}");
         }
         function render_estado(elemento, estado) {

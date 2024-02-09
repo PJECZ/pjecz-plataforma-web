@@ -227,10 +227,11 @@ def edit_identificacion(usuario_dato_id):
             flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
     # Precargar datos anteriores
     tipo_archivo = None
-    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-        tipo_archivo = "JPG"
-    elif archivo_prev.endswith(".pdf"):
-        tipo_archivo = "PDF"
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
     return render_template("usuarios_datos/edit_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
