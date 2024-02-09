@@ -75,7 +75,7 @@ def datatable_json():
                     "nombre": resultado.usuario.nombre,
                     "url": url_for("usuarios_datos.detail", usuario_dato_id=resultado.id),
                 },
-                "curp": resultado.curp,
+                "curp": resultado.usuario_curp,
                 "estado": resultado.estado_general,
             }
         )
@@ -138,7 +138,7 @@ def new():
     if usuario_dato is None:
         usuario_dato = UsuarioDato(
             usuario=current_user,
-            curp=current_user.curp,
+            usuario_curp=current_user.curp,
         ).save()
 
         # Copiar teléfono y email personales de la tabla de usuarios_solicitudes
