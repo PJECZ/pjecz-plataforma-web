@@ -1,0 +1,19 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Estado Civil{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar - Estado Civil') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
+        {% call f.form_tag('usuarios_datos.edit_estado_civil', fid='usuario_dato_form', **form_kwargs) %}
+            {% call f.form_group(form.estado_civil) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

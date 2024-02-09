@@ -50,13 +50,15 @@ class UsuarioDato(db.Model, UniversalMixin):
     cp_fiscal = db.Column(db.Integer)
     domicilio_calle = db.Column(db.String(255))
     domicilio_colonia = db.Column(db.String(64))
-    domicilio_numero = db.Column(db.String(16))
+    domicilio_numero_ext = db.Column(db.String(8))
+    domicilio_numero_int = db.Column(db.String(8))
     domicilio_ciudad = db.Column(db.String(32))
     domicilio_estado = db.Column(db.String(32))
     es_madre = db.Column(db.Boolean)
     estado_civil = db.Column(
         db.Enum(*ESTADOS_CIVILES, name="estado_civil", native_enum=False),
     )
+    estudios_cedula = db.Column(db.String(16))
     telefono_personal = db.Column(db.String(16))
     email_personal = db.Column(db.String(64))
     # Estados de los campos

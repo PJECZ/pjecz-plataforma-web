@@ -15,6 +15,9 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 
 from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicitud
+from plataforma_web.blueprints.usuarios_datos.forms import (
+    UsuarioDatoEditEstadoCivilForm,
+)
 
 MODULO = "USUARIOS DATOS"
 
@@ -42,7 +45,7 @@ def before_request():
 @usuarios_datos.route("/usuarios_datos/datatable_json", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def datatable_json():
-    """DataTable JSON para listado de Usuarios Documentos"""
+    """DataTable JSON para listado de Usuarios Datos"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
@@ -77,11 +80,11 @@ def datatable_json():
 @usuarios_datos.route("/usuarios_datos")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active():
-    """Listado de Usuarios Documentos activos"""
+    """Listado de Usuarios Datos activos"""
     return render_template(
         "usuarios_datos/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Usuarios Documentos",
+        titulo="Usuarios Datos",
         estatus="A",
         estados=UsuarioDato.VALIDACIONES,
         campos=CAMPOS,
@@ -91,11 +94,11 @@ def list_active():
 @usuarios_datos.route("/usuarios_datos/inactivos")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_inactive():
-    """Listado de Usuarios Documentos inactivos"""
+    """Listado de Usuarios Datos inactivos"""
     return render_template(
         "usuarios_datos/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="Usuarios Documentos inactivos",
+        titulo="Usuarios Datos inactivos",
         estatus="B",
         estados=UsuarioDato.VALIDACIONES,
         campos=CAMPOS,
@@ -104,7 +107,7 @@ def list_inactive():
 
 @usuarios_datos.route("/usuarios_datos/<int:usuario_dato_id>")
 def detail(usuario_dato_id):
-    """Detalle de un Usuario Documento"""
+    """Detalle de un Usuario Datos"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     return render_template("usuarios_datos/detail.jinja2", usuario_dato=usuario_dato)
 
@@ -112,7 +115,7 @@ def detail(usuario_dato_id):
 @usuarios_datos.route("/usuarios_datos/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Usuario Documento vacío"""
+    """Nuevo Usuario Datos vacío"""
     curp = None
     try:
         curp = safe_curp(current_user.curp)
@@ -152,17 +155,26 @@ def new():
     return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
 
 
-@usuarios_datos.route("/usuarios_datos/editar/identificacion/<int:usuario_dato_id>")
+@usuarios_datos.route("/usuarios_datos/editar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
-def edit_identificacion(usuario_dato_id):
-    """Detalle de un Usuario Documento"""
+def edit_estado_civil(usuario_dato_id):
+    """Edición del estado civil"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
-    return render_template("usuarios_datos/edit_identificacion.jinja2", usuario_dato=usuario_dato)
+    form = UsuarioDatoEditEstadoCivilForm()
+    if form.validate_on_submit():
+        usuario_dato.estado_civil = form.estado_civil.data
+        usuario_dato.estado_estado_civil = "POR VALIDAR"
+        usuario_dato.save()
+        flash("Ha modificado su estado civil correctamente, espere a que sea validado", "success")
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+    # Precargar datos anteriores
+    form.estado_civil.data = usuario_dato.estado_civil
+    return render_template("usuarios_datos/edit_estado_civil.jinja2", form=form, usuario_dato=usuario_dato)
 
 
-@usuarios_datos.route("/usuarios_datos/validar/identificacion/<int:usuario_dato_id>")
+@usuarios_datos.route("/usuarios_datos/validar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.ADMINISTRAR)
-def validate_identificacion(usuario_dato_id):
-    """Detalle de un Usuario Documento"""
+def validate_estado_civil(usuario_dato_id):
+    """Validación del estado civil"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
-    return render_template("usuarios_datos/validate_identificacion.jinja2", usuario_dato=usuario_dato)
+    return render_template("usuarios_datos/validate_estado_civil.jinja2", usuario_dato=usuario_dato)

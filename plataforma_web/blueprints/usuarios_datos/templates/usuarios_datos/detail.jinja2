@@ -3,25 +3,33 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Documentos Personales{% endblock %}
+{% block title %}Datos Personales{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons("Documentos Personales") %}
-        {{ topbar.button_previous('Usuarios Documentos', url_for('usuarios_datos.list_active')) }}
+    {% call topbar.page_buttons("Datos Personales") %}
+        {{ topbar.button_previous('Usuarios Datos', url_for('usuarios_datos.list_active')) }}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call detail.card(estatus=usuario_dato.estatus) %}
-        {{ detail.label_value('Nombre', usuario_dato.usuario.nombre) }}
+        {{ detail.label_value_big('Nombre', usuario_dato.usuario.nombre) }}
         {{ detail.label_value('email', usuario_dato.usuario.email) }}
         {{ detail.label_value('CURP', usuario_dato.curp) }}
+        <div class="row">
+            <div class="col-md-3 text-end">
+                Estado General
+            </div>
+            <div class="col-md-9">
+                <span id="estado_general"></span>
+            </div>
+        </div>
     {% endcall %}
     {# Campos a rellenar #}
     {% call detail.card("Datos") %}
         <div class="row mb-2">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-warning" href="/usuarios_datos"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                <a class="btn btn-sm btn-warning" href="#"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_1"></span>
@@ -32,14 +40,85 @@
         </div>
         <div class="row">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-warning" href="/usuarios_datos"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                <a class="btn btn-sm btn-warning" href="#"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_2"></span>
             </div>
+            <div class="col-md-8">
+                <strong>Código Postal Físcal</strong>
+                <p>{{ usuario_dato.cp_fiscal }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-warning" href="#"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_3"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Domicilio</strong>
+                <p>{{ usuario_dato.domicilio_calle }}, {{ usuario_dato.domicilio_colonia }}. {{ usuario_dato.domicilio_numero_ext }}/{{ usuario_dato.domicilio_numero_int }}<br/>
+                {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-warning" href="#"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_4"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Eres Madre</strong>
+                <p>{{ usuario_dato.es_madre }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-warning" href="{{ url_for('usuarios_datos.edit_estado_civil', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_5"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Estado Civil</strong>
+                <p>{{ usuario_dato.estado_civil }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-sm btn-warning" href="#"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_6"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Estudios</strong>
+                <p>{{ usuario_dato.estudios_cedula }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-2">
+                <span id="estado_7"></span>
+            </div>
             <div class="col-md-8 text-left">
                 <strong>Teléfono Personal</strong>
-                <p>{{ usuario_dato.telefono_personal }}</p>
+                <p id="telefono_str">{{ usuario_dato.telefono_personal }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-2">
+                <span id="estado_8"></span>
+            </div>
+            <div class="col-md-8 text-left">
+                <strong>Email Personal</strong>
+                <p>{{ usuario_dato.email_personal }}</p>
             </div>
         </div>
     {% endcall %}
@@ -48,19 +127,31 @@
 {% block custom_javascript %}
     <script>
         window.onload = function () {
+            render_estado(document.getElementById("estado_general"), "{{ usuario_dato.estado_general }}");
             render_estado(document.getElementById("estado_1"), "{{ usuario_dato.estado_identificacion }}");
-            render_estado(document.getElementById("estado_2"), "{{ usuario_dato.estado_telefono }}");
+            render_estado(document.getElementById("estado_2"), "{{ usuario_dato.estado_cp_fiscal }}");
+            render_estado(document.getElementById("estado_3"), "{{ usuario_dato.estado_cp_fiscal }}");
+            render_estado(document.getElementById("estado_4"), "{{ usuario_dato.estado_es_madre }}");
+            render_estado(document.getElementById("estado_5"), "{{ usuario_dato.estado_estado_civil }}");
+            render_estado(document.getElementById("estado_6"), "{{ usuario_dato.estado_estudios }}");
+            render_estado(document.getElementById("estado_7"), "{{ usuario_dato.estado_telefono }}");
+            render_estado(document.getElementById("estado_8"), "{{ usuario_dato.estado_email }}");
+            render_telefono(document.getElementById("telefono_str"), "{{ usuario_dato.telefono_personal }}");
         }
         function render_estado(elemento, estado) {
             switch( estado ) {
-                case "POR VALIDAR": bgcolor = "bg-warning text-dark"; break;
-                case "NO VALIDO":   bgcolor = "bg-danger";      break;
-                case "VALIDO":      bgcolor = "bg-success";     break;
-                default:            bgcolor = "bg-secondary";   
+                case "POR VALIDAR": bgcolor = "bg-warning text-dark";   icon="mdi:alert";               break;
+                case "NO VALIDO":   bgcolor = "bg-danger";              icon="mdi:cancel";              break;
+                case "VALIDO":      bgcolor = "bg-success";             icon="mdi:check-circle";        break;
+                default:            bgcolor = "bg-secondary";           icon="mdi:checkbox-blank-circle-outline";   
                                     estado = "VACÍO";           break;
             }
-            html = '<span class="badge rounded-pill ' + bgcolor + '">' + estado + '</span>';
+            html = '<span class="badge rounded-pill ' + bgcolor + '"><span class="iconify" data-icon="' + icon + '"></span> ' + estado + '</span>';
             elemento.innerHTML = html;
+        }
+        function render_telefono(elemento, telefono) {
+            const telefono_format = `(${telefono.slice(0,  3)}) ${telefono.slice(3,  6)}-${telefono.slice(6,  10)}`;
+            elemento.innerHTML = telefono_format;
         }
     </script>
 {% endblock %}
