@@ -366,12 +366,12 @@ def edit_domicilio(usuario_dato_id):
             if archivo_prev is not None:
                 usuario_dato.estado_domicilio = "POR VALIDAR"
                 usuario_dato.estado_general = "POR VALIDAR"
-                usuario_dato.domicilio_calle = form.calle.data
-                usuario_dato.domicilio_numero_ext = form.numero_exterior.data
-                usuario_dato.domicilio_numero_int = form.numero_interior.data
-                usuario_dato.domicilio_colonia = form.colonia.data
-                usuario_dato.domicilio_ciudad = form.ciudad.data
-                usuario_dato.domicilio_estado = form.estado.data
+                usuario_dato.domicilio_calle = safe_string(form.calle.data)
+                usuario_dato.domicilio_numero_ext = safe_string(form.numero_exterior.data)
+                usuario_dato.domicilio_numero_int = safe_string(form.numero_interior.data)
+                usuario_dato.domicilio_colonia = safe_string(form.colonia.data)
+                usuario_dato.domicilio_ciudad = safe_string(form.ciudad.data)
+                usuario_dato.domicilio_estado = safe_string(form.estado.data)
                 usuario_dato.save()
                 # Mensaje de resultado positivo
                 flash("Ha modificado su Domicilio correctamente, espere a que sea validada", "success")
@@ -413,12 +413,12 @@ def edit_domicilio(usuario_dato_id):
                     usuario_dato.estado_domicilio = "POR VALIDAR"
                     usuario_dato.estado_general = "POR VALIDAR"
                     usuario_dato.adjunto_domicilio_id = usuario_documento.id
-                    usuario_dato.domicilio_calle = form.calle.data
-                    usuario_dato.domicilio_numero_ext = form.numero_exterior.data
-                    usuario_dato.domicilio_numero_int = form.numero_interior.data
-                    usuario_dato.domicilio_colonia = form.colonia.data
-                    usuario_dato.domicilio_ciudad = form.ciudad.data
-                    usuario_dato.domicilio_estado = form.estado.data
+                    usuario_dato.domicilio_calle = safe_string(form.calle.data)
+                    usuario_dato.domicilio_numero_ext = safe_string(form.numero_exterior.data)
+                    usuario_dato.domicilio_numero_int = safe_string(form.numero_interior.data)
+                    usuario_dato.domicilio_colonia = safe_string(form.colonia.data)
+                    usuario_dato.domicilio_ciudad = safe_string(form.ciudad.data)
+                    usuario_dato.domicilio_estado = safe_string(form.estado.data)
                     usuario_dato.save()
                 except NotConfiguredError:
                     flash("No se ha configurado el almacenamiento en la nube.", "warning")
@@ -448,6 +448,98 @@ def edit_domicilio(usuario_dato_id):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
     return render_template("usuarios_datos/edit_domicilio.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
+@usuarios_datos.route("/usuarios_datos/editar/curp/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit_curp(usuario_dato_id):
+    """Edición del Acta de nacimiento"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Validar si el usuario actual es el correcto
+    if usuario_dato.usuario_curp != current_user.curp:
+        return redirect(url_for("sistemas.start"))
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_curp_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario
+    form = UsuarioDatoEditCurpForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        archivo = request.files["archivo"]
+        # Si no envía cambios en archivo
+        if archivo.filename == "":
+            # Revisar que ya este cargada una adjunto previamente
+            if archivo_prev is not None:
+                usuario_dato.estado_curp = "POR VALIDAR"
+                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.curp = safe_curp(form.curp.data)
+                usuario_dato.save()
+                # Mensaje de resultado positivo
+                flash("Ha modificado su CURP correctamente, espere a que sea validada", "success")
+                return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+            else:
+                flash("Debe cargar un archivo adjunto.", "warning")
+        else:
+            es_valido = True
+            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            try:
+                storage.set_content_type(archivo.filename)
+            except NotAllowedExtesionError:
+                flash("Tipo de archivo no permitido.", "warning")
+                es_valido = False
+            except UnknownExtesionError:
+                flash("Tipo de archivo desconocido.", "warning")
+                es_valido = False
+            # Validar el tipo de extension
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+                es_valido = True
+            else:
+                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                es_valido = False
+            # Si es válido
+            if es_valido:
+                # Eliminar el archivo previo si lo hay
+                if usuario_documento:
+                    usuario_documento.delete()
+                # Insertar el registro, para obtener el ID
+                usuario_documento = UsuarioDocumento(
+                    descripcion="CURP",
+                )
+                usuario_documento.save()
+                # Subir el archivo a la nube
+                try:
+                    storage.set_filename(hashed_id=usuario_documento.encode_id(), description=usuario_documento.descripcion)
+                    storage.upload(archivo.stream.read())
+                    usuario_documento.url = storage.url
+                    usuario_dato.estado_curp = "POR VALIDAR"
+                    usuario_dato.estado_general = "POR VALIDAR"
+                    usuario_dato.adjunto_curp_id = usuario_documento.id
+                    usuario_dato.curp = safe_curp(form.curp.data)
+                    usuario_dato.save()
+                except NotConfiguredError:
+                    flash("No se ha configurado el almacenamiento en la nube.", "warning")
+                    es_valido = False
+                except Exception as err:
+                    flash(f"{err}Error al subir el archivo.", "danger")
+                    es_valido = False
+            if es_valido:
+                # Mensaje de resultado positivo
+                flash("Ha modificado su CURP correctamente, espere a que sea validada", "success")
+                return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+            else:
+                flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
+    # Precargar datos anteriores
+    form.curp.data = usuario_dato.curp
+    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
+    tipo_archivo = None
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
+    # Renderiza el formulario de Edición
+    return render_template("usuarios_datos/edit_curp.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -644,6 +736,48 @@ def validate_domicilio(usuario_dato_id):
         tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_domicilio.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
+@usuarios_datos.route("/usuarios_datos/validar/curp/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def validate_curp(usuario_dato_id):
+    """Validación de el acta de nacimiento"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_curp_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario de validación
+    form = UsuarioDatoValidateForm()
+    if form.validate_on_submit():
+        if form.valido.data:
+            usuario_dato.estado_curp = "VALIDO"
+            usuario_dato.mensaje_curp = None
+            usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+            usuario_dato.save()
+            flash("Ha validado su CURP correctamente", "success")
+        elif form.no_valido.data:
+            mensaje = safe_message(form.mensaje.data, default_output_str=None)
+            if mensaje is None:
+                flash("Si rechaza esta información, por favor añada un mensaje dando una explicación", "warning")
+                return render_template("usuarios_datos/validate_curp.jinja2", form=form, usuario_dato=usuario_dato)
+            else:
+                usuario_dato.mensaje_curp = mensaje
+                usuario_dato.estado_curp = "NO VALIDO"
+                usuario_dato.estado_general = "NO VALIDO"
+                usuario_dato.save()
+                flash("Ha rechazado el acta de nacimiento", "success")
+
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+    # Definir el tipo de archivo adjunto: Imagen o PDF.
+    tipo_archivo = None
+    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+        tipo_archivo = "JPG"
+    elif archivo_prev.endswith(".pdf"):
+        tipo_archivo = "PDF"
+    # Renderiza la página de validación
+    return render_template("usuarios_datos/validate_curp.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])

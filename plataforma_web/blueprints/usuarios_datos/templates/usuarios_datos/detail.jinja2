@@ -76,7 +76,7 @@
 
         <div class="row">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-warning disabled" href="#"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                <a class="btn btn-sm btn-warning" href="{{ url_for('usuarios_datos.edit_curp', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_4"></span>
