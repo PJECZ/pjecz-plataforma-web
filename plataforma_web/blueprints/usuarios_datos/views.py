@@ -634,6 +634,80 @@ def edit_cp_fiscal(usuario_dato_id):
     return render_template("usuarios_datos/edit_cp_fiscal.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
+@usuarios_datos.route("/usuarios_datos/editar/curriculum/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit_curriculum(usuario_dato_id):
+    """Edición del estado civil"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Validar si el usuario actual es el correcto
+    if usuario_dato.usuario_curp != current_user.curp:
+        return redirect(url_for("sistemas.start"))
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_curriculum_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario
+    form = UsuarioDatoEditCurriculumForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        es_valido = True
+        archivo = request.files["archivo"]
+        storage = GoogleCloudStorage(SUBDIRECTORIO)
+        try:
+            storage.set_content_type(archivo.filename)
+        except NotAllowedExtesionError:
+            flash("Tipo de archivo no permitido.", "warning")
+            es_valido = False
+        except UnknownExtesionError:
+            flash("Tipo de archivo desconocido.", "warning")
+            es_valido = False
+        # Validar el tipo de extension
+        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            es_valido = True
+        else:
+            flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+            es_valido = False
+        # Si es válido
+        if es_valido:
+            # Eliminar el archivo previo si lo hay
+            if usuario_documento:
+                usuario_documento.delete()
+            # Insertar el registro, para obtener el ID
+            usuario_documento = UsuarioDocumento(
+                descripcion="Curriculum",
+            )
+            usuario_documento.save()
+            # Subir el archivo a la nube
+            try:
+                storage.set_filename(hashed_id=usuario_documento.encode_id(), description=usuario_documento.descripcion)
+                storage.upload(archivo.stream.read())
+                usuario_documento.url = storage.url
+                usuario_dato.estado_curriculum = "POR VALIDAR"
+                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.adjunto_curriculum_id = usuario_documento.id
+                usuario_dato.save()
+            except NotConfiguredError:
+                flash("No se ha configurado el almacenamiento en la nube.", "warning")
+                es_valido = False
+            except Exception as err:
+                flash(f"{err}Error al subir el archivo.", "danger")
+                es_valido = False
+        if es_valido:
+            # Registrar la acción en la bitácora
+            flash("Ha modificado su Curriculum correctamente, espere a que sea validado", "success")
+            return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+        else:
+            flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
+    # Precargar datos anteriores
+    tipo_archivo = None
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
+    return render_template("usuarios_datos/edit_curriculum.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
 @usuarios_datos.route("/usuarios_datos/editar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit_estado_civil(usuario_dato_id):
@@ -738,10 +812,11 @@ def validate_identificacion(usuario_dato_id):
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
-    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-        tipo_archivo = "JPG"
-    elif archivo_prev.endswith(".pdf"):
-        tipo_archivo = "PDF"
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
@@ -780,10 +855,11 @@ def validate_acta_nacimiento(usuario_dato_id):
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
-    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-        tipo_archivo = "JPG"
-    elif archivo_prev.endswith(".pdf"):
-        tipo_archivo = "PDF"
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_acta_nacimiento.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
@@ -822,10 +898,11 @@ def validate_domicilio(usuario_dato_id):
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
-    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-        tipo_archivo = "JPG"
-    elif archivo_prev.endswith(".pdf"):
-        tipo_archivo = "PDF"
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_domicilio.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
@@ -864,10 +941,11 @@ def validate_curp(usuario_dato_id):
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
-    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-        tipo_archivo = "JPG"
-    elif archivo_prev.endswith(".pdf"):
-        tipo_archivo = "PDF"
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_curp.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
@@ -906,12 +984,56 @@ def validate_cp_fiscal(usuario_dato_id):
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
-    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-        tipo_archivo = "JPG"
-    elif archivo_prev.endswith(".pdf"):
-        tipo_archivo = "PDF"
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_cp_fiscal.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
+@usuarios_datos.route("/usuarios_datos/validar/curriculum/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def validate_curriculum(usuario_dato_id):
+    """Validación de la identificación oficial"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_curriculum_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario de validación
+    form = UsuarioDatoValidateForm()
+    if form.validate_on_submit():
+        if form.valido.data:
+            usuario_dato.estado_curriculum = "VALIDO"
+            usuario_dato.mensaje_curriculum = None
+            usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+            usuario_dato.save()
+            flash("Ha validado el Curriculum correctamente", "success")
+        elif form.no_valido.data:
+            mensaje = safe_message(form.mensaje.data, default_output_str=None)
+            if mensaje is None:
+                flash("Si rechaza esta información, por favor añada un mensaje dando una explicación", "warning")
+                return render_template("usuarios_datos/validate_curriculum.jinja2", form=form, usuario_dato=usuario_dato)
+            else:
+                usuario_dato.mensaje_curriculum = mensaje
+                usuario_dato.estado_curriculum = "NO VALIDO"
+                usuario_dato.estado_general = "NO VALIDO"
+                usuario_dato.save()
+                flash("Ha rechazado el Curriculum", "success")
+
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+    # Definir el tipo de archivo adjunto: Imagen o PDF.
+    tipo_archivo = None
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
+    # Renderiza la página de validación
+    return render_template("usuarios_datos/validate_curriculum.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -942,3 +1064,46 @@ def validate_estado_civil(usuario_dato_id):
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_estado_civil.jinja2", form=form, usuario_dato=usuario_dato)
+
+
+@usuarios_datos.route("/usuarios_datos/validar/estado_cuenta/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def validate_estado_cuenta(usuario_dato_id):
+    """Validación de la identificación oficial"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_estado_cuenta_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario de validación
+    form = UsuarioDatoValidateForm()
+    if form.validate_on_submit():
+        if form.valido.data:
+            usuario_dato.estado_estado_cuenta = "VALIDO"
+            usuario_dato.mensaje_estado_cuenta = None
+            usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+            usuario_dato.save()
+            flash("Ha validado el Estado de Cuenta correctamente", "success")
+        elif form.no_valido.data:
+            mensaje = safe_message(form.mensaje.data, default_output_str=None)
+            if mensaje is None:
+                flash("Si rechaza esta información, por favor añada un mensaje dando una explicación", "warning")
+                return render_template("usuarios_datos/validate_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato)
+            else:
+                usuario_dato.mensaje_estado_cuenta = mensaje
+                usuario_dato.estado_estado_cuenta = "NO VALIDO"
+                usuario_dato.estado_general = "NO VALIDO"
+                usuario_dato.save()
+                flash("Ha rechazado el Estado de Cuenta", "success")
+
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+    # Definir el tipo de archivo adjunto: Imagen o PDF.
+    tipo_archivo = None
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
+    # Renderiza la página de validación
+    return render_template("usuarios_datos/validate_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)

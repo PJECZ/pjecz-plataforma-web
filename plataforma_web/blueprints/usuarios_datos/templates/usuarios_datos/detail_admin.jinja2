@@ -106,7 +106,7 @@
 
         <div class="row">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
+                <a class="btn btn-sm btn-primary" href="{{ url_for('usuarios_datos.validate_curriculum', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_6"></span>
@@ -166,7 +166,7 @@
 
         <div class="row">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-primary disabled" href="#"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
+                <a class="btn btn-sm btn-primary" href="{{ url_for('usuarios_datos.validate_estado_cuenta', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:check-decagram"></span> Validar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_10"></span>
