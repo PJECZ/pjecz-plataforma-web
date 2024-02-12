@@ -9,6 +9,7 @@ from werkzeug.datastructures import CombinedMultiDict
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message, safe_curp
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
+from sqlalchemy import or_
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -16,6 +17,7 @@ from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 
+from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicitud
 from plataforma_web.blueprints.usuarios_documentos.models import UsuarioDocumento
 from plataforma_web.blueprints.usuarios_datos.forms import (
@@ -72,6 +74,41 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "nombre" in request.form:
+        palabras = safe_string(request.form["nombre"]).split(" ")
+        consulta = consulta.join(Usuario)
+        for palabra in palabras:
+            consulta = consulta.filter(or_(Usuario.nombres.contains(palabra), Usuario.apellido_paterno.contains(palabra), Usuario.apellido_materno.contains(palabra)))
+    if "curp" in request.form:
+        consulta = consulta.filter(UsuarioDato.usuario_curp.contains(safe_string(request.form["curp"])))
+    if "estado" in request.form and not "campo" in request.form:
+        consulta = consulta.filter_by(estado_general=request.form["estado"])
+    if "estado" in request.form and "campo" in request.form:
+        if request.form["campo"] == "IDENTIFICACION":
+            consulta = consulta.filter_by(estado_identificacion=request.form["estado"])
+        elif request.form["campo"] == "ACTA NACIMIENTO":
+            consulta = consulta.filter_by(estado_acta_nacimiento=request.form["estado"])
+        elif request.form["campo"] == "DOMICILIO":
+            consulta = consulta.filter_by(estado_domicilio=request.form["estado"])
+        elif request.form["campo"] == "CURP":
+            consulta = consulta.filter_by(estado_curp=request.form["estado"])
+        elif request.form["campo"] == "CP FISCAL":
+            consulta = consulta.filter_by(estado_cp_fiscal=request.form["estado"])
+        elif request.form["campo"] == "CURRICULUM":
+            consulta = consulta.filter_by(estado_curriculum=request.form["estado"])
+        elif request.form["campo"] == "ESTUDIOS":
+            consulta = consulta.filter_by(estado_estudios=request.form["estado"])
+        elif request.form["campo"] == "ES MADRE":
+            consulta = consulta.filter_by(estado_acta_nacimiento_hijo=request.form["estado"])
+        elif request.form["campo"] == "ESTADO CIVIL":
+            consulta = consulta.filter_by(estado_estado_civil=request.form["estado"])
+        elif request.form["campo"] == "ESTADO CUENTA":
+            consulta = consulta.filter_by(estado_estado_cuenta=request.form["estado"])
+        elif request.form["campo"] == "TELEFONO":
+            consulta = consulta.filter_by(estado_telefono=request.form["estado"])
+        elif request.form["campo"] == "EMAIL":
+            consulta = consulta.filter_by(estado_email=request.form["estado"])
+    # Resultado
     registros = consulta.order_by(UsuarioDato.modificado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -731,7 +768,7 @@ def edit_estudios(usuario_dato_id):
             if archivo_prev is not None:
                 usuario_dato.estado_estudios = "POR VALIDAR"
                 usuario_dato.estado_general = "POR VALIDAR"
-                usuario_dato.estudios_cedula = form.cedula_profesional.data
+                usuario_dato.estudios_cedula = safe_string(form.cedula_profesional.data)
                 usuario_dato.save()
                 # Mensaje de resultado positivo
                 flash("Ha modificado su Cédula Profesional correctamente, espere a que sea validada", "success")
@@ -773,7 +810,7 @@ def edit_estudios(usuario_dato_id):
                     usuario_dato.estado_estudios = "POR VALIDAR"
                     usuario_dato.estado_general = "POR VALIDAR"
                     usuario_dato.adjunto_estudios_id = usuario_documento.id
-                    usuario_dato.estudios_cedula = form.cedula_profesional.data
+                    usuario_dato.estudios_cedula = safe_string(form.cedula_profesional.data)
                     usuario_dato.save()
                 except NotConfiguredError:
                     flash("No se ha configurado el almacenamiento en la nube.", "warning")

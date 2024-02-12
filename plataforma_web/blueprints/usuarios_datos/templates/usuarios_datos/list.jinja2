@@ -14,33 +14,22 @@
         <!-- Formulario de filtros -->
         <div class="row">
             <div class="col">
-                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="buscar(); return false;">
+                <form class="row g-1 mb-3" id="buscadorForm" onsubmit="filtros_usuarios_datos.buscar(); return false;">
                     <div class="col-3">
                         <div class="form-floating">
-                            <input id="nombreInput" type="text" class="form-control" aria-label="Nombre" aria-describedby="button-buscar" onchange="buscar(); return false;">
+                            <input id="nombreInput" type="text" class="form-control" aria-label="Nombre" aria-describedby="button-buscar" onchange="filtros_usuarios_datos.buscar(); return false;" style="text-transform: uppercase;">
                             <label for="nombreInput">Nombre</label>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="form-floating">
-                            <input id="curpInput" type="text" class="form-control" aria-label="Curp" aria-describedby="button-buscar" onchange="buscar(); return false;">
+                            <input id="curpInput" type="text" class="form-control" aria-label="Curp" aria-describedby="button-buscar" onchange="filtros_usuarios_datos.buscar(); return false;" style="text-transform: uppercase;">
                             <label for="curpInput">CURP</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <select class="form-select" id="estadoSelect" name="estadoSelect" aria-label="Todas" onchange="buscar(); return false;" style="flex: inherit;">
-                                <option selected value=""></option>
-                                {% for estado in estados %}
-                                    <option value="{{estado}}">{{estado}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="estadoSelect">Estado</label>
-                        </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="form-floating">
-                            <select class="form-select" id="campoSelect" name="campoSelect" aria-label="Todas" onchange="buscar(); return false;" style="flex: inherit;">
+                            <select class="form-select" id="campoSelect" name="campoSelect" aria-label="Todas" onchange="filtros_usuarios_datos.buscar(); return false;" style="flex: inherit;">
                                 <option selected value=""></option>
                                 {% for campo in campos %}
                                     <option value="{{campo}}">{{campo}}</option>
@@ -49,9 +38,20 @@
                             <label for="campoSelect">Campo</label>
                         </div>
                     </div>
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <select class="form-select" id="estadoSelect" name="estadoSelect" aria-label="Todas" onchange="filtros_usuarios_datos.buscar(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
+                                {% for estado in estados %}
+                                    <option value="{{estado}}">{{estado}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="estadoSelect">Estado</label>
+                        </div>
+                    </div>
                     <div class="col-2 text-end">
-                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
-                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtros_usuarios_datos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtros_usuarios_datos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
                 </form>
             </div>
@@ -120,12 +120,13 @@
 
         // Declaración de los Filtros utilizados
         // Creación del Objeto manejador de Filtros
-        const filtros_solicitudes = new Filtros('#usuarios_datos_datatable', configDataTable_usuarios_datos);
+        const filtros_usuarios_datos = new Filtros('#usuarios_datos_datatable', configDataTable_usuarios_datos);
         // Añadimos los difrentes inputs utilizados
-        filtros_solicitudes.add_input('nombreInput', 'nombre');
-        filtros_solicitudes.add_input('curpInput', 'curp');
-        filtros_solicitudes.add_input('estadoSelect', 'estado');
+        filtros_usuarios_datos.add_input('nombreInput', 'nombre', filtros_usuarios_datos.UPPER);
+        filtros_usuarios_datos.add_input('curpInput', 'curp', filtros_usuarios_datos.UPPER);
+        filtros_usuarios_datos.add_input('campoSelect', 'campo');
+        filtros_usuarios_datos.add_input('estadoSelect', 'estado');
         // Precarga de los valores de los inputs mantenidos después de la carga de la página.
-        filtros_solicitudes.precarga();
+        filtros_usuarios_datos.precarga();
     </script>
 {% endblock %}
