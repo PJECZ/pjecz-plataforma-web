@@ -60,14 +60,14 @@
 
         <div class="row">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-warning disabled" href="#"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                <a class="btn btn-sm btn-warning" href="{{ url_for('usuarios_datos.edit_domicilio', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_3"></span>
             </div>
             <div class="col-md-8">
                 <strong>Domicilio</strong>
-                <p>{{ usuario_dato.domicilio_calle }}, {{ usuario_dato.domicilio_colonia }}. {{ usuario_dato.domicilio_numero_ext }}/{{ usuario_dato.domicilio_numero_int }}<br/>
+                <p>{{ usuario_dato.domicilio_calle }}, Col. {{ usuario_dato.domicilio_colonia }}. {{ usuario_dato.domicilio_numero_ext }}. int. {{ usuario_dato.domicilio_numero_int }}<br/>
                 {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}<br />
                     <i class="text-danger">{{ usuario_dato.mensaje_domicilio if usuario_dato.mensaje_domicilio else "" }}</i>
                 </p>
