@@ -49,7 +49,7 @@ class UsuarioDatoEditCPFiscalForm(FlaskForm):
     """Formulario Edit Código postal Fiscal"""
 
     archivo = FileField("Archivo PDF o JPG", validators=[Optional()])
-    codigo_postal = IntegerField("Código Postal Fiscal", validators=[DataRequired(), Length(5)])
+    cp_fiscal = IntegerField("Código Postal Fiscal", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 
