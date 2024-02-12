@@ -20,6 +20,7 @@ from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicit
 from plataforma_web.blueprints.usuarios_documentos.models import UsuarioDocumento
 from plataforma_web.blueprints.usuarios_datos.forms import (
     UsuarioDatoEditIdentificacionForm,
+    UsuarioDatoEditActaNacimientoForm,
     UsuarioDatoEditEstadoCivilForm,
     UsuarioDatoValidateForm,
 )
@@ -211,6 +212,7 @@ def edit_identificacion(usuario_dato_id):
                 storage.upload(archivo.stream.read())
                 usuario_documento.url = storage.url
                 usuario_dato.estado_identificacion = "POR VALIDAR"
+                usuario_dato.estado_general = "POR VALIDAR"
                 usuario_dato.adjunto_identificacion_id = usuario_documento.id
                 usuario_dato.save()
             except NotConfiguredError:
@@ -235,6 +237,95 @@ def edit_identificacion(usuario_dato_id):
     return render_template("usuarios_datos/edit_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
+@usuarios_datos.route("/usuarios_datos/editar/acta_nacimiento/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit_acta_nacimiento(usuario_dato_id):
+    """Edición del Acta de nacimiento"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_acta_nacimiento_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario
+    form = UsuarioDatoEditActaNacimientoForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        archivo = request.files["archivo"]
+        # Si no envía cambios en archivo
+        if archivo.filename == "":
+            # Revisar que ya este cargada una adjunto previamente
+            if archivo_prev is not None:
+                usuario_dato.estado_acta_nacimiento = "POR VALIDAR"
+                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.fecha_nacimiento = form.fecha_nacimiento.data
+                usuario_dato.save()
+                # Mensaje de resultado positivo
+                flash("Ha modificado su Acta de Nacimiento correctamente, espere a que sea validada", "success")
+                return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+            else:
+                flash("Debe cargar un archivo adjunto.", "warning")
+        else:
+            es_valido = True
+            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            try:
+                storage.set_content_type(archivo.filename)
+            except NotAllowedExtesionError:
+                flash("Tipo de archivo no permitido.", "warning")
+                es_valido = False
+            except UnknownExtesionError:
+                flash("Tipo de archivo desconocido.", "warning")
+                es_valido = False
+            # Validar el tipo de extension
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+                es_valido = True
+            else:
+                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                es_valido = False
+            # Si es válido
+            if es_valido:
+                # Eliminar el archivo previo si lo hay
+                if usuario_documento:
+                    usuario_documento.delete()
+                # Insertar el registro, para obtener el ID
+                usuario_documento = UsuarioDocumento(
+                    descripcion="Acta Nacimiento",
+                )
+                usuario_documento.save()
+                # Subir el archivo a la nube
+                try:
+                    storage.set_filename(hashed_id=usuario_documento.encode_id(), description=usuario_documento.descripcion)
+                    storage.upload(archivo.stream.read())
+                    usuario_documento.url = storage.url
+                    usuario_dato.estado_acta_nacimiento = "POR VALIDAR"
+                    usuario_dato.estado_general = "POR VALIDAR"
+                    usuario_dato.adjunto_acta_nacimiento_id = usuario_documento.id
+                    usuario_dato.fecha_nacimiento = form.fecha_nacimiento.data
+                    usuario_dato.save()
+                except NotConfiguredError:
+                    flash("No se ha configurado el almacenamiento en la nube.", "warning")
+                    es_valido = False
+                except Exception as err:
+                    flash(f"{err}Error al subir el archivo.", "danger")
+                    es_valido = False
+            if es_valido:
+                # Mensaje de resultado positivo
+                flash("Ha modificado su Acta de Nacimiento correctamente, espere a que sea validada", "success")
+                return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+            else:
+                flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
+    # Precargar datos anteriores
+    form.fecha_nacimiento.data = usuario_dato.fecha_nacimiento
+    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
+    tipo_archivo = None
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
+    # Renderiza el formulario de Edición
+    return render_template("usuarios_datos/edit_acta_nacimiento.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
 @usuarios_datos.route("/usuarios_datos/editar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit_estado_civil(usuario_dato_id):
@@ -244,6 +335,7 @@ def edit_estado_civil(usuario_dato_id):
     if form.validate_on_submit():
         usuario_dato.estado_civil = form.estado_civil.data
         usuario_dato.estado_estado_civil = "POR VALIDAR"
+        usuario_dato.estado_general = "POR VALIDAR"
         usuario_dato.save()
         flash("Ha modificado su estado civil correctamente, espere a que sea validado", "success")
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
@@ -252,10 +344,58 @@ def edit_estado_civil(usuario_dato_id):
     return render_template("usuarios_datos/edit_estado_civil.jinja2", form=form, usuario_dato=usuario_dato)
 
 
-@usuarios_datos.route("/usuarios_datos/validar/estado_identificacion/<int:usuario_dato_id>", methods=["GET", "POST"])
+def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
+    """Revisa los estados de los demás campos y coloca el estado general correspondiente"""
+    # Revisa el estado de todos los campos
+    if (
+        usuario_dato.estado_identificacion == "VALIDO"
+        and usuario_dato.estado_acta_nacimiento == "VALIDO"
+        and usuario_dato.estado_domicilio == "VALIDO"
+        and usuario_dato.estado_curp == "VALIDO"
+        and usuario_dato.estado_cp_fiscal == "VALIDO"
+        and usuario_dato.estado_curriculum == "VALIDO"
+        and usuario_dato.estado_estudios == "VALIDO"
+        and usuario_dato.estado_acta_nacimiento_hijo == "VALIDO"
+        and usuario_dato.estado_estado_civil == "VALIDO"
+        and usuario_dato.estado_estado_cuenta == "VALIDO"
+        and usuario_dato.estado_telefono == "VALIDO"
+        and usuario_dato.estado_email == "VALIDO"
+    ):
+        return "VALIDO"
+
+    # Si almenos hay un dato no válido, todo se considera no válido
+    if usuario_dato.estado_identificacion == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_acta_nacimiento == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_domicilio == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_curp == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_cp_fiscal == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_curriculum == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_estudios == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_acta_nacimiento_hijo == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_estado_civil == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_estado_cuenta == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_telefono == "NO VALIDO":
+        return "NO VALIDO"
+    if usuario_dato.estado_email == "NO VALIDO":
+        return "NO VALIDO"
+
+    return "POR VALIDAR"
+
+
+@usuarios_datos.route("/usuarios_datos/validar/identificacion/<int:usuario_dato_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def validate_identificacion(usuario_dato_id):
-    """Validación del estado civil"""
+    """Validación de la identificación oficial"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_identificacion_id).first()
@@ -268,8 +408,9 @@ def validate_identificacion(usuario_dato_id):
         if form.valido.data:
             usuario_dato.estado_identificacion = "VALIDO"
             usuario_dato.mensaje_identificacion = None
+            usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
             usuario_dato.save()
-            flash("Ha validado el estado civil correctamente", "success")
+            flash("Ha validado la identificación oficial correctamente", "success")
         elif form.no_valido.data:
             mensaje = safe_message(form.mensaje.data, default_output_str=None)
             if mensaje is None:
@@ -278,11 +419,13 @@ def validate_identificacion(usuario_dato_id):
             else:
                 usuario_dato.mensaje_identificacion = mensaje
                 usuario_dato.estado_identificacion = "NO VALIDO"
+                usuario_dato.estado_general = "NO VALIDO"
                 usuario_dato.save()
-                flash("Ha rechazado el estado civil", "success")
+                flash("Ha rechazado la identificación oficial", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
     # Precargar datos anteriores
+    # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
         tipo_archivo = "JPG"
@@ -290,6 +433,49 @@ def validate_identificacion(usuario_dato_id):
         tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
+@usuarios_datos.route("/usuarios_datos/validar/acta_nacimiento/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def validate_acta_nacimiento(usuario_dato_id):
+    """Validación de el acta de nacimiento"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_acta_nacimiento_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario de validación
+    form = UsuarioDatoValidateForm()
+    if form.validate_on_submit():
+        if form.valido.data:
+            usuario_dato.estado_acta_nacimiento = "VALIDO"
+            usuario_dato.mensaje_acta_nacimiento = None
+            usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+            usuario_dato.save()
+            flash("Ha validado el acta de nacimiento correctamente", "success")
+        elif form.no_valido.data:
+            mensaje = safe_message(form.mensaje.data, default_output_str=None)
+            if mensaje is None:
+                flash("Si rechaza esta información, por favor añada un mensaje dando una explicación", "warning")
+                return render_template("usuarios_datos/validate_acta_nacimiento.jinja2", form=form, usuario_dato=usuario_dato)
+            else:
+                usuario_dato.mensaje_acta_nacimiento = mensaje
+                usuario_dato.estado_acta_nacimiento = "NO VALIDO"
+                usuario_dato.estado_general = "NO VALIDO"
+                usuario_dato.save()
+                flash("Ha rechazado el acta de nacimiento", "success")
+
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+    # Precargar datos anteriores
+    # Definir el tipo de archivo adjunto: Imagen o PDF.
+    tipo_archivo = None
+    if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+        tipo_archivo = "JPG"
+    elif archivo_prev.endswith(".pdf"):
+        tipo_archivo = "PDF"
+    # Renderiza la página de validación
+    return render_template("usuarios_datos/validate_acta_nacimiento.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -302,6 +488,7 @@ def validate_estado_civil(usuario_dato_id):
         if form.valido.data:
             usuario_dato.estado_estado_civil = "VALIDO"
             usuario_dato.mensaje_estado_civil = None
+            usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
             usuario_dato.save()
             flash("Ha validado el estado civil correctamente", "success")
         elif form.no_valido.data:
@@ -312,6 +499,7 @@ def validate_estado_civil(usuario_dato_id):
             else:
                 usuario_dato.mensaje_estado_civil = mensaje
                 usuario_dato.estado_estado_civil = "NO VALIDO"
+                usuario_dato.estado_general = "NO VALIDO"
                 usuario_dato.save()
                 flash("Ha rechazado el estado civil", "success")
 

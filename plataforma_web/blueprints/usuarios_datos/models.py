@@ -53,6 +53,7 @@ class UsuarioDato(db.Model, UniversalMixin):
     adjunto_estado_cuenta_id = db.Column(db.Integer)
     # Campos como textos
     curp = db.Column(db.String(18))
+    fecha_nacimiento = db.Column(db.Date)
     cp_fiscal = db.Column(db.Integer)
     domicilio_calle = db.Column(db.String(255))
     domicilio_colonia = db.Column(db.String(64))
