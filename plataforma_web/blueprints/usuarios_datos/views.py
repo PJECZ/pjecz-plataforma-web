@@ -236,7 +236,7 @@ def edit_identificacion(usuario_dato_id):
                 flash(f"{err}Error al subir el archivo.", "danger")
                 es_valido = False
         if es_valido:
-            # Registrar la acción en la bitácora
+            # mensaje de confirmación de guardado
             flash("Ha modificado su identificación oficial correctamente, espere a que sea validada", "success")
             return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
         else:
@@ -693,7 +693,7 @@ def edit_curriculum(usuario_dato_id):
                 flash(f"{err}Error al subir el archivo.", "danger")
                 es_valido = False
         if es_valido:
-            # Registrar la acción en la bitácora
+            # mensaje de confirmación de guardado
             flash("Ha modificado su Curriculum correctamente, espere a que sea validado", "success")
             return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
         else:
@@ -728,6 +728,80 @@ def edit_estado_civil(usuario_dato_id):
     # Precargar datos anteriores
     form.estado_civil.data = usuario_dato.estado_civil
     return render_template("usuarios_datos/edit_estado_civil.jinja2", form=form, usuario_dato=usuario_dato)
+
+
+@usuarios_datos.route("/usuarios_datos/editar/estado_cuenta/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit_estado_cuenta(usuario_dato_id):
+    """Edición del estado civil"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Validar si el usuario actual es el correcto
+    if usuario_dato.usuario_curp != current_user.curp:
+        return redirect(url_for("sistemas.start"))
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_estado_cuenta_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario
+    form = UsuarioDatoEditEstadoCuentaForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        es_valido = True
+        archivo = request.files["archivo"]
+        storage = GoogleCloudStorage(SUBDIRECTORIO)
+        try:
+            storage.set_content_type(archivo.filename)
+        except NotAllowedExtesionError:
+            flash("Tipo de archivo no permitido.", "warning")
+            es_valido = False
+        except UnknownExtesionError:
+            flash("Tipo de archivo desconocido.", "warning")
+            es_valido = False
+        # Validar el tipo de extension
+        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            es_valido = True
+        else:
+            flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+            es_valido = False
+        # Si es válido
+        if es_valido:
+            # Eliminar el archivo previo si lo hay
+            if usuario_documento:
+                usuario_documento.delete()
+            # Insertar el registro, para obtener el ID
+            usuario_documento = UsuarioDocumento(
+                descripcion="Estado Cuenta",
+            )
+            usuario_documento.save()
+            # Subir el archivo a la nube
+            try:
+                storage.set_filename(hashed_id=usuario_documento.encode_id(), description=usuario_documento.descripcion)
+                storage.upload(archivo.stream.read())
+                usuario_documento.url = storage.url
+                usuario_dato.estado_estado_cuenta = "POR VALIDAR"
+                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.adjunto_estado_cuenta_id = usuario_documento.id
+                usuario_dato.save()
+            except NotConfiguredError:
+                flash("No se ha configurado el almacenamiento en la nube.", "warning")
+                es_valido = False
+            except Exception as err:
+                flash(f"{err}Error al subir el archivo.", "danger")
+                es_valido = False
+        if es_valido:
+            # mensaje de confirmación de guardado
+            flash("Ha modificado su Estado de Cuenta correctamente, espere a que sea validado", "success")
+            return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+        else:
+            flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
+    # Precargar datos anteriores
+    tipo_archivo = None
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
+    return render_template("usuarios_datos/edit_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
 def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
