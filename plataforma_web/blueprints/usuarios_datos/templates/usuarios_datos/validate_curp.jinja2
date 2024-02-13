@@ -12,8 +12,9 @@
 {% block content %}
     {# Preview #}
     {% call f.card('Datos a validar') %}
+        {{ detail.label_value('CURP registrado en PW', usuario_dato.usuario.curp) }}
         {{ detail.label_value('CURP', usuario_dato.curp) }}
-        {{ detail.label_value('CURP') }}
+        {{ detail.label_value('Archivo adjunto') }}
         {% if archivo %}
             {% if tipo_archivo == "PDF" %}
             <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>

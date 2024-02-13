@@ -13,7 +13,7 @@
     {# Preview #}
     {% call f.card('Datos a validar') %}
         {{ detail.label_value('Código Postal Fiscal', usuario_dato.cp_fiscal) }}
-        {{ detail.label_value('Código Postal Fiscal') }}
+        {{ detail.label_value('Archivo Adjunto') }}
         {% if archivo %}
             {% if tipo_archivo == "PDF" %}
             <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>
