@@ -80,7 +80,8 @@ def datatable_json():
         for palabra in palabras:
             consulta = consulta.filter(or_(Usuario.nombres.contains(palabra), Usuario.apellido_paterno.contains(palabra), Usuario.apellido_materno.contains(palabra)))
     if "curp" in request.form:
-        consulta = consulta.filter(UsuarioDato.usuario_curp.contains(safe_string(request.form["curp"])))
+        consulta = consulta.join(Usuario)
+        consulta = consulta.filter(Usuario.curp.contains(safe_string(request.form["curp"])))
     if "estado" in request.form and not "campo" in request.form:
         consulta = consulta.filter_by(estado_general=request.form["estado"])
     if "estado" in request.form and "campo" in request.form:
@@ -124,7 +125,7 @@ def datatable_json():
                     "nombre": resultado.usuario.nombre,
                     "url": url_for("usuarios_datos.detail", usuario_dato_id=resultado.id),
                 },
-                "curp": resultado.usuario_curp,
+                "curp": resultado.usuario.curp,
                 "estado": resultado.estado_general,
             }
         )
@@ -1403,6 +1404,58 @@ def validate_estudios(usuario_dato_id):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_estudios.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
+@usuarios_datos.route("/usuarios_datos/validar/es_madre/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def validate_es_madre(usuario_dato_id):
+    """Validación de la identificación oficial"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_acta_nacimiento_hijo_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario de validación
+    form = UsuarioDatoValidateForm()
+    if form.validate_on_submit():
+        if form.valido.data:
+            # Revisar genero según su CURP
+            if usuario_dato.usuario.curp[10] == "M":
+                usuario_dato.estado_es_madre = "VALIDO"
+                usuario_dato.mensaje_es_madre = None
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+                usuario_dato.save()
+                flash("Ha validado la condición de madre correctamente", "success")
+            else:
+                flash("Según su género por CURP, esta persona es Hombre, no puede ser madre", "warning")
+        elif form.no_valido.data:
+            mensaje = safe_message(form.mensaje.data, default_output_str=None)
+            if mensaje is None:
+                flash("Si rechaza esta información, por favor añada un mensaje dando una explicación", "warning")
+                return render_template("usuarios_datos/validate_es_madre.jinja2", form=form, usuario_dato=usuario_dato)
+            else:
+                usuario_dato.mensaje_es_madre = mensaje
+                usuario_dato.estado_es_madre = "NO VALIDO"
+                usuario_dato.estado_general = "NO VALIDO"
+                usuario_dato.save()
+                flash("Ha rechazado la condición de madre oficial", "success")
+
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+    # Identificar el género según su CURP
+    if usuario_dato.usuario.curp[10] == "H":
+        genero_curp = "HOMBRE, No podría ser madre"
+    else:
+        genero_curp = "MUJER"
+    # Definir el tipo de archivo adjunto: Imagen o PDF.
+    tipo_archivo = None
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
+    # Renderiza la página de validación
+    return render_template("usuarios_datos/validate_es_madre.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo, genero_curp=genero_curp)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
