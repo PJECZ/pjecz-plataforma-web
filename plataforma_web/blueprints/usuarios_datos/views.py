@@ -174,20 +174,19 @@ def detail(usuario_dato_id):
 @usuarios_datos.route("/usuarios_datos/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Usuario Datos vacío"""
-    curp = None
+    """Nuevo Usuario Datos vacíos o redirección a detalle"""
+    # Comprobamos si el usuario es una persona verificando si tiene CURP
     try:
-        curp = safe_curp(current_user.curp)
+        safe_curp(current_user.curp)
     except ValueError:
         flash("CURP no válida, no puede ingresar a este módulo sin una CURP.", "warning")
         return redirect(url_for("sistemas.start"))
     # Buscar si el usuario ya tiene un registro previo
-    usuario_dato = UsuarioDato.query.filter_by(curp=curp).first()
+    usuario_dato = UsuarioDato.query.filter_by(usuario_id=current_user.id).first()
     # Si no cuenta con un registro previo, crear uno nuevo vacío
     if usuario_dato is None:
         usuario_dato = UsuarioDato(
             usuario=current_user,
-            usuario_curp=current_user.curp,
         ).save()
 
         # Copiar teléfono y email personales de la tabla de usuarios_solicitudes
@@ -217,17 +216,17 @@ def new():
 @usuarios_datos.route("/usuarios_datos/editar/identificacion/<int:usuario_dato_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit_identificacion(usuario_dato_id):
-    """Edición del estado civil"""
+    """Edición de la identificación oficial"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_identificacion_id).first()
     archivo_prev = None
     if usuario_documento:
         archivo_prev = usuario_documento.url
-    # Formulario
+    # Formulario de edición
     form = UsuarioDatoEditIdentificacionForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
         es_valido = True
@@ -263,7 +262,7 @@ def edit_identificacion(usuario_dato_id):
                 storage.upload(archivo.stream.read())
                 usuario_documento.url = storage.url
                 usuario_dato.estado_identificacion = "POR VALIDAR"
-                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                 usuario_dato.adjunto_identificacion_id = usuario_documento.id
                 usuario_dato.save()
             except NotConfiguredError:
@@ -294,7 +293,7 @@ def edit_acta_nacimiento(usuario_dato_id):
     """Edición del Acta de nacimiento"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_acta_nacimiento_id).first()
@@ -310,7 +309,7 @@ def edit_acta_nacimiento(usuario_dato_id):
             # Revisar que ya este cargada una adjunto previamente
             if archivo_prev is not None:
                 usuario_dato.estado_acta_nacimiento = "POR VALIDAR"
-                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                 usuario_dato.fecha_nacimiento = form.fecha_nacimiento.data
                 usuario_dato.save()
                 # Mensaje de resultado positivo
@@ -351,7 +350,7 @@ def edit_acta_nacimiento(usuario_dato_id):
                     storage.upload(archivo.stream.read())
                     usuario_documento.url = storage.url
                     usuario_dato.estado_acta_nacimiento = "POR VALIDAR"
-                    usuario_dato.estado_general = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                     usuario_dato.adjunto_acta_nacimiento_id = usuario_documento.id
                     usuario_dato.fecha_nacimiento = form.fecha_nacimiento.data
                     usuario_dato.save()
@@ -386,7 +385,7 @@ def edit_domicilio(usuario_dato_id):
     """Edición del Acta de nacimiento"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_domicilio_id).first()
@@ -402,7 +401,7 @@ def edit_domicilio(usuario_dato_id):
             # Revisar que ya este cargada una adjunto previamente
             if archivo_prev is not None:
                 usuario_dato.estado_domicilio = "POR VALIDAR"
-                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                 usuario_dato.domicilio_calle = safe_string(form.calle.data)
                 usuario_dato.domicilio_numero_ext = safe_string(form.numero_exterior.data)
                 usuario_dato.domicilio_numero_int = safe_string(form.numero_interior.data)
@@ -448,7 +447,7 @@ def edit_domicilio(usuario_dato_id):
                     storage.upload(archivo.stream.read())
                     usuario_documento.url = storage.url
                     usuario_dato.estado_domicilio = "POR VALIDAR"
-                    usuario_dato.estado_general = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                     usuario_dato.adjunto_domicilio_id = usuario_documento.id
                     usuario_dato.domicilio_calle = safe_string(form.calle.data)
                     usuario_dato.domicilio_numero_ext = safe_string(form.numero_exterior.data)
@@ -493,7 +492,7 @@ def edit_curp(usuario_dato_id):
     """Edición del Acta de nacimiento"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_curp_id).first()
@@ -509,7 +508,7 @@ def edit_curp(usuario_dato_id):
             # Revisar que ya este cargada una adjunto previamente
             if archivo_prev is not None:
                 usuario_dato.estado_curp = "POR VALIDAR"
-                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                 usuario_dato.curp = safe_curp(form.curp.data)
                 usuario_dato.save()
                 # Mensaje de resultado positivo
@@ -550,7 +549,7 @@ def edit_curp(usuario_dato_id):
                     storage.upload(archivo.stream.read())
                     usuario_documento.url = storage.url
                     usuario_dato.estado_curp = "POR VALIDAR"
-                    usuario_dato.estado_general = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                     usuario_dato.adjunto_curp_id = usuario_documento.id
                     usuario_dato.curp = safe_curp(form.curp.data)
                     usuario_dato.save()
@@ -585,7 +584,7 @@ def edit_cp_fiscal(usuario_dato_id):
     """Edición del Acta de nacimiento"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_cp_fiscal_id).first()
@@ -601,7 +600,7 @@ def edit_cp_fiscal(usuario_dato_id):
             # Revisar que ya este cargada una adjunto previamente
             if archivo_prev is not None:
                 usuario_dato.estado_cp_fiscal = "POR VALIDAR"
-                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                 usuario_dato.cp_fiscal = form.cp_fiscal.data
                 usuario_dato.save()
                 # Mensaje de resultado positivo
@@ -642,7 +641,7 @@ def edit_cp_fiscal(usuario_dato_id):
                     storage.upload(archivo.stream.read())
                     usuario_documento.url = storage.url
                     usuario_dato.estado_cp_fiscal = "POR VALIDAR"
-                    usuario_dato.estado_general = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                     usuario_dato.adjunto_cp_fiscal_id = usuario_documento.id
                     usuario_dato.cp_fiscal = form.cp_fiscal.data
                     usuario_dato.save()
@@ -677,7 +676,7 @@ def edit_curriculum(usuario_dato_id):
     """Edición del estado civil"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_curriculum_id).first()
@@ -720,7 +719,7 @@ def edit_curriculum(usuario_dato_id):
                 storage.upload(archivo.stream.read())
                 usuario_documento.url = storage.url
                 usuario_dato.estado_curriculum = "POR VALIDAR"
-                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                 usuario_dato.adjunto_curriculum_id = usuario_documento.id
                 usuario_dato.save()
             except NotConfiguredError:
@@ -751,7 +750,7 @@ def edit_estudios(usuario_dato_id):
     """Edición del Acta de nacimiento"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_estudios_id).first()
@@ -767,7 +766,7 @@ def edit_estudios(usuario_dato_id):
             # Revisar que ya este cargada una adjunto previamente
             if archivo_prev is not None:
                 usuario_dato.estado_estudios = "POR VALIDAR"
-                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                 usuario_dato.estudios_cedula = safe_string(form.cedula_profesional.data)
                 usuario_dato.save()
                 # Mensaje de resultado positivo
@@ -808,7 +807,7 @@ def edit_estudios(usuario_dato_id):
                     storage.upload(archivo.stream.read())
                     usuario_documento.url = storage.url
                     usuario_dato.estado_estudios = "POR VALIDAR"
-                    usuario_dato.estado_general = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                     usuario_dato.adjunto_estudios_id = usuario_documento.id
                     usuario_dato.estudios_cedula = safe_string(form.cedula_profesional.data)
                     usuario_dato.save()
@@ -843,14 +842,14 @@ def edit_estado_civil(usuario_dato_id):
     """Edición del estado civil"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Formulario de Edición
     form = UsuarioDatoEditEstadoCivilForm()
     if form.validate_on_submit():
         usuario_dato.estado_civil = form.estado_civil.data
         usuario_dato.estado_estado_civil = "POR VALIDAR"
-        usuario_dato.estado_general = "POR VALIDAR"
+        usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
         usuario_dato.save()
         flash("Ha modificado su estado civil correctamente, espere a que sea validado", "success")
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
@@ -865,7 +864,7 @@ def edit_estado_cuenta(usuario_dato_id):
     """Edición del estado civil"""
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
     # Validar si el usuario actual es el correcto
-    if usuario_dato.usuario_curp != current_user.curp:
+    if usuario_dato.usuario_id != current_user.id:
         return redirect(url_for("sistemas.start"))
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_estado_cuenta_id).first()
@@ -908,7 +907,7 @@ def edit_estado_cuenta(usuario_dato_id):
                 storage.upload(archivo.stream.read())
                 usuario_documento.url = storage.url
                 usuario_dato.estado_estado_cuenta = "POR VALIDAR"
-                usuario_dato.estado_general = "POR VALIDAR"
+                usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
                 usuario_dato.adjunto_estado_cuenta_id = usuario_documento.id
                 usuario_dato.save()
             except NotConfiguredError:

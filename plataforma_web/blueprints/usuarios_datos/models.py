@@ -40,7 +40,6 @@ class UsuarioDato(db.Model, UniversalMixin):
     usuario = db.relationship("Usuario", back_populates="usuarios_datos")
 
     # Columnas
-    usuario_curp = db.Column(db.String(18), unique=True, nullable=False)
     # Campos para archivos adjuntos
     adjunto_identificacion_id = db.Column(db.Integer)
     adjunto_acta_nacimiento_id = db.Column(db.Integer)

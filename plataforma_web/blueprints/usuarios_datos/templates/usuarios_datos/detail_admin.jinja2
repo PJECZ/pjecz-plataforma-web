@@ -15,7 +15,7 @@
     {% call detail.card(estatus=usuario_dato.estatus) %}
         {{ detail.label_value_big('Nombre', usuario_dato.usuario.nombre) }}
         {{ detail.label_value('email', usuario_dato.usuario.email) }}
-        {{ detail.label_value('CURP', usuario_dato.curp) }}
+        {{ detail.label_value('CURP', usuario_dato.usuario.curp) }}
         <div class="row">
             <div class="col-md-3 text-end">
                 Estado General
