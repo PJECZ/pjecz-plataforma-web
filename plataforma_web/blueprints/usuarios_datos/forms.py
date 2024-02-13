@@ -2,7 +2,7 @@
 Usuarios Datos, formularios
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, DateField, IntegerField, BooleanField
+from wtforms import StringField, SubmitField, SelectField, DateField, IntegerField, RadioField
 from wtforms.validators import DataRequired, Length, Optional
 from flask_wtf.file import FileField, FileRequired
 
@@ -72,7 +72,7 @@ class UsuarioDatoEditEsMadreForm(FlaskForm):
     """Formulario Edit Es Madre, Acta de Nacimiento de un hijo"""
 
     archivo = FileField("Archivo PDF o JPG", validators=[Optional()])
-    es_madre = BooleanField("Es Madre", validators=[DataRequired()])
+    es_madre = RadioField("Soy Madre", choices=["SI", "NO"], default="NO", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 

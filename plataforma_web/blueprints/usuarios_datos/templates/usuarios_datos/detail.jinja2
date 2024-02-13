@@ -136,15 +136,15 @@
         
         <div class="row">
             <div class="col-md-2">
-                <a class="btn btn-sm btn-warning disabled" href="#"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                <a class="btn btn-sm btn-warning" href="{{ url_for('usuarios_datos.edit_es_madre', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
             </div>
             <div class="col-md-2">
                 <span id="estado_8"></span>
             </div>
             <div class="col-md-8">
                 <strong>Eres Madre</strong>
-                <p>{{ usuario_dato.es_madre }}<br />
-                    <i class="text-danger">{{ usuario_dato.mensaje_acta_nacimiento_hijo if usuario_dato.mensaje_acta_nacimiento_hijo else "" }}</i>
+                <p>{{ 'SI' if usuario_dato.es_madre else 'NO' }}<br />
+                    <i class="text-danger">{{ usuario_dato.mensaje_es_madre if usuario_dato.mensaje_es_madre else "" }}</i>
                 </p>
             </div>
         </div>
@@ -215,7 +215,7 @@
             render_estado(document.getElementById("estado_5"), "{{ usuario_dato.estado_cp_fiscal }}");
             render_estado(document.getElementById("estado_6"), "{{ usuario_dato.estado_curriculum }}");
             render_estado(document.getElementById("estado_7"), "{{ usuario_dato.estado_estudios }}");
-            render_estado(document.getElementById("estado_8"), "{{ usuario_dato.estado_acta_nacimiento_hijo }}");
+            render_estado(document.getElementById("estado_8"), "{{ usuario_dato.estado_es_madre }}");
             render_estado(document.getElementById("estado_9"), "{{ usuario_dato.estado_estado_civil }}");
             render_estado(document.getElementById("estado_10"), "{{ usuario_dato.estado_estado_cuenta }}");
             render_estado(document.getElementById("estado_11"), "{{ usuario_dato.estado_telefono }}");

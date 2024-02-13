@@ -99,7 +99,7 @@ def datatable_json():
         elif request.form["campo"] == "ESTUDIOS":
             consulta = consulta.filter_by(estado_estudios=request.form["estado"])
         elif request.form["campo"] == "ES MADRE":
-            consulta = consulta.filter_by(estado_acta_nacimiento_hijo=request.form["estado"])
+            consulta = consulta.filter_by(estado_es_madre=request.form["estado"])
         elif request.form["campo"] == "ESTADO CIVIL":
             consulta = consulta.filter_by(estado_estado_civil=request.form["estado"])
         elif request.form["campo"] == "ESTADO CUENTA":
@@ -836,6 +836,130 @@ def edit_estudios(usuario_dato_id):
     return render_template("usuarios_datos/edit_estudios.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
 
 
+@usuarios_datos.route("/usuarios_datos/editar/es_madre/<int:usuario_dato_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def edit_es_madre(usuario_dato_id):
+    """Edición del Acta de nacimiento"""
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    # Validar si el usuario actual es el correcto
+    if usuario_dato.usuario_id != current_user.id:
+        return redirect(url_for("sistemas.start"))
+    # Extraemos el archivo adjunto para previsualizarlo
+    usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_acta_nacimiento_hijo_id).first()
+    archivo_prev = None
+    if usuario_documento:
+        archivo_prev = usuario_documento.url
+    # Formulario
+    form = UsuarioDatoEditEsMadreForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        archivo = request.files["archivo"]
+        # Si no envía cambios en archivo
+        if archivo.filename == "":
+            # Si ya hay un archivo adjunto previamente
+            if archivo_prev is not None:
+                if form.es_madre.data == "SI":
+                    usuario_dato.estado_es_madre = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+                    usuario_dato.es_madre = True
+                    usuario_dato.save()
+                    # Mensaje de resultado positivo
+                    flash("Ha modificado su Condición de Madre correctamente, espere a que sea validada", "success")
+                    return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+                elif form.es_madre.data == "NO":
+                    # Borrar el archivo previo
+                    if usuario_documento:
+                        usuario_documento.delete()
+                        usuario_dato.adjunto_acta_nacimiento_hijo_id = None
+                    usuario_dato.estado_es_madre = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+                    usuario_dato.es_madre = False
+                    usuario_dato.save()
+                    # Mensaje de resultado positivo
+                    flash("Ha modificado su Condición de Madre correctamente, espere a que sea validada", "success")
+                    return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+            else:
+                if form.es_madre.data == "SI":
+                    flash("Si indica que sí es madre, debe cargar un archivo adjunto (acta de nacimiento de un hijo).", "warning")
+                else:
+                    usuario_dato.estado_es_madre = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+                    usuario_dato.es_madre = False
+                    usuario_dato.save()
+                    # Mensaje de resultado positivo
+                    flash("Ha modificado su Condición de Madre correctamente, espere a que sea validada", "success")
+                    return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+        else:
+            es_valido = True
+            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            try:
+                storage.set_content_type(archivo.filename)
+            except NotAllowedExtesionError:
+                flash("Tipo de archivo no permitido.", "warning")
+                es_valido = False
+            except UnknownExtesionError:
+                flash("Tipo de archivo desconocido.", "warning")
+                es_valido = False
+            # Validar el tipo de extension
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+                es_valido = True
+            else:
+                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                es_valido = False
+            # Si es válido
+            if es_valido:
+                # Eliminar el archivo previo si lo hay
+                if usuario_documento:
+                    usuario_documento.delete()
+                # Insertar el registro, para obtener el ID
+                if form.es_madre.data == "SI":
+                    usuario_documento = UsuarioDocumento(
+                        descripcion="Acta Nacimiento Hijo",
+                    )
+                    usuario_documento.save()
+                    # Subir el archivo a la nube
+                    try:
+                        storage.set_filename(hashed_id=usuario_documento.encode_id(), description=usuario_documento.descripcion)
+                        storage.upload(archivo.stream.read())
+                        usuario_documento.url = storage.url
+                        usuario_dato.estado_es_madre = "POR VALIDAR"
+                        usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+                        usuario_dato.adjunto_acta_nacimiento_hijo_id = usuario_documento.id
+                        usuario_dato.es_madre = True
+                        usuario_dato.save()
+                    except NotConfiguredError:
+                        flash("No se ha configurado el almacenamiento en la nube.", "warning")
+                        es_valido = False
+                    except Exception as err:
+                        flash(f"{err}Error al subir el archivo.", "danger")
+                        es_valido = False
+                elif form.es_madre.data == "NO":
+                    usuario_dato.estado_es_madre = "POR VALIDAR"
+                    usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
+                    usuario_dato.adjunto_acta_nacimiento_hijo_id = None
+                    usuario_dato.es_madre = False
+                    usuario_dato.save()
+            if es_valido:
+                # Mensaje de resultado positivo
+                flash("Ha modificado su Condición de Madre correctamente, espere a que sea validada", "success")
+                return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+            else:
+                flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
+    # Precargar datos anteriores
+    if usuario_dato.es_madre:
+        form.es_madre.data = "SI"
+    else:
+        form.es_madre.data = "NO"
+    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
+    tipo_archivo = None
+    if archivo_prev:
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
+            tipo_archivo = "JPG"
+        elif archivo_prev.endswith(".pdf"):
+            tipo_archivo = "PDF"
+    # Renderiza el formulario de Edición
+    return render_template("usuarios_datos/edit_es_madre.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
 @usuarios_datos.route("/usuarios_datos/editar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit_estado_civil(usuario_dato_id):
@@ -943,7 +1067,7 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
         and usuario_dato.estado_cp_fiscal == "VALIDO"
         and usuario_dato.estado_curriculum == "VALIDO"
         and usuario_dato.estado_estudios == "VALIDO"
-        and usuario_dato.estado_acta_nacimiento_hijo == "VALIDO"
+        and usuario_dato.estado_es_madre == "VALIDO"
         and usuario_dato.estado_estado_civil == "VALIDO"
         and usuario_dato.estado_estado_cuenta == "VALIDO"
         and usuario_dato.estado_telefono == "VALIDO"
@@ -966,7 +1090,7 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
         return "NO VALIDO"
     if usuario_dato.estado_estudios == "NO VALIDO":
         return "NO VALIDO"
-    if usuario_dato.estado_acta_nacimiento_hijo == "NO VALIDO":
+    if usuario_dato.estado_es_madre == "NO VALIDO":
         return "NO VALIDO"
     if usuario_dato.estado_estado_civil == "NO VALIDO":
         return "NO VALIDO"
