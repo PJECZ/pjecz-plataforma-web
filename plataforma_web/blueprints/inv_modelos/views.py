@@ -1,6 +1,7 @@
 """
 Inventarios Modelos, vistas
 """
+
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -33,14 +34,22 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = InvModelo.query
+    # Filtrar por columnas propias
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "inv_marca_id" in request.form:
-        marca = InvMarca.query.get(request.form["inv_marca_id"])
+    if "inv_modelo_descripcion" in request.form:
+        consulta = consulta.filter(InvModelo.descripcion.contains(safe_string(request.form["inv_modelo_descripcion"])))
+    # Luego por columnas relacionadas
+    if "inv_marca_id" in request.form or "inv_marca_nombre" in request.form:
+        if "inv_marca_id" in request.form:
+            marca = InvMarca.query.get(request.form["inv_marca_id"])
+        if "inv_marca_nombre" in request.form:
+            marca = InvMarca.query.filter(InvMarca.nombre.contains(safe_string(request.form["inv_marca_nombre"]))).first()
         if marca:
             consulta = consulta.filter(InvModelo.inv_marca == marca)
+    # Ordenar
     registros = consulta.order_by(InvModelo.descripcion).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

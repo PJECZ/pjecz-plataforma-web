@@ -20,11 +20,35 @@
 
 {% block content %}
     {% call list.card() %}
+        <!-- Filtros Inv Modelos -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosInvModelos.buscar(); return false;">
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroMarcaNombre" type="text" class="form-control" aria-label="Marca" style="text-transform: uppercase;">
+                            <label for="filtroMarcaNombre">Marca</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroModeloDescripcion" type="text" class="form-control" aria-label="Descripción" style="text-transform: uppercase;">
+                            <label for="filtroModeloDescripcion">Descripción</label>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosInvModelos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosInvModelos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- DataTable Inv Modelos -->
         <table id="inv_modelos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Modelo</th>
                     <th>Marca</th>
+                    <th>Modelo</th>
                 </tr>
             </thead>
         </table>
@@ -32,24 +56,21 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
     <script>
-        configDataTable['ajax']['url'] = '/inv_modelos/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
-        configDataTable['columns'] = [
-            { data: 'detalle' },
+        // DataTable Inv Modelos
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDTInvModelos = constructorDataTable.config();
+        configDTInvModelos['ajax']['url'] = '/inv_modelos/datatable_json';
+        configDTInvModelos['ajax']['data'] = {{ filtros }};
+        configDTInvModelos['columns'] = [
             { data: 'marca' },
+            { data: 'detalle' },
         ];
-        configDataTable['columnDefs'] = [
+        configDTInvModelos['columnDefs'] = [
             {
-                targets: 0, // detalle
-                data: null,
-                render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
-                }
-            },
-            {
-                targets: 1, // marca
+                targets: 0, // marca
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
@@ -59,7 +80,18 @@
                     }
                 }
             },
+            {
+                targets: 1, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.descripcion + '</a>';
+                }
+            },
         ];
-        $('#inv_modelos_datatable').DataTable(configDataTable);
+        // Filtros Conceptos
+        const filtrosInvModelos = new FiltrosDataTable('#inv_modelos_datatable', configDTInvModelos);
+        filtrosInvModelos.agregarInput('filtroMarcaNombre', 'inv_marca_nombre');
+        filtrosInvModelos.agregarInput('filtroModeloDescripcion', 'inv_modelo_descripcion');
+        filtrosInvModelos.precargar();
     </script>
 {% endblock %}
