@@ -1102,6 +1102,32 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
     if usuario_dato.estado_email == "NO VALIDO":
         return "NO VALIDO"
 
+    # Si almenos sigue habiendo un dato vacío
+    if usuario_dato.estado_identificacion == None:
+        return None
+    if usuario_dato.estado_acta_nacimiento == None:
+        return None
+    if usuario_dato.estado_domicilio == None:
+        return None
+    if usuario_dato.estado_curp == None:
+        return None
+    if usuario_dato.estado_cp_fiscal == None:
+        return None
+    if usuario_dato.estado_curriculum == None:
+        return None
+    if usuario_dato.estado_estudios == None:
+        return None
+    if usuario_dato.estado_es_madre == None:
+        return None
+    if usuario_dato.estado_estado_civil == None:
+        return None
+    if usuario_dato.estado_estado_cuenta == None:
+        return None
+    if usuario_dato.estado_telefono == None:
+        return None
+    if usuario_dato.estado_email == None:
+        return None
+
     return "POR VALIDAR"
 
 

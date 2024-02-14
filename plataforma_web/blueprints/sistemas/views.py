@@ -11,6 +11,7 @@ from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 from plataforma_web.blueprints.sentencias.models import Sentencia
+from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 
 sistemas = Blueprint("sistemas", __name__, template_folder="templates")
 
@@ -212,13 +213,17 @@ def start():
         mostrar_portal_notarias = False
         mostrar_portal_soporte = False
         mostrar_portal_recibos_nomina = False
+        estado_documentos_personales = None
 
         # Consultar los roles del usuario
         current_user_roles = current_user.get_roles()
 
         # Si tiene el rol administrador mostrar el acceso a solicitudes para actualizar datos de usuarios
-        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_USUARIO in current_user_roles:
+        if ROL_ADMINISTRADOR in current_user_roles:
             mostrar_portal_recibos_nomina = True
+            usuario_dato = UsuarioDato.query.filter_by(usuario=current_user).first()
+            if usuario_dato:
+                estado_documentos_personales = usuario_dato.estado_general
 
         # Si tiene el rol administrador o soporte-usuario mostrar los accesos a crear tickets y directorio
         if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_USUARIO in current_user_roles:
@@ -234,6 +239,7 @@ def start():
             mostrar_portal_notarias=mostrar_portal_notarias,
             mostrar_portal_soporte=mostrar_portal_soporte,
             mostrar_portal_recibos_nomina=mostrar_portal_recibos_nomina,
+            estado_documentos_personales=estado_documentos_personales,
         )
 
     # No está autenticado, mostrar la página de inicio de sesión

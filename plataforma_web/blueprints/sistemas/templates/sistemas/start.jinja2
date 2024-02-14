@@ -38,7 +38,24 @@
                             Proporciona tu número de celular y correo electrónico personales (no coahuila.gob.mx o pjecz.gob.mx).
                             En un futuro, vas a recibir notificaciones, validar tu acceso y tramitar vales de gasolina por estos medios.
                         </p>
-                        <a href="{{ url_for('usuarios_solicitudes.new') }}" class="btn btn-primary btn-tickets ml-auto">Actualizar mis datos personales</a>
+                        <p>
+                            <strong>Estado Actual de su documentación: </strong>
+                            {% if estado_documentos_personales == 'VALIDO' %}
+                                <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:check-circle"></span> {{ estado_documentos_personales }}</span><br />
+                                <small class="text-muted">Toda su ducumentación ha sido aceptada.</small>
+                            {% elif estado_documentos_personales == 'POR VALIDAR' %}
+                                <span class="badge rounded-pill bg-warning text-dark"><span class="iconify" data-icon="mdi:alert"></span> {{ estado_documentos_personales }}</span><br />
+                                <small class="text-muted">Aún falta que su documentación sea validada.</small>
+                            {% elif estado_documentos_personales == 'NO VALIDO' %}
+                                <span class="badge rounded-pill bg-danger"><span class="iconify" data-icon="mdi:cancel"></span> {{ estado_documentos_personales }}</span><br />
+                                <small class="text-muted">Por lo menos tiene un documento que no cumple con lo requerido, vuelva a revisarlo.</small>
+                            {% else %}
+                                <span class="badge rounded-pill bg-secondary"><span class="iconify" data-icon="mdi:checkbox-blank-circle-outline"></span> INCOMPLETO</span><br />
+                                <small class="text-muted">Aún falta documentación por añadir, continue con el proceso.</small>
+                            {% endif %}
+                        </p>
+                        <a href="{{ url_for('usuarios_solicitudes.new') }}" class="btn btn-primary btn-tickets ml-auto">Actualizar mi email y teléfono personales</a>
+                        <a href="{{ url_for('usuarios_datos.new') }}"class="btn btn-success btn-tickets ml-auto">Actualizar mis documentos personales</a>
                     </div>
                 </div>
             </div>
