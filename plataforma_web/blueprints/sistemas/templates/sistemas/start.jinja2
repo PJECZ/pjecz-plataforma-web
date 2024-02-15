@@ -18,14 +18,14 @@
 {% block content %}
     {# Usuarios Solicitudes #}
     {% if mostrar_portal_recibos_nomina %}
-        {% call start.card('Recibos de nómina') %}
+        {% call start.card('Hola ' + current_user.nombre) %}
             <div class="container">
                 <div class="row">
                     <div class="col-md-6 col-sm-12 mb-2">
                         <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-usuarios-nominas-3.png" class="img-fluid mb-2">
-                        <h4>Recibos de Nómina</h4>
+                        <h4>Mis Recibos de Nómina</h4>
                         <p>
-                            A partir de diciembre de 2023 tus recibos de nómina están disponibles para su descarga en esta plataforma.
+                            Tus recibos de nómina (desde diciembre de 2023) están disponibles para su descarga en esta Plataforma.
                             En caso de que no veas tus recibos, revisa en <a href="/perfil">tu perfil</a> que tu CURP sea correcta,
                             y si no lo es, crea un <a href="/soportes_tickets/nuevo">ticket de soporte</a> con el CURP correcto.
                         </p>
@@ -35,8 +35,11 @@
                         <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-actualizar-datos-personales.png" class="img-fluid mb-2">
                         <h4>Actualizar mis datos personales</h4>
                         <p>
-                            Proporciona tu número de celular y correo electrónico personales (no coahuila.gob.mx o pjecz.gob.mx).
-                            En un futuro, vas a recibir notificaciones, validar tu acceso y tramitar vales de gasolina por estos medios.
+                            Es obligación de todos las personas que trabajan en nuestra Institución proporcionar sus datos actualizados y los documentos que los respaldan.
+                            Gracias a esta Plataforma se va a ahorrar tiempo, y gastos en papel, impresiones y mensajería.
+                            El primer botón es para el número celular y correo electrónico (no coahuila.gob.mx o pjecz.gob.mx).
+                            Y el segundo botón es para subir tus documentos (en JPG o PDF) con algunos datos adicionales.
+                            Después de completar la entrega, cuando haya cambios (por ejemplo, si te cambias de domicilio), debes subir el nuevo comprobante.
                         </p>
                         <p>
                             <strong>Estado de su revisión: </strong>
