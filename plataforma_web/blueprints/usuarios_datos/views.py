@@ -1429,7 +1429,7 @@ def validate_es_madre(usuario_dato_id):
     if form.validate_on_submit():
         if form.valido.data:
             # Revisar genero según su CURP
-            if usuario_dato.usuario.curp[10] == "M":
+            if usuario_dato.usuario.curp[10] == "M" or (usuario_dato.usuario.curp[10] == "H" and usuario_dato.es_madre is False):
                 usuario_dato.estado_es_madre = "VALIDO"
                 usuario_dato.mensaje_es_madre = None
                 usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
