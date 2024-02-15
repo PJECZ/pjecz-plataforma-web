@@ -1,10 +1,10 @@
 {# Card #}
-{%- macro card(title='', estatus='') -%}
-    {% if estatus == 'B' %}<div class="card text-white bg-dark mb-3">{% else %}<div class="card mb-3">{% endif %}
+{%- macro card(title='', estatus='', border_class='', text_class='') -%}
+    {% if estatus == 'B' %}<div class="card text-white bg-dark mb-2">{% else %}<div class="card mb-3 {{ border_class }}">{% endif %}
         {% if title %}<div class="card-header">
             {{ title }}
         </div>{% endif %}
-        <div class="card-body">
+        <div class="card-body {{ text_class }}">
             {{ caller () }}
         </div>
     </div>

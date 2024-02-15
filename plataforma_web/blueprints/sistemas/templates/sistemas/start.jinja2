@@ -39,12 +39,12 @@
                             En un futuro, vas a recibir notificaciones, validar tu acceso y tramitar vales de gasolina por estos medios.
                         </p>
                         <p>
-                            <strong>Estado Actual de su documentación: </strong>
+                            <strong>Estado de su revisión: </strong>
                             {% if estado_documentos_personales == 'VALIDO' %}
                                 <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:check-circle"></span> {{ estado_documentos_personales }}</span><br />
                                 <small class="text-muted">Toda su ducumentación ha sido aceptada.</small>
                             {% elif estado_documentos_personales == 'POR VALIDAR' %}
-                                <span class="badge rounded-pill bg-warning text-dark"><span class="iconify" data-icon="mdi:alert"></span> {{ estado_documentos_personales }}</span><br />
+                                <span class="badge rounded-pill bg-primary"><span class="iconify" data-icon="mdi:alert"></span> {{ estado_documentos_personales }}</span><br />
                                 <small class="text-muted">Aún falta que su documentación sea validada.</small>
                             {% elif estado_documentos_personales == 'NO VALIDO' %}
                                 <span class="badge rounded-pill bg-danger"><span class="iconify" data-icon="mdi:cancel"></span> {{ estado_documentos_personales }}</span><br />
@@ -54,8 +54,8 @@
                                 <small class="text-muted">Aún falta documentación por añadir, continue con el proceso.</small>
                             {% endif %}
                         </p>
-                        <a href="{{ url_for('usuarios_solicitudes.new') }}" class="btn btn-primary btn-tickets ml-auto">Actualizar mi email y teléfono personales</a>
-                        <a href="{{ url_for('usuarios_datos.new') }}"class="btn btn-success btn-tickets ml-auto">Actualizar mis documentos personales</a>
+                        <a href="{{ url_for('usuarios_solicitudes.new') }}" class="btn btn-primary btn-tickets ml-auto">Mi email y teléfono</a>
+                        <a href="{{ url_for('usuarios_datos.new') }}"class="btn btn-success btn-tickets ml-auto">Mis documentos personales</a>
                     </div>
                 </div>
             </div>

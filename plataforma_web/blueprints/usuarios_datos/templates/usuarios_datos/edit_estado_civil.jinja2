@@ -21,6 +21,7 @@
         </div>
     {% endif %}
     {% call f.card() %}
+        <p class="lead">Seleccione una de las opciones de estado civil en la que se encuentra.</p>
         {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
         {% call f.form_tag('usuarios_datos.edit_estado_civil', fid='usuario_dato_form', **form_kwargs) %}
             {% call f.form_group(form.estado_civil) %}{% endcall %}

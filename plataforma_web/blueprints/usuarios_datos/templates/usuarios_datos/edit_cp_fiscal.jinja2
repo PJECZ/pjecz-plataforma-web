@@ -25,7 +25,7 @@
         </div>
     {% endif %}
     {% call f.card() %}
-        <p class="lead">Adjunte su Código Postal Fiscal. Recuerde que solo se pueden adjuntar archivos PDF o JPG.</p>
+        <p class="lead">Escriba su código postal fiscal y adjunte el documento de su constacia de situación fiscal (SAT). Solo se pueden adjuntar archivos PDF o JPG.</p>
         {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
         {% call f.form_tag_multipart('usuarios_datos.edit_cp_fiscal', fid='usuario_dato_form', **form_kwargs) %}
             {% call f.form_group(form.cp_fiscal) %}{% endcall %}
