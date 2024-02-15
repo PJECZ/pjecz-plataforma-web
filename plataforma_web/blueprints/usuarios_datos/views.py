@@ -119,10 +119,10 @@ def datatable_json():
             {
                 "detalle": {
                     "id": resultado.id,
-                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario.id),
+                    "url": url_for("usuarios_datos.detail", usuario_dato_id=resultado.id),
                 },
                 "email": resultado.usuario.email,
-                "fecha": resultado.modificado.strftime("%Y-%m-%d"),
+                "fecha": resultado.modificado.strftime("%Y-%m-%d %H:%M"),
                 "nombre": {
                     "nombre": resultado.usuario.nombre,
                     "url": url_for("usuarios_datos.detail", usuario_dato_id=resultado.id),
