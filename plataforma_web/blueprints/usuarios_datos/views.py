@@ -188,30 +188,7 @@ def new():
     usuario_dato = UsuarioDato.query.filter_by(usuario_id=current_user.id).first()
     # Si no cuenta con un registro previo, crear uno nuevo vacío
     if usuario_dato is None:
-        usuario_dato = UsuarioDato(
-            usuario=current_user,
-        ).save()
-
-        # Copiar teléfono y email personales de la tabla de usuarios_solicitudes
-        usuario_solicitud = UsuarioSolicitud.query.filter_by(usuario=current_user).first()
-        if usuario_solicitud:
-            usuario_dato.telefono_personal = usuario_solicitud.telefono_celular
-            usuario_dato.email_personal = usuario_solicitud.email_personal
-            # Si ya están validados también copiar su validación
-            if usuario_solicitud.validacion_telefono_celular is True:
-                usuario_dato.estado_telefono = "VALIDO"
-            elif usuario_solicitud.telefono_celular == "":
-                usuario_dato.estado_telefono = "NO VALIDO"
-            elif usuario_solicitud.telefono_celular != "":
-                usuario_dato.estado_telefono = "POR VALIDAR"
-            if usuario_solicitud.validacion_email is True:
-                usuario_dato.estado_email = "VALIDO"
-            elif usuario_solicitud.email_personal == "":
-                usuario_dato.estado_email = "NO VALIDO"
-            elif usuario_solicitud.email_personal != "":
-                usuario_dato.estado_email = "POR VALIDAR"
-        # Guardar registro
-        usuario_dato.save()
+        usuario_dato = UsuarioDato(usuario=current_user).save()
     # Redirigirlo al detalle
     return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
 
@@ -1076,8 +1053,8 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
         and usuario_dato.estado_es_madre == "VALIDO"
         and usuario_dato.estado_estado_civil == "VALIDO"
         and usuario_dato.estado_estado_cuenta == "VALIDO"
-        and usuario_dato.estado_telefono == "VALIDO"
-        and usuario_dato.estado_email == "VALIDO"
+        # and usuario_dato.estado_telefono == "VALIDO"
+        # and usuario_dato.estado_email == "VALIDO"
     ):
         return "VALIDO"
 
@@ -1102,10 +1079,10 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
         return "NO VALIDO"
     if usuario_dato.estado_estado_cuenta == "NO VALIDO":
         return "NO VALIDO"
-    if usuario_dato.estado_telefono == "NO VALIDO":
-        return "NO VALIDO"
-    if usuario_dato.estado_email == "NO VALIDO":
-        return "NO VALIDO"
+    # if usuario_dato.estado_telefono == "NO VALIDO":
+    #     return "NO VALIDO"
+    # if usuario_dato.estado_email == "NO VALIDO":
+    #     return "NO VALIDO"
 
     # Si almenos sigue habiendo un dato vacío
     if usuario_dato.estado_identificacion == None:
@@ -1128,10 +1105,10 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
         return None
     if usuario_dato.estado_estado_cuenta == None:
         return None
-    if usuario_dato.estado_telefono == None:
-        return None
-    if usuario_dato.estado_email == None:
-        return None
+    # if usuario_dato.estado_telefono == None:
+    #     return None
+    # if usuario_dato.estado_email == None:
+    #     return None
 
     return "POR VALIDAR"
 
