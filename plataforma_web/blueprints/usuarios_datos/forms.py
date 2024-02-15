@@ -68,7 +68,7 @@ class UsuarioDatoEditCPFiscalForm(FlaskForm):
 class UsuarioDatoEditCurriculumForm(FlaskForm):
     """Formulario Edit Curriculum"""
 
-    archivo = FileField("Archivo PDF o JPG", validators=[FileRequired(), FileSizeLimit(5)])
+    archivo = FileField("Archivo PDF o JPG", validators=[FileRequired(), FileSizeLimit(10)])
     guardar = SubmitField("Guardar")
 
 
