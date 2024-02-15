@@ -25,25 +25,6 @@
                 <span id="estado_general"></span>
             </div>
         </div>
-        <hr />
-        <div class="row">
-            <div class="col-md-3 text-end">Email personal</div>
-            <div class="col-md-3">
-                <strong>{{ usuario_dato.email_personal }}</strong>
-            </div>
-            <div class="col-md-6 text-start">
-                <span id="estado_email"></span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 text-end">Teléfono personal</div>
-            <div class="col-md-3">
-                <strong id="telefono_str">{{ usuario_dato.telefono_personal }}</strong>
-            </div>
-            <div class="col-md-6 text-start">
-                <span id="estado_telefono"></span>
-            </div>
-        </div>
     {% endcall %}
     {# Datos personales a adjuntar #}
     <div class="row mb-2">
@@ -152,7 +133,7 @@
                 <div class="card-body" id="cuerpo_es_madre">
                     <p id="mensaje_es_madre"></p>
                     <p>
-                        {% if usuario_dato.es_madre %}
+                        {% if usuario_dato.es_madre != None %}
                             {{ 'SI' if usuario_dato.es_madre else 'NO' }}
                         {% endif %}
                     </p>
@@ -193,9 +174,6 @@
     <script>
         window.onload = function () {
             render_estado(document.getElementById("estado_general"), "{{ usuario_dato.estado_general }}");
-            render_estado(document.getElementById("estado_email"), "{{ usuario_dato.estado_email }}");
-            render_estado(document.getElementById("estado_telefono"), "{{ usuario_dato.estado_telefono }}");
-            render_telefono(document.getElementById("telefono_str"), "{{ usuario_dato.telefono_personal }}");
             render_estado_card("identificacion", "{{ usuario_dato.estado_identificacion }}", "{{ usuario_dato.mensaje_identificacion }}");
             render_estado_card("acta_nacimiento", "{{ usuario_dato.estado_acta_nacimiento }}", "{{ usuario_dato.mensaje_acta_nacimiento }}");
             render_estado_card("domicilio", "{{ usuario_dato.estado_domicilio }}", "{{ usuario_dato.mensaje_domicilio }}");

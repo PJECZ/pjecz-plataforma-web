@@ -119,10 +119,10 @@ def datatable_json():
             {
                 "detalle": {
                     "id": resultado.id,
-                    "url": url_for("usuarios.detail", usuario_id=resultado.usuario.id),
+                    "url": url_for("usuarios_datos.detail", usuario_dato_id=resultado.id),
                 },
                 "email": resultado.usuario.email,
-                "fecha": resultado.modificado.strftime("%Y-%m-%d"),
+                "fecha": resultado.modificado.strftime("%Y-%m-%d %H:%M"),
                 "nombre": {
                     "nombre": resultado.usuario.nombre,
                     "url": url_for("usuarios_datos.detail", usuario_dato_id=resultado.id),
@@ -188,30 +188,7 @@ def new():
     usuario_dato = UsuarioDato.query.filter_by(usuario_id=current_user.id).first()
     # Si no cuenta con un registro previo, crear uno nuevo vacío
     if usuario_dato is None:
-        usuario_dato = UsuarioDato(
-            usuario=current_user,
-        ).save()
-
-        # Copiar teléfono y email personales de la tabla de usuarios_solicitudes
-        usuario_solicitud = UsuarioSolicitud.query.filter_by(usuario=current_user).first()
-        if usuario_solicitud:
-            usuario_dato.telefono_personal = usuario_solicitud.telefono_celular
-            usuario_dato.email_personal = usuario_solicitud.email_personal
-            # Si ya están validados también copiar su validación
-            if usuario_solicitud.validacion_telefono_celular is True:
-                usuario_dato.estado_telefono = "VALIDO"
-            elif usuario_solicitud.telefono_celular == "":
-                usuario_dato.estado_telefono = "NO VALIDO"
-            elif usuario_solicitud.telefono_celular != "":
-                usuario_dato.estado_telefono = "POR VALIDAR"
-            if usuario_solicitud.validacion_email is True:
-                usuario_dato.estado_email = "VALIDO"
-            elif usuario_solicitud.email_personal == "":
-                usuario_dato.estado_email = "NO VALIDO"
-            elif usuario_solicitud.email_personal != "":
-                usuario_dato.estado_email = "POR VALIDAR"
-        # Guardar registro
-        usuario_dato.save()
+        usuario_dato = UsuarioDato(usuario=current_user).save()
     # Redirigirlo al detalle
     return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
 
@@ -244,10 +221,10 @@ def edit_identificacion(usuario_dato_id):
             flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
         # Validar el tipo de extension
-        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
             es_valido = True
         else:
-            flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+            flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
             es_valido = False
         # Si es válido
         if es_valido:
@@ -283,8 +260,8 @@ def edit_identificacion(usuario_dato_id):
     # Precargar datos anteriores
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     return render_template("usuarios_datos/edit_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
@@ -332,10 +309,10 @@ def edit_acta_nacimiento(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -374,8 +351,8 @@ def edit_acta_nacimiento(usuario_dato_id):
     # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -430,10 +407,10 @@ def edit_domicilio(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -484,8 +461,8 @@ def edit_domicilio(usuario_dato_id):
     # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -534,10 +511,10 @@ def edit_curp(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -576,8 +553,8 @@ def edit_curp(usuario_dato_id):
     # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -626,10 +603,10 @@ def edit_cp_fiscal(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -668,8 +645,8 @@ def edit_cp_fiscal(usuario_dato_id):
     # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -704,10 +681,10 @@ def edit_curriculum(usuario_dato_id):
             flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
         # Validar el tipo de extension
-        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
             es_valido = True
         else:
-            flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+            flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
             es_valido = False
         # Si es válido
         if es_valido:
@@ -743,8 +720,8 @@ def edit_curriculum(usuario_dato_id):
     # Precargar datos anteriores
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     return render_template("usuarios_datos/edit_curriculum.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
@@ -792,10 +769,10 @@ def edit_estudios(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -834,8 +811,8 @@ def edit_estudios(usuario_dato_id):
     # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -906,10 +883,10 @@ def edit_es_madre(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -958,8 +935,8 @@ def edit_es_madre(usuario_dato_id):
     # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -1016,10 +993,10 @@ def edit_estado_cuenta(usuario_dato_id):
             flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
         # Validar el tipo de extension
-        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
             es_valido = True
         else:
-            flash("Tipo de archivo no permitido. Solo se permiten *.jpg, *.jpeg o *.pdf", "warning")
+            flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
             es_valido = False
         # Si es válido
         if es_valido:
@@ -1055,8 +1032,8 @@ def edit_estado_cuenta(usuario_dato_id):
     # Precargar datos anteriores
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     return render_template("usuarios_datos/edit_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
@@ -1076,8 +1053,8 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
         and usuario_dato.estado_es_madre == "VALIDO"
         and usuario_dato.estado_estado_civil == "VALIDO"
         and usuario_dato.estado_estado_cuenta == "VALIDO"
-        and usuario_dato.estado_telefono == "VALIDO"
-        and usuario_dato.estado_email == "VALIDO"
+        # and usuario_dato.estado_telefono == "VALIDO"
+        # and usuario_dato.estado_email == "VALIDO"
     ):
         return "VALIDO"
 
@@ -1102,10 +1079,10 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
         return "NO VALIDO"
     if usuario_dato.estado_estado_cuenta == "NO VALIDO":
         return "NO VALIDO"
-    if usuario_dato.estado_telefono == "NO VALIDO":
-        return "NO VALIDO"
-    if usuario_dato.estado_email == "NO VALIDO":
-        return "NO VALIDO"
+    # if usuario_dato.estado_telefono == "NO VALIDO":
+    #     return "NO VALIDO"
+    # if usuario_dato.estado_email == "NO VALIDO":
+    #     return "NO VALIDO"
 
     # Si almenos sigue habiendo un dato vacío
     if usuario_dato.estado_identificacion == None:
@@ -1128,10 +1105,10 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
         return None
     if usuario_dato.estado_estado_cuenta == None:
         return None
-    if usuario_dato.estado_telefono == None:
-        return None
-    if usuario_dato.estado_email == None:
-        return None
+    # if usuario_dato.estado_telefono == None:
+    #     return None
+    # if usuario_dato.estado_email == None:
+    #     return None
 
     return "POR VALIDAR"
 
@@ -1171,8 +1148,8 @@ def validate_identificacion(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1214,8 +1191,8 @@ def validate_acta_nacimiento(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1257,8 +1234,8 @@ def validate_domicilio(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1300,8 +1277,8 @@ def validate_curp(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1343,8 +1320,8 @@ def validate_cp_fiscal(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1386,8 +1363,8 @@ def validate_curriculum(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1429,8 +1406,8 @@ def validate_estudios(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1452,7 +1429,7 @@ def validate_es_madre(usuario_dato_id):
     if form.validate_on_submit():
         if form.valido.data:
             # Revisar genero según su CURP
-            if usuario_dato.usuario.curp[10] == "M":
+            if usuario_dato.usuario.curp[10] == "M" or (usuario_dato.usuario.curp[10] == "H" and usuario_dato.es_madre is False):
                 usuario_dato.estado_es_madre = "VALIDO"
                 usuario_dato.mensaje_es_madre = None
                 usuario_dato.estado_general = actualizar_estado_general(usuario_dato)
@@ -1481,8 +1458,8 @@ def validate_es_madre(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1554,8 +1531,8 @@ def validate_estado_cuenta(usuario_dato_id):
     # Definir el tipo de archivo adjunto: Imagen o PDF.
     tipo_archivo = None
     if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg"):
-            tipo_archivo = "JPG"
+        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación

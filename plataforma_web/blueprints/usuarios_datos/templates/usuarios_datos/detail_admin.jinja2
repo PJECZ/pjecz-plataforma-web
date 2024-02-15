@@ -24,25 +24,6 @@
                 <span id="estado_general"></span>
             </div>
         </div>
-        <hr />
-        <div class="row">
-            <div class="col-md-3 text-end">Email personal</div>
-            <div class="col-md-3">
-                <strong>{{ usuario_dato.email_personal }}</strong>
-            </div>
-            <div class="col-md-6 text-start">
-                <span id="estado_email"></span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 text-end">Teléfono personal</div>
-            <div class="col-md-3">
-                <strong id="telefono_str">{{ usuario_dato.telefono_personal }}</strong>
-            </div>
-            <div class="col-md-6 text-start">
-                <span id="estado_telefono"></span>
-            </div>
-        </div>
     {% endcall %}
     {# Campos a rellenar #}
     {% call detail.card("Datos") %}
@@ -177,7 +158,7 @@
             <div class="col-md-8">
                 <strong>Es Madre</strong>
                 <p>
-                    {% if usuario_dato.es_madre %}
+                    {% if usuario_dato.es_madre != None %}
                     {{ 'SI' if usuario_dato.es_madre else 'NO' }}<br />
                     {% endif %}
                     <i class="text-danger">{{ usuario_dato.mensaje_es_madre if usuario_dato.mensaje_es_madre else "" }}</i>
@@ -224,8 +205,6 @@
     <script>
         window.onload = function () {
             render_estado("general", "{{ usuario_dato.estado_general }}", false);
-            render_estado("telefono", "{{ usuario_dato.estado_telefono }}", false);
-            render_estado("email", "{{ usuario_dato.estado_email }}", false);
             render_estado("identificacion", "{{ usuario_dato.estado_identificacion }}");
             render_estado("acta_nacimiento", "{{ usuario_dato.estado_acta_nacimiento }}");
             render_estado("domicilio", "{{ usuario_dato.estado_domicilio }}");
@@ -236,7 +215,6 @@
             render_estado("es_madre", "{{ usuario_dato.estado_es_madre }}");
             render_estado("estado_civil", "{{ usuario_dato.estado_estado_civil }}");
             render_estado("estado_cuenta", "{{ usuario_dato.estado_estado_cuenta }}");
-            render_telefono(document.getElementById("telefono_str"), "{{ usuario_dato.telefono_personal }}");
         }
         function render_estado(elemento_id, estado, tiene_btn=true) {
             disable_btn = false;
