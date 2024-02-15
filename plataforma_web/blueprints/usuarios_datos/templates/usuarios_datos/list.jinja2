@@ -60,6 +60,8 @@
         <table id="usuarios_datos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
                     <th>Datos personales de</th>
                     <th>Email</th>
                     <th>CURP</th>
@@ -81,28 +83,30 @@
         configDataTable_usuarios_datos['ajax']['url'] = '/usuarios_datos/datatable_json';
         configDataTable_usuarios_datos['ajax']['data'] = {{ filtros }};
         configDataTable_usuarios_datos['columns'] = [
-            { data: 'nombre' },
             { data: 'detalle' },
+            { data: 'fecha' },
+            { data: 'nombre' },
+            { data: 'email' },
             { data: 'curp' },
             { data: 'estado' }
         ];
         configDataTable_usuarios_datos['columnDefs'] = [
             {
-                targets: 0, // nombre
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return dataTable_usuarios_datos.texto_con_url(data.id, data.url);
+                }
+            },
+            {
+                targets: 2, // nombre
                 data: null,
                 render: function(data, type, row, meta) {
                     return dataTable_usuarios_datos.texto_con_url(data.nombre, data.url);
                 }
             },
             {
-                targets: 1, // detalle
-                data: null,
-                render: function(data, type, row, meta) {
-                    return dataTable_usuarios_datos.texto_con_url(data.email, data.url);
-                }
-            },
-            {
-                targets: 3, // estado
+                targets: 5, // estado
                 data: null,
                 render: function(data, type, row, meta) {
                     let bgcolor = "";

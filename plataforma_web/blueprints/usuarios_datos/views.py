@@ -118,9 +118,11 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "email": resultado.usuario.email,
+                    "id": resultado.id,
                     "url": url_for("usuarios.detail", usuario_id=resultado.usuario.id),
                 },
+                "email": resultado.usuario.email,
+                "fecha": resultado.modificado.strftime("%Y-%m-%d"),
                 "nombre": {
                     "nombre": resultado.usuario.nombre,
                     "url": url_for("usuarios_datos.detail", usuario_dato_id=resultado.id),
@@ -140,7 +142,7 @@ def list_active():
     return render_template(
         "usuarios_datos/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Usuarios Datos",
+        titulo="Documentos Personales",
         estatus="A",
         estados=UsuarioDato.VALIDACIONES,
         campos=CAMPOS,
@@ -154,7 +156,7 @@ def list_inactive():
     return render_template(
         "usuarios_datos/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="Usuarios Datos inactivos",
+        titulo="Documentos Personales inactivos",
         estatus="B",
         estados=UsuarioDato.VALIDACIONES,
         campos=CAMPOS,

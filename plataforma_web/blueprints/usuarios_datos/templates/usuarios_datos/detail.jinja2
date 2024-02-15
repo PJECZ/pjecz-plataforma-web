@@ -53,7 +53,7 @@
                 <div class="card-header" id="titulo_identificacion">Identificación Oficial</div>
                 <div class="card-body" id="cuerpo_identificacion">
                     <p id="mensaje_identificacion"></p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_identificacion', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <a id="btn_identificacion" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_identificacion', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -63,8 +63,12 @@
                 <div class="card-header" id="titulo_acta_nacimiento">Acta de Nacimiento</div>
                 <div class="card-body" id="cuerpo_acta_nacimiento">
                     <p id="mensaje_acta_nacimiento"></p>
-                    <p>{{ usuario_dato.fecha_nacimiento }}</p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_acta_nacimiento', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <p>
+                        {% if usuario_dato.fecha_nacimiento %}
+                            {{ usuario_dato.fecha_nacimiento }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_acta_nacimiento" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_acta_nacimiento', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -74,9 +78,15 @@
                 <div class="card-header" id="titulo_domicilio">Domicilio</div>
                 <div class="card-body" id="cuerpo_domicilio">
                     <p id="mensaje_domicilio"></p>
-                    <p>{{ usuario_dato.domicilio_calle }}, Col. {{ usuario_dato.domicilio_colonia }}. {{ usuario_dato.domicilio_numero_ext }}. int. {{ usuario_dato.domicilio_numero_int }}<br/>
-                        {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}. CP: {{ usuario_dato.domicilio_cp }}</p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_domicilio', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <p>
+                        {% if usuario_dato.domicilio_calle %}
+                            {{ usuario_dato.domicilio_calle }} #{{ usuario_dato.domicilio_numero_ext }} {{ 'int. ' + usuario_dato.domicilio_numero_int if usuario_dato.domicilio_numero_int else "" }}<br/>
+                            Col. {{ usuario_dato.domicilio_colonia }}<br />
+                            {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}<br />
+                            CP: {{ usuario_dato.domicilio_cp }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_domicilio" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_domicilio', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -86,8 +96,12 @@
                 <div class="card-header" id="titulo_curp">CURP</div>
                 <div class="card-body" id="cuerpo_curp">
                     <p id="mensaje_curp"></p>
-                    <p>{{ usuario_dato.curp }}</p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_curp', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <p>
+                        {% if usuario_dato.curp %}
+                            {{ usuario_dato.curp }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_curp" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_curp', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -97,8 +111,12 @@
                 <div class="card-header" id="titulo_cp_fiscal">Constancia de Situación Fiscal</div>
                 <div class="card-body" id="cuerpo_cp_fiscal">
                     <p id="mensaje_cp_fiscal"></p>
-                    <p>{{ usuario_dato.cp_fiscal }}</p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_cp_fiscal', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <p>
+                        {% if usuario_dato.cp_fiscal %}
+                            {{ usuario_dato.cp_fiscal }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_cp_fiscal" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_cp_fiscal', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -108,7 +126,7 @@
                 <div class="card-header" id="titulo_curriculum">Curriculum</div>
                 <div class="card-body" id="cuerpo_curriculum">
                     <p id="mensaje_curriculum"></p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_curriculum', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <a id="btn_curriculum" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_curriculum', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -118,8 +136,12 @@
                 <div class="card-header" id="titulo_estudios">Cédula Profesional</div>
                 <div class="card-body" id="cuerpo_estudios">
                     <p id="mensaje_estudios"></p>
-                    <p>{{ usuario_dato.estudios_cedula }}</p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_estudios', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <p>
+                        {% if usuario_dato.estudios_cedula %}
+                            {{ usuario_dato.estudios_cedula }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_estudios" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_estudios', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -129,8 +151,12 @@
                 <div class="card-header" id="titulo_es_madre">Eres Madre</div>
                 <div class="card-body" id="cuerpo_es_madre">
                     <p id="mensaje_es_madre"></p>
-                    <p>{{ 'SI' if usuario_dato.es_madre else 'NO' }}</p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_es_madre', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <p>
+                        {% if usuario_dato.es_madre %}
+                            {{ 'SI' if usuario_dato.es_madre else 'NO' }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_es_madre" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_es_madre', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -140,8 +166,12 @@
                 <div class="card-header" id="titulo_estado_civil">Estado Civil</div>
                 <div class="card-body" id="cuerpo_estado_civil">
                     <p id="mensaje_estado_civil"></p>
-                    <p>{{ usuario_dato.estado_civil }}</p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_estado_civil', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <p>
+                        {% if usuario_dato.estado_civil %}
+                            {{ usuario_dato.estado_civil }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_estado_civil" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_estado_civil', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -152,7 +182,7 @@
                 <div class="card-body" id="cuerpo_estado_cuenta">
                     <p id="mensaje_estado_cuenta"></p>
                     <p>{{ usuario_dato.estado_cuenta }}</p>
-                    <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_estado_cuenta', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                    <a id="btn_estado_cuenta" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_estado_cuenta', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
         </div>
@@ -185,6 +215,7 @@
             let mensaje = "";
             let icon = "";
             let bgcolor = "";
+            let btn_css = "";
             // Estado
             switch( estado ) {
                 case "VALIDO":
@@ -194,6 +225,7 @@
                     mensaje = "<b>Revisado y aceptado</b>";
                     icon = "mdi:check-circle";
                     bgcolor = "bg-success";
+                    btn_css = "btn-outline-success";
                     break;
                 case "POR VALIDAR":
                     card_css = "border-primary";
@@ -202,6 +234,7 @@
                     mensaje = "<b>Información recibida y en espera de revisión</b>";
                     icon = "mdi:alert-circle";
                     bgcolor = "bg-primary";
+                    btn_css = "btn-outline-primary";
                     break;
                 case "NO VALIDO":
                     card_css = "border-danger";
@@ -210,6 +243,7 @@
                     mensaje = "<b>Rechazado por:</b> " + mensaje_rechazo;
                     icon = "mdi:cancel";
                     bgcolor = "bg-danger";
+                    btn_css = "btn-outline-danger";
                     break;
                 default:
                     card_css = "border-ligth";
@@ -218,7 +252,7 @@
                     mensaje = "<b>Pendiente de cargar</b>";
                     bgcolor = "bg-secondary";
                     icon="mdi:checkbox-blank-circle-outline";   
-                    estado = "VACÍO";
+                    btn_css = "btn-outline-secondary";
                     break;
             }
             mensaje_html = '<span class="iconify" data-icon="' + icon + '"></span> ' + mensaje;
@@ -228,6 +262,7 @@
             document.getElementById( "titulo_" + elemento_id ).classList.add( titulo_css[0] );
             document.getElementById( "titulo_" + elemento_id ).classList.add( titulo_css[1] );
             document.getElementById( "cuerpo_" + elemento_id ).classList.add( cuerpo_css );
+            document.getElementById( "btn_" + elemento_id ).classList.add( btn_css );
             document.getElementById( "mensaje_" + elemento_id ).innerHTML = mensaje_html;
         }
         function render_estado(elemento, estado) {
