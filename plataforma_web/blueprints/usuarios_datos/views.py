@@ -261,7 +261,7 @@ def edit_identificacion(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     return render_template("usuarios_datos/edit_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
@@ -352,7 +352,7 @@ def edit_acta_nacimiento(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -462,7 +462,7 @@ def edit_domicilio(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -554,7 +554,7 @@ def edit_curp(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -646,7 +646,7 @@ def edit_cp_fiscal(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -721,7 +721,7 @@ def edit_curriculum(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     return render_template("usuarios_datos/edit_curriculum.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
@@ -812,7 +812,7 @@ def edit_estudios(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -936,7 +936,7 @@ def edit_es_madre(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
@@ -1033,7 +1033,7 @@ def edit_estado_cuenta(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     return render_template("usuarios_datos/edit_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
@@ -1149,7 +1149,7 @@ def validate_identificacion(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1192,7 +1192,7 @@ def validate_acta_nacimiento(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1235,7 +1235,7 @@ def validate_domicilio(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1278,7 +1278,7 @@ def validate_curp(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1321,7 +1321,7 @@ def validate_cp_fiscal(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1364,7 +1364,7 @@ def validate_curriculum(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1407,7 +1407,7 @@ def validate_estudios(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1459,7 +1459,7 @@ def validate_es_madre(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
@@ -1532,7 +1532,7 @@ def validate_estado_cuenta(usuario_dato_id):
     tipo_archivo = None
     if archivo_prev:
         if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "JPG"
+            tipo_archivo = "IMG"
         elif archivo_prev.endswith(".pdf"):
             tipo_archivo = "PDF"
     # Renderiza la página de validación

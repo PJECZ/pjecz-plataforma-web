@@ -39,7 +39,7 @@
         {% if archivo %}
             {% if tipo_archivo == "PDF" %}
             <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>
-            {% elif tipo_archivo == "JPG" %}
+            {% elif tipo_archivo == "IMG" %}
                 <img src="{{ archivo }}" />
             {% else %}
                 <p class="lead">Tipo de Archivo no disponible para su visualización</p>
