@@ -1,6 +1,7 @@
 """
 Sistemas, vistas
 """
+
 from datetime import date, datetime, timedelta
 
 from flask import Blueprint, redirect, render_template, url_for
@@ -28,6 +29,7 @@ TARJETAS_LIMITE_REGISTROS = 5
 ROL_ADMINISTRADOR = "ADMINISTRADOR"
 ROL_NOTARIA = "NOTARIA"
 ROL_SOPORTE_USUARIO = "SOPORTE USUARIO"
+ROL_VALIDADORES = "VALIDADORES DE DATOS Y DOCUMENTOS PERSONALES"
 
 
 @sistemas.route("/inicio/audiencias_json")
@@ -219,9 +221,9 @@ def start():
         current_user_roles = current_user.get_roles()
 
         # Si tiene el rol administrador mostrar el acceso a solicitudes para actualizar datos de usuarios
-        if ROL_ADMINISTRADOR in current_user_roles:
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_VALIDADORES in current_user_roles:
             mostrar_portal_recibos_nomina = True
-            usuario_dato = UsuarioDato.query.filter_by(usuario=current_user).first()
+            usuario_dato = UsuarioDato.query.filter_by(usuario=current_user).order_by(UsuarioDato.id.desc()).first()
             if usuario_dato:
                 estado_documentos_personales = usuario_dato.estado_general
 
