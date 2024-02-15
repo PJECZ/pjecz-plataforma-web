@@ -25,7 +25,7 @@
         </div>
     {% endif %}
     {% call f.card() %}
-        <p class="lead">Adjunte su Cédula Profesional. Recuerde que solo se pueden adjuntar archivos PDF o JPG.</p>
+        <p class="lead">Adjunte su Cédula Profesional. Recuerde que Solo se pueden adjuntar archivos PDF, JPG o PNG.</p>
         {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
         {% call f.form_tag_multipart('usuarios_datos.edit_estudios', fid='usuario_dato_form', **form_kwargs) %}
             {% call f.form_group(form.cedula_profesional) %}{% endcall %}

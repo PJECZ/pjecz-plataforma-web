@@ -25,7 +25,7 @@
         </div>
     {% endif %}
     {% call f.card() %}
-        <p class="lead">Adjunte su identificación oficial, INE (por ambos lados) o pasaporte vigente. Solo se pueden adjuntar archivos PDF o JPG.</p>
+        <p class="lead">Adjunte su identificación oficial, INE (por ambos lados) o pasaporte vigente. Solo se pueden adjuntar archivos PDF, JPG o PNG.</p>
         {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
         {% call f.form_tag_multipart('usuarios_datos.edit_identificacion', fid='usuario_dato_form', **form_kwargs) %}
             {% call f.drop_zone_wrapper() %}
