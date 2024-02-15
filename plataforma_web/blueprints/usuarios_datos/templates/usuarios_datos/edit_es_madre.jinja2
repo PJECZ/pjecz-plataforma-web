@@ -1,0 +1,56 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Es Madre{% endblock %}
+
+{% block custom_head %}
+    {{ f.drop_zone_css() }}
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons("Editar - Es Madre") %}
+        {{ topbar.button_previous('Regresar', url_for('usuarios_datos.detail', usuario_dato_id=usuario_dato.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Sección de Mensajed de rechazo #}
+    {% if usuario_dato.mensaje_es_madre %}
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Mensaje de rechazo</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <textarea class="form-control" style="height: 100px" disabled>{{ usuario_dato.mensaje_es_madre }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    {% call f.card() %}
+        <p class="lead">Seleccione SI o NO es madre y adjunte el acta de nacimiento de un hijo en caso de ser madre. Solo se pueden adjuntar archivos PDF o JPG.</p>
+        {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
+        {% call f.form_tag_multipart('usuarios_datos.edit_es_madre', fid='usuario_dato_form', **form_kwargs) %}
+            {% call f.form_group(form.es_madre, css_class="radiobutton_inline") %}{% endcall %}
+            {% call f.drop_zone_wrapper() %}
+                {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
+            {% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+    {# Preview #}
+    {% call f.card("Previsualización") %}
+        {% if archivo %}
+            {% if tipo_archivo == "PDF" %}
+            <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>
+            {% elif tipo_archivo == "JPG" %}
+                <img src="{{ archivo }}" />
+            {% else %}
+                <p class="lead">Tipo de Archivo no disponible para su visualización</p>
+            {% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+
+{% block custom_javascript %}
+    {{ f.drop_zone_js() }}
+{% endblock %}
+

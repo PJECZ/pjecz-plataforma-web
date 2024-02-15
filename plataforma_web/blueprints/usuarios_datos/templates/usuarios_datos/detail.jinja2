@@ -1,0 +1,284 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Mis documentos personales{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons("Mis documentos personales") %}
+        {% if current_user.can_admin('USUARIOS DATOS') %}
+            {{ topbar.button_previous('Usuarios Datos', url_for('usuarios_datos.list_active')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=usuario_dato.estatus) %}
+        {{ detail.label_value_big('Nombre', usuario_dato.usuario.nombre) }}
+        {{ detail.label_value('Cuenta Plataforma Web', usuario_dato.usuario.email) }}
+        <div class="row">
+            <div class="col-md-3 text-end">
+                Estado de su revisión
+            </div>
+            <div class="col-md-9">
+                <span id="estado_general"></span>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-md-3 text-end">Email personal</div>
+            <div class="col-md-3">
+                <strong>{{ usuario_dato.email_personal }}</strong>
+            </div>
+            <div class="col-md-6 text-start">
+                <span id="estado_email"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 text-end">Teléfono personal</div>
+            <div class="col-md-3">
+                <strong id="telefono_str">{{ usuario_dato.telefono_personal }}</strong>
+            </div>
+            <div class="col-md-6 text-start">
+                <span id="estado_telefono"></span>
+            </div>
+        </div>
+    {% endcall %}
+    {# Datos personales a adjuntar #}
+    <div class="row mb-2">
+        {# card_identificacion #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_identificacion">
+                <div class="card-header" id="titulo_identificacion">Identificación Oficial</div>
+                <div class="card-body" id="cuerpo_identificacion">
+                    <p id="mensaje_identificacion"></p>
+                    <a id="btn_identificacion" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_identificacion', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_acta_nacimiento #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_acta_nacimiento">
+                <div class="card-header" id="titulo_acta_nacimiento">Acta de Nacimiento</div>
+                <div class="card-body" id="cuerpo_acta_nacimiento">
+                    <p id="mensaje_acta_nacimiento"></p>
+                    <p>
+                        {% if usuario_dato.fecha_nacimiento %}
+                            {{ usuario_dato.fecha_nacimiento }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_acta_nacimiento" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_acta_nacimiento', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_domicilio #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_domicilio">
+                <div class="card-header" id="titulo_domicilio">Domicilio</div>
+                <div class="card-body" id="cuerpo_domicilio">
+                    <p id="mensaje_domicilio"></p>
+                    <p>
+                        {% if usuario_dato.domicilio_calle %}
+                            {{ usuario_dato.domicilio_calle }} #{{ usuario_dato.domicilio_numero_ext }} {{ 'int. ' + usuario_dato.domicilio_numero_int if usuario_dato.domicilio_numero_int else "" }}<br/>
+                            Col. {{ usuario_dato.domicilio_colonia }}<br />
+                            {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}<br />
+                            CP: {{ usuario_dato.domicilio_cp }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_domicilio" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_domicilio', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_curp #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_curp">
+                <div class="card-header" id="titulo_curp">CURP</div>
+                <div class="card-body" id="cuerpo_curp">
+                    <p id="mensaje_curp"></p>
+                    <p>
+                        {% if usuario_dato.curp %}
+                            {{ usuario_dato.curp }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_curp" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_curp', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_cp_fiscal #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_cp_fiscal">
+                <div class="card-header" id="titulo_cp_fiscal">Constancia de Situación Fiscal</div>
+                <div class="card-body" id="cuerpo_cp_fiscal">
+                    <p id="mensaje_cp_fiscal"></p>
+                    <p>
+                        {% if usuario_dato.cp_fiscal %}
+                            {{ usuario_dato.cp_fiscal }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_cp_fiscal" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_cp_fiscal', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_curriculum #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_curriculum">
+                <div class="card-header" id="titulo_curriculum">Curriculum</div>
+                <div class="card-body" id="cuerpo_curriculum">
+                    <p id="mensaje_curriculum"></p>
+                    <a id="btn_curriculum" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_curriculum', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_estudios #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_estudios">
+                <div class="card-header" id="titulo_estudios">Cédula Profesional</div>
+                <div class="card-body" id="cuerpo_estudios">
+                    <p id="mensaje_estudios"></p>
+                    <p>
+                        {% if usuario_dato.estudios_cedula %}
+                            {{ usuario_dato.estudios_cedula }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_estudios" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_estudios', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_es_madre #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_es_madre">
+                <div class="card-header" id="titulo_es_madre">Eres Madre</div>
+                <div class="card-body" id="cuerpo_es_madre">
+                    <p id="mensaje_es_madre"></p>
+                    <p>
+                        {% if usuario_dato.es_madre %}
+                            {{ 'SI' if usuario_dato.es_madre else 'NO' }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_es_madre" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_es_madre', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_estado_civil #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_estado_civil">
+                <div class="card-header" id="titulo_estado_civil">Estado Civil</div>
+                <div class="card-body" id="cuerpo_estado_civil">
+                    <p id="mensaje_estado_civil"></p>
+                    <p>
+                        {% if usuario_dato.estado_civil %}
+                            {{ usuario_dato.estado_civil }}
+                        {% endif %}
+                    </p>
+                    <a id="btn_estado_civil" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_estado_civil', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+        {# card_estado_cuenta #}
+        <div class="col-md-4">
+            <div class="card mb-3" id="card_estado_cuenta">
+                <div class="card-header" id="titulo_estado_cuenta">Estado de Cuenta</div>
+                <div class="card-body" id="cuerpo_estado_cuenta">
+                    <p id="mensaje_estado_cuenta"></p>
+                    <p>{{ usuario_dato.estado_cuenta }}</p>
+                    <a id="btn_estado_cuenta" class="btn btn-sm w-100" href="{{ url_for('usuarios_datos.edit_estado_cuenta', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        window.onload = function () {
+            render_estado(document.getElementById("estado_general"), "{{ usuario_dato.estado_general }}");
+            render_estado(document.getElementById("estado_email"), "{{ usuario_dato.estado_email }}");
+            render_estado(document.getElementById("estado_telefono"), "{{ usuario_dato.estado_telefono }}");
+            render_telefono(document.getElementById("telefono_str"), "{{ usuario_dato.telefono_personal }}");
+            render_estado_card("identificacion", "{{ usuario_dato.estado_identificacion }}", "{{ usuario_dato.mensaje_identificacion }}");
+            render_estado_card("acta_nacimiento", "{{ usuario_dato.estado_acta_nacimiento }}", "{{ usuario_dato.mensaje_acta_nacimiento }}");
+            render_estado_card("domicilio", "{{ usuario_dato.estado_domicilio }}", "{{ usuario_dato.mensaje_domicilio }}");
+            render_estado_card("curp", "{{ usuario_dato.estado_curp }}", "{{ usuario_dato.mensaje_curp }}");
+            render_estado_card("cp_fiscal", "{{ usuario_dato.estado_cp_fiscal }}", "{{ usuario_dato.mensaje_cp_fiscal }}");
+            render_estado_card("curriculum", "{{ usuario_dato.estado_curriculum }}", "{{ usuario_dato.mensaje_curriculum }}");
+            render_estado_card("estudios", "{{ usuario_dato.estado_estudios }}", "{{ usuario_dato.mensaje_estudios }}");
+            render_estado_card("es_madre", "{{ usuario_dato.estado_es_madre }}", "{{ usuario_dato.mensaje_es_madre }}");
+            render_estado_card("estado_civil", "{{ usuario_dato.estado_estado_civil }}", "{{ usuario_dato.mensaje_estado_civil }}");
+            render_estado_card("estado_cuenta", "{{ usuario_dato.estado_estado_cuenta }}", "{{ usuario_dato.mensaje_estado_cuenta }}");
+        }
+        function render_estado_card(elemento_id, estado, mensaje_rechazo) {
+            // Variables
+            let card_css = "";
+            let titulo_css = "";
+            let cuerpo_css = "";
+            let mensaje = "";
+            let icon = "";
+            let bgcolor = "";
+            let btn_css = "";
+            // Estado
+            switch( estado ) {
+                case "VALIDO":
+                    card_css = "border-success";
+                    titulo_css = ["bg-success", "text-light"];
+                    cuerpo_css = "text-success";
+                    mensaje = "<b>Revisado y aceptado</b>";
+                    icon = "mdi:check-circle";
+                    bgcolor = "bg-success";
+                    btn_css = "btn-outline-success";
+                    break;
+                case "POR VALIDAR":
+                    card_css = "border-primary";
+                    titulo_css = ["bg-primary", "text-light"];
+                    cuerpo_css = "text-primary";
+                    mensaje = "<b>Información recibida y en espera de revisión</b>";
+                    icon = "mdi:alert-circle";
+                    bgcolor = "bg-primary";
+                    btn_css = "btn-outline-primary";
+                    break;
+                case "NO VALIDO":
+                    card_css = "border-danger";
+                    titulo_css = ["bg-danger", "text-light"];
+                    cuerpo_css = "text-danger";
+                    mensaje = "<b>Rechazado por:</b> " + mensaje_rechazo;
+                    icon = "mdi:cancel";
+                    bgcolor = "bg-danger";
+                    btn_css = "btn-outline-danger";
+                    break;
+                default:
+                    card_css = "border-ligth";
+                    titulo_css = ["bg-ligth", "text-dark"];
+                    cuerpo_css = "text-secondary";
+                    mensaje = "<b>Pendiente de cargar</b>";
+                    bgcolor = "bg-secondary";
+                    icon="mdi:checkbox-blank-circle-outline";   
+                    btn_css = "btn-outline-secondary";
+                    break;
+            }
+            mensaje_html = '<span class="iconify" data-icon="' + icon + '"></span> ' + mensaje;
+            //elemento.innerHTML = html;
+            // Edición de segmentos html
+            document.getElementById( "card_" + elemento_id ).classList.add( card_css );
+            document.getElementById( "titulo_" + elemento_id ).classList.add( titulo_css[0] );
+            document.getElementById( "titulo_" + elemento_id ).classList.add( titulo_css[1] );
+            document.getElementById( "cuerpo_" + elemento_id ).classList.add( cuerpo_css );
+            document.getElementById( "btn_" + elemento_id ).classList.add( btn_css );
+            document.getElementById( "mensaje_" + elemento_id ).innerHTML = mensaje_html;
+        }
+        function render_estado(elemento, estado) {
+            switch( estado ) {
+                case "POR VALIDAR": bgcolor = "bg-primary";             icon="mdi:alert";               break;
+                case "NO VALIDO":   bgcolor = "bg-danger";              icon="mdi:cancel";              break;
+                case "VALIDO":      bgcolor = "bg-success";             icon="mdi:check-circle";        break;
+                default:            bgcolor = "bg-secondary";           icon="mdi:checkbox-blank-circle-outline";   
+                                    estado = "INCOMPLETO";           break;
+            }
+            html = '<span class="badge rounded-pill ' + bgcolor + '"><span class="iconify" data-icon="' + icon + '"></span> ' + estado + '</span>';
+            elemento.innerHTML = html;
+        }
+        function render_telefono(elemento, telefono) {
+            const telefono_format = `(${telefono.slice(0,  3)}) ${telefono.slice(3,  6)}-${telefono.slice(6,  10)}`;
+            elemento.innerHTML = telefono_format;
+        }
+    </script>
+{% endblock %}
