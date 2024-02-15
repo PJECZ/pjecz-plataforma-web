@@ -60,6 +60,7 @@ class UsuarioDato(db.Model, UniversalMixin):
     domicilio_colonia = db.Column(db.String(64))
     domicilio_ciudad = db.Column(db.String(32))
     domicilio_estado = db.Column(db.String(32))
+    domicilio_cp = db.Column(db.Integer)
     es_madre = db.Column(db.Boolean)
     estado_civil = db.Column(
         db.Enum(*ESTADOS_CIVILES, name="estado_civil", native_enum=False),

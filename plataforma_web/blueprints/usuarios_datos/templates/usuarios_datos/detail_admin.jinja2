@@ -15,13 +15,32 @@
     {% call detail.card(estatus=usuario_dato.estatus) %}
         {{ detail.label_value_big('Nombre', usuario_dato.usuario.nombre) }}
         {{ detail.label_value('email', usuario_dato.usuario.email) }}
-        {{ detail.label_value('CURP', usuario_dato.usuario.curp) }}
+        {{ detail.label_value('CURP en Plataforma Web', usuario_dato.usuario.curp) }}
         <div class="row">
             <div class="col-md-3 text-end">
-                Estado General
+                Estado de su revisión
             </div>
             <div class="col-md-9">
                 <span id="estado_general"></span>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-md-3 text-end">Email personal</div>
+            <div class="col-md-3">
+                <strong>{{ usuario_dato.email_personal }}</strong>
+            </div>
+            <div class="col-md-6 text-start">
+                <span id="estado_email"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 text-end">Teléfono personal</div>
+            <div class="col-md-3">
+                <strong id="telefono_str">{{ usuario_dato.telefono_personal }}</strong>
+            </div>
+            <div class="col-md-6 text-start">
+                <span id="estado_telefono"></span>
             </div>
         </div>
     {% endcall %}
@@ -68,7 +87,7 @@
             <div class="col-md-8">
                 <strong>Domicilio</strong>
                 <p>{{ usuario_dato.domicilio_calle }}, Col. {{ usuario_dato.domicilio_colonia }}. {{ usuario_dato.domicilio_numero_ext }} int. {{ usuario_dato.domicilio_numero_int }}<br/>
-                {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}<br />
+                {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}. CP: {{ usuario_dato.domicilio_cp }}<br />
                     <i class="text-danger">{{ usuario_dato.mensaje_domicilio if usuario_dato.mensaje_domicilio else "" }}</i>
                 </p>
             </div>
@@ -178,30 +197,6 @@
                 </p>
             </div>
         </div>
-        
-        <div class="row">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-2">
-                <span id="estado_11"></span>
-            </div>
-            <div class="col-md-8 text-left">
-                <strong>Teléfono Personal</strong>
-                <p id="telefono_str">{{ usuario_dato.telefono_personal }}</p>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-2">
-                <span id="estado_12"></span>
-            </div>
-            <div class="col-md-8 text-left">
-                <strong>Email Personal</strong>
-                <p>{{ usuario_dato.email_personal }}</p>
-            </div>
-        </div>
     {% endcall %}
 {% endblock %}
 
@@ -209,6 +204,8 @@
     <script>
         window.onload = function () {
             render_estado(document.getElementById("estado_general"), "{{ usuario_dato.estado_general }}");
+            render_estado(document.getElementById("estado_telefono"), "{{ usuario_dato.estado_telefono }}");
+            render_estado(document.getElementById("estado_email"), "{{ usuario_dato.estado_email }}");
             render_estado(document.getElementById("estado_1"), "{{ usuario_dato.estado_identificacion }}");
             render_estado(document.getElementById("estado_2"), "{{ usuario_dato.estado_acta_nacimiento }}");
             render_estado(document.getElementById("estado_3"), "{{ usuario_dato.estado_domicilio }}");
@@ -219,17 +216,15 @@
             render_estado(document.getElementById("estado_8"), "{{ usuario_dato.estado_es_madre }}");
             render_estado(document.getElementById("estado_9"), "{{ usuario_dato.estado_estado_civil }}");
             render_estado(document.getElementById("estado_10"), "{{ usuario_dato.estado_estado_cuenta }}");
-            render_estado(document.getElementById("estado_11"), "{{ usuario_dato.estado_telefono }}");
-            render_estado(document.getElementById("estado_12"), "{{ usuario_dato.estado_email }}");
             render_telefono(document.getElementById("telefono_str"), "{{ usuario_dato.telefono_personal }}");
         }
         function render_estado(elemento, estado) {
             switch( estado ) {
-                case "POR VALIDAR": bgcolor = "bg-warning text-dark";   icon="mdi:alert";               break;
+                case "POR VALIDAR": bgcolor = "bg-primary";             icon="mdi:alert";               break;
                 case "NO VALIDO":   bgcolor = "bg-danger";              icon="mdi:cancel";              break;
                 case "VALIDO":      bgcolor = "bg-success";             icon="mdi:check-circle";        break;
                 default:            bgcolor = "bg-secondary";           icon="mdi:checkbox-blank-circle-outline";   
-                                    estado = "VACÍO";           break;
+                                    estado = "INCOMPLETO";           break;
             }
             html = '<span class="badge rounded-pill ' + bgcolor + '"><span class="iconify" data-icon="' + icon + '"></span> ' + estado + '</span>';
             elemento.innerHTML = html;

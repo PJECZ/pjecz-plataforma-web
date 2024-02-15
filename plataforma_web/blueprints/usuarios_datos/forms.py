@@ -34,6 +34,7 @@ class UsuarioDatoEditDomicilioForm(FlaskForm):
     colonia = StringField("Colonia", validators=[DataRequired()])
     ciudad = StringField("Ciudad", validators=[DataRequired()])
     estado = StringField("Estado", validators=[DataRequired()])
+    codigo_postal = IntegerField("Código Postal", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 

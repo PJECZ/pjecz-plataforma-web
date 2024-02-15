@@ -409,6 +409,7 @@ def edit_domicilio(usuario_dato_id):
                 usuario_dato.domicilio_colonia = safe_string(form.colonia.data)
                 usuario_dato.domicilio_ciudad = safe_string(form.ciudad.data)
                 usuario_dato.domicilio_estado = safe_string(form.estado.data)
+                usuario_dato.domicilio_cp = form.codigo_postal.data
                 usuario_dato.save()
                 # Mensaje de resultado positivo
                 flash("Ha modificado su Domicilio correctamente, espere a que sea validada", "success")
@@ -456,6 +457,7 @@ def edit_domicilio(usuario_dato_id):
                     usuario_dato.domicilio_colonia = safe_string(form.colonia.data)
                     usuario_dato.domicilio_ciudad = safe_string(form.ciudad.data)
                     usuario_dato.domicilio_estado = safe_string(form.estado.data)
+                    usuario_dato.domicilio_cp = form.codigo_postal.data
                     usuario_dato.save()
                 except NotConfiguredError:
                     flash("No se ha configurado el almacenamiento en la nube.", "warning")
@@ -476,6 +478,7 @@ def edit_domicilio(usuario_dato_id):
     form.colonia.data = usuario_dato.domicilio_colonia
     form.ciudad.data = usuario_dato.domicilio_ciudad
     form.estado.data = usuario_dato.domicilio_estado
+    form.codigo_postal.data = usuario_dato.domicilio_cp
     # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
     tipo_archivo = None
     if archivo_prev:

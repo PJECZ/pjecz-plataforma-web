@@ -75,7 +75,7 @@
                 <div class="card-body" id="cuerpo_domicilio">
                     <p id="mensaje_domicilio"></p>
                     <p>{{ usuario_dato.domicilio_calle }}, Col. {{ usuario_dato.domicilio_colonia }}. {{ usuario_dato.domicilio_numero_ext }}. int. {{ usuario_dato.domicilio_numero_int }}<br/>
-                        {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}</p>
+                        {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}. CP: {{ usuario_dato.domicilio_cp }}</p>
                     <a class="btn btn-sm w-100 btn-warning" href="{{ url_for('usuarios_datos.edit_domicilio', usuario_dato_id=usuario_dato.id) }}"><span class="iconify" data-icon="mdi:pencil"></span> Editar</a>
                 </div>
             </div>
