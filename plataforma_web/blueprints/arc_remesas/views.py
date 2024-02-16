@@ -122,7 +122,7 @@ def datatable_json():
                     "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id),
                 },
                 "tiempo": {
-                    "tiempo": resultado.modificado.strftime("%Y-%m-%d %H:%M"),
+                    "tiempo": resultado.tiempo_enviado.strftime("%Y-%m-%d %H:%M") if resultado.tiempo_enviado else "",
                     "alerta": _retraso(resultado.tiempo_enviado, resultado.estado),
                 },
                 "anio": resultado.anio,
