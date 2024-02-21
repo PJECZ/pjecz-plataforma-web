@@ -1,6 +1,7 @@
 """
 Financieros Vales, vistas
 """
+
 import json
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -565,7 +566,7 @@ def step_2_request(fin_vale_id):
             usuario_id=current_user.id,
             contrasena=form.contrasena.data,
         )
-        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica. Esta página se va recargar en 60 segundos...", "success")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Mostrar formulario
     form.solicito_nombre.data = current_user.nombre
@@ -611,7 +612,7 @@ def cancel_2_request(fin_vale_id):
             contrasena=form.contrasena.data,
             motivo=form.motivo.data,
         )
-        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica. Esta página se va recargar en 60 segundos...", "success")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Mostrar formulario
     form.solicito_nombre.data = current_user.nombre
@@ -654,7 +655,7 @@ def step_3_authorize(fin_vale_id):
             usuario_id=current_user.id,
             contrasena=form.contrasena.data,
         )
-        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica. Esta página se va recargar en 60 segundos...", "success")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Mostrar formulario
     form.autorizo_nombre.data = current_user.nombre
@@ -700,7 +701,7 @@ def cancel_3_authorize(fin_vale_id):
             contrasena=form.contrasena.data,
             motivo=form.motivo.data,
         )
-        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica", "success")
+        flash("Tarea en el fondo lanzada para comunicarse con el motor de firma electrónica. Esta página se va recargar en 60 segundos...", "success")
         return redirect(url_for("fin_vales.detail", fin_vale_id=fin_vale_id))
     # Mostrar formulario
     form.autorizo_nombre.data = current_user.nombre
