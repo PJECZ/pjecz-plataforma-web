@@ -1,6 +1,7 @@
 """
 Inventarios Equipos, vistas
 """
+
 import json
 from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -13,6 +14,8 @@ from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.inv_custodias.models import InvCustodia
 from plataforma_web.blueprints.inv_equipos.forms import InvEquipoForm, InvEquipoSearchForm, InvEquipoChangeCustodia
 from plataforma_web.blueprints.inv_equipos.models import InvEquipo
+from plataforma_web.blueprints.inv_marcas.models import InvMarca
+from plataforma_web.blueprints.inv_modelos.models import InvModelo
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
@@ -38,6 +41,24 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = InvEquipo.query
+    # Si viene inv_marca_nombre o inv_modelo_descripcion
+    if "inv_marca_nombre" in request.form or "inv_modelo_descripcion" in request.form:
+        consulta = consulta.join(InvModelo)
+    # Filtrar por columnas en InvMarcas
+    if "inv_marca_nombre" in request.form:
+        inv_marca_nombre = safe_string(request.form["inv_marca_nombre"])
+        if inv_marca_nombre != "":
+            inv_marca = InvMarca.query.filter(InvMarca.nombre.contains(inv_marca_nombre)).first()
+            if inv_marca:
+                consulta = consulta.filter(InvModelo.inv_marca_id == inv_marca.id)
+    # Filtrar por columnas en InvModelos
+    if "inv_modelo_descripcion" in request.form:
+        inv_modelo_descripcion = safe_string(request.form["inv_modelo_descripcion"])
+        if inv_modelo_descripcion != "":
+            inv_modelo = InvModelo.query.filter(InvModelo.descripcion.contains(inv_modelo_descripcion)).first()
+            if inv_modelo:
+                consulta = consulta.filter(InvEquipo.inv_modelo_id == inv_modelo.id)
+    # Filtrar por columnas en InvEquipos
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
