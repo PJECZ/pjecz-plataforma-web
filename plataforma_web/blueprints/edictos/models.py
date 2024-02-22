@@ -1,6 +1,7 @@
 """
 Edictos, modelos
 """
+
 from urllib.parse import quote
 
 from lib.universal_mixin import UniversalMixin
@@ -29,7 +30,8 @@ class Edicto(db.Model, UniversalMixin):
     url = db.Column(db.String(512), nullable=False, default="", server_default="")
 
     # Columnas nuevas
-    acuse_num = db.Column(db.Integer)
+    acuse_num = db.Column(db.Integer, nullable=False, default=0)
+    edicto_id_original = db.Column(db.Integer, nullable=False, default=0)
 
     # Hijos
     edictos_acuses = db.relationship("EdictoAcuse", back_populates="edicto")
