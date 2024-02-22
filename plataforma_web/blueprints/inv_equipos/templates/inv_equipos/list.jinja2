@@ -27,11 +27,17 @@
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosInvEquipos.buscar(); return false;">
                     <div class="col-2">
                         <div class="form-floating">
+                            <input id="filtroEquipoID" type="text" class="form-control" aria-label="ID" style="text-transform: uppercase;">
+                            <label for="filtroEquipoID">ID</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating">
                             <input id="filtroMarcaNombre" type="text" class="form-control" aria-label="Marca" style="text-transform: uppercase;">
                             <label for="filtroMarcaNombre">Marca</label>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="form-floating">
                             <input id="filtroModeloDescripcion" type="text" class="form-control" aria-label="Modelo" style="text-transform: uppercase;">
                             <label for="filtroModeloDescripcion">Modelo</label>
@@ -52,7 +58,7 @@
                             <option value="OTROS">OTROS</option>
                         </select>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="form-floating">
                             <input id="filtroModeloNumeroSerie" type="text" class="form-control" aria-label="No. Serie" style="text-transform: uppercase;">
                             <label for="filtroModeloNumeroSerie">No. Serie</label>
@@ -149,6 +155,7 @@
         ];
         // Filtros Inv Equipos
         const filtrosInvEquipos = new FiltrosDataTable('#inv_equipos_datatable', configDTInvEquipos);
+        filtrosInvEquipos.agregarInput('filtroEquipoID', 'inv_equipo_id');
         filtrosInvEquipos.agregarInput('filtroMarcaNombre', 'inv_marca_nombre');
         filtrosInvEquipos.agregarInput('filtroModeloDescripcion', 'inv_modelo_descripcion');
         filtrosInvEquipos.agregarSelect('filtroTipo', 'tipo');

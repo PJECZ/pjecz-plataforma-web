@@ -1,6 +1,7 @@
 """
 Inventarios Custodias, vistas
 """
+
 from crypt import methods
 import json
 from datetime import date
@@ -41,22 +42,27 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = InvCustodia.query
+    # Primero filtrar por el estatus para mantener el proposito de los botones de activos e inactivos
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "usuario_id" in request.form:
-        usuario = Usuario.query.get(request.form["usuario_id"])
-        if usuario:
-            consulta = consulta.filter(InvCustodia.usuario == usuario)
-    if "fecha" in request.form:
-        consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha"])
-    if "nombre_completo" in request.form:
-        consulta = consulta.filter(InvCustodia.nombre_completo.contains(safe_string(request.form["nombre_completo"])))
-    if "fecha_desde" in request.form:
-        consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha_desde"])
-    if "fecha_hasta" in request.form:
-        consulta = consulta.filter(InvCustodia.fecha <= request.form["fecha_hasta"])
+    # Si viene el ID de la custodia, se filtra por ésta, y se ignora el resto de los filtros
+    if "inv_custodia_id" in request.form and request.form["inv_custodia_id"].isdigit():
+        consulta = consulta.filter_by(id=request.form["inv_custodia_id"])
+    else:
+        if "usuario_id" in request.form:
+            usuario = Usuario.query.get(request.form["usuario_id"])
+            if usuario:
+                consulta = consulta.filter(InvCustodia.usuario == usuario)
+        if "fecha" in request.form:
+            consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha"])
+        if "nombre_completo" in request.form:
+            consulta = consulta.filter(InvCustodia.nombre_completo.contains(safe_string(request.form["nombre_completo"])))
+        if "fecha_desde" in request.form:
+            consulta = consulta.filter(InvCustodia.fecha >= request.form["fecha_desde"])
+        if "fecha_hasta" in request.form:
+            consulta = consulta.filter(InvCustodia.fecha <= request.form["fecha_hasta"])
     registros = consulta.order_by(InvCustodia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

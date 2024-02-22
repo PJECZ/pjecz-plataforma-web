@@ -41,61 +41,66 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = InvEquipo.query
-    # Si viene inv_marca_nombre o inv_modelo_descripcion
-    if "inv_marca_nombre" in request.form or "inv_modelo_descripcion" in request.form:
-        consulta = consulta.join(InvModelo)
-    # Filtrar por columnas en InvMarcas
-    if "inv_marca_nombre" in request.form:
-        inv_marca_nombre = safe_string(request.form["inv_marca_nombre"])
-        if inv_marca_nombre != "":
-            inv_marca = InvMarca.query.filter(InvMarca.nombre.contains(inv_marca_nombre)).first()
-            if inv_marca:
-                consulta = consulta.filter(InvModelo.inv_marca_id == inv_marca.id)
-    # Filtrar por columnas en InvModelos
-    if "inv_modelo_descripcion" in request.form:
-        inv_modelo_descripcion = safe_string(request.form["inv_modelo_descripcion"])
-        if inv_modelo_descripcion != "":
-            inv_modelo = InvModelo.query.filter(InvModelo.descripcion.contains(inv_modelo_descripcion)).first()
-            if inv_modelo:
-                consulta = consulta.filter(InvEquipo.inv_modelo_id == inv_modelo.id)
-    # Filtrar por columnas en InvEquipos
+    # Primero filtrar por el estatus para mantener el proposito de los botones de activos e inactivos
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
-    if "inv_custodia_id" in request.form:
-        consulta = consulta.filter_by(inv_custodia_id=request.form["inv_custodia_id"])
-    if "usuario_id" in request.form:
-        inv_custodia = InvCustodia.query.filter(InvCustodia.usuario_id == request.form["usuario_id"]).order_by(InvCustodia.id.desc()).first()
-        if inv_custodia:
-            consulta = consulta.filter(InvEquipo.inv_custodia_id == inv_custodia.id)
-        else:
-            consulta = consulta.filter(InvEquipo.inv_custodia_id == 0)
-    if "inv_modelo_id" in request.form:
-        consulta = consulta.filter_by(inv_modelo_id=request.form["inv_modelo_id"])
-    if "inv_red_id" in request.form:
-        consulta = consulta.filter_by(inv_red_id=request.form["inv_red_id"])
-    if "descripcion" in request.form:
-        consulta = consulta.filter(InvEquipo.descripcion.contains(safe_string(request.form["descripcion"])))
-    if "numero_serie" in request.form:
-        consulta = consulta.filter(InvEquipo.numero_serie.contains(request.form["numero_serie"]))
-    if "numero_inventario" in request.form:
-        consulta = consulta.filter(InvEquipo.numero_inventario == request.form["numero_inventario"])
-    if "tipo" in request.form:
-        consulta = consulta.filter(InvEquipo.tipo.contains(request.form["tipo"]))
-    if "direccion_mac" in request.form:
-        consulta = consulta.filter(InvEquipo.direccion_mac.contains(request.form["direccion_mac"]))
-    if "direccion_ip" in request.form:
-        consulta = consulta.filter(InvEquipo.direccion_ip.contains(request.form["direccion_ip"]))
-    if "fecha_desde" in request.form:
-        consulta = consulta.filter(InvEquipo.fecha_fabricacion >= request.form["fecha_desde"])
-    if "fecha_hasta" in request.form:
-        consulta = consulta.filter(InvEquipo.fecha_fabricacion <= request.form["fecha_hasta"])
-    if "oficina_id" in request.form:
-        consulta = consulta.join(InvCustodia, Usuario)
-        consulta = consulta.filter(InvEquipo.inv_custodia_id == InvCustodia.id)
-        consulta = consulta.filter(InvCustodia.usuario_id == Usuario.id)
-        consulta = consulta.filter(Usuario.oficina_id == request.form["oficina_id"])
+    # Si viene el ID del equipo, se filtra por éste, y se ignora el resto de los filtros
+    if "inv_equipo_id" in request.form and request.form["inv_equipo_id"].isdigit():
+        consulta = consulta.filter_by(id=request.form["inv_equipo_id"])
+    else:
+        # Si viene inv_marca_nombre o inv_modelo_descripcion
+        if "inv_marca_nombre" in request.form or "inv_modelo_descripcion" in request.form:
+            consulta = consulta.join(InvModelo)
+        # Filtrar por columnas en InvMarcas
+        if "inv_marca_nombre" in request.form:
+            inv_marca_nombre = safe_string(request.form["inv_marca_nombre"])
+            if inv_marca_nombre != "":
+                inv_marca = InvMarca.query.filter(InvMarca.nombre.contains(inv_marca_nombre)).first()
+                if inv_marca:
+                    consulta = consulta.filter(InvModelo.inv_marca_id == inv_marca.id)
+        # Filtrar por columnas en InvModelos
+        if "inv_modelo_descripcion" in request.form:
+            inv_modelo_descripcion = safe_string(request.form["inv_modelo_descripcion"])
+            if inv_modelo_descripcion != "":
+                inv_modelo = InvModelo.query.filter(InvModelo.descripcion.contains(inv_modelo_descripcion)).first()
+                if inv_modelo:
+                    consulta = consulta.filter(InvEquipo.inv_modelo_id == inv_modelo.id)
+        # Filtrar por columnas en InvEquipos
+        if "inv_custodia_id" in request.form:
+            consulta = consulta.filter_by(inv_custodia_id=request.form["inv_custodia_id"])
+        if "usuario_id" in request.form:
+            inv_custodia = InvCustodia.query.filter(InvCustodia.usuario_id == request.form["usuario_id"]).order_by(InvCustodia.id.desc()).first()
+            if inv_custodia:
+                consulta = consulta.filter(InvEquipo.inv_custodia_id == inv_custodia.id)
+            else:
+                consulta = consulta.filter(InvEquipo.inv_custodia_id == 0)
+        if "inv_modelo_id" in request.form:
+            consulta = consulta.filter_by(inv_modelo_id=request.form["inv_modelo_id"])
+        if "inv_red_id" in request.form:
+            consulta = consulta.filter_by(inv_red_id=request.form["inv_red_id"])
+        if "descripcion" in request.form:
+            consulta = consulta.filter(InvEquipo.descripcion.contains(safe_string(request.form["descripcion"])))
+        if "numero_serie" in request.form:
+            consulta = consulta.filter(InvEquipo.numero_serie.contains(request.form["numero_serie"]))
+        if "numero_inventario" in request.form:
+            consulta = consulta.filter(InvEquipo.numero_inventario == request.form["numero_inventario"])
+        if "tipo" in request.form:
+            consulta = consulta.filter(InvEquipo.tipo.contains(request.form["tipo"]))
+        if "direccion_mac" in request.form:
+            consulta = consulta.filter(InvEquipo.direccion_mac.contains(request.form["direccion_mac"]))
+        if "direccion_ip" in request.form:
+            consulta = consulta.filter(InvEquipo.direccion_ip.contains(request.form["direccion_ip"]))
+        if "fecha_desde" in request.form:
+            consulta = consulta.filter(InvEquipo.fecha_fabricacion >= request.form["fecha_desde"])
+        if "fecha_hasta" in request.form:
+            consulta = consulta.filter(InvEquipo.fecha_fabricacion <= request.form["fecha_hasta"])
+        if "oficina_id" in request.form:
+            consulta = consulta.join(InvCustodia, Usuario)
+            consulta = consulta.filter(InvEquipo.inv_custodia_id == InvCustodia.id)
+            consulta = consulta.filter(InvCustodia.usuario_id == Usuario.id)
+            consulta = consulta.filter(Usuario.oficina_id == request.form["oficina_id"])
     registros = consulta.order_by(InvEquipo.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
