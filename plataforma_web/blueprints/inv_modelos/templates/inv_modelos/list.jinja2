@@ -24,6 +24,12 @@
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosInvModelos.buscar(); return false;">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroModeloID" type="text" class="form-control" aria-label="ID" style="text-transform: uppercase;">
+                            <label for="filtroModeloID">ID</label>
+                        </div>
+                    </div>
                     <div class="col-4">
                         <div class="form-floating">
                             <input id="filtroMarcaNombre" type="text" class="form-control" aria-label="Marca" style="text-transform: uppercase;">
@@ -36,7 +42,7 @@
                             <label for="filtroModeloDescripcion">Modelo</label>
                         </div>
                     </div>
-                    <div class="col-4 text-end">
+                    <div class="col-2 text-end">
                         <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosInvModelos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                         <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosInvModelos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
@@ -90,6 +96,7 @@
         ];
         // Filtros Inv Modelos
         const filtrosInvModelos = new FiltrosDataTable('#inv_modelos_datatable', configDTInvModelos);
+        filtrosInvModelos.agregarInput('filtroModeloID', 'inv_modelo_id');
         filtrosInvModelos.agregarInput('filtroMarcaNombre', 'inv_marca_nombre');
         filtrosInvModelos.agregarInput('filtroModeloDescripcion', 'inv_modelo_descripcion');
         filtrosInvModelos.precargar();
