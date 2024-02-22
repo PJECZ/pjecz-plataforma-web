@@ -15,6 +15,7 @@ google-cloud-logging
 google-cloud-storage
 hashids
 Jinja2
+openpyxl
 pandas
 passlib
 pdfkit
