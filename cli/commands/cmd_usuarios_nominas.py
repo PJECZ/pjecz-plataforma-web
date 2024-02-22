@@ -1,8 +1,9 @@
 """
-Nominas
+Usuarios Nominas
 
 - actualizar: Sincronizar con la API de Perseo
 """
+
 from datetime import datetime
 from dotenv import load_dotenv
 import click
