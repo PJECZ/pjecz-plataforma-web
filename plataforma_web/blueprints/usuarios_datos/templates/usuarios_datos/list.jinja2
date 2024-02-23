@@ -60,7 +60,6 @@
         <table id="usuarios_datos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Fecha</th>
                     <th>Datos personales de</th>
                     <th>Email</th>
@@ -83,7 +82,6 @@
         configDataTable_usuarios_datos['ajax']['url'] = '/usuarios_datos/datatable_json';
         configDataTable_usuarios_datos['ajax']['data'] = {{ filtros }};
         configDataTable_usuarios_datos['columns'] = [
-            { data: 'detalle' },
             { data: 'fecha' },
             { data: 'nombre' },
             { data: 'email' },
@@ -92,21 +90,14 @@
         ];
         configDataTable_usuarios_datos['columnDefs'] = [
             {
-                targets: 0, // detalle
-                data: null,
-                render: function(data, type, row, meta) {
-                    return dataTable_usuarios_datos.texto_con_url(data.id, data.url);
-                }
-            },
-            {
-                targets: 2, // nombre
+                targets: 1, // nombre
                 data: null,
                 render: function(data, type, row, meta) {
                     return dataTable_usuarios_datos.texto_con_url(data.nombre, data.url);
                 }
             },
             {
-                targets: 5, // estado
+                targets: 4, // estado
                 data: null,
                 render: function(data, type, row, meta) {
                     let bgcolor = "";
@@ -114,6 +105,7 @@
                         case "POR VALIDAR": bgcolor = "bg-warning text-dark"; break;
                         case "NO VALIDO":   bgcolor = "bg-danger";      break;
                         case "VALIDO":      bgcolor = "bg-success";     break;
+                        case "INCOMMPLETO":
                         default:            bgcolor = "bg-secondary";   
                                             data = "INCOMPLETO";        break;
                     }
