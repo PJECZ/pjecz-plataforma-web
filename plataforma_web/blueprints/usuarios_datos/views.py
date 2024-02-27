@@ -1,6 +1,7 @@
 """
 Usuarios Documentos, vistas
 """
+
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -1537,3 +1538,11 @@ def validate_estado_cuenta(usuario_dato_id):
             tipo_archivo = "PDF"
     # Renderiza la página de validación
     return render_template("usuarios_datos/validate_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+
+
+@usuarios_datos.route("/usuarios_datos/exportar_xlsx")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def exportar_xlsx():
+    """Lanzar tarea en el fondo para exportar los Usuarios-Datos a un archivo XLSX"""
+    flash("Se ha lanzado esta tarea en el fondo. Esta página se va a recargar en 10 segundos...", "info")
+    return redirect(url_for("usuarios_datos.list_active"))

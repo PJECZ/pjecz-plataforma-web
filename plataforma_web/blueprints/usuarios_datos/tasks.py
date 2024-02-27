@@ -12,14 +12,7 @@ from typing import Tuple
 import pytz
 from openpyxl import Workbook
 
-from lib.exceptions import (
-    MyAnyError,
-    MyBucketNotFoundError,
-    MyEmptyError,
-    MyFileNotAllowedError,
-    MyFileNotFoundError,
-    MyUploadError,
-)
+from lib.exceptions import MyAnyError, MyEmptyError
 from lib.storage import GoogleCloudStorage, NoneFilenameError, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.tasks import set_task_error, set_task_progress
 from plataforma_web.app import create_app
