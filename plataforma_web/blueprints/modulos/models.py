@@ -1,6 +1,7 @@
 """
 Modulos, modelos
 """
+
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -20,6 +21,7 @@ class Modulo(db.Model, UniversalMixin):
     icono = db.Column(db.String(48), nullable=False)
     ruta = db.Column(db.String(64), nullable=False)
     en_navegacion = db.Column(db.Boolean, nullable=False, default=True)
+    en_portal_notarias = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="modulo")
