@@ -2,11 +2,12 @@
 Usuarios Datos, tareas en el fondo
 """
 
-from typing import Tuple
-
 import logging
+import os
+import random
 from datetime import datetime
 from pathlib import Path
+from typing import Tuple
 
 import pytz
 from openpyxl import Workbook
@@ -19,13 +20,14 @@ from lib.exceptions import (
     MyFileNotFoundError,
     MyUploadError,
 )
+from lib.storage import GoogleCloudStorage, NoneFilenameError, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.tasks import set_task_error, set_task_progress
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 from plataforma_web.extensions import db
 
-GCS_BASE_DIRECTORY = "usuarios_datos"
+GCS_BASE_DIRECTORY = "usuarios_datos/exportaciones"
 LOCAL_BASE_DIRECTORY = "exports/usuarios_datos"
 TIMEZONE = "America/Mexico_City"
 
@@ -44,6 +46,9 @@ db.app = app
 def exportar_xlsx() -> Tuple[str, str, str]:
     """Exportar Usuarios-Datos a un archivo XLSX"""
     bitacora.info("Inicia exportar Usuarios Datos a un archivo XLSX")
+
+    # Tomar el nombre del bucket de Google Cloud Storage donde se va a subir el archivo
+    bucket_name = os.getenv("CLOUD_STORAGE_DEPOSITO_USUARIOS", "")
 
     # Consultar Usuarios-Datos
     usuarios_datos = UsuarioDato.query.join(Usuario).filter(UsuarioDato.estatus == "A").order_by(UsuarioDato.curp).all()
@@ -124,7 +129,7 @@ def exportar_xlsx() -> Tuple[str, str, str]:
 
     # Determinar las rutas con directorios con el año y el número de mes en dos digitos
     ruta_local = Path(LOCAL_BASE_DIRECTORY, ahora.strftime("%Y"), ahora.strftime("%m"))
-    ruta_gcs = Path(GCS_BASE_DIRECTORY, ahora.strftime("%Y"), ahora.strftime("%m"))
+    ruta_gcs = GCS_BASE_DIRECTORY  # Path(GCS_BASE_DIRECTORY, ahora.strftime("%Y"), ahora.strftime("%m"))
 
     # Si no existe el directorio local, crearlo
     Path(ruta_local).mkdir(parents=True, exist_ok=True)
@@ -132,6 +137,32 @@ def exportar_xlsx() -> Tuple[str, str, str]:
     # Guardar el archivo XLSX
     ruta_local_archivo_xlsx = str(Path(ruta_local, nombre_archivo_xlsx))
     libro.save(ruta_local_archivo_xlsx)
+
+    # Si esta definido el bucket de Google Cloud Storage
+    if bucket_name != "":
+        # Subir el archivo XLSX a GCS
+        with open(ruta_local_archivo_xlsx, "rb") as archivo:
+            storage = GoogleCloudStorage(
+                base_directory=ruta_gcs,
+                bucket_name=bucket_name,
+            )
+            try:
+                storage.set_filename(
+                    hashed_id="%08x" % random.randrange(0, 1024),
+                    description="Documentos-Personales",
+                    extension="xlsx",
+                )
+                storage.upload(archivo.read())
+                bitacora.info("Se subió el archivo %s a GCS", nombre_archivo_xlsx)
+            except NotConfiguredError:
+                mensaje = set_task_error("No fue posible subir el archivo a Google Storage porque falta la configuración.")
+                bitacora.warning(mensaje)
+            except (NotAllowedExtesionError, UnknownExtesionError, NoneFilenameError) as error:
+                mensaje = set_task_error("No fue posible subir el archivo a Google Storage por un error de tipo de archivo.")
+                bitacora.warning(mensaje, str(error))
+            except Exception as error:
+                mensaje = set_task_error("No fue posible subir el archivo a Google Storage.")
+                bitacora.warning(mensaje, str(error))
 
     # Entregar mensaje de termino, el nombre del archivo XLSX y la URL publica
     mensaje_termino = f"Se exportaron {contador} Usuarios-Datos a {nombre_archivo_xlsx}"
