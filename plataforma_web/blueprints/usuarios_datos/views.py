@@ -3,7 +3,7 @@ Usuarios Documentos, vistas
 """
 
 import json
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app, make_response
 from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
@@ -11,6 +11,9 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_string, safe_message, safe_curp
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from sqlalchemy import or_
+from lib.google_cloud_storage import get_blob_name_from_url, get_file_from_gcs
+from lib.exceptions import MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError
+
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -1546,3 +1549,44 @@ def exportar_xlsx():
     """Lanzar tarea en el fondo para exportar los Usuarios-Datos a un archivo XLSX"""
     flash("Se ha lanzado esta tarea en el fondo. Esta página se va a recargar en 10 segundos...", "info")
     return redirect(url_for("usuarios_datos.list_active"))
+
+
+@usuarios_datos.route("/usuarios_datos/<int:usuario_dato_id>/<int:usuario_documento_id>")
+def download_file(usuario_dato_id, usuario_documento_id):
+    """Descargar el archivo adjunto"""
+
+    # Consultar el archivo adjunto
+    usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+    archivo = UsuarioDocumento.query.get_or_404(usuario_documento_id)
+
+    # Seguridad de liga
+    if usuario_dato.usuario.curp != current_user.curp:
+        flash("Acceso no autorizado", "warning")
+        return redirect(url_for("sistemas.start"))
+
+    # Si no tiene URL, redirigir a la página de detalle
+    if archivo is None or archivo.url == "":
+        flash("El usuario no tiene un archivo", "warning")
+        return redirect(url_for("sistemas.start"))
+
+    descarga_nombre = archivo.descripcion
+    # Obtener el contenido del archivo desde Google Storage
+    try:
+        descarga_contenido = get_file_from_gcs(
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_PERSEO"],
+            blob_name=get_blob_name_from_url(archivo.url),
+        )
+    except (MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError) as error:
+        flash(str(error), "danger")
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+
+    # Descargar un archivo
+    response = make_response(descarga_contenido)
+    if descarga_nombre.endswith(".jpg") or descarga_nombre.endswith(".jpeg"):
+        response.headers["Content-Type"] = "image/jpeg"
+    elif descarga_nombre.endswith(".png"):
+        response.headers["Content-Type"] = "image/png"
+    elif descarga_nombre.endswith(".pdf"):
+        response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f"attachment; filename={descarga_nombre}"
+    return response
