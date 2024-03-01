@@ -212,17 +212,22 @@ def start():
 
     # Si el usuario está autenticado, mostrar la página de inicio
     if current_user.is_authenticated:
+        mostrar_actualizar_mis_datos_personales = False
+        mostrar_mis_recibos_de_nomina = False
         mostrar_portal_notarias = False
         mostrar_portal_soporte = False
-        mostrar_portal_recibos_nomina = False
         estado_documentos_personales = None
 
         # Consultar los roles del usuario
         current_user_roles = current_user.get_roles()
 
-        # Si tiene el rol administrador mostrar el acceso a solicitudes para actualizar datos de usuarios
+        # Si tiene el rol administrador o soporte-usuario mostrar_mis_recibos_de_nomina
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_USUARIO in current_user_roles:
+            mostrar_mis_recibos_de_nomina = True
+
+        # Si tiene el rol administrador o validadores mostrar_actualizar_mis_datos_personales
         if ROL_ADMINISTRADOR in current_user_roles or ROL_VALIDADORES in current_user_roles:
-            mostrar_portal_recibos_nomina = True
+            mostrar_actualizar_mis_datos_personales = True
             usuario_dato = UsuarioDato.query.filter_by(usuario=current_user).order_by(UsuarioDato.id.desc()).first()
             if usuario_dato:
                 estado_documentos_personales = usuario_dato.estado_general
@@ -240,7 +245,8 @@ def start():
             "sistemas/start.jinja2",
             mostrar_portal_notarias=mostrar_portal_notarias,
             mostrar_portal_soporte=mostrar_portal_soporte,
-            mostrar_portal_recibos_nomina=mostrar_portal_recibos_nomina,
+            mostrar_mis_recibos_de_nomina=mostrar_mis_recibos_de_nomina,
+            mostrar_actualizar_mis_datos_personales=mostrar_actualizar_mis_datos_personales,
             estado_documentos_personales=estado_documentos_personales,
         )
 

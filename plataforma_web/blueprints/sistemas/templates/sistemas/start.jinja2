@@ -16,13 +16,15 @@
 {% endblock %}
 
 {% block content %}
-    {# Usuarios Solicitudes #}
-    {% if mostrar_portal_recibos_nomina %}
-        {% call start.card('Hola ' + current_user.nombre) %}
+    {# Mis recibos de nomina #}
+    {% if mostrar_mis_recibos_de_nomina %}
+        {% call start.card('Recibos de ' + current_user.nombre) %}
             <div class="container">
                 <div class="row">
                     <div class="col-md-6 col-sm-12 mb-2">
                         <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-usuarios-nominas-3.png" class="img-fluid mb-2">
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-2">
                         <h4>Mis Recibos de Nómina</h4>
                         <p>
                             Tus recibos de nómina (desde diciembre de 2023) están disponibles para su descarga en esta Plataforma.
@@ -31,34 +33,49 @@
                         </p>
                         <a href="{{ url_for('usuarios_nominas.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Recibos de Nómina</a>
                     </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endif %}
+    {# Actualizar mis datos personales #}
+    {% if mostrar_actualizar_mis_datos_personales %}
+        {% call start.card('Datos personales de ' + current_user.nombre) %}
+            <div class="container">
+                <div class="row">
                     <div class="col-md-6 col-sm-12 mb-2">
                         <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-actualizar-datos-personales.png" class="img-fluid mb-2">
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-2">
                         <h4>Actualizar mis datos personales</h4>
-                        <p>
+                        <p class="mb-2">
                             Es obligación de todos las personas que trabajan en nuestra Institución proporcionar sus datos actualizados y los documentos que los respaldan.
                             Gracias a esta Plataforma se va a ahorrar tiempo, y gastos en papel, impresiones y mensajería.
-                            El primer botón es para el número celular y correo electrónico (no coahuila.gob.mx o pjecz.gob.mx).
-                            Y el segundo botón es para subir tus documentos (en JPG o PDF) con algunos datos adicionales.
+                            Usa el botón para subir tus documentos (en JPG o PDF) con algunos datos adicionales.
                             Después de completar la entrega, cuando haya cambios (por ejemplo, si te cambias de domicilio), debes subir el nuevo comprobante.
                         </p>
-                        <p>
-                            <strong>Estado de su revisión: </strong>
+                        <h5 class="mb-0">Documentos personales</h4>
+                        <p class="mb-2">
+                            <strong>Estado: </strong>
                             {% if estado_documentos_personales == 'VALIDO' %}
-                                <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:check-circle"></span> {{ estado_documentos_personales }}</span><br />
-                                <small class="text-muted">Toda su ducumentación ha sido aceptada.</small>
+                                <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:check-circle"></span> {{ estado_documentos_personales }}</span>
+                                <small class="text-muted">Ducumentación validada. Si vas a actualizar vuelve a subir tus nuevos documentos y datos.</small>
                             {% elif estado_documentos_personales == 'POR VALIDAR' %}
-                                <span class="badge rounded-pill bg-primary"><span class="iconify" data-icon="mdi:alert"></span> {{ estado_documentos_personales }}</span><br />
-                                <small class="text-muted">Aún falta que su documentación sea validada.</small>
+                                <span class="badge rounded-pill bg-primary"><span class="iconify" data-icon="mdi:alert"></span> {{ estado_documentos_personales }}</span>
+                                <small class="text-muted">Hay documentos pendientes por validar. Revise más tarde.</small>
                             {% elif estado_documentos_personales == 'NO VALIDO' %}
-                                <span class="badge rounded-pill bg-danger"><span class="iconify" data-icon="mdi:cancel"></span> {{ estado_documentos_personales }}</span><br />
-                                <small class="text-muted">Por lo menos tiene un documento que no cumple con lo requerido, vuelva a revisarlo.</small>
+                                <span class="badge rounded-pill bg-danger"><span class="iconify" data-icon="mdi:cancel"></span> {{ estado_documentos_personales }}</span>
+                                <small class="text-muted">Hay documentos que NO son válidos. Revise y vuelva a subirlos.</small>
                             {% else %}
-                                <span class="badge rounded-pill bg-secondary"><span class="iconify" data-icon="mdi:checkbox-blank-circle-outline"></span> INCOMPLETO</span><br />
-                                <small class="text-muted">Aún falta documentación por añadir, continue con el proceso.</small>
+                                <span class="badge rounded-pill bg-secondary"><span class="iconify" data-icon="mdi:checkbox-blank-circle-outline"></span> INCOMPLETO</span>
+                                <small class="text-muted">Faltan documentos por subir.</small>
                             {% endif %}
+                            <a href="{{ url_for('usuarios_datos.new') }}"class="btn btn-success btn-tickets ml-auto">Mis documentos personales</a>
                         </p>
-                        <a href="{{ url_for('usuarios_solicitudes.new') }}" class="btn btn-primary btn-tickets ml-auto">Mi email y teléfono</a>
-                        <a href="{{ url_for('usuarios_datos.new') }}"class="btn btn-success btn-tickets ml-auto">Mis documentos personales</a>
+                        <h5 class="mb-0">Celular y correo electrónico</h4>
+                        <p class="mb-2">
+                            Actualiza tu número celular y correo electrónico personales:
+                            <a href="{{ url_for('usuarios_solicitudes.new') }}" class="btn btn-primary btn-tickets ml-auto">Mi email y teléfono</a>
+                        </p>
                     </div>
                 </div>
             </div>
