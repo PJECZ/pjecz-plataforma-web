@@ -1584,5 +1584,6 @@ def download_file(usuario_dato_id, usuario_documento_id):
     # pdf = send_file(archivo.url)
     response = make_response(descarga_contenido)
     response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = f"inline; filename={descarga_nombre}"
+    # response.headers["Content-Disposition"] = f"inline; filename={descarga_nombre}"
+    response.headers["Content-Disposition"] = f"attachment; filename={descarga_nombre}"
     return response

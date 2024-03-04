@@ -38,6 +38,7 @@
     {# Preview #}
     {% call f.card("Previsualización") %}
         {% if archivo %}
+            <a href="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_curp_id) }}">link de descarga</a>
             <object data="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_curp_id) }}" type="application/pdf" width="100%" height="600"></object>
         {% endif %}
     {% endcall %}
