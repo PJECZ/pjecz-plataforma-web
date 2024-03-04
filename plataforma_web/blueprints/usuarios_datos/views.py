@@ -3,7 +3,7 @@ Usuarios Documentos, vistas
 """
 
 import json
-from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app, make_response, send_file
+from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app, make_response, abort
 from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
@@ -39,7 +39,7 @@ from plataforma_web.blueprints.usuarios_datos.forms import (
 )
 
 MODULO = "USUARIOS DATOS"
-SUBDIRECTORIO = "usuario_documentos"
+SUBDIRECTORIO = "usuarios_documentos"
 
 CAMPOS = [
     "IDENTIFICACION",
@@ -1555,22 +1555,32 @@ def exportar_xlsx():
 def download_file(usuario_dato_id, usuario_documento_id):
     """Descargar el archivo adjunto"""
 
-    # Consultar el archivo adjunto
+    # Consultar usuario_dato, si no existe causar error 404
     usuario_dato = UsuarioDato.query.get_or_404(usuario_dato_id)
+
+    # Consultar usuario_documento, si no existe causar error 404
     archivo = UsuarioDocumento.query.get_or_404(usuario_documento_id)
 
-    # Seguridad de liga
+    # Validar que el archivo tenga el estatus "A"
+    if archivo.estatus != "A":
+        abort(404)
+
+    # Validar usuario_dato, en el cual el usuario debe ser el mismo que current_user
     if usuario_dato.usuario != current_user:
         flash("Acceso no autorizado", "warning")
         return redirect(url_for("sistemas.start"))
 
-    # Si no tiene URL, redirigir a la página de detalle
+    # Validar usuario_documento, si no tiene URL redirigir a la página de detalle
     if archivo is None or archivo.url == "":
-        flash("El usuario no tiene un archivo", "warning")
+        flash("El archivo NO tiene URL", "warning")
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
 
-    descarga_nombre = archivo.descripcion
-    # Obtener el contenido del archivo desde Google Storage
+    # Validar el nombre del archivo, si NO es PDF redirigir a la página de detalle
+    if not archivo.url.endswith(".pdf"):
+        flash("El archivo NO es un PDF", "warning")
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
+
+    # Obtener el contenido del archivo PDF desde Google Cloud Storage
     try:
         descarga_contenido = get_file_from_gcs(
             bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
@@ -1580,10 +1590,12 @@ def download_file(usuario_dato_id, usuario_documento_id):
         flash(str(error), "danger")
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
 
-    # Descargar un archivo
-    # pdf = send_file(archivo.url)
+    # Definir el nombre del archivo a descargar
+    descarga_nombre = f"{archivo.descripcion}.pdf"
+
+    # Descargar el archivo PDF
     response = make_response(descarga_contenido)
     response.headers["Content-Type"] = "application/pdf"
-    # response.headers["Content-Disposition"] = f"inline; filename={descarga_nombre}"
-    response.headers["Content-Disposition"] = f"attachment; filename={descarga_nombre}"
+    response.headers["Content-Disposition"] = f"inline; filename={descarga_nombre}"
     return response
+    
