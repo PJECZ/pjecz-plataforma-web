@@ -25,7 +25,7 @@
         </div>
     {% endif %}
     {% call f.card() %}
-        <p class="lead">Adjunte su identificación oficial, INE (por ambos lados) o pasaporte vigente. Solo se pueden adjuntar archivos PDF, JPG o PNG.</p>
+        <p class="lead">Adjunte su identificación oficial, INE (por ambos lados) o pasaporte vigente. Solo se puede adjuntar un archivo PDF.</p>
         {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
         {% call f.form_tag_multipart('usuarios_datos.edit_identificacion', fid='usuario_dato_form', **form_kwargs) %}
             {% call f.drop_zone_wrapper() %}
@@ -37,13 +37,7 @@
     {# Preview #}
     {% call f.card("Previsualización") %}
         {% if archivo %}
-            {% if tipo_archivo == "PDF" %}
             <object data="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_identificacion_id) }}" type="application/pdf" width="100%" height="600"></object>
-            {% elif tipo_archivo == "IMG" %}
-                <img src="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_identificacion_id) }}" />
-            {% else %}
-                <p class="lead">Tipo de Archivo no disponible para su visualización</p>
-            {% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}

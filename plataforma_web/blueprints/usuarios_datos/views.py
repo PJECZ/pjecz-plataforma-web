@@ -208,7 +208,7 @@ def edit_identificacion(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_identificacion_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario de edición
     form = UsuarioDatoEditIdentificacionForm(CombinedMultiDict((request.files, request.form)))
@@ -225,10 +225,10 @@ def edit_identificacion(usuario_dato_id):
             flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
         # Validar el tipo de extension
-        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+        if archivo.filename.endswith(".pdf"):
             es_valido = True
         else:
-            flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+            flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
             es_valido = False
         # Si es válido
         if es_valido:
@@ -261,14 +261,8 @@ def edit_identificacion(usuario_dato_id):
             return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
         else:
             flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
-    # Precargar datos anteriores
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
-    return render_template("usuarios_datos/edit_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    # Renderiza la página de edición
+    return render_template("usuarios_datos/edit_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/acta_nacimiento/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -282,7 +276,7 @@ def edit_acta_nacimiento(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_acta_nacimiento_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario
     form = UsuarioDatoEditActaNacimientoForm(CombinedMultiDict((request.files, request.form)))
@@ -313,10 +307,10 @@ def edit_acta_nacimiento(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -352,15 +346,8 @@ def edit_acta_nacimiento(usuario_dato_id):
                 flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
     # Precargar datos anteriores
     form.fecha_nacimiento.data = usuario_dato.fecha_nacimiento
-    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
-    return render_template("usuarios_datos/edit_acta_nacimiento.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/edit_acta_nacimiento.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/domicilio/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -374,7 +361,7 @@ def edit_domicilio(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_domicilio_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario
     form = UsuarioDatoEditDomicilioForm(CombinedMultiDict((request.files, request.form)))
@@ -411,10 +398,10 @@ def edit_domicilio(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -462,15 +449,8 @@ def edit_domicilio(usuario_dato_id):
     form.ciudad.data = usuario_dato.domicilio_ciudad
     form.estado.data = usuario_dato.domicilio_estado
     form.codigo_postal.data = usuario_dato.domicilio_cp
-    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
-    return render_template("usuarios_datos/edit_domicilio.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/edit_domicilio.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/curp/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -484,7 +464,7 @@ def edit_curp(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_curp_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario
     form = UsuarioDatoEditCurpForm(CombinedMultiDict((request.files, request.form)))
@@ -515,10 +495,10 @@ def edit_curp(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -554,15 +534,8 @@ def edit_curp(usuario_dato_id):
                 flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
     # Precargar datos anteriores
     form.curp.data = usuario_dato.curp
-    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
-    return render_template("usuarios_datos/edit_curp.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/edit_curp.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/cp_fiscal/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -576,7 +549,7 @@ def edit_cp_fiscal(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_cp_fiscal_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario
     form = UsuarioDatoEditCPFiscalForm(CombinedMultiDict((request.files, request.form)))
@@ -607,10 +580,10 @@ def edit_cp_fiscal(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -646,15 +619,8 @@ def edit_cp_fiscal(usuario_dato_id):
                 flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
     # Precargar datos anteriores
     form.cp_fiscal.data = usuario_dato.cp_fiscal
-    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
-    return render_template("usuarios_datos/edit_cp_fiscal.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/edit_cp_fiscal.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/curriculum/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -668,7 +634,7 @@ def edit_curriculum(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_curriculum_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario
     form = UsuarioDatoEditCurriculumForm(CombinedMultiDict((request.files, request.form)))
@@ -685,10 +651,10 @@ def edit_curriculum(usuario_dato_id):
             flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
         # Validar el tipo de extension
-        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+        if archivo.filename.endswith(".pdf"):
             es_valido = True
         else:
-            flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+            flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
             es_valido = False
         # Si es válido
         if es_valido:
@@ -721,14 +687,8 @@ def edit_curriculum(usuario_dato_id):
             return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
         else:
             flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
-    # Precargar datos anteriores
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
-    return render_template("usuarios_datos/edit_curriculum.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    # Renderiza la página de edición
+    return render_template("usuarios_datos/edit_curriculum.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/estudios/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -742,7 +702,7 @@ def edit_estudios(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_estudios_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario
     form = UsuarioDatoEditEstudiosForm(CombinedMultiDict((request.files, request.form)))
@@ -773,10 +733,10 @@ def edit_estudios(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -812,15 +772,8 @@ def edit_estudios(usuario_dato_id):
                 flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
     # Precargar datos anteriores
     form.cedula_profesional.data = usuario_dato.estudios_cedula
-    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
-    return render_template("usuarios_datos/edit_estudios.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/edit_estudios.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/es_madre/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -834,7 +787,7 @@ def edit_es_madre(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_acta_nacimiento_hijo_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario
     form = UsuarioDatoEditEsMadreForm(CombinedMultiDict((request.files, request.form)))
@@ -887,10 +840,10 @@ def edit_es_madre(usuario_dato_id):
                 flash("Tipo de archivo desconocido.", "warning")
                 es_valido = False
             # Validar el tipo de extension
-            if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+            if archivo.filename.endswith(".pdf"):
                 es_valido = True
             else:
-                flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+                flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
                 es_valido = False
             # Si es válido
             if es_valido:
@@ -936,15 +889,8 @@ def edit_es_madre(usuario_dato_id):
         form.es_madre.data = "SI"
     else:
         form.es_madre.data = "NO"
-    # Determina si se debe mostrar la vista previa de una imagen o un archivo PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza el formulario de Edición
-    return render_template("usuarios_datos/edit_es_madre.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/edit_es_madre.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/editar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -980,7 +926,7 @@ def edit_estado_cuenta(usuario_dato_id):
     # Extraemos el archivo adjunto para previsualizarlo
     usuario_documento = UsuarioDocumento.query.filter_by(id=usuario_dato.adjunto_estado_cuenta_id).first()
     archivo_prev = None
-    if usuario_documento:
+    if usuario_documento and usuario_documento.url.endswith(".pdf"):
         archivo_prev = usuario_documento.url
     # Formulario
     form = UsuarioDatoEditEstadoCuentaForm(CombinedMultiDict((request.files, request.form)))
@@ -997,10 +943,10 @@ def edit_estado_cuenta(usuario_dato_id):
             flash("Tipo de archivo desconocido.", "warning")
             es_valido = False
         # Validar el tipo de extension
-        if archivo.filename.endswith(".pdf") or archivo.filename.endswith(".png") or archivo.filename.endswith(".jpg") or archivo.filename.endswith(".jpeg"):
+        if archivo.filename.endswith(".pdf"):
             es_valido = True
         else:
-            flash("Tipo de archivo no permitido. Solo se permiten *.png, *.jpg, *.jpeg o *.pdf", "warning")
+            flash("Tipo de archivo no permitido. Solo se permiten *.pdf", "warning")
             es_valido = False
         # Si es válido
         if es_valido:
@@ -1033,14 +979,8 @@ def edit_estado_cuenta(usuario_dato_id):
             return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
         else:
             flash("Ha ocurrido un problema y su información no ha sido guardada", "warning")
-    # Precargar datos anteriores
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
-    return render_template("usuarios_datos/edit_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    # Renderiza la página de edición
+    return render_template("usuarios_datos/edit_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
@@ -1089,26 +1029,26 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
     #     return "NO VALIDO"
 
     # Si almenos sigue habiendo un dato vacío
-    if usuario_dato.estado_identificacion == None:
-        return None
-    if usuario_dato.estado_acta_nacimiento == None:
-        return None
-    if usuario_dato.estado_domicilio == None:
-        return None
-    if usuario_dato.estado_curp == None:
-        return None
-    if usuario_dato.estado_cp_fiscal == None:
-        return None
-    if usuario_dato.estado_curriculum == None:
-        return None
-    if usuario_dato.estado_estudios == None:
-        return None
-    if usuario_dato.estado_es_madre == None:
-        return None
-    if usuario_dato.estado_estado_civil == None:
-        return None
-    if usuario_dato.estado_estado_cuenta == None:
-        return None
+    if usuario_dato.estado_identificacion == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_acta_nacimiento == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_domicilio == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_curp == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_cp_fiscal == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_curriculum == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_estudios == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_es_madre == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_estado_civil == 'INCOMPLETO':
+        return 'INCOMPLETO'
+    if usuario_dato.estado_estado_cuenta == 'INCOMPLETO':
+        return 'INCOMPLETO'
     # if usuario_dato.estado_telefono == None:
     #     return None
     # if usuario_dato.estado_email == None:
