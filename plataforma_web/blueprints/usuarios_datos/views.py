@@ -3,7 +3,7 @@ Usuarios Documentos, vistas
 """
 
 import json
-from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app, make_response
+from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app, make_response, send_file
 from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
@@ -1551,7 +1551,7 @@ def exportar_xlsx():
     return redirect(url_for("usuarios_datos.list_active"))
 
 
-@usuarios_datos.route("/usuarios_datos/<int:usuario_dato_id>/<int:usuario_documento_id>")
+@usuarios_datos.route("/usuarios_datos/<int:usuario_dato_id>/<int:usuario_documento_id>.pdf", methods=["GET", "POST"])
 def download_file(usuario_dato_id, usuario_documento_id):
     """Descargar el archivo adjunto"""
 
@@ -1560,20 +1560,20 @@ def download_file(usuario_dato_id, usuario_documento_id):
     archivo = UsuarioDocumento.query.get_or_404(usuario_documento_id)
 
     # Seguridad de liga
-    if usuario_dato.usuario.curp != current_user.curp:
+    if usuario_dato.usuario != current_user:
         flash("Acceso no autorizado", "warning")
         return redirect(url_for("sistemas.start"))
 
     # Si no tiene URL, redirigir a la página de detalle
     if archivo is None or archivo.url == "":
         flash("El usuario no tiene un archivo", "warning")
-        return redirect(url_for("sistemas.start"))
+        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
 
     descarga_nombre = archivo.descripcion
     # Obtener el contenido del archivo desde Google Storage
     try:
         descarga_contenido = get_file_from_gcs(
-            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_PERSEO"],
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
             blob_name=get_blob_name_from_url(archivo.url),
         )
     except (MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError) as error:
@@ -1581,12 +1581,8 @@ def download_file(usuario_dato_id, usuario_documento_id):
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
 
     # Descargar un archivo
+    # pdf = send_file(archivo.url)
     response = make_response(descarga_contenido)
-    if descarga_nombre.endswith(".jpg") or descarga_nombre.endswith(".jpeg"):
-        response.headers["Content-Type"] = "image/jpeg"
-    elif descarga_nombre.endswith(".png"):
-        response.headers["Content-Type"] = "image/png"
-    elif descarga_nombre.endswith(".pdf"):
-        response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = f"attachment; filename={descarga_nombre}"
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f"inline; filename={descarga_nombre}"
     return response
