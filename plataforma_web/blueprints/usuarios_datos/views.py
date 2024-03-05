@@ -592,7 +592,7 @@ def edit_cp_fiscal(usuario_dato_id):
                     usuario_documento.delete()
                 # Insertar el registro, para obtener el ID
                 usuario_documento = UsuarioDocumento(
-                    descripcion="cp_fiscal",
+                    descripcion="Constancia Situación Fiscal",
                 )
                 usuario_documento.save()
                 # Subir el archivo a la nube
