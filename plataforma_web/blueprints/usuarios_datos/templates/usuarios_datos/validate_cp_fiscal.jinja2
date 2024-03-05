@@ -15,13 +15,7 @@
         {{ detail.label_value('Código Postal Fiscal', usuario_dato.cp_fiscal) }}
         {{ detail.label_value('Archivo Adjunto') }}
         {% if archivo %}
-            {% if tipo_archivo == "PDF" %}
-            <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>
-            {% elif tipo_archivo == "IMG" %}
-                <img src="{{ archivo }}" />
-            {% else %}
-                <p class="lead">Tipo de Archivo no disponible para su visualización</p>
-            {% endif %}
+            <object data="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_cp_fiscal_id) }}" type="application/pdf" width="100%" height="600"></object>
         {% endif %}
     {% endcall %}
 

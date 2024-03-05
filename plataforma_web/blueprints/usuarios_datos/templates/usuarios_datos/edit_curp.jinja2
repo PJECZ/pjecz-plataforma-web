@@ -25,7 +25,7 @@
         </div>
     {% endif %}
     {% call f.card() %}
-        <p class="lead">Escriba su CURP y adjunte la imagen de su documento. Solo se pueden adjuntar archivos PDF, JPG o PNG.</p>
+        <p class="lead">Escriba su CURP y adjunte un PDF de su documento.</p>
         {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
         {% call f.form_tag_multipart('usuarios_datos.edit_curp', fid='usuario_dato_form', **form_kwargs) %}
             {% call f.form_group(form.curp) %}{% endcall %}
@@ -38,13 +38,7 @@
     {# Preview #}
     {% call f.card("Previsualización") %}
         {% if archivo %}
-            {% if tipo_archivo == "PDF" %}
-            <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>
-            {% elif tipo_archivo == "IMG" %}
-                <img src="{{ archivo }}" />
-            {% else %}
-                <p class="lead">Tipo de Archivo no disponible para su visualización</p>
-            {% endif %}
+            <object data="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_curp_id) }}" type="application/pdf" width="100%" height="600"></object>
         {% endif %}
     {% endcall %}
 {% endblock %}
